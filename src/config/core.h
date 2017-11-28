@@ -77,6 +77,10 @@
 /// Comment to disable warnings for deprecated script constants
 #define SCRIPT_CONSTANT_DEPRECATION
 
+#define _BETTER_CONFIG_
+#include "./better_config.h"
+#undef _BETTER_CONFIG_
+
 /**
  * No settings past this point
  **/

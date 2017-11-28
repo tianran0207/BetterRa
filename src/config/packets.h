@@ -22,7 +22,7 @@
 #if PACKETVER >= 20110817
 	/// Comment to disable the official packet obfuscation support.
 	/// This requires PACKETVER 2011-08-17 or newer.
-	#ifndef PACKET_OBFUSCATION
+	#ifdef BETTER_PACKET_OBFUSCATION
 		#define PACKET_OBFUSCATION
 
 		// Define these inside src/custom/defines_pre.h or src/custom/defines_post.h
