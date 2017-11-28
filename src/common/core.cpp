@@ -332,14 +332,16 @@ int main (int argc, char **argv)
 		}
 	}
 
-	malloc_init();// needed for Show* in display_title() [FlavioJS]
-
 #ifdef MINICORE // minimalist Core
+	malloc_init();// needed for Show* in display_title() [FlavioJS]
 	display_title();
 	usercheck();
 	do_init(argc,argv);
 	do_final();
 #else// not MINICORE
+	db_init();
+	showmsg_init();
+	malloc_init();// needed for Show* in display_title() [FlavioJS]
 	set_server_type();
 	display_title();
 	usercheck();
@@ -347,7 +349,6 @@ int main (int argc, char **argv)
 	Sql_Init();
 	rathread_init();
 	mempool_init();
-	db_init();
 	signals_init();
 
 #ifdef _WIN32
@@ -369,9 +370,10 @@ int main (int argc, char **argv)
 
 	timer_final();
 	socket_final();
-	db_final();
 	mempool_final();
 	rathread_final();
+	showmsg_final();
+	db_final();
 	ers_final();
 #endif
 

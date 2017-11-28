@@ -9,6 +9,9 @@ extern "C" {
 #endif
 
 #include "../../3rdparty/libconfig/libconfig.h"
+#include "db.h"
+#include "malloc.h"
+#include "../config/better_config.h"
 
 // for help with the console colors look here:
 // http://www.edoceo.com/liberum/?doc=printf-with-color
@@ -100,6 +103,8 @@ extern void ShowDebug(const char *, ...);
 extern void ShowError(const char *, ...);
 extern void ShowFatalError(const char *, ...);
 extern void ShowConfigWarning(config_setting_t *config, const char *string, ...);
+void showmsg_init();
+void showmsg_final();
 
 #ifdef __cplusplus
 }

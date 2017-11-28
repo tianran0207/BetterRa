@@ -50,6 +50,26 @@ int msg_silent = 0; //Specifies how silent the console is.
 int console_msg_log = 0;//[Ind] msg error logging
 char console_log_filepath[32] = "./log/unknown.log";
 
+#if !defined(MINICORE) && defined(MSG_TRANSLATE)
+static DBMap* msg_translation = NULL;
+static config_t translation_config;
+void msg_config_translation_read(const char* config_filename);
+const char* _vReplaceMessage(const char *String, char *val);
+static struct {
+	const char *name;
+	char *rename;
+} prefixlist[] = {
+	{ CL_GREEN"[Status]"CL_RESET":"    ,CL_GREEN"[Status]"CL_RESET":" },
+	{ CL_MAGENTA"[SQL]"CL_RESET":"     ,CL_MAGENTA"[SQL]"CL_RESET":" },
+	{ CL_WHITE"[Info]"CL_RESET":"      ,CL_WHITE"[Info]"CL_RESET":" },
+	{ CL_WHITE"[Notice]"CL_RESET":"    ,CL_WHITE"[Notice]"CL_RESET":" },
+	{ CL_YELLOW"[Warning]"CL_RESET":"  ,CL_YELLOW"[Warning]"CL_RESET":" },
+	{ CL_CYAN"[Debug]"CL_RESET":"      ,CL_CYAN"[Debug]"CL_RESET":" },
+	{ CL_RED"[Error]"CL_RESET":"       ,CL_RED"[Error]"CL_RESET":" },
+	{ CL_RED"[Fatal Error]"CL_RESET":" ,CL_RED"[Fatal Error]"CL_RESET":" },
+};
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 /// static/dynamic buffer for the messages
 
@@ -669,6 +689,10 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap)
 	FILE *fp;
 #endif
 	
+#if !defined(MINICORE) && defined(MSG_TRANSLATE)
+	char val[1024];
+	string = _vReplaceMessage(string, val);
+#endif
 	if (!string || *string == '\0') {
 		ShowError("Empty string passed to _vShowMessage().\n");
 		return 1;
@@ -722,7 +746,7 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap)
 		time_t t = time(NULL);
 		strftime(prefix, 80, timestamp_format, localtime(&t));
 	} else prefix[0]='\0';
-
+#if defined(MINICORE) || !defined(MSG_TRANSLATE)
 	switch (flag) {
 		case MSG_NONE: // direct printf replacement
 			break;
@@ -754,6 +778,18 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap)
 			ShowError("In function _vShowMessage() -> Invalid flag passed.\n");
 			return 1;
 	}
+#else
+	if (flag > ARRAYLENGTH(prefixlist)) {
+		ShowError("In function _vShowMessage() -> Invalid flag passed.\n");
+		return 1;
+	}
+	else if (flag != MSG_NONE) {
+		if (prefixlist[flag - 1].rename)
+			safestrncpy(prefix, prefixlist[flag - 1].rename, sizeof(prefix));
+		else
+			safestrncpy(prefix, prefixlist[flag - 1].name, sizeof(prefix));
+	}
+#endif // !MSG_TRANSLATE
 
 	if (flag == MSG_ERROR || flag == MSG_FATALERROR || flag == MSG_SQL)
 	{	//Send Errors to StdErr [Skotlex]
@@ -875,4 +911,152 @@ void ShowFatalError(const char *string, ...) {
 	va_start(ap, string);
 	_vShowMessage(MSG_FATALERROR, string, ap);
 	va_end(ap);
+}
+
+#if !defined(MINICORE) && defined(MSG_TRANSLATE)
+void get_real_str(char *string);
+//"conf/msg_conf/translation.conf"
+#define MAX_TRANSLETION_MSG 1024
+
+void msg_config_translation_read(const char* config_filename) {
+	config_setting_t *data = NULL;
+	config_setting_t *command;
+	const char *val;
+	char *realyval, *nkey;
+	int i, n;
+	config_init(&translation_config);
+	if (!config_read_file(&translation_config, config_filename))
+		return;
+	data = config_lookup(&translation_config, "data");
+	if (data != NULL) {
+		msg_translation = stridb_alloc(DB_OPT_DUP_KEY | DB_OPT_RELEASE_DATA, MAX_TRANSLETION_MSG);
+		int count = config_setting_length(data);
+		for (i = 0; i < count; ++i) {
+			command = config_setting_get_elem(data, i);
+			if (config_setting_length(command) == 2) {
+				val = config_setting_get_string_elem(command, 1);
+				if (val && val[0] != '\0') {
+					nkey = (char *)config_setting_get_string_elem(command, 0);
+					get_real_str(nkey);
+					CREATE(realyval, char, MAX_TRANSLETION_MSG);
+					safestrncpy(realyval, val, MAX_TRANSLETION_MSG);
+					get_real_str(realyval);
+					strdb_put(msg_translation, nkey, realyval);
+				}
+			}
+			else
+				ShowError("msg_config_translation_read: Format error in the '%d' elem.", i);
+		}
+	}
+	n = ARRAYLENGTH(prefixlist);
+	for (i = 0; i < n; i++) {
+		prefixlist[i].rename = strdb_get(msg_translation, prefixlist[i].name);
+	}
+	config_destroy(&translation_config);
+}
+
+static const struct {
+	char *name;
+	char *val;
+} color_table[] = {
+	{ "CL_RESET",		"\033[0m" },
+	{ "CL_CLS",			"\033[2J" },
+	{ "CL_CLL",			"\033[K" },
+	{ "CL_BOLD",		"\033[1m" },
+	{ "CL_NORM",		"\033[0m" },
+	{ "CL_NORMAL",		"\033[0m" },
+	{ "CL_NONE",		"\033[0m" },
+	{ "CL_WHITE",		"\033[1;37m" },
+	{ "CL_GRAY",		"\033[1;30m" },
+	{ "CL_RED",			"\033[1;31m" },
+	{ "CL_GREEN",		"\033[1;32m" },
+	{ "CL_YELLOW",		"\033[1;33m" },
+	{ "CL_BLUE",		"\033[1;34m" },
+	{ "CL_MAGENTA",		"\033[1;35m" },
+	{ "CL_CYAN",		"\033[1;36m" },
+	{ "CL_BG_BLACK",	"\033[40m" },
+	{ "CL_BG_RED",		"\033[41m" },
+	{ "CL_BG_GREEN",	"\033[42m" },
+	{ "CL_BG_YELLOW",	"\033[43m" },
+	{ "CL_BG_BLUE",		"\033[44m" },
+	{ "CL_BG_MAGENTA",	"\033[45m" },
+	{ "CL_BG_CYAN",		"\033[46m" },
+	{ "CL_BG_WHITE",	"\033[47m" },
+	{ "CL_LT_BLACK",	"\033[0;30m" },
+	{ "CL_LT_RED",		"\033[0;31m" },
+	{ "CL_LT_GREEN",	"\033[0;32m" },
+	{ "CL_LT_YELLOW",	"\033[0;33m" },
+	{ "CL_LT_BLUE",		"\033[0;34m" },
+	{ "CL_LT_MAGENTA",	"\033[0;35m" },
+	{ "CL_LT_CYAN",		"\033[0;36m" },
+	{ "CL_LT_WHITE",	"\033[0;37m" },
+	{ "CL_BT_BLACK",	"\033[1;30m" },
+	{ "CL_BT_RED",		"\033[1;31m" },
+	{ "CL_BT_GREEN",	"\033[1;32m" },
+	{ "CL_BT_YELLOW",	"\033[1;33m" },
+	{ "CL_BT_BLUE",		"\033[1;34m" },
+	{ "CL_BT_MAGENTA",	"\033[1;35m" },
+	{ "CL_BT_CYAN",		"\033[1;36m" },
+	{ "CL_BT_WHITE",	"\033[1;37m" },
+	{ "CL_WTBL",		"\033[37;44m" },
+	{ "CL_XXBL",		"\033[0;44m" },
+	{ "CL_PASS",		"\033[0;32;42m" },
+	{ "CL_SPACE",		"           " },
+};
+
+static const int color_table_count = ARRAYLENGTH(color_table);
+
+void get_real_str(char *string) {
+
+	char *point[50], *p = string;
+	int i, n, k, l;
+	size_t m;
+	for (i = 0; i < 50; i++)
+	{
+		point[i] = p;
+		if ((p = strchr(p, '^')) == NULL) break;
+		else *p++ = 0;
+	}
+	l = 0;
+	for (n = 0; n < i + 1; n++) {
+		if (n % 2 == 1) {
+			ARR_FIND(0, color_table_count, k, strcmp(point[n], color_table[k].name) == 0);
+			if (k < color_table_count)
+				point[n] = color_table[k].val;
+			else
+				ShowError("msg_config_translation_read: Format error: '%s'", string);
+		}
+		for (m = 0; m < strlen(point[n]); m++) {
+			string[l] = point[n][m];
+			l++;
+		}
+	}
+	string[l] = '\0';
+}
+const char* _vReplaceMessage(const char *String, char *val) {
+	if (msg_translation != NULL && strdb_exists(msg_translation, String)) {
+		val = strdb_get(msg_translation, String);
+		return val;
+	}
+	return String;
+}
+#endif 
+
+void showmsg_init()
+{
+#if !defined(MINICORE) && defined(MSG_TRANSLATE)
+	msg_config_translation_read("conf/msg_conf/translation.conf");
+#endif // MSG_TRANSLATE
+}
+
+void showmsg_final()
+{
+#if !defined(MINICORE) && defined(MSG_TRANSLATE)
+	int i;
+	msg_translation->destroy(msg_translation, NULL);
+	msg_translation = NULL;
+	for (i = 0; i < ARRAYLENGTH(prefixlist); i++) {
+		safestrncpy(prefixlist[i].rename, prefixlist[i].name, MAX_TRANSLETION_MSG);
+	}
+#endif // MSG_TRANSLATE
 }
