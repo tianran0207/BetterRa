@@ -1016,8 +1016,6 @@ struct clan{
 	#define MAX_CARTS 5
 #endif
 
-#define _BETTER_MMO_
 #include "../config/better_config.h"
-#undef _BETTER_MMO_
 
 #endif /* _MMO_H_ */
