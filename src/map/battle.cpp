@@ -8385,7 +8385,6 @@ static const struct _battle_data {
 	{ "revive_onwarp",                      &battle_config.revive_onwarp,                   1,      0,      1,              },
 	{ "fame_taekwon_mission",               &battle_config.fame_taekwon_mission,            1,      0,      INT_MAX,        },
 	{ "fame_refine_lv1",                    &battle_config.fame_refine_lv1,                 1,      0,      INT_MAX,        },
-	{ "fame_refine_lv1",                    &battle_config.fame_refine_lv1,                 1,      0,      INT_MAX,        },
 	{ "fame_refine_lv2",                    &battle_config.fame_refine_lv2,                 25,     0,      INT_MAX,        },
 	{ "fame_refine_lv3",                    &battle_config.fame_refine_lv3,                 1000,   0,      INT_MAX,        },
 	{ "fame_forge",                         &battle_config.fame_forge,                      10,     0,      INT_MAX,        },
@@ -8447,6 +8446,7 @@ static const struct _battle_data {
 
 #include "../custom/battle_config_init.inc"
 };
+int battle_data_isset[ARRAYLENGTH(battle_data)];
 
 /*==========================
  * Set battle settings
@@ -8465,6 +8465,7 @@ int battle_set_value(const char* w1, const char* w2)
 		val = battle_data[i].defval;
 	}
 
+	battle_data_isset[i] = 1;
 	*battle_data[i].val = val;
 	return 1;
 }
@@ -8520,56 +8521,56 @@ void battle_adjust_conf()
 
 #if PACKETVER < 20100427
 	if (battle_config.feature_buying_store) {
-		ShowWarning("conf/battle/feature.conf:buying_store is enabled but it requires PACKETVER 2010-04-27 or newer, disabling...\n");
+		ShowWarning(CONF_PATH "/battle/feature.conf:buying_store is enabled but it requires PACKETVER 2010-04-27 or newer, disabling...\n");
 		battle_config.feature_buying_store = 0;
 	}
 #endif
 
 #if PACKETVER < 20100803
 	if (battle_config.feature_search_stores) {
-		ShowWarning("conf/battle/feature.conf:search_stores is enabled but it requires PACKETVER 2010-08-03 or newer, disabling...\n");
+		ShowWarning(CONF_PATH "/battle/feature.conf:search_stores is enabled but it requires PACKETVER 2010-08-03 or newer, disabling...\n");
 		battle_config.feature_search_stores = 0;
 	}
 #endif
 
 #if PACKETVER > 20120000 && PACKETVER < 20130515 /* Exact date (when it started) not known */
 	if (battle_config.feature_auction) {
-		ShowWarning("conf/battle/feature.conf:feature.auction is enabled but it is not stable on PACKETVER "EXPAND_AND_QUOTE(PACKETVER)", disabling...\n");
-		ShowWarning("conf/battle/feature.conf:feature.auction change value to '2' to silence this warning and maintain it enabled\n");
+		ShowWarning(CONF_PATH "/battle/feature.conf:feature.auction is enabled but it is not stable on PACKETVER "EXPAND_AND_QUOTE(PACKETVER)", disabling...\n");
+		ShowWarning(CONF_PATH "/battle/feature.conf:feature.auction change value to '2' to silence this warning and maintain it enabled\n");
 		battle_config.feature_auction = 0;
 	}
 #elif PACKETVER >= 20141112
 	if (battle_config.feature_auction) {
-		ShowWarning("conf/battle/feature.conf:feature.auction is enabled but it is not available for clients from 2014-11-12 on, disabling...\n");
-		ShowWarning("conf/battle/feature.conf:feature.auction change value to '2' to silence this warning and maintain it enabled\n");
+		ShowWarning(CONF_PATH "/battle/feature.conf:feature.auction is enabled but it is not available for clients from 2014-11-12 on, disabling...\n");
+		ShowWarning(CONF_PATH "/battle/feature.conf:feature.auction change value to '2' to silence this warning and maintain it enabled\n");
 		battle_config.feature_auction = 0;
 	}
 #endif
 
 #if PACKETVER < 20130724
 	if (battle_config.feature_banking) {
-		ShowWarning("conf/battle/feature.conf banking is enabled but it requires PACKETVER 2013-07-24 or newer, disabling...\n");
+		ShowWarning(CONF_PATH "/battle/feature.conf banking is enabled but it requires PACKETVER 2013-07-24 or newer, disabling...\n");
 		battle_config.feature_banking = 0;
 	}
 #endif
 
 #if PACKETVER < 20131223
 	if (battle_config.mvp_exp_reward_message) {
-		ShowWarning("conf/battle/client.conf MVP EXP reward message is enabled but it requires PACKETVER 2013-12-23 or newer, disabling...\n");
+		ShowWarning(CONF_PATH "/battle/client.conf MVP EXP reward message is enabled but it requires PACKETVER 2013-12-23 or newer, disabling...\n");
 		battle_config.mvp_exp_reward_message = 0;
 	}
 #endif
 
 #if PACKETVER < 20141022
 	if (battle_config.feature_roulette) {
-		ShowWarning("conf/battle/feature.conf roulette is enabled but it requires PACKETVER 2014-10-22 or newer, disabling...\n");
+		ShowWarning(CONF_PATH "/battle/feature.conf roulette is enabled but it requires PACKETVER 2014-10-22 or newer, disabling...\n");
 		battle_config.feature_roulette = 0;
 	}
 #endif
 
 #if PACKETVER < 20150513
 	if (battle_config.feature_achievement) {
-		ShowWarning("conf/battle/feature.conf achievement is enabled but it requires PACKETVER 2015-05-13 or newer, disabling...\n");
+		ShowWarning(CONF_PATH "/battle/feature.conf achievement is enabled but it requires PACKETVER 2015-05-13 or newer, disabling...\n");
 		battle_config.feature_achievement = 0;
 	}
 #endif
@@ -8616,8 +8617,13 @@ int battle_config_read(const char* cfgName)
 
 	count--;
 
-	if (count == 0)
+	if (count == 0) {
+		int i;
+		for (i = 0; i < ARRAYLENGTH(battle_data); i++)
+			if (!battle_data_isset[i])
+				ShowWarning("Have no setting '%s', use: %d..\n", battle_data[i].str, battle_data[i].defval);
 		battle_adjust_conf();
+	}
 
 	return 0;
 }

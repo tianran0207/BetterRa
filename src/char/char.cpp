@@ -3069,7 +3069,7 @@ bool char_config_read(const char* cfgName, bool normal){
 void char_config_adjust() {
 #if PACKETVER < 20100803
 	if (charserv_config.char_config.char_del_option&CHAR_DEL_BIRTHDATE) {
-		ShowWarning("conf/char_athena.conf:char_del_option birthdate is enabled but it requires PACKETVER 2010-08-03 or newer, defaulting to email...\n");
+		ShowWarning(CONF_PATH "/char_athena.conf:char_del_option birthdate is enabled but it requires PACKETVER 2010-08-03 or newer, defaulting to email...\n");
 		charserv_config.char_config.char_del_option &= ~CHAR_DEL_BIRTHDATE;
 	}
 #endif
@@ -3160,10 +3160,10 @@ int do_init(int argc, char **argv)
 	mapindex_init();
 
 	// Init default value
-	CHAR_CONF_NAME =   "conf/char_athena.conf";
-	LAN_CONF_NAME =    "conf/subnet_athena.conf";
-	SQL_CONF_NAME =    "conf/inter_athena.conf";
-	MSG_CONF_NAME_EN = "conf/msg_conf/char_msg.conf";
+	CHAR_CONF_NAME =   CONF_PATH "/char_athena.conf";
+	LAN_CONF_NAME =    CONF_PATH "/subnet_athena.conf";
+	SQL_CONF_NAME =    CONF_PATH "/inter_athena.conf";
+	MSG_CONF_NAME_EN = CONF_PATH "/msg_conf/char_msg.conf";
 	safestrncpy(console_log_filepath, "./log/char-msg_log.log", sizeof(console_log_filepath));
 
 	cli_get_options(argc,argv);

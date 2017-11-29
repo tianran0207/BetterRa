@@ -158,11 +158,11 @@ struct map_cache_map_info {
 	int32 len;
 };
 
-char motd_txt[256] = "conf/motd.txt";
-char help_txt[256] = "conf/help.txt";
-char help2_txt[256] = "conf/help2.txt";
-char charhelp_txt[256] = "conf/charhelp.txt";
-char channel_conf[256] = "conf/channels.conf";
+char motd_txt[256] = CONF_PATH "/motd.txt";
+char help_txt[256] = CONF_PATH "/help.txt";
+char help2_txt[256] = CONF_PATH "/help2.txt";
+char charhelp_txt[256] = CONF_PATH "/charhelp.txt";
+char channel_conf[256] = CONF_PATH "/channels.conf";
 
 const char *MSG_CONF_NAME_RUS;
 const char *MSG_CONF_NAME_SPN;
@@ -4632,26 +4632,26 @@ int do_init(int argc, char *argv[])
 	GC_enable_incremental();
 #endif
 
-	INTER_CONF_NAME="conf/inter_athena.conf";
-	LOG_CONF_NAME="conf/log_athena.conf";
-	MAP_CONF_NAME = "conf/map_athena.conf";
-	BATTLE_CONF_FILENAME = "conf/battle_athena.conf";
-	ATCOMMAND_CONF_FILENAME = "conf/atcommand_athena.conf";
-	SCRIPT_CONF_NAME = "conf/script_athena.conf";
-	GRF_PATH_FILENAME = "conf/grf-files.txt";
+	INTER_CONF_NAME=CONF_PATH "/inter_athena.conf";
+	LOG_CONF_NAME=CONF_PATH "/log_athena.conf";
+	MAP_CONF_NAME = CONF_PATH "/map_athena.conf";
+	BATTLE_CONF_FILENAME = CONF_PATH "/battle_athena.conf";
+	ATCOMMAND_CONF_FILENAME = CONF_PATH "/atcommand_athena.conf";
+	SCRIPT_CONF_NAME = CONF_PATH "/script_athena.conf";
+	GRF_PATH_FILENAME = CONF_PATH "/grf-files.txt";
 	safestrncpy(console_log_filepath, "./log/map-msg_log.log", sizeof(console_log_filepath));
 
 	/* Multilanguage */
-	MSG_CONF_NAME_EN = "conf/msg_conf/map_msg.conf"; // English (default)
-	MSG_CONF_NAME_RUS = "conf/msg_conf/map_msg_rus.conf";	// Russian
-	MSG_CONF_NAME_SPN = "conf/msg_conf/map_msg_spn.conf";	// Spanish
-	MSG_CONF_NAME_GRM = "conf/msg_conf/map_msg_grm.conf";	// German
-	MSG_CONF_NAME_CHN = "conf/msg_conf/map_msg_chn.conf";	// Chinese
-	MSG_CONF_NAME_MAL = "conf/msg_conf/map_msg_mal.conf";	// Malaysian
-	MSG_CONF_NAME_IDN = "conf/msg_conf/map_msg_idn.conf";	// Indonesian
-	MSG_CONF_NAME_FRN = "conf/msg_conf/map_msg_frn.conf";	// French
-	MSG_CONF_NAME_POR = "conf/msg_conf/map_msg_por.conf";	// Brazilian Portuguese
-	MSG_CONF_NAME_THA = "conf/msg_conf/map_msg_tha.conf";	// Thai
+	MSG_CONF_NAME_EN = CONF_PATH "/msg_conf/map_msg.conf"; // English (default)
+	MSG_CONF_NAME_RUS = CONF_PATH "/msg_conf/map_msg_rus.conf";	// Russian
+	MSG_CONF_NAME_SPN = CONF_PATH "/msg_conf/map_msg_spn.conf";	// Spanish
+	MSG_CONF_NAME_GRM = CONF_PATH "/msg_conf/map_msg_grm.conf";	// German
+	MSG_CONF_NAME_CHN = CONF_PATH "/msg_conf/map_msg_chn.conf";	// Chinese
+	MSG_CONF_NAME_MAL = CONF_PATH "/msg_conf/map_msg_mal.conf";	// Malaysian
+	MSG_CONF_NAME_IDN = CONF_PATH "/msg_conf/map_msg_idn.conf";	// Indonesian
+	MSG_CONF_NAME_FRN = CONF_PATH "/msg_conf/map_msg_frn.conf";	// French
+	MSG_CONF_NAME_POR = CONF_PATH "/msg_conf/map_msg_por.conf";	// Brazilian Portuguese
+	MSG_CONF_NAME_THA = CONF_PATH "/msg_conf/map_msg_tha.conf";	// Thai
 	/* Multilanguage */
 
 	// Default map

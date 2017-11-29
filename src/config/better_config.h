@@ -15,6 +15,6 @@
 //#define PACKET_OBFUSCATION_KEY3 0x1849a1bb
 
 
-
+#define CONF_PATH "conf"
 
 #define MSG_TRANSLATE

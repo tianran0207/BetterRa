@@ -850,7 +850,7 @@ void yaml_invalid_warning(const char* fmt, YAML::Node &node, std::string &file) 
  * Read inter config file
  **/
 void inter_config_readConf(void) {
-	std::vector<std::string> directories = { "conf/", "conf/import/" };
+	std::vector<std::string> directories = { CONF_PATH "/", CONF_PATH "/import/" };
 	static const std::string file_name(interserv_config.cfgFile);
 
 	for (auto directory : directories) {

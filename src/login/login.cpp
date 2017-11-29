@@ -712,9 +712,9 @@ void login_set_defaults() {
 #endif
 
 	//other default conf
-	safestrncpy(login_config.loginconf_name, "conf/login_athena.conf", sizeof(login_config.loginconf_name));
-	safestrncpy(login_config.lanconf_name, "conf/subnet_athena.conf", sizeof(login_config.lanconf_name));
-	safestrncpy(login_config.msgconf_name, "conf/msg_conf/login_msg.conf", sizeof(login_config.msgconf_name));
+	safestrncpy(login_config.loginconf_name, CONF_PATH "/login_athena.conf", sizeof(login_config.loginconf_name));
+	safestrncpy(login_config.lanconf_name, CONF_PATH "/subnet_athena.conf", sizeof(login_config.lanconf_name));
+	safestrncpy(login_config.msgconf_name, CONF_PATH "/msg_conf/login_msg.conf", sizeof(login_config.msgconf_name));
 }
 
 

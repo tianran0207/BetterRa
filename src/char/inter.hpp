@@ -30,7 +30,7 @@ void mapif_accinfo_ack(bool success, int map_fd, int u_fd, int u_aid, int accoun
 
 int inter_log(const char *fmt,...);
 
-#define inter_cfgName "conf/inter_athena.conf"
+#define inter_cfgName CONF_PATH "/inter_athena.conf"
 
 extern unsigned int party_share_level;
 

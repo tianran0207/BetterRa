@@ -283,16 +283,25 @@ static void display_title(void) {
 	const char* git = get_git_hash();
 
 	ShowMessage("\n");
-	ShowMessage("" CL_PASS "     " CL_BOLD "                                                                 " CL_PASS"" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_PASS "       " CL_BT_WHITE "            rAthena Development Team presents                  " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_PASS "     " CL_BOLD "                 ___   __  __                                    " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_PASS "     " CL_BOLD "           _____/   | / /_/ /_  ___  ____  ____ _                " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_PASS "     " CL_BOLD "          / ___/ /| |/ __/ __ \\/ _ \\/ __ \\/ __ `/                " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_PASS "     " CL_BOLD "         / /  / ___ / /_/ / / /  __/ / / / /_/ /                 " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_PASS "     " CL_BOLD "        /_/  /_/  |_\\__/_/ /_/\\___/_/ /_/\\__,_/                  " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_PASS "     " CL_BOLD "                                                                 " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_PASS "       " CL_GREEN "              http://rathena.org/board/                        " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_PASS "     " CL_BOLD "                                                                 " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
+	//ShowMessage("" CL_PASS "     " CL_BOLD "                                                                 " CL_PASS"" CL_CLL "" CL_NORMAL "\n");
+	//ShowMessage("" CL_PASS "       " CL_BT_WHITE "            rAthena Development Team presents                  " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
+	//ShowMessage("" CL_PASS "     " CL_BOLD "                 ___   __  __                                    " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
+	//ShowMessage("" CL_PASS "     " CL_BOLD "           _____/   | / /_/ /_  ___  ____  ____ _                " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
+	//ShowMessage("" CL_PASS "     " CL_BOLD "          / ___/ /| |/ __/ __ \\/ _ \\/ __ \\/ __ `/                " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
+	//ShowMessage("" CL_PASS "     " CL_BOLD "         / /  / ___ / /_/ / / /  __/ / / / /_/ /                 " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
+	//ShowMessage("" CL_PASS "     " CL_BOLD "        /_/  /_/  |_\\__/_/ /_/\\___/_/ /_/\\__,_/                  " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
+	//ShowMessage("" CL_PASS "     " CL_BOLD "                                                                 " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
+	//ShowMessage("" CL_PASS "       " CL_GREEN "              http://rathena.org/board/                        " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
+	//ShowMessage("" CL_PASS "     " CL_BOLD "                                                                 " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
+	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "                                                              " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
+	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "                            使用说明                          " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
+	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "                                                              " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
+	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "       BetterRa 模拟器仅供研究学习使用, 切莫用于商业用途.     " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
+	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "  对使用 BetterRa 带来的法律责任, BetterRa 开发团队概不负责!  " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
+	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "                                                              " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
+	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "         更多内容, 请查看: http://rathena.org/board/          " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
+	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "          BetterRa 开发团队出品,  QQ群：xxxxxxxxxx            " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
+	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "                                                              " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
 
 	if( svn[0] != UNKNOWN_VERSION )
 		ShowInfo("SVN Revision: '" CL_WHITE "%s" CL_RESET "'\n", svn);

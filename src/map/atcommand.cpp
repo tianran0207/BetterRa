@@ -3847,7 +3847,7 @@ ACMD_FUNC(reload) {
 	} else if (strstr(command, "atcommand") || strncmp(message, "atcommand", 4) == 0) {
 		config_t run_test;
 
-		if (conf_read_file(&run_test, "conf/groups.conf")) {
+		if (conf_read_file(&run_test, CONF_PATH "/groups.conf")) {
 			clif_displaymessage(fd, msg_txt(sd,1036)); // Error reading groups.conf, reload failed.
 			return -1;
 		}
