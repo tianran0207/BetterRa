@@ -77,6 +77,11 @@
 std::map<uint16, struct mob_db> mob_db_data;
 
 struct mob_db *mob_db( int mob_id ){ 
+#ifdef DEBUG
+	if (mob_db_data.find(mob_id) != mob_db_data.end())
+		return &mob_db_data.at(mob_id);
+	return NULL;
+#endif
 	try{
 		return &mob_db_data.at(mob_id);
 	}catch( std::out_of_range ){
@@ -90,6 +95,11 @@ std::unordered_map<uint16, std::vector<spawn_info>> mob_spawn_data;
 //Dynamic mob chat database
 std::map<short,struct mob_chat> mob_chat_db;
 struct mob_chat *mob_chat(short id) {
+#ifdef DEBUG
+	if (mob_chat_db.find(id) != mob_chat_db.end())
+		return &mob_chat_db.at(id);
+	return NULL;
+#endif
 	try{
 		return &mob_chat_db.at(id);
 	}catch( std::out_of_range ){
