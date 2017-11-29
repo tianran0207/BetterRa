@@ -5052,7 +5052,8 @@ int pc_useitem(struct map_session_data *sd,int n)
 		clif_msg(sd,ITEM_CANT_USE_AREA); // This item cannot be used within this area
 		if( battle_config.allow_consume_restricted_item && !id->flag.delay_consume ) { //need confirmation for delayed consumption items
 			clif_useitemack(sd,n,item.amount-1,true);
-			pc_delitem(sd,n,1,1,0,LOG_TYPE_CONSUME);
+			if (!id->flag.use_no_consumed)
+				pc_delitem(sd,n,1,1,0,LOG_TYPE_CONSUME);
 		}
 		return 0;/* regardless, effect is not run */
 	}
@@ -5072,7 +5073,8 @@ int pc_useitem(struct map_session_data *sd,int n)
 		if( item.expire_time == 0 && nameid != ITEMID_REINS_OF_MOUNT )
 		{
 			clif_useitemack(sd, n, amount - 1, true);
-			pc_delitem(sd, n, 1, 1, 0, LOG_TYPE_CONSUME); // Rental Usable Items are not deleted until expiration
+			if (!id->flag.use_no_consumed)
+				pc_delitem(sd, n, 1, 1, 0, LOG_TYPE_CONSUME); // Rental Usable Items are not deleted until expiration
 		}
 		else
 			clif_useitemack(sd, n, 0, false);

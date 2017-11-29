@@ -16033,7 +16033,8 @@ void skill_consume_requirement(struct map_session_data *sd, uint16 skill_id, uin
 			}
 
 			if( (n = pc_search_inventory(sd,require.itemid[i])) >= 0 )
-				pc_delitem(sd,n,require.amount[i],0,1,LOG_TYPE_CONSUME);
+				if (!sd->inventory_data[n]->flag.skill_no_consumed)
+					pc_delitem(sd,n,require.amount[i],0,1,LOG_TYPE_CONSUME);
 
 			if (skill_id == RL_SLUGSHOT && n > -1) // Slug found - simulate priority and cancel the loop
 				break;
