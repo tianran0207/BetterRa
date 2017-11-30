@@ -3026,6 +3026,17 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		} else if( mvp_sd && !md->state.npc_killmonster ) {
 			pc_setparam(mvp_sd, SP_KILLEDRID, md->mob_id);
 			npc_script_event(mvp_sd, NPCE_KILLNPC); // PCKillNPC [Lance]
+#ifdef EVENT_KILLMVP
+			if (status_has_mode(&md->status, MD_MVP)) {
+				pc_setreg(sd, add_str("@mob_dead_x"), md->bl.x);
+				pc_setreg(sd, add_str("@mob_dead_y"), md->bl.y);
+				pc_setreg(sd, add_str("@mob_lasthit_rid"), sd->status.account_id);
+				pc_setreg(sd, add_str("@mob_lasthit_cid"), sd->status.char_id);
+				pc_setreg(sd, add_str("@mob_mvp_rid"), mvp_sd->status.account_id);
+				pc_setreg(sd, add_str("@mob_mvp_cid"), mvp_sd->status.char_id);
+				npc_script_event(mvp_sd, NPCE_KILLMVP);
+			}
+#endif // EVENT_KILLMVP
 		}
 	}
 

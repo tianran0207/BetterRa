@@ -16745,6 +16745,11 @@ void skill_identify(struct map_session_data *sd, int idx)
 			sd->inventory.u.items_inventory[idx].identify = 1;
 		}
 	}
+
+#ifdef EVENT_IDENTIFY
+	npc_script_event(sd, NPCE_IDENTIFY);
+#endif
+
 	clif_item_identified(sd,idx,flag);
 }
 

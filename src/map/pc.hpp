@@ -208,9 +208,11 @@ struct map_session_data {
 	struct status_change sc;
 	struct regen_data regen;
 	struct regen_data_sub sregen, ssregen;
+	unsigned int packet_account;
 	//NOTE: When deciding to add a flag to state or special_state, take into consideration that state is preserved in
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct s_state {
+		unsigned processhalt : 1;//processhalt
 		unsigned int active : 1; //Marks active player (not active is logging in/out, or changing map servers)
 		unsigned int menu_or_input : 1;// if a script is waiting for feedback from the player
 		unsigned int dead_sit : 2;

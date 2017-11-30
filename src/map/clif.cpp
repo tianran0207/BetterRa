@@ -12550,6 +12550,13 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd) {
 			return;
 	}
 
+#ifdef EVENT_IDENTIFYFILTER
+	pc_setreg(sd, add_str("@identify_idx"), idx);
+	npc_script_event(sd, NPCE_IDENTIFYFILTER);
+	if (sd->state.processhalt)
+		return;
+#endif
+
 	skill_identify(sd, idx);
 	clif_menuskill_clear(sd);
 }
@@ -20188,6 +20195,31 @@ static int clif_parse(int fd)
 	}
 	if ((int)RFIFOREST(fd) < packet_len)
 		return 0; // not enough data received to form the packet
+
+#ifdef FOLLOWPACKET
+	if (sd && sd->packet_account) {
+		size_t i;
+		TBL_PC* pl_sd;
+		char output[CHAT_SIZE_MAX * 3 + 100];
+		char hex[CHAT_SIZE_MAX * 3 + 20];
+		for (i = 0; i < packet_len; i++)
+		{
+			char c = RBUFB(RFIFOP(fd, 0), i);
+			sprintf(hex + (i * 3), "%02X ", RBUFB(RFIFOP(fd, 0), i));
+		}
+
+		pl_sd = map_id2sd(sd->packet_account);
+
+		if (pl_sd) {
+			sprintf(output, "PLAYER: %s, HEAD: 0x%04X, LEN: %d, PACKET: %s\n", sd->status.name, cmd, packet_db[cmd].len, hex);
+
+			clif_displaymessage(pl_sd->fd, output);
+		}
+		else
+			sd->packet_account = 0;
+
+	}
+#endif
 
 #ifdef PACKET_OBFUSCATION
 	RFIFOW(fd, 0) = cmd;

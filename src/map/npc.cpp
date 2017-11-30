@@ -4453,6 +4453,7 @@ int npc_script_event(struct map_session_data* sd, enum npce_event type)
 		ShowError("npc_script_event: NULL sd. Event Type %d\n", type);
 		return 0;
 	}
+	sd->state.processhalt = 0;
 	for (i = 0; i<script_event[type].event_count; i++)
 		npc_event_sub(sd,script_event[type].event[i],script_event[type].event_name[i]);
 	return i;
@@ -4479,6 +4480,46 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.kill_mob_event_name;
 	case NPCE_STATCALC:
 		return script_config.stat_calc_event_name;
+
+//custom event
+	case NPCE_HOMLVUP:
+		return script_config.homunculus_lvup_event_name;
+	case NPCE_HOMCALL:
+		return script_config.homunculus_call_event_name;
+	case NPCE_HOMREST:
+		return script_config.homunculus_rest_event_name;
+	case NPCE_HOMDEAD:
+		return script_config.homunculus_dead_event_name;
+	case NPCE_HOMALIVE:
+		return script_config.homunculus_alive_event_name;
+	case NPCE_IDENTIFYFILTER:
+		return script_config.identify_filter_event_name;
+	case NPCE_IDENTIFY:
+		return script_config.identify_event_name;
+	case NPCE_BFRELOADSCRIPT:
+		return script_config.reload_script_bf_name;
+	case NPCE_AFRELOADSCRIPT:
+		return script_config.reload_script_af_name;
+	case NPCE_KILLMVP:
+		return script_config.kill_mvp_event_name;
+	case NPCE_EQUIPFILTER:
+		return script_config.equip_filter_event_name;
+	case NPCE_EQUIPEVENT:
+		return script_config.equip_event_name;
+	case NPCE_UNEQUIPFILTER:
+		return script_config.unequip_filter_event_name;
+	case NPCE_UNEQUIPEVENT:
+		return script_config.unequip_event_name;
+	case NPCE_BUFFSTART:
+		return script_config.buff_start_event_name;
+	case NPCE_BUFFEND:
+		return script_config.buff_end_event_name;
+	case NPCE_PARTYCREATEFILTER:
+		return script_config.party_create_event_name;
+	case NPCE_PARTYJOINFILTER:
+		return script_config.party_join_event_name;
+	case NPCE_PARTYLEAVEFILTER:
+		return script_config.party_leave_event_name;
 	default:
 		ShowError("npc_get_script_event_name: npce_index is outside the array limits: %d (max: %d).\n", npce_index, NPCE_MAX);
 		return NULL;

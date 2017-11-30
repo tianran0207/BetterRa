@@ -3926,6 +3926,10 @@ ACMD_FUNC(reload) {
 		//atcommand_broadcast( fd, sd, "@broadcast", "Server is reloading scripts..." );
 		//atcommand_broadcast( fd, sd, "@broadcast", "You will feel a bit of lag at this point !" );
 
+#ifdef EVENT_BFRELOADSCRIPT
+		npc_script_event(sd, NPCE_BFRELOADSCRIPT);
+#endif
+
 		iter = mapit_getallusers();
 		for( pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter) )
 			pc_close_npc(pl_sd,2);
@@ -3935,6 +3939,10 @@ ACMD_FUNC(reload) {
 		map_reloadnpc(true); // reload config files seeking for npcs
 		script_reload();
 		npc_reload();
+
+#ifdef EVENT_AFRELOADSCRIPT
+		npc_script_event(sd, NPCE_AFRELOADSCRIPT);
+#endif
 
 		clif_displaymessage(fd, msg_txt(sd,100)); // Scripts have been reloaded.
 	} else if (strstr(command, "msgconf") || strncmp(message, "msgconf", 3) == 0) {
@@ -9999,6 +10007,40 @@ ACMD_FUNC(adopt)
 
 #include "../custom/atcommand.inc"
 
+ACMD_FUNC(followpacket)
+{
+#ifndef FOLLOWPACKET
+	clif_displaymessage(fd, "it don't work..");
+	return 0;
+#else
+	struct map_session_data *pl_sd = NULL;
+	int global = 0;
+	nullpo_retr(-1, sd);
+
+	memset(atcmd_player_name, '\0', sizeof(atcmd_player_name));
+
+	if (!message || !*message || sscanf(message, "%23s", atcmd_player_name) < 1) {
+		pl_sd = sd;
+	}
+	else
+		if ((pl_sd = map_nick2sd(atcmd_player_name, true)) == NULL && (pl_sd = map_charid2sd(atoi(atcmd_player_name))) == NULL)
+		{
+			clif_displaymessage(fd, msg_txt(sd, 3)); // Character not found.
+			return -1;
+		}
+
+	if (pl_sd->packet_account) {
+		pl_sd->packet_account = 0;
+		clif_displaymessage(sd->fd, "Uninstall follow packet..");
+	}
+	else {
+		pl_sd->packet_account = sd->bl.id;
+		clif_displaymessage(sd->fd, "install follow packet..");
+	}
+	return 0;
+#endif // FOLLOWPACKET
+}
+
 /**
  * Fills the reference of available commands in atcommand DBMap
  **/
@@ -10294,6 +10336,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(adopt),
 		ACMD_DEF(agitstart3),
 		ACMD_DEF(agitend3),
+		ACMD_DEF(followpacket),
 	};
 	AtCommandInfo* atcommand;
 	int i;

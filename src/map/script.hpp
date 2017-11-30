@@ -204,6 +204,34 @@ struct Script_Config {
 	// Instance related
 	const char* instance_init_event_name;
 	const char* instance_destroy_event_name;
+
+	// Homunculus related
+	const char* homunculus_lvup_event_name;
+	const char* homunculus_call_event_name;
+	const char* homunculus_rest_event_name;
+	const char* homunculus_dead_event_name;
+	const char* homunculus_alive_event_name;
+
+	// Identify related
+	const char* identify_filter_event_name;
+	const char* identify_event_name;
+	// Reload related
+	const char* reload_script_bf_name;
+	const char*	reload_script_af_name;
+	// KillMVP related
+	const char*	kill_mvp_event_name;
+	// Equip related
+	const char*	equip_filter_event_name;
+	const char*	equip_event_name;
+	const char*	unequip_filter_event_name;
+	const char*	unequip_event_name;
+	// Buff related
+	const char*	buff_start_event_name;
+	const char*	buff_end_event_name;
+	// Party related
+	const char*	party_create_event_name;
+	const char*	party_join_event_name;
+	const char*	party_leave_event_name;
 };
 extern struct Script_Config script_config;
 

@@ -9769,6 +9769,14 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos)
 		}
 	}
 
+#ifdef EVENT_EQUIPFILTER
+	pc_setreg(sd, add_str("@equip_idx"), n);
+	pc_setreg(sd, add_str("@equip_pos"), n);
+	npc_script_event(sd, NPCE_EQUIPFILTER);
+	if (sd->state.processhalt)
+		return false;
+#endif
+
 	if (id->flag.bindOnEquip && !sd->inventory.u.items_inventory[n].bound) {
 		sd->inventory.u.items_inventory[n].bound = (char)battle_config.default_bind_on_equip;
 		clif_notify_bindOnEquip(sd,n);
@@ -9894,6 +9902,14 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos)
 	}
 	sd->npc_item_flag = iflag;
 
+#ifdef EVENT_EQUIPEVENT
+	pc_setreg(sd, add_str("@equip_idx"), n);
+	pc_setreg(sd, add_str("@equip_pos"), n);
+	npc_script_event(sd, NPCE_EQUIPEVENT);
+	if (sd->state.processhalt)
+		return false;
+#endif
+
 	return true;
 }
 
@@ -9939,6 +9955,15 @@ bool pc_unequipitem(struct map_session_data *sd, int n, int flag) {
 		clif_unequipitemack(sd, n, 0, 0);
 		return false;
 	}
+
+#ifdef EVENT_UNEQUIPFILTER
+	pc_setreg(sd, add_str("@unequip_idx"), n);
+	pc_setreg(sd, add_str("@unequip_pos"), n);
+	npc_script_event(sd, NPCE_UNEQUIPFILTER);
+	if (sd->state.processhalt)
+		return false;
+#endif
+
 	for(i = 0; i < EQI_MAX; i++) {
 		if (sd->inventory.u.items_inventory[n].equip & equip_bitmask[i])
 			sd->equip_index[i] = -1;
@@ -10043,6 +10068,14 @@ bool pc_unequipitem(struct map_session_data *sd, int n, int flag) {
 		}
 	}
 	sd->npc_item_flag = iflag;
+
+#ifdef EVENT_UNEQUIPEVENT
+	pc_setreg(sd, add_str("@unequip_idx"), n);
+	pc_setreg(sd, add_str("@unequip_pos"), n);
+	npc_script_event(sd, NPCE_UNEQUIPEVENT);
+	if (sd->state.processhalt)
+		return false;
+#endif
 
 	return true;
 }

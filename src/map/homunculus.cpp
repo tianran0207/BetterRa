@@ -209,6 +209,10 @@ int hom_dead(struct homun_data *hd)
 	if (!sd) //unit remove map will invoke unit free
 		return 3;
 
+#ifdef EVENT_HOMDEAD
+	npc_script_event(sd, NPCE_HOMDEAD);
+#endif
+
 	clif_emotion(&sd->bl, ET_CRY);
 	//Remove from map (if it has no intimacy, it is auto-removed from memory)
 	return 3;
@@ -243,6 +247,10 @@ int hom_vaporize(struct map_session_data *sd, int flag)
 		memset(hd->blockskill, 0, sizeof(hd->blockskill));
 	clif_hominfo(sd, sd->hd, 0);
 	hom_save(hd);
+#ifdef EVENT_HOMREST
+	if(flag == HOM_ST_REST)
+		npc_script_event(sd, NPCE_HOMREST);
+#endif
 	return unit_remove_map(&hd->bl, CLR_OUTSIGHT);
 }
 
@@ -504,6 +512,10 @@ int hom_levelup(struct homun_data *hd)
 	growth_dex-=growth_dex%10;
 	growth_int-=growth_int%10;
 	growth_luk-=growth_luk%10;
+
+#ifdef EVENT_HOMLVUP
+	npc_script_event(hd->master, NPCE_HOMLVUP);
+#endif
 
 	hom->max_hp += growth_max_hp;
 	hom->max_sp += growth_max_sp;
@@ -1103,6 +1115,11 @@ bool hom_call(struct map_session_data *sd)
 	} else
 		//Warp him to master.
 		unit_warp(&hd->bl,sd->bl.m, sd->bl.x, sd->bl.y,CLR_OUTSIGHT);
+
+#ifdef EVENT_HOMCALL
+	npc_script_event(sd, NPCE_HOMCALL);
+#endif
+
 	return true;
 }
 
@@ -1236,6 +1253,11 @@ int hom_ressurect(struct map_session_data* sd, unsigned char per, short x, short
 			return 0;
 		clif_spawn(&hd->bl);
 	}
+
+#ifdef EVENT_HOMALIVE
+	npc_script_event(sd, NPCE_HOMALIVE);
+#endif
+
 	return status_revive(&hd->bl, per, 0);
 }
 

@@ -306,6 +306,32 @@ struct Script_Config script_config = {
 	// Instance related
 	"OnInstanceInit", //instance_init_event_name (is executed right after instance creation)
 	"OnInstanceDestroy", //instance_destroy_event_name (is executed right before instance destruction)
+	// 
+	"OnPCHomLvUpEvent",
+	"OnPCHomCallEvent",
+	"OnPCHomRestEvent",
+	"OnPCHomDeadEvent",
+	"OnPCHomAliveEvent",
+	//
+	"OnPCIdentifyFilter",
+	"OnPCIdentifyEvent",
+	//
+	"OnBfReloadScriptEvent",
+	"OnAfReloadScriptEvent",
+	//
+	"OnPCKillMvpEvent",
+	//
+	"OnPCEquipFilter",
+	"OnPCEquipEvent",
+	"OnPCUnequipFilter",
+	"OnPCUnequipEvent",
+	//
+	"OnPCBuffStartEvent",
+	"OnPCBuffEndEvent",
+	//
+	"OnPCPartyCreateFilter",
+	"OnPCPartyJoinFilter",
+	"OnPCPartyLeaveFilter",
 };
 
 static jmp_buf     error_jump;
@@ -23675,6 +23701,67 @@ BUILDIN_FUNC(round) {
 
 #include "../custom/script.inc"
 
+BUILDIN_FUNC(processhalt)
+{
+	TBL_PC *sd;
+
+	if (!script_rid2sd(sd)) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	sd->state.processhalt = 1;
+	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+/// *getinventoryinfo(<idx>,<type>{,<char id>});
+BUILDIN_FUNC(getinventoryinfo)
+{
+	TBL_PC *sd;
+	int idx;
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+	idx = script_getnum(st, 2);
+	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+		switch (script_getnum(st, 3)) {
+		case 0:			script_pushint(st, sd->inventory.u.items_inventory[idx].nameid);			break;
+		case 1:			script_pushint(st, sd->inventory.u.items_inventory[idx].amount);			break;
+		case 2:			script_pushint(st, sd->inventory.u.items_inventory[idx].equip);				break;
+		case 3:			script_pushint(st, sd->inventory.u.items_inventory[idx].refine);			break;
+		case 4:			script_pushint(st, sd->inventory.u.items_inventory[idx].identify);			break;
+		case 5:			script_pushint(st, sd->inventory.u.items_inventory[idx].attribute);			break;
+		case 6:			script_pushint(st, sd->inventory.u.items_inventory[idx].card[0]);			break;
+		case 7:			script_pushint(st, sd->inventory.u.items_inventory[idx].card[1]);			break;
+		case 8:			script_pushint(st, sd->inventory.u.items_inventory[idx].card[2]);			break;
+		case 9:			script_pushint(st, sd->inventory.u.items_inventory[idx].card[3]);			break;
+		case 10:		script_pushint(st, sd->inventory.u.items_inventory[idx].expire_time);			break;
+		case 11:		script_pushint(st, sd->inventory.u.items_inventory[idx].bound);				break;
+		case 12:		script_pushint(st, sd->inventory.u.items_inventory[idx].unique_id);			break;
+		default:
+			script_pushint(st, -1);
+			return SCRIPT_CMD_FAILURE;
+		}
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+BUILDIN_FUNC(delinventory)
+{
+	TBL_PC *sd;
+	int idx, count;
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+	idx = script_getnum(st, 2);
+	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+		count = script_getnum(st, 2);
+		pc_delitem(sd, idx, count, 0, 0, LOG_TYPE_SCRIPT);
+	}
+	else {
+		ShowError("buildin_delinventory: unknow inventory idx '%d', can not del it.\n", idx);
+		return SCRIPT_CMD_FAILURE;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -24320,5 +24407,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(round, "floor", "i"),
 #include "../custom/script_def.inc"
 
+	BUILDIN_DEF(processhalt, ""),
+	BUILDIN_DEF2(processhalt, "halt", ""),
+	BUILDIN_DEF(getinventoryinfo, "ii?"),
+	BUILDIN_DEF(delinventory, "ii?"),
 	{NULL,NULL,NULL},
 };

@@ -27,6 +27,7 @@
 #include "log.hpp"
 #include "pc_groups.hpp"
 #include "achievement.hpp"
+#include "npc.hpp"
 
 static DBMap* party_db; // int party_id -> struct party_data* (releases data)
 static DBMap* party_booking_db; // uint32 char_id -> struct party_booking_ad_info* (releases data) // Party Booking [Spiria]
@@ -156,6 +157,13 @@ int party_create(struct map_session_data *sd,char *name,int item,int item2)
 		clif_party_created(sd,2);
 		return -2;
 	}
+
+#ifdef  EVENT_PARTYCREATEFILTER
+	pc_setregstr(sd, add_str("@create_party_name$"), name);
+	npc_script_event(sd, NPCE_PARTYCREATEFILTER);
+	if (sd->state.processhalt)
+		return false;
+#endif //  EVENT_PARTYCREATEFILTER
 
 	sd->party_creating = true;
 	party_fill_member(&leader, sd, 1);
@@ -540,6 +548,13 @@ int party_member_added(int party_id,uint32 account_id,uint32 char_id, int flag)
 		return 0;
 	}
 
+#ifdef  EVENT_PARTYJOINFILTER
+	pc_setreg(sd, add_str("@join_party_id"), party_id);
+	npc_script_event(sd, NPCE_PARTYJOINFILTER);
+	if (sd->state.processhalt)
+		return false;
+#endif //  EVENT_PARTYJOINFILTER
+
 	sd->status.party_id = party_id;
 
 	clif_party_member_info(p,sd);
@@ -632,6 +647,14 @@ int party_leave(struct map_session_data *sd)
 	ARR_FIND( 0, MAX_PARTY, i, p->party.member[i].account_id == sd->status.account_id && p->party.member[i].char_id == sd->status.char_id );
 	if( i == MAX_PARTY )
 		return 0;
+
+#ifdef  EVENT_PARTYLEAVEFILTER
+	pc_setreg(sd, add_str("@left_party_id"), p->party.party_id);
+	pc_setregstr(sd, add_str("@left_party_name$"), p->party.name);
+	npc_script_event(sd, NPCE_PARTYLEAVEFILTER);
+	if (sd->state.processhalt)
+		return false;
+#endif //  EVENT_PARTYLEAVEFILTER
 
 	party_trade_bound_cancel(sd);
 	intif_party_leave(p->party.party_id,sd->status.account_id,sd->status.char_id,sd->status.name,PARTY_MEMBER_WITHDRAW_LEAVE);
