@@ -1133,6 +1133,22 @@ enum npce_event : uint8 {
 	NPCE_PARTYCREATEFILTER,
 	NPCE_PARTYJOINFILTER,
 	NPCE_PARTYLEAVEFILTER,
+	NPCE_GUILDCREATEFILTER,
+	NPCE_GUILDJOINFILTER,
+	NPCE_GUILDLEAVEFILTER,
+	NPCE_PETLOOTEVENT,
+	NPCE_PETFEEDEVENT,
+	NPCE_PETFOODEVENT,
+	NPCE_VIEWEQUIPFILTER,
+	NPCE_USESKILLFILTER,
+	NPCE_USESKILLEVENT,
+	NPCE_USEITEMFILTER,
+	NPCE_USEITEMEVENT,
+	NPCE_WILLLOADMAPEVENT,
+	NPCE_CHATJOINFILTER,
+	NPCE_TITLECHANGEFILTER,
+	NPCE_ROULETTESTARTFILTER,
+	NPCE_ROULETTEGETFILTER,
 	NPCE_MAX
 };
 struct view_data* npc_get_viewdata(int class_);
@@ -1218,5 +1234,7 @@ void npc_market_delfromsql_(const char *exname, unsigned short nameid, bool clea
 int npc_do_atcmd_event(struct map_session_data* sd, const char* command, const char* message, const char* eventname);
 
 bool npc_unloadfile( const char* path );
+
+bool event_exist(enum npce_event type);
 
 #endif /* _NPC_HPP_ */

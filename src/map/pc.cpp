@@ -5047,6 +5047,17 @@ int pc_useitem(struct map_session_data *sd,int n)
 	if( id->delay > 0 && !pc_has_permission(sd,PC_PERM_ITEM_UNCONDITIONAL) && pc_itemcd_check(sd, id, tick, n))
 		return 0;
 
+#ifdef EVENT_USEITEMFILTER
+	if (event_exist(NPCE_USEITEMFILTER)) {
+		pc_setreg(sd, add_str("@useitem_nameid"), item.nameid);
+		pc_setreg(sd, add_str("@useitem_idx"), n);
+		pc_setreg(sd, add_str("@useitem_pos"), n);
+		npc_script_event(sd, NPCE_USEITEMFILTER);
+		if (sd->state.processhalt)
+			return 0;
+	}
+#endif // EVENT_USEITEMFILTER
+
 	/* on restricted maps the item is consumed but the effect is not used */
 	if (!pc_has_permission(sd,PC_PERM_ITEM_UNCONDITIONAL) && itemdb_isNoEquip(id,sd->bl.m)) {
 		clif_msg(sd,ITEM_CANT_USE_AREA); // This item cannot be used within this area
@@ -5089,6 +5100,17 @@ int pc_useitem(struct map_session_data *sd,int n)
 
 	run_script(script,0,sd->bl.id,fake_nd->bl.id);
 	potion_flag = 0;
+
+#ifdef EVENT_USEITEMEVENT
+	if (event_exist(NPCE_USEITEMEVENT)) {
+		pc_setreg(sd, add_str("@useitem_nameid"), item.nameid);
+		amount = amount == 1 ? -1 : n;
+		pc_setreg(sd, add_str("@useitem_idx"), amount);
+		pc_setreg(sd, add_str("@useitem_pos"), amount);
+		npc_script_event(sd, NPCE_USEITEMEVENT);
+	}
+#endif // EVENT_USEITEMEVENT
+
 	return 1;
 }
 
@@ -5446,6 +5468,23 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 
 	if ( sd->state.autotrade && (sd->vender_id || sd->buyer_id) ) // Player with autotrade just causes clif glitch! @ FIXME
 		return SETPOS_AUTOTRADE;
+
+#ifdef EVENT_WILLLOADMAPEVENT
+	if (sd->state.active && event_exist(NPCE_WILLLOADMAPEVENT)) {
+		pc_setreg(sd, add_str("@loadmap_oldmap_id"), sd->bl.m);
+		pc_setregstr(sd, add_str("@loadmap_oldmap_name$"), map_mapid2mapname(sd->bl.m));
+		pc_setreg(sd, add_str("@loadmap_oldmap_x"), sd->bl.x);
+		pc_setreg(sd, add_str("@loadmap_oldmap_y"), sd->bl.y);
+		m = map_mapindex2mapid(mapindex);
+		pc_setreg(sd, add_str("@loadmap_newmap_id"), m);
+		pc_setregstr(sd, add_str("@loadmap_newmap_name$"), map_mapid2mapname(m));
+		pc_setreg(sd, add_str("@loadmap_newmap_x"), x);
+		pc_setreg(sd, add_str("@loadmap_newmap_y"), y);
+		npc_script_event(sd, NPCE_WILLLOADMAPEVENT);
+		if (sd->state.processhalt)
+			return SETPOS_OK;
+	}
+#endif // EVENT_WILLLOADMAPEVENT
 
 	if( battle_config.revive_onwarp && pc_isdead(sd) ) { //Revive dead people before warping them
 		pc_setstand(sd, true);
@@ -9770,11 +9809,13 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos)
 	}
 
 #ifdef EVENT_EQUIPFILTER
-	pc_setreg(sd, add_str("@equip_idx"), n);
-	pc_setreg(sd, add_str("@equip_pos"), n);
-	npc_script_event(sd, NPCE_EQUIPFILTER);
-	if (sd->state.processhalt)
-		return false;
+	if (event_exist(NPCE_EQUIPFILTER)) {
+		pc_setreg(sd, add_str("@equip_idx"), n);
+		pc_setreg(sd, add_str("@equip_pos"), n);
+		npc_script_event(sd, NPCE_EQUIPFILTER);
+		if (sd->state.processhalt)
+			return false;
+	}
 #endif
 
 	if (id->flag.bindOnEquip && !sd->inventory.u.items_inventory[n].bound) {
@@ -9903,11 +9944,13 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos)
 	sd->npc_item_flag = iflag;
 
 #ifdef EVENT_EQUIPEVENT
-	pc_setreg(sd, add_str("@equip_idx"), n);
-	pc_setreg(sd, add_str("@equip_pos"), n);
-	npc_script_event(sd, NPCE_EQUIPEVENT);
-	if (sd->state.processhalt)
-		return false;
+	if (event_exist(NPCE_EQUIPEVENT)) {
+		pc_setreg(sd, add_str("@equip_idx"), n);
+		pc_setreg(sd, add_str("@equip_pos"), n);
+		npc_script_event(sd, NPCE_EQUIPEVENT);
+		if (sd->state.processhalt)
+			return false;
+	}
 #endif
 
 	return true;
@@ -9957,11 +10000,13 @@ bool pc_unequipitem(struct map_session_data *sd, int n, int flag) {
 	}
 
 #ifdef EVENT_UNEQUIPFILTER
-	pc_setreg(sd, add_str("@unequip_idx"), n);
-	pc_setreg(sd, add_str("@unequip_pos"), n);
-	npc_script_event(sd, NPCE_UNEQUIPFILTER);
-	if (sd->state.processhalt)
-		return false;
+	if (event_exist(NPCE_UNEQUIPFILTER)) {
+		pc_setreg(sd, add_str("@unequip_idx"), n);
+		pc_setreg(sd, add_str("@unequip_pos"), n);
+		npc_script_event(sd, NPCE_UNEQUIPFILTER);
+		if (sd->state.processhalt)
+			return false;
+	}
 #endif
 
 	for(i = 0; i < EQI_MAX; i++) {
@@ -10070,11 +10115,13 @@ bool pc_unequipitem(struct map_session_data *sd, int n, int flag) {
 	sd->npc_item_flag = iflag;
 
 #ifdef EVENT_UNEQUIPEVENT
-	pc_setreg(sd, add_str("@unequip_idx"), n);
-	pc_setreg(sd, add_str("@unequip_pos"), n);
-	npc_script_event(sd, NPCE_UNEQUIPEVENT);
-	if (sd->state.processhalt)
-		return false;
+	if (event_exist(NPCE_UNEQUIPEVENT)) {
+		pc_setreg(sd, add_str("@unequip_idx"), n);
+		pc_setreg(sd, add_str("@unequip_pos"), n);
+		npc_script_event(sd, NPCE_UNEQUIPEVENT);
+		if (sd->state.processhalt)
+			return false;
+	}
 #endif
 
 	return true;

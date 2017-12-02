@@ -11593,15 +11593,17 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		npc_touchnext_areanpc(sd,false); // Run OnTouch_ on next char in range
 	
 #ifdef EVENT_BUFFSTART
-	pc_setreg(sd, add_str("@started_sc_id"), type);
-	pc_setreg(sd, add_str("@started_sc_rate"), rate);
-	pc_setreg(sd, add_str("@started_sc_tick"), tick);
-	pc_setreg(sd, add_str("@started_sc_val1"), val1);
-	pc_setreg(sd, add_str("@started_sc_val2"), val2);
-	pc_setreg(sd, add_str("@started_sc_val3"), val3);
-	pc_setreg(sd, add_str("@started_sc_val4"), val4);
-	pc_setreg(sd, add_str("@startedsc"), type);
-	npc_script_event(sd, NPCE_BUFFSTART);
+	if (sd && event_exist(NPCE_BUFFSTART)) {
+		pc_setreg(sd, add_str("@started_sc_id"), type);
+		pc_setreg(sd, add_str("@started_sc_rate"), rate);
+		pc_setreg(sd, add_str("@started_sc_tick"), tick);
+		pc_setreg(sd, add_str("@started_sc_val1"), val1);
+		pc_setreg(sd, add_str("@started_sc_val2"), val2);
+		pc_setreg(sd, add_str("@started_sc_val3"), val3);
+		pc_setreg(sd, add_str("@started_sc_val4"), val4);
+		pc_setreg(sd, add_str("@startedsc"), type);
+		npc_script_event(sd, NPCE_BUFFSTART);
+	}
 #endif
 
 	return 1;
@@ -12598,9 +12600,11 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 	ers_free(sc_data_ers, sce);
 
 #ifdef EVENT_BUFFEND
-	pc_setreg(sd, add_str("@ended_sc_id"), type);
-	pc_setreg(sd, add_str("@endedsc"), type);
-	npc_script_event(sd, NPCE_BUFFEND);
+	if (sd && event_exist(NPCE_BUFFEND)) {
+		pc_setreg(sd, add_str("@ended_sc_id"), type);
+		pc_setreg(sd, add_str("@endedsc"), type);
+		npc_script_event(sd, NPCE_BUFFEND);
+	}
 #endif
 
 	return 1;

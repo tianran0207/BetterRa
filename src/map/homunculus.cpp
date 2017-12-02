@@ -210,7 +210,7 @@ int hom_dead(struct homun_data *hd)
 		return 3;
 
 #ifdef EVENT_HOMDEAD
-	npc_script_event(sd, NPCE_HOMDEAD);
+		npc_script_event(sd, NPCE_HOMDEAD);
 #endif
 
 	clif_emotion(&sd->bl, ET_CRY);

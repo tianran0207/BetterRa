@@ -1732,6 +1732,19 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 			return 0; // Arrow-path check failed.
 	}
 
+#ifdef EVENT_USESKILLFILTER
+	if (sd && event_exist(NPCE_USESKILLFILTER)) {
+		pc_setreg(sd, add_str("@useskill_id"), skill_id);
+		pc_setreg(sd, add_str("@useskill_lv"), skill_lv);
+		pc_setreg(sd, add_str("@useskill_target"), target_id);
+		pc_setreg(sd, add_str("@useskill_x"), 0);
+		pc_setreg(sd, add_str("@useskill_y"), 0);
+		npc_script_event(sd, NPCE_USESKILLFILTER);
+		if (sd->state.processhalt)
+			return 0;
+	}
+#endif // EVENT_USESKILLFILTER
+
 	if (!combo) // Stop attack on non-combo skills [Skotlex]
 		unit_stop_attack(src);
 	else if(ud->attacktimer != INVALID_TIMER) // Elsewise, delay current attack sequence
@@ -1902,7 +1915,6 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		}
 	}
 
-
 	if( casttime > 0 ) {
 		ud->skilltimer = add_timer( tick+casttime, skill_castend_id, src->id, 0 );
 
@@ -2000,6 +2012,19 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 
 		return 0;
 	}
+
+#ifdef EVENT_USESKILLFILTER
+	if (sd && event_exist(NPCE_USESKILLFILTER)) {
+		pc_setreg(sd, add_str("@useskill_id"), skill_id);
+		pc_setreg(sd, add_str("@useskill_lv"), skill_lv);
+		pc_setreg(sd, add_str("@useskill_target"), 0);
+		pc_setreg(sd, add_str("@useskill_x"), skill_x);
+		pc_setreg(sd, add_str("@useskill_y"), skill_y);
+		npc_script_event(sd, NPCE_USESKILLFILTER);
+		if (sd->state.processhalt)
+			return 0;
+	}
+#endif // EVENT_USESKILLFILTER
 
 	// Check range and obstacle
 	bl.type = BL_NUL;

@@ -229,9 +229,35 @@ struct Script_Config {
 	const char*	buff_start_event_name;
 	const char*	buff_end_event_name;
 	// Party related
-	const char*	party_create_event_name;
-	const char*	party_join_event_name;
-	const char*	party_leave_event_name;
+	const char*	party_create_gilter_name;
+	const char*	party_join_gilter_name;
+	const char*	party_leave_gilter_name;
+	// Guild related
+	const char*	guild_create_gilter_name;
+	const char*	guild_join_gilter_name;
+	const char*	guild_leave_gilter_name;
+	// Pet related
+	const char*	pet_loot_event_name;
+	const char*	pet_feed_event_name;
+	const char*	pet_food_event_name;
+	// Interactive related
+	const char*	view_equit_filter_name;
+	// Useskill related
+	const char*	use_skill_filter_name;
+	const char*	use_skill_event_name;
+	// Useitem related
+	const char*	use_item_filter_name;
+	const char*	use_item_event_name;
+	// Mapload related
+	const char*	map_will_load_event_name;
+	// Chatroom related
+	const char*	chatroom_join_filter_name;
+	// Title related
+	const char*	title_change_filter_name;
+	// Roulette related
+	const char*	roulette_start_filter_name;
+	const char*	roulette_get_filter_name;
+
 };
 extern struct Script_Config script_config;
 

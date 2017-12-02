@@ -371,6 +371,15 @@ int guild_create(struct map_session_data *sd, const char *name) {
 		return 0;
 	}
 
+#ifdef  EVENT_GUILDCREATEFILTER
+	if (event_exist(NPCE_GUILDCREATEFILTER)) {
+		pc_setregstr(sd, add_str("@create_guild_name$"), name);
+		npc_script_event(sd, NPCE_GUILDCREATEFILTER);
+		if (sd->state.processhalt)
+			return 0;
+	}
+#endif //  EVENT_GUILDCREATEFILTER
+
 	guild_makemember(&m,sd);
 	m.position=0;
 	intif_guild_create(name,&m);
@@ -670,6 +679,16 @@ int guild_reply_invite(struct map_session_data* sd, int guild_id, int flag) {
 			return 0;
 		}
 
+#ifdef  EVENT_GUILDJOINFILTER
+		if (event_exist(NPCE_GUILDJOINFILTER)) {
+			pc_setreg(sd, add_str("@join_guild_id"), guild_id);
+			pc_setregstr(sd, add_str("@join_guild_name$"), g->name);
+			npc_script_event(sd, NPCE_GUILDJOINFILTER);
+			if (sd->state.processhalt)
+				return 0;
+		}
+#endif //  EVENT_GUILDJOINFILTER
+
 		guild_makemember(&m,sd);
 		intif_guild_addmember(guild_id, &m);
 		//TODO: send a minimap update to this player
@@ -778,6 +797,16 @@ int guild_leave(struct map_session_data* sd, int guild_id, uint32 account_id, ui
 		sd->status.char_id!=char_id || sd->status.guild_id!=guild_id ||
 		map_flag_gvg2(sd->bl.m))
 		return 0;
+
+#ifdef  EVENT_GUILDLEAVEFILTER
+	if (event_exist(NPCE_GUILDLEAVEFILTER)) {
+		pc_setreg(sd, add_str("@left_guild_id"), guild_id);
+		pc_setregstr(sd, add_str("@left_guild_name$"), g->name);
+		npc_script_event(sd, NPCE_GUILDLEAVEFILTER);
+		if (sd->state.processhalt)
+			return 0;
+	}
+#endif //  EVENT_PARTYJOINFILTER
 
 	guild_trade_bound_cancel(sd);
 	intif_guild_leave(sd->status.guild_id, sd->status.account_id, sd->status.char_id,0,mes);

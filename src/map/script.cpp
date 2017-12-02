@@ -332,6 +332,30 @@ struct Script_Config script_config = {
 	"OnPCPartyCreateFilter",
 	"OnPCPartyJoinFilter",
 	"OnPCPartyLeaveFilter",
+	//
+	"OnPCGuildCreateFilter",
+	"OnPCGuildJoinFilter",
+	"OnPCGuildLeaveFilter",
+	//
+	"OnPCPetLootEvent",
+	"OnPCPetFeedEvent",
+	"OnPCFoodPet",
+	//
+	"OnPCViewEquipFilter",
+	//
+	"OnPCUseSkillExFilter",
+	"OnPCUseSkillExEvent",
+	//
+	"OnPCUseItemExFilter",
+	"OnPCUseItemExEvent",
+	//
+	"OnPCWillLoadMapEvent",
+	//
+	"OnPCInChatroomFilter",
+	//
+	"OnPCChangeTitleFilter",
+	//
+	"OnPCStartRouletteFilter",
 };
 
 static jmp_buf     error_jump;
@@ -23742,14 +23766,16 @@ BUILDIN_FUNC(getinventoryinfo)
 			script_pushint(st, -1);
 			return SCRIPT_CMD_FAILURE;
 		}
+		return SCRIPT_CMD_SUCCESS;
 	}
+	script_pushint(st, -1);
 	return SCRIPT_CMD_SUCCESS;
 }
 BUILDIN_FUNC(delinventory)
 {
 	TBL_PC *sd;
 	int idx, count;
-	if (!script_charid2sd(4, sd))
+	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 	idx = script_getnum(st, 2);
 	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
@@ -23760,6 +23786,30 @@ BUILDIN_FUNC(delinventory)
 		ShowError("buildin_delinventory: unknow inventory idx '%d', can not del it.\n", idx);
 		return SCRIPT_CMD_FAILURE;
 	}
+	return SCRIPT_CMD_SUCCESS;
+}
+BUILDIN_FUNC(setchartitle)
+{
+	TBL_PC *sd;
+	int title_id;
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+	title_id = script_getnum(st, 2);
+
+#ifdef EVENT_TITLECHANGEFILTER
+	if (event_exist(NPCE_TITLECHANGEFILTER)) {
+		pc_setreg(sd, add_str("@trigger_mode"), 1);
+		pc_setreg(sd, add_str("@now_title_id"), sd->status.title_id);
+		pc_setreg(sd, add_str("@pre_title_id"), title_id);
+		npc_script_event(sd, NPCE_TITLECHANGEFILTER);
+		if (sd->state.processhalt)
+			return SCRIPT_CMD_SUCCESS;
+	}
+#endif
+	
+	sd->status.title_id = title_id;
+	clif_name_area(&sd->bl);
+
 	return SCRIPT_CMD_SUCCESS;
 }
 // declarations that were supposed to be exported from npc_chat.c
@@ -24411,5 +24461,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(processhalt, "halt", ""),
 	BUILDIN_DEF(getinventoryinfo, "ii?"),
 	BUILDIN_DEF(delinventory, "ii?"),
+	BUILDIN_DEF(setchartitle, "i?"),
 	{NULL,NULL,NULL},
 };

@@ -11105,6 +11105,8 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 	if ((inf&BCT_ENEMY || skill_id == TK_JUMPKICK) && tsc && tsc->data[SC_FOGWALL] && rnd() % 100 < 75)
 		return USESKILL_FAIL_LEVEL;
 
+
+
 	return -1;
 }
 
@@ -11342,6 +11344,17 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 
 		if (sd && ud->skill_id != SA_ABRACADABRA && ud->skill_id != WM_RANDOMIZESPELL) // they just set the data so leave it as it is.[Inkfish]
 			sd->skillitem = sd->skillitemlv = sd->skillitem_keep_requirement = 0;
+
+#ifdef EVENT_USESKILLEVENT
+		if (sd && event_exist(NPCE_USESKILLEVENT)) {
+			pc_setreg(sd, add_str("@useskill_id"), ud->skill_id);
+			pc_setreg(sd, add_str("@useskill_lv"), ud->skill_lv);
+			pc_setreg(sd, add_str("@useskill_target"), target->id);
+			pc_setreg(sd, add_str("@useskill_x"), 0);
+			pc_setreg(sd, add_str("@useskill_y"), 0);
+			npc_script_event(sd, NPCE_USESKILLEVENT);
+		}
+#endif // EVENT_USESKILLEVENT
 
 		if (ud->skilltimer == INVALID_TIMER) {
 			if(md) md->skill_idx = -1;
@@ -12391,6 +12404,17 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
 		// perform skill requirement consumption
 		skill_consume_requirement(sd,skill_id,skill_lv,2);
 	}
+
+#ifdef EVENT_USESKILLEVENT
+	if (sd && event_exist(NPCE_USESKILLEVENT)) {
+		pc_setreg(sd, add_str("@useskill_id"), skill_id);
+		pc_setreg(sd, add_str("@useskill_lv"), skill_lv);
+		pc_setreg(sd, add_str("@useskill_target"), 0);
+		pc_setreg(sd, add_str("@useskill_x"), x);
+		pc_setreg(sd, add_str("@useskill_y"), y);
+		npc_script_event(sd, NPCE_USESKILLEVENT);
+	}
+#endif // EVENT_USESKILLEVENT
 
 	return 0;
 }

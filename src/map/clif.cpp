@@ -12551,10 +12551,12 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd) {
 	}
 
 #ifdef EVENT_IDENTIFYFILTER
-	pc_setreg(sd, add_str("@identify_idx"), idx);
-	npc_script_event(sd, NPCE_IDENTIFYFILTER);
-	if (sd->state.processhalt)
-		return;
+	if (event_exist(NPCE_IDENTIFYFILTER)) {
+		pc_setreg(sd, add_str("@identify_idx"), idx);
+		npc_script_event(sd, NPCE_IDENTIFYFILTER);
+		if (sd->state.processhalt)
+			return;
+	}
 #endif
 
 	skill_identify(sd, idx);
@@ -16509,8 +16511,25 @@ void clif_parse_ViewPlayerEquip(int fd, struct map_session_data* sd)
 	if (!tsd)
 		return;
 
-	if( tsd->status.show_equip || pc_has_permission(sd, PC_PERM_VIEW_EQUIPMENT) )
+	if (tsd->status.show_equip || pc_has_permission(sd, PC_PERM_VIEW_EQUIPMENT)) {
+	
+#ifdef EVENT_VIEWEQUIPFILTER
+		if (event_exist(NPCE_VIEWEQUIPFILTER)) {
+			pc_setregstr(sd, add_str("@view_equip_target_name$"), tsd->status.name);
+			pc_setreg(sd, add_str("@view_equip_target_aid"), tsd->status.account_id);
+			pc_setreg(sd, add_str("@view_equip_target_cid"), tsd->status.char_id);
+			pc_setregstr(sd, add_str("@vieweq_name$"), tsd->status.name);
+			pc_setreg(sd, add_str("@vieweq_aid"), tsd->status.account_id);
+			pc_setreg(sd, add_str("@vieweq_cid"), tsd->status.char_id);
+			pc_setreg(sd, add_str("@eqview_cid"), tsd->status.char_id);
+			npc_script_event(sd, NPCE_VIEWEQUIPFILTER);
+			if (sd->state.processhalt)
+				return;
+		}
+#endif // EVENT_VIEWEQUIPFILTER
+
 		clif_viewequip_ack(sd, tsd);
+	}
 	else
 		clif_msg(sd, VIEW_EQUIP_FAIL);
 }
@@ -19033,6 +19052,17 @@ void clif_parse_change_title(int fd, struct map_session_data *sd)
 
 	title_id = RFIFOL(fd, 2);
 
+#ifdef EVENT_TITLECHANGEFILTER
+	if (event_exist(NPCE_TITLECHANGEFILTER)) {
+		pc_setreg(sd, add_str("@trigger_mode"), 0);
+		pc_setreg(sd, add_str("@now_title_id"), sd->status.title_id);
+		pc_setreg(sd, add_str("@pre_title_id"), title_id);
+		npc_script_event(sd, NPCE_TITLECHANGEFILTER);
+		if (sd->state.processhalt)
+			return;
+	}
+#endif
+
 	if( title_id == sd->status.title_id ){
 		// It is exactly the same as the old one
 		return;
@@ -19232,7 +19262,6 @@ void clif_parse_RouletteGenerate(int fd, struct map_session_data* sd)
 {
 	enum GENERATE_ROULETTE_ACK result = GENERATE_ROULETTE_SUCCESS;
 	short stage = sd->roulette.stage;
-
 	nullpo_retv(sd);
 
 	if (!battle_config.feature_roulette) {
@@ -19247,6 +19276,42 @@ void clif_parse_RouletteGenerate(int fd, struct map_session_data* sd)
 		if (sd->roulette_point.bronze <= 0 && sd->roulette_point.silver < 10 && sd->roulette_point.gold < 10)
 			result = GENERATE_ROULETTE_NO_ENOUGH_POINT;
 	}
+
+#ifdef EVENT_ROULETTESTARTFILTER
+	if (event_exist(NPCE_ROULETTESTARTFILTER)) {
+		int idx, roul_bronze, roul_silver, roul_gold;
+		roul_bronze = pc_readreg2(sd, ROULETTE_BRONZE_VAR);
+		roul_silver = pc_readreg2(sd, ROULETTE_SILVER_VAR);
+		roul_gold = pc_readreg2(sd, ROULETTE_GOLD_VAR);
+		npc_script_event(sd, NPCE_ROULETTESTARTFILTER);
+		if (sd->state.processhalt) {
+
+			if (result != GENERATE_ROULETTE_SUCCESS)
+				return;
+			stage = pc_readreg2(sd, "@PrizeStage") - 1;
+			idx = pc_readreg2(sd, "@PrizeIdx") - 1;
+			if (idx >= rd.items[stage] || idx < 0 || stage >= 7 || stage < 0) {
+				ShowError("roulette_event: the param out of range,  @PrizeStage: '%d', @PrizeIdx: '%d'.\n", stage + 1, idx + 1);
+				clif_roulette_generate_ack(sd, GENERATE_ROULETTE_FAILED, 0, 0, 0);
+				return;
+			}
+			if ((roul_bronze > sd->roulette_point.bronze && sd->roulette_point.bronze < 0) ||
+				(roul_silver > sd->roulette_point.silver && sd->roulette_point.silver < 0) ||
+				(roul_gold > sd->roulette_point.gold && sd->roulette_point.gold < 0)) {
+				pc_setreg2(sd, ROULETTE_BRONZE_VAR, roul_bronze);
+				pc_setreg2(sd, ROULETTE_SILVER_VAR, roul_silver);
+				pc_setreg2(sd, ROULETTE_GOLD_VAR, roul_gold);
+				clif_roulette_generate_ack(sd, GENERATE_ROULETTE_NO_ENOUGH_POINT, 0, 0, 0);
+				return;
+			}
+			sd->roulette.prizeStage = stage;
+			sd->roulette.prizeIdx = idx;
+			sd->roulette.claimPrize = true;
+			clif_roulette_generate_ack(sd, result, sd->roulette.prizeStage, sd->roulette.prizeIdx, 0);
+			return;
+		}
+	}
+#endif
 
 	if (result == GENERATE_ROULETTE_SUCCESS) {
 		if (!stage) {

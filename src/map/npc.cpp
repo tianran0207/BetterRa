@@ -4459,6 +4459,11 @@ int npc_script_event(struct map_session_data* sd, enum npce_event type)
 	return i;
 }
 
+bool event_exist(enum npce_event type)
+{
+	return script_event[type].event_count > 0 ? true : false;
+}
+
 const char *npc_get_script_event_name(int npce_index)
 {
 	switch (npce_index) {
@@ -4515,11 +4520,43 @@ const char *npc_get_script_event_name(int npce_index)
 	case NPCE_BUFFEND:
 		return script_config.buff_end_event_name;
 	case NPCE_PARTYCREATEFILTER:
-		return script_config.party_create_event_name;
+		return script_config.party_create_gilter_name;
 	case NPCE_PARTYJOINFILTER:
-		return script_config.party_join_event_name;
+		return script_config.party_join_gilter_name;
 	case NPCE_PARTYLEAVEFILTER:
-		return script_config.party_leave_event_name;
+		return script_config.party_leave_gilter_name;
+	case NPCE_GUILDCREATEFILTER:
+		return script_config.guild_create_gilter_name;
+	case NPCE_GUILDJOINFILTER:
+		return script_config.guild_join_gilter_name;
+	case NPCE_GUILDLEAVEFILTER:
+		return script_config.guild_leave_gilter_name;
+	case NPCE_PETLOOTEVENT:
+		return script_config.pet_loot_event_name;
+	case NPCE_PETFEEDEVENT:
+		return script_config.pet_feed_event_name;
+	case NPCE_PETFOODEVENT:
+		return script_config.pet_food_event_name;
+	case NPCE_VIEWEQUIPFILTER:
+		return script_config.view_equit_filter_name;
+	case NPCE_USESKILLFILTER:
+		return script_config.use_skill_filter_name;
+	case NPCE_USESKILLEVENT:
+		return script_config.use_skill_event_name;
+	case NPCE_USEITEMFILTER:
+		return script_config.use_item_filter_name;
+	case NPCE_USEITEMEVENT:
+		return script_config.use_item_event_name;
+	case NPCE_WILLLOADMAPEVENT:
+		return script_config.map_will_load_event_name;
+	case NPCE_CHATJOINFILTER:
+		return script_config.chatroom_join_filter_name;
+	case NPCE_TITLECHANGEFILTER:
+		return script_config.title_change_filter_name;
+	case NPCE_ROULETTESTARTFILTER:
+		return script_config.roulette_start_filter_name;
+	case NPCE_ROULETTEGETFILTER:
+		return script_config.roulette_get_filter_name;
 	default:
 		ShowError("npc_get_script_event_name: npce_index is outside the array limits: %d (max: %d).\n", npce_index, NPCE_MAX);
 		return NULL;

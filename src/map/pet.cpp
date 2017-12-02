@@ -1007,6 +1007,13 @@ static int pet_food(struct map_session_data *sd, struct pet_data *pd)
 	clif_send_petdata(sd,pd,1,pd->pet.intimate);
 	clif_pet_food(sd,pd->petDB->FoodID,1);
 
+#ifdef  EVENT_PETFEEDEVENT
+	if (event_exist(NPCE_PETFEEDEVENT) || event_exist(NPCE_PETFOODEVENT)) {
+		npc_script_event(sd, NPCE_PETFEEDEVENT);
+		npc_script_event(sd, NPCE_PETFOODEVENT);
+	}
+#endif //  EVENT_PETFEEDEVENT
+
 	return 0;
 }
 
@@ -1183,6 +1190,18 @@ static int pet_ai_sub_hard(struct pet_data *pd, struct map_session_data *sd, uns
 			return 0;
 		} else {
 			struct flooritem_data *fitem = (struct flooritem_data *)target;
+
+#ifdef  EVENT_PETLOOTEVENT
+			if (event_exist(NPCE_PETLOOTEVENT)) {
+				pc_setreg(sd, add_str("@petloot_item_id"), fitem->item.nameid);
+				pc_setreg(sd, add_str("@petloot_item_amount"), fitem->item.amount);
+				pc_setreg(sd, add_str("@petloot_game_id"), fitem->item.id);
+				pc_setreg(sd, add_str("@petloot_id"), fitem->item.nameid);
+				pc_setreg(sd, add_str("@petloot_gid"), fitem->item.id);
+				pc_setreg(sd, add_str("@petloot_amount"), fitem->item.amount);
+				npc_script_event(sd, NPCE_PETLOOTEVENT);
+			}
+#endif //  EVENT_PETLOOTEVENT
 
 			if(pd->loot->count < pd->loot->max) {
 				memcpy(&pd->loot->item[pd->loot->count++],&fitem->item,sizeof(pd->loot->item[0]));
