@@ -951,6 +951,7 @@ void clif_PartyBookingInsertNotify(struct map_session_data* sd, struct party_boo
 /* Bank System [Yommy/Hercules] */
 void clif_bank_deposit (struct map_session_data *sd, enum e_BANKING_DEPOSIT_ACK reason);
 void clif_bank_withdraw (struct map_session_data *sd,enum e_BANKING_WITHDRAW_ACK reason);
+void clif_Bank_Check(struct map_session_data* sd);
 void clif_parse_BankDeposit (int fd, struct map_session_data *sd);
 void clif_parse_BankWithdraw (int fd, struct map_session_data *sd);
 void clif_parse_BankCheck (int fd, struct map_session_data *sd);

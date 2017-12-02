@@ -9948,8 +9948,6 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos)
 		pc_setreg(sd, add_str("@equip_idx"), n);
 		pc_setreg(sd, add_str("@equip_pos"), n);
 		npc_script_event(sd, NPCE_EQUIPEVENT);
-		if (sd->state.processhalt)
-			return false;
 	}
 #endif
 
@@ -10119,8 +10117,6 @@ bool pc_unequipitem(struct map_session_data *sd, int n, int flag) {
 		pc_setreg(sd, add_str("@unequip_idx"), n);
 		pc_setreg(sd, add_str("@unequip_pos"), n);
 		npc_script_event(sd, NPCE_UNEQUIPEVENT);
-		if (sd->state.processhalt)
-			return false;
 	}
 #endif
 

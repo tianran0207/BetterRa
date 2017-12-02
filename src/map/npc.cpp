@@ -908,6 +908,21 @@ int npc_event(struct map_session_data* sd, const char* eventname, int ontouch)
 	return npc_event_sub(sd,ev,eventname);
 }
 
+int npc_event_atonce(struct map_session_data* sd, const char* eventname)
+{
+	struct event_data* ev = (struct event_data*)strdb_get(ev_db, eventname);
+	struct npc_data *nd;
+
+	nullpo_ret(sd);
+
+	if (ev == NULL || (nd = ev->nd) == NULL) {
+		ShowError("npc_event: event not found [%s]\n", eventname);
+		return 1;
+	}
+	run_script(ev->nd->u.scr.script, ev->pos, sd->bl.id, 0);
+	return 0;
+}
+
 /*==========================================
  * Sub chk then execute area event type
  *------------------------------------------*/
@@ -3242,6 +3257,9 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 	}
 
 	if(!strcmp(filepath,"INSTANCING")) //Instance NPCs will use this for commands
+		nd->instance_id = map[m].instance_id;
+
+	if (!strcmp(filepath, "FROMSCRIPT"))
 		nd->instance_id = map[m].instance_id;
 
 	nd->u.scr.timerid = INVALID_TIMER;

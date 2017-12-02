@@ -5875,7 +5875,10 @@ BUILDIN_FUNC(warpparty)
 	TBL_PC *pl_sd;
 	struct party_data* p;
 	int type, mapindex = 0, m = -1, i, rx = 0, ry = 0;
-
+	bool movedead = false;
+	const char *command = script_getfuncname(st);
+	if (command[strlen(command) - 1] == '2')
+		movedead = true;
 	const char* str = script_getstr(st,2);
 	int x = script_getnum(st,3);
 	int y = script_getnum(st,4);
@@ -5932,7 +5935,7 @@ BUILDIN_FUNC(warpparty)
 		if( str2 && strcmp(str2, map[pl_sd->bl.m].name) != 0 )
 			continue;
 
-		if( pc_isdead(pl_sd) )
+		if(!movedead && pc_isdead(pl_sd) )
 			continue;
 
 		switch( type )
@@ -13892,7 +13895,7 @@ BUILDIN_FUNC(petloot)
 BUILDIN_FUNC(getinventorylist)
 {
 	TBL_PC *sd;
-	char card_var[NAME_LENGTH];
+	char card_var[NAME_LENGTH], uid[24];
 	int i,j=0,k;
 
 	if (!script_charid2sd(2,sd))
@@ -13912,6 +13915,9 @@ BUILDIN_FUNC(getinventorylist)
 			}
 			pc_setreg(sd,reference_uid(add_str("@inventorylist_expire"), j),sd->inventory.u.items_inventory[i].expire_time);
 			pc_setreg(sd,reference_uid(add_str("@inventorylist_bound"), j),sd->inventory.u.items_inventory[i].bound);
+			pc_setreg(sd,reference_uid(add_str("@inventorylist_idx"), j), sd->inventory.u.items_inventory[i].id);
+			_ui64toa(sd->inventory.u.items_inventory[i].unique_id, uid, 10);
+			pc_setregstr(sd,reference_uid(add_str("@inventorylist_uid$"), j), uid);
 			j++;
 		}
 	}
@@ -19920,12 +19926,24 @@ BUILDIN_FUNC(instance_npcname)
 	const char *str;
 	unsigned short instance_id = 0;
 	struct npc_data *nd;
+	const char *p;
 
 	str = script_getstr(st,2);
 	if( script_hasdata(st,3) )
 		instance_id = script_getnum(st,3);
 	else
 		instance_id = script_instancegetid(st);
+
+	if (instance_id && (p = strstr(str, "::")) != NULL && strlen(p) > 2) {
+		static char srcname[NAME_LENGTH];
+		*(p = p + 2);
+		safestrncpy(srcname, str, p - str - 1);
+		if ((nd = npc_name2id(srcname)) != NULL) {
+			snprintf(srcname, sizeof(srcname), "dup_%hu_%d_%s", instance_id, nd->bl.id, p);
+			script_pushconststr(st, srcname);
+			return SCRIPT_CMD_SUCCESS;
+		}
+	}
 
 	if( instance_id && (nd = npc_name2id(str)) != NULL ) {
 		static char npcname[NAME_LENGTH];
@@ -23788,6 +23806,7 @@ BUILDIN_FUNC(delinventory)
 	}
 	return SCRIPT_CMD_SUCCESS;
 }
+
 BUILDIN_FUNC(setchartitle)
 {
 	TBL_PC *sd;
@@ -23812,6 +23831,1028 @@ BUILDIN_FUNC(setchartitle)
 
 	return SCRIPT_CMD_SUCCESS;
 }
+
+BUILDIN_FUNC(setdir)
+{
+	TBL_PC *sd;
+	unsigned char headdir, dir;
+	const char *command = script_getfuncname(st);
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (strcmp(command, "setheaddir") == 0) {
+		//0: Look forward. 1: Look right, 2: Look left.
+		headdir = script_getnum(st, 2);
+		if (headdir < 0 && headdir > 2)
+			return SCRIPT_CMD_SUCCESS;
+		sd->head_dir = headdir;
+	}
+	else {
+		dir = script_getnum(st, 2);
+		if (dir < 0 && dir > 8)
+			return SCRIPT_CMD_SUCCESS;
+		sd->ud.dir = dir;
+	}
+	clif_changed_dir(&sd->bl, AREA);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(party_leave)
+{
+	TBL_PC *sd;
+	if (!script_charid2sd(2, sd) || !sd->status.party_id) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	party_leave(sd);
+	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(openbank)
+{
+	TBL_PC *sd;
+	if (!script_charid2sd(2, sd)) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	if (!battle_config.feature_banking) {
+		clif_messagecolor(&sd->bl, color_table[COLOR_RED], msg_txt(sd, 1496), false, SELF); //Banking is disabled
+		return SCRIPT_CMD_FAILURE;
+	}
+	clif_Bank_Check(sd);
+	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(instance_users)
+{
+	struct instance_data *im;
+	unsigned short instance_id;
+	int i, users = 0;
+
+	if (script_hasdata(st, 2))
+		instance_id = script_getnum(st, 2);
+	else
+		instance_id = script_instancegetid(st);
+
+	if (instance_id == 0 || instance_id >= MAX_MAP_PER_SERVER) {
+		script_pushint(st, -1);
+		ShowError("buildin_instance_destroy: Trying to destroy invalid instance %hu.\n", instance_id);
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	im = &instance_data[instance_id];
+	if (im->state == INSTANCE_FREE) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	
+	}
+	for (i = 0; i < im->cnt_map; i++) {
+		users += map[im->map[i]->m].users;
+	}
+	script_pushint(st, users);
+	return SCRIPT_CMD_SUCCESS;
+
+}
+
+BUILDIN_FUNC(mesclear) 
+{
+	TBL_PC* sd;
+	if (!script_rid2sd(sd) || !st->mes_active || !st->oid)
+		return SCRIPT_CMD_SUCCESS;
+	clif_scriptclear(sd, st->oid);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(cap_value)
+{
+	int defval, minval, maxval;
+	defval = script_getnum(st, 2);
+	minval = script_getnum(st, 3);
+	maxval = script_getnum(st, 4);
+	cap_value(defval, minval, maxval);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(mobremove)
+{
+	mob_data *md;
+	int mobid = script_getnum(st, 2);
+	if ((md = map_id2md(mobid)) != NULL)
+		unit_free(&md->bl, CLR_OUTSIGHT);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getsameipinfo)
+{
+	TBL_PC* pl_sd;
+	struct s_mapiterator* iter;
+	uint32 ip = host2ip(script_getstr(st, 2));
+	int i = 0;
+	if (ip == 0) {
+		ShowError("buildin_getsameipinfo: Invalid IP('%s')", script_getstr(st, 2));
+		return SCRIPT_CMD_FAILURE;
+	}
+	iter = mapit_getallusers();
+	for (pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter)) {
+		if (session[pl_sd->fd]->client_addr == ip) {
+			mapreg_setreg(reference_uid(add_str("$@sameip_aid"), i), pl_sd->status.account_id);
+			mapreg_setreg(reference_uid(add_str("$@sameip_cid"), i), pl_sd->status.char_id);
+			mapreg_setregstr(reference_uid(add_str("$@sameip_name$"), i), pl_sd->status.name);
+			i++;
+		}
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(logout)
+{
+	TBL_PC* sd;
+	struct script_data *data;
+	int id;
+	int type = script_getnum(st, 2);
+
+	if (script_hasdata(st, 3)) {
+		data = script_getdata(st, 3);
+		if (data_isstring(data)){
+			sd = map_nick2sd(script_getstr(st, 2), false);
+		}
+		else {
+			id = script_getnum(st, 3);
+			if (!(sd = map_id2sd(id)))
+				sd = map_charid2sd(id);
+		}
+	}
+	else {
+		sd = map_id2sd(st->rid);
+	}
+	if (sd) {
+		clif_authfail_fd(sd->fd, type);
+		script_pushint(st, 1);	
+	}
+	else {
+		script_pushint(st, 0);
+	}
+	return SCRIPT_CMD_SUCCESS;
+	
+}
+
+BUILDIN_FUNC(searcharray)
+{
+	bool isstr = false;
+	struct script_data *array_id;
+	struct reg_db *array_id_ref = NULL;
+	const char *array_id_var, *srcstr, *cmpstr;
+	int array_id_n, i, srcint, cmpint, index = -1;
+	int32 array_id_id, array_id_idx;
+
+	array_id = script_getdata(st, 2);
+	array_id_var = reference_getname(array_id);
+	if (array_id_var[strlen(array_id_var) - 1] == '$') {
+		isstr = true;
+		srcstr = script_getstr(st, 3);
+	}
+	else
+		srcint = script_getnum(st, 3);
+
+	array_id_ref = reference_getref(array_id);
+	array_id_n = script_array_highest_key(st, NULL, array_id_var, array_id_ref);
+	if (array_id_n < 1) {
+		script_pushint(st, -1);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	array_id_id = reference_getid(array_id);
+	array_id_idx = reference_getindex(array_id);
+	if (array_id_n < array_id_idx) {
+		script_pushint(st, -1);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	for (i = 0; i < array_id_n; i++) {
+		if (index != -1)
+			break;
+		else if (isstr) {
+			cmpstr = (const char*)get_val2(st, reference_uid(array_id_id, array_id_idx + i), array_id_ref);
+			if (strcmp(srcstr, cmpstr) == 0) index = array_id_idx + i;
+			script_removetop(st, -1, 0);
+		}
+		else {
+			cmpint = (int)__64BPRTSIZE(get_val2(st, reference_uid(array_id_id, array_id_idx + i), array_id_ref));
+			if (srcint == cmpint) index = array_id_idx + i;
+			script_removetop(st, -1, 0);
+		}
+
+	}
+	script_pushint(st, index);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(countinventory)
+{
+	TBL_PC *sd;
+	int idx;
+	if (!script_rid2sd(sd)) {
+		return SCRIPT_CMD_FAILURE;
+	}
+	idx = script_getnum(st, 2);
+
+	if (idx > -1 && idx < MAX_INVENTORY 
+		&& sd->inventory.u.items_inventory[idx].nameid > 0 
+		&& sd->inventory.u.items_inventory[idx].amount > 0) {
+
+		script_pushint(st, sd->inventory.u.items_inventory[idx].amount);
+	}
+	else {
+		script_pushint(st, 0);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(identifybyidx)
+{
+	TBL_PC *sd;
+	int idx;
+	if (!script_rid2sd(sd)) {
+		return SCRIPT_CMD_FAILURE;
+	}
+	idx = script_getnum(st, 2);
+
+	if (idx > -1 && idx < MAX_INVENTORY
+		&& sd->inventory.u.items_inventory[idx].nameid > 0
+		&& sd->inventory.u.items_inventory[idx].amount > 0
+		&& sd->inventory.u.items_inventory[idx].identify != 1) {
+		skill_identify(sd, idx);
+	}
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(equipinventory)
+{
+	TBL_PC *sd;
+	int idx;
+	if (!script_rid2sd(sd)) {
+		return SCRIPT_CMD_FAILURE;
+	}
+	idx = script_getnum(st, 2);
+
+	if (idx > -1 && idx < MAX_INVENTORY 
+		&& sd->inventory.u.items_inventory[idx].nameid > 0 
+		&& sd->inventory.u.items_inventory[idx].amount > 0 
+		&& sd->inventory.u.items_inventory[idx].equip == 0) {
+		pc_equipitem(sd, sd->equip_index[idx], sd->inventory_data[idx]->equip);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(unequipinventory)
+{
+	TBL_PC *sd;
+	int idx;
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	idx = script_getnum(st, 2);
+	if (idx > -1 && idx < MAX_INVENTORY
+		&& sd->inventory.u.items_inventory[idx].nameid > 0
+		&& sd->inventory.u.items_inventory[idx].amount > 0
+		&& sd->inventory.u.items_inventory[idx].equip != 0) {
+		pc_unequipitem(sd, sd->equip_index[idx], 2);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(viewequip)
+{
+	TBL_PC *sd, *tsd;
+	int force;
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	tsd = map_id2sd(script_getnum(st, 2));
+	force = script_getnum(st, 3);
+
+	if (force || tsd->status.show_equip || pc_has_permission(sd, PC_PERM_VIEW_EQUIPMENT)) {
+		clif_viewequip_ack(sd, tsd);
+	}
+	else {
+		clif_msg(sd, VIEW_EQUIP_FAIL);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(itemexists)
+{
+	script_pushint(st, itemdb_exists(script_getnum(st, 2)) ? 1 : 0);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(setrenttime)
+{
+	int pos, addtime, expire_time;
+	short idx;
+	TBL_PC *sd;
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+	pos = script_getnum(st, 2);
+	
+	if (equip_index_check(pos))
+		idx = pc_checkequip(sd, equip_bitmask[pos]);
+	
+	if (idx >= 0) {
+		expire_time = sd->inventory.u.items_inventory[idx].expire_time;
+		addtime = script_getnum(st, 3);
+		if (!expire_time) {
+			script_pushint(st, 0);
+			return SCRIPT_CMD_SUCCESS;
+		}
+		if (addtime < 0 && abs(addtime) >= expire_time) {
+			script_pushint(st, 0);
+			pc_delitem(sd, idx, 1, 0, 0, LOG_TYPE_SCRIPT);
+			return SCRIPT_CMD_SUCCESS;
+		}
+		sd->inventory.u.items_inventory[idx].expire_time += addtime;
+		script_pushint(st, sd->inventory.u.items_inventory[idx].expire_time);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	script_pushint(st, -1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(battleignore)
+{
+	int flag;
+	TBL_PC *sd;
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+	flag = script_getnum(st, 2);
+
+	if (pc_isinvisible(sd)) {
+		if (!flag)
+			sd->sc.option &= ~OPTION_INVISIBLE;
+	}
+	else {
+		if (flag)
+			sd->sc.option |= OPTION_INVISIBLE;
+	}
+
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getequipexpiretick)
+{
+	int pos;
+	short idx;
+	TBL_PC *sd;
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+	pos = script_getnum(st, 2);
+
+	if (equip_index_check(pos))
+		idx = pc_checkequip(sd, equip_bitmask[pos]);
+
+	if (idx >= 0) {
+		script_pushint(st, sd->inventory.u.items_inventory[idx].expire_time);
+	}else{
+		script_pushint(st, -1);
+	}
+	
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(sc_check)
+{
+	int type;
+	TBL_PC *sd;
+	struct status_change* sc;
+	const struct TimerData *timer;
+	unsigned int tick;
+	if (!script_accid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+	type = script_getnum(st, 2);
+
+	sc = &sd->sc;
+
+	if (!sc->count || type >= SC_MAX || !sc->data[type]) {
+		;
+	}
+	else {
+		if (sc->data[type]->timer == INVALID_TIMER)
+			pc_setreg(sd, add_str("@sc_tickleft"), -1);
+		else {
+			timer = get_timer(sc->data[type]->timer);
+			tick = gettick();
+			if (timer != NULL && DIFF_TICK(timer->tick, tick) > 0) 
+				pc_setreg(sd, add_str("@sc_tickleft"), DIFF_TICK(timer->tick, tick));
+			else 
+				pc_setreg(sd, add_str("@sc_tickleft"), -1);
+		}
+
+		pc_setreg(sd, add_str("@sc_val1"), sc->data[type]->val1);
+		pc_setreg(sd, add_str("@sc_val2"), sc->data[type]->val2);
+		pc_setreg(sd, add_str("@sc_val3"), sc->data[type]->val3);
+		pc_setreg(sd, add_str("@sc_val4"), sc->data[type]->val4);
+		script_pushint(st, 1);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	script_pushint(st, 0);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+static int buildin_script4each_sub(struct block_list *bl, va_list ap)
+{
+
+	struct script_code *scriptcode = va_arg(ap, struct script_code *);
+	const char *event = va_arg(ap, const char *);
+	if (scriptcode == NULL) {
+		TBL_PC *sd = map_id2sd(bl->id);
+		npc_event_atonce(sd, event);
+	}
+	else
+		run_script(scriptcode, 0, bl->id, 0);
+
+	return 0;
+}
+
+BUILDIN_FUNC(script4each)
+{
+	int type, i;
+	const char *bonus_script;
+	struct map_session_data *pl_sd;
+	struct script_code *scriptcode = NULL;
+
+	struct party_data *p = NULL;
+	struct guild *g = NULL;
+	TBL_PC *sd = NULL;
+
+	bonus_script = script_getstr(st, 2);
+	type = script_getnum(st, 3);
+
+	if (bonus_script && bonus_script[0] && !stristr(bonus_script, "::On")) {
+		scriptcode = parse_script(bonus_script, "script4each", 0, 0);
+		if (scriptcode == NULL)
+			return SCRIPT_CMD_FAILURE;
+	}
+
+
+	switch (type)
+	{
+	case 0:
+	{
+		struct s_mapiterator *iter = mapit_getallusers();
+		for (pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter)) {
+			if (scriptcode == NULL)
+				npc_event_atonce(pl_sd, bonus_script);
+			else
+				run_script(scriptcode, 0, pl_sd->bl.id, 0);
+		}
+		mapit_free(iter);
+	}
+	break;
+	case 1:
+
+		if (script_getstr(st, 4) == NULL) {
+			script_pushint(st, 0);
+			return SCRIPT_CMD_FAILURE;
+		}
+		if (map_mapname2mapid(script_getstr(st, 4)) < 0) {
+			script_pushint(st, 0);
+			return SCRIPT_CMD_FAILURE;
+		}
+
+		map_foreachinmap(buildin_script4each_sub, map_mapname2mapid(script_getstr(st, 4)), BL_PC, scriptcode, bonus_script);
+
+		break;
+
+	case 2:
+	{
+		int map_index, x, y, range;
+		struct block_list center;
+
+		if (!script_hasdata(st, 7))
+			break;
+		else
+		{
+			if (map_mapname2mapid(script_getstr(st, 4)) < 0)
+				break;
+
+			x = script_getnum(st, 5);
+			y = script_getnum(st, 6);
+			range = script_getnum(st, 7);
+		}
+
+		map_index = map_mapname2mapid(script_getstr(st, 4));
+
+		center.m = map_index;
+		center.x = x;
+		center.y = y;
+
+		map_foreachinrange(buildin_script4each_sub, &center, range, BL_PC, scriptcode, bonus_script);
+	}
+	break;
+
+	case 3:
+
+		if (!script_hasdata(st, 4))
+			break;
+		else
+			sd = map_charid2sd(script_getnum(st, 4));
+
+		if (!sd) break;
+		p = party_search(sd->status.party_id);
+
+		if (p == NULL)
+			break;
+
+		for (i = 0; i < MAX_PARTY; i++) {
+			TBL_PC *tsd;
+			if (!p->party.member[i].account_id)
+				continue;
+
+			tsd = map_id2sd(p->party.member[i].account_id);
+
+			if (!tsd || tsd->status.char_id != p->party.member[i].char_id)
+				continue;
+
+			if (scriptcode == NULL)
+				npc_event_atonce(tsd, bonus_script);
+			else
+				run_script(scriptcode, 0, tsd->bl.id, 0);
+		}
+		break;
+
+	case 4:
+
+		if (!script_hasdata(st, 4))
+			break;
+		else
+			sd = map_charid2sd(script_getnum(st, 4));
+
+		if (!sd) break;
+		g = guild_search(sd->status.guild_id);
+
+		if (g == NULL)
+			break;
+
+		for (i = 0; i < MAX_GUILD; i++) {
+			TBL_PC *tsd;
+			if (!g->member[i].account_id)
+				continue;
+
+			tsd = map_id2sd(g->member[i].account_id);
+			if (!tsd || tsd->status.char_id != g->member[i].char_id)
+				continue;
+
+			if (scriptcode == NULL)
+				npc_event_atonce(tsd, bonus_script);
+			else
+				run_script(scriptcode, 0, tsd->bl.id, 0);
+		}
+		break;
+
+	case 5:
+	{
+		int map_index, x0, y0, x1, y1;
+
+		if (!script_hasdata(st, 8))
+			break;
+		else
+		{
+			if (map_mapname2mapid(script_getstr(st, 4)) < 0)
+				break;
+
+			x0 = script_getnum(st, 5);
+			y0 = script_getnum(st, 6);
+			x1 = script_getnum(st, 7);
+			y1 = script_getnum(st, 8);
+		}
+		map_index = map_mapname2mapid(script_getstr(st, 4));
+		map_foreachinarea(buildin_script4each_sub, map_index, x0, y0, x1, y1, BL_PC, scriptcode, bonus_script);
+	}
+	break;
+
+	case 6:
+
+		if (!script_hasdata(st, 4))
+			break;
+		else
+			p = party_search(script_getnum(st, 4));
+
+		if (p == NULL)
+			break;
+
+		for (i = 0; i < MAX_PARTY; i++) {
+			TBL_PC *tsd;
+			if (!p->party.member[i].account_id)
+				continue;
+
+			tsd = map_id2sd(p->party.member[i].account_id);
+
+			if (!tsd || tsd->status.char_id != p->party.member[i].char_id)
+				continue;
+
+			if (scriptcode == NULL)
+				npc_event_atonce(tsd, bonus_script);
+			else
+				run_script(scriptcode, 0, tsd->bl.id, 0);
+		}
+		break;
+
+	case 7:
+		if (!script_hasdata(st, 4))
+			break;
+		else
+			g = guild_search(script_getnum(st, 4));
+
+		if (g == NULL)
+			break;
+
+		for (i = 0; i < MAX_GUILD; i++) {
+			TBL_PC *tsd;
+			if (!g->member[i].account_id)
+				continue;
+
+			tsd = map_id2sd(g->member[i].account_id);
+			if (!tsd || tsd->status.char_id != g->member[i].char_id)
+				continue;
+
+			if (scriptcode == NULL)
+				npc_event_atonce(tsd, bonus_script);
+			else
+				run_script(scriptcode, 0, tsd->bl.id, 0);
+		}
+		break;
+
+	default:
+		ShowError("script4each : unknow type: %d\n", type);
+		break;
+	}
+
+	if (scriptcode)
+		script_free_code(scriptcode);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(gethotkey)
+{
+	TBL_PC *sd;
+	int idx, type, req;
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	idx = script_getnum(st, 2);
+	type = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+	if (idx < 0 || idx >= MAX_HOTKEYS) {
+		ShowError("buildin_gethotkey: Invalid hotkey. it limit in '0 ~ %d'.\n", MAX_HOTKEYS);
+		return SCRIPT_CMD_FAILURE;
+	}
+		
+	switch (type) {
+	case 0:
+		req = sd->status.hotkeys[idx].id ? sd->status.hotkeys[idx].type : -1;
+	case 1:
+		req = sd->status.hotkeys[idx].id ? sd->status.hotkeys[idx].id : -1;
+	case 2:
+		req = (sd->status.hotkeys[idx].id && sd->status.hotkeys[idx].type) ? sd->status.hotkeys[idx].lv : -1;
+	default:
+		ShowError("buildin_gethotkey: Invalid type. it limit in '0 ~ %d'.\n", 2);
+		return SCRIPT_CMD_FAILURE;
+	}
+	script_pushint(st, req);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(sethotkey)
+{
+	TBL_PC *sd;
+	int idx, type, id, lv, req = 0;
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	idx = script_getnum(st, 2);
+	type = script_getnum(st, 3);
+	id = script_getnum(st, 4);
+	lv = script_getnum(st, 5);
+	if (idx < 0 || idx >= MAX_HOTKEYS) {
+		ShowError("buildin_gethotkey: Invalid hotkey. it limit in '0 ~ %d'.\n", MAX_HOTKEYS);
+		return SCRIPT_CMD_FAILURE;
+	}
+	if (type && lv > 0 && lv <= pc_checkskill(sd, id)) {
+		sd->status.hotkeys[idx].id = id;
+		sd->status.hotkeys[idx].type = type;
+		sd->status.hotkeys[idx].lv = lv;
+		clif_hotkeys_send(sd);
+		req = 1;
+	}
+	else {
+		int i;
+		for (i = 0; i < MAX_INVENTORY; i++) {
+			if (sd->inventory.u.items_inventory[i].nameid == id)
+				break;
+		}
+		if (i < MAX_INVENTORY) {
+			sd->status.hotkeys[idx].id = id;
+			sd->status.hotkeys[idx].type = type;
+			sd->status.hotkeys[idx].lv = lv;
+			clif_hotkeys_send(sd);
+			req = 1;
+		}
+	}
+	script_pushint(st, req);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bonus_script_remove)
+{
+	TBL_PC *sd;
+	struct linkdb_node *node = NULL;
+	const char *script_str;
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_str = script_getstr(st, 2);
+	if (!sd || !(node = sd->bonus_script.head))
+		return SCRIPT_CMD_SUCCESS;
+
+	while (node) {
+		struct linkdb_node *next = node->next;
+		struct s_bonus_script_entry *entry = (struct s_bonus_script_entry *)node->data;
+		if (strcmpi(script_str, StringBuf_Value(entry->script_buf)) == 0) {
+			linkdb_erase(&sd->bonus_script.head, (void *)((intptr_t)entry));
+			pc_bonus_script_free_entry(sd, entry);
+			break;
+		}
+		node = next;
+	}
+	if (sd->bonus_script.count == 0) {
+		if (sd->bonus_script.head && sd->bonus_script.head->data)
+			pc_bonus_script_free_entry(sd, (struct s_bonus_script_entry *)sd->bonus_script.head->data);
+		linkdb_final(&sd->bonus_script.head);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getchartitle)
+{
+	TBL_PC *sd;
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, sd->status.title_id);
+	
+	return SCRIPT_CMD_SUCCESS;
+}
+BUILDIN_FUNC(getequipidx)
+{
+	int pos;
+	TBL_PC *sd;
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+	pos = script_getnum(st, 2);
+
+	if (equip_index_check(pos))
+		script_pushint(st, pc_checkequip(sd, equip_bitmask[pos]));
+	else
+		script_pushint(st, 0);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(resetoptionbyidx)
+{
+	TBL_PC *sd;
+	int idx, pos;
+	const char *command = script_getfuncname(st);
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (strstr(command, "pos")) {
+		pos = script_getnum(st, 2);
+		if (equip_index_check(pos))
+			idx = pc_checkequip(sd, equip_bitmask[pos]);
+	}
+	else {
+		idx = script_getnum(st, 2);
+	}
+
+	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
+		memset(sd->inventory.u.items_inventory[idx].option, 0, sizeof(struct s_item_randomoption) * MAX_ITEM_RDM_OPT);
+		clif_delitem(sd, idx, 1, 3);
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
+		clif_additem(sd, idx, 1, 0);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getoptionbyidx)
+{
+	TBL_PC *sd;
+	int idx, pos, i;
+	const char *command = script_getfuncname(st);
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (strstr(command, "pos")) {
+		pos = script_getnum(st, 2);
+		if (equip_index_check(pos))
+			idx = pc_checkequip(sd, equip_bitmask[pos]);
+	}
+	else {
+		idx = script_getnum(st, 2);
+	}
+	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+		for (i = 0; i < MAX_ITEM_RDM_OPT; i++) {
+			pc_setreg(sd, reference_uid(add_str("@option_id"), i), sd->inventory.u.items_inventory[idx].option[i].id);
+			pc_setreg(sd, reference_uid(add_str("@option_value"), i), sd->inventory.u.items_inventory[idx].option[i].value);
+			pc_setreg(sd, reference_uid(add_str("@option_param"), i), sd->inventory.u.items_inventory[idx].option[i].param);
+		}
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(setoptionbyidx)
+{
+	TBL_PC *sd;
+	struct item *it;
+	int idx, pos;
+	const char *command = script_getfuncname(st);
+
+	if (!script_charid2sd(6, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (strstr(command, "pos")) {
+		pos = script_getnum(st, 2);
+		if (equip_index_check(pos))
+			idx = pc_checkequip(sd, equip_bitmask[pos]);
+	}
+	else {
+		idx = script_getnum(st, 2);
+	}
+
+	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+		it = &sd->inventory.u.items_inventory[idx];
+		script_getitem_randomoption(st, it, command, 3);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(duplicate)
+{
+	char w1[50], w2[50], w3[50], w4[50], mapname[MAP_NAME_LENGTH], other[50 - MAP_NAME_LENGTH];
+	const char *dup_str = NULL;
+	const char *stat_buf = "INSTANCING";
+	unsigned short instance_id;
+	int16 m;
+	const char *command = script_getfuncname(st);
+	
+
+	if (!strcmp(command, "duplicate")) {
+		dup_str = script_getstr(st, 2);
+		if (sscanf(dup_str, "%s\t%s\t%s\t%s", w1, w2, w3, w4) != 4 || sscanf(w1, "%15[^,]%s", mapname, other) != 2)
+			return SCRIPT_CMD_SUCCESS;
+	}
+	else {
+		safestrncpy(w1, script_getstr(st, 2), 50);
+		safestrncpy(w2, script_getstr(st, 3), 50);
+		safestrncpy(w3, script_getstr(st, 4), 50);
+		safestrncpy(w4, script_getstr(st, 5), 50);
+	}
+
+	instance_id = script_instancegetid(st);
+
+	if (!instance_id || (m = map_mapname2mapid(mapname)) < 0 || (m = instance_mapname2mapid(map[m].name, instance_id)) < 0)
+		npc_parse_duplicate(w1, w2, w3, w4, dup_str, dup_str, "FROMSCRIPT");
+
+	else {
+		struct npc_data *nd;
+		char srcname[NPC_NAME_LENGTH], npcname[NPC_NAME_LENGTH];
+		int length;
+		const char *p;
+		length = strlen(w2);
+		if (w2[length - 1] == ')' && length > 11 && length - 11 < sizeof(srcname)) {
+			safestrncpy(srcname, w2 + 10, length - 10);
+
+			if ((p = strchr(w3, '::')) == NULL || strlen(p) < 3)
+				return SCRIPT_CMD_SUCCESS;
+			*(p = p + 2);
+
+			if ((nd = npc_name2id(srcname)) != NULL) {
+				snprintf(w1, sizeof(w1), "%s%s", map[m].name, other);
+				snprintf(npcname, sizeof(npcname), "dup_%hu_%d_%s", instance_id, nd->bl.id, p);
+				w3[p - w3] = '\0';
+				snprintf(w3, sizeof(w3), "%s%s", w3, npcname);
+				npc_parse_duplicate(w1, w2, w3, w4, stat_buf, stat_buf, "FROMSCRIPT");
+			}
+		}
+
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(unloadduplicate)
+{
+	const char *npcname = NULL;
+	struct npc_data* nd;
+
+	npcname = script_getstr(st, 2);
+	if ((nd = npc_name2id(npcname)) == NULL) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	if (!nd->src_id || strcmp(nd->path, "FROMSCRIPT")) {
+		script_pushint(st, -1);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	npc_unload(nd, true);
+	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+// sendmail <发件人名或charid>,<收件人名>,<题目>,<内容>{,<ZENY>{,<物品ID数组>,<物品数量数组>}
+// 返回 1  发送成功
+// 返回 0  <发件人名或charid> 无效
+// 返回 -1 题目为空
+// 返回 -2 数组变量不是整数型数组
+// 返回 -3 邮件发送失败
+
+BUILDIN_FUNC(sendmail)
+{
+
+	TBL_PC* sd;
+	struct script_data *data;
+	struct mail_message msg;
+	const char *text;
+
+	data = script_getdata(st, 2);
+	get_val(st, data); // Convert into value in case of a variable
+
+	if (data_isstring(data) ? !script_nick2sd(3, sd) : !script_charid2sd(3, sd)) {
+		script_pushint(st, 0); //return 0, according docs
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	memset(&msg, 0, sizeof(struct mail_message));
+	msg.id = 0; // id will be assigned by charserver
+	msg.send_id = sd->status.char_id;
+	msg.dest_id = 0; // will attempt to resolve name
+	safestrncpy(msg.send_name, sd->status.name, NAME_LENGTH);
+	safestrncpy(msg.dest_name, (char*)script_getstr(st, 3), NAME_LENGTH);
+	safestrncpy(msg.title, (char*)script_getstr(st, 4), MAIL_TITLE_LENGTH);
+	msg.type = MAIL_INBOX_RETURNED;
+
+	if (msg.title[0] == '\0') {
+		script_pushint(st, -1);
+		return SCRIPT_CMD_SUCCESS; // Message has no length and somehow client verification was skipped.
+	}
+
+	text = script_getstr(st, 5);
+	if (strlen(text))
+		safestrncpy(msg.body, (char*)text, strlen(text) + 1);
+	else
+		memset(msg.body, 0x00, MAIL_BODY_LENGTH);
+
+	msg.timestamp = time(NULL);
+	if (script_hasdata(st, 6))
+		msg.zeny = script_getnum(st, 6);
+	if (script_hasdata(st, 7) && script_hasdata(st, 8)) {
+		struct script_data *item_id = script_getdata(st, 7);
+		struct script_data *item_amount = script_getdata(st, 8);
+		struct reg_db *item_id_ref, *item_amount_ref;
+		int32 item_id_idx, item_id_id, item_amount_idx, item_amount_id;
+		int i;
+		if (data_isstring(item_id) || data_isstring(item_amount)) {
+			script_pushint(st, -2);
+			return SCRIPT_CMD_SUCCESS;
+		}
+		item_id_ref = reference_getref(item_id);
+		item_amount_ref = reference_getref(item_amount);
+		item_id_idx = reference_getindex(item_id);
+		item_id_id = reference_getid(item_id);
+		item_amount_idx = reference_getindex(item_amount);
+		item_amount_id = reference_getid(item_amount);
+
+		for (i = 0; i < MAIL_MAX_ITEM; i++) {
+			msg.item[i].nameid = (int)__64BPRTSIZE(get_val2(st, reference_uid(item_id_id, item_id_idx + i), item_id_ref));
+			script_removetop(st, -1, 0);
+			msg.item[i].amount = (int)__64BPRTSIZE(get_val2(st, reference_uid(item_amount_id, item_amount_idx + i), item_amount_ref));
+			script_removetop(st, -1, 0);
+			if (msg.item[i].nameid)
+				msg.item[i].identify = 1;
+		}
+	}
+
+
+	if (!intif_Mail_send(sd->status.account_id, &msg))
+		script_pushint(st, -3);
+	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -24462,5 +25503,38 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getinventoryinfo, "ii?"),
 	BUILDIN_DEF(delinventory, "ii?"),
 	BUILDIN_DEF(setchartitle, "i?"),
+	BUILDIN_DEF2(warpparty, "warpparty2", "siii???"),
+	BUILDIN_DEF2(setdir, "setheaddir", "i?"),
+	BUILDIN_DEF2(setdir, "setbodydir", "i?"),
+	BUILDIN_DEF(party_leave, "?"),
+	BUILDIN_DEF(openbank,"?"),
+	BUILDIN_DEF(instance_users, "?"),
+	BUILDIN_DEF(mesclear, ""),
+	BUILDIN_DEF(cap_value, "iii"),
+	BUILDIN_DEF(mobremove, "i"),
+	BUILDIN_DEF(getsameipinfo,"s"),
+	BUILDIN_DEF(logout,"i?"),
+	BUILDIN_DEF(searcharray, "rv"),
+	BUILDIN_DEF(countinventory,"i"),
+	BUILDIN_DEF(equipinventory, "i"),
+	BUILDIN_DEF(unequipinventory, "i"),
+	BUILDIN_DEF(viewequip, "i?"),
+	BUILDIN_DEF(setrenttime, "ii?"),
+	BUILDIN_DEF(battleignore, "i?"),
+	BUILDIN_DEF(sc_check,"i?"),
+	BUILDIN_DEF(bonus_script_remove, "s?"),
+	BUILDIN_DEF(getchartitle, "?"),
+	BUILDIN_DEF(getequipidx, "i?"),
+	BUILDIN_DEF(resetoptionbyidx, "i?"),
+	BUILDIN_DEF2(resetoptionbyidx, "resetoptionbypos", "i?"),
+	BUILDIN_DEF(getoptionbyidx, "i?"),
+	BUILDIN_DEF2(getoptionbyidx, "getoptionbypos", "i?"),
+	BUILDIN_DEF(setoptionbyidx, "iiii?"),
+	BUILDIN_DEF2(setoptionbyidx, "setoptionbypos", "iiii?"),
+	BUILDIN_DEF(duplicate, "s"),
+	BUILDIN_DEF2(duplicate, "copynpc", "s"),
+	BUILDIN_DEF(unloadduplicate, "s"),
+	BUILDIN_DEF2(unloadduplicate, "unloadcopynpc", "s"),
+	BUILDIN_DEF(sendmail, "vsss???"),
 	{NULL,NULL,NULL},
 };
