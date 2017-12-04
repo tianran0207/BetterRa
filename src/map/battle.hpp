@@ -151,6 +151,7 @@ struct Battle_Config
 	int hide_cmd;
 	int baspd_fixed;
 	int share_quests_area;
+	int combo_mode;
 	//------------------------------
 	int warp_point_debug;
 	int enable_critical;

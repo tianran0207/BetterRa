@@ -963,8 +963,47 @@ static int itemdb_combo_split_atoi (char *str, int *val) {
 /**
  * <combo{:combo{:combo:{..}}}>,<{ script }>
  **/
+static bool itemdb_combos_contrast(struct item_data * id, const int *item, int retcount, int *idx) {
+	int i, m, n, count = 0, itemid;
+	
+	*(idx) = 0;
+	if (id->combos == NULL)
+		return false;
+
+	
+	for (i = 0; i < id->combos_count; i++) {
+		
+		if (id->combos[i]->count != retcount)
+			continue;
+
+		count = 0;
+		for (m = 0; m < id->combos[i]->count; m++) {
+			ARR_FIND(0, retcount, n, id->combos[i]->nameid[m] == (itemid = *(item + n)));
+			if (n < retcount)
+				count++;
+		}
+		if (count == retcount) {
+			*(idx) = i;
+			/*for (i = 0; i < id->combos_count; i++) {
+				for (m = 0; m < id->combos[i]->count; m++) {
+					printf("%d:", id->combos[i]->nameid[m]);
+				}
+				printf(" | ");
+			}
+			printf(" :: ");
+			for (n = 0; n < retcount; n++) {
+				printf("%d:", *(item + n));
+			}
+			printf("\n");*/
+			return true;
+		}
+			
+	}
+	return false;
+}
+
 static void itemdb_read_combos(const char* basedir, bool silent) {
-	uint32 lines = 0, count = 0;
+	uint32 lines = 0, count = 0, number = 0;
 	char line[1024];
 
 	char path[256];
@@ -976,6 +1015,9 @@ static void itemdb_read_combos(const char* basedir, bool silent) {
 		if(silent==0) ShowError("itemdb_read_combos: File not found \"%s\".\n", path);
 		return;
 	}
+
+	if (battle_config.combo_mode != 0)
+		number = db_size(itemdb_combo);
 
 	// process rows one by one
 	while(fgets(line, sizeof(line), fp)) {
@@ -1039,44 +1081,61 @@ static void itemdb_read_combos(const char* basedir, bool silent) {
 			if( v < retcount )
 				continue;
 			id = itemdb_exists(items[0]);
-			idx = id->combos_count;
-			/* first entry, create */
-			if( id->combos == NULL ) {
-				CREATE(id->combos, struct item_combo*, 1);
-				id->combos_count = 1;
-			} else {
-				RECREATE(id->combos, struct item_combo*, ++id->combos_count);
-			}
-			CREATE(id->combos[idx],struct item_combo,1);
-			id->combos[idx]->nameid = (unsigned short*)aMalloc( retcount * sizeof(unsigned short) );
-			id->combos[idx]->count = retcount;
-			id->combos[idx]->script = parse_script(str[1], path, lines, 0);
-			id->combos[idx]->id = count;
-			id->combos[idx]->isRef = false;
-			/* populate ->nameid field */
-			for( v = 0; v < retcount; v++ ) {
-				id->combos[idx]->nameid[v] = items[v];
-			}
-
-			/* populate the children to refer to this combo */
-			for( v = 1; v < retcount; v++ ) {
-				struct item_data * it;
-				int index;
-				it = itemdb_exists(items[v]);
-				index = it->combos_count;
-				if( it->combos == NULL ) {
-					CREATE(it->combos, struct item_combo*, 1);
-					it->combos_count = 1;
-				} else {
-					RECREATE(it->combos, struct item_combo*, ++it->combos_count);
+			if (battle_config.combo_mode == 2 && itemdb_combos_contrast(id, items, retcount, &idx)) {
+				script_free_code(id->combos[idx]->script);
+				id->combos[idx]->script = parse_script(str[1], path, lines, 0);
+				for (v = 1; v < retcount; v++) {
+					struct item_data * it;
+					int index;
+					it = itemdb_exists(items[v]);
+					if (itemdb_combos_contrast(it, items, retcount, &index)) {
+						it->combos[index]->script = id->combos[idx]->script;
+					}
 				}
-				CREATE(it->combos[index],struct item_combo,1);
-				/* we copy previously alloc'd pointers and just set it to reference */
-				memcpy(it->combos[index],id->combos[idx],sizeof(struct item_combo));
-				/* we flag this way to ensure we don't double-dealloc same data */
-				it->combos[index]->isRef = true;
 			}
-			uidb_put(itemdb_combo,id->combos[idx]->id,id->combos[idx]);
+			else {
+				idx = id->combos_count;
+				/* first entry, create */
+				if (id->combos == NULL) {
+					CREATE(id->combos, struct item_combo*, 1);
+					id->combos_count = 1;
+				}
+				else {
+					RECREATE(id->combos, struct item_combo*, ++id->combos_count);
+				}
+				CREATE(id->combos[idx], struct item_combo, 1);
+				id->combos[idx]->nameid = (unsigned short*)aMalloc(retcount * sizeof(unsigned short));
+				id->combos[idx]->count = retcount;
+				id->combos[idx]->script = parse_script(str[1], path, lines, 0);
+				id->combos[idx]->id = number;
+				id->combos[idx]->isRef = false;
+				/* populate ->nameid field */
+				for (v = 0; v < retcount; v++) {
+					id->combos[idx]->nameid[v] = items[v];
+				}
+
+				/* populate the children to refer to this combo */
+				for (v = 1; v < retcount; v++) {
+					struct item_data * it;
+					int index;
+					it = itemdb_exists(items[v]);
+					index = it->combos_count;
+					if (it->combos == NULL) {
+						CREATE(it->combos, struct item_combo*, 1);
+						it->combos_count = 1;
+					}
+					else {
+						RECREATE(it->combos, struct item_combo*, ++it->combos_count);
+					}
+					CREATE(it->combos[index], struct item_combo, 1);
+					/* we copy previously alloc'd pointers and just set it to reference */
+					memcpy(it->combos[index], id->combos[idx], sizeof(struct item_combo));
+					/* we flag this way to ensure we don't double-dealloc same data */
+					it->combos[index]->isRef = true;
+				}
+				uidb_put(itemdb_combo, id->combos[idx]->id, id->combos[idx]);
+			}
+			number++;
 		}
 		count++;
 	}
