@@ -3986,6 +3986,18 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		}
 		map[m].flag.nosave = state;
 	}
+	else if (!strcmpi(w3, "hideguildinfo"))
+		map[m].flag.hideguildinfo = state;
+	else if (!strcmpi(w3, "hidepartyinfo"))
+		map[m].flag.hidepartyinfo = state;
+	else if (!strcmpi(w3, "notoken"))
+		map[m].flag.notoken = state;
+	else if (!strcmpi(w3, "nocapture"))
+		map[m].flag.nocapture = state;
+	else if (!strcmpi(w3, "noautoloot"))
+		map[m].flag.noautoloot = state;
+	else if (!strcmpi(w3, "mobinfo"))
+		map[m].flag.mobinfo = atoi(w4);
 	else if (!strcmpi(w3,"autotrade"))
 		map[m].flag.autotrade=state;
 	else if (!strcmpi(w3,"allowks"))

@@ -7682,7 +7682,7 @@ BUILDIN_FUNC(makeitem) {
 		if(!flag)
 			item_tmp.identify = 1;
 		else
-			item_tmp.identify = itemdb_isidentified(nameid);
+			item_tmp.identify = itemdb_isidentified(nameid, 32);
 
 		map_addflooritem(&item_tmp,amount,m,x,y,0,0,0,4,0);
 	}
@@ -21065,7 +21065,7 @@ BUILDIN_FUNC(getrandgroupitem) {
 
 	memset(&item_tmp,0,sizeof(item_tmp));
 	item_tmp.nameid   = entry->nameid;
-	item_tmp.identify = itemdb_isidentified(entry->nameid);
+	item_tmp.identify = itemdb_isidentified(entry->nameid, 1);
 
 	if (!qty)
 		qty = entry->amount;
@@ -24144,7 +24144,23 @@ BUILDIN_FUNC(viewequip)
 
 BUILDIN_FUNC(itemexists)
 {
-	script_pushint(st, itemdb_exists(script_getnum(st, 2)) ? 1 : 0);
+	struct script_data *data;
+	struct item_data *item_data = NULL;
+	int nameid, reval = 1;
+	data = script_getdata(st, 2);
+	get_val(st, data);
+	if (data_isstring(data)) {
+		const char *name = conv_str(st, data);
+		if ((item_data = itemdb_searchname(name)) == NULL)
+			reval = 0;
+	}
+	else {
+		nameid = conv_num(st, data);
+		if ((item_data = itemdb_exists(nameid)) == NULL)
+			reval = 0;
+
+	}
+	script_pushint(st, reval);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -24853,6 +24869,63 @@ BUILDIN_FUNC(sendmail)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+
+static int buildin_getareagid_sub(struct block_list *bl, va_list ap)
+{
+	int *count = va_arg(ap, int *);
+	mapreg_setreg(reference_uid(add_str("$@areagid"), (*count)), bl->id);
+	(*count)++;
+	return 0;
+}
+
+BUILDIN_FUNC(getareagid)
+{
+	int map_id, type, count;
+	const char* mapname = NULL;
+	type = script_getnum(st, 3);
+	mapname = script_getstr(st, 2);
+
+	if (strcmp(mapname, "this") == 0) {
+		TBL_PC *sd;
+		if (!script_rid2sd(sd))
+			return SCRIPT_CMD_SUCCESS;
+		map_id = map_mapindex2mapid(sd->mapindex);
+	}
+	else
+		map_id = map_mapname2mapid(mapname);
+
+	if (map_id < 0) {
+		script_pushint(st, -2);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	count = 0;
+	if (script_hasdata(st, 7)) {
+		int x0, y0, x1, y1;
+		x0 = script_getnum(st, 4);
+		y0 = script_getnum(st, 5);
+		x1 = script_getnum(st, 6);
+		y1 = script_getnum(st, 7);
+		map_foreachinarea(buildin_getareagid_sub, map_id, x0, y0, x1, y1, type, &count);
+	}
+	else {
+		struct block_list center;
+		int range;
+		if (script_hasdata(st, 6)) {
+			center.m = map_id;
+			center.x = script_getnum(st, 4);
+			center.y = script_getnum(st, 5);
+			range = script_getnum(st, 6);
+			map_foreachinrange(buildin_getareagid_sub, &center, range, type, &count);
+		}
+		else {
+			map_foreachinmap(buildin_getareagid_sub, map_id, type, &count);
+		}
+	}
+	script_pushint(st, count);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -24897,6 +24970,15 @@ BUILDIN_FUNC(preg_match) {
 	script_pushint(st,0);
 	return SCRIPT_CMD_SUCCESS;
 #endif
+}
+
+const char* get_first_func_name(unsigned char *buf) {
+	int pos = 0, func;
+	if (get_com(buf, &pos) == C_NAME) {
+		func = GETVALUE(buf, pos);
+		return str_buf + str_data[func].str;
+	}
+	return NULL;
 }
 
 /// script command definitions
@@ -25516,12 +25598,15 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(logout,"i?"),
 	BUILDIN_DEF(searcharray, "rv"),
 	BUILDIN_DEF(countinventory,"i"),
+	BUILDIN_DEF(identifybyidx, "i"),
 	BUILDIN_DEF(equipinventory, "i"),
 	BUILDIN_DEF(unequipinventory, "i"),
 	BUILDIN_DEF(viewequip, "i?"),
 	BUILDIN_DEF(setrenttime, "ii?"),
+	BUILDIN_DEF2(setrenttime, "resume", "ii?"),
 	BUILDIN_DEF(battleignore, "i?"),
 	BUILDIN_DEF(sc_check,"i?"),
+	BUILDIN_DEF(script4each, "si?????"),
 	BUILDIN_DEF(bonus_script_remove, "s?"),
 	BUILDIN_DEF(getchartitle, "?"),
 	BUILDIN_DEF(getequipidx, "i?"),
@@ -25532,9 +25617,20 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setoptionbyidx, "iiii?"),
 	BUILDIN_DEF2(setoptionbyidx, "setoptionbypos", "iiii?"),
 	BUILDIN_DEF(duplicate, "s"),
-	BUILDIN_DEF2(duplicate, "copynpc", "s"),
+	BUILDIN_DEF2(duplicate, "dupnpc", "ssss"),
+	BUILDIN_DEF2(duplicate, "copynpc", "ssss"),
 	BUILDIN_DEF(unloadduplicate, "s"),
 	BUILDIN_DEF2(unloadduplicate, "unloadcopynpc", "s"),
 	BUILDIN_DEF(sendmail, "vsss???"),
+	BUILDIN_DEF(itemexists, "v"),
+	BUILDIN_DEF2(itemexists, "existitem", "v"),
+	BUILDIN_DEF(getequipexpiretick, "i?"),
+	BUILDIN_DEF2(getequipexpiretick, "isrental", "i?"),
+	BUILDIN_DEF(gethotkey, "i?"),
+	BUILDIN_DEF2(gethotkey, "get_hotkey", "i?"),
+	BUILDIN_DEF(sethotkey, "iiii"),
+	BUILDIN_DEF2(sethotkey, "set_hotkey", "iiii"),
+	BUILDIN_DEF2(recalculatestat, "statuscalc", "iiii"),
+	BUILDIN_DEF2(recalculatestat, "status_calc", "iiii"),
 	{NULL,NULL,NULL},
 };

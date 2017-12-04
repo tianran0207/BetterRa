@@ -309,7 +309,7 @@ void quest_update_objective(TBL_PC *sd, int mob_id)
 
 			memset(&item,0,sizeof(item));
 			item.nameid = dropitem->nameid;
-			item.identify = itemdb_isidentified(dropitem->nameid);
+			item.identify = itemdb_isidentified(dropitem->nameid, 16);
 			item.amount = dropitem->count;
 //#ifdef BOUND_ITEMS
 //			item.bound = dropitem->bound;

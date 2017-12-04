@@ -4832,6 +4832,26 @@ bool pc_isUseitem(struct map_session_data *sd,int n)
 
 	if( item == NULL )
 		return false;
+
+	if (battle_config.mounting_cant_use && &sd->sc && sd->sc.data[SC_ALL_RIDING]) {
+		int type;
+		switch (item->type) {
+		case IT_HEALING:	  type = 1;	  	 break;
+		case IT_USABLE:		  type = 2;	  	 break;
+		case IT_ARMOR:		  type = 4;	  	 break;
+		case IT_WEAPON:		  type = 8;	  	 break;
+		case IT_CARD:		  type = 16;	 break;
+		case IT_AMMO:		  type = 32;	 break;
+		case IT_DELAYCONSUME: type = 64;	 break;
+		case IT_SHADOWGEAR:	  type = 128; 	 break;
+		case IT_CASH:		  type = 256; 	 break;
+		}
+		if (battle_config.mounting_cant_use & type) {
+			clif_displaymessage(sd->fd, msg_txt(sd, 2337));
+			return false;
+		}
+	}
+
 	//Not consumable item
 	if( item->type != IT_HEALING && item->type != IT_USABLE && item->type != IT_CASH )
 		return false;
@@ -5046,6 +5066,15 @@ int pc_useitem(struct map_session_data *sd,int n)
 
 	if( id->delay > 0 && !pc_has_permission(sd,PC_PERM_ITEM_UNCONDITIONAL) && pc_itemcd_check(sd, id, tick, n))
 		return 0;
+
+	if (map[sd->bl.m].flag.nocapture && sd->inventory_data[n]->type == 2 && sd->inventory_data[n]->script != NULL) {
+		const char *func_name;
+		func_name = get_first_func_name(sd->inventory_data[n]->script->script_buf);
+		if (func_name && !strnicmp(func_name, "pet", 3)) {
+			clif_displaymessage(sd->fd, msg_txt(sd, 2336));
+			return 0;
+		}
+	}
 
 #ifdef EVENT_USEITEMFILTER
 	if (event_exist(NPCE_USEITEMFILTER)) {
@@ -5381,7 +5410,7 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, uint16 skil
 	memset(&tmp_item,0,sizeof(tmp_item));
 	tmp_item.nameid = itemid;
 	tmp_item.amount = 1;
-	tmp_item.identify = itemdb_isidentified(itemid);
+	tmp_item.identify = itemdb_isidentified(itemid, 8);
 	mob_setdropitem_option(&tmp_item, &md->db->dropitem[i]);
 	flag = pc_additem(sd,&tmp_item,1,LOG_TYPE_PICKDROP_PLAYER);
 
@@ -12164,6 +12193,11 @@ short pc_maxparameter(struct map_session_data *sd, enum e_params param) {
 */
 short pc_maxaspd(struct map_session_data *sd) {
 	nullpo_ret(sd);
+
+	if (map[sd->bl.m].flag.pvp && !battle_config.max_pvp_aspd)
+		return battle_config.max_pvp_aspd;
+	if (map[sd->bl.m].flag.gvg && !battle_config.max_gvg_aspd)
+		return battle_config.max_gvg_aspd;
 
 	return (( sd->class_&JOBL_THIRD) ? battle_config.max_third_aspd : (
 			((sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION) ? battle_config.max_extended_aspd :

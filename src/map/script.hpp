@@ -2001,4 +2001,5 @@ unsigned int *script_array_cpy_list(struct script_array *sa);
 void queryThread_log(char * entry, int length);
 #endif
 
+const char* get_first_func_name(unsigned char *buf);
 #endif /* _SCRIPT_HPP_ */

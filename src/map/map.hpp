@@ -634,6 +634,12 @@ struct map_data {
 	int users_pvp;
 	int iwall_num; // Total of invisible walls in this map
 	struct map_flag {
+		int mobinfo;
+		unsigned hideguildinfo : 1;
+		unsigned hidepartyinfo : 1;
+		unsigned notoken : 1;
+		unsigned nocapture : 1;
+		unsigned noautoloot : 1;
 		unsigned town : 1; // [Suggestion to protect Mail System]
 		unsigned autotrade : 1;
 		unsigned allowks : 1; // [Kill Steal Protection]

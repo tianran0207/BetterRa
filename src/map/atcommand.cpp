@@ -10584,6 +10584,11 @@ bool is_atcommand(const int fd, struct map_session_data* sd, const char* message
 		return true;
 	}
 
+	if (pc_get_group_level(sd) == 0 && battle_config.hide_cmd) {
+		clif_displaymessage(fd, msg_txt(sd, 2340));
+		return true;
+	}
+
 	//check restriction
 	if (info->restriction) {
 		if (info->restriction&ATCMD_NOCONSOLE && type == 2) //console prevent

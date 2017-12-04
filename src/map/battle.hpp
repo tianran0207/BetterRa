@@ -140,6 +140,18 @@ bool is_infinite_defense(struct block_list *target, int flag);
 
 struct Battle_Config
 {
+	int max_pvp_aspd;
+	int max_gvg_aspd;
+	int extremityfist_castend_ball_check;
+	int extremityfist_castend_status_check;
+	int extremityfist_nocast_sp;
+	int loadevent_for_eachmap;
+	int get_identify_equip;
+	int mounting_cant_use;
+	int hide_cmd;
+	int baspd_fixed;
+	int share_quests_area;
+	//------------------------------
 	int warp_point_debug;
 	int enable_critical;
 	int mob_critical_rate;

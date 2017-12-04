@@ -2378,7 +2378,8 @@ int status_base_amotion_pc(struct map_session_data* sd, struct status_data* stat
 	amotion -= amotion * (4*status->agi + status->dex)/1000;
 #endif
 	// Raw delay adjustment from bAspd bonus
-	amotion += sd->bonus.aspd_add;
+	if (battle_config.baspd_fixed)
+		amotion += sd->bonus.aspd_add;
 
  	return amotion;
 }
@@ -5117,6 +5118,9 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 #endif
 			amotion = status_calc_fix_aspd(bl, sc, amotion);
 			status->amotion = cap_value(amotion,pc_maxaspd(sd),2000);
+
+			if (!battle_config.baspd_fixed)
+				status->amotion += sd->bonus.aspd_add;
 
 			status->adelay = 2*status->amotion;
 		} else { // Mercenary and mobs

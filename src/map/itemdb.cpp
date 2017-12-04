@@ -547,8 +547,13 @@ bool itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, bool (*func)(st
 /** Specifies if item-type should drop unidentified.
 * @param nameid ID of item
 */
-char itemdb_isidentified(unsigned short nameid) {
-	int type=itemdb_type(nameid);
+char itemdb_isidentified(unsigned short nameid, int from) {
+	int type;
+
+	if (battle_config.get_identify_equip && (battle_config.get_identify_equip & from) == from)
+		return 1;
+
+	type = itemdb_type(nameid);
 	switch (type) {
 		case IT_WEAPON:
 		case IT_ARMOR:

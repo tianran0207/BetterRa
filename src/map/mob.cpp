@@ -2131,7 +2131,7 @@ static struct item_drop* mob_setdropitem(struct s_mob_drop *mobdrop, int qty, un
 	memset(&drop->item_data, 0, sizeof(struct item));
 	drop->item_data.nameid = mobdrop->nameid;
 	drop->item_data.amount = qty;
-	drop->item_data.identify = itemdb_isidentified(mobdrop->nameid);
+	drop->item_data.identify = itemdb_isidentified(mobdrop->nameid, 2);
 	mob_setdropitem_option(&drop->item_data, mobdrop);
 	drop->mob_id = mob_id;
 	drop->next = NULL;
@@ -2206,7 +2206,7 @@ static void mob_item_drop(struct mob_data *md, struct item_drop_list *dlist, str
 		test_autoloot = test_autoloot && sd->bl.m == md->bl.m
 		&& check_distance_blxy(&sd->bl, dlist->x, dlist->y, AUTOLOOT_DISTANCE);
 #endif
-	if( test_autoloot ) {	//Autoloot.
+	if( test_autoloot && !map[sd->bl.m].flag.noautoloot) {	//Autoloot.
 		struct party_data *p = party_search(sd->status.party_id);
 
 		if ((itemdb_search(ditem->item_data.nameid))->flag.broadcast &&
@@ -2931,7 +2931,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 				memset(&item,0,sizeof(item));
 				item.nameid=mdrop[i].nameid;
-				item.identify= itemdb_isidentified(item.nameid);
+				item.identify= itemdb_isidentified(item.nameid, 4);
 				clif_mvp_item(mvp_sd,item.nameid);
 				log_mvp[0] = item.nameid;
 
@@ -3000,8 +3000,29 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				pc_setglobalreg(sd, add_str("TK_MISSION_COUNT"), sd->mission_count);
 			}
 
-			if (sd->status.party_id)
-				map_foreachinallrange(quest_update_objective_sub, &md->bl, AREA_SIZE, BL_PC, sd->status.party_id, md->mob_id);
+			if (sd->status.party_id) {
+				switch (battle_config.share_quests_area) {
+				case 0:
+					map_foreachinallrange(quest_update_objective_sub, &md->bl, AREA_SIZE, BL_PC, sd->status.party_id, md->mob_id);
+					break;
+				case 1:
+					map_foreachinmap(quest_update_objective_sub, md->bl.m, BL_PC, &md->bl, sd->status.party_id, md->mob_id);
+					break;
+				case 2:
+					{
+						struct party_data *p = party_search(sd->status.party_id);
+						TBL_PC *tsd;
+						int i;
+						for (i = 0; i < MAX_PARTY; i++) {
+							tsd = p->data[i].sd;
+							if (!tsd || !tsd->avail_quests)
+								continue;
+							quest_update_objective(tsd, md->mob_id);
+						}
+					}
+					break;
+				}
+			}
 			else if (sd->avail_quests)
 				quest_update_objective(sd, md->mob_id);
 

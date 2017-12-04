@@ -9463,18 +9463,18 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 			}
 			safestrncpy(WBUFCP(buf,6), sd->status.name, NAME_LENGTH);
 
-			if( sd->status.party_id ){
+			if( sd->status.party_id && !map[bl->m].flag.hidepartyinfo){
 				p = party_search(sd->status.party_id);
 			}
 
 			// do not display party unless the player is also in a guild
-			if( p && ( sd->guild || battle_config.display_party_name ) ){
+			if( p && ( sd->guild || battle_config.display_party_name ) && !map[bl->m].flag.hidepartyinfo){
 				safestrncpy(WBUFCP(buf,30), p->party.name, NAME_LENGTH);
 			}else{
 				WBUFB(buf,30) = 0;
 			}
 
-			if( sd->guild ){
+			if( sd->guild && !map[bl->m].flag.hideguildinfo){
 				int position;
 
 				// Will get the position of the guild the player is in
@@ -9525,26 +9525,65 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 			else if( battle_config.show_mob_info )
 			{
 				char mobhp[50], *str_p = mobhp;
+				char mobinfo1[50], *str_info1 = mobinfo1;
+				char mobinfo2[50], *str_info2 = mobinfo2;
 #if PACKETVER >= 20150513
 				WBUFW(buf, 0) = cmd = 0xa30;
 #else
 				WBUFW(buf, 0) = cmd = 0x195;
 #endif
-				if( battle_config.show_mob_info&4 )
-					str_p += sprintf(str_p, "Lv. %d | ", md->level);
-				if( battle_config.show_mob_info&1 )
-					str_p += sprintf(str_p, "HP: %u/%u | ", md->status.hp, md->status.max_hp);
-				if( battle_config.show_mob_info&2 )
-					str_p += sprintf(str_p, "HP: %u%% | ", get_percentage(md->status.hp, md->status.max_hp));
+				if (map[bl->m].flag.mobinfo) {
+					if (map[bl->m].flag.mobinfo & 4)
+						str_p += sprintf(str_p, "Lv. %d | ", md->level);
+					if (map[bl->m].flag.mobinfo & 1)
+						str_p += sprintf(str_p, "HP: %u/%u | ", md->status.hp, md->status.max_hp);
+					if (map[bl->m].flag.mobinfo & 2)
+						str_p += sprintf(str_p, "HP: %u%% | ", get_percentage(md->status.hp, md->status.max_hp));
+					if (map[bl->m].flag.mobinfo & 16)//体型
+						str_info1 += sprintf(str_info1, msg_txt(NULL, 2301), msg_txt(NULL, 2302 + md->status.size));
+					if (map[bl->m].flag.mobinfo & 32) {
+						str_info1 += sprintf(str_info1, " ");
+						str_info1 += sprintf(str_info1, msg_txt(NULL, 2305), msg_txt(NULL, 2306 + md->status.race));
+					}
+					if (map[bl->m].flag.mobinfo & 64)
+						str_info2 += sprintf(str_info2, msg_txt(NULL, 2320), msg_txt(NULL, 2321 + md->status.def_ele), md->status.ele_lv);
+					if (map[bl->m].flag.mobinfo & 8)
+						str_info2 += sprintf(str_info2, " | ID:%d", md->mob_id);
+				}
+				else {
+					if (battle_config.show_mob_info & 4)
+						str_p += sprintf(str_p, "Lv. %d | ", md->level);
+					if (battle_config.show_mob_info & 1)
+						str_p += sprintf(str_p, "HP: %u/%u | ", md->status.hp, md->status.max_hp);
+					if (battle_config.show_mob_info & 2)
+						str_p += sprintf(str_p, "HP: %u%% | ", get_percentage(md->status.hp, md->status.max_hp));
+					if (battle_config.show_mob_info & 16)//体型
+						str_info1 += sprintf(str_info1, msg_txt(NULL, 2301), msg_txt(NULL, 2302 + md->status.size));
+					if (battle_config.show_mob_info & 32) {
+						str_info1 += sprintf(str_info1, " ");
+						str_info1 += sprintf(str_info1, msg_txt(NULL, 2305), msg_txt(NULL, 2306 + md->status.race));
+					}
+					if (battle_config.show_mob_info & 64)
+						str_info2 += sprintf(str_info2, msg_txt(NULL, 2320), msg_txt(NULL, 2321 + md->status.def_ele), md->status.ele_lv);
+					if (battle_config.show_mob_info & 8)
+						str_info2 += sprintf(str_info2, " | ID:%d", md->mob_id);
+				}
 				//Even thought mobhp ain't a name, we send it as one so the client
 				//can parse it. [Skotlex]
-				if( str_p != mobhp )
-				{
-					*(str_p-3) = '\0'; //Remove trailing space + pipe.
-					safestrncpy(WBUFCP(buf,30), mobhp, NAME_LENGTH);
-					WBUFB(buf,54) = 0;
-					WBUFB(buf,78) = 0;
+				if (str_p != mobhp) {
+					*(str_p - 3) = '\0'; //Remove trailing space + pipe.
+					safestrncpy(WBUFCP(buf, 30), mobhp, NAME_LENGTH);
 				}
+				if (str_info1 != mobinfo1) {
+					*(str_info1) = '\0';
+					safestrncpy(WBUFCP(buf, 54), mobinfo1, NAME_LENGTH);
+
+				}
+				if (str_info2 != mobinfo2) {
+					*(str_info2) = '\0';
+					safestrncpy(WBUFCP(buf, 78), mobinfo2, NAME_LENGTH);
+				}
+
 			}
 #if PACKETVER >= 20150513
 			WBUFL(buf, 102) = 0; // Title ID
@@ -9907,7 +9946,7 @@ static bool clif_process_message(struct map_session_data* sd, bool whisperFormat
 	int fd;
 	struct s_packet_db* info;
 	uint16 packetLength, inputLength;
-	const char *input, *name, *message;
+	const char *input, *name, *message, *check;
 	size_t nameLength, messageLength;
 
 	fd = sd->fd;
@@ -9916,6 +9955,20 @@ static bool clif_process_message(struct map_session_data* sd, bool whisperFormat
 
 	packetLength = RFIFOW(fd,info->pos[0]);
 	input = RFIFOCP(fd,info->pos[1]);
+
+#if(PACKETVER == 20151104)
+	check = input;
+	do {
+		check = strstr(check, "<ITEM>");
+		if (check == NULL)
+			break;
+		else if (check - input > packetLength - info->pos[1])
+			break;
+		check += 14;
+		if (*check != '%' && *check != '\'')
+			return false;
+	} while (true);
+#endif
 
 	// basic structure check for the 4-byte header
 	if( packetLength < 4 ){
@@ -10513,7 +10566,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	}
 
 	// Don't trigger NPC event or opening vending/buyingstore will be failed
-	if(!sd->state.autotrade && map[sd->bl.m].flag.loadevent) // Lance
+	if(!sd->state.autotrade && map[sd->bl.m].flag.loadevent || battle_config.loadevent_for_eachmap) // Lance
 		npc_script_event(sd, NPCE_LOADMAP);
 
 	if (pc_checkskill(sd, SG_DEVIL) && pc_is_maxjoblv(sd))
@@ -14759,6 +14812,10 @@ void clif_parse_AutoRevive(int fd, struct map_session_data *sd)
 	short item_position = pc_search_inventory(sd, ITEMID_TOKEN_OF_SIEGFRIED);
 	uint8 hp = 100, sp = 100;
 
+	if (map[sd->bl.m].flag.notoken) {
+		clif_displaymessage(fd, msg_txt(sd, 2335));
+		return;
+	}
 	if (item_position < 0) {
 		if (sd->sc.data[SC_LIGHT_OF_REGENE]) {
 			// HP restored

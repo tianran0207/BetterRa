@@ -7941,6 +7941,18 @@ static const struct _battle_data {
 	int min;
 	int max;
 } battle_data[] = {
+	{ "max_pvp_aspd",                       &battle_config.max_pvp_aspd,                    0,      0,      199,			},
+	{ "max_gvg_aspd",                       &battle_config.max_gvg_aspd,                    0,      0,      199,            },
+	{ "extremityfist_castend_ball_check",   &battle_config.extremityfist_castend_ball_check,0,      0,      1,              },
+	{ "extremityfist_castend_status_check", &battle_config.extremityfist_castend_status_check, 0,   0,      1,              },
+	{ "extremityfist_nocast_sp",            &battle_config.extremityfist_nocast_sp,         0,      0,      1,              },
+	{ "loadevent_for_eachmap",              &battle_config.loadevent_for_eachmap,           0,      0,      1,              },
+	{ "get_identify_equip",                 &battle_config.get_identify_equip,              0,      0,      1|2|4|8|16|32,  },
+	{ "mounting_cant_use",                  &battle_config.mounting_cant_use,               0,      0,      1|2|4|8|16|32|64|128|256, },
+	{ "hide_cmd",                           &battle_config.hide_cmd,                        0,      0,      1,              },
+	{ "bAspd_fixed",                        &battle_config.baspd_fixed,                     1,      0,      1,              },
+	{ "share_quests_area",                  &battle_config.share_quests_area,               0,      0,      2, },
+	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },
 	{ "mob_critical_rate",                  &battle_config.mob_critical_rate,               100,    0,      INT_MAX,        },
@@ -8203,7 +8215,7 @@ static const struct _battle_data {
 	{ "max_exp_gain_rate",                  &battle_config.max_exp_gain_rate,               0,      0,      INT_MAX,        },
 	{ "backstab_bow_penalty",               &battle_config.backstab_bow_penalty,            0,      0,      1,              },
 	{ "night_at_start",                     &battle_config.night_at_start,                  0,      0,      1,              },
-	{ "show_mob_info",                      &battle_config.show_mob_info,                   0,      0,      1|2|4,          },
+	{ "show_mob_info",                      &battle_config.show_mob_info,                   0,      0,      1|2|4|8|16|32|64,          },
 	{ "ban_hack_trade",                     &battle_config.ban_hack_trade,                  0,      0,      INT_MAX,        },
 	{ "min_hair_style",                     &battle_config.min_hair_style,                  0,      0,      INT_MAX,        },
 	{ "max_hair_style",                     &battle_config.max_hair_style,                  23,     0,      INT_MAX,        },
@@ -8502,6 +8514,8 @@ void battle_adjust_conf()
 	battle_config.max_aspd = 2000 - battle_config.max_aspd * 10;
 	battle_config.max_third_aspd = 2000 - battle_config.max_third_aspd * 10;
 	battle_config.max_extended_aspd = 2000 - battle_config.max_extended_aspd * 10;
+	battle_config.max_pvp_aspd = 2000 - battle_config.max_pvp_aspd * 10;
+	battle_config.max_gvg_aspd = 2000 - battle_config.max_gvg_aspd * 10;
 	battle_config.max_walk_speed = 100 * DEFAULT_WALK_SPEED / battle_config.max_walk_speed;
 	battle_config.max_cart_weight *= 10;
 

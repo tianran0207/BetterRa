@@ -4828,7 +4828,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 
 			skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
 			if (skill_id == MO_EXTREMITYFIST) {
-				status_set_sp(src, 0, 0);
+				if (!battle_config.extremityfist_nocast_sp)
+					status_set_sp(src, 0, 0);
 				status_change_end(src, SC_EXPLOSIONSPIRITS, INVALID_TIMER);
 				status_change_end(src, SC_BLADESTOP, INVALID_TIMER);
 #ifdef RENEWAL
@@ -10992,6 +10993,18 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 		return USESKILL_FAIL_MAX; // Don't show a skill fail message (NoDamage type doesn't consume requirements)
 
 	switch (skill_id) {
+		case MO_EXTREMITYFIST:
+			if (battle_config.extremityfist_castend_ball_check) {
+				struct map_session_data *sd;
+				sd = BL_CAST(BL_PC, src);
+				if (sd && sd->spiritball < 5)
+					return USESKILL_FAIL_SPIRITS;
+			}
+			if (battle_config.extremityfist_castend_status_check) {
+				struct status_change *sc = status_get_sc(src);
+				if (!sc || !sc->data[SC_EXPLOSIONSPIRITS])
+					return USESKILL_FAIL_EXPLOSIONSPIRITS;
+			}
 		case AL_HEAL:
 		case AL_INCAGI:
 		case AL_DECAGI:
@@ -11177,7 +11190,7 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 
 		if (src->m != target->m || status_isdead(src))
 			break;
-
+		
 		//These should become skill_castend_pos
 		switch (ud->skill_id) {
 			case WE_CALLPARTNER:
@@ -11370,7 +11383,10 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 	{	//When Asura fails... (except when it fails from Wall of Fog)
 		//Consume SP/spheres
 		skill_consume_requirement(sd,ud->skill_id, ud->skill_lv,1);
-		status_set_sp(src, 0, 0);
+		
+		if (!battle_config.extremityfist_nocast_sp)
+			status_set_sp(src, 0, 0);
+		
 		sc = &sd->sc;
 		if (sc->count)
 		{	//End states
