@@ -24925,6 +24925,58 @@ BUILDIN_FUNC(getareagid)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(unitremove)
+{
+	struct block_list *bl;
+	int gid, type;
+	enum clr_type clrtype;
+
+	gid = script_getnum(st, 2);
+	bl = map_id2bl(gid);
+
+	if (bl == NULL)
+		return SCRIPT_CMD_SUCCESS;
+
+	type = script_hasdata(st, 3) ? script_getnum(st, 3) : CLR_OUTSIGHT;
+	if (type < 0 || type > 4) type = 0;
+	clrtype = (enum clr_type)(type);
+
+	clif_clearunit_area(bl, clrtype);
+
+	switch (bl->type) {
+		case BL_PC:
+			map_quit((struct map_session_data *) bl);
+			break;
+		case BL_MOB:
+			unit_free(bl, CLR_OUTSIGHT);
+			break;
+		case BL_ITEM:
+			map_clearflooritem(bl);
+			break;
+		case BL_NPC:
+			npc_unload((struct npc_data *)bl, true);
+			break;
+		case BL_SKILL:
+			skill_delunit((struct skill_unit *) bl);
+			break;
+		case BL_MER:
+			mercenary_delete((struct mercenary_data *) bl, 1);
+			break;
+		case BL_PET:
+			pet_menu(((struct pet_data *)bl)->master, 3);
+			break;
+		case BL_ELEM:
+			elemental_delete((struct elemental_data *)bl);
+			break;
+		case BL_HOM:
+			hom_menu(((struct homun_data *)bl)->master, 2);
+			break;
+		default:
+			ShowError("buildin_unitremove: Do not support remove this block, type: '%d'. \n", bl->type);
+			return SCRIPT_CMD_FAILURE;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
 
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
@@ -25632,5 +25684,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(sethotkey, "set_hotkey", "iiii"),
 	BUILDIN_DEF2(recalculatestat, "statuscalc", "iiii"),
 	BUILDIN_DEF2(recalculatestat, "status_calc", "iiii"),
+		BUILDIN_DEF(getareagid, "si????"),
+		BUILDIN_DEF(unitremove, "i?"),
 	{NULL,NULL,NULL},
 };

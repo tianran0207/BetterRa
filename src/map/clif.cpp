@@ -9946,7 +9946,7 @@ static bool clif_process_message(struct map_session_data* sd, bool whisperFormat
 	int fd;
 	struct s_packet_db* info;
 	uint16 packetLength, inputLength;
-	const char *input, *name, *message, *check;
+	const char *input, *name, *message, *check = NULL;
 	size_t nameLength, messageLength;
 
 	fd = sd->fd;
