@@ -10041,6 +10041,33 @@ ACMD_FUNC(followpacket)
 #endif // FOLLOWPACKET
 }
 
+static int atcommand_recallmap_sub(struct block_list *bl, va_list ap)
+{
+	TBL_PC *tsd = (TBL_PC*)bl;
+	TBL_PC *sd;
+	int *count;
+	nullpo_ret(tsd);
+	sd = va_arg(ap, struct map_session_data *);
+	count = va_arg(ap, int *);
+
+	if (tsd == sd)
+		return 0;
+	(*count)++;
+	pc_setpos(tsd, map[sd->bl.m].index, sd->bl.x, sd->bl.y, CLR_TELEPORT);
+	sprintf(atcmd_output, msg_txt(sd, 46), tsd->status.name); // %s recalled!
+	clif_displaymessage(sd->fd, atcmd_output);
+	return 0;
+}
+
+ACMD_FUNC(recallmap)
+{
+	int count = 0;
+	map_foreachinmap(atcommand_recallmap_sub, sd->bl.m, BL_PC, sd, &count);
+	sprintf(atcmd_output, "%d players recalled", count);
+	clif_displaymessage(sd->fd, atcmd_output);
+	return 0;
+}
+
 /**
  * Fills the reference of available commands in atcommand DBMap
  **/
@@ -10337,6 +10364,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(agitstart3),
 		ACMD_DEF(agitend3),
 		ACMD_DEF(followpacket),
+		ACMD_DEF(recallmap),
 	};
 	AtCommandInfo* atcommand;
 	int i;
