@@ -1739,7 +1739,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		pc_setreg(sd, add_str("@useskill_target"), target_id);
 		pc_setreg(sd, add_str("@useskill_x"), 0);
 		pc_setreg(sd, add_str("@useskill_y"), 0);
-		npc_script_event(sd, NPCE_USESKILLFILTER);
+		npc_script_event_atonce(sd, NPCE_USESKILLFILTER);
 		if (sd->state.processhalt)
 			return 0;
 	}
@@ -2020,7 +2020,7 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 		pc_setreg(sd, add_str("@useskill_target"), 0);
 		pc_setreg(sd, add_str("@useskill_x"), skill_x);
 		pc_setreg(sd, add_str("@useskill_y"), skill_y);
-		npc_script_event(sd, NPCE_USESKILLFILTER);
+		npc_script_event_atonce(sd, NPCE_USESKILLFILTER);
 		if (sd->state.processhalt)
 			return 0;
 	}

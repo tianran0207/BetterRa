@@ -4483,9 +4483,23 @@ int npc_script_event(struct map_session_data* sd, enum npce_event type)
 		ShowError("npc_script_event: NULL sd. Event Type %d\n", type);
 		return 0;
 	}
-	sd->state.processhalt = 0;
 	for (i = 0; i<script_event[type].event_count; i++)
 		npc_event_sub(sd,script_event[type].event[i],script_event[type].event_name[i]);
+	return i;
+}
+
+int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
+{
+	int i;
+	if (type == NPCE_MAX)
+		return 0;
+	if (!sd) {
+		ShowError("npc_script_event: NULL sd. Event Type %d\n", type);
+		return 0;
+	}
+	sd->state.processhalt = 0;
+	for (i = 0; i<script_event[type].event_count; i++)
+		run_script(script_event[type].event[i]->nd->u.scr.script, script_event[type].event[i]->pos, sd->bl.id, 0);
 	return i;
 }
 

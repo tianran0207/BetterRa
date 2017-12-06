@@ -161,7 +161,7 @@ int party_create(struct map_session_data *sd,char *name,int item,int item2)
 #ifdef  EVENT_PARTYCREATEFILTER
 	if (event_exist(NPCE_PARTYCREATEFILTER)) {
 		pc_setregstr(sd, add_str("@create_party_name$"), name);
-		npc_script_event(sd, NPCE_PARTYCREATEFILTER);
+		npc_script_event_atonce(sd, NPCE_PARTYCREATEFILTER);
 		if (sd->state.processhalt)
 			return false;
 	}
@@ -482,7 +482,7 @@ int party_reply_invite(struct map_session_data *sd,int party_id,int flag)
 #ifdef  EVENT_PARTYJOINFILTER
 		if (event_exist(NPCE_PARTYJOINFILTER)) {
 			pc_setreg(sd, add_str("@join_party_id"), party_id);
-			npc_script_event(sd, NPCE_PARTYJOINFILTER);
+			npc_script_event_atonce(sd, NPCE_PARTYJOINFILTER);
 			if (sd->state.processhalt)
 				return false;
 		}
@@ -657,7 +657,7 @@ int party_leave(struct map_session_data *sd)
 	if (event_exist(NPCE_PARTYLEAVEFILTER)) {
 		pc_setreg(sd, add_str("@left_party_id"), p->party.party_id);
 		pc_setregstr(sd, add_str("@left_party_name$"), p->party.name);
-		npc_script_event(sd, NPCE_PARTYLEAVEFILTER);
+		npc_script_event_atonce(sd, NPCE_PARTYLEAVEFILTER);
 		if (sd->state.processhalt)
 			return false;
 	}

@@ -5081,7 +5081,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 		pc_setreg(sd, add_str("@useitem_nameid"), item.nameid);
 		pc_setreg(sd, add_str("@useitem_idx"), n);
 		pc_setreg(sd, add_str("@useitem_pos"), n);
-		npc_script_event(sd, NPCE_USEITEMFILTER);
+		npc_script_event_atonce(sd, NPCE_USEITEMFILTER);
 		if (sd->state.processhalt)
 			return 0;
 	}
@@ -5509,7 +5509,7 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 		pc_setregstr(sd, add_str("@loadmap_newmap_name$"), map_mapid2mapname(m));
 		pc_setreg(sd, add_str("@loadmap_newmap_x"), x);
 		pc_setreg(sd, add_str("@loadmap_newmap_y"), y);
-		npc_script_event(sd, NPCE_WILLLOADMAPEVENT);
+		npc_script_event_atonce(sd, NPCE_WILLLOADMAPEVENT);
 		if (sd->state.processhalt)
 			return SETPOS_OK;
 	}
@@ -9841,7 +9841,7 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos)
 	if (event_exist(NPCE_EQUIPFILTER)) {
 		pc_setreg(sd, add_str("@equip_idx"), n);
 		pc_setreg(sd, add_str("@equip_pos"), n);
-		npc_script_event(sd, NPCE_EQUIPFILTER);
+		npc_script_event_atonce(sd, NPCE_EQUIPFILTER);
 		if (sd->state.processhalt)
 			return false;
 	}
@@ -10030,7 +10030,7 @@ bool pc_unequipitem(struct map_session_data *sd, int n, int flag) {
 	if (event_exist(NPCE_UNEQUIPFILTER)) {
 		pc_setreg(sd, add_str("@unequip_idx"), n);
 		pc_setreg(sd, add_str("@unequip_pos"), n);
-		npc_script_event(sd, NPCE_UNEQUIPFILTER);
+		npc_script_event_atonce(sd, NPCE_UNEQUIPFILTER);
 		if (sd->state.processhalt)
 			return false;
 	}

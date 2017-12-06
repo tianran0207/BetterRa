@@ -3461,7 +3461,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	pc_itemgrouphealrate_clear(sd);
 
 	running_npc_stat_calc_event = true;
-	npc_script_event(sd, NPCE_STATCALC);
+	npc_script_event_atonce(sd, NPCE_STATCALC);
 	running_npc_stat_calc_event = false;
 
 	// Parse equipment

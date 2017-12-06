@@ -23820,7 +23820,7 @@ BUILDIN_FUNC(setchartitle)
 		pc_setreg(sd, add_str("@trigger_mode"), 1);
 		pc_setreg(sd, add_str("@now_title_id"), sd->status.title_id);
 		pc_setreg(sd, add_str("@pre_title_id"), title_id);
-		npc_script_event(sd, NPCE_TITLECHANGEFILTER);
+		npc_script_event_atonce(sd, NPCE_TITLECHANGEFILTER);
 		if (sd->state.processhalt)
 			return SCRIPT_CMD_SUCCESS;
 	}

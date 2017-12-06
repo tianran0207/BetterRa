@@ -3,7 +3,7 @@
 
 
 //#define PRERE
-#define PACKETVER 20151104
+#define PACKETVER 20170614
 
 #define BETTER_PACKET_OBFUSCATION
 

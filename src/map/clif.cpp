@@ -12609,7 +12609,7 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd) {
 #ifdef EVENT_IDENTIFYFILTER
 	if (event_exist(NPCE_IDENTIFYFILTER)) {
 		pc_setreg(sd, add_str("@identify_idx"), idx);
-		npc_script_event(sd, NPCE_IDENTIFYFILTER);
+		npc_script_event_atonce(sd, NPCE_IDENTIFYFILTER);
 		if (sd->state.processhalt)
 			return;
 	}
@@ -16582,7 +16582,7 @@ void clif_parse_ViewPlayerEquip(int fd, struct map_session_data* sd)
 			pc_setreg(sd, add_str("@vieweq_aid"), tsd->status.account_id);
 			pc_setreg(sd, add_str("@vieweq_cid"), tsd->status.char_id);
 			pc_setreg(sd, add_str("@eqview_cid"), tsd->status.char_id);
-			npc_script_event(sd, NPCE_VIEWEQUIPFILTER);
+			npc_script_event_atonce(sd, NPCE_VIEWEQUIPFILTER);
 			if (sd->state.processhalt)
 				return;
 		}
@@ -19117,7 +19117,7 @@ void clif_parse_change_title(int fd, struct map_session_data *sd)
 		pc_setreg(sd, add_str("@trigger_mode"), 0);
 		pc_setreg(sd, add_str("@now_title_id"), sd->status.title_id);
 		pc_setreg(sd, add_str("@pre_title_id"), title_id);
-		npc_script_event(sd, NPCE_TITLECHANGEFILTER);
+		npc_script_event_atonce(sd, NPCE_TITLECHANGEFILTER);
 		if (sd->state.processhalt)
 			return;
 	}
@@ -19343,7 +19343,7 @@ void clif_parse_RouletteGenerate(int fd, struct map_session_data* sd)
 		roul_bronze = pc_readreg2(sd, ROULETTE_BRONZE_VAR);
 		roul_silver = pc_readreg2(sd, ROULETTE_SILVER_VAR);
 		roul_gold = pc_readreg2(sd, ROULETTE_GOLD_VAR);
-		npc_script_event(sd, NPCE_ROULETTESTARTFILTER);
+		npc_script_event_atonce(sd, NPCE_ROULETTESTARTFILTER);
 		if (sd->state.processhalt) {
 
 			if (result != GENERATE_ROULETTE_SUCCESS)
