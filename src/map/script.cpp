@@ -6769,6 +6769,24 @@ static int script_getitem_randomoption(struct script_state *st, struct item *it,
 	int32 opt_val_id, opt_val_idx;
 	int32 opt_param_id, opt_param_idx;
 	struct reg_db *opt_id_ref = NULL, *opt_val_ref = NULL, *opt_param_ref = NULL;
+	TBL_PC *sd;
+
+	if (opt_id_var[0] == '#' || opt_id_var[0] == '@') {
+		if (script_hasdata(st, x + 3)) {
+			if (!(sd = map_id2sd(script_getnum(st, x + 3)))) {
+				ShowError("buildin_%s: player not found (AID=%d).\n", funcname, x);
+				st->state = END;
+				return SCRIPT_CMD_FAILURE;
+			}
+		}
+		else {
+			if (!script_rid2sd(sd))
+				return SCRIPT_CMD_FAILURE;
+		}
+	}
+	else {
+		sd = NULL;
+	}
 
 	if (opt_id_var[strlen(opt_id_var)-1] == '$') {
 		ShowError("buildin_%s: The array %s is not numeric type.\n", funcname, opt_id_var);
@@ -6786,18 +6804,18 @@ static int script_getitem_randomoption(struct script_state *st, struct item *it,
 	}
 
 	opt_id_ref = reference_getref(opt_id);
-	opt_id_n = script_array_highest_key(st, NULL, opt_id_var, opt_id_ref);
+	opt_id_n = script_array_highest_key(st, sd, opt_id_var, opt_id_ref);
 
 	if (opt_id_n < 1) {
-		ShowError("buildin_%s: No option id listed.\n", funcname);
-		return SCRIPT_CMD_FAILURE;
+		//ShowError("buildin_%s: No option id listed.\n", funcname);
+		return SCRIPT_CMD_SUCCESS;
 	}
 
 	opt_val_ref = reference_getref(opt_val);
 	opt_param_ref = reference_getref(opt_param);
 
-	opt_val_n = script_array_highest_key(st, NULL, opt_val_var, opt_val_ref);
-	opt_param_n = script_array_highest_key(st, NULL, opt_param_var, opt_param_ref);
+	opt_val_n = script_array_highest_key(st, sd, opt_val_var, opt_val_ref);
+	opt_param_n = script_array_highest_key(st, sd, opt_param_var, opt_param_ref);
 
 	if (opt_val_n < 1) {
 		ShowError("buildin_%s: No option value listed.\n", funcname);
@@ -7277,7 +7295,7 @@ BUILDIN_FUNC(getitem)
 BUILDIN_FUNC(getitem2)
 {
 	unsigned short nameid, amount;
-	int iden, ref, attr;
+	int iden, ref, attr, aid_pos;
 	unsigned short c1, c2, c3, c4;
 	char bound = BOUND_NONE;
 	struct item_data *item_data = NULL;
@@ -7288,7 +7306,7 @@ BUILDIN_FUNC(getitem2)
 	int offset = 0;
 
 	if( !strncmp(command,"getitembound",12) ) {
-		int aid_pos = 12;
+		aid_pos = 12;
 		bound = script_getnum(st,11);
 		if( bound < BOUND_NONE || bound >= BOUND_MAX ) {
 			ShowError("script_getitembound2: Not a correct bound type! Type=%d\n",bound);
