@@ -7295,7 +7295,7 @@ BUILDIN_FUNC(getitem)
 BUILDIN_FUNC(getitem2)
 {
 	unsigned short nameid, amount;
-	int iden, ref, attr, aid_pos;
+	int iden, ref, attr;
 	unsigned short c1, c2, c3, c4;
 	char bound = BOUND_NONE;
 	struct item_data *item_data = NULL;
@@ -7306,7 +7306,7 @@ BUILDIN_FUNC(getitem2)
 	int offset = 0;
 
 	if( !strncmp(command,"getitembound",12) ) {
-		aid_pos = 12;
+		int aid_pos = 12;
 		bound = script_getnum(st,11);
 		if( bound < BOUND_NONE || bound >= BOUND_MAX ) {
 			ShowError("script_getitembound2: Not a correct bound type! Type=%d\n",bound);
