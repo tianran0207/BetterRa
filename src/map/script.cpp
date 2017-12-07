@@ -340,6 +340,7 @@ struct Script_Config script_config = {
 	"OnPCPetLootEvent",
 	"OnPCPetFeedEvent",
 	"OnPCFoodPet",
+	"OnPCPetSkillFilter",
 	//
 	"OnPCViewEquipFilter",
 	//
@@ -24978,6 +24979,40 @@ BUILDIN_FUNC(unitremove)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(hasfollower) 
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	switch (script_getnum(st,2)) {
+		case BL_MER:
+			if (sd->pd != NULL)
+				script_pushint(st, sd->pd->bl.id);
+			return SCRIPT_CMD_SUCCESS;
+		case BL_HOM:
+			if (sd->hd != NULL)
+				script_pushint(st, sd->hd->bl.id);
+			return SCRIPT_CMD_SUCCESS;
+		case BL_PET:
+			if (sd->hd != NULL)
+				script_pushint(st, sd->pd->bl.id);
+			return SCRIPT_CMD_SUCCESS;
+		case BL_ELEM:
+			if (sd->ed != NULL)
+				script_pushint(st, sd->ed->bl.id);
+			return SCRIPT_CMD_SUCCESS;
+		default:
+			ShowError("buildin_unitremove: Invalid block type('%d'£©. \n", script_getnum(st, 2));
+			return SCRIPT_CMD_FAILURE;
+	}
+	script_pushint(st, 0);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+
+
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -25684,7 +25719,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(sethotkey, "set_hotkey", "iiii"),
 	BUILDIN_DEF2(recalculatestat, "statuscalc", "iiii"),
 	BUILDIN_DEF2(recalculatestat, "status_calc", "iiii"),
-		BUILDIN_DEF(getareagid, "si????"),
-		BUILDIN_DEF(unitremove, "i?"),
+	BUILDIN_DEF(getareagid, "si????"),
+	BUILDIN_DEF(unitremove, "i?"),
+	BUILDIN_DEF(hasfollower, "i?"),
 	{NULL,NULL,NULL},
 };

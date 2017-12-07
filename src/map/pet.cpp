@@ -137,6 +137,14 @@ int pet_attackskill(struct pet_data *pd, int target_id)
 			!check_distance_bl(&pd->bl, bl, pd->db->range3))
 			return 0;
 
+#ifdef EVENT_PETSKILLFILTER
+		if (pd->master && event_exist(NPCE_USESKILLFILTER)) {
+			npc_script_event_atonce(pd->master, NPCE_PETSKILLFILTER);
+			if (pd->master->state.processhalt)
+				return 0;
+		}
+#endif
+
 		inf = skill_get_inf(pd->a_skill->id);
 
 		if (inf & INF_GROUND_SKILL)
