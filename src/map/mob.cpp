@@ -65,7 +65,7 @@
 
 // Limits for the monster database
 #define MIN_MOB_DB 1000
-#define MAX_MOB_DB 3999
+//#define MAX_MOB_DB 3999
 #define MIN_MOB_DB2 20020
 #define MAX_MOB_DB2 31999
 
