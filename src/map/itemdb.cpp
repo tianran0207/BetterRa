@@ -565,6 +565,21 @@ char itemdb_isidentified(unsigned short nameid, int from) {
 	}
 }
 
+static bool item_read_announce(char* str[], int columns, int current) {
+	unsigned short nameid;
+	struct item_data *id;
+
+	nameid = atoi(str[0]);
+
+	if ((id = itemdb_exists(nameid)) == NULL)
+	{
+		ShowWarning("item_read_announce: Invalid item id %hu.\n", nameid);
+		return false;
+	}
+	id->flag.announce = atoi(str[1]);
+	return true;
+}
+
 /** Search by name for the override flags available items (Give item another sprite)
 * Structure: <nameid>,<sprite>
 */
@@ -1863,6 +1878,7 @@ static void itemdb_read(void) {
 			safesnprintf(dbsubpath2,n1,"%s%s",db_path,dbsubpath[i]);
 		}
 		
+		sv_readdb(dbsubpath1, "item_announce.txt",      ',', 2, 2, -1, &item_read_announce, i > 0);
 		sv_readdb(dbsubpath1, "item_avail.txt",         ',', 2, 2, -1, &itemdb_read_itemavail, i > 0);
 		sv_readdb(dbsubpath2, "item_stack.txt",         ',', 3, 3, -1, &itemdb_read_stack, i > 0);
 		sv_readdb(dbsubpath1, "item_nouse.txt",         ',', 3, 3, -1, &itemdb_read_nouse, i > 0);

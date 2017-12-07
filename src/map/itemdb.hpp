@@ -828,6 +828,7 @@ struct item_data
 	struct script_code *equip_script;	//Script executed once when equipping.
 	struct script_code *unequip_script;//Script executed once when unequipping.
 	struct {
+		unsigned announce : 3;
 		unsigned available : 1;
 		uint32 no_equip;
 		unsigned no_refine : 1;	// [celest]
