@@ -78,7 +78,7 @@
 
 
 
-
+#define SCRIPT_SENDMAIL
 
 
 

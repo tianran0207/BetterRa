@@ -7182,6 +7182,23 @@ BUILDIN_FUNC(checkweight2)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+#ifdef SCRIPT_SENDMAIL
+struct mail_message script_mail;
+static void buildin_mail_additem_sub(struct item *it, unsigned short amount) {
+	int i;
+
+	if (it->nameid == 0)
+		return;
+	
+	ARR_FIND(0, MAIL_MAX_ITEM, i, script_mail.item[i].nameid == 0);
+
+	if (i < MAIL_MAX_ITEM) {
+		memcpy(&script_mail.item[i], it, sizeof(struct item));
+		script_mail.item[i].amount = amount;
+	}
+}
+#endif // SCRIPT_SENDMAIL
+
 /*==========================================
  * getitem <item id>,<amount>{,<account ID>};
  * getitem "<item name>",<amount>{,<account ID>};
@@ -7236,7 +7253,7 @@ BUILDIN_FUNC(getitem)
 	it.identify = 1;
 	it.bound = BOUND_NONE;
 
-	if( !strcmp(command,"getitembound") ) {
+	if( strstr(command,"bound") ) {
 		char bound = script_getnum(st,4);
 		if( bound < BOUND_NONE || bound >= BOUND_MAX ) {
 			ShowError("script_getitembound: Not a correct bound type! Type=%d\n",bound);
@@ -7256,6 +7273,13 @@ BUILDIN_FUNC(getitem)
 		get_count = 1;
 	else
 		get_count = amount;
+
+#ifdef SCRIPT_SENDMAIL
+	if (strnicmp(command, "mail", 4) == 0) {
+		buildin_mail_additem_sub(&it, amount);
+		return SCRIPT_CMD_SUCCESS;
+	}
+#endif
 
 	for (i = 0; i < amount; i += get_count)
 	{
@@ -7305,7 +7329,7 @@ BUILDIN_FUNC(getitem2)
 	const char* command = script_getfuncname(st);
 	int offset = 0;
 
-	if( !strncmp(command,"getitembound",12) ) {
+	if( strstr(command,"bound") ) {
 		int aid_pos = 12;
 		bound = script_getnum(st,11);
 		if( bound < BOUND_NONE || bound >= BOUND_MAX ) {
@@ -7319,7 +7343,7 @@ BUILDIN_FUNC(getitem2)
 		script_mapid2sd(aid_pos,sd);
 	} else {
 		int aid_pos = 11;
-		if (strcmpi(command,"getitem3") == 0) {
+		if (command[strlen(command)-1] == '3') {
 			offset = 11;
 			aid_pos = 14;
 		} 
@@ -7392,6 +7416,13 @@ BUILDIN_FUNC(getitem2)
 			get_count = 1;
 		else
 			get_count = amount;
+
+#ifdef SCRIPT_SENDMAIL
+		if (strnicmp(command, "mail", 4) == 0) {
+			buildin_mail_additem_sub(&item_tmp, amount);
+			return SCRIPT_CMD_SUCCESS;
+		}
+#endif
 
 		for (i = 0; i < amount; i += get_count)
 		{
@@ -24808,86 +24839,59 @@ BUILDIN_FUNC(unloadduplicate)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-// sendmail <发件人名或charid>,<收件人名>,<题目>,<内容>{,<ZENY>{,<物品ID数组>,<物品数量数组>}
-// 返回 1  发送成功
-// 返回 0  <发件人名或charid> 无效
-// 返回 -1 题目为空
-// 返回 -2 数组变量不是整数型数组
-// 返回 -3 邮件发送失败
+// mail_create <发件人名>,<题目>,<内容>{,<ZENY>}
+// mail_additem、mail_additem2、mail_additem3、mail_additembound、mail_additembound2、mail_additembound3 与相应的getitem指令参数相同
+// mail_send {<收件人CID 或 收件人名>}
 
-BUILDIN_FUNC(sendmail)
+BUILDIN_FUNC(mail_create)
 {
-
-	TBL_PC* sd;
-	struct script_data *data;
-	struct mail_message msg;
 	const char *text;
 
-	data = script_getdata(st, 2);
-	get_val(st, data); // Convert into value in case of a variable
+	memset(&script_mail, 0, sizeof(struct mail_message));
+	script_mail.id = 0; // id will be assigned by charserver
+	script_mail.dest_id = 0; // will attempt to resolve name
+	script_mail.send_id = 0;
+	safestrncpy(script_mail.send_name, script_getstr(st, 2), NAME_LENGTH);
+	safestrncpy(script_mail.title, script_getstr(st, 3), MAIL_TITLE_LENGTH);
+	script_mail.type = MAIL_INBOX_NORMAL;
 
-	if (data_isstring(data) ? !script_nick2sd(3, sd) : !script_charid2sd(3, sd)) {
-		script_pushint(st, 0); //return 0, according docs
-		return SCRIPT_CMD_SUCCESS;
+	if (script_mail.title[0] == '\0') {
+		ShowError("buildin_mail: The title can not be empty");
+		return SCRIPT_CMD_FAILURE; // Message has no length and somehow client verification was skipped.
 	}
 
-	memset(&msg, 0, sizeof(struct mail_message));
-	msg.id = 0; // id will be assigned by charserver
-	msg.send_id = sd->status.char_id;
-	msg.dest_id = 0; // will attempt to resolve name
-	safestrncpy(msg.send_name, sd->status.name, NAME_LENGTH);
-	safestrncpy(msg.dest_name, (char*)script_getstr(st, 3), NAME_LENGTH);
-	safestrncpy(msg.title, (char*)script_getstr(st, 4), MAIL_TITLE_LENGTH);
-	msg.type = MAIL_INBOX_RETURNED;
-
-	if (msg.title[0] == '\0') {
-		script_pushint(st, -1);
-		return SCRIPT_CMD_SUCCESS; // Message has no length and somehow client verification was skipped.
-	}
-
-	text = script_getstr(st, 5);
+	text = script_getstr(st, 4);
 	if (strlen(text))
-		safestrncpy(msg.body, (char*)text, strlen(text) + 1);
-	else
-		memset(msg.body, 0x00, MAIL_BODY_LENGTH);
+		safestrncpy(script_mail.body, text, strlen(text) + 1);
 
-	msg.timestamp = time(NULL);
-	if (script_hasdata(st, 6))
-		msg.zeny = script_getnum(st, 6);
-	if (script_hasdata(st, 7) && script_hasdata(st, 8)) {
-		struct script_data *item_id = script_getdata(st, 7);
-		struct script_data *item_amount = script_getdata(st, 8);
-		struct reg_db *item_id_ref, *item_amount_ref;
-		int32 item_id_idx, item_id_id, item_amount_idx, item_amount_id;
-		int i;
-		if (data_isstring(item_id) || data_isstring(item_amount)) {
-			script_pushint(st, -2);
-			return SCRIPT_CMD_SUCCESS;
-		}
-		item_id_ref = reference_getref(item_id);
-		item_amount_ref = reference_getref(item_amount);
-		item_id_idx = reference_getindex(item_id);
-		item_id_id = reference_getid(item_id);
-		item_amount_idx = reference_getindex(item_amount);
-		item_amount_id = reference_getid(item_amount);
+	script_mail.timestamp = time(NULL);
+	if (script_hasdata(st, 5))
+		script_mail.zeny = script_getnum(st, 5);
 
-		for (i = 0; i < MAIL_MAX_ITEM; i++) {
-			msg.item[i].nameid = (int)__64BPRTSIZE(get_val2(st, reference_uid(item_id_id, item_id_idx + i), item_id_ref));
-			script_removetop(st, -1, 0);
-			msg.item[i].amount = (int)__64BPRTSIZE(get_val2(st, reference_uid(item_amount_id, item_amount_idx + i), item_amount_ref));
-			script_removetop(st, -1, 0);
-			if (msg.item[i].nameid)
-				msg.item[i].identify = 1;
-		}
-	}
-
-
-	if (!intif_Mail_send(sd->status.account_id, &msg))
-		script_pushint(st, -3);
-	script_pushint(st, 1);
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(mail_send)
+{
+	struct script_data *data;
+	const char *nickname;
+
+	data = script_getdata(st, 2);
+	get_val(st, data); // Convert into value in case of a variable
+	
+	if (data_isstring(data))
+		nickname = script_getstr(st, 2);
+	else
+		nickname = map_charid2nick(script_getnum(st, 2));
+
+	if (nickname == NULL) {
+		return SCRIPT_CMD_FAILURE;
+	}
+	safestrncpy(script_mail.dest_name, nickname, NAME_LENGTH);
+	intif_Mail_send(0, &script_mail);
+
+	return SCRIPT_CMD_SUCCESS;
+}
 
 static int buildin_getareagid_sub(struct block_list *bl, va_list ap)
 {
@@ -25726,7 +25730,16 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(duplicate, "copynpc", "ssss"),
 	BUILDIN_DEF(unloadduplicate, "s"),
 	BUILDIN_DEF2(unloadduplicate, "unloadcopynpc", "s"),
-	BUILDIN_DEF(sendmail, "vsss???"),
+
+	BUILDIN_DEF(mail_create, "sss?"),
+	BUILDIN_DEF(mail_send, "?"),
+	BUILDIN_DEF2(getitem, "mail_additem", "vi?"),
+	BUILDIN_DEF2(getitem, "mail_additembound", "vii?"),
+	BUILDIN_DEF2(getitem2, "mail_additem2", "viiiiiiii?"),
+	BUILDIN_DEF2(getitem2, "mail_additembound2", "viiiiiiiii?"),
+	BUILDIN_DEF2(getitem2, "mail_additem3", "viiiiiiiirrr?"),
+	BUILDIN_DEF2(getitem2, "mail_additembound3", "viiiiiiiiirrr?"),
+
 	BUILDIN_DEF(itemexists, "v"),
 	BUILDIN_DEF2(itemexists, "existitem", "v"),
 	BUILDIN_DEF(getequipexpiretick, "i?"),
