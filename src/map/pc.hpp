@@ -200,6 +200,16 @@ struct s_bonus_script_entry {
 	int tid;
 };
 
+struct policies {
+	short policy_id;
+	int base_exp_rate;
+	int job_exp_rate;
+	int drop_rate;
+	int look_head_top;
+	int bind_group_id;
+};
+extern struct policies policie[MAX_POLICIES];
+
 struct map_session_data {
 	struct block_list bl;
 	struct unit_data ud;
@@ -209,6 +219,7 @@ struct map_session_data {
 	struct regen_data regen;
 	struct regen_data_sub sregen, ssregen;
 	unsigned int packet_account;
+	int policies;
 	//NOTE: When deciding to add a flag to state or special_state, take into consideration that state is preserved in
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct s_state {
@@ -285,7 +296,7 @@ struct map_session_data {
 	} special_state;
 	uint32 login_id1, login_id2;
 	unsigned short class_;	//This is the internal job ID used by the map server to simplify comparisons/queries/etc. [Skotlex]
-	int group_id, group_pos, group_level;
+	int group_id, group_id_old, group_pos, group_level;
 	unsigned int permissions;/* group permissions */
 	int count_rewarp; //count how many time we being rewarped
 

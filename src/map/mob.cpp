@@ -2614,6 +2614,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				double exp = apply_rate2(md->db->base_exp, per, 1);
 				exp = apply_rate(exp, bonus);
 				exp = apply_rate(exp, map[m].adjust.bexp);
+				if (sd->policies) exp = apply_rate(exp, policie[sd->policies].base_exp_rate);
 				base_exp = (unsigned int)cap_value(exp, 1, UINT_MAX);
 			}
 
@@ -2623,6 +2624,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				double exp = apply_rate2(md->db->job_exp, per, 1);
 				exp = apply_rate(exp, bonus);
 				exp = apply_rate(exp, map[m].adjust.jexp);
+				if (sd->policies) exp = apply_rate(exp, policie[sd->policies].job_exp_rate);
 				job_exp = (unsigned int)cap_value(exp, 1, UINT_MAX);
 			}
 
@@ -2767,10 +2769,12 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 #ifdef RENEWAL_DROP
 			if( drop_modifier != 100 ) {
 				drop_rate = apply_rate(drop_rate, drop_modifier);
-				if( drop_rate < 1 )
-					drop_rate = 1;
 			}
 #endif
+			if (sd->policies) drop_rate = apply_rate(drop_rate, policie[sd->policies].drop_rate / 100);
+			if (drop_rate < 1)
+				drop_rate = 1;
+
 			// attempt to drop the item
 			if (rnd() % 10000 >= drop_rate)
 				continue;

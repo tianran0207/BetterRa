@@ -424,11 +424,13 @@ int pc_group_id2level(int group_id)
  * Initialize PC Groups: allocate DBMaps and read config.
  * @public
  */
+void pc_read_policies(void);
 void do_init_pc_groups(void)
 {
 	pc_group_db = idb_alloc(DB_OPT_RELEASE_DATA);
 	pc_groupname_db = stridb_alloc(DB_OPT_DUP_KEY, 0);
 	read_config();
+	pc_read_policies();
 }
 
 /**
@@ -462,4 +464,40 @@ void pc_groups_reload(void) {
 		pc_group_pc_load(sd);
 	}
 	mapit_free(iter);
+}
+
+struct policies policie[MAX_POLICIES];
+void pc_read_policies(void) {
+	config_t policies_config;
+	config_setting_t *data = NULL, *command = NULL;
+	int data_count, i;
+	const char *config_filename = CONF_PATH "/policies.conf"; // FIXME hardcoded name
+
+	memset(&policie, 0, sizeof(struct policies) * MAX_POLICIES);
+
+	config_init(&policies_config);
+	if (!config_read_file(&policies_config, config_filename))
+		return;
+
+	data = config_lookup(&policies_config, "policies");
+
+	if (data != NULL) {
+		int id = 0, base_exp_rate = 0;
+		data_count = config_setting_length(data);
+		for (i = 0; i < data_count; ++i) {
+			config_setting_t *group = config_setting_get_elem(data, i);
+			if (!config_setting_lookup_int(group, "policy_id", &id))
+				continue;
+			if (id == 0)
+				continue;
+			policie[id].policy_id = id;
+			config_setting_lookup_int(group, "base_exp_rate", &policie[id].base_exp_rate);
+			config_setting_lookup_int(group, "job_exp_rate", &policie[id].job_exp_rate);
+			config_setting_lookup_int(group, "drop_rate", &policie[id].drop_rate);
+			config_setting_lookup_int(group, "look_head_top", &policie[id].look_head_top);
+			config_setting_lookup_int(group, "bind_group_id", &policie[id].bind_group_id);
+		}
+	}
+	ShowStatus("Done reading '" CL_WHITE "%d" CL_RESET "' groups in '" CL_WHITE "%s" CL_RESET "'.\n", data_count, config_filename);
+	config_destroy(&policies_config);
 }

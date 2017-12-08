@@ -37,6 +37,8 @@
 #define MSG_TRANSLATE
 #define FOLLOWPACKET
 
+#define MAX_POLICIES 20
+
 //evet
 #define EVENT_HOMLVUP
 #define EVENT_HOMCALL

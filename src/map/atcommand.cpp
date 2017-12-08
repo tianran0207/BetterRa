@@ -10068,6 +10068,46 @@ ACMD_FUNC(recallmap)
 	return 0;
 }
 
+ACMD_FUNC(policy)
+{
+	int val;
+	nullpo_retr(-1, sd);
+	val = atoi(message);
+
+	if (val < 0 || val >= MAX_POLICIES) {
+		clif_displaymessage(fd, "Invalid policy id.\n");
+		return 0;
+	}
+	clif_displaymessage(fd, "Change success.\n");
+	if (policie[val].policy_id == 0) {
+		sd->policies = 0;
+		sd->group_id = sd->group_id_old;
+		pc_group_pc_load(sd);
+		return 0;
+	}
+	sd->policies = val;
+	sd->group_id_old = sd->group_id;
+	if (policie[val].bind_group_id != -1) {
+		sd->group_id = policie[val].policy_id;
+		pc_group_pc_load(sd);
+	}
+	return 0;
+}
+
+ACMD_FUNC(title)
+{
+	int title_id;
+	nullpo_retr(-1, sd);
+	title_id = atoi(message);
+
+	sd->status.title_id = title_id;
+	clif_name_area(&sd->bl);
+
+	clif_displaymessage(fd, "Change success.\n");
+
+	return 0;
+}
+
 /**
  * Fills the reference of available commands in atcommand DBMap
  **/
@@ -10365,6 +10405,8 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(agitend3),
 		ACMD_DEF(followpacket),
 		ACMD_DEF(recallmap),
+		ACMD_DEF(title),
+		ACMD_DEF(policy),
 	};
 	AtCommandInfo* atcommand;
 	int i;

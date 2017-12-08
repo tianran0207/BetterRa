@@ -25033,7 +25033,79 @@ BUILDIN_FUNC(hasfollower)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(setpolicyid)
+{
+	TBL_PC *sd;
+	int val;
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
 
+	if (sd->group_id == 99)
+		return SCRIPT_CMD_SUCCESS;
+
+	val = script_getnum(st, 2);
+	if (val < 0 || val >= MAX_POLICIES) {
+		ShowError("bulidin_setpolicyid: Invalid policy id('%d').\n", val);
+		return SCRIPT_CMD_FAILURE;
+	}
+	if (policie[val].policy_id == 0) {
+		sd->policies = 0;
+		sd->group_id = sd->group_id_old;
+		pc_group_pc_load(sd);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	sd->policies = val;
+	sd->group_id_old = sd->group_id;
+	if (policie[val].bind_group_id != -1) {
+		sd->group_id = policie[val].policy_id;
+		pc_group_pc_load(sd);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getpolicyid)
+{
+	TBL_PC *sd;
+	
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, sd->policies);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getpolicyinfo)
+{
+	TBL_PC *sd;
+	int idx;
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	idx = script_getnum(st, 2);
+
+	switch (idx) {
+		case 0: //base_exp_rate
+			script_pushint(st, policie[sd->policies].base_exp_rate);
+			break;
+		case 1: //job_exp_rate
+			script_pushint(st, policie[sd->policies].job_exp_rate);
+			break;
+		case 2: //drop_rate
+			script_pushint(st, policie[sd->policies].drop_rate);
+			break;
+		case 3: //look_head_top
+			script_pushint(st, policie[sd->policies].look_head_top);
+			break;
+		case 4: //bind_group_id
+			script_pushint(st, policie[sd->policies].bind_group_id);
+			break;
+		default:
+			ShowError("bulidin_setpolicyid: Invalid policy idx('%d').\n", idx);
+			return SCRIPT_CMD_FAILURE;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
 
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
@@ -25753,5 +25825,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getareagid, "si????"),
 	BUILDIN_DEF(unitremove, "i?"),
 	BUILDIN_DEF(hasfollower, "i?"),
+
+	BUILDIN_DEF(setpolicyid, "i?"),
+	BUILDIN_DEF(getpolicyid, "?"),
+	BUILDIN_DEF(getpolicyinfo, "i?"),
 	{NULL,NULL,NULL},
 };
