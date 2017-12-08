@@ -45,7 +45,7 @@ end;
 -	script	EVENT_TEST_INIT	-1,{
 end;
 OnPCLoginEvent:
-	dispbottom "[事件演示] 已加载演示脚本，若想关闭演示脚本，请查看 npc/scripts_racn.conf 配置文件";
+	dispbottom "[事件演示] 已加载演示脚本，若想关闭演示脚本，请查看 npc/script_BetterRa.conf 配置文件";
 end;
 }
 
@@ -542,7 +542,7 @@ end;
 prontera,142,125,3	script	进入聊天室事件	123,{
 	mes "[BetterRa 演示]";
 	mes "事件名: ^ff0000OnPCInChatroomFilter^000000";
-	mes "直接点击我可以正常对话. ^0000ff双击进入我头上的牌子能够在不打开聊天室的情况下, 直接打开仓库.^000000";
+	mes "直接点击我可以正常对话. ^0000ff[已关闭]双击进入打开仓库.^000000";
 	next;
 	mes "[BetterRa 演示]";
 	mes "此演示NPC的脚本位于服务端的: ^ff0000npc\\racn\\racn_events.txt^000000";
