@@ -3988,6 +3988,8 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		}
 		map[m].flag.nosave = state;
 	}
+	else if (!strcmpi(w3, "tribe"))
+		map[m].flag.tribe = state;
 	else if (!strcmpi(w3, "hideguildinfo"))
 		map[m].flag.hideguildinfo = state;
 	else if (!strcmpi(w3, "hidepartyinfo"))

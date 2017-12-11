@@ -6761,7 +6761,7 @@ BUILDIN_FUNC(viewpoint)
  * @param x First position of random option id array from the script
  **/
 static int script_getitem_randomoption(struct script_state *st, struct item *it, const char *funcname, int x) {
-	int i, opt_id_n, opt_val_n, opt_param_n;
+	int i, opt_id_n;
 	struct script_data *opt_id = script_getdata(st,x);
 	struct script_data *opt_val = script_getdata(st,x+1);
 	struct script_data *opt_param = script_getdata(st,x+2);
@@ -6816,18 +6816,6 @@ static int script_getitem_randomoption(struct script_state *st, struct item *it,
 
 	opt_val_ref = reference_getref(opt_val);
 	opt_param_ref = reference_getref(opt_param);
-
-	opt_val_n = script_array_highest_key(st, sd, opt_val_var, opt_val_ref);
-	opt_param_n = script_array_highest_key(st, sd, opt_param_var, opt_param_ref);
-
-	if (opt_val_n < 1) {
-		ShowError("buildin_%s: No option value listed.\n", funcname);
-		return SCRIPT_CMD_FAILURE;
-	}
-	if (opt_param_n < 1) {
-		ShowError("buildin_%s: No option parameter listed.\n", funcname);
-		return SCRIPT_CMD_FAILURE;
-	}
 
 	opt_id_id = reference_getid(opt_id);
 	opt_val_id = reference_getid(opt_val);
@@ -25112,6 +25100,47 @@ BUILDIN_FUNC(getpolicyinfo)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(setsteppath) {
+	TBL_MOB *md;
+	struct walkpath_data wpd;
+	struct step_path *steppath;
+	const char *key = NULL;
+	char *str_temp = NULL;
+
+	md = (TBL_MOB*)map_id2bl(script_getnum(st, 2));
+
+	if (script_isstring(st, 3))
+		key = script_getstr(st, 3);
+	else {
+		itoa(script_getnum(st, 3), str_temp, 10);
+		key = str_temp;
+	}
+	steppath = get_step(key);
+
+	if (!md || !steppath) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	if (!steppath->number) {
+		script_pushint(st, 0);
+		ShowDebug("setsteppath: The step path have no '%s' index.\n", key);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+
+	if (path_search(&wpd, md->bl.m, md->bl.x, md->bl.y, steppath->x[0], steppath->y[0], 1, CELL_CHKNOPASS) && wpd.path_len > 13) {
+		script_pushint(st, 0);
+		ShowDebug("setsteppath: The mob with GID '%d' can not reach the beginning of step path.\n", md->bl.id);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	md->steppath = steppath;
+	md->stepstep = 0;
+
+	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -25807,7 +25836,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(duplicate, "copynpc", "ssss"),
 	BUILDIN_DEF(unloadduplicate, "s"),
 	BUILDIN_DEF2(unloadduplicate, "unloadcopynpc", "s"),
-
+	//邮箱系统
 #ifdef SCRIPT_SENDMAIL
 	BUILDIN_DEF(mail_create, "sss?"),
 	BUILDIN_DEF(mail_send, "?"),
@@ -25832,9 +25861,11 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getareagid, "si????"),
 	BUILDIN_DEF(unitremove, "i?"),
 	BUILDIN_DEF(hasfollower, "i?"),
-
+	//行为策略系统
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),
 	BUILDIN_DEF(getpolicyinfo, "i?"),
+	//路点系统
+	BUILDIN_DEF(setsteppath, "iv"),
 	{NULL,NULL,NULL},
 };

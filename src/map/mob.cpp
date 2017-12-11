@@ -139,7 +139,7 @@ struct s_randomsummon_group {
 };
 
 static DBMap *mob_summon_db; /// Random Summon DB. struct s_randomsummon_group -> group_id
-
+static DBMap *step_db;
 /*==========================================
  * Local prototype declaration   (only required thing)
  *------------------------------------------*/
@@ -1588,6 +1588,9 @@ int mob_randomwalk(struct mob_data *md,unsigned int tick)
 	   !status_has_mode(&md->status,MD_CANMOVE))
 		return 0;
 
+	if (unit_check_step(md, tick))
+		return 0;
+
 	r=rnd();
 	rdir=rnd()%4; // Randomize direction in which we iterate to prevent monster cluttering up in one corner
 	dx=r%(d*2+1)-d;
@@ -2614,7 +2617,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				double exp = apply_rate2(md->db->base_exp, per, 1);
 				exp = apply_rate(exp, bonus);
 				exp = apply_rate(exp, map[m].adjust.bexp);
-				if (sd->policies) exp = apply_rate(exp, policie[sd->policies].base_exp_rate);
+				if (sd && sd->policies) exp = apply_rate(exp, policie[sd->policies].base_exp_rate);
 				base_exp = (unsigned int)cap_value(exp, 1, UINT_MAX);
 			}
 
@@ -2624,7 +2627,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				double exp = apply_rate2(md->db->job_exp, per, 1);
 				exp = apply_rate(exp, bonus);
 				exp = apply_rate(exp, map[m].adjust.jexp);
-				if (sd->policies) exp = apply_rate(exp, policie[sd->policies].job_exp_rate);
+				if (sd && sd->policies) exp = apply_rate(exp, policie[sd->policies].job_exp_rate);
 				job_exp = (unsigned int)cap_value(exp, 1, UINT_MAX);
 			}
 
@@ -2764,17 +2767,16 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 					drop_rate += (int)(0.5 + drop_rate * battle_config.vip_drop_increase / 100.);
 					drop_rate = min(drop_rate,10000); //cap it to 100%
 				}
+				if (sd->policies) drop_rate = apply_rate(drop_rate, policie[sd->policies].drop_rate / 100);
 			}
 
 #ifdef RENEWAL_DROP
 			if( drop_modifier != 100 ) {
 				drop_rate = apply_rate(drop_rate, drop_modifier);
+				if (drop_rate < 1)
+					drop_rate = 1;
 			}
 #endif
-			if (sd->policies) drop_rate = apply_rate(drop_rate, policie[sd->policies].drop_rate / 100);
-			if (drop_rate < 1)
-				drop_rate = 1;
-
 			// attempt to drop the item
 			if (rnd() % 10000 >= drop_rate)
 				continue;
@@ -5007,6 +5009,44 @@ static bool mob_readdb_drop(char* str[], int columns, int current) {
 	return true;
 }
 
+static bool mob_readdb_steppath(char* str[], int columns, int current) {
+	
+	struct step_path *steppath;
+	int i;
+	char *point[2], *p;
+
+	steppath = (struct step_path *)strdb_get(step_db, str[0]);
+
+	if(!steppath) {
+		CREATE(steppath, struct step_path, 1);
+		strdb_put(step_db, str[0], steppath);
+	}
+
+	steppath->number = 0;
+	for (i = 0; i < columns - 1; i++) {
+		p = str[i + 1];
+		point[0] = p;
+		p = strchr(p, ':');
+		if (p == NULL) {
+			ShowError("mob_readdb_steppath: Invalid step point in '%s' index line with '%s'\n", str[0], str[i + 1]);
+			strdb_remove(step_db, str[0]);
+			return true;
+		}
+		*p = '\0';
+		p++;
+		point[1] = p;
+		steppath->x[i] = atoi(point[0]);
+		steppath->y[i] = atoi(point[1]);
+		steppath->number++;
+	}
+	
+	return true;
+}
+
+struct step_path* get_step(const char *key) {
+	return (struct step_path *)strdb_get(step_db, key);
+}
+
 /**
  * Free drop ratio data
  **/
@@ -5333,7 +5373,8 @@ static void mob_load(void)
 		sv_readdb(dbsubpath1, "mob_pouch.txt", ',', 4, 4, -1, &mob_readdb_group, silent);
 		sv_readdb(dbsubpath1, "mob_classchange.txt", ',', 4, 4, -1, &mob_readdb_group, silent);
 		sv_readdb(dbsubpath2, "mob_drop.txt", ',', 3, 5, -1, &mob_readdb_drop, silent);
-		
+		sv_readdb(dbsubpath1, "mob_step_path.txt", ',', 2, MAX_PATH, MAX_PATHINDEX, &mob_readdb_steppath, silent);
+
 		aFree(dbsubpath1);
 		aFree(dbsubpath2);
 	}
@@ -5355,6 +5396,7 @@ void mob_db_load(bool is_reload){
 	mob_item_drop_ratio = idb_alloc(DB_OPT_BASE);
 	mob_skill_db = idb_alloc(DB_OPT_BASE);
 	mob_summon_db = idb_alloc(DB_OPT_BASE);
+	step_db = strdb_alloc((DBOptions)(DB_OPT_DUP_KEY|DB_OPT_RELEASE_DATA), NAME_LENGTH);
 	mob_load();
 }
 
@@ -5488,6 +5530,8 @@ void do_final_mob(bool is_reload){
 	mob_item_drop_ratio->destroy(mob_item_drop_ratio,mob_item_drop_ratio_free);
 	mob_skill_db->destroy(mob_skill_db, mob_skill_db_free);
 	mob_summon_db->destroy(mob_summon_db, mob_summon_db_free);
+	step_db->destroy(step_db, NULL);
+
 	if( !is_reload ) {
 		ers_destroy(item_drop_ers);
 		ers_destroy(item_drop_list_ers);

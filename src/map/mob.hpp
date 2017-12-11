@@ -157,6 +157,15 @@ struct mob_db {
 	struct mob_skill skill[MAX_MOBSKILL];
 };
 
+#define MAX_STEP 100
+#define MAX_PATHINDEX 200
+struct step_path {
+	unsigned short x[MAX_STEP];
+	unsigned short y[MAX_STEP];
+	int number;
+};
+struct step_path* get_step(const char *key);
+
 struct mob_data {
 	struct block_list bl;
 	struct unit_data  ud;
@@ -223,6 +232,9 @@ struct mob_data {
 	 * MvP Tombstone NPC ID
 	 **/
 	int tomb_nid;
+
+	struct step_path *steppath;
+	int stepstep;
 };
 
 enum e_mob_skill_target {

@@ -7694,6 +7694,24 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 			return 0;
 	} //end switch actual target
 
+
+	if (map[m].flag.tribe) {
+		int sbg_id = 0, tbg_id = 0;
+		sbg_id = bg_team_get_id(s_bl);
+		tbg_id = bg_team_get_id(t_bl);
+		if (sbg_id != tbg_id) {
+			state |= BCT_ENEMY;
+		}
+		if (sbg_id == tbg_id) {
+			state |= BCT_PARTY;
+		}
+		if (s_bl == t_bl) {
+			state |= BCT_SELF | BCT_PARTY | BCT_GUILD;
+		}
+		return (flag&state) ? 1 : -1;
+	}
+		
+
 	switch( t_bl->type ) { //Checks on target master
 		case BL_PC: {
 			struct map_session_data *sd;
@@ -7792,10 +7810,10 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 
 			if( !md->special_state.ai )
 			{ //Normal mobs
-				if(
-					( target->type == BL_MOB && t_bl->type == BL_PC && ( ((TBL_MOB*)target)->special_state.ai != AI_ZANZOU && ((TBL_MOB*)target)->special_state.ai != AI_ATTACK ) ) ||
-					( t_bl->type == BL_MOB && !((TBL_MOB*)t_bl)->special_state.ai )
-				  )
+				if (
+					(target->type == BL_MOB && t_bl->type == BL_PC && (((TBL_MOB*)target)->special_state.ai != AI_ZANZOU && ((TBL_MOB*)target)->special_state.ai != AI_ATTACK)) ||
+					(t_bl->type == BL_MOB && !((TBL_MOB*)t_bl)->special_state.ai)
+					)
 					state |= BCT_PARTY; //Normal mobs with no ai are friends.
 				else
 					state |= BCT_ENEMY; //However, all else are enemies.
@@ -7857,6 +7875,7 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 			else
 				state |= BCT_ENEMY;
 		}
+
 		if( state&BCT_ENEMY && map[m].flag.battleground && sbg_id && sbg_id == tbg_id )
 			state &= ~BCT_ENEMY;
 

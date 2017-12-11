@@ -723,6 +723,50 @@ static int unit_walktobl_sub(int tid, unsigned int tick, int id, intptr_t data)
 	return 0;
 }
 
+bool unit_check_step(struct mob_data *md, unsigned int tick) {
+
+	int x, y, i, c, speed;
+
+	if (md->steppath == NULL)
+		return false;
+
+	if (md->stepstep < md->steppath->number) {
+		x = md->steppath->x[md->stepstep];
+		y = md->steppath->y[md->stepstep];
+		md->stepstep++;
+		if (map_getcell(md->bl.m, x, y, CELL_CHKPASS) && unit_walktoxy(&md->bl, x, y, 0)) {
+			speed = status_get_speed(&md->bl);
+			for (i = c = 0; i<md->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
+				if (md->ud.walkpath.path[i] & 1)
+					c += speed*MOVE_DIAGONAL_COST / MOVE_COST;
+				else
+					c += speed;
+			}
+			md->state.skillstate = MSS_WALK;
+			md->move_fail_count = 0;
+			md->next_walktime = tick + c;
+			return true;
+		}
+	}
+	md->steppath = NULL;
+	md->stepstep = 0;
+	return false;
+}
+
+bool unit_can_reach_steppath(struct block_list *bl, struct block_list *tbl)
+{
+	struct walkpath_data wpd;
+	struct mob_data* md = BL_CAST(BL_MOB, bl);
+	if (!md || !md->steppath)
+		return true;
+	if (path_search(&wpd, tbl->m, tbl->x, tbl->y, md->steppath->x[md->stepstep], md->steppath->y[md->stepstep], 1, CELL_CHKNOPASS))
+		if (wpd.path_len < 14) {
+			return true;
+		}
+	unit_check_step(md, gettick());
+	return false;
+}
+
 /**
  * Tells a unit to walk to a target's location (chase)
  * @param bl: Object that is walking to target
@@ -744,6 +788,9 @@ int unit_walktobl(struct block_list *bl, struct block_list *tbl, int range, unsi
 	ud = unit_bl2ud(bl);
 
 	if(ud == NULL)
+		return 0;
+
+	if (!unit_can_reach_steppath(bl, tbl))
 		return 0;
 
 	if (!status_bl_has_mode(bl,MD_CANMOVE))
