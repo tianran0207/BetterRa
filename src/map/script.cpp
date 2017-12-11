@@ -7276,7 +7276,7 @@ BUILDIN_FUNC(getitem)
 
 #ifdef SCRIPT_SENDMAIL
 	if (strnicmp(command, "mail", 4) == 0) {
-		buildin_mail_additem_sub(&it, amount);
+		buildin_mail_additem_sub(&it, get_count);
 		return SCRIPT_CMD_SUCCESS;
 	}
 #endif
@@ -7419,7 +7419,7 @@ BUILDIN_FUNC(getitem2)
 
 #ifdef SCRIPT_SENDMAIL
 		if (strnicmp(command, "mail", 4) == 0) {
-			buildin_mail_additem_sub(&item_tmp, amount);
+			buildin_mail_additem_sub(&item_tmp, get_count);
 			return SCRIPT_CMD_SUCCESS;
 		}
 #endif
@@ -24841,10 +24841,11 @@ BUILDIN_FUNC(unloadduplicate)
 
 // mail_create <发件人名>,<题目>,<内容>{,<ZENY>}
 // mail_additem、mail_additem2、mail_additem3、mail_additembound、mail_additembound2、mail_additembound3 与相应的getitem指令参数相同
-// mail_send {<收件人CID 或 收件人名>}
+// mail_send {<收件人CID 或 收件人名>} 通过CID发送邮件只能发送给在线玩家
 
 BUILDIN_FUNC(mail_create)
 {
+#ifdef SCRIPT_SENDMAIL
 	const char *text;
 
 	memset(&script_mail, 0, sizeof(struct mail_message));
@@ -24867,12 +24868,13 @@ BUILDIN_FUNC(mail_create)
 	script_mail.timestamp = time(NULL);
 	if (script_hasdata(st, 5))
 		script_mail.zeny = script_getnum(st, 5);
-
+#endif
 	return SCRIPT_CMD_SUCCESS;
 }
 
 BUILDIN_FUNC(mail_send)
 {
+#ifdef SCRIPT_SENDMAIL
 	struct script_data *data;
 	const char *nickname;
 
@@ -24889,7 +24891,7 @@ BUILDIN_FUNC(mail_send)
 	}
 	safestrncpy(script_mail.dest_name, nickname, NAME_LENGTH);
 	intif_Mail_send(0, &script_mail);
-
+#endif
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -25803,6 +25805,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unloadduplicate, "s"),
 	BUILDIN_DEF2(unloadduplicate, "unloadcopynpc", "s"),
 
+#ifdef SCRIPT_SENDMAIL
 	BUILDIN_DEF(mail_create, "sss?"),
 	BUILDIN_DEF(mail_send, "?"),
 	BUILDIN_DEF2(getitem, "mail_additem", "vi?"),
@@ -25811,6 +25814,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(getitem2, "mail_additembound2", "viiiiiiiii?"),
 	BUILDIN_DEF2(getitem2, "mail_additem3", "viiiiiiiirrr?"),
 	BUILDIN_DEF2(getitem2, "mail_additembound3", "viiiiiiiiirrr?"),
+#endif
 
 	BUILDIN_DEF(itemexists, "v"),
 	BUILDIN_DEF2(itemexists, "existitem", "v"),
