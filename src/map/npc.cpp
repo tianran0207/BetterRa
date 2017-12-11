@@ -2839,12 +2839,14 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 		map_addnpc(m,nd);
 		if(map_addblock(&nd->bl))
 			return strchr(start,'\n');
-		status_set_viewdata(&nd->bl, nd->class_);
 		status_change_init(&nd->bl);
 		unit_dataset(&nd->bl);
 		nd->ud.dir = (uint8)dir;
-		if( map[nd->bl.m].users )
-			clif_spawn(&nd->bl);
+		if( nd->class_ != JT_FAKENPC ){
+			status_set_viewdata(&nd->bl, nd->class_);
+			if( map[nd->bl.m].users )
+				clif_spawn(&nd->bl);
+		}
 	} else
 	{// 'floating' shop?
 		map_addiddb(&nd->bl);
@@ -3074,7 +3076,7 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 		npc_setcells(nd);
 		if(map_addblock(&nd->bl))
 			return NULL;
-		if( nd->class_ >= 0 )
+		if( nd->class_ != JT_FAKENPC )
 		{
 			status_set_viewdata(&nd->bl, nd->class_);
 			if( map[nd->bl.m].users )
@@ -3232,7 +3234,7 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 		npc_setcells(nd);
 		if(map_addblock(&nd->bl))
 			return end;
-		if( nd->class_ >= 0 ) {
+		if( nd->class_ != JT_FAKENPC ) {
 			status_set_viewdata(&nd->bl, nd->class_);
 			if( map[nd->bl.m].users )
 				clif_spawn(&nd->bl);
