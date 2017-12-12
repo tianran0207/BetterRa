@@ -2374,3 +2374,56 @@ void do_final_guild(void) {
 
 	aFree(guild_flags);/* never empty; created on boot */
 }
+
+//参数：
+//samemap 是否必须在同一个地图上
+//range 影响范围几格 如果为0 则为全图
+int guild_foreach(int(*func)(struct block_list*, va_list), struct map_session_data *sd, bool samemap, int range, ...)
+{
+	struct guild *g;
+	int i;
+	int x0, y0, x1, y1;
+	struct block_list *list[MAX_GUILD];
+	int blockcount = 0;
+	int total = 0; //Return value.
+
+	nullpo_ret(sd);
+
+	if ((g = guild_search(sd->status.guild_id)) == NULL)
+		return 0;
+
+	x0 = sd->bl.x - range;
+	y0 = sd->bl.y - range;
+	x1 = sd->bl.x + range;
+	y1 = sd->bl.y + range;
+
+	for (i = 0; i < g->max_member; i++) {
+		struct map_session_data *psd = g->member[i].sd;
+
+		if (!psd)
+			continue;
+
+		if ((!samemap || psd->bl.m != sd->bl.m) || !psd->bl.prev)
+			continue;
+
+		if (range &&
+			(psd->bl.x<x0 || psd->bl.y<y0 ||
+				psd->bl.x>x1 || psd->bl.y>y1))
+			continue;
+
+		list[blockcount++] = &psd->bl;
+	}
+
+	map_freeblock_lock();
+
+	for (i = 0; i < blockcount; i++) {
+		va_list ap;
+		va_start(ap, range);
+		total += func(list[i], ap);
+		va_end(ap);
+	}
+
+	map_freeblock_unlock();
+
+	return total;
+}

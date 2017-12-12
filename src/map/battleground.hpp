@@ -42,4 +42,5 @@ int bg_team_warp(int bg_id, unsigned short mapindex, short x, short y);
 int bg_member_respawn(struct map_session_data *sd);
 int bg_send_message(struct map_session_data *sd, const char *mes, int len);
 
+int tribe_foreach(int(*func)(struct block_list*, va_list), struct block_list *s_bl, bool samemap, int range, int type, int bg_id, ...);
 #endif /* _BATTLEGROUND_HPP_ */

@@ -117,5 +117,5 @@ void guild_retrieveitembound(uint32 char_id,uint32 account_id,int guild_id);
 #endif
 
 void do_final_guild(void);
-
+int guild_foreach(int(*func)(struct block_list*, va_list), struct map_session_data *sd, bool samemap, int range,...);
 #endif /* _GUILD_HPP_ */

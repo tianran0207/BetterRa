@@ -279,3 +279,68 @@ void do_final_battleground(void)
 {
 	bg_team_db->destroy(bg_team_db, NULL);
 }
+
+
+// Copy of map_foreachincell, but applied to the whole map. [Skotlex]
+int tribe_foreach(int(*func)(struct block_list*, va_list), struct block_list *s_bl, bool samemap, int range, int type, int bg_id ...)
+{
+	int i;
+	static struct block_list *list[4096];
+	int blockcount = 0;
+	int total = 0;
+
+	nullpo_ret(s_bl);
+
+	if (samemap) {
+		int m, b, bsize, x0, y0, x1, y1;
+		struct block_list *bl;
+
+		m = s_bl->m;
+		x0 =s_bl->x - range;
+		y0 =s_bl->y - range;
+		x1 =s_bl->x + range;
+		y1 =s_bl->y + range;
+
+		bsize = map[m].bxs * map[m].bys;
+		if (type&~BL_MOB)
+			for (b = 0; b < bsize; b++)
+				for (bl = map[m].block[b]; bl != NULL; bl = bl->next)
+					if (bl->type&type && blockcount < 4096 && bg_team_get_id(bl) == bg_id 
+						&& (!range || (bl->x<x0 || bl->y<y0 || bl->x>x1 || bl->y>y1)))
+						list[blockcount++] = bl;
+
+		if (type&BL_MOB)
+			for (b = 0; b < bsize; b++)
+				for (bl = map[m].block_mob[b]; bl != NULL; bl = bl->next)
+					if (blockcount < 4096 && bg_team_get_id(bl) == bg_id 
+						&& (!range || (bl->x<x0 || bl->y<y0 || bl->x>x1 || bl->y>y1)))
+						list[blockcount++] = bl;
+
+		if (blockcount >= 4096)
+			ShowWarning("tribe_foreach: block count too many!\n");
+	}
+	else {
+		TBL_PC *psd;
+		struct s_mapiterator *iter = mapit_getallusers();
+		
+		for (psd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); psd = (TBL_PC*)mapit_next(iter)) {
+			
+			if ((type&psd->bl.type) && bg_team_get_id(&psd->bl) == bg_id)
+				list[blockcount++] = &psd->bl;
+
+		}
+		mapit_free(iter);
+	
+	}
+	map_freeblock_lock();
+
+	for (i = 0; i < blockcount; i++) {
+		va_list ap;
+		va_start(ap, bg_id);
+		total += func(list[i], ap);
+		va_end(ap);
+	}
+
+	map_freeblock_unlock();
+	return total;
+}
