@@ -24028,6 +24028,7 @@ BUILDIN_FUNC(getsameipinfo)
 			i++;
 		}
 	}
+	mapit_free(iter);
 	return SCRIPT_CMD_SUCCESS;
 }
 
