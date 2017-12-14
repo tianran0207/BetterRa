@@ -1090,7 +1090,9 @@ enum e_job_types
 };
 
 // Old NPC range
-#ifndef MAX_NPC_CLASS
+#if C_MAX_NPC_CLASS > 0
+#define MAX_NPC_CLASS C_MAX_NPC_CLASS
+#else
 #define MAX_NPC_CLASS NPC_RANGE2_END
 #endif
 // New NPC range

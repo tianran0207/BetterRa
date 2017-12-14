@@ -31,26 +31,26 @@
 #endif
 
 #define MAX_MAP_PER_SERVER 1500 /// Increased to allow creation of Instance Maps
-#define MAX_INVENTORY 100 ///Maximum items in player inventory
+#define MAX_INVENTORY C_MAX_INVENTORY ///Maximum items in player inventory
 /** Max number of characters per account. Note that changing this setting alone is not enough if the client is not hexed to support more characters as well.
 * Max value tested was 265 */
-#define MAX_CHARS 9 
+#define MAX_CHARS C_MAX_CHARS 
 /** Number of slots carded equipment can have. Never set to less than 4 as they are also used to keep the data of forged items/equipment. [Skotlex]
 * Note: The client seems unable to receive data for more than 4 slots due to all related packets having a fixed size. */
 #define MAX_SLOTS 4
 #define MAX_AMOUNT 30000 ////Max amount of a single stacked item
-//#define MAX_ZENY 1000000000 ///Max zeny
+#define MAX_ZENY C_MAX_ZENY ///Max zeny
 #define MAX_BANK_ZENY SINT32_MAX ///Max zeny in Bank
 #define MAX_FAME 1000000000 ///Max fame points
 #define MAX_CART 100 ///Maximum item in cart
 #define MAX_SKILL 1200 ///Maximum skill can be hold by Player, Homunculus, & Mercenary (skill list) AND skill_db limit
-#define DEFAULT_WALK_SPEED 150 ///Default walk speed
+#define DEFAULT_WALK_SPEED C_DEFAULT_WALK_SPEED ///Default walk speed
 #define MIN_WALK_SPEED 20 ///Min walk speed
 #define MAX_WALK_SPEED 1000 ///Max walk speed
-#define MAX_STORAGE 600 ///Max number of storage slots a player can have
-#define MAX_GUILD_STORAGE 600 ///Max number of storage slots a guild
-#define MAX_PARTY 12 ///Max party member
-//#define MAX_GUILD 16+10*6	///Increased max guild members +6 per 1 extension levels [Lupus]
+#define MAX_STORAGE C_MAX_STORAGE ///Max number of storage slots a player can have
+#define MAX_GUILD_STORAGE C_MAX_GUILD_STORAGE ///Max number of storage slots a guild
+#define MAX_PARTY C_MAX_PARTY ///Max party member
+#define MAX_GUILD C_MAX_GUILD	///Increased max guild members +6 per 1 extension levels [Lupus]
 #define MAX_GUILDPOSITION 20	///Increased max guild positions to accomodate for all members [Valaris] (removed) [PoW]
 #define MAX_GUILDEXPULSION 32 ///Max Guild expulsion
 #define MAX_GUILDALLIANCE 16 ///Max Guild alliance
@@ -98,7 +98,7 @@
 #define MAX_SKILLCOOLDOWN 20
 
 //Size of the fame list arrays.
-#define MAX_FAME_LIST 10
+#define MAX_FAME_LIST C_MAX_FAME_LIST
 
 //Limits to avoid ID collision with other game objects
 #define START_ACCOUNT_NUM 2000000
@@ -131,7 +131,7 @@
 //Mercenary System
 #define MC_SKILLBASE 8201
 #define MAX_MERCSKILL 40
-#define MAX_MERCENARY_CLASS 61
+#define MAX_MERCENARY_CLASS C_MAX_MERCENARY_CLASS
 
 //Elemental System
 #define MAX_ELEMENTALSKILL 42
@@ -1015,7 +1015,5 @@ struct clan{
 #else
 	#define MAX_CARTS 5
 #endif
-
-#include "../config/better_config.h"
 
 #endif /* _MMO_H_ */

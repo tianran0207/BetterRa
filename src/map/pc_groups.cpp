@@ -473,6 +473,10 @@ void pc_read_policies(void) {
 	int data_count, i;
 	const char *config_filename = CONF_PATH "/policies.conf"; // FIXME hardcoded name
 
+#if MAX_POLICIES == 0
+	return;
+#endif
+
 	memset(&policie, 0, sizeof(struct policies) * MAX_POLICIES);
 
 	config_init(&policies_config);
@@ -488,7 +492,7 @@ void pc_read_policies(void) {
 			config_setting_t *group = config_setting_get_elem(data, i);
 			if (!config_setting_lookup_int(group, "policy_id", &id))
 				continue;
-			if (id == 0)
+			if (id == 0 || id >= MAX_POLICIES)
 				continue;
 			policie[id].policy_id = id;
 			config_setting_lookup_int(group, "base_exp_rate", &policie[id].base_exp_rate);

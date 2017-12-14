@@ -1,46 +1,57 @@
 // Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#define MAX_ONLINE 5
+#ifndef	_BETTERRA_CONFIG_H_
+#define	_BETTERRA_CONFIG_H_
 
-//#define PRERE
-#define PACKETVER 20170614
+#define MAX_ONLINE 5                 //最大连接数量
+//----------------------------------
+//自定义宏定义
+//----------------------------------
+#define C_PACKETVER 20170614
+#define C_PRERE 0                    //是否编译为复兴前版本
+#define C_VIP_ENABLE 0               //是否开启VIP系统
+#define C_PACKET_OBFUSCATION 1       //是否开启封包加密
 
-#define BETTER_PACKET_OBFUSCATION
+#define C_MAX_CHARS 9                //最大创建角色数量
+#define C_MAX_ZENY 1000000000        //最大随身携带的金币
+#define C_MAX_INVENTORY 100          //最大背包容量
+#define C_MAX_STORAGE 600            //最大玩家仓库容量
+#define C_DEFAULT_WALK_SPEED 150     //玩家默认移动速度
+#define C_AUTOLOOTITEM_SIZE 10       //自动拾取的物品清单
 
-#define MAX_CHARS 9 
-#define MAX_ZENY 1000000000        //随身携带的金币上限
+#define C_MAX_PARTY 12               //最大队伍成员数量
+#define C_MAX_GUILD_STORAGE 600      //最大公会仓库容量
+#define C_MIN_GUILD 16               //最大公会初始成员容量
+#define C_GUILD_SKILL_NUMBER_ADD 6   //扩充组合体制每级增加人数
 
-//#define VIP_ENABLE               //是否开启VIP系统
-#define MAX_STORAGE 600            //玩家仓库容量上限
-#define MAX_GUILD_STORAGE 600      //公会仓库容量上限
-#define MIN_GUILD 16               //公会初始成员容量上限
-#define GUILD_SKILL_NUMBER_ADD 6   //扩充组合体制每级增加人数
-#define MAX_INVENTORY 100          //背包中的物品种类上限
-#define MAX_PET_DB 600             //宠物数据库的ID容量上限
-#define MAX_PETLOOT_SIZE 30
-#define MAX_PARTY 12               //队伍的最大成员数量上限
-#define DEFAULT_WALK_SPEED 150     //玩家默认移动速度
-#define AUTOLOOTITEM_SIZE 10       //自动拾取的物品清单上限
-#define MAX_MOB_DB 3999            //魔物数据库的ID容量上限
-#define MAX_MERCENARY_CLASS 61     //佣兵的种类上限
-#define MAX_FAME_LIST 10           //声望列表长度上限
-//#define MAX_REFINE 10            //最大精炼值
-#define MAX_EVENTQUEUE 200         //事件队列的容量上限
-//#define MAX_NPC_CLASS 0          //NPC种类上限
-//#define PACKET_OBFUSCATION_KEY1 0x3839c33f        //key1
-//#define PACKET_OBFUSCATION_KEY2 0x2a9de0a7        //key2
-//#define PACKET_OBFUSCATION_KEY3 0x1849a1bb        //key3
+#define C_MAX_PETLOOT_SIZE 30        //最大宠物拾取容量
+#define C_MAX_PET_DB 600             //最大宠物数据库的ID容量
+#define C_MAX_MOB_DB 3999            //最大魔物数据库的ID容量
+#define C_MAX_NPC_CLASS 0            //最大NPC数据库的ID容量
 
+#define C_MAX_MERCENARY_CLASS 61     //最大佣兵的种类
+#define C_MAX_FAME_LIST 10           //最大声望列表长度
+#define C_MAX_REFINE 0               //最大精炼值
+#define C_MAX_EVENTQUEUE 200         //最大事件队列的容量
 
-#define CONF_PATH "conf"
+#define C_PACKET_OBFUSCATION_KEY1 0  //key1
+#define C_PACKET_OBFUSCATION_KEY2 0  //key2
+#define C_PACKET_OBFUSCATION_KEY3 0  //key3
 
-#define MSG_TRANSLATE
-#define FOLLOWPACKET
+//----------------------------------
+//自定义功能集
+//----------------------------------
+#if MAX_ONLINE > 0
+	#define BRA_STEP_PATH
+	#define BRA_TRIBE_TEAM
+#endif
 
-#define MAX_POLICIES 20
+#define BRA_MSG_TRANSLATE
 
-//evet
+//----------------------------------
+//事件列表
+//----------------------------------
 #define EVENT_HOMLVUP
 #define EVENT_HOMCALL
 #define EVENT_HOMREST
@@ -74,18 +85,20 @@
 #define EVENT_WILLLOADMAPEVENT
 #define EVENT_INCHATROOMFILTER
 #define EVENT_TITLECHANGEFILTER
-
 #define EVENT_ROULETTESTARTFILTER
 #define EVENT_ROULETTEGETFILTER
 
-
-
-
+//----------------------------------
+//脚本与指令开关
+//----------------------------------
 #define SCRIPT_SENDMAIL
+#define ATCOMMAND_FOLLOWPACKET      
 
+//----------------------------------
+//默认开关
+//----------------------------------
+#define C_MAX_GUILD C_MIN_GUILD + 10 * C_GUILD_SKILL_NUMBER_ADD
+#define CONF_PATH "conf"
+#define MAX_POLICIES 20
 
-
-
-
-
-#define MAX_GUILD MIN_GUILD+10*GUILD_SKILL_NUMBER_ADD
+#endif //_BETTERRA_CONFIG_H_

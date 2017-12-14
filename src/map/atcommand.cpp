@@ -10010,7 +10010,7 @@ ACMD_FUNC(adopt)
 
 ACMD_FUNC(followpacket)
 {
-#ifndef FOLLOWPACKET
+#ifndef ATCOMMAND_FOLLOWPACKET
 	clif_displaymessage(fd, "it don't work..");
 	return 0;
 #else
@@ -10039,7 +10039,7 @@ ACMD_FUNC(followpacket)
 		clif_displaymessage(sd->fd, "install follow packet..");
 	}
 	return 0;
-#endif // FOLLOWPACKET
+#endif // ATCOMMAND_FOLLOWPACKET
 }
 
 static int atcommand_recallmap_sub(struct block_list *bl, va_list ap)

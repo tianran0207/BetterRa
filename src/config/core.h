@@ -9,9 +9,10 @@
  **/
 
 #include "../custom/defines_pre.h"
+#include "./better_config.h"
 
 /// Max number of items on @autolootid list
-#define AUTOLOOTITEM_SIZE 10
+#define AUTOLOOTITEM_SIZE C_AUTOLOOTITEM_SIZE
 
 /// The maximum number of atcommand and @warp suggestions
 #define MAX_SUGGESTIONS 10
@@ -56,8 +57,9 @@
 #define HP_SP_TABLES
 
 /// Uncomment to enable VIP system.
-//#define VIP_ENABLE
-
+#if C_VIP_ENABLE > 0
+#define VIP_ENABLE 
+#endif
 /// Enable VIP script changes? (requires VIP_ENABLE)
 /// The primary effects of this are restrictions on non-VIP players, such as requiring
 /// a Reset Stone to change into third classes, paying more for equipment upgrades, and
@@ -76,8 +78,6 @@
 
 /// Comment to disable warnings for deprecated script constants
 #define SCRIPT_CONSTANT_DEPRECATION
-
-#include "./better_config.h"
 
 /**
  * No settings past this point

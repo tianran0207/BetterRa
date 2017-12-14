@@ -12,7 +12,7 @@
 	/// Do NOT edit this line! To set your client version, please do this instead:
 	/// In Windows: Add this line in your src\custom\defines_pre.h file: #define PACKETVER YYYYMMDD
 	/// In Linux: The same as above or run the following command: ./configure --enable-packetver=YYYYMMDD
-	#define PACKETVER 20151104
+	#define PACKETVER C_PACKETVER
 #endif
 
 #ifndef PACKETVER_RE
@@ -25,14 +25,15 @@
 #if PACKETVER >= 20110817
 	/// Comment to disable the official packet obfuscation support.
 	/// This requires PACKETVER 2011-08-17 or newer.
-	#ifdef BETTER_PACKET_OBFUSCATION
+	#if C_PACKET_OBFUSCATION > 0
 		#define PACKET_OBFUSCATION
 
 		// Define these inside src/custom/defines_pre.h or src/custom/defines_post.h
-		//#define PACKET_OBFUSCATION_KEY1 <key1>
-		//#define PACKET_OBFUSCATION_KEY2 <key2>
-		//#define PACKET_OBFUSCATION_KEY3 <key3>
-
+		#if C_PACKET_OBFUSCATION_KEY1 > 0 && C_PACKET_OBFUSCATION_KEY2 > 0 && C_PACKET_OBFUSCATION_KEY3 > 0		
+			#define PACKET_OBFUSCATION_KEY1 C_PACKET_OBFUSCATION_KEY1
+			#define PACKET_OBFUSCATION_KEY2 C_PACKET_OBFUSCATION_KEY2
+			#define PACKET_OBFUSCATION_KEY3 C_PACKET_OBFUSCATION_KEY3
+		#endif
 		/// Comment this to disable warnings for missing client side encryption
 		#define PACKET_OBFUSCATION_WARN
 	#endif

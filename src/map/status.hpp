@@ -20,13 +20,15 @@ struct status_change;
  * Max Refine available to your server
  * Changing this limit requires edits to refine_db.txt
  **/
-
-#if defined(RENEWAL) && !defined(MAX_REFINE)
+#if C_MAX_REFINE > 0
+#define MAX_REFINE C_MAX_REFINE
+#else
+#ifdef RENEWAL
 #define MAX_REFINE 20
-#elif !defined(MAX_REFINE)
+#else
 #define MAX_REFINE 10
 #endif
-
+#endif
 /// Refine type
 enum refine_type {
 	REFINE_TYPE_ARMOR	= 0,

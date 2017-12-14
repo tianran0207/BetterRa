@@ -14,8 +14,8 @@
 struct s_map_session_data;
 enum e_sc_type : int16;
 
-//#define MAX_PET_DB	300
-//#define MAX_PETLOOT_SIZE	30
+#define MAX_PET_DB	C_MAX_PET_DB
+#define MAX_PETLOOT_SIZE C_MAX_PETLOOT_SIZE
 
 /// Pet DB
 struct s_pet_db {

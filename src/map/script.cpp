@@ -25053,7 +25053,7 @@ BUILDIN_FUNC(unitremove)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(hasfollower) 
+BUILDIN_FUNC(hasfollow) 
 {
 	TBL_PC *sd;
 
@@ -25159,7 +25159,14 @@ BUILDIN_FUNC(getpolicyinfo)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+//---------------------------------------------------
+BUILDIN_FUNC(undef_func) {
+	ShowWarning("Sorry!!You don't customize this function, if you want to do this, please go to the official network customization.\n");
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(setsteppath) {
+
 	TBL_MOB *md;
 	struct walkpath_data wpd;
 	struct step_path *steppath;
@@ -25971,15 +25978,30 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(recalculatestat, "status_calc", "iiii"),
 	BUILDIN_DEF(getareagid, "si?????"),
 	BUILDIN_DEF(unitremove, "i?"),
-	BUILDIN_DEF(hasfollower, "i?"),
+	BUILDIN_DEF(hasfollow, "i?"),
 	//行为策略系统
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),
 	BUILDIN_DEF(getpolicyinfo, "i?"),
-	//路点系统
+
+		
+//路点系统
+#ifdef BRA_STEP_PATH
 	BUILDIN_DEF(setsteppath, "iv"),
+#else
+	BUILDIN_DEF2(undef_func,"setsteppath", "iv"),
+#endif
+
+//阵营系统
+#ifdef BRA_TRIBE_TEAM
 	BUILDIN_DEF(tribe_setteam, "i?"),
 	BUILDIN_DEF(tribe_mobteam, "i"),
 	BUILDIN_DEF(tribe_getteam, "?"),
+#else
+	BUILDIN_DEF2(undef_func, "tribe_setteam", "i?"),
+	BUILDIN_DEF2(undef_func, "tribe_mobteam", "i"),
+	BUILDIN_DEF2(undef_func, "tribe_getteam", "?"),
+#endif
+
 	{NULL,NULL,NULL},
 };

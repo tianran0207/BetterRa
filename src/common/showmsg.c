@@ -50,7 +50,7 @@ int msg_silent = 0; //Specifies how silent the console is.
 int console_msg_log = 0;//[Ind] msg error logging
 char console_log_filepath[32] = "./log/unknown.log";
 
-#if !defined(MINICORE) && defined(MSG_TRANSLATE)
+#if !defined(MINICORE) && defined(BRA_MSG_TRANSLATE)
 static DBMap* msg_translation = NULL;
 static config_t translation_config;
 void msg_config_translation_read(const char* config_filename);
@@ -689,7 +689,7 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap)
 	FILE *fp;
 #endif
 	
-#if !defined(MINICORE) && defined(MSG_TRANSLATE)
+#if !defined(MINICORE) && defined(BRA_MSG_TRANSLATE)
 	char val[1024];
 	string = _vReplaceMessage(string, val);
 #endif
@@ -746,7 +746,7 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap)
 		time_t t = time(NULL);
 		strftime(prefix, 80, timestamp_format, localtime(&t));
 	} else prefix[0]='\0';
-#if defined(MINICORE) || !defined(MSG_TRANSLATE)
+#if defined(MINICORE) || !defined(BRA_MSG_TRANSLATE)
 	switch (flag) {
 		case MSG_NONE: // direct printf replacement
 			break;
@@ -789,7 +789,7 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap)
 		else
 			safestrncpy(prefix, prefixlist[flag - 1].name, sizeof(prefix));
 	}
-#endif // !MSG_TRANSLATE
+#endif // !BRA_MSG_TRANSLATE
 
 	if (flag == MSG_ERROR || flag == MSG_FATALERROR || flag == MSG_SQL)
 	{	//Send Errors to StdErr [Skotlex]
@@ -913,7 +913,7 @@ void ShowFatalError(const char *string, ...) {
 	va_end(ap);
 }
 
-#if !defined(MINICORE) && defined(MSG_TRANSLATE)
+#if !defined(MINICORE) && defined(BRA_MSG_TRANSLATE)
 void get_real_str(char *string);
 //CONF_PATH "/msg_conf/translation.conf"
 #define MAX_TRANSLETION_MSG 1024
@@ -1044,19 +1044,19 @@ const char* _vReplaceMessage(const char *String, char *val) {
 
 void showmsg_init()
 {
-#if !defined(MINICORE) && defined(MSG_TRANSLATE)
+#if !defined(MINICORE) && defined(BRA_MSG_TRANSLATE)
 	msg_config_translation_read(CONF_PATH "/msg_conf/translation.conf");
-#endif // MSG_TRANSLATE
+#endif // BRA_MSG_TRANSLATE
 }
 
 void showmsg_final()
 {
-#if !defined(MINICORE) && defined(MSG_TRANSLATE)
+#if !defined(MINICORE) && defined(BRA_MSG_TRANSLATE)
 	int i;
 	msg_translation->destroy(msg_translation, NULL);
 	msg_translation = NULL;
 	for (i = 0; i < ARRAYLENGTH(prefixlist); i++) {
 		safestrncpy(prefixlist[i].rename, prefixlist[i].name, MAX_TRANSLETION_MSG);
 	}
-#endif // MSG_TRANSLATE
+#endif // BRA_MSG_TRANSLATE
 }
