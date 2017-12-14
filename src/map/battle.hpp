@@ -152,6 +152,8 @@ struct Battle_Config
 	int baspd_fixed;
 	int share_quests_area;
 	int combo_mode;
+	int buff_for_guild_member;
+	int buff_for_tribe_member;
 	//------------------------------
 	int warp_point_debug;
 	int enable_critical;

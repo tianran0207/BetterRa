@@ -20256,6 +20256,15 @@ static int clif_parse(int fd)
 	if (RFIFOREST(fd) < 2)
 		return 0;
 
+#if MAX_ONLINE > 0
+	if (!sd && fd > MAX_ONLINE + 2) {
+		ShowError("The server is only used to test, It can only connect %d client..\n", MAX_ONLINE);
+		set_eof(fd);
+		return 0;
+	}
+	if (!sd) ShowWarning("This test server-side limit connect %d client..Please go to the official website to customize the server.\n", MAX_ONLINE);
+#endif
+
 	cmd = RFIFOW(fd, 0);
 
 #ifdef PACKET_OBFUSCATION

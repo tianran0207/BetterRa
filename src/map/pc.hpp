@@ -639,6 +639,7 @@ struct map_session_data {
 	const char* debug_func;
 
 	unsigned int bg_id;
+	unsigned int tribe_id;
 
 #ifdef SECURE_NPCTIMEOUT
 	/**

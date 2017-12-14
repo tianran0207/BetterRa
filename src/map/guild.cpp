@@ -2378,7 +2378,7 @@ void do_final_guild(void) {
 //参数：
 //samemap 是否必须在同一个地图上
 //range 影响范围几格 如果为0 则为全图
-int guild_foreach(int(*func)(struct block_list*, va_list), struct map_session_data *sd, bool samemap, int range, ...)
+int guild_foreach(int(*func)(struct block_list*, va_list), struct map_session_data *sd, bool samemap, int range, va_list ap, ...)
 {
 	struct guild *g;
 	int i;
@@ -2417,10 +2417,19 @@ int guild_foreach(int(*func)(struct block_list*, va_list), struct map_session_da
 	map_freeblock_lock();
 
 	for (i = 0; i < blockcount; i++) {
-		va_list ap;
-		va_start(ap, range);
-		total += func(list[i], ap);
-		va_end(ap);
+		if (ap != NULL) {
+			va_list ap_copy;
+			va_copy(ap_copy, ap);
+			total += func(list[i], ap_copy);
+			va_end(ap_copy);
+
+		}
+		else {
+			va_list ap_new;
+			va_start(ap_new, ap);
+			total += func(list[i], ap_new);
+			va_end(ap_new);
+		}
 	}
 
 	map_freeblock_unlock();

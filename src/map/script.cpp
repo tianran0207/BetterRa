@@ -530,6 +530,15 @@ enum {
 	MF_GVG_TE_CASTLE,
 	MF_GVG_TE,
 	MF_HIDEMOBHPBAR,
+
+	//阵营
+	MF_TRIBE = 1024,
+	MF_HIDEGUILDINFO,
+	MF_HIDEPARTYINFO,
+	MF_MOBINFO,
+	MF_NOTOKEN,
+	MF_MOCAPTURE,
+	MF_NOAUTOLOOT,
 };
 
 const char* script_op2name(int op)
@@ -12478,6 +12487,13 @@ BUILDIN_FUNC(setmapflag)
 	m = map_mapname2mapid(str);
 	if(m >= 0) {
 		switch(i) {
+			case MF_TRIBE:              map[m].flag.tribe = 1; break;
+			case MF_HIDEGUILDINFO:		map[m].flag.hideguildinfo = 1; break;
+			case MF_HIDEPARTYINFO:		map[m].flag.hidepartyinfo = 1; break;
+			case MF_MOBINFO:			map[m].flag.mobinfo = val; break;
+			case MF_NOTOKEN:			map[m].flag.notoken = 1; break;
+			case MF_MOCAPTURE:			map[m].flag.nocapture = 1; break;
+			case MF_NOAUTOLOOT:			map[m].flag.noautoloot = 1; break;
 			case MF_NOMEMO:				map[m].flag.nomemo = 1; break;
 			case MF_NOTELEPORT:			map[m].flag.noteleport = 1; break;
 			case MF_NOSAVE:				map[m].flag.nosave = 1; break;
@@ -12586,6 +12602,13 @@ BUILDIN_FUNC(removemapflag)
 	m = map_mapname2mapid(str);
 	if(m >= 0) {
 		switch(i) {
+			case MF_TRIBE:              map[m].flag.tribe = 0; break;
+			case MF_HIDEGUILDINFO:		map[m].flag.hideguildinfo = 0; break;
+			case MF_HIDEPARTYINFO:		map[m].flag.hidepartyinfo = 0; break;
+			case MF_MOBINFO:			map[m].flag.mobinfo = 0; break;
+			case MF_NOTOKEN:			map[m].flag.notoken = 0; break;
+			case MF_MOCAPTURE:			map[m].flag.nocapture = 0; break;
+			case MF_NOAUTOLOOT:			map[m].flag.noautoloot = 0; break;
 			case MF_NOMEMO:				map[m].flag.nomemo = 0; break;
 			case MF_NOTELEPORT:			map[m].flag.noteleport = 0; break;
 			case MF_NOSAVE:				map[m].flag.nosave = 0; break;
@@ -24888,8 +24911,11 @@ BUILDIN_FUNC(mail_send)
 
 static int buildin_getareagid_sub(struct block_list *bl, va_list ap)
 {
+	struct map_session_data *sd = va_arg(ap, struct map_session_data *);
+	struct script_state *st = va_arg(ap, struct script_state *);
+	char *varname = va_arg(ap, char *);
 	int *count = va_arg(ap, int *);
-	mapreg_setreg(reference_uid(add_str("$@areagid"), (*count)), bl->id);
+	set_reg(st, sd, reference_uid(add_str(varname), *count), varname, (void *)bl->id, NULL);
 	(*count)++;
 	return 0;
 }
@@ -24898,48 +24924,80 @@ BUILDIN_FUNC(getareagid)
 {
 	int map_id, type, count;
 	const char* mapname = NULL;
+	char* varname = NULL;
+	struct script_data *data = NULL;
+	TBL_PC *sd;
+
+	//获得发送目标类型
 	type = script_getnum(st, 3);
+	//获得地图名
 	mapname = script_getstr(st, 2);
 
-	if (strcmp(mapname, "this") == 0) {
-		TBL_PC *sd;
-		if (!script_rid2sd(sd))
-			return SCRIPT_CMD_SUCCESS;
-		map_id = map_mapindex2mapid(sd->mapindex);
+	//获得数组参数
+	data = script_getdata(st, script_lastdata(st));
+	
+	if (!data_isreference(data) || data_isstring(data)) {
+		//不是变量或整数变量报错
+		ShowWarning("buildin_getareagid: error in argument! please give a int variable to store num.\n");
+		return SCRIPT_CMD_FAILURE;
 	}
+	//获得数组名
+	varname = reference_getname(data);
+
+	//如果为人物变量或者地图名为this,则判断人物是否关联
+	if (not_server_variable(*varname) || !strcmp(mapname, "this")) {
+		//人物变量则判断是否关联人物
+		if (!script_rid2sd(sd)) {
+			//如果没有关联人物则返回-1
+			script_pushint(st, -1);
+			return SCRIPT_CMD_SUCCESS;
+		}
+	}
+
+	if (!strcmp(mapname, "this"))
+		//根据人物所在地图获得map_id;
+		map_id = map_mapindex2mapid(sd->mapindex);
 	else
+		//根据地图名获得map_id
 		map_id = map_mapname2mapid(mapname);
 
+
 	if (map_id < 0) {
+		//地图不存在返回-2
 		script_pushint(st, -2);
 		return SCRIPT_CMD_SUCCESS;
 	}
+
+	//计数器初始为0
 	count = 0;
-	if (script_hasdata(st, 7)) {
+	//如果7个参数(方法1)
+	if (script_hasdata(st, 8)) {
 		int x0, y0, x1, y1;
 		x0 = script_getnum(st, 4);
 		y0 = script_getnum(st, 5);
 		x1 = script_getnum(st, 6);
 		y1 = script_getnum(st, 7);
-		map_foreachinarea(buildin_getareagid_sub, map_id, x0, y0, x1, y1, type, &count);
+		map_foreachinarea(buildin_getareagid_sub, map_id, x0, y0, x1, y1, type, st, sd, varname, &count);
 	}
-	else {
+	//如果6个参数(方法2)
+	else if (script_hasdata(st, 7)) {
 		struct block_list center;
 		int range;
-		if (script_hasdata(st, 6)) {
-			center.m = map_id;
-			center.x = script_getnum(st, 4);
-			center.y = script_getnum(st, 5);
-			range = script_getnum(st, 6);
-			map_foreachinrange(buildin_getareagid_sub, &center, range, type, &count);
-		}
-		else {
-			map_foreachinmap(buildin_getareagid_sub, map_id, type, &count);
-		}
+		center.m = map_id;
+		center.x = script_getnum(st, 4);
+		center.y = script_getnum(st, 5);
+		range = script_getnum(st, 6);
+		map_foreachinrange(buildin_getareagid_sub, &center, range, type, st, sd, varname, &count);
 	}
+	//(方法3)
+	else {
+		map_foreachinmap(buildin_getareagid_sub, map_id, type, st, sd, varname, &count);
+	}
+	//返回获取的gid数量
 	script_pushint(st, count);
 	return SCRIPT_CMD_SUCCESS;
 }
+
 
 BUILDIN_FUNC(unitremove)
 {
@@ -25107,7 +25165,7 @@ BUILDIN_FUNC(setsteppath) {
 	const char *key = NULL;
 	char *str_temp = NULL;
 
-	md = (TBL_MOB*)map_id2bl(script_getnum(st, 2));
+	md = map_id2md(script_getnum(st, 2));
 
 	if (script_isstring(st, 3))
 		key = script_getstr(st, 3);
@@ -25141,6 +25199,58 @@ BUILDIN_FUNC(setsteppath) {
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(tribe_mobteam) {
+	TBL_MOB *md;
+	int i, mobid, tribe_id;
+	int arraysize = script_array_highest_key(st, NULL, "$@mobid", NULL);
+	tribe_id = script_getnum(st, 2);
+	for (i = 0; i < arraysize; i++) {
+		mobid = mapreg_readreg(reference_uid(add_str("$@mobid"), i));
+		md = map_id2md(mobid);
+		if (!md)
+			continue;
+		md->tribe_id = tribe_id;
+		mob_stop_attack(md);
+		mob_stop_walking(md, 0);
+		md->target_id = md->attacked_id = 0;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(tribe_setteam) {
+
+	struct block_list *bl;
+	int gid;
+
+	if (!script_hasdata(st, 3)) {
+		TBL_PC *sd;
+		if (!script_rid2sd(sd))
+			return SCRIPT_CMD_FAILURE;
+		sd->tribe_id = script_getnum(st, 2);
+		bl = &sd->bl;
+	}
+	else {
+		gid = script_getnum(st, 2);
+		bl = map_id2bl(gid);
+
+		if (bl == NULL)
+			return SCRIPT_CMD_SUCCESS;
+		tribe_team_set_id(bl, script_getnum(st, 3));
+	}
+	unit_stop_attack(bl);
+	unit_stop_walking(bl, 0);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(tribe_getteam) {
+
+	TBL_PC *sd;
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, sd->tribe_id);
+	return SCRIPT_CMD_SUCCESS;
+}
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -25858,7 +25968,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(sethotkey, "set_hotkey", "iiii"),
 	BUILDIN_DEF2(recalculatestat, "statuscalc", "iiii"),
 	BUILDIN_DEF2(recalculatestat, "status_calc", "iiii"),
-	BUILDIN_DEF(getareagid, "si????"),
+	BUILDIN_DEF(getareagid, "si?????"),
 	BUILDIN_DEF(unitremove, "i?"),
 	BUILDIN_DEF(hasfollower, "i?"),
 	//行为策略系统
@@ -25867,5 +25977,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getpolicyinfo, "i?"),
 	//路点系统
 	BUILDIN_DEF(setsteppath, "iv"),
+	BUILDIN_DEF(tribe_setteam, "i?"),
+	BUILDIN_DEF(tribe_mobteam, "i"),
+	BUILDIN_DEF(tribe_getteam, "?"),
 	{NULL,NULL,NULL},
 };

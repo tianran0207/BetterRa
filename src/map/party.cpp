@@ -28,6 +28,8 @@
 #include "pc_groups.hpp"
 #include "achievement.hpp"
 #include "npc.hpp"
+#include "guild.hpp"
+#include "battleground.hpp"
 
 static DBMap* party_db; // int party_id -> struct party_data* (releases data)
 static DBMap* party_booking_db; // uint32 char_id -> struct party_booking_ad_info* (releases data) // Party Booking [Spiria]
@@ -1288,6 +1290,25 @@ int party_foreachsamemap(int (*func)(struct block_list*,va_list),struct map_sess
 	int total = 0; //Return value.
 
 	nullpo_ret(sd);
+
+
+	if (battle_config.buff_for_guild_member && map_flag_gvg2(sd->bl.m)) {
+		va_list ap;
+		va_start(ap, range);
+		total = guild_foreach(func, sd, true, range, ap);
+		va_end(ap);
+		return total;
+	}
+	if (battle_config.buff_for_tribe_member && map[sd->bl.m].flag.tribe && sd->tribe_id) {
+		int type = 0;
+		if (battle_config.buff_for_tribe_member & 1) type |= BL_PC;
+		if (battle_config.buff_for_tribe_member & 2) type |= BL_MOB;
+		va_list ap, ap_copy;
+		va_start(ap, range);
+		total = tribe_foreach(func, &sd->bl , true, range, type, sd->tribe_id, ap);
+		va_end(ap_copy);
+		return total;
+	}
 
 	if((p = party_search(sd->status.party_id)) == NULL)
 		return 0;

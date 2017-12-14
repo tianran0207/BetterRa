@@ -7697,8 +7697,8 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 
 	if (map[m].flag.tribe) {
 		int sbg_id = 0, tbg_id = 0;
-		sbg_id = bg_team_get_id(s_bl);
-		tbg_id = bg_team_get_id(t_bl);
+		sbg_id = tribe_team_get_id(s_bl);
+		tbg_id = tribe_team_get_id(t_bl);
 		if (sbg_id != tbg_id) {
 			state |= BCT_ENEMY;
 		}
@@ -7970,8 +7970,10 @@ static const struct _battle_data {
 	{ "mounting_cant_use",                  &battle_config.mounting_cant_use,               0,      0,      1|2|4|8|16|32|64|128|256, },
 	{ "hide_cmd",                           &battle_config.hide_cmd,                        0,      0,      1,              },
 	{ "bAspd_fixed",                        &battle_config.baspd_fixed,                     1,      0,      1,              },
-	{ "share_quests_area",                  &battle_config.share_quests_area,               0,      0,      2,              },
 	{ "combo_mode",                         &battle_config.combo_mode,                      0,      0,      2,              },
+	{ "share_quests_area",                  &battle_config.share_quests_area,               0,      0,      2,              },
+	{ "buff_for_guild_member",              &battle_config.buff_for_guild_member,           0,      0,      1,              },
+	{ "buff_for_tribe_member",              &battle_config.buff_for_tribe_member,           0,      0,      1|2,            },
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },

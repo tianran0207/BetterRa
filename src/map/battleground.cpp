@@ -281,8 +281,76 @@ void do_final_battleground(void)
 }
 
 
+int tribe_team_get_id(struct block_list *bl)
+{
+	nullpo_ret(bl);
+	switch (bl->type) {
+	case BL_PC:
+		return ((TBL_PC*)bl)->tribe_id;
+	case BL_PET:
+		if (((TBL_PET*)bl)->master)
+			return ((TBL_PET*)bl)->master->tribe_id;
+		break;
+	case BL_MOB: {
+		struct map_session_data *msd;
+		struct mob_data *md = (TBL_MOB*)bl;
+
+		if (md->special_state.ai && (msd = map_id2sd(md->master_id)) != NULL)
+			return msd->tribe_id;
+
+		return md->tribe_id;
+	}
+	case BL_HOM:
+		if (((TBL_HOM*)bl)->master)
+			return ((TBL_HOM*)bl)->master->tribe_id;
+		break;
+	case BL_MER:
+		if (((TBL_MER*)bl)->master)
+			return ((TBL_MER*)bl)->master->tribe_id;
+		break;
+	case BL_SKILL:
+		return ((TBL_SKILL*)bl)->group->tribe_id;
+	}
+
+	return 0;
+}
+
+int tribe_team_set_id(struct block_list *bl, int id)
+{
+	nullpo_ret(bl);
+	switch (bl->type) {
+	case BL_PC:
+		return (((TBL_PC*)bl)->tribe_id = id);
+	case BL_PET:
+		if (((TBL_PET*)bl)->master)
+			return (((TBL_PET*)bl)->master->tribe_id = id);
+		break;
+	case BL_MOB: {
+		struct map_session_data *msd;
+		struct mob_data *md = (TBL_MOB*)bl;
+
+		if (md->special_state.ai && (msd = map_id2sd(md->master_id)) != NULL)
+			return (msd->tribe_id = id);
+
+		return (md->tribe_id = id);
+	}
+	case BL_HOM:
+		if (((TBL_HOM*)bl)->master)
+			return (((TBL_HOM*)bl)->master->tribe_id = id);
+		break;
+	case BL_MER:
+		if (((TBL_MER*)bl)->master)
+			return (((TBL_MER*)bl)->master->tribe_id = id);
+		break;
+	case BL_SKILL:
+		return (((TBL_SKILL*)bl)->group->tribe_id = id);
+	}
+
+	return 0;
+}
+
 // Copy of map_foreachincell, but applied to the whole map. [Skotlex]
-int tribe_foreach(int(*func)(struct block_list*, va_list), struct block_list *s_bl, bool samemap, int range, int type, int bg_id ...)
+int tribe_foreach(int(*func)(struct block_list*, va_list), struct block_list *s_bl, bool samemap, int range, int type, int tribe_id, va_list ap,...)
 {
 	int i;
 	static struct block_list *list[4096];
@@ -302,18 +370,18 @@ int tribe_foreach(int(*func)(struct block_list*, va_list), struct block_list *s_
 		y1 =s_bl->y + range;
 
 		bsize = map[m].bxs * map[m].bys;
-		if (type&~BL_MOB)
+		if (type&BL_PC)
 			for (b = 0; b < bsize; b++)
 				for (bl = map[m].block[b]; bl != NULL; bl = bl->next)
-					if (bl->type&type && blockcount < 4096 && bg_team_get_id(bl) == bg_id 
-						&& (!range || (bl->x<x0 || bl->y<y0 || bl->x>x1 || bl->y>y1)))
+					if (bl->type&type && blockcount < 4096 && tribe_team_get_id(bl) == tribe_id
+						&& (!range || (bl->x>x0 || bl->y>y0 || bl->x<x1 || bl->y<y1)))
 						list[blockcount++] = bl;
 
 		if (type&BL_MOB)
 			for (b = 0; b < bsize; b++)
 				for (bl = map[m].block_mob[b]; bl != NULL; bl = bl->next)
-					if (blockcount < 4096 && bg_team_get_id(bl) == bg_id 
-						&& (!range || (bl->x<x0 || bl->y<y0 || bl->x>x1 || bl->y>y1)))
+					if (blockcount < 4096 && tribe_team_get_id(bl) == tribe_id
+						&& (!range || (bl->x>x0 || bl->y>y0 || bl->x<x1 || bl->y<y1)))
 						list[blockcount++] = bl;
 
 		if (blockcount >= 4096)
@@ -325,7 +393,7 @@ int tribe_foreach(int(*func)(struct block_list*, va_list), struct block_list *s_
 		
 		for (psd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); psd = (TBL_PC*)mapit_next(iter)) {
 			
-			if ((type&psd->bl.type) && bg_team_get_id(&psd->bl) == bg_id)
+			if ((type&psd->bl.type) && tribe_team_get_id(&psd->bl) == tribe_id)
 				list[blockcount++] = &psd->bl;
 
 		}
@@ -335,10 +403,19 @@ int tribe_foreach(int(*func)(struct block_list*, va_list), struct block_list *s_
 	map_freeblock_lock();
 
 	for (i = 0; i < blockcount; i++) {
-		va_list ap;
-		va_start(ap, bg_id);
-		total += func(list[i], ap);
-		va_end(ap);
+		if (ap != NULL) {
+			va_list ap_copy;
+			va_copy(ap_copy, ap);
+			total += func(list[i], ap_copy);
+			va_end(ap_copy);
+		
+		}
+		else {
+			va_list ap_new;
+			va_start(ap_new, ap);
+			total += func(list[i], ap_new);
+			va_end(ap_new);
+		}
 	}
 
 	map_freeblock_unlock();
