@@ -46,7 +46,9 @@
 #define BOUND_ITEMS
 
 /// Uncomment to enable real-time server stats (in and out data and ram usage).
-//#define SHOW_SERVER_STATS
+#if C_SHOW_SERVER_STATS > 0
+#define SHOW_SERVER_STATS
+#endif
 
 /// Uncomment to enable skills damage adjustments
 /// By enabling this, db/skill_damage.txt and the skill_damage mapflag will adjust the

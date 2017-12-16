@@ -12834,8 +12834,15 @@ BUILDIN_FUNC(emotion)
 		ShowWarning("buildin_emotion: Unknown emotion %d (min=%d, max=%d).\n", type, ET_SURPRISE, (ET_MAX-1));
 		return SCRIPT_CMD_FAILURE;
 	}
-
-	if (script_hasdata(st, 3) && !script_rid2bl(3, bl)) {
+	if (script_hasdata(st, 4)) {
+		if (script_isstring(st, 4)) {
+			bl = &npc_name2id(script_getstr(st, 4))->bl;
+			if (!bl) {
+				ShowWarning("buildin_emotion: Unknown npc name supplied %d.\n", script_getnum(st, 4));
+				return SCRIPT_CMD_FAILURE;
+			}
+		}
+	}else if (script_hasdata(st, 3) && !script_rid2bl(3, bl)) {
 		ShowWarning("buildin_emotion: Unknown game ID supplied %d.\n", script_getnum(st, 3));
 		return SCRIPT_CMD_FAILURE;
 	}
@@ -25520,7 +25527,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(pvpoff,"s"),
 	BUILDIN_DEF(gvgon,"s"),
 	BUILDIN_DEF(gvgoff,"s"),
-	BUILDIN_DEF(emotion,"i?"),
+	BUILDIN_DEF(emotion,"i??"),
 	BUILDIN_DEF(maprespawnguildid,"sii"),
 	BUILDIN_DEF(agitstart,""),	// <Agit>
 	BUILDIN_DEF(agitend,""),

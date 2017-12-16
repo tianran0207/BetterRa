@@ -1090,15 +1090,14 @@ enum e_job_types
 };
 
 // Old NPC range
-#if C_MAX_NPC_CLASS > 0
-#define MAX_NPC_CLASS C_MAX_NPC_CLASS
-#else
 #define MAX_NPC_CLASS NPC_RANGE2_END
-#endif
 // New NPC range
 #define MAX_NPC_CLASS2_START NPC_RANGE3_START
+#if C_MAX_NPC_CLASS2_END > 0
+#define MAX_NPC_CLASS2_END C_MAX_NPC_CLASS
+#else
 #define MAX_NPC_CLASS2_END NPC_RANGE3_END
-
+#endif
 //Checks if a given id is a valid npc id. [Skotlex]
 //Since new npcs are added all the time, the max valid value is the one before the first mob (Scorpion = 1001)
 #define npcdb_checkid(id) ( ( (id) > NPC_RANGE1_START && (id) < NPC_RANGE1_END ) || (id) == JT_HIDDEN_WARP_NPC || ( (id) > NPC_RANGE2_START && (id) < NPC_RANGE2_END ) || (id) == JT_INVISIBLE || ( (id) > NPC_RANGE3_START && (id) < NPC_RANGE3_END ) )

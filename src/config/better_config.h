@@ -11,7 +11,7 @@
 #define C_PACKETVER 20170614
 #define C_PRERE 0                    //是否编译为复兴前版本
 #define C_VIP_ENABLE 0               //是否开启VIP系统
-#define C_PACKET_OBFUSCATION 1       //是否开启封包加密
+#define C_PACKET_OBFUSCATION 0       //是否禁用封包加密
 
 #define C_MAX_CHARS 9                //最大创建角色数量
 #define C_MAX_ZENY 1000000000        //最大随身携带的金币
@@ -28,20 +28,19 @@
 #define C_MAX_PETLOOT_SIZE 30        //最大宠物拾取容量
 #define C_MAX_PET_DB 600             //最大宠物数据库的ID容量
 #define C_MAX_MOB_DB 3999            //最大魔物数据库的ID容量
-#define C_MAX_NPC_CLASS 0            //最大NPC数据库的ID容量
+#define C_MAX_NPC_CLASS2_END 0       //最大NPC数据库的ID容量
 
 #define C_MAX_MERCENARY_CLASS 61     //最大佣兵的种类
 #define C_MAX_FAME_LIST 10           //最大声望列表长度
 #define C_MAX_REFINE 0               //最大精炼值
 #define C_MAX_EVENTQUEUE 200         //最大事件队列的容量
 
-#define C_PACKET_OBFUSCATION_KEY1 0  //key1
-#define C_PACKET_OBFUSCATION_KEY2 0  //key2
-#define C_PACKET_OBFUSCATION_KEY3 0  //key3
+#define C_SHOW_SERVER_STATS 0
 
 //----------------------------------
 //自定义功能集
 //----------------------------------
+
 #if MAX_ONLINE > 0
 	#define BRA_STEP_PATH
 	#define BRA_TRIBE_TEAM
@@ -100,5 +99,5 @@
 #define C_MAX_GUILD C_MIN_GUILD + 10 * C_GUILD_SKILL_NUMBER_ADD
 #define CONF_PATH "conf"
 #define MAX_POLICIES 20
-
+#include "better_customization.h"
 #endif //_BETTERRA_CONFIG_H_

@@ -766,7 +766,7 @@ int pc_equippoint(struct map_session_data *sd,int n){
  */
 void pc_setinventorydata(struct map_session_data *sd)
 {
-	uint8 i;
+	int i;
 	nullpo_retv(sd);
 
 	for(i = 0; i < MAX_INVENTORY; i++) {

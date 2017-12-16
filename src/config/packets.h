@@ -25,15 +25,13 @@
 #if PACKETVER >= 20110817
 	/// Comment to disable the official packet obfuscation support.
 	/// This requires PACKETVER 2011-08-17 or newer.
-	#if C_PACKET_OBFUSCATION > 0
+	#if C_PACKET_OBFUSCATION == 0
 		#define PACKET_OBFUSCATION
 
 		// Define these inside src/custom/defines_pre.h or src/custom/defines_post.h
-		#if C_PACKET_OBFUSCATION_KEY1 > 0 && C_PACKET_OBFUSCATION_KEY2 > 0 && C_PACKET_OBFUSCATION_KEY3 > 0		
-			#define PACKET_OBFUSCATION_KEY1 C_PACKET_OBFUSCATION_KEY1
-			#define PACKET_OBFUSCATION_KEY2 C_PACKET_OBFUSCATION_KEY2
-			#define PACKET_OBFUSCATION_KEY3 C_PACKET_OBFUSCATION_KEY3
-		#endif
+		//#define PACKET_OBFUSCATION_KEY1 C_PACKET_OBFUSCATION_KEY1
+		//#define PACKET_OBFUSCATION_KEY2 C_PACKET_OBFUSCATION_KEY2
+		//#define PACKET_OBFUSCATION_KEY3 C_PACKET_OBFUSCATION_KEY3
 		/// Comment this to disable warnings for missing client side encryption
 		#define PACKET_OBFUSCATION_WARN
 	#endif
