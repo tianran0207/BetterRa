@@ -16,7 +16,7 @@
 #define C_MAX_CHARS 9                //最大创建角色数量
 #define C_MAX_ZENY 1000000000        //最大随身携带的金币
 #define C_MAX_INVENTORY 100          //最大背包容量
-#define C_MAX_STORAGE 600            //最大玩家仓库容量
+#define C_MIN_STORAGE 300            //最大玩家仓库容量
 #define C_DEFAULT_WALK_SPEED 150     //玩家默认移动速度
 #define C_AUTOLOOTITEM_SIZE 10       //自动拾取的物品清单
 
