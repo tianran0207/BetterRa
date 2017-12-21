@@ -2003,4 +2003,6 @@ void queryThread_log(char * entry, int length);
 #endif
 
 const char* get_first_func_name(unsigned char *buf);
+bool script_check_RegistryVariableLength(int pType, const char *val, size_t* vlen);
+
 #endif /* _SCRIPT_HPP_ */
