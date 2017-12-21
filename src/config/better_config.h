@@ -96,7 +96,7 @@
 //----------------------------------
 //Ä¬ÈÏ¿ª¹Ø
 //----------------------------------
-//#define C_READ_KEY_IN_CONFIG
+#define C_READ_KEY_IN_CONFIG
 #define C_MAX_GUILD C_MIN_GUILD + 10 * C_GUILD_SKILL_NUMBER_ADD
 #define CONF_PATH "conf"
 #define MAX_POLICIES 20
