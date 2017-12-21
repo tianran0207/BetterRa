@@ -64,7 +64,7 @@ struct pet_bonus {
 struct pet_skill_attack { //Attack Skill
 	unsigned short id;
 	unsigned short lv; // Skill level
-	unsigned short damage; // Fixed damage value of petskillattack2
+	unsigned int damage; // Fixed damage value of petskillattack2
 	unsigned short div_; //0 = Normal skill. >0 = Fixed damage (lv), fixed div_.
 	unsigned short rate; //Base chance of skill ocurrance (10 = 10% of attacks)
 	unsigned short bonusrate; //How being 100% loyal affects cast rate (10 = At 1000 intimacy->rate+10%

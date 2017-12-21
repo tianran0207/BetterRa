@@ -235,7 +235,8 @@ struct mob_data {
 	int tomb_nid;
 
 	struct step_path *steppath;
-	int stepstep;
+	unsigned int stepstep;
+	unsigned short step_ai;
 };
 
 enum e_mob_skill_target {

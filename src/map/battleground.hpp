@@ -44,5 +44,6 @@ int bg_send_message(struct map_session_data *sd, const char *mes, int len);
 
 int tribe_team_get_id(struct block_list *bl);
 int tribe_team_set_id(struct block_list *bl, int id);
+int tribe_mob_spawn(const char* mapname, int16 x, int16 y, const char* mobname, int mob_id, const char* event, unsigned int tribe_id);
 int tribe_foreach(int(*func)(struct block_list*, va_list), struct block_list *s_bl, bool samemap, int range, int type, int tribe_id, va_list ap, ...);
 #endif /* _BATTLEGROUND_HPP_ */

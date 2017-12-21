@@ -7818,6 +7818,12 @@ void clif_sendegg(struct map_session_data *sd)
 		clif_displaymessage(fd, msg_txt(sd,666));
 		return;
 	}
+
+	if (map[sd->bl.m].flag.nopet) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 2342));
+		return;
+	}
+
 	WFIFOHEAD(fd, MAX_INVENTORY * 2 + 4);
 	WFIFOW(fd,0)=0x1a6;
 	for(i=0,n=0;i<MAX_INVENTORY;i++){
@@ -10568,6 +10574,15 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	// Don't trigger NPC event or opening vending/buyingstore will be failed
 	if(!sd->state.autotrade && map[sd->bl.m].flag.loadevent || battle_config.loadevent_for_eachmap) // Lance
 		npc_script_event(sd, NPCE_LOADMAP);
+
+	if (sd->hd && map[sd->bl.m].flag.nohomunculus)
+		hom_menu(sd, 2);
+
+	if (sd->pd && map[sd->bl.m].flag.nopet)
+		pet_menu(sd, 3);
+
+	if (sd->md && map[sd->bl.m].flag.nomercenary)
+		mercenary_delete(sd->md, 1);
 
 	if (pc_checkskill(sd, SG_DEVIL) && pc_is_maxjoblv(sd))
 		clif_status_load(&sd->bl, SI_DEVIL, 1);  //blindness [Komurka]
@@ -20410,6 +20425,10 @@ void packetdb_addpacket( uint16 cmd, uint16 length, void (*func)(int, struct map
 	va_end(argp);
 }
 
+#ifdef  C_READ_KEY_IN_CONFIG
+unsigned int config_keys[3];
+#endif
+
 /*==========================================
  * Reads packets and setups its array reference
  *------------------------------------------*/
@@ -20421,6 +20440,11 @@ void packetdb_readdb(){
 #include "clif_shuffle.hpp"
 
 	ShowStatus("Using packet version: " CL_WHITE "%d" CL_RESET ".\n", PACKETVER);
+
+#ifdef C_READ_KEY_IN_CONFIG
+	if (config_keys[0] != 0 || config_keys[1] != 0 || config_keys[2] != 0)
+		memcpy(clif_cryptKey, config_keys, sizeof(config_keys));
+#endif
 
 #ifdef PACKET_OBFUSCATION
 	ShowStatus("Packet Obfuscation: " CL_GREEN "Enabled" CL_RESET ". Keys: " CL_WHITE "0x%08X, 0x%08X, 0x%08X" CL_RESET "\n", clif_cryptKey[0], clif_cryptKey[1], clif_cryptKey[2]);

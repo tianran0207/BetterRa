@@ -91,6 +91,11 @@ bool mercenary_create(struct map_session_data *sd, int class_, unsigned int life
 	if( (i = mercenary_search_index(class_)) < 0 )
 		return false;
 
+	if (map[sd->bl.m].flag.nomercenary) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 2343));
+		return false;
+	}
+
 	db = &mercenary_db[i];
 	memset(&merc,0,sizeof(struct s_mercenary));
 

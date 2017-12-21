@@ -25060,7 +25060,7 @@ BUILDIN_FUNC(unitremove)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(hasfollow) 
+BUILDIN_FUNC(getservantgid) 
 {
 	TBL_PC *sd;
 
@@ -25259,13 +25259,44 @@ BUILDIN_FUNC(tribe_setteam) {
 
 BUILDIN_FUNC(tribe_getteam) {
 
-	TBL_PC *sd;
-	if (!script_charid2sd(2, sd))
-		return SCRIPT_CMD_FAILURE;
+	struct block_list *bl;
+	int gid;
 
-	script_pushint(st, sd->tribe_id);
+	if (script_hasdata(st, 2)) {
+		gid = script_getnum(st, 2);
+		bl = map_id2bl(gid);
+		if (bl == NULL){
+			script_pushint(st, 0);
+			return SCRIPT_CMD_SUCCESS;
+		}
+	}
+	else {
+		TBL_PC *sd;
+		if (!script_rid2sd(sd))
+			return SCRIPT_CMD_FAILURE;
+		bl = &sd->bl;
+	}
+	script_pushint(st, tribe_team_get_id(bl));
 	return SCRIPT_CMD_SUCCESS;
 }
+
+BUILDIN_FUNC(tribe_monster)
+{
+	int class_ = 0, x = 0, y = 0, tribe_id = 0;
+	const char *str, *mapname, *evt = "";
+
+	tribe_id = script_getnum(st, 2);
+	mapname = script_getstr(st, 3);
+	x = script_getnum(st, 4);
+	y = script_getnum(st, 5);
+	str = script_getstr(st, 6);
+	class_ = script_getnum(st, 7);
+	if (script_hasdata(st, 8)) evt = script_getstr(st, 8);
+	check_event(st, evt);
+	script_pushint(st, tribe_mob_spawn(mapname, x, y, str, class_, evt, tribe_id));
+	return SCRIPT_CMD_SUCCESS;
+}
+
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -25985,7 +26016,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(recalculatestat, "status_calc", "iiii"),
 	BUILDIN_DEF(getareagid, "si?????"),
 	BUILDIN_DEF(unitremove, "i?"),
-	BUILDIN_DEF(hasfollow, "i?"),
+	BUILDIN_DEF(getservantgid, "i?"),
 	//行为策略系统
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),
@@ -26004,10 +26035,12 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(tribe_setteam, "i?"),
 	BUILDIN_DEF(tribe_mobteam, "i"),
 	BUILDIN_DEF(tribe_getteam, "?"),
+	BUILDIN_DEF(tribe_monster, "isiisi?"),
 #else
 	BUILDIN_DEF2(undef_func, "tribe_setteam", "i?"),
 	BUILDIN_DEF2(undef_func, "tribe_mobteam", "i"),
 	BUILDIN_DEF2(undef_func, "tribe_getteam", "?"),
+	BUILDIN_DEF2(undef_func, "tribe_monster", "isiisi?"),
 #endif
 
 	{NULL,NULL,NULL},

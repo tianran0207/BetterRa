@@ -138,8 +138,12 @@ int pet_attackskill(struct pet_data *pd, int target_id)
 			return 0;
 
 #ifdef EVENT_PETSKILLFILTER
-		if (pd->master && event_exist(NPCE_USESKILLFILTER)) {
+		if (pd->master && event_exist(NPCE_PETSKILLFILTER)) {
 			npc_script_event_atonce(pd->master, NPCE_PETSKILLFILTER);
+			pc_setreg(pd->master, add_str("@pet_id"), pd->pet.class_);
+			pc_setreg(pd->master, add_str("@pet_gid"), pd->bl.id);
+			pc_setreg(pd->master, add_str("@pet_skillid"), pd->a_skill->id);
+			pc_setreg(pd->master, add_str("@pet_damage"), pd->a_skill->damage);
 			if (pd->master->state.processhalt)
 				return 0;
 		}

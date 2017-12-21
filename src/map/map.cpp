@@ -3782,6 +3782,29 @@ int parse_console(const char* buf){
 	return 0;
 }
 
+static int map_read_obfuscation_key(char *key) {
+#ifdef C_READ_KEY_IN_CONFIG
+	
+	char *keytemp;
+	int i;
+
+	if (!strcmp(key,"default")){
+		memset(config_keys,0, sizeof(config_keys));
+		return 1;
+	}
+
+	for (i = 0; i < ARRAYLENGTH(config_keys); i++) {
+		if ((keytemp = strstr(key, ",")) == NULL)
+			keytemp = key + strlen(key);
+		config_keys[i] = strtoul(key, &keytemp, 16);
+		key = keytemp + 1;
+	}
+	return 1;
+#else
+	return 0;
+#endif
+}
+
 /*==========================================
  * Read map server configuration files (conf/map_athena.conf...)
  *------------------------------------------*/
@@ -3813,8 +3836,9 @@ int map_config_read(const char *cfgName)
 		while (--ptr >= w2 && *ptr == ' ');
 		ptr++;
 		*ptr = '\0';
-
-		if(strcmpi(w1,"timestamp_format")==0)
+		if (strcmpi(w1, "packet_keys") == 0)
+			map_read_obfuscation_key(w2);
+		else if(strcmpi(w1,"timestamp_format")==0)
 			safestrncpy(timestamp_format, w2, 20);
 		else if(strcmpi(w1,"stdout_with_ansisequence")==0)
 			stdout_with_ansisequence = config_switch(w2);

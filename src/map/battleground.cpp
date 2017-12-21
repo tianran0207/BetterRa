@@ -349,6 +349,48 @@ int tribe_team_set_id(struct block_list *bl, int id)
 	return 0;
 }
 
+int tribe_mob_spawn(const char* mapname, int16 x, int16 y, const char* mobname, int mob_id, const char* event, unsigned int tribe_id)
+{
+	struct mob_data *md = NULL;
+	struct spawn_data data;
+	int16 m;
+
+	if ((m = map_mapname2mapid(mapname)) < 0)
+	{
+		ShowWarning("mob_spawn_bg: Map [%s] not found.\n", mapname);
+		return 0;
+	}
+
+	memset(&data, 0, sizeof(struct spawn_data));
+	data.m = m;
+	data.num = 1;
+	if (mob_id <= 0)
+	{
+		mob_id = mob_get_random_id(-mob_id - 1, 1, 99);
+		if (!mob_id) return 0;
+	}
+
+	data.id = mob_id;
+	if ((x <= 0 || y <= 0) && !map_search_freecell(NULL, m, &x, &y, -1, -1, 1))
+	{
+		ShowWarning("tribe_idmob_spawn: Couldn't locate a spawn cell for guardian class %d (bg_id %d) at map %s\n", mob_id, tribe_id, map[m].name);
+		return 0;
+	}
+
+	data.x = x;
+	data.y = y;
+	safestrncpy(data.name, mobname, sizeof(data.name));
+	safestrncpy(data.eventname, event, sizeof(data.eventname));
+	if (!mob_parse_dataset(&data))
+		return 0;
+
+	md = mob_spawn_dataset(&data);
+	mob_spawn(md);
+	md->tribe_id = tribe_id; // BG Team ID
+
+	return md->bl.id;
+}
+
 // Copy of map_foreachincell, but applied to the whole map. [Skotlex]
 int tribe_foreach(int(*func)(struct block_list*, va_list), struct block_list *s_bl, bool samemap, int range, int type, int tribe_id, va_list ap,...)
 {

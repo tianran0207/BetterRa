@@ -25,6 +25,7 @@ extern "C" {
 	extern const char*SCRIPT_CONF_NAME;
 	extern const char*MSG_CONF_NAME_EN;
 	extern const char*GRF_PATH_FILENAME;
+	extern unsigned int config_keys[3];
 }
 
 struct npc_data;
@@ -641,6 +642,10 @@ struct map_data {
 		unsigned notoken : 1;
 		unsigned nocapture : 1;
 		unsigned noautoloot : 1;
+		unsigned nopet : 1;
+		unsigned nomercenary : 1;
+		unsigned nohomunculus : 1;
+
 		unsigned town : 1; // [Suggestion to protect Mail System]
 		unsigned autotrade : 1;
 		unsigned allowks : 1; // [Kill Steal Protection]

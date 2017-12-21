@@ -4002,6 +4002,13 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		map[m].flag.noautoloot = state;
 	else if (!strcmpi(w3, "mobinfo"))
 		map[m].flag.mobinfo = atoi(w4);
+	else if (!strcmpi(w3, "nopet"))
+		map[m].flag.nopet = state;
+	else if (!strcmpi(w3, "nomercenary"))
+		map[m].flag.nomercenary = state;
+	else if (!strcmpi(w3, "nohomunculus"))
+		map[m].flag.nohomunculus = state;
+
 	else if (!strcmpi(w3,"autotrade"))
 		map[m].flag.autotrade=state;
 	else if (!strcmpi(w3,"allowks"))

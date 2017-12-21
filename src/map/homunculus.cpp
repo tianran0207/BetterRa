@@ -230,6 +230,12 @@ int hom_vaporize(struct map_session_data *sd, int flag)
 	nullpo_ret(sd);
 
 	hd = sd->hd;
+
+	if (map[sd->bl.m].flag.nohomunculus) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 2341));
+		return false;
+	}
+
 	if (!hd || hd->homunculus.vaporize)
 		return 0;
 
@@ -1079,6 +1085,11 @@ void hom_init_timers(struct homun_data * hd)
 bool hom_call(struct map_session_data *sd)
 {
 	struct homun_data *hd;
+
+	if (map[sd->bl.m].flag.nohomunculus) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 2341));
+		return false;
+	}
 
 	if (!sd->status.hom_id) //Create a new homun.
 		return hom_create_request(sd, HM_CLASS_BASE + rnd_value(0, 7)) ;
