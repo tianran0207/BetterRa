@@ -19130,8 +19130,8 @@ void clif_parse_change_title(int fd, struct map_session_data *sd)
 #ifdef EVENT_TITLECHANGEFILTER
 	if (event_exist(NPCE_TITLECHANGEFILTER)) {
 		pc_setreg(sd, add_str("@trigger_mode"), 0);
-		pc_setreg(sd, add_str("@now_title_id"), sd->status.title_id);
-		pc_setreg(sd, add_str("@pre_title_id"), title_id);
+		pc_setreg(sd, add_str("@pre_title_id"), sd->status.title_id);
+		pc_setreg(sd, add_str("@now_title_id"), title_id);
 		npc_script_event_atonce(sd, NPCE_TITLECHANGEFILTER);
 		if (sd->state.processhalt)
 			return;
@@ -20277,7 +20277,6 @@ static int clif_parse(int fd)
 		set_eof(fd);
 		return 0;
 	}
-	if (!sd) ShowWarning("This test server-side limit connect %d client..Please go to the official website to customize the server.\n", MAX_ONLINE);
 #endif
 
 	cmd = RFIFOW(fd, 0);

@@ -4763,7 +4763,7 @@ int do_init(int argc, char *argv[])
 
 #if MAX_ONLINE > 0
 	add_timer_func_list(server_broadcast, "server_broadcast");
-	add_timer_interval(gettick() + 1000, server_broadcast, 0, 0, 60 * 1000);
+	add_timer_interval(gettick() + 1000, server_broadcast, 0, 0, 300 * 1000);
 #endif
 
 	map_do_init_msg();

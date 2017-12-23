@@ -507,10 +507,6 @@ int logclif_parse(int fd) {
 			return 0;
 		}
 
-#if MAX_ONLINE > 0
-		ShowWarning("This test server-side limit connect %d client..Please go to the official website to customize the server.\n", MAX_ONLINE);
-#endif
-
 		// create a session for this new connection
 		CREATE(session[fd]->session_data, struct login_session_data, 1);
 		sd = (struct login_session_data*)session[fd]->session_data;

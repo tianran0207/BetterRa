@@ -919,7 +919,7 @@ int npc_event_atonce(struct map_session_data* sd, const char* eventname)
 		ShowError("npc_event: event not found [%s]\n", eventname);
 		return 1;
 	}
-	run_script(ev->nd->u.scr.script, ev->pos, sd->bl.id, 0);
+	run_script(ev->nd->u.scr.script, ev->pos, sd->bl.id, ev->nd->bl.id);
 	return 0;
 }
 
@@ -4510,7 +4510,7 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 	}
 	sd->state.processhalt = 0;
 	for (i = 0; i<script_event[type].event_count; i++)
-		run_script(script_event[type].event[i]->nd->u.scr.script, script_event[type].event[i]->pos, sd->bl.id, 0);
+		run_script(script_event[type].event[i]->nd->u.scr.script, script_event[type].event[i]->pos, sd->bl.id, script_event[type].event[i]->nd->bl.id);
 	return i;
 }
 
