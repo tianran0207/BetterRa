@@ -356,7 +356,10 @@ struct Script_Config script_config = {
 	//
 	"OnPCChangeTitleFilter",
 	//
+	"OnPCOpenRouletteFilter",
 	"OnPCStartRouletteFilter",
+	"OnPCGetRouletteEvent",
+	"OnPCCloseRouletteEvent",
 };
 
 static jmp_buf     error_jump;

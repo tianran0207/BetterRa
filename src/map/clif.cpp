@@ -19206,6 +19206,12 @@ void clif_parse_RouletteOpen(int fd, struct map_session_data* sd)
 {
 	nullpo_retv(sd);
 
+#ifdef EVENT_ROULETTEOPENFILTER
+	npc_script_event_atonce(sd, NPCE_ROULETTEOPENFILTER);
+	if (sd->state.processhalt)
+		return;
+#endif
+
 	if (!battle_config.feature_roulette) {
 		clif_messagecolor(&sd->bl,color_table[COLOR_RED],msg_txt(sd,1497),false,SELF); //Roulette is disabled
 		return;
@@ -19273,6 +19279,10 @@ void clif_parse_RouletteClose(int fd, struct map_session_data* sd)
 		clif_messagecolor(&sd->bl,color_table[COLOR_RED],msg_txt(sd,1497),false,SELF); //Roulette is disabled
 		return;
 	}
+
+#ifdef EVENT_ROULETTECLOSEEVENT
+	npc_script_event(sd, NPCE_ROULETTECLOSEEVENT);
+#endif
 
 	/** What do we need this for? (other than state tracking), game client closes the window without our response. **/
 	return;
@@ -19344,16 +19354,8 @@ void clif_parse_RouletteGenerate(int fd, struct map_session_data* sd)
 		return;
 	}
 
-	if (sd->roulette.stage >= MAX_ROULETTE_LEVEL)
-		stage = sd->roulette.stage = 0;
-
-	if (!stage) {
-		if (sd->roulette_point.bronze <= 0 && sd->roulette_point.silver < 10 && sd->roulette_point.gold < 10)
-			result = GENERATE_ROULETTE_NO_ENOUGH_POINT;
-	}
-
 #ifdef EVENT_ROULETTESTARTFILTER
-	if (event_exist(NPCE_ROULETTESTARTFILTER)) {
+	if (event_exist(NPCE_ROULETTESTARTFILTER) && !sd->roulette.claimPrize) {
 		int idx, roul_bronze, roul_silver, roul_gold;
 		roul_bronze = pc_readreg2(sd, ROULETTE_BRONZE_VAR);
 		roul_silver = pc_readreg2(sd, ROULETTE_SILVER_VAR);
@@ -19361,8 +19363,6 @@ void clif_parse_RouletteGenerate(int fd, struct map_session_data* sd)
 		npc_script_event_atonce(sd, NPCE_ROULETTESTARTFILTER);
 		if (sd->state.processhalt) {
 
-			if (result != GENERATE_ROULETTE_SUCCESS)
-				return;
 			stage = pc_readreg2(sd, "@PrizeStage") - 1;
 			idx = pc_readreg2(sd, "@PrizeIdx") - 1;
 			if (idx >= rd.items[stage] || idx < 0 || stage >= 7 || stage < 0) {
@@ -19382,11 +19382,19 @@ void clif_parse_RouletteGenerate(int fd, struct map_session_data* sd)
 			sd->roulette.prizeStage = stage;
 			sd->roulette.prizeIdx = idx;
 			sd->roulette.claimPrize = true;
-			clif_roulette_generate_ack(sd, result, sd->roulette.prizeStage, sd->roulette.prizeIdx, 0);
+			clif_roulette_generate_ack(sd, GENERATE_ROULETTE_LOSING, sd->roulette.prizeStage, sd->roulette.prizeIdx, 0);
 			return;
 		}
 	}
 #endif
+
+	if (sd->roulette.stage >= MAX_ROULETTE_LEVEL)
+		stage = sd->roulette.stage = 0;
+
+	if (!stage) {
+		if (sd->roulette_point.bronze <= 0 && sd->roulette_point.silver < 10 && sd->roulette_point.gold < 10)
+			result = GENERATE_ROULETTE_NO_ENOUGH_POINT;
+	}
 
 	if (result == GENERATE_ROULETTE_SUCCESS) {
 		if (!stage) {
@@ -19437,6 +19445,14 @@ void clif_parse_RouletteRecvItem(int fd, struct map_session_data* sd)
 		return;
 	}
 
+#ifdef EVENT_ROULETTEGETEVENT
+	if (event_exist(NPCE_ROULETTEGETEVENT)) {
+		pc_setreg(sd, add_str("@PrizeStage"), sd->roulette.prizeStage + 1);
+		pc_setreg(sd, add_str("@PrizeIdx"), sd->roulette.prizeIdx + 1);
+		npc_script_event(sd, NPCE_ROULETTEGETEVENT);
+	}
+#endif
+
 	if (sd->roulette.claimPrize && sd->roulette.prizeIdx != -1) {
 		switch (clif_roulette_getitem(sd)) {
 			case 0:
@@ -19458,6 +19474,7 @@ void clif_parse_RouletteRecvItem(int fd, struct map_session_data* sd)
 	}
 
 	clif_roulette_recvitem_ack(sd,type);
+
 	return;
 }
 
@@ -20344,7 +20361,7 @@ static int clif_parse(int fd)
 	if ((int)RFIFOREST(fd) < packet_len)
 		return 0; // not enough data received to form the packet
 
-#ifdef FOLLOWPACKET
+#ifdef ATCOMMAND_FOLLOWPACKET
 	if (sd && sd->packet_account) {
 		size_t i;
 		TBL_PC* pl_sd;

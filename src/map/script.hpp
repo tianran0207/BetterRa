@@ -256,9 +256,10 @@ struct Script_Config {
 	// Title related
 	const char*	title_change_filter_name;
 	// Roulette related
+	const char*	roulette_open_filter_name;
 	const char*	roulette_start_filter_name;
 	const char*	roulette_get_filter_name;
-
+	const char*	roulette_colse_event_name;
 };
 extern struct Script_Config script_config;
 

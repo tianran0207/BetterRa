@@ -661,12 +661,59 @@ end;
 }
 
 -	script	PC_OPEN_ROULETTE	-1,{
+end;
+
+OnPCOpenRouletteFilter:
+	// 当玩家点击打开乐透大转盘的时候会触发此事件
+	// 关于此事件的说明请参阅: doc\rAthenaCN_events.txt 文档
+	if (@roulette_demo == 0) {
+		@roulette_demo = 1;
+		
+		processhalt;
+		mes "[rAthenaCN 演示]";
+		mes "^ff0000您点击了乐透大转盘按钮.^000000";
+		mes "此操作被 npc/racn/racn_events.txt 脚本中的 PC_OPEN_ROULETTE 拦截.";
+		mes "若不需要此演示, 请注销对应的脚本.";
+		mes "^0000ff下一次点击转盘将不再拦截您的操作, 直到你退出此角色.^000000";
+		close;
+	}
+end;
+
+OnPCCloseRouletteEvent:
+	// 当玩家关闭乐透大转盘的时候会触发此事件
+	// 关于此事件的说明请参阅: doc\rAthenaCN_events.txt 文档
+	dispbottom "[事件演示] OnPCCloseRouletteEvent | 你刚刚关闭了乐透大转盘";
+end;
+
 OnPCStartRouletteFilter:
+	// 定制转盘摇奖规则
+	
+	// 玩家点击转盘开始按钮后触发这个事件, 使用 processhalt 指令可以对玩家摇到的位置进行定位.
+	// 给变量 @PrizeStage 赋值将摇到从下往上数, 第 @PrizeStage 行的物品
+	// 给变量 @PrizeIdx 赋值将摇到从左往右数, 第 @PrizeIdx 个物品
 	processhalt;
-	//事件被成功 使用 processhalt中断后，下列脚本才会有效！！
-	@PrizeStage = 1; //被抽中的行（从下往上数）
-	@PrizeIdx = 5; //抽中第几个物品（从左往右数）
-	RouletteBronze -= 3;
-	dispbottom "[事件演示] OnPCStartRouletteFilter | 你当前有转盘金币: "+ RouletteGold +" 个, 转盘银币: " +RouletteSilver+" 个, 转盘铜币: "+ RouletteBronze +"个。";
-	dispbottom "           - 本次摇奖为你扣除 3个铜币 , 你将摇到 第 " + @PrizeStage + " 行, 第 " + @PrizeIdx + " 个物品";
+	// 注意: 事件被触发成功后 使用 processhalt中断后，下列脚本才会有效！！
+	RouletteGold = 100;   //设置金币为100枚
+	RouletteSilver = 100; //设置银币为100枚
+	RouletteBronze = 100; //设置铜币为100枚
+	setarray .@idxcount[1],9,8,7,6,5,4,3;
+	@PrizeStage = rand(1,7); //一共有7行
+	@PrizeIdx = rand(1,.@idxcount[@PrizeStage]); //抽中 @PrizeStage 行中的第几个物品,如果索引大于每行的摇奖数量,则会报错.
+	RouletteBronze -= 3; //减掉消耗的铜币
+	dispbottom "[事件演示] OnPCStartRouletteFilter | 你当前有金币: "+ RouletteGold +" 个, 银币: " +RouletteSilver+" 个, 铜币: "+ RouletteBronze +"个。";
+	dispbottom "           - 本次摇奖为你扣除 3个铜币 , 已用脚本为你重新定位了转盘的摇奖位置.";
+	dispbottom "           - 你将摇到 第 " + @PrizeStage + " 行, 第 " + @PrizeIdx + " 个物品";
+	dispbottom "           - 摇奖结果为脚本控制..";
+end;
+
+OnPCGetRouletteEvent:
+	// 玩家在转盘中取出物品时会触发这个事件
+	// 参数说明
+	// -------------------------------------------------------
+	// @PrizeStage	摇到从下往上数, 第 @PrizeStage 行的物品
+	// @PrizeIdx	摇到从左往右数, 第 @PrizeIdx 个物品
+	// -------------------------------------------------------
+	dispbottom "[事件演示] OnPCGetRouletteEvent | 你拿出了转盘中的第 " + @PrizeStage + " 行, 第 " + @PrizeIdx + " 个物品";
+end;
+
 }

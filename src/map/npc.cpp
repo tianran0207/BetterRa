@@ -4610,10 +4610,14 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.chatroom_join_filter_name;
 	case NPCE_TITLECHANGEFILTER:
 		return script_config.title_change_filter_name;
+	case NPCE_ROULETTEOPENFILTER:
+		return script_config.roulette_open_filter_name;
 	case NPCE_ROULETTESTARTFILTER:
 		return script_config.roulette_start_filter_name;
-	case NPCE_ROULETTEGETFILTER:
+	case NPCE_ROULETTEGETEVENT:
 		return script_config.roulette_get_filter_name;
+	case NPCE_ROULETTECLOSEEVENT:
+		return script_config.roulette_colse_event_name;
 	default:
 		ShowError("npc_get_script_event_name: npce_index is outside the array limits: %d (max: %d).\n", npce_index, NPCE_MAX);
 		return NULL;
