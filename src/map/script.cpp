@@ -25332,6 +25332,20 @@ BUILDIN_FUNC(tribe_monster)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(is_attach)
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (st->bk_npcid)
+		script_pushint(st, 1);
+	else
+		script_pushint(st, 0);
+	return SCRIPT_CMD_SUCCESS;
+
+}
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -26027,6 +26041,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(duplicate, "copynpc", "ssss"),
 	BUILDIN_DEF(unloadduplicate, "s"),
 	BUILDIN_DEF2(unloadduplicate, "unloadcopynpc", "s"),
+	BUILDIN_DEF(is_attach, "?"),
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL
 	BUILDIN_DEF(mail_create, "sss?"),

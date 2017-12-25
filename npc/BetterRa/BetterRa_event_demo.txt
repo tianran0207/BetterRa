@@ -545,8 +545,7 @@ prontera,142,125,3	script	进入聊天室事件	123,{
 	mes "直接点击我可以正常对话. ^0000ff[已关闭]双击进入打开仓库.^000000";
 	next;
 	mes "[BetterRa 演示]";
-	mes "此演示NPC的脚本位于服务端的: ^ff0000npc\\racn\\racn_events.txt^000000";
-	mes "您可以在下面的配置文件中移除它: ^0000ffnpc\\scripts_racn.conf^000000";
+	mes "此演示NPC的脚本位于服务端的: ^ff0000npc\\BetterRa\\BetterRa_events_dome.txt^000000";
 	close;
 OnInit:
 	// 这里的人数限制必须大于等于 2
@@ -665,23 +664,21 @@ end;
 
 OnPCOpenRouletteFilter:
 	// 当玩家点击打开乐透大转盘的时候会触发此事件
-	// 关于此事件的说明请参阅: doc\rAthenaCN_events.txt 文档
-	if (@roulette_demo == 0) {
-		@roulette_demo = 1;
-		
+	// 关于此事件的说明请参阅: doc\BetterRa_events_dome.txt 文档
+	if (is_attach() == 0) {
 		processhalt;
-		mes "[rAthenaCN 演示]";
+		mes "[BetterRa 演示]";
 		mes "^ff0000您点击了乐透大转盘按钮.^000000";
-		mes "此操作被 npc/racn/racn_events.txt 脚本中的 PC_OPEN_ROULETTE 拦截.";
+		mes "此操作被 npc/BetterRa/BetterRa_events_dome.txt 脚本中的 PC_OPEN_ROULETTE 拦截.";
 		mes "若不需要此演示, 请注销对应的脚本.";
-		mes "^0000ff下一次点击转盘将不再拦截您的操作, 直到你退出此角色.^000000";
+		mes "^0000ff下一次点击转盘将不再拦截您的操作.直至你关闭此对话框, 也可以在脚本本条if外面加上processhalt;来阻止下一次点击转盘的弹出^000000";
 		close;
 	}
 end;
 
 OnPCCloseRouletteEvent:
 	// 当玩家关闭乐透大转盘的时候会触发此事件
-	// 关于此事件的说明请参阅: doc\rAthenaCN_events.txt 文档
+	// 关于此事件的说明请参阅: doc\BetterRa_events.txt 文档
 	dispbottom "[事件演示] OnPCCloseRouletteEvent | 你刚刚关闭了乐透大转盘";
 end;
 
