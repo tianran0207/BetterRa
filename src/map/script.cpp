@@ -25104,19 +25104,19 @@ BUILDIN_FUNC(getservantgid)
 
 	switch (script_getnum(st,2)) {
 		case BL_MER:
-			if (sd->pd != NULL)
+			if (sd->md && mercenary_get_lifetime(sd->md) > 0)
 				script_pushint(st, sd->pd->bl.id);
 			return SCRIPT_CMD_SUCCESS;
 		case BL_HOM:
-			if (sd->hd != NULL)
+			if (hom_is_active(sd->hd))
 				script_pushint(st, sd->hd->bl.id);
 			return SCRIPT_CMD_SUCCESS;
 		case BL_PET:
-			if (sd->hd != NULL)
+			if (sd->status.pet_id > 0 && sd->pd)
 				script_pushint(st, sd->pd->bl.id);
 			return SCRIPT_CMD_SUCCESS;
 		case BL_ELEM:
-			if (sd->ed != NULL)
+			if (sd->ed && elemental_get_lifetime(sd->ed) > 0)
 				script_pushint(st, sd->ed->bl.id);
 			return SCRIPT_CMD_SUCCESS;
 		default:
@@ -25346,6 +25346,114 @@ BUILDIN_FUNC(is_attach)
 	return SCRIPT_CMD_SUCCESS;
 
 }
+
+BUILDIN_FUNC(setbotinfo)
+{
+	TBL_PC *sd;
+	struct item_data* id = NULL;
+	struct script_data* data;
+	int i;
+
+	if (!script_charid2sd(5, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	sd->bot.item_hp_id = 0;
+	sd->bot.item_sp_id = 0;
+	sd->bot.item_fly_id = 0;
+
+	for (i = 2; i < 5; i++) {
+
+		data = script_getdata(st, i);
+		get_val(st, data); // Convert into value in case of a variable
+
+		if (data_isstring(data)) // item name
+			id = itemdb_searchname(conv_str(st, data));
+		else // item id
+			id = itemdb_exists(conv_num(st, data));
+
+		if (id == NULL)
+			continue;
+
+		switch (i) {
+		case 2:
+			if (id->type == 0)
+				sd->bot.item_hp_id = id->nameid;
+			break;
+		case 3:
+			if (id->type == 0)
+				sd->bot.item_sp_id = id->nameid;
+			break;
+		case 4:
+			if (id->type == 2)
+				sd->bot.item_fly_id = id->nameid;
+			break;
+		
+		}
+	}
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(setbotmob)
+{
+	int i,n, lastdata, mob_id;
+	TBL_PC *sd;
+	
+	lastdata = script_lastdata(st);
+
+
+	if (script_getnum(st, lastdata) >= 150000) {
+		if (!(sd = map_charid2sd(script_getnum(st, lastdata)))) {
+			ShowError("%s: Player with char id '%d' is not found.\n", "buildin_setbotmob", script_getnum(st, lastdata));
+			return SCRIPT_CMD_FAILURE;
+		}
+		lastdata -= 1;
+	}
+	else if (!script_rid2sd(sd)){
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	memset(&sd->bot.mob_id, 0, sizeof(sd->bot.mob_id));
+
+	for (i = 2; script_hasdata(st, i) && i < lastdata; i++)
+	{
+		ARR_FIND(0, 10, n, sd->bot.mob_id[n] == 0);
+
+		if (n == 10)
+			return SCRIPT_CMD_SUCCESS;
+
+		mob_id = script_getnum(st, i);
+		if (mob_id >= 0 && mobdb_checkid(mob_id))
+			sd->bot.mob_id[n] = mob_id;
+	}
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(clearbotall)
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	memset(&sd->bot, 0, sizeof(sd->bot));
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(is_bot)
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, sd->state.bot);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -26071,8 +26179,12 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),
 	BUILDIN_DEF(getpolicyinfo, "i?"),
+	//BOT系统
+	BUILDIN_DEF(setbotinfo, "vvv?"),
+	BUILDIN_DEF(setbotmob, "i*"),
+	BUILDIN_DEF(clearbotall, "?"),
+	BUILDIN_DEF(is_bot, "?"),
 
-		
 //路点系统
 #ifdef BRA_STEP_PATH
 	BUILDIN_DEF(setsteppath, "iv"),

@@ -210,6 +210,18 @@ struct policies {
 };
 extern struct policies policie[MAX_POLICIES];
 
+struct bot_data {
+	unsigned short item_hp_id;
+	unsigned short item_sp_id;
+	unsigned short item_fly_id;
+	unsigned short item_id[10];
+	unsigned short item_delay[10];
+	unsigned short skill_id[10];
+	unsigned short skill_lv[10];
+	unsigned short skill_type[10];
+	unsigned short mob_id[10];
+};
+
 struct map_session_data {
 	struct block_list bl;
 	struct unit_data ud;
@@ -220,9 +232,11 @@ struct map_session_data {
 	struct regen_data_sub sregen, ssregen;
 	unsigned int packet_account;
 	int policies;
+	struct bot_data bot;
 	//NOTE: When deciding to add a flag to state or special_state, take into consideration that state is preserved in
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct s_state {
+		unsigned bot : 1;
 		unsigned processhalt : 1;//processhalt
 		unsigned int active : 1; //Marks active player (not active is logging in/out, or changing map servers)
 		unsigned int menu_or_input : 1;// if a script is waiting for feedback from the player

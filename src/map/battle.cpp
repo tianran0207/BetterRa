@@ -8022,6 +8022,7 @@ static const struct _battle_data {
 	{ "share_quests_area",                  &battle_config.share_quests_area,               0,      0,      2,              },
 	{ "buff_for_guild_member",              &battle_config.buff_for_guild_member,           0,      0,      1,              },
 	{ "buff_for_tribe_member",              &battle_config.buff_for_tribe_member,           0,      0,      1|2,            },
+	{ "enable_amulet",                      &battle_config.enable_amulet,                   0,      0,      1,              },
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },

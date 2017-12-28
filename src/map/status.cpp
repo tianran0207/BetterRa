@@ -3465,6 +3465,26 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	npc_script_event_atonce(sd, NPCE_STATCALC);
 	running_npc_stat_calc_event = false;
 
+	// Parse amulet
+	if (battle_config.enable_amulet) {
+		for (i = 0; i < MAX_INVENTORY; i++) {
+
+			if (!sd->inventory_data[i] || sd->inventory_data[i]->type != IT_AMULET) {
+				continue;
+
+				if (!(1ULL << (sd->class_&MAPID_BASEMASK)&sd->inventory_data[i]->class_base[(sd->class_&JOBL_2_1) ? 1 : ((sd->class_&JOBL_2_2) ? 2 : 0)]))
+					continue;
+
+				if (!sd->inventory_data[i]->script || sd->inventory_data[i]->elv > sd->status.base_level)
+					continue;
+
+				run_script(sd->inventory_data[i]->script, 0, sd->bl.id, 0);
+				if (!calculating) //Abort, run_script retriggered this. [Skotlex]
+					return 1;
+			}
+		}
+	}
+
 	// Parse equipment
 	for (i = 0; i < EQI_MAX; i++) {
 		current_equip_item_index = index = sd->equip_index[i]; // We pass INDEX to current_equip_item_index - for EQUIP_SCRIPT (new cards solution) [Lupus]

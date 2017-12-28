@@ -4654,6 +4654,9 @@ char pc_additem(struct map_session_data *sd,struct item *item,int amount,e_log_p
 		}
 	}
 
+	if (battle_config.enable_amulet && id->type == IT_AMULET)
+		status_calc_pc(sd, SCO_NONE);
+
 	achievement_update_objective(sd, AG_GET_ITEM, 1, id->value_sell);
 
 	return ADDITEM_SUCCESS;
@@ -4681,6 +4684,10 @@ char pc_delitem(struct map_session_data *sd,int n,int amount,int type, short rea
 	sd->inventory.u.items_inventory[n].amount -= amount;
 	sd->weight -= sd->inventory_data[n]->weight*amount ;
 	if( sd->inventory.u.items_inventory[n].amount <= 0 ){
+		
+		if (battle_config.enable_amulet && sd->inventory_data[n]->type == IT_AMULET)
+			status_calc_pc(sd, SCO_NONE);
+		
 		if(sd->inventory.u.items_inventory[n].equip)
 			pc_unequipitem(sd,n,2|(!(type&4) ? 1 : 0));
 		memset(&sd->inventory.u.items_inventory[n],0,sizeof(sd->inventory.u.items_inventory[0]));

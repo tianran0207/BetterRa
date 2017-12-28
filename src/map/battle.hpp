@@ -154,6 +154,7 @@ struct Battle_Config
 	int combo_mode;
 	int buff_for_guild_member;
 	int buff_for_tribe_member;
+	int enable_amulet;
 	//------------------------------
 	int warp_point_debug;
 	int enable_critical;

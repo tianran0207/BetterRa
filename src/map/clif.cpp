@@ -10178,6 +10178,12 @@ void clif_parse_WantToConnection(int fd, struct map_session_data* sd)
 	client_tick = RFIFOL(fd, packet_db[cmd].pos[3]);
 	sex = RFIFOB(fd, packet_db[cmd].pos[4]);
 
+	if ((sd = map_id2sd(account_id)) != NULL && sd->fd == 0 && sd->state.bot) {
+		map_quit(sd);
+		clif_authfail_fd(fd, 8); //Still recognizes last connection
+		return;
+	}
+
 	err = clif_parse_WantToConnection_sub(fd);
 
 	if( err ){ // connection rejected
@@ -20263,11 +20269,11 @@ static int clif_parse(int fd)
 
 	if (session[fd]->flag.eof) {
 		if (sd) {
-			if (sd->state.autotrade) {
+			if (sd->state.autotrade || sd->state.bot) {
 				//Disassociate character from the socket connection.
 				session[fd]->session_data = NULL;
 				sd->fd = 0;
-				ShowInfo("Character '" CL_WHITE "%s" CL_RESET "' logged off (using @autotrade).\n", sd->status.name);
+				ShowInfo("Character '" CL_WHITE "%s" CL_RESET "' logged off (using @autotrade || @bot).\n", sd->status.name);
 			} else
 			if (sd->state.active) {
 				// Player logout display [Valaris]
