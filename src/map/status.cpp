@@ -3469,19 +3469,18 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	if (battle_config.enable_amulet) {
 		for (i = 0; i < MAX_INVENTORY; i++) {
 
-			if (!sd->inventory_data[i] || sd->inventory_data[i]->type != IT_AMULET) {
+			if (!sd->inventory_data[i] || sd->inventory_data[i]->type != IT_AMULET)
 				continue;
 
-				if (!(1ULL << (sd->class_&MAPID_BASEMASK)&sd->inventory_data[i]->class_base[(sd->class_&JOBL_2_1) ? 1 : ((sd->class_&JOBL_2_2) ? 2 : 0)]))
-					continue;
+			if (!(1ULL << (sd->class_&MAPID_BASEMASK)&sd->inventory_data[i]->class_base[(sd->class_&JOBL_2_1) ? 1 : ((sd->class_&JOBL_2_2) ? 2 : 0)]))
+				continue;
 
-				if (!sd->inventory_data[i]->script || sd->inventory_data[i]->elv > sd->status.base_level)
-					continue;
+			if (!sd->inventory_data[i]->script || sd->inventory_data[i]->elv > sd->status.base_level)
+				continue;
 
-				run_script(sd->inventory_data[i]->script, 0, sd->bl.id, 0);
-				if (!calculating) //Abort, run_script retriggered this. [Skotlex]
-					return 1;
-			}
+			run_script(sd->inventory_data[i]->script, 0, sd->bl.id, 0);
+			if (!calculating) //Abort, run_script retriggered this. [Skotlex]
+				return 1;
 		}
 	}
 

@@ -4675,19 +4675,18 @@ char pc_additem(struct map_session_data *sd,struct item *item,int amount,e_log_p
 char pc_delitem(struct map_session_data *sd,int n,int amount,int type, short reason, e_log_pick_type log_type)
 {
 	nullpo_retr(1, sd);
+	bool status_calc;
 
 	if(n < 0 || sd->inventory.u.items_inventory[n].nameid == 0 || amount <= 0 || sd->inventory.u.items_inventory[n].amount<amount || sd->inventory_data[n] == NULL)
 		return 1;
 
 	log_pick_pc(sd, log_type, -amount, &sd->inventory.u.items_inventory[n]);
 
+	status_calc = sd->inventory_data[n]->type == IT_AMULET;
+
 	sd->inventory.u.items_inventory[n].amount -= amount;
 	sd->weight -= sd->inventory_data[n]->weight*amount ;
 	if( sd->inventory.u.items_inventory[n].amount <= 0 ){
-		
-		if (battle_config.enable_amulet && sd->inventory_data[n]->type == IT_AMULET)
-			status_calc_pc(sd, SCO_NONE);
-		
 		if(sd->inventory.u.items_inventory[n].equip)
 			pc_unequipitem(sd,n,2|(!(type&4) ? 1 : 0));
 		memset(&sd->inventory.u.items_inventory[n],0,sizeof(sd->inventory.u.items_inventory[0]));
@@ -4697,6 +4696,9 @@ char pc_delitem(struct map_session_data *sd,int n,int amount,int type, short rea
 		clif_delitem(sd,n,amount,reason);
 	if(!(type&2))
 		clif_updatestatus(sd,SP_WEIGHT);
+
+	if (battle_config.enable_amulet && status_calc)
+		status_calc_pc(sd, SCO_NONE);
 
 	return 0;
 }

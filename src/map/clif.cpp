@@ -89,6 +89,10 @@ static inline int itemtype(unsigned short nameid) {
 		else
 			return IT_ARMOR;
 	}
+
+	if( type == IT_AMULET)
+		return IT_WEAPON;
+
 	return ( type == IT_PETEGG ) ? IT_WEAPON : type;
 }
 
