@@ -4,7 +4,7 @@
 #ifndef	_BETTERRA_CONFIG_H_
 #define	_BETTERRA_CONFIG_H_
 
-#define MAX_ONLINE 5                 //最大连接数量
+#define MAX_ONLINE 0                 //最大连接数量
 //----------------------------------
 //自定义宏定义
 //----------------------------------

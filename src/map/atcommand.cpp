@@ -10108,29 +10108,6 @@ ACMD_FUNC(title)
 	return 0;
 }
 
-ACMD_FUNC(bot) {
-	nullpo_retr(-1, sd);
-
-	if (pc_isdead(sd)) {
-		clif_displaymessage(fd, msg_txt(sd, 1180)); // You cannot autotrade when dead.
-		return -1;
-	}
-
-	sd->state.bot = 1;
-
-	if (battle_config.at_timeout) {
-		int timeout = atoi(message);
-		status_change_start(NULL, &sd->bl, SC_AUTOTRADE, 10000, 0, 0, 0, 0, ((timeout > 0) ? min(timeout, battle_config.at_timeout) : battle_config.at_timeout) * 60000, SCSTART_NONE);
-	}
-
-	channel_pcquit(sd, 0xF); //leave all chan
-	clif_authfail_fd(sd->fd, 15);
-
-	chrif_save(sd, SC_AUTOTRADE);
-
-	return 0;
-}
-
 /**
  * Fills the reference of available commands in atcommand DBMap
  **/
@@ -10430,7 +10407,6 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(recallmap),
 		ACMD_DEF(title),
 		ACMD_DEF(policy),
-		ACMD_DEF(bot),
 	};
 	AtCommandInfo* atcommand;
 	int i;
@@ -10678,11 +10654,6 @@ bool is_atcommand(const int fd, struct map_session_data* sd, const char* message
 		return true;
 	}
 
-	if (pc_get_group_level(sd) == 0 && battle_config.hide_cmd) {
-		clif_displaymessage(fd, msg_txt(sd, 2340));
-		return true;
-	}
-
 	//check restriction
 	if (info->restriction) {
 		if (info->restriction&ATCMD_NOCONSOLE && type == 2) //console prevent
@@ -10698,6 +10669,12 @@ bool is_atcommand(const int fd, struct map_session_data* sd, const char* message
 	if (type == 1) {
 		if ((is_atcommand && info->at_groups[sd->group_pos] == 0) ||
 			(!is_atcommand && info->char_groups[sd->group_pos] == 0) )
+
+			if (battle_config.hide_cmd) {
+				clif_displaymessage(fd, msg_txt(sd, 2340));
+					return true;
+			}else
+
 			return false;
 
 		if( pc_isdead(sd) && pc_has_permission(sd,PC_PERM_DISABLE_CMD_DEAD) ) {

@@ -2690,6 +2690,18 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 			if(sd->state.lr_flag != 2)
 				sd->dsprate+=val;
 			break;
+		case SP_WEAPON_ADD_DAMAGE:
+			if(sd->state.lr_flag != 2)
+				sd->bonus.weapon_add_damage+=val;
+			break;
+		case SP_MAGIC_ADD_DAMAGE:
+			if(sd->state.lr_flag != 2)
+				sd->bonus.magic_add_damage +=val;
+			break;
+		case SP_MISC_ADD_DAMAGE:
+			if(sd->state.lr_flag != 2)
+				sd->bonus.misc_add_damage +=val;
+			break;
 		case SP_ATTACKRANGE:
 			switch (sd->state.lr_flag) {
 			case 2:
@@ -4327,9 +4339,9 @@ char pc_checkadditem(struct map_session_data *sd, unsigned short nameid, int amo
  * @param sd
  * @return Number of empty slots
  *------------------------------------------*/
-uint8 pc_inventoryblank(struct map_session_data *sd)
+short pc_inventoryblank(struct map_session_data *sd)
 {
-	uint8 i, b;
+	short i, b;
 
 	nullpo_ret(sd);
 
@@ -12571,6 +12583,211 @@ void pc_set_costume_view(struct map_session_data *sd) {
 		clif_changelook(&sd->bl, LOOK_HEAD_TOP, policie[sd->policies].look_head_top);
 }
 
+
+static int pc_bot_check_sub(struct block_list *bl, va_list ap) {
+
+	int i;
+	struct bot_data *bd = va_arg(ap, struct bot_data *);
+	int *count = va_arg(ap, int *);
+	struct mob_data *md = (struct mob_data *)bl;
+
+	nullpo_ret(bd);
+	nullpo_ret(md);
+
+	if (!md->spawn && !md->master_id)
+		return 0;
+	// respawn data is not in cache
+	if (md->spawn && !md->spawn->state.dynamic)
+		return 0;
+
+	ARR_FIND(0, MAX_BOT_MOB_COUNT, i, bd->info.mob_id[i] == md->mob_id);
+
+	if (0 < MAX_BOT_MOB_COUNT)
+		(*count)++;
+
+	return 1;
+}
+
+static int pcbot_ai_sub_hard(struct block_list *bl, va_list ap) {
+
+	int i;
+	struct map_session_data *sd;
+	struct bot_data *bd = va_arg(ap, struct bot_data *);
+	unsigned int tick = va_arg(ap, unsigned int);
+
+	sd = (struct map_session_data *)bd->bl;
+
+	//吃道具检查
+	if (bd->state.next_useitemtime < tick) {
+		if (bd->info.item_hp_id && sd->battle_status.hp < sd->battle_status.max_hp * 8 / 10) {
+			if ((i = pc_search_inventory(sd, bd->info.item_hp_id)) != -1) {
+				bd->state.next_useitemtime = tick + 2000;
+				pc_useitem(sd, i);
+			} else
+			bd->info.item_hp_id = 0;
+		}
+		else if (bd->info.item_sp_id && sd->battle_status.sp < sd->battle_status.max_sp * 5 / 10) {
+			if ((i = pc_search_inventory(sd, bd->info.item_sp_id)) != -1) {
+				bd->state.next_useitemtime = tick + 2000;
+				pc_useitem(sd, i);
+			} else
+			bd->info.item_sp_id = 0;
+		}
+	}
+
+	//如果正在攻击
+	if (sd->ud.target)
+		return 1;
+
+	//如果有魔物攻击, 反击
+	if (bd->state.counterattack && sd->enemy_id) {
+		unit_attack(&sd->bl, sd->enemy_id, 1);
+		sd->enemy_id = 0;
+		return 1;
+	}
+
+	//检查列表中的魔物
+	if (bd->info.mob_id[0] > 0 && bl->type == BL_MOB) {
+		struct mob_data *md = (struct mob_data *)bl;
+		ARR_FIND(0, MAX_BOT_MOB_COUNT, i, bd->info.mob_id[i] == md->mob_id);
+		if (i == MAX_BOT_MOB_COUNT)
+			return 0;
+	}
+
+	//检查是不是敌人
+	if (battle_check_target(bd->bl, bl, BCT_ENEMY) <= 0) {
+		return 0;
+	}
+
+	//检查是否有主人
+	if (bd->state.attack_master || (bl = battle_get_master(bl)) == NULL) {
+		return 0;
+	}
+
+	//检查能否走到魔物跟前
+	struct walkpath_data wpd;
+	if (sd->ud.walktimer != INVALID_TIMER || !path_search(&wpd, bd->bl->m, bd->bl->x, bd->bl->y, bl->x, bl->y, 0, CELL_CHKWALL)) // Count walk path cells
+		return 0;
+
+	if (wpd.path_len > 14)
+		return 0;
+
+	unit_attack(&sd->bl, bl->id, 1);
+
+	return 1;
+
+}
+
+/*==========================================
+* pc_bot
+*------------------------------------------*/
+static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
+	unsigned int tick;
+	int i;
+	struct map_session_data *sd;
+	if (!bd->running)
+		return 0;
+
+	tick = va_arg(args, unsigned int);
+	nullpo_ret(bd->bl);
+	sd = (struct map_session_data *)bd->bl;
+	//unit_can_reach_bl
+
+	if (sd->ud.walktimer != INVALID_TIMER || (&sd->sc != NULL && sd->sc.data[SC__MANHOLE]) || !unit_can_move(&sd->bl))
+		return 0;
+
+	if (!map_foreachinallrange(pcbot_ai_sub_hard, bd->bl, 10, BL_CHAR, bd, tick) || !sd->ud.target) {
+		INT16 x = 0, y = 0, rx = 10, ry = 10;
+
+		if (bd->state.event_fly_count &&  bd->state.move_count > bd->state.event_fly_count && bd->state.next_useitemtime < tick) {
+			if ((i = pc_search_inventory(sd, bd->info.item_fly_id)) != -1) {
+				pc_useitem(sd, i);
+				bd->state.move_count = 0;
+				bd->state.next_useitemtime = tick + 2000;
+				return 1;
+			}
+			bd->state.event_fly_count = 0;
+		}
+
+		switch (bd->state.dir) {
+		case 0: //向上走
+			x = bd->bl->x;
+			y = bd->bl->y + 9;
+			rx = 9; ry = 3;
+			break;
+		case 1: //向右走
+			x = bd->bl->x + 9;
+			y = bd->bl->y;
+			rx = 3; ry = 9;
+			break;
+		case 2: //向下走
+			x = bd->bl->x;
+			y = bd->bl->y - 9;
+			rx = 9; ry = 3;
+			break;
+		case 3: //向左走
+			x = bd->bl->x - 9;
+			y = bd->bl->y;
+			rx = 3; ry = 9;
+			break;
+		}
+		for (i = 0; i < 5; i++) {
+			if (map_search_freecell(NULL, bd->bl->m, &x, &y, rx, ry, 1) && unit_can_reach_pos(bd->bl, x, y, 1)) {
+				unit_walktoxy(bd->bl, x, y, 1);
+				bd->state.move_fail_count = 0;
+				if (bd->state.event_fly_count) bd->state.move_count++;
+				return 1;
+			}
+		}
+		bd->state.move_fail_count++;
+
+		bd->state.dir += (rnd() % 2) ? 1 : -1;
+		if (bd->state.dir == -1)
+			bd->state.dir = 3;
+		else if (bd->state.dir == 4)
+			bd->state.dir = 0;
+
+		if (bd->state.move_fail_count > 100) {
+			map_delbot(bd, true);
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+static int pcbot_ai_hard(int tid, unsigned int tick, int id, intptr_t data)
+{
+	map_foreachbot(pcbot_ai_lazy, tick);
+	return 0;
+}
+
+int pcbot_run(struct map_session_data *sd, int timeout) {
+
+	int count = 0;
+	struct bot_data *bd;
+
+	nullpo_ret(sd);
+
+	if (!(bd = map_id2bot(sd->bl.id)))
+		return -1;
+	if (pc_isdead(sd))
+		return -2;
+	if (sd->state.vending || sd->state.buyingstore || sd->state.trading || sd->state.storage_flag)
+		return -3;
+
+	if (timeout)
+		status_change_start(NULL, &sd->bl, SC_BOT, 10000, 0, 0, 0, 0, timeout, SCSTART_NONE);
+
+	sd->ud.target = 0;
+	sd->state.bot = 1;
+	//channel_pcquit(sd, 0xF); //leave all chan
+	//clif_authfail_fd(sd->fd, 15);
+	//chrif_save(sd, SC_AUTOTRADE);
+	bd->running = 1;
+	return count;
+}
+
 /*==========================================
  * pc Init/Terminate
  *------------------------------------------*/
@@ -12630,4 +12847,8 @@ void do_init_pc(void) {
 	ers_chunk_size(pc_sc_display_ers, 150);
 	ers_chunk_size(num_reg_ers, 300);
 	ers_chunk_size(str_reg_ers, 50);
+
+	add_timer_func_list(pcbot_ai_hard, "pcbot_ai_hard");
+	add_timer_interval(gettick() + MIN_MOBTHINKTIME, pcbot_ai_hard, 0, 0, MIN_MOBTHINKTIME);
 }
+

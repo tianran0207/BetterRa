@@ -534,6 +534,9 @@
 	export_constant2("bFame",SP_FAME);
 	export_constant2("bUnbreakable",SP_UNBREAKABLE);
 
+	export_constant2("bWeaponAddDamage", SP_WEAPON_ADD_DAMAGE);
+	export_constant2("bMagicAddDamage", SP_MAGIC_ADD_DAMAGE);
+	export_constant2("bMiscAddDamage", SP_MISC_ADD_DAMAGE);
 	export_constant2("bAtkRange",SP_ATTACKRANGE);
 	export_constant2("bAtkEle",SP_ATKELE);
 	export_constant2("bDefEle",SP_DEFELE);

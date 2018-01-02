@@ -76,10 +76,10 @@
 #endif
 
 /// Comment to disable warnings for deprecated script commands
-#define SCRIPT_COMMAND_DEPRECATION
+//#define SCRIPT_COMMAND_DEPRECATION
 
 /// Comment to disable warnings for deprecated script constants
-#define SCRIPT_CONSTANT_DEPRECATION
+//#define SCRIPT_CONSTANT_DEPRECATION
 
 /**
  * No settings past this point

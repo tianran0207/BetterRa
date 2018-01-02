@@ -210,16 +210,33 @@ struct policies {
 };
 extern struct policies policie[MAX_POLICIES];
 
+#define MAX_BOT_MOB_COUNT 10
+#define MAX_BOT_SKILL_COUNT 10
+#define MAX_BOT_ITEM_COUNT 10
+
 struct bot_data {
-	unsigned short item_hp_id;
-	unsigned short item_sp_id;
-	unsigned short item_fly_id;
-	unsigned short item_id[10];
-	unsigned short item_delay[10];
-	unsigned short skill_id[10];
-	unsigned short skill_lv[10];
-	unsigned short skill_type[10];
-	unsigned short mob_id[10];
+	unsigned running : 1;
+	struct block_list *bl;
+	struct bot_info {
+		unsigned short item_hp_id;
+		unsigned short item_sp_id;
+		unsigned short item_fly_id;
+		unsigned short item_id[MAX_BOT_ITEM_COUNT];
+		unsigned short item_delay[MAX_BOT_ITEM_COUNT];
+		unsigned short skill_id[MAX_BOT_SKILL_COUNT];
+		unsigned short skill_lv[MAX_BOT_SKILL_COUNT];
+		unsigned short skill_type[MAX_BOT_SKILL_COUNT];
+		unsigned short mob_id[MAX_BOT_MOB_COUNT];
+	} info;
+	struct bot_state {
+		short dir;
+		unsigned attack_master : 1; //¹¥»÷Ö÷ÈË
+		unsigned counterattack : 1; //·´»÷
+		int event_fly_count;
+		int move_fail_count;
+		int move_count;
+		int next_useitemtime;
+	} state;
 };
 
 struct map_session_data {
@@ -232,7 +249,7 @@ struct map_session_data {
 	struct regen_data_sub sregen, ssregen;
 	unsigned int packet_account;
 	int policies;
-	struct bot_data bot;
+	int enemy_id;
 	//NOTE: When deciding to add a flag to state or special_state, take into consideration that state is preserved in
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct s_state {
@@ -514,6 +531,7 @@ struct map_session_data {
 		uint8 absorb_dmg_maxhp; // [Cydh]
 		short critical_rangeatk;
 		short weapon_atk_rate, weapon_matk_rate;
+		int weapon_add_damage, magic_add_damage, misc_add_damage;
 	} bonus;
 	// zeroed vars end here.
 
@@ -1071,7 +1089,7 @@ char pc_randomwarp(struct map_session_data *sd,clr_type type);
 bool pc_memo(struct map_session_data* sd, int pos);
 
 char pc_checkadditem(struct map_session_data *sd, unsigned short nameid, int amount);
-uint8 pc_inventoryblank(struct map_session_data *sd);
+short pc_inventoryblank(struct map_session_data *sd);
 short pc_search_inventory(struct map_session_data *sd, unsigned short nameid);
 char pc_payzeny(struct map_session_data *sd, int zeny, enum e_log_pick_type type, struct map_session_data *tsd);
 char pc_additem(struct map_session_data *sd, struct item *item, int amount, e_log_pick_type log_type);
@@ -1359,5 +1377,7 @@ bool pc_job_can_entermap(enum e_job jobid, int m, int group_lv);
 #if defined(RENEWAL_DROP) || defined(RENEWAL_EXP)
 int pc_level_penalty_mod(int level_diff, uint32 mob_class, enum e_mode mode, int type);
 #endif
+
+int pcbot_run(struct map_session_data *sd, int timeout);
 
 #endif /* _PC_HPP_ */

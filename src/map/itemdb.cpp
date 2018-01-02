@@ -480,6 +480,7 @@ bool itemdb_isstackable2(struct item_data *id)
 		case IT_PETEGG:
 		case IT_PETARMOR:
 		case IT_SHADOWGEAR:
+		case IT_AMULET:
 			return false;
 		default:
 			return true;

@@ -1651,6 +1651,10 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 		return 0;
 	}
 
+	if (src != NULL && target->type == BL_PC) {
+		((struct map_session_data *)target)->enemy_id = src->id;
+	}
+
 	status = status_get_status_data(target);
 	if(!status || status == &dummy_status )
 		return 0;
@@ -11723,6 +11727,7 @@ int status_change_clear(struct block_list* bl, int type)
 			case SC_HELLPOWER:
 			case SC_JEXPBOOST:
 			case SC_AUTOTRADE:
+			case SC_BOT:
 			case SC_WHISTLE:
 			case SC_ASSNCROS:
 			case SC_POEMBRAGI:
@@ -12229,6 +12234,12 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			map_quit(sd);
 			// Because map_quit calls status_change_end with tid -1
 			// from here it's not neccesary to continue
+			return 1;
+			break;
+		case SC_BOT:
+			if (tid == INVALID_TIMER)
+				break;
+			map_quit(sd);
 			return 1;
 			break;
 		case SC_STOP:

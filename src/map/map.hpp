@@ -445,6 +445,8 @@ enum _sp {
 	// Mercenaries
 	SP_MERCFLEE=165, SP_MERCKILLS=189, SP_MERCFAITH=190,
 
+	//custom bonus
+	SP_MAGIC_ADD_DAMAGE=500, SP_WEAPON_ADD_DAMAGE, SP_MISC_ADD_DAMAGE,
 	// original 1000-
 	SP_ATTACKRANGE=1000,	SP_ATKELE,SP_DEFELE,	// 1000-1002
 	SP_CASTRATE, SP_MAXHPRATE, SP_MAXSPRATE, SP_SPRATE, // 1003-1006
@@ -863,6 +865,7 @@ const char* map_charid2nick(int charid);
 struct map_session_data* map_charid2sd(int charid);
 
 struct map_session_data * map_id2sd(int id);
+struct bot_data * map_id2bot(int id);
 struct mob_data * map_id2md(int id);
 struct npc_data * map_id2nd(int id);
 struct homun_data* map_id2hd(int id);
@@ -883,7 +886,10 @@ int map_eraseipport(unsigned short map, uint32 ip, uint16 port);
 int map_eraseallipport(void);
 void map_addiddb(struct block_list *);
 void map_deliddb(struct block_list *bl);
+void map_addbot(struct bot_data *bd);
+void map_delbot(struct bot_data *bd, bool loginout);
 void map_foreachpc(int (*func)(struct map_session_data* sd, va_list args), ...);
+void map_foreachbot(int(*func)(struct bot_data* bd, va_list args), ...);
 void map_foreachmob(int (*func)(struct mob_data* md, va_list args), ...);
 void map_foreachnpc(int (*func)(struct npc_data* nd, va_list args), ...);
 void map_foreachregen(int (*func)(struct block_list* bl, va_list args), ...);

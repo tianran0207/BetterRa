@@ -1043,6 +1043,18 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 			return 0;
 	}
 
+	if (src->type == BL_PC) {
+		sd = (struct map_session_data *)src;
+		if (flag&BF_WEAPON && sd->bonus.weapon_add_damage)
+			damage += sd->bonus.weapon_add_damage;
+
+		if (flag&BF_MAGIC && sd->bonus.magic_add_damage)
+			damage += sd->bonus.magic_add_damage;
+
+		if (flag&BF_MISC && sd->bonus.misc_add_damage)
+			damage += sd->bonus.misc_add_damage;
+	}
+
 	sc = status_get_sc(bl); //check target status
 
 	if( sc && sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )

@@ -96,6 +96,7 @@ Sql* logmysql_handle;
 // DBMap declaration
 static DBMap* id_db=NULL; /// int id -> struct block_list*
 static DBMap* pc_db=NULL; /// int id -> struct map_session_data*
+static DBMap* bot_db = NULL;
 static DBMap* mobid_db=NULL; /// int id -> struct mob_data*
 static DBMap* bossid_db=NULL; /// int id -> struct mob_data* (MVP db)
 static DBMap* map_db=NULL; /// unsigned int mapindex -> struct map_data*
@@ -1958,6 +1959,9 @@ int map_quit(struct map_session_data *sd) {
 		return 0;
 	}
 
+	if (sd->state.bot)
+		map_delbot(map_id2bot(sd->bl.id), false);
+
 	if (sd->expiration_tid != INVALID_TIMER)
 		delete_timer(sd->expiration_tid, pc_expiration_timer);
 
@@ -1987,6 +1991,7 @@ int map_quit(struct map_session_data *sd) {
 		//Status that are not saved...
 		status_change_end(&sd->bl, SC_BOSSMAPINFO, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_AUTOTRADE, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_BOT, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_SPURT, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_BERSERK, INVALID_TIMER);
 		status_change_end(&sd->bl, SC__BLOODYLUST, INVALID_TIMER);
@@ -4471,6 +4476,7 @@ void do_final(void)
 
 	id_db->destroy(id_db, NULL);
 	pc_db->destroy(pc_db, NULL);
+	bot_db->destroy(bot_db, NULL);
 	mobid_db->destroy(mobid_db, NULL);
 	bossid_db->destroy(bossid_db, NULL);
 	nick_db->destroy(nick_db, nick_db_final);
@@ -4734,6 +4740,7 @@ int do_init(int argc, char *argv[])
 
 	id_db = idb_alloc(DB_OPT_BASE);
 	pc_db = idb_alloc(DB_OPT_BASE);	//Added for reliable map_id2sd() use. [Skotlex]
+	bot_db = idb_alloc(DB_OPT_RELEASE_DATA);
 	mobid_db = idb_alloc(DB_OPT_BASE);	//Added to lower the load of the lazy mob ai. [Skotlex]
 	bossid_db = idb_alloc(DB_OPT_BASE); // Used for Convex Mirror quick MVP search
 	map_db = uidb_alloc(DB_OPT_BASE);
@@ -4819,3 +4826,50 @@ int do_init(int argc, char *argv[])
 	return 0;
 }
 
+struct bot_data *map_id2bot(int id) {
+	if (id <= 0) return NULL;
+	return (struct bot_data *)idb_get(bot_db, id);
+}
+
+void map_foreachbot(int(*func)(struct bot_data *bd, va_list args), ...)
+{
+	DBIterator* iter;
+	struct bot_data * bd;
+
+	iter = db_iterator(bot_db);
+	for (bd = (struct bot_data *)dbi_first(iter); dbi_exists(iter); bd = (struct bot_data *)dbi_next(iter))
+	{
+		va_list args;
+		int ret;
+
+		va_start(args, func);
+		ret = func(bd, args);
+		va_end(args);
+		if (ret == -1)
+			break;// stop iterating
+	}
+	dbi_destroy(iter);
+}
+
+void map_addbot(struct bot_data *bd) {
+	nullpo_retv(bd);
+	nullpo_retv(bd->bl);
+
+	idb_put(bot_db, bd->bl->id, bd);
+}
+
+void map_delbot(struct bot_data *bd, bool loginout)
+{
+	struct map_session_data* sd;
+
+	nullpo_retv(bd);
+	nullpo_retv(bd->bl);
+	
+	if (loginout) {
+		sd = map_id2sd(bd->bl->id);
+		if (sd && sd->state.bot)
+			map_quit(sd);
+	}
+
+	idb_remove(bot_db, bd->bl->id);
+}

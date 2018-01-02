@@ -24747,6 +24747,7 @@ BUILDIN_FUNC(resetoptionbyidx)
 {
 	TBL_PC *sd;
 	int idx, pos;
+	unsigned int ep;
 	const char *command = script_getfuncname(st);
 
 	if (!script_charid2sd(3, sd))
@@ -24762,11 +24763,14 @@ BUILDIN_FUNC(resetoptionbyidx)
 	}
 
 	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+		ep = sd->inventory.u.items_inventory[idx].equip;
 		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
+		if (ep) pc_unequipitem(sd, idx, 2);
 		memset(sd->inventory.u.items_inventory[idx].option, 0, sizeof(struct s_item_randomoption) * MAX_ITEM_RDM_OPT);
 		clif_delitem(sd, idx, 1, 3);
 		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
 		clif_additem(sd, idx, 1, 0);
+		if (ep) pc_equipitem(sd, idx, ep);
 	}
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -24801,8 +24805,8 @@ BUILDIN_FUNC(getoptionbyidx)
 BUILDIN_FUNC(setoptionbyidx)
 {
 	TBL_PC *sd;
-	struct item *it;
 	int idx, pos;
+	unsigned int ep;
 	const char *command = script_getfuncname(st);
 
 	if (!script_charid2sd(6, sd))
@@ -24818,9 +24822,85 @@ BUILDIN_FUNC(setoptionbyidx)
 	}
 
 	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
-		it = &sd->inventory.u.items_inventory[idx];
-		script_getitem_randomoption(st, it, command, 3);
+		ep = sd->inventory.u.items_inventory[idx].equip;
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
+		if (ep) pc_unequipitem(sd, idx, 2);
+		clif_delitem(sd, idx, 1, 3);
+		script_getitem_randomoption(st, &sd->inventory.u.items_inventory[idx], command, 3);
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
+		clif_additem(sd, idx, 1, 0);
+		if (ep) pc_equipitem(sd, idx, ep);
 	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getidxrandomoption)
+{
+	TBL_PC *sd;
+	int idx, i;
+
+	if (!script_charid2sd(5, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	idx = script_getnum(st, 2);
+
+	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+		
+		i = script_getnum(st, 3);
+		if (idx > -1 && i < MAX_ITEM_RDM_OPT) {
+			switch (script_getnum(st, 4)) {
+			case ROA_ID:
+				script_pushint(st, sd->inventory.u.items_inventory[idx].option[i].id);
+				break;
+			case ROA_VALUE:
+				script_pushint(st, sd->inventory.u.items_inventory[idx].option[i].value);
+				break;
+			case ROA_PARAM:
+				script_pushint(st, sd->inventory.u.items_inventory[idx].option[i].param);
+				break;
+			}
+			return SCRIPT_CMD_SUCCESS;
+		}
+	}
+	
+	script_pushint(st, 0);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(setidxrandomoption)
+{
+	TBL_PC *sd;
+	int idx, i;
+	bool isequip = false;
+	if (!script_charid2sd(7, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	idx = script_getnum(st, 2);
+
+	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+
+		i = script_getnum(st, 3);
+		if (idx > -1 && i < MAX_ITEM_RDM_OPT) {
+
+			unsigned int ep = sd->inventory.u.items_inventory[idx].equip;
+			log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
+			if (ep) pc_unequipitem(sd, idx, 2); // status calc will happen in pc_equipitem() below
+			sd->inventory.u.items_inventory[idx].option[i].id = script_getnum(st, 4);
+			sd->inventory.u.items_inventory[idx].option[i].value = script_getnum(st, 5);
+			sd->inventory.u.items_inventory[idx].option[i].param = script_getnum(st, 6);
+			clif_delitem(sd, idx, 1, 3);
+			log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
+			clif_additem(sd, idx, 1, 0);
+			if(ep) pc_equipitem(sd, idx, ep);
+
+			script_pushint(st, 1);
+
+			return SCRIPT_CMD_SUCCESS;
+		}
+	}
+
+	script_pushint(st, 0);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -25352,14 +25432,21 @@ BUILDIN_FUNC(setbotinfo)
 	TBL_PC *sd;
 	struct item_data* id = NULL;
 	struct script_data* data;
+	struct bot_data* bd;
 	int i;
 
-	if (!script_charid2sd(5, sd))
+	if (!script_charid2sd(8, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	sd->bot.item_hp_id = 0;
-	sd->bot.item_sp_id = 0;
-	sd->bot.item_fly_id = 0;
+	if (!(bd = map_id2bot(sd->bl.id))) {
+		CREATE(bd, struct bot_data, 1);
+		memset(bd, 0, sizeof(struct bot_data));
+		bd->bl = &sd->bl;
+		map_addbot(bd);
+	}
+	bd->info.item_hp_id = 0;
+	bd->info.item_sp_id = 0;
+	bd->info.item_fly_id = 0;
 
 	for (i = 2; i < 5; i++) {
 
@@ -25377,19 +25464,23 @@ BUILDIN_FUNC(setbotinfo)
 		switch (i) {
 		case 2:
 			if (id->type == 0)
-				sd->bot.item_hp_id = id->nameid;
+				bd->info.item_hp_id = id->nameid;
 			break;
 		case 3:
 			if (id->type == 0)
-				sd->bot.item_sp_id = id->nameid;
+				bd->info.item_sp_id = id->nameid;
 			break;
 		case 4:
 			if (id->type == 2)
-				sd->bot.item_fly_id = id->nameid;
+				bd->info.item_fly_id = id->nameid;
 			break;
 		
 		}
 	}
+
+	bd->state.event_fly_count = script_getnum(st, 5);
+	bd->state.attack_master = script_getnum(st, 6);
+	bd->state.counterattack = script_getnum(st, 7);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -25398,9 +25489,9 @@ BUILDIN_FUNC(setbotmob)
 {
 	int i,n, lastdata, mob_id;
 	TBL_PC *sd;
-	
-	lastdata = script_lastdata(st);
+	struct bot_data* bd;
 
+	lastdata = script_lastdata(st);
 
 	if (script_getnum(st, lastdata) >= 150000) {
 		if (!(sd = map_charid2sd(script_getnum(st, lastdata)))) {
@@ -25413,18 +25504,25 @@ BUILDIN_FUNC(setbotmob)
 		return SCRIPT_CMD_FAILURE;
 	}
 
-	memset(&sd->bot.mob_id, 0, sizeof(sd->bot.mob_id));
+	if (!(bd = map_id2bot(sd->bl.id))) {
+		CREATE(bd, struct bot_data, 1);
+		memset(bd, 0, sizeof(struct bot_data));
+		bd->bl = &sd->bl;
+		map_addbot(bd);
+	}
+
+	memset(bd->info.mob_id, 0, sizeof(bd->info.mob_id));
 
 	for (i = 2; script_hasdata(st, i) && i < lastdata; i++)
 	{
-		ARR_FIND(0, 10, n, sd->bot.mob_id[n] == 0);
+		ARR_FIND(0, MAX_BOT_MOB_COUNT, n, bd->info.mob_id[n] == 0);
 
-		if (n == 10)
+		if (n == MAX_BOT_MOB_COUNT)
 			return SCRIPT_CMD_SUCCESS;
 
 		mob_id = script_getnum(st, i);
 		if (mob_id >= 0 && mobdb_checkid(mob_id))
-			sd->bot.mob_id[n] = mob_id;
+			bd->info.mob_id[n] = mob_id;
 	}
 
 	return SCRIPT_CMD_SUCCESS;
@@ -25433,11 +25531,13 @@ BUILDIN_FUNC(setbotmob)
 BUILDIN_FUNC(clearbotall)
 {
 	TBL_PC *sd;
-
+	struct bot_data *bd;
 	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	memset(&sd->bot, 0, sizeof(sd->bot));
+	bd = map_id2bot(sd->bl.id);
+	if (bd)
+		map_delbot(bd, false);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -25450,6 +25550,18 @@ BUILDIN_FUNC(is_bot)
 		return SCRIPT_CMD_FAILURE;
 
 	script_pushint(st, sd->state.bot);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_run)
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, pcbot_run(sd, script_getnum(st, 2)));
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -26144,6 +26256,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(getoptionbyidx, "getoptionbypos", "i?"),
 	BUILDIN_DEF(setoptionbyidx, "iiii?"),
 	BUILDIN_DEF2(setoptionbyidx, "setoptionbypos", "iiii?"),
+	BUILDIN_DEF(getidxrandomoption, "iii?"),
+	BUILDIN_DEF(setidxrandomoption, "iiiii?"),
 	BUILDIN_DEF(duplicate, "s"),
 	BUILDIN_DEF2(duplicate, "dupnpc", "ssss"),
 	BUILDIN_DEF2(duplicate, "copynpc", "ssss"),
@@ -26180,9 +26294,10 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getpolicyid, "?"),
 	BUILDIN_DEF(getpolicyinfo, "i?"),
 	//BOT系统
-	BUILDIN_DEF(setbotinfo, "vvv?"),
+	BUILDIN_DEF(setbotinfo, "vvviii?"),
 	BUILDIN_DEF(setbotmob, "i*"),
 	BUILDIN_DEF(clearbotall, "?"),
+	BUILDIN_DEF(bot_run, "i?"),
 	BUILDIN_DEF(is_bot, "?"),
 
 //路点系统
