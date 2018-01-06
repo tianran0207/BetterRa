@@ -41,10 +41,8 @@
 //自定义功能集
 //----------------------------------
 
-#if MAX_ONLINE > 0
-	#define BRA_STEP_PATH
-	#define BRA_TRIBE_TEAM
-#endif
+#define BRA_STEP_PATH
+#define BRA_TRIBE_TEAM
 
 #define BRA_MSG_TRANSLATE
 

@@ -1026,6 +1026,8 @@ int npc_touch_areanpc(struct map_session_data* sd, int16 m, int16 x, int16 y)
 	}
 	switch(map[m].npc[i]->subtype) {
 		case NPCTYPE_WARP:
+			if (sd->state.no_touch_warp)
+				break;
 			if ((!map[m].npc[i]->trigger_on_hidden && (pc_ishiding(sd) || (sd->sc.count && sd->sc.data[SC_CAMOUFLAGE]))) || pc_isdead(sd))
 				break; // hidden or dead chars cannot use warps
 			if (!pc_job_can_entermap((enum e_job)sd->status.class_, map_mapindex2mapid(map[m].npc[i]->u.warp.mapindex), sd->group_level))
@@ -1038,6 +1040,8 @@ int npc_touch_areanpc(struct map_session_data* sd, int16 m, int16 x, int16 y)
 			pc_setpos(sd,map[m].npc[i]->u.warp.mapindex,map[m].npc[i]->u.warp.x,map[m].npc[i]->u.warp.y,CLR_OUTSIGHT);
 			break;
 		case NPCTYPE_SCRIPT:
+			if (sd->state.no_touch_script)
+				break;
 			for (j = i; j < map[m].npc_num; j++) {
 				if (map[m].npc[j]->subtype != NPCTYPE_WARP) {
 					continue;

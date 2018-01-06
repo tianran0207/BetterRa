@@ -12583,177 +12583,310 @@ void pc_set_costume_view(struct map_session_data *sd) {
 		clif_changelook(&sd->bl, LOOK_HEAD_TOP, policie[sd->policies].look_head_top);
 }
 
-
-static int pc_bot_check_sub(struct block_list *bl, va_list ap) {
-
-	int i;
-	struct bot_data *bd = va_arg(ap, struct bot_data *);
-	int *count = va_arg(ap, int *);
-	struct mob_data *md = (struct mob_data *)bl;
-
-	nullpo_ret(bd);
-	nullpo_ret(md);
-
-	if (!md->spawn && !md->master_id)
+static int pcbot_check_ele(struct map_session_data *sd, struct block_list *bl, struct bot_data *bd){
+	struct status_data *status;
+	
+	switch (bl->type) {
+		case BL_MOB:
+			status = &((struct mob_data *)bl)->status;
+			break;
+		case BL_PC:
+			status = &((struct map_session_data *)bl)->battle_status;
+			break;
+		default:
+			return 0;
+	}
+	if (battle_attr_ratio(sd->battle_status.rhw.ele, status->def_ele, status->ele_lv) < bd->info.ignore_same_ele)
 		return 0;
-	// respawn data is not in cache
-	if (md->spawn && !md->spawn->state.dynamic)
-		return 0;
-
-	ARR_FIND(0, MAX_BOT_MOB_COUNT, i, bd->info.mob_id[i] == md->mob_id);
-
-	if (0 < MAX_BOT_MOB_COUNT)
-		(*count)++;
 
 	return 1;
 }
 
-static int pcbot_ai_sub_hard(struct block_list *bl, va_list ap) {
+static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap) {
 
-	int i;
-	struct map_session_data *sd;
 	struct bot_data *bd = va_arg(ap, struct bot_data *);
-	unsigned int tick = va_arg(ap, unsigned int);
-
-	sd = (struct map_session_data *)bd->bl;
-
-	//吃道具检查
-	if (bd->state.next_useitemtime < tick) {
-		if (bd->info.item_hp_id && sd->battle_status.hp < sd->battle_status.max_hp * 8 / 10) {
-			if ((i = pc_search_inventory(sd, bd->info.item_hp_id)) != -1) {
-				bd->state.next_useitemtime = tick + 2000;
-				pc_useitem(sd, i);
-			} else
-			bd->info.item_hp_id = 0;
-		}
-		else if (bd->info.item_sp_id && sd->battle_status.sp < sd->battle_status.max_sp * 5 / 10) {
-			if ((i = pc_search_inventory(sd, bd->info.item_sp_id)) != -1) {
-				bd->state.next_useitemtime = tick + 2000;
-				pc_useitem(sd, i);
-			} else
-			bd->info.item_sp_id = 0;
-		}
-	}
-
-	//如果正在攻击
-	if (sd->ud.target)
-		return 1;
-
-	//如果有魔物攻击, 反击
-	if (bd->state.counterattack && sd->enemy_id) {
-		unit_attack(&sd->bl, sd->enemy_id, 1);
-		sd->enemy_id = 0;
-		return 1;
-	}
+	struct block_list **target = va_arg(ap, struct block_list **);
+	struct map_session_data *sd = bd->sd;
+	int dist, i;
 
 	//检查列表中的魔物
 	if (bd->info.mob_id[0] > 0 && bl->type == BL_MOB) {
 		struct mob_data *md = (struct mob_data *)bl;
-		ARR_FIND(0, MAX_BOT_MOB_COUNT, i, bd->info.mob_id[i] == md->mob_id);
+		for (i = 0; i < MAX_BOT_MOB_COUNT; i++) {
+			if (bd->info.mob_id[i] == 0)
+				return 0;
+			if (bd->info.mob_id[i] == md->mob_id)
+				break;
+		}
 		if (i == MAX_BOT_MOB_COUNT)
 			return 0;
 	}
 
 	//检查是不是敌人
-	if (battle_check_target(bd->bl, bl, BCT_ENEMY) <= 0) {
+	if (battle_check_target(&sd->bl, bl, BCT_ENEMY) <= 0) {
 		return 0;
 	}
 
 	//检查是否有主人
-	if (bd->state.attack_master || (bl = battle_get_master(bl)) == NULL) {
+	if (bd->info.always_attack_master && (bl = battle_get_master(bl)) == NULL) {
 		return 0;
 	}
 
-	//检查能否走到魔物跟前
-	struct walkpath_data wpd;
-	if (sd->ud.walktimer != INVALID_TIMER || !path_search(&wpd, bd->bl->m, bd->bl->x, bd->bl->y, bl->x, bl->y, 0, CELL_CHKWALL)) // Count walk path cells
+	//检查属性修正是否小于50
+	if (bd->info.ignore_same_ele && !pcbot_check_ele(sd, bl, bd)) {
 		return 0;
+	}
+		
+	//找到离得最近的魔物
+	dist = distance_bl(&sd->bl, bl);
+	if (((*target) == NULL || !check_distance_bl(&sd->bl, *target, dist)) &&
+		battle_check_range(&sd->bl, bl, 12)
+		) { 
+		struct walkpath_data wpd;
+		if (!path_search(&wpd, sd->bl.m, sd->bl.x, sd->bl.y, bl->x, bl->y, sd->ud.state.walk_easy, CELL_CHKWALL)) // Count walk path cells
+			return 0;
 
-	if (wpd.path_len > 14)
-		return 0;
+		if (wpd.path_len > 12)
+			return 0;
 
-	unit_attack(&sd->bl, bl->id, 1);
-
+		(*target) = bl;
+		bd->target_id = bl->id;
+	}
 	return 1;
-
 }
 
+static int pcbot_ai_sub_hard_lootsearch(struct block_list *bl, va_list ap) {
+	int dist, i;
+	struct flooritem_data *fitem = (struct flooritem_data*)bl;
+	struct bot_data *bd = va_arg(ap, struct bot_data *);
+	struct block_list **target = va_arg(ap, struct block_list **);
+	struct map_session_data *sd = bd->sd;
+
+	//检查列表中的物品
+	if (bd->info.loot_item_id[0] > 0) {
+		for (i = 0; i < MAX_BOT_ITEM_COUNT; i++) {
+			if (bd->info.loot_item_id[i] == 0)
+				return 0;
+			if (bd->info.loot_item_id[i] == fitem->item.nameid)
+				break;
+		}
+		if (i == MAX_BOT_ITEM_COUNT)
+			return 0;
+	}
+
+	dist = distance_bl(&sd->bl, bl);
+	if (((*target) == NULL || !check_distance_bl(&sd->bl, *target, dist)) && dist < 13) {
+
+		if (!unit_can_reach_bl(&sd->bl, bl, 12, 1, NULL, NULL))
+			return 0;
+
+		(*target) = bl;
+		bd->target_id = bl->id;
+	}
+	return 1;
+}
 /*==========================================
 * pc_bot
 *------------------------------------------*/
 static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 	unsigned int tick;
-	int i;
+	int i, target_dead = 0;
 	struct map_session_data *sd;
+	struct block_list *tbl = NULL;
+
 	if (!bd->running)
 		return 0;
 
 	tick = va_arg(args, unsigned int);
-	nullpo_ret(bd->bl);
-	sd = (struct map_session_data *)bd->bl;
-	//unit_can_reach_bl
+	nullpo_ret(bd->sd);
+	sd = bd->sd;
 
-	if (sd->ud.walktimer != INVALID_TIMER || (&sd->sc != NULL && sd->sc.data[SC__MANHOLE]) || !unit_can_move(&sd->bl))
+	if (sd->bl.prev == NULL && sd->fd == 0)
+		clif_parse_LoadEndAck(0, sd);
+
+	if (pc_isdead(sd))
 		return 0;
 
-	if (!map_foreachinallrange(pcbot_ai_sub_hard, bd->bl, 10, BL_CHAR, bd, tick) || !sd->ud.target) {
-		INT16 x = 0, y = 0, rx = 10, ry = 10;
-
-		if (bd->state.event_fly_count &&  bd->state.move_count > bd->state.event_fly_count && bd->state.next_useitemtime < tick) {
-			if ((i = pc_search_inventory(sd, bd->info.item_fly_id)) != -1) {
+	//吃道具检查
+	if (bd->state.next_heal_delay < tick) {
+		if (bd->info.item_hp_id && sd->battle_status.hp < sd->battle_status.max_hp * 8 / 10) {
+			if ((i = pc_search_inventory(sd, bd->info.item_hp_id)) != -1) {
+				bd->state.next_heal_delay = tick + bd->info.item_heal_delay;
 				pc_useitem(sd, i);
-				bd->state.move_count = 0;
-				bd->state.next_useitemtime = tick + 2000;
+			}
+			else
+				bd->info.item_hp_id = 0;
+		}
+		else if (bd->info.item_sp_id && sd->battle_status.sp < sd->battle_status.max_sp * 5 / 10) {
+			if ((i = pc_search_inventory(sd, bd->info.item_sp_id)) != -1) {
+				bd->state.next_heal_delay = tick + bd->info.item_heal_delay;
+				pc_useitem(sd, i);
+			}
+			else
+				bd->info.item_sp_id = 0;
+		}
+	}
+
+	//不允许做任何事
+	if (bd->state.next_acttime > tick)
+		return 0;
+
+	//如果正在吟唱
+	if (sd->ud.skilltimer != INVALID_TIMER)
+		return 0;
+
+	//如果正在攻击
+	if (sd->ud.attacktimer != INVALID_TIMER)
+		return 0;
+
+	//如果有魔物攻击, 反击
+	if (sd->ud.walktimer != INVALID_TIMER) {
+		if (bd->info.counterattack && sd->enemy_id) {
+			sd->enemy_id = 0;
+			//检查属性修正是否小于50
+			tbl = map_id2bl(sd->enemy_id);
+			if (tbl && bd->info.ignore_same_ele && pcbot_check_ele(sd, tbl, bd)) {
+				return 0;
+			}
+			//反击目标
+			bd->target_id = sd->enemy_id;
+			unit_attack(&sd->bl, sd->enemy_id, 1);
+			return 1;
+		}
+		return 0;
+	}
+
+	//计算攻击距离
+	bd->min_chase = status_get_status_data(&sd->bl)->rhw.range;
+
+	//如果正在攻击, 检查目标的有效性
+	if (bd->target_id) {
+		tbl = map_id2bl(bd->target_id);
+		if (tbl && tbl->m == sd->bl.m && (sd->ud.attacktimer != INVALID_TIMER || status_check_skilluse(&sd->bl, tbl, 0, 0))) {
+			if (tbl->type != BL_ITEM ) {	//有效攻击目标
+				if (check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
+					unit_attack(&sd->bl, tbl->id, 1);
+					return 1;
+				}
+				if (check_distance_bl(&sd->bl, tbl, 12)) {
+					//走到目标, 由于上次走路失败, 所以直接用A* 走. 如果还是失败则放弃这个目标.
+					if (unit_walktobl(&sd->bl, tbl, sd->ud.chaserange, 0)) { // Count walk path cells
+						return 1;
+					}
+				}
+			}else{   //有效物品目标
+				if (check_distance_bl(&sd->bl, tbl, 1)) {
+					struct flooritem_data *fitem = (struct flooritem_data*)tbl;
+					pc_takeitem(sd, fitem);
+					bd->state.next_acttime = tick + bd->info.loot_item_acttime / 2;
+					bd->target_id = 0;
+					return 1;
+				}
+			}
+		}
+		tbl = NULL;
+		bd->target_id = 0;
+		target_dead = 1;
+	}
+
+	//检查拾取物品菜单
+	if (bd->info.loot_item_id[0] > 0) {
+		map_foreachinallrange(pcbot_ai_sub_hard_lootsearch, &sd->bl, 13, BL_ITEM, bd, &tbl);
+		if (tbl) {
+			if (bd->target_id == tbl->id && sd->ud.walktimer != INVALID_TIMER)
+				return 1; //Already locked.
+
+			if (check_distance_bl(&sd->bl, tbl, 1) || unit_walktobl(&sd->bl, tbl, 1, 1)) {
+				bd->state.next_acttime = tick + bd->info.loot_item_acttime / 2;
+				bd->target_id = tbl->id;
 				return 1;
 			}
-			bd->state.event_fly_count = 0;
+		}
+		tbl = NULL;
+		bd->target_id = 0;
+	}
+
+	if (target_dead == 1) {
+		bd->state.next_acttime = tick + bd->info.choose_target_acttime;
+		return 1;
+	}
+
+	map_foreachinallrange(pcbot_ai_sub_hard_activesearch, &sd->bl, 12, BL_CHAR, bd, &tbl);
+
+	if (tbl) {
+		if (!check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
+			unit_walktobl(&sd->bl, tbl, sd->ud.chaserange, sd->ud.state.walk_easy | 2);
+		}
+		else {
+			unit_attack(&sd->bl, tbl->id, 1);
+		}
+		bd->target_id = tbl->id;
+		return 1;
+	}
+	else if (unit_can_move(&sd->bl)){
+		INT16 x = 0, y = 0, rx = 10, ry = 10;
+
+		//寻路达到最大失败次数
+		if (bd->state.next_fly_delay < tick && ((bd->info.timeout_fly && bd->state.next_flytime < tick) || (bd->info.find_fail_fly &&  bd->state.move_count > bd->info.find_fail_fly))) {
+			if ((i = pc_search_inventory(sd, bd->info.item_fly_id)) == -1) {
+				bd->info.find_fail_fly = 0;
+				bd->info.timeout_fly = 0;
+			}
+			else {
+				pc_useitem(sd, i);
+				bd->state.move_count = 0;
+				bd->state.next_flytime = tick + bd->info.timeout_fly * 1000;
+				bd->state.next_fly_delay = tick + bd->info.item_fly_delay;
+				return 1;
+			}
 		}
 
 		switch (bd->state.dir) {
 		case 0: //向上走
-			x = bd->bl->x;
-			y = bd->bl->y + 9;
+			x = sd->bl.x;
+			y = sd->bl.y + 9;
 			rx = 9; ry = 3;
 			break;
 		case 1: //向右走
-			x = bd->bl->x + 9;
-			y = bd->bl->y;
+			x = sd->bl.x + 9;
+			y = sd->bl.y;
 			rx = 3; ry = 9;
 			break;
 		case 2: //向下走
-			x = bd->bl->x;
-			y = bd->bl->y - 9;
+			x = sd->bl.x;
+			y = sd->bl.y - 9;
 			rx = 9; ry = 3;
 			break;
 		case 3: //向左走
-			x = bd->bl->x - 9;
-			y = bd->bl->y;
+			x = sd->bl.x - 9;
+			y = sd->bl.y;
 			rx = 3; ry = 9;
 			break;
 		}
 		for (i = 0; i < 5; i++) {
-			if (map_search_freecell(NULL, bd->bl->m, &x, &y, rx, ry, 1) && unit_can_reach_pos(bd->bl, x, y, 1)) {
-				unit_walktoxy(bd->bl, x, y, 1);
+			if (map_search_freecell(NULL, sd->bl.m, &x, &y, rx, ry, 1) && unit_can_reach_pos(&sd->bl, x, y, 1)) {
+				unit_walktoxy(&sd->bl, x, y, 1);
+				if (bd->info.find_fail_fly)
+					bd->state.move_count++;
 				bd->state.move_fail_count = 0;
-				if (bd->state.event_fly_count) bd->state.move_count++;
 				return 1;
 			}
 		}
 		bd->state.move_fail_count++;
-
 		bd->state.dir += (rnd() % 2) ? 1 : -1;
 		if (bd->state.dir == -1)
 			bd->state.dir = 3;
 		else if (bd->state.dir == 4)
 			bd->state.dir = 0;
 
-		if (bd->state.move_fail_count > 100) {
+		if (bd->state.move_fail_count > 1000) {
 			map_delbot(bd, true);
 			return 0;
 		}
+		return 1;
 	}
 
-	return 1;
+	return 0;
 }
 
 static int pcbot_ai_hard(int tid, unsigned int tick, int id, intptr_t data)
@@ -12779,11 +12912,18 @@ int pcbot_run(struct map_session_data *sd, int timeout) {
 	if (timeout)
 		status_change_start(NULL, &sd->bl, SC_BOT, 10000, 0, 0, 0, 0, timeout, SCSTART_NONE);
 
+	if (bd->info.timeout_fly)
+		bd->state.next_flytime = gettick() + bd->info.timeout_fly * 1000;
+
 	sd->ud.target = 0;
 	sd->state.bot = 1;
-	//channel_pcquit(sd, 0xF); //leave all chan
-	//clif_authfail_fd(sd->fd, 15);
-	//chrif_save(sd, SC_AUTOTRADE);
+
+	if (bd->state.offline) {
+		channel_pcquit(sd, 0xF); //leave all chan
+		clif_authfail_fd(sd->fd, 15);
+		chrif_save(sd, SC_AUTOTRADE);
+	}
+
 	bd->running = 1;
 	return count;
 }

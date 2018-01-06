@@ -612,7 +612,7 @@ static int8 skill_isCopyable(struct map_session_data *sd, uint16 skill_idx) {
 		return 0;
 
 	// Check if the skill is copyable by class
-	if (!pc_has_permission(sd,PC_PERM_ALL_SKILL)) {
+	if (!pc_has_permission(sd,PC_PERM_ALL_SKILL) && !battle_config.enable_coply) {
 		uint16 job_allowed = skill_db[skill_idx]->copyable.joballowed;
 		while (1) {
 			if (job_allowed&0x01 && sd->status.class_ == JOB_ROGUE) break;

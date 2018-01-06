@@ -4853,9 +4853,9 @@ void map_foreachbot(int(*func)(struct bot_data *bd, va_list args), ...)
 
 void map_addbot(struct bot_data *bd) {
 	nullpo_retv(bd);
-	nullpo_retv(bd->bl);
+	nullpo_retv(bd->sd);
 
-	idb_put(bot_db, bd->bl->id, bd);
+	idb_put(bot_db, bd->sd->bl.id, bd);
 }
 
 void map_delbot(struct bot_data *bd, bool loginout)
@@ -4863,13 +4863,13 @@ void map_delbot(struct bot_data *bd, bool loginout)
 	struct map_session_data* sd;
 
 	nullpo_retv(bd);
-	nullpo_retv(bd->bl);
+	nullpo_retv(bd->sd);
 	
 	if (loginout) {
-		sd = map_id2sd(bd->bl->id);
+		sd = map_id2sd(bd->sd->bl.id);
 		if (sd && sd->state.bot)
 			map_quit(sd);
 	}
 
-	idb_remove(bot_db, bd->bl->id);
+	idb_remove(bot_db, bd->sd->bl.id);
 }

@@ -3283,7 +3283,7 @@ struct Damage battle_calc_skill_base_damage(struct Damage wd, struct block_list 
 					wd.equipAtk /= wd.miscflag;
 					wd.masteryAtk /= wd.miscflag;
 #endif
-				} else
+				} else if(skill_id != NPC_EARTHQUAKE)
 					ShowError("0 enemies targeted by %d:%s, divide per 0 avoided!\n", skill_id, skill_get_name(skill_id));
 			}
 
@@ -8035,6 +8035,7 @@ static const struct _battle_data {
 	{ "buff_for_guild_member",              &battle_config.buff_for_guild_member,           0,      0,      1,              },
 	{ "buff_for_tribe_member",              &battle_config.buff_for_tribe_member,           0,      0,      1|2,            },
 	{ "enable_amulet",                      &battle_config.enable_amulet,                   0,      0,      1,              },
+	{ "enable_coply",                       &battle_config.enable_coply,                   0,      0,      1,              },
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },

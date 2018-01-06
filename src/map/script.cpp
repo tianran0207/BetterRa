@@ -9388,7 +9388,7 @@ BUILDIN_FUNC(bonus)
 			break;
 	}
 
-	return SCRIPT_CMD_SUCCESS;
+			return SCRIPT_CMD_SUCCESS;
 }
 
 BUILDIN_FUNC(autobonus)
@@ -25427,117 +25427,78 @@ BUILDIN_FUNC(is_attach)
 
 }
 
-BUILDIN_FUNC(setbotinfo)
-{
-	TBL_PC *sd;
+static void buildin_bot_reset_sub(TBL_PC *sd) {
+
+	struct bot_data *bd;
 	struct item_data* id = NULL;
-	struct script_data* data;
-	struct bot_data* bd;
 	int i;
 
-	if (!script_charid2sd(8, sd))
-		return SCRIPT_CMD_FAILURE;
-
 	if (!(bd = map_id2bot(sd->bl.id))) {
 		CREATE(bd, struct bot_data, 1);
 		memset(bd, 0, sizeof(struct bot_data));
-		bd->bl = &sd->bl;
-		map_addbot(bd);
-	}
-	bd->info.item_hp_id = 0;
-	bd->info.item_sp_id = 0;
-	bd->info.item_fly_id = 0;
-
-	for (i = 2; i < 5; i++) {
-
-		data = script_getdata(st, i);
-		get_val(st, data); // Convert into value in case of a variable
-
-		if (data_isstring(data)) // item name
-			id = itemdb_searchname(conv_str(st, data));
-		else // item id
-			id = itemdb_exists(conv_num(st, data));
-
-		if (id == NULL)
-			continue;
-
-		switch (i) {
-		case 2:
-			if (id->type == 0)
-				bd->info.item_hp_id = id->nameid;
-			break;
-		case 3:
-			if (id->type == 0)
-				bd->info.item_sp_id = id->nameid;
-			break;
-		case 4:
-			if (id->type == 2)
-				bd->info.item_fly_id = id->nameid;
-			break;
-		
-		}
-	}
-
-	bd->state.event_fly_count = script_getnum(st, 5);
-	bd->state.attack_master = script_getnum(st, 6);
-	bd->state.counterattack = script_getnum(st, 7);
-
-	return SCRIPT_CMD_SUCCESS;
-}
-
-BUILDIN_FUNC(setbotmob)
-{
-	int i,n, lastdata, mob_id;
-	TBL_PC *sd;
-	struct bot_data* bd;
-
-	lastdata = script_lastdata(st);
-
-	if (script_getnum(st, lastdata) >= 150000) {
-		if (!(sd = map_charid2sd(script_getnum(st, lastdata)))) {
-			ShowError("%s: Player with char id '%d' is not found.\n", "buildin_setbotmob", script_getnum(st, lastdata));
-			return SCRIPT_CMD_FAILURE;
-		}
-		lastdata -= 1;
-	}
-	else if (!script_rid2sd(sd)){
-		return SCRIPT_CMD_FAILURE;
-	}
-
-	if (!(bd = map_id2bot(sd->bl.id))) {
-		CREATE(bd, struct bot_data, 1);
-		memset(bd, 0, sizeof(struct bot_data));
-		bd->bl = &sd->bl;
+		bd->sd = sd;
 		map_addbot(bd);
 	}
 
-	memset(bd->info.mob_id, 0, sizeof(bd->info.mob_id));
+	bd->info.item_hp_id = pc_readreg(sd, add_str("@item_hp_id"));
+	bd->info.item_sp_id = pc_readreg(sd, add_str("@item_sp_id"));
+	bd->info.item_heal_delay = pc_readreg(sd, add_str("@item_heal_delay"));
+	bd->info.item_fly_id = pc_readreg(sd, add_str("@item_fly_id"));
+	bd->info.item_fly_delay = pc_readreg(sd, add_str("@item_fly_delay"));
+	bd->info.loot_item_acttime = pc_readreg(sd, add_str("@loot_item_acttime"));
+	bd->info.choose_target_acttime = pc_readreg(sd, add_str("@choose_target_acttime"));
 
-	for (i = 2; script_hasdata(st, i) && i < lastdata; i++)
-	{
-		ARR_FIND(0, MAX_BOT_MOB_COUNT, n, bd->info.mob_id[n] == 0);
+	id = itemdb_exists(bd->info.item_hp_id);
+	if (!id || (id->type != 0 && id->type != 2 && id->type != 11 && id->type != 18))
+		bd->info.item_hp_id = 0;
 
-		if (n == MAX_BOT_MOB_COUNT)
-			return SCRIPT_CMD_SUCCESS;
+	id = itemdb_exists(bd->info.item_sp_id);
+	if (!id || (id->type != 0 && id->type != 2 && id->type != 11 && id->type != 18))
+		bd->info.item_sp_id = 0;
 
-		mob_id = script_getnum(st, i);
-		if (mob_id >= 0 && mobdb_checkid(mob_id))
-			bd->info.mob_id[n] = mob_id;
+	id = itemdb_exists(bd->info.item_fly_id);
+	if (!id || (id->type != 0 && id->type != 2 && id->type != 11 && id->type != 18))
+		bd->info.item_fly_id = 0;
+
+	bd->info.find_fail_fly = pc_readreg(sd, add_str("@find_fail_fly"));
+	bd->info.timeout_fly = pc_readreg(sd, add_str("@timeout_fly"));
+	sd->state.no_touch_warp = pc_readreg(sd, add_str("@ignore_warp")) != 0 ? 1 : 0;
+	sd->state.no_touch_script = pc_readreg(sd, add_str("@ignore_touch")) != 0 ? 1 : 0;
+
+	bd->info.always_attack_master = pc_readreg(sd, add_str("@always_attack_master")) != 0 ? 1 : 0;
+	bd->info.counterattack = pc_readreg(sd, add_str("@counterattack")) != 0 ? 1 : 0;
+	bd->info.ignore_same_ele = pc_readreg(sd, add_str("@ignore_same_ele"));
+	bd->state.offline = pc_readreg(sd, add_str("@offline")) != 0 ? 1 : 0;
+
+	for (i = 0; i < MAX_BOT_MOB_COUNT; i++) {
+		bd->info.mob_id[i] = pc_readreg(sd, reference_uid(add_str("@mob_id"), i));
+	}
+	for (i = 0; i < MAX_BOT_ITEM_COUNT; i++) {
+		bd->info.loot_item_id[i] = pc_readreg(sd, reference_uid(add_str("@loot_item_id"), i));
 	}
 
+}
+
+BUILDIN_FUNC(bot_reset) {
+	TBL_PC *sd;
+
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	buildin_bot_reset_sub(sd);
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(clearbotall)
+BUILDIN_FUNC(bot_run)
 {
 	TBL_PC *sd;
-	struct bot_data *bd;
-	if (!script_charid2sd(2, sd))
+
+	if (!script_rid2sd(sd))
 		return SCRIPT_CMD_FAILURE;
 
-	bd = map_id2bot(sd->bl.id);
-	if (bd)
-		map_delbot(bd, false);
+	buildin_bot_reset_sub(sd);
+
+	script_pushint(st, pcbot_run(sd, pc_readreg(sd, add_str("@run_time"))));
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -25554,17 +25515,18 @@ BUILDIN_FUNC(is_bot)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(bot_run)
+BUILDIN_FUNC(bot_stop)
 {
 	TBL_PC *sd;
 
-	if (!script_charid2sd(3, sd))
+	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	script_pushint(st, pcbot_run(sd, script_getnum(st, 2)));
+	map_delbot(map_id2bot(sd->bl.id), true);
 
 	return SCRIPT_CMD_SUCCESS;
 }
+
 
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
@@ -26294,10 +26256,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getpolicyid, "?"),
 	BUILDIN_DEF(getpolicyinfo, "i?"),
 	//BOT系统
-	BUILDIN_DEF(setbotinfo, "vvviii?"),
-	BUILDIN_DEF(setbotmob, "i*"),
-	BUILDIN_DEF(clearbotall, "?"),
-	BUILDIN_DEF(bot_run, "i?"),
+	BUILDIN_DEF(bot_reset, ""),
+	BUILDIN_DEF(bot_run, ""),
+	BUILDIN_DEF(bot_stop, "?"),
 	BUILDIN_DEF(is_bot, "?"),
 
 //路点系统

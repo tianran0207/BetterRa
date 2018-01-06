@@ -5151,6 +5151,8 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 			/// aspd = baseaspd + floor(sqrt((agi^2/2) + (dex^2/5))/4 + (potskillbonus*agi/200))
 			amotion -= (int)(sqrt( (pow(status->agi, 2) / 2) + (pow(status->dex, 2) / 5) ) / 4 + (status_calc_aspd(bl, sc, true) * status->agi / 200)) * 10;
 
+			amotion = cap_value(amotion, pc_maxaspd(sd), 2000);
+
 			if( (status_calc_aspd(bl, sc, false) + status->aspd_rate2) != 0 ) // RE ASPD percertage modifier
 				amotion -= ( amotion - pc_maxaspd(sd) ) * (status_calc_aspd(bl, sc, false) + status->aspd_rate2) / 100;
 

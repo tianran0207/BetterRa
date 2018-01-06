@@ -216,27 +216,44 @@ extern struct policies policie[MAX_POLICIES];
 
 struct bot_data {
 	unsigned running : 1;
-	struct block_list *bl;
+	struct map_session_data *sd;
 	struct bot_info {
 		unsigned short item_hp_id;
 		unsigned short item_sp_id;
+		unsigned short item_heal_delay;
+
 		unsigned short item_fly_id;
-		unsigned short item_id[MAX_BOT_ITEM_COUNT];
-		unsigned short item_delay[MAX_BOT_ITEM_COUNT];
+		unsigned short item_fly_delay;
+
+		unsigned short loot_item_id[MAX_BOT_ITEM_COUNT];
+		unsigned short loot_item_acttime;
+
 		unsigned short skill_id[MAX_BOT_SKILL_COUNT];
 		unsigned short skill_lv[MAX_BOT_SKILL_COUNT];
 		unsigned short skill_type[MAX_BOT_SKILL_COUNT];
+
 		unsigned short mob_id[MAX_BOT_MOB_COUNT];
+
+		unsigned short choose_target_acttime;
+		unsigned always_attack_master : 1; //不攻击link
+		unsigned counterattack : 1; //反击
+		int timeout_fly;
+		int find_fail_fly;
+		int ignore_same_ele;
+		int ignore_warp;
 	} info;
 	struct bot_state {
 		short dir;
-		unsigned attack_master : 1; //攻击主人
-		unsigned counterattack : 1; //反击
-		int event_fly_count;
+		unsigned offline : 1; //离线
+		int next_acttime;
+		int next_heal_delay;
+		int next_fly_delay;
+		int next_flytime;
 		int move_fail_count;
 		int move_count;
-		int next_useitemtime;
 	} state;
+	int target_id;
+	int min_chase;
 };
 
 struct map_session_data {
@@ -250,11 +267,14 @@ struct map_session_data {
 	unsigned int packet_account;
 	int policies;
 	int enemy_id;
+	int script_getbonus[6], script_getbonuskey[6];
 	//NOTE: When deciding to add a flag to state or special_state, take into consideration that state is preserved in
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct s_state {
 		unsigned bot : 1;
 		unsigned processhalt : 1;//processhalt
+		unsigned no_touch_warp : 1;
+		unsigned no_touch_script : 1;
 		unsigned int active : 1; //Marks active player (not active is logging in/out, or changing map servers)
 		unsigned int menu_or_input : 1;// if a script is waiting for feedback from the player
 		unsigned int dead_sit : 2;
