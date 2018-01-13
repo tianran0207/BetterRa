@@ -158,6 +158,7 @@ struct Script_Config {
 	const char *loadmap_event_name;
 	const char *baselvup_event_name;
 	const char *joblvup_event_name;
+	const char *stat_calc_filter_name;
 	const char *stat_calc_event_name;
 
 	// NPC related
@@ -360,7 +361,7 @@ enum e_script_state { RUN,STOP,END,RERUNLINE,GOTO,RETFUNC,CLOSE };
 struct script_state {
 	struct script_stack* stack;
 	int start,end;
-	int pos;
+	int pos, begin;
 	enum e_script_state state;
 	int rid,oid;
 	struct script_code *script;
@@ -2004,6 +2005,7 @@ void queryThread_log(char * entry, int length);
 #endif
 
 const char* get_first_func_name(unsigned char *buf);
+void script_bonus_calc(struct map_session_data *sd);
 bool script_check_RegistryVariableLength(int pType, const char *val, size_t* vlen);
 
 #endif /* _SCRIPT_HPP_ */

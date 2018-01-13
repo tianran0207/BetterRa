@@ -1986,6 +1986,82 @@ void clif_selllist(struct map_session_data *sd)
 	WFIFOSET(fd,WFIFOW(fd,2));
 }
 
+/// Presents list of items, that can be sold to an NPC shop (ZC_PC_SELL_ITEMLIST).
+/// 00c7 <packet len>.W { <index>.W <price>.L <overcharge price>.L }*
+void clif_selllist_filter(struct map_session_data *sd, const char *filter)
+{
+
+	int fd, i, c = 0, val, idx;
+	char filter_copy[1024], *point[2];
+	const char *p, *len;
+	unsigned short type_list[10], item_list[256];
+	int type_idx = 0, item_idx = 0, n;
+
+	nullpo_retv(sd);
+
+	if ((p = strstr(filter, "type:")) != NULL && (len = strchr(p, ';')) != NULL) {
+		safestrncpy(filter_copy, p + 5, min(len - p - 1, 1024));
+		point[0] = filter_copy;
+		do {
+			if ((point[1] = strchr(point[0], ',')) == NULL) {
+				type_list[type_idx++] = atoi(point[0]);
+				break;
+			}
+			*point[1] = '\0';
+			type_list[type_idx++] = atoi(point[0]);
+			point[0] = point[1] + 1;
+		} while (type_idx < 10);
+	}
+	if ((p = strstr(filter, "item:")) != NULL && (len = strchr(p, ';')) != NULL) {
+		safestrncpy(filter_copy, p + 5, min(len - p - 1, 1024));
+		point[0] = filter_copy;
+		do {
+			if ((point[1] = strchr(point[0], ',')) == NULL) {
+				item_list[item_idx++] = atoi(point[0]);
+				break;
+			}
+			*point[1] = '\0';
+			item_list[item_idx++] = atoi(point[0]);
+			point[0] = point[1] + 1;
+		} while (item_idx < 256);
+	}
+
+	fd = sd->fd;
+	WFIFOHEAD(fd, MAX_INVENTORY * 10 + 4);
+	WFIFOW(fd, 0) = 0xc7;
+
+	for (i = 0; i < MAX_INVENTORY; i++) {
+
+		if (sd->inventory.u.items_inventory[i].nameid == 0 || !sd->inventory_data[i])
+			continue;
+		idx = -1;
+		ARR_FIND(0, type_idx, n, sd->inventory_data[i]->type == type_list[n]);
+		if (n < type_idx) {
+			idx = i;
+		}
+		else {
+			ARR_FIND(0, item_idx, n, sd->inventory.u.items_inventory[i].nameid == item_list[n]);
+			if (n < item_idx) {
+				idx = i;
+			}
+		}
+		if (idx != -1) {
+			if (!pc_can_sell_item(sd, &sd->inventory.u.items_inventory[idx]))
+				continue;
+			val = sd->inventory_data[idx]->value_sell;
+			if (val < 0)
+				continue;
+			WFIFOW(fd, 4 + c * 10) = idx + 2;
+			WFIFOL(fd, 6 + c * 10) = val;
+			WFIFOL(fd, 10 + c * 10) = pc_modifysellvalue(sd, val);
+			c++;
+		}
+	}
+
+	WFIFOW(fd, 2) = c * 10 + 4;
+	WFIFOSET(fd, WFIFOW(fd, 2));
+}
+
 /// Closes shop (CZ_NPC_TRADE_QUIT).
 /// 09d4
 void clif_parse_NPCShopClosed(int fd, struct map_session_data *sd) {

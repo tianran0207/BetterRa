@@ -265,6 +265,7 @@ struct Script_Config script_config = {
 	"OnPCLoadMapEvent", //loadmap_event_name
 	"OnPCBaseLvUpEvent", //baselvup_event_name
 	"OnPCJobLvUpEvent", //joblvup_event_name
+	"OnPCStatCalcFilter",//stat_calc_filter_name
 	"OnPCStatCalcEvent", //stat_calc_event_name
 	// NPC related
 	"OnTouch_",	//ontouch_event_name (runs on first visible char to enter area, picks another char if the first char leaves)
@@ -9388,7 +9389,7 @@ BUILDIN_FUNC(bonus)
 			break;
 	}
 
-			return SCRIPT_CMD_SUCCESS;
+	return SCRIPT_CMD_SUCCESS;
 }
 
 BUILDIN_FUNC(autobonus)
@@ -16941,6 +16942,7 @@ BUILDIN_FUNC(callshop)
 		sd->state.callshop = 1;
 
 		switch (flag) {
+			case 10: clif_selllist_filter(sd, script_hasdata(st,4)?script_getstr(st, 4):""); break; //Sell window by filter
 			case 1: npc_buysellsel(sd,nd->bl.id,0); break; //Buy window
 			case 2: npc_buysellsel(sd,nd->bl.id,1); break; //Sell window
 			default: clif_npcbuysell(sd,nd->bl.id); break; //Show menu
@@ -25920,7 +25922,7 @@ struct script_function buildin_func[] = {
 	// [zBuffer] List of dynamic var commands --->
 	BUILDIN_DEF(getd,"s"),
 	BUILDIN_DEF(setd,"sv?"),
-	BUILDIN_DEF(callshop,"s?"), // [Skotlex]
+	BUILDIN_DEF(callshop,"s??"), // [Skotlex]
 	BUILDIN_DEF(npcshopitem,"sii*"), // [Lance]
 	BUILDIN_DEF(npcshopadditem,"sii*"),
 	BUILDIN_DEF(npcshopdelitem,"si*"),

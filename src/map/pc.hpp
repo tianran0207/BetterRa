@@ -267,7 +267,6 @@ struct map_session_data {
 	unsigned int packet_account;
 	int policies;
 	int enemy_id;
-	int script_getbonus[6], script_getbonuskey[6];
 	//NOTE: When deciding to add a flag to state or special_state, take into consideration that state is preserved in
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct s_state {
@@ -473,6 +472,10 @@ struct map_session_data {
 	} skillatk[MAX_PC_BONUS], skillusesprate[MAX_PC_BONUS], skillusesp[MAX_PC_BONUS], skillheal[MAX_PC_BONUS],
 		skillheal2[MAX_PC_BONUS], skillblown[MAX_PC_BONUS], skillcastrate[MAX_PC_BONUS],
 		skillfixcastrate[MAX_PC_BONUS], subskill[MAX_PC_BONUS];
+	struct s_bonus_multi {
+		unsigned short val1;
+		short val2, val3, val4, val5;
+	} skillforaoe[MAX_PC_BONUS], skilldamage[MAX_PC_BONUS]; //custom;
 	struct s_skill_bonus_i32 {
 		uint16 id;
 		int32 val;

@@ -512,6 +512,12 @@
 	export_parameter(ROULETTE_SILVER_VAR,SP_ROULETTE_SILVER);
 	export_parameter(ROULETTE_GOLD_VAR,SP_ROULETTE_GOLD);
 
+	export_constant2("bWeaponAddDamage", SP_WEAPON_ADD_DAMAGE);
+	export_constant2("bMagicAddDamage", SP_MAGIC_ADD_DAMAGE);
+	export_constant2("bMiscAddDamage", SP_MISC_ADD_DAMAGE);
+	export_constant2("bSkillDamage", SP_SKILL_DAMAGE);
+	export_constant2("bSkillForAOE", SP_SKILL_AOE);
+
 	export_constant2("bMaxHP",SP_MAXHP);
 	export_constant2("bMaxSP",SP_MAXSP);
 	export_constant2("bStr",SP_STR);
@@ -534,9 +540,6 @@
 	export_constant2("bFame",SP_FAME);
 	export_constant2("bUnbreakable",SP_UNBREAKABLE);
 
-	export_constant2("bWeaponAddDamage", SP_WEAPON_ADD_DAMAGE);
-	export_constant2("bMagicAddDamage", SP_MAGIC_ADD_DAMAGE);
-	export_constant2("bMiscAddDamage", SP_MISC_ADD_DAMAGE);
 	export_constant2("bAtkRange",SP_ATTACKRANGE);
 	export_constant2("bAtkEle",SP_ATKELE);
 	export_constant2("bDefEle",SP_DEFELE);

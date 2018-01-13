@@ -3308,6 +3308,10 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	if (++calculating > 10) // Too many recursive calls!
 		return -1;
 
+	npc_script_event(sd, NPCE_STATCALCFILTER);
+	if (sd->state.processhalt)
+		return 0;
+
 	// Remember player-specific values that are currently being shown to the client (for refresh purposes)
 	memcpy(b_skill, &sd->status.skill, sizeof(b_skill));
 
@@ -3425,6 +3429,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->addeff)
 		+ sizeof(sd->addeff_atked)
 		+ sizeof(sd->addeff_onskill)
+		+ sizeof(sd->skilldamage)
 		+ sizeof(sd->skillatk)
 		+ sizeof(sd->skillusesprate)
 		+ sizeof(sd->skillusesp)
@@ -3434,6 +3439,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->skillcastrate)
 		+ sizeof(sd->skillfixcastrate)
 		+ sizeof(sd->subskill)
+		+ sizeof(sd->skillforaoe)
 		+ sizeof(sd->skillcooldown)
 		+ sizeof(sd->skillfixcast)
 		+ sizeof(sd->skillvarcast)
@@ -3464,10 +3470,6 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	pc_delautobonus(sd,sd->autobonus3,ARRAYLENGTH(sd->autobonus3),true);
 
 	pc_itemgrouphealrate_clear(sd);
-
-	running_npc_stat_calc_event = true;
-	npc_script_event_atonce(sd, NPCE_STATCALC);
-	running_npc_stat_calc_event = false;
 
 	// Parse amulet
 	if (battle_config.enable_amulet) {
@@ -4192,6 +4194,10 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 			sd->bonus.crit_atk_rate += sc->data[SC_MTF_CRIDAMAGE]->val1;
 	}
 	status_cpy(&sd->battle_status, base_status);
+
+	running_npc_stat_calc_event = true;
+	npc_script_event_atonce(sd, NPCE_STATCALC);
+	running_npc_stat_calc_event = false;
 
 // ----- CLIENT-SIDE REFRESH -----
 	if(!sd->bl.prev) {

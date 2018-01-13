@@ -3869,6 +3869,24 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_SKILL_DAMAGE:
+		if (sd->state.lr_flag != 2) {
+			int i;
+			ARR_FIND(0, ARRAYLENGTH(sd->skilldamage), i, sd->skilldamage[i].val1 == 0 || (sd->skilldamage[i].val1 == type2 &&  sd->skilldamage[i].val2 == type3));
+			if (i == ARRAYLENGTH(sd->skilldamage))
+			{	//Better mention this so the array length can be updated. [Skotlex]
+				ShowError("pc_bonus2: SP_SKILL_DAMAGE: Reached max (%d) number of skills per character, bonus skill %d (+%d%%) lost.\n", ARRAYLENGTH(sd->skilldamage), type2, val);
+				break;
+			}
+			if (sd->skilldamage[i].val1 == type2)
+				sd->skilldamage[i].val3 += val;
+			else {
+				sd->skilldamage[i].val1 = type2;
+				sd->skilldamage[i].val2 = type3;
+				sd->skilldamage[i].val3 = val;
+			}
+		}
+		break;
 	case SP_ADD_MONSTER_DROP_ITEM: // bonus3 bAddMonsterDropItem,iid,r,n;
 		if(sd->state.lr_flag != 2)
 			pc_bonus_item_drop(sd->add_drop, ARRAYLENGTH(sd->add_drop), type2, 0, CLASS_NONE, type3, val);
@@ -3996,6 +4014,21 @@ void pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_SKILL_AOE:
+		if (sd->state.lr_flag != 2) {
+			int i;
+			ARR_FIND(0, ARRAYLENGTH(sd->skillforaoe), i, sd->skillforaoe[i].val1 == 0 || sd->skillforaoe[i].val1 == type2);
+			if (i == ARRAYLENGTH(sd->skillforaoe))
+			{	//Better mention this so the array length can be updated. [Skotlex]
+				ShowError("pc_bonus2: SP_SKILL_AOE: Reached max (%d) number of skills per character, bonus skill %d (+%d%%) lost.\n", ARRAYLENGTH(sd->skillforaoe), type2, val);
+				break;
+			}
+			sd->skillforaoe[i].val1 = type2;
+			sd->skillforaoe[i].val2 = type3;
+			sd->skillforaoe[i].val3 = type4;
+			sd->skillforaoe[i].val4 = val;
+		}
+		break;
 	case SP_AUTOSPELL: // bonus4 bAutoSpell,sk,y,n,i;
 		if(sd->state.lr_flag != 2)
 			pc_bonus_autospell(sd->autospell, ARRAYLENGTH(sd->autospell), (val&1?type2:-type2), (val&2?-type3:type3), type4, 0, current_equip_card_id);
@@ -12643,6 +12676,10 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap) {
 		battle_check_range(&sd->bl, bl, 12)
 		) { 
 		struct walkpath_data wpd;
+		struct status_change *sc = status_get_sc(bl);
+		if (sc && (sc->data[SC_HIDING] || sc->data[SC_CLOAKING] || sc->data[SC_TRICKDEAD] || sc->data[SC_CLOAKINGEXCEED]))
+			return 0;
+
 		if (!path_search(&wpd, sd->bl.m, sd->bl.x, sd->bl.y, bl->x, bl->y, sd->ud.state.walk_easy, CELL_CHKWALL)) // Count walk path cells
 			return 0;
 
@@ -12685,6 +12722,26 @@ static int pcbot_ai_sub_hard_lootsearch(struct block_list *bl, va_list ap) {
 	}
 	return 1;
 }
+
+static int pcbot_fly_away(struct bot_data *bd, unsigned int tick) {
+	int i;
+	struct map_session_data *sd = bd->sd;
+
+	if (tick == 0)
+		tick = gettick();
+
+	if ((i = pc_search_inventory(sd, bd->info.item_fly_id)) == -1) {
+		bd->info.find_fail_fly = 0;
+		bd->info.timeout_fly = 0;
+		return 0;
+	}
+	pc_useitem(sd, i);
+	bd->state.move_count = 0;
+	bd->state.next_flytime = tick + bd->info.timeout_fly * 1000;
+	bd->state.next_fly_delay = tick + bd->info.item_fly_delay;
+	return 1;
+}
+
 /*==========================================
 * pc_bot
 *------------------------------------------*/
@@ -12813,7 +12870,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 
 	map_foreachinallrange(pcbot_ai_sub_hard_activesearch, &sd->bl, 12, BL_CHAR, bd, &tbl);
 
-	if (tbl) {
+	if (tbl && pc_can_attack(sd, tbl->id)) {
 		if (!check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
 			unit_walktobl(&sd->bl, tbl, sd->ud.chaserange, sd->ud.state.walk_easy | 2);
 		}
@@ -12828,15 +12885,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 
 		//寻路达到最大失败次数
 		if (bd->state.next_fly_delay < tick && ((bd->info.timeout_fly && bd->state.next_flytime < tick) || (bd->info.find_fail_fly &&  bd->state.move_count > bd->info.find_fail_fly))) {
-			if ((i = pc_search_inventory(sd, bd->info.item_fly_id)) == -1) {
-				bd->info.find_fail_fly = 0;
-				bd->info.timeout_fly = 0;
-			}
-			else {
-				pc_useitem(sd, i);
-				bd->state.move_count = 0;
-				bd->state.next_flytime = tick + bd->info.timeout_fly * 1000;
-				bd->state.next_fly_delay = tick + bd->info.item_fly_delay;
+			if (pcbot_fly_away(bd , tick)) {
 				return 1;
 			}
 		}

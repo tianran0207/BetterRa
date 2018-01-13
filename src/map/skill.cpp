@@ -3158,6 +3158,24 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	dmg = battle_calc_attack(attack_type,src,bl,skill_id,skill_lv,flag&0xFFF);
 
+	if (sd) {
+		int i;
+		ARR_FIND(0, ARRAYLENGTH(sd->skilldamage), i, sd->skilldamage[i].val1 == skill_id);
+		if (i < ARRAYLENGTH(sd->skilldamage)) {
+			switch (sd->skilldamage[i].val2) {
+			case -1:
+				dmg.damage += (sd->skilldamage[i].val3 * skill_lv);
+				break;
+			case 0:
+				dmg.damage += sd->skilldamage[i].val3;
+				break;
+			default:
+				if(skill_lv == sd->skilldamage[i].val2)
+					dmg.damage += sd->skilldamage[i].val3;
+			}
+		}
+	}
+
 	//If the damage source is a unit, the damage is not delayed
 	if (src != dsrc && skill_id != GS_GROUNDDRIFT)
 		dmg.amotion = 0;
@@ -11124,6 +11142,29 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 	return -1;
 }
 
+int skill_castend_for_AOE(struct block_list *bl, va_list ap)
+{
+	struct unit_data *ud;
+	int maxcount;
+	int *count;
+
+	ud = va_arg(ap, struct unit_data *);
+	count = va_arg(ap, int *);
+	maxcount = va_arg(ap, int);
+
+	if (ud->skilltarget == bl->id)
+		return 0;
+
+	if ((*count) < maxcount) {
+		if (skill_get_casttype(ud->skill_id) == CAST_NODAMAGE)
+			skill_castend_nodamage_id(ud->bl, bl, ud->skill_id, ud->skill_lv, gettick(), 0);
+		else
+			skill_castend_damage_id(ud->bl, bl, ud->skill_id, ud->skill_lv, gettick(), 0);
+	}
+	(*count)++;
+	return 1;
+}
+
 /**
  * Check & process skill to target on castend. Determines if skill is 'damage' or 'nodamage'
  * @param tid
@@ -11340,6 +11381,13 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 			skill_castend_nodamage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
 		else
 			skill_castend_damage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
+
+		if (sd) {
+			int i, count = 0;
+			ARR_FIND(0, ARRAYLENGTH(sd->skillforaoe), i, sd->skillforaoe[i].val1 == ud->skill_id);
+			if (i < ARRAYLENGTH(sd->skillforaoe) && rnd() % 1000 < sd->skillforaoe[i].val4)
+				map_foreachinrange(skill_castend_for_AOE, target, sd->skillforaoe[i].val2, target->type, ud, &count, sd->skillforaoe[i].val3);
+		}
 
 		if (ud->skill_id != RA_CAMOUFLAGE)
 			status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER); // Applies to the first skill if active
