@@ -5854,7 +5854,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 				}
 
 				if (nk&NK_SPLASHSPLIT) { // Divide MATK in case of multiple targets skill
-					if (mflag > 0)
+					if (mflag>0)
 						ad.damage /= mflag;
 					else if (skill_id == NPC_EARTHQUAKE)
 						;
