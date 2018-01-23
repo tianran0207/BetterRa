@@ -93,6 +93,10 @@
 #define SCRIPT_SENDMAIL
 #define ATCOMMAND_FOLLOWPACKET      
 
+#ifdef DEBUG
+	#define BONUS_SKILL_AOE
+	#define SCRIPT_UNITSKILLTOWIDE
+#endif
 //----------------------------------
 //Ä¬ÈÏ¿ª¹Ø
 //----------------------------------

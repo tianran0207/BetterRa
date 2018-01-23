@@ -24,6 +24,12 @@ struct unit_data {
 	struct skill_timerskill *skilltimerskill[MAX_SKILLTIMERSKILL];
 	struct skill_unit_group *skillunit[MAX_SKILLUNITGROUP];
 	struct skill_unit_group_tickset skillunittick[MAX_SKILLUNITGROUPTICKSET];
+	struct skill_fixed {
+		int skill_id;
+		int64 damage;
+		short casttime;
+		unsigned type : 2;
+	}skill_fixed;
 	short attacktarget_lv;
 	short to_x, to_y;
 	short skillx, skilly;

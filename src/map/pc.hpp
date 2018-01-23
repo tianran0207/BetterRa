@@ -558,6 +558,12 @@ struct map_session_data {
 	} bonus;
 	// zeroed vars end here.
 
+	struct s_autoevent {
+		short rate, atk_type;
+		unsigned int times, maxtimes;
+		char event_name[24];
+	} autoevent[3];
+
 	int castrate,delayrate,hprate,sprate,dsprate;
 	int hprecov_rate,sprecov_rate;
 	int matk_rate;

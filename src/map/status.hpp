@@ -2097,7 +2097,7 @@ struct status_data {
 	short
 		str, agi, vit, int_, dex, luk,
 		eatk;
-	unsigned short
+	unsigned int
 		batk,
 #ifdef RENEWAL
 		watk,

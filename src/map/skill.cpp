@@ -2172,6 +2172,25 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 		}
 	}
 
+	if (sd && sd->autoevent[0].atk_type) {
+		int i;
+		for (i = 0; i < ARRAYLENGTH(sd->autoevent); i++)
+		{
+			if (sd->autoevent[i].rate && rnd() % 1000 >= sd->autoevent[i].rate)
+				continue;
+			if (!(((sd->autoevent[i].atk_type)&attack_type)&BF_WEAPONMASK &&
+				((sd->autoevent[i].atk_type)&attack_type)&BF_RANGEMASK &&
+				((sd->autoevent[i].atk_type)&attack_type)&BF_SKILLMASK))
+				continue; // one or more trigger conditions were not fulfilled
+			if (sd->autoevent[i].maxtimes && sd->autoevent[i].times < sd->autoevent[i].maxtimes) {
+				sd->autoevent[i].times++;
+				continue;
+			}
+			sd->autoevent[i].times = 1;
+			npc_event(sd, sd->autoevent[i].event_name, 0);
+		}
+	}
+
 	//Polymorph
 	if(sd && sd->bonus.classchange && attack_type&BF_WEAPON &&
 		dstmd && !status_has_mode(tstatus,MD_STATUS_IMMUNE) &&
@@ -3117,6 +3136,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	enum e_damage_type dmg_type;
 	bool shadow_flag = false;
 	bool additional_effects = true;
+	struct unit_data *ud;
 
 	if(skill_id > 0 && !skill_lv)
 		return 0;
@@ -3158,7 +3178,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	dmg = battle_calc_attack(attack_type,src,bl,skill_id,skill_lv,flag&0xFFF);
 
-	if (sd) {
+	if (src->type == BL_PC) {
 		int i;
 		ARR_FIND(0, ARRAYLENGTH(sd->skilldamage), i, sd->skilldamage[i].val1 == skill_id);
 		if (i < ARRAYLENGTH(sd->skilldamage)) {
@@ -3174,6 +3194,17 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 					dmg.damage += sd->skilldamage[i].val3;
 			}
 		}
+	}
+	ud = unit_bl2ud(src);
+	if (ud->skill_fixed.skill_id == skill_id || ud->skill_fixed.skill_id == -1) {
+		if (ud->skill_fixed.damage) {
+			if(ud->skill_fixed.type & 2)
+				dmg.damage = ud->skill_fixed.damage;
+			else
+				dmg.damage += ud->skill_fixed.damage;
+		}
+			
+		memset(&ud->skill_fixed, 0, sizeof(ud->skill_fixed));
 	}
 
 	//If the damage source is a unit, the damage is not delayed
@@ -3500,7 +3531,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	if (dmg.dmg_lv >= ATK_MISS && (type = skill_get_walkdelay(skill_id, skill_lv)) > 0)
 	{	//Skills with can't walk delay also stop normal attacking for that
 		//duration when the attack connects. [Skotlex]
-		struct unit_data *ud = unit_bl2ud(src);
+		//struct unit_data *ud = unit_bl2ud(src);
 		if (ud && DIFF_TICK(ud->attackabletime, tick + type) < 0)
 			ud->attackabletime = tick + type;
 	}

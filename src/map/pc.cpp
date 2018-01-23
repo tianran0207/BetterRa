@@ -4015,6 +4015,7 @@ void pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type
 
 	switch(type){
 	case SP_SKILL_AOE:
+#ifdef BONUS_SKILL_AOE
 		if (sd->state.lr_flag != 2) {
 			int i;
 			ARR_FIND(0, ARRAYLENGTH(sd->skillforaoe), i, sd->skillforaoe[i].val1 == 0 || sd->skillforaoe[i].val1 == type2);
@@ -4028,6 +4029,9 @@ void pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type
 			sd->skillforaoe[i].val3 = type4;
 			sd->skillforaoe[i].val4 = val;
 		}
+#else
+		not_free();
+#endif // BONUS_SKILL_AOE
 		break;
 	case SP_AUTOSPELL: // bonus4 bAutoSpell,sk,y,n,i;
 		if(sd->state.lr_flag != 2)

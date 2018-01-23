@@ -1889,6 +1889,14 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	casttime = skill_vfcastfix(src, casttime, skill_id, skill_lv);
 #endif
 
+	if (ud->skill_fixed.skill_id == skill_id || ud->skill_fixed.skill_id == -1) {
+		if (ud->skill_fixed.type & 1)
+			casttime = ud->skill_fixed.casttime;
+		else
+			casttime += ud->skill_fixed.casttime;
+		casttime = max(casttime, 0);
+	}
+
 	if(!ud->state.running) // Need TK_RUN or WUGDASH handler to be done before that, see bugreport:6026
 		unit_stop_walking(src, 1); // Even though this is not how official works but this will do the trick. bugreport:6829
 
@@ -1897,6 +1905,14 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 
 	// In official this is triggered even if no cast time.
 	clif_skillcasting(src, src->id, target_id, 0,0, skill_id, skill_get_ele(skill_id, skill_lv), casttime);
+
+	if (src->type != BL_PC && battle_config.display_skill_name && skill_db[skill_get_index(skill_id)]->desc[0]) {
+		// custom hack to make the mob display the skill, because these skills don't show the skill use text themselves
+		//NOTE: mobs don't have the sprite animation that is used when performing this skill (will cause glitches)
+		char temp[70];
+		snprintf(temp, sizeof(temp), "%s !!", skill_db[skill_get_index(skill_id)]->desc);
+		clif_showscript(src, temp, AREA);
+	}
 
 	if (sd && target->type == BL_MOB) {
 		TBL_MOB *md = (TBL_MOB*)target;
@@ -2112,6 +2128,14 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 #else
 	casttime = skill_vfcastfix(src, casttime, skill_id, skill_lv );
 #endif
+
+	if (ud->skill_fixed.skill_id == skill_id || ud->skill_fixed.skill_id == -1) {
+		if (ud->skill_fixed.type & 1)
+			casttime = ud->skill_fixed.casttime;
+		else
+			casttime += ud->skill_fixed.casttime;
+		casttime = max(casttime, 0);
+	}
 
 	ud->state.skillcastcancel = castcancel&&casttime>0?1:0;
 	if (!sd || sd->skillitem != skill_id || skill_get_cast(skill_id, skill_lv))

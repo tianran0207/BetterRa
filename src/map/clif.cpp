@@ -2000,7 +2000,7 @@ void clif_selllist_filter(struct map_session_data *sd, const char *filter)
 	nullpo_retv(sd);
 
 	if ((p = strstr(filter, "type:")) != NULL && (len = strchr(p, ';')) != NULL) {
-		safestrncpy(filter_copy, p + 5, min(len - p - 1, 1024));
+		safestrncpy(filter_copy, p + 5, min(len - p - 1, 1023));
 		point[0] = filter_copy;
 		do {
 			if ((point[1] = strchr(point[0], ',')) == NULL) {
@@ -2013,7 +2013,7 @@ void clif_selllist_filter(struct map_session_data *sd, const char *filter)
 		} while (type_idx < 10);
 	}
 	if ((p = strstr(filter, "item:")) != NULL && (len = strchr(p, ';')) != NULL) {
-		safestrncpy(filter_copy, p + 5, min(len - p - 1, 1024));
+		safestrncpy(filter_copy, p + 5, min(len - p - 1, 1023));
 		point[0] = filter_copy;
 		do {
 			if ((point[1] = strchr(point[0], ',')) == NULL) {
@@ -16614,6 +16614,8 @@ void clif_parse_Adopt_reply(int fd, struct map_session_data *sd){
 void clif_bossmapinfo(struct map_session_data *sd, struct mob_data *md, enum e_bossmap_info flag)
 {
 	int fd = sd->fd;
+
+	if(!md) return;
 
 	WFIFOHEAD(fd,70);
 	memset(WFIFOP(fd,0),0,70);

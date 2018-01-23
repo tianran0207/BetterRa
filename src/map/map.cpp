@@ -4826,6 +4826,10 @@ int do_init(int argc, char *argv[])
 	return 0;
 }
 
+void not_free(void){
+ ShowWarning("Sorry!!You don't customize this function.\n");
+}
+
 struct bot_data *map_id2bot(int id) {
 	if (id <= 0) return NULL;
 	return (struct bot_data *)idb_get(bot_db, id);

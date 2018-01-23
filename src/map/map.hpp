@@ -1022,5 +1022,5 @@ extern char market_table[32];
 extern char roulette_table[32];
 
 void do_shutdown(void);
-
+void not_free(void);
 #endif /* _MAP_HPP_ */

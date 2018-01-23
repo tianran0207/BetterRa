@@ -156,6 +156,7 @@ struct Battle_Config
 	int buff_for_tribe_member;
 	int enable_amulet;
 	int enable_coply;
+	int display_skill_name;
 	//------------------------------
 	int warp_point_debug;
 	int enable_critical;

@@ -18735,6 +18735,42 @@ BUILDIN_FUNC(unitskillusepos)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(unitskilluse)
+{
+	int unit_id, target_id, casttime, inf;
+	uint16 skill_id, skill_lv;
+	struct block_list* bl;
+	struct script_data *data;
+
+	unit_id = script_getnum(st, 2);
+	data = script_getdata(st, 3);
+	get_val(st, data); // Convert into value in case of a variable
+	skill_id = (data_isstring(data) ? skill_name2id(script_getstr(st, 3)) : script_getnum(st, 3));
+	skill_lv = script_getnum(st, 4);
+	target_id = (script_hasdata(st, 5) ? script_getnum(st, 5) : unit_id);
+	casttime = (script_hasdata(st, 6) ? script_getnum(st, 6) : 0);
+
+	if (script_rid2bl(2, bl)) {
+	
+		if (bl->type == BL_NPC) {
+			if (!((TBL_NPC*)bl)->status.hp)
+				status_calc_npc(((TBL_NPC*)bl), SCO_FIRST);
+			else
+				status_calc_npc(((TBL_NPC*)bl), SCO_NONE);
+		}
+		inf = skill_get_inf(skill_id);
+
+		if (inf & INF_GROUND_SKILL) {
+			struct block_list *tbl = map_id2bl(target_id);
+			unit_skilluse_pos2(bl, tbl->x, tbl->y, skill_id, skill_lv, casttime, skill_get_castcancel(skill_id));
+		}
+		else	//Offensive self skill? Could be stuff like GX.
+			unit_skilluse_id2(bl, target_id, skill_id, skill_lv, casttime, skill_get_castcancel(skill_id));
+	}
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 // <--- [zBuffer] List of unit control commands
 
 /// Pauses the execution of the script, detaching the player
@@ -25283,9 +25319,263 @@ BUILDIN_FUNC(getpolicyinfo)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-//---------------------------------------------------
-BUILDIN_FUNC(undef_func) {
-	ShowWarning("Sorry!!You don't customize this function, if you want to do this, please go to the official network customization.\n");
+struct skillwide {
+	struct block_list *src;
+	uint16 id, lv;
+	int16 x[8], y[8];
+	int type;
+	struct mob_data md;
+	struct view_data vd;
+};
+
+static int buildin_unitskillwide_sub(int tid, unsigned int tick, int id, intptr_t data)
+{
+	struct skillwide *info;
+	struct mob_data *md;
+	struct view_data *vd;
+	int i;
+	info = (struct skillwide*)data;
+
+	md = &info->md;
+	vd = &info->vd;
+	md->bl.id = INT_MAX;
+	md->bl.m = info->src->m;
+	md->bl.type = BL_MOB;
+	md->vd = vd;
+	md->db = mob_db(1627);
+
+	for (i = 0; i < 8; i++) {
+		if (info->x[i] == 0 || info->y[i] == 0)
+			continue;
+		if (map_getcell(info->src->m, info->x[i], info->y[i], CELL_CHKNOREACH))
+			continue;
+		md->bl.x = info->x[i];
+		md->bl.y = info->y[i];
+		clif_spawn(&md->bl);
+		clif_skill_poseffect(&md->bl, info->id, info->lv, md->bl.x, md->bl.y, gettick());
+		clif_clearunit_area(&md->bl, CLR_TRICKDEAD);
+		skill_unitsetting(info->src, info->id, info->lv, md->bl.x, md->bl.y, 0);
+	}
+	aFree(info);
+	return 1;
+}
+
+BUILDIN_FUNC(unitskilltowide)
+{
+#ifdef SCRIPT_UNITSKILLTOWIDE
+	int x, y, step, range, delay, steplen = 0, type, reallen, i = 0;
+	uint16 skill_id, skill_lv;
+	struct block_list* bl;
+	struct script_data *data;
+	struct skillwide *info;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_SUCCESS;
+
+	data = script_getdata(st, 3);
+	get_val(st, data); // Convert into value in case of a variable
+	skill_id = (data_isstring(data) ? skill_name2id(script_getstr(st, 3)) : script_getnum(st, 3));
+	skill_lv = script_getnum(st, 4);
+	type = script_getnum(st, 5);
+	step = script_getnum(st, 6);
+	range = script_getnum(st, 7);
+	delay = script_getnum(st, 8);
+
+	if ((skill_get_inf(skill_id)&INF_GROUND_SKILL) != INF_GROUND_SKILL)
+		return SCRIPT_CMD_SUCCESS;
+
+	if (bl->type == BL_NPC) {
+		if (!((TBL_NPC*)bl)->status.hp)
+			status_calc_npc(((TBL_NPC*)bl), SCO_FIRST);
+		else
+			status_calc_npc(((TBL_NPC*)bl), SCO_NONE);
+	}
+	x = bl->x;
+	y = bl->y;
+
+	while (steplen < range) {
+		steplen += step;
+		CREATE(info, struct skillwide, 1);
+		memset(info, 0, sizeof(struct skillwide));
+		info->id = skill_id;
+		info->lv = skill_lv;
+		info->src = bl;
+		if (type & 1) {
+			info->x[0] = x + steplen; info->y[0] = y;
+			info->x[1] = x - steplen; info->y[1] = y;
+		}
+		if (type & 2) {
+			info->x[2] = x; info->y[2] = y + steplen;
+			info->x[3] = x; info->y[3] = y - steplen;
+		}
+		reallen = (int)(steplen / 1.3);
+		if (type & 4) {
+			info->x[4] = x + reallen; info->y[4] = y + reallen;
+			info->x[5] = x - reallen; info->y[5] = y - reallen;
+		}
+		if (type & 8) {
+			info->x[6] = x - reallen; info->y[6] = y + reallen;
+			info->x[7] = x + reallen; info->y[7] = y - reallen;
+		}
+		if (delay == 0)
+			buildin_unitskillwide_sub(0, 0, bl->id, (intptr_t)info);
+		else
+			add_timer(gettick() + delay * steplen / step, buildin_unitskillwide_sub, bl->id, (intptr_t)info);
+	}
+#else
+	not_free();
+#endif // SCRIPT_UNITSKILLTOWIDE
+	return SCRIPT_CMD_SUCCESS;
+}
+
+static short buildin_getattacktype_sub(short atk_type) {
+
+	if (!(atk_type&BF_RANGEMASK))
+		atk_type |= BF_SHORT | BF_LONG; //No range defined? Use both.
+	if (!(atk_type&BF_WEAPONMASK))
+		atk_type |= BF_WEAPON; //No attack type defined? Use weapon.
+	if (!(atk_type&BF_SKILLMASK))
+	{
+		if (atk_type&(BF_MAGIC | BF_MISC))
+			atk_type |= BF_SKILL; //These two would never trigger without BF_SKILL
+		if (atk_type&BF_WEAPON)
+			atk_type |= BF_NORMAL | BF_SKILL;
+	}
+	return atk_type;
+}
+
+BUILDIN_FUNC(addatkevent) {
+	short rate;
+	short atk_type = 0;
+	unsigned int maxtimes = 0;
+	int i;
+	TBL_PC* sd;
+	const char *event_name;
+
+	if (!script_charid2sd(6, sd))
+		return SCRIPT_CMD_FAILURE; // no player attached
+
+	atk_type = buildin_getattacktype_sub(script_getnum(st, 2));
+	rate = script_getnum(st, 3);
+	maxtimes = script_getnum(st, 4);
+	event_name = script_getstr(st, 5);
+
+	ARR_FIND(0, ARRAYLENGTH(sd->autoevent), i, sd->autoevent[i].atk_type == atk_type);
+	if (i == ARRAYLENGTH(sd->autoevent)) {
+		ARR_FIND(0, ARRAYLENGTH(sd->autoevent), i, sd->autoevent[i].atk_type == 0);
+	}
+	if (i == ARRAYLENGTH(sd->autoevent)) {
+		ShowWarning("buildin_addatkevent: Reached max (%d) number of atk event per character! (char_id:%d)\n", ARRAYLENGTH(sd->autoevent), sd->status.char_id);
+		return SCRIPT_CMD_FAILURE;
+	}
+	sd->autoevent[i].atk_type = atk_type;
+	sd->autoevent[i].maxtimes = maxtimes;
+	sd->autoevent[i].times = 0;
+	sd->autoevent[i].rate = rate;
+	safestrncpy(sd->autoevent[i].event_name, event_name, sizeof(sd->autoevent[i].event_name));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(delatkevent) {
+	short atk_type = 0;
+	int i,j;
+	TBL_PC* sd;
+
+	if (!script_charid2sd(3,sd))
+		return SCRIPT_CMD_FAILURE; // no player attached
+
+	atk_type = buildin_getattacktype_sub(script_getnum(st, 2));
+
+	ARR_FIND(0, ARRAYLENGTH(sd->autoevent), i, sd->autoevent[i].atk_type == atk_type);
+	if (i == ARRAYLENGTH(sd->autoevent)) {
+		return SCRIPT_CMD_SUCCESS;
+	}
+	memset(&sd->autoevent[i], 0, sizeof(sd->autoevent[i]));
+	for (j = ARRAYLENGTH(sd->autoevent) - 1; j > 0; j--) {
+		if (sd->autoevent[j].atk_type != 0) {
+			memcpy(&sd->autoevent[i], &sd->autoevent[j], sizeof(sd->autoevent[j]));
+			memset(&sd->autoevent[j], 0, sizeof(sd->autoevent[j]));
+		}
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getatkevent) {
+	short atk_type = 0;
+	int i;
+	TBL_PC* sd;
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	atk_type = buildin_getattacktype_sub(script_getnum(st, 2));
+
+	ARR_FIND(0, ARRAYLENGTH(sd->autoevent), i, sd->autoevent[i].atk_type == atk_type);
+	if (i == ARRAYLENGTH(sd->autoevent)) {
+		pc_setreg(sd, add_str("@times"), 0);
+		pc_setreg(sd, add_str("@maxtimes"), 0);
+		pc_setreg(sd, add_str("@rate"), 0);
+		pc_setregstr(sd, add_str("@event_name"), "");
+		return SCRIPT_CMD_SUCCESS;
+	}
+	pc_setreg(sd, add_str("@times"), sd->autoevent[i].times);
+	pc_setreg(sd, add_str("@maxtimes"), sd->autoevent[i].maxtimes);
+	pc_setreg(sd, add_str("@rate"), sd->autoevent[i].rate);
+	pc_setregstr(sd, add_str("@event_name"), sd->autoevent[i].event_name);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(gettarget) {
+	TBL_PC* sd;
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, sd->ud.target);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(unitskillfixed) {
+
+	struct block_list *bl;
+	struct unit_data *ud;
+	
+	if ((bl = map_id2bl(script_getnum(st, 2))) == NULL) {
+		ShowError("buildin_unitskillfixed: Invalid Game ID '%d'", script_getnum(st, 2));
+		return SCRIPT_CMD_FAILURE;
+	}
+	ud = unit_bl2ud(bl);
+	ud->skill_fixed.skill_id = script_getnum(st, 3);
+	ud->skill_fixed.damage = script_getnum(st, 4);
+	ud->skill_fixed.casttime = script_getnum(st, 5);
+	ud->skill_fixed.type = script_getnum(st, 6);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(unitskillfixedreset) {
+
+	struct block_list *bl;
+	struct unit_data *ud;
+
+	if ((bl = map_id2bl(script_getnum(st, 2))) == NULL) {
+		ShowError("buildin_unitskillfixed: Invalid Game ID '%d'", script_getnum(st, 2));
+		return SCRIPT_CMD_FAILURE;
+	}
+	ud = unit_bl2ud(bl);
+	ud->skill_fixed.skill_id = 0;
+	ud->skill_fixed.damage = 0;
+	ud->skill_fixed.casttime = 0;
+	ud->skill_fixed.type = 0;
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(unitheadmsg) {
+
+	struct block_list *bl;
+	if ((bl = map_id2bl(script_getnum(st, 2))) == NULL) {
+		ShowError("buildin_unitskillfixed: Invalid Game ID '%d'", script_getnum(st, 2));
+		return SCRIPT_CMD_FAILURE;
+	}
+	clif_showscript(bl, script_getstr(st, 3), (enum send_target)script_getnum(st, 4));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -25528,7 +25818,6 @@ BUILDIN_FUNC(bot_stop)
 
 	return SCRIPT_CMD_SUCCESS;
 }
-
 
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
@@ -26228,6 +26517,15 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unloadduplicate, "s"),
 	BUILDIN_DEF2(unloadduplicate, "unloadcopynpc", "s"),
 	BUILDIN_DEF(is_attach, "?"),
+	BUILDIN_DEF(unitskilltowide, "iviiiii"),
+	BUILDIN_DEF(addatkevent, "iiis?"),
+	BUILDIN_DEF(delatkevent, "i?"),
+	BUILDIN_DEF(getatkevent, "i?"),
+	BUILDIN_DEF(gettarget, "?"),
+	BUILDIN_DEF(unitskilluse, "ivi??"),
+	BUILDIN_DEF(unitskillfixed, "iiiii"),
+	BUILDIN_DEF(unitskillfixedreset, "i"),
+	BUILDIN_DEF(unitheadmsg, "isi"),
 	//邮箱系统
 #ifdef SCRIPT_SENDMAIL
 	BUILDIN_DEF(mail_create, "sss?"),
@@ -26262,26 +26560,13 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bot_run, ""),
 	BUILDIN_DEF(bot_stop, "?"),
 	BUILDIN_DEF(is_bot, "?"),
-
-//路点系统
-#ifdef BRA_STEP_PATH
+	//路点系统
 	BUILDIN_DEF(setsteppath, "iv"),
-#else
-	BUILDIN_DEF2(undef_func,"setsteppath", "iv"),
-#endif
-
-//阵营系统
-#ifdef BRA_TRIBE_TEAM
+	//阵营系统
 	BUILDIN_DEF(tribe_setteam, "i?"),
 	BUILDIN_DEF(tribe_mobteam, "i"),
 	BUILDIN_DEF(tribe_getteam, "?"),
 	BUILDIN_DEF(tribe_monster, "isiisi?"),
-#else
-	BUILDIN_DEF2(undef_func, "tribe_setteam", "i?"),
-	BUILDIN_DEF2(undef_func, "tribe_mobteam", "i"),
-	BUILDIN_DEF2(undef_func, "tribe_getteam", "?"),
-	BUILDIN_DEF2(undef_func, "tribe_monster", "isiisi?"),
-#endif
 
 	{NULL,NULL,NULL},
 };

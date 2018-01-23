@@ -1,3 +1,34 @@
+
+#define xjj
+//#define flx
+
+#ifdef flx
+
+#undef C_PACKETVER 
+#define C_PACKETVER 20150916
+
+#undef C_PRERE 
+#define C_PRERE 1
+
+#undef C_MIN_GUILD 
+#define C_MIN_GUILD 20
+
+#undef C_MAX_ZENY 
+#define C_MAX_ZENY 2147483647
+
+#undef C_MIN_STORAGE 
+#define C_MIN_STORAGE 600
+
+#endif
+
+
+
+
+
+
+
+
+#ifdef xjj
 #undef C_VIP_ENABLE
 #define C_VIP_ENABLE 1 
 
@@ -36,3 +67,8 @@
 
 #undef C_MAX_MOB_DB 
 #define C_MAX_MOB_DB 10000
+
+#undef BONUS_SKILL_AOE 
+#define BONUS_SKILL_AOE
+
+#endif
