@@ -379,6 +379,7 @@ struct map_session_data {
 	struct s_progressbar {
 		int npc_id;
 		unsigned int timeout;
+		unsigned doevent : 1;
 	} progressbar; //Progress Bar [Inkfish]
 
 	struct s_ignore {

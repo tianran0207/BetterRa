@@ -206,6 +206,7 @@ struct Script_Config {
 	const char* instance_init_event_name;
 	const char* instance_destroy_event_name;
 
+	const char* progress_abort_event_name;
 	// Homunculus related
 	const char* homunculus_lvup_event_name;
 	const char* homunculus_call_event_name;

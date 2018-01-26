@@ -10823,6 +10823,11 @@ void clif_progressbar_abort(struct map_session_data * sd)
 {
 	int fd = sd->fd;
 
+	if (sd->progressbar.doevent) {
+		npc_script_event(sd, NPCE_PROABORT);
+		sd->progressbar.doevent = 0;
+	}
+
 	WFIFOHEAD(fd,packet_len(0x2f2));
 	WFIFOW(fd,0) = 0x2f2;
 	WFIFOSET(fd,packet_len(0x2f2));
@@ -10839,6 +10844,7 @@ void clif_parse_progressbar(int fd, struct map_session_data * sd)
 		sd->st->state = END;
 
 	sd->progressbar.npc_id = sd->progressbar.timeout = 0;
+	sd->progressbar.doevent = 0;
 	sd->state.workinprogress = WIP_DISABLE_NONE;
 	npc_scriptcont(sd, npc_id, false);
 }

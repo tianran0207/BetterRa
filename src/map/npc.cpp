@@ -4548,6 +4548,8 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.stat_calc_event_name;
 
 //custom event
+	case NPCE_PROABORT:
+		return script_config.progress_abort_event_name;
 	case NPCE_HOMLVUP:
 		return script_config.homunculus_lvup_event_name;
 	case NPCE_HOMCALL:

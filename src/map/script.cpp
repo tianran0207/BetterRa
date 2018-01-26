@@ -307,6 +307,8 @@ struct Script_Config script_config = {
 	// Instance related
 	"OnInstanceInit", //instance_init_event_name (is executed right after instance creation)
 	"OnInstanceDestroy", //instance_destroy_event_name (is executed right before instance destruction)
+	
+	"OnPCProgressAbortEvent",					 
 	// 
 	"OnPCHomLvUpEvent",
 	"OnPCHomCallEvent",
@@ -24093,8 +24095,16 @@ BUILDIN_FUNC(getsameipinfo)
 {
 	TBL_PC* pl_sd;
 	struct s_mapiterator* iter;
-	uint32 ip = host2ip(script_getstr(st, 2));
+	uint32 ip;
 	int i = 0;
+	if (script_hasdata(st, 2)) {
+		ip = host2ip(script_getstr(st, 2));
+	}
+	else {
+		if (!script_rid2sd(pl_sd))
+			return SCRIPT_CMD_SUCCESS;
+		ip = session[pl_sd->fd]->client_addr;
+	}
 	if (ip == 0) {
 		ShowError("buildin_getsameipinfo: Invalid IP('%s')", script_getstr(st, 2));
 		return SCRIPT_CMD_FAILURE;
@@ -25568,16 +25578,97 @@ BUILDIN_FUNC(unitskillfixedreset) {
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(unitheadmsg) {
-
-	struct block_list *bl;
-	if ((bl = map_id2bl(script_getnum(st, 2))) == NULL) {
-		ShowError("buildin_unitskillfixed: Invalid Game ID '%d'", script_getnum(st, 2));
+BUILDIN_FUNC(when_progressbar_abort_doevent) {
+	TBL_PC* sd;
+	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
-	}
-	clif_showscript(bl, script_getstr(st, 3), (enum send_target)script_getnum(st, 4));
+	sd->progressbar.doevent = 1;
 	return SCRIPT_CMD_SUCCESS;
 }
+
+/**
+* 让指定GID的怪物使用技能
+* mobskill <GID>,<Skill ID>,<Skill Lv>,<Cast Time>,<Cancelable>,<Target Type>{,<Offset x>,<Offset y>};
+* mobskill <GID>,<"Skill Name">,<Skill Lv>,<Cast Time>,<Cancelable>,<Target Type>{,<Offset x>,<Offset y>};
+* @param GID: 需要释放技能的怪物GID
+* @param Skill ID/"Skill Name": 技能id/技能名称
+* @param Skill Lv: 技能等级
+* @param Cast Time: 咏唱时间(秒)
+* @param Cancelable: 是否能被打断
+*   0: 不可打断
+*   1: 可以打断
+* @param Target Type: 目标类型
+*   0: 自己
+*   1: 怪物当前目标
+*   2: 怪物的主人
+*   3: 随机目标
+* @param Offset x: 地面技能相对于目标坐标x轴的偏移量
+* @param Offset y: 地面技能相对于目标坐标y轴的偏移量
+* @author [kuku]
+*/
+BUILDIN_FUNC(mobskill)
+{
+	struct script_data *data;
+	struct block_list *bl, *tbl;
+	TBL_MOB *md;
+	int skill_id, skill_lv, casttime, target, cancel, offsetx, offsety;
+
+	data = script_getdata(st, 3);
+	get_val(st, data); // Convert into value in case of a variable
+	skill_id = (data_isstring(data) ? skill_name2id(script_getstr(st, 3)) : script_getnum(st, 3));
+
+	if ((skill_lv = script_getnum(st, 4)) > battle_config.mob_max_skilllvl)
+		skill_lv = battle_config.mob_max_skilllvl;
+
+	casttime = script_getnum(st, 5);
+	cancel = script_getnum(st, 6);
+	target = script_getnum(st, 7);
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_SUCCESS;
+
+	//GID对应对象必须为怪物
+	if (bl->type != BL_MOB)
+		return SCRIPT_CMD_SUCCESS;
+
+	md = (TBL_MOB*)bl;
+
+	// 0:自己, 1:目标, 2:主人, default:随机目标
+	switch (target) {
+	case 0:
+		tbl = map_id2bl(md->bl.id);
+		break;
+	case 1:
+		tbl = map_id2bl(md->target_id);
+		break;
+	case 2:
+		tbl = map_id2bl(md->master_id);
+		break;
+	default:
+		tbl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md), skill_get_range2(&md->bl, skill_id, skill_lv, true));
+		break;
+	}
+
+	//没有目标则退出
+	if (!tbl)
+		return SCRIPT_CMD_SUCCESS;
+
+	//如果怪物正在咏唱则取消目前释放的技能
+	if (md->ud.skilltimer != INVALID_TIMER)
+		unit_skillcastcancel(bl, 0);
+
+	//如果是地面技能则在目标位置或指定偏移的位置释放技能,否则使用单体技能
+	if (skill_get_casttype(skill_id) == CAST_GROUND) {
+		offsetx = script_hasdata(st, 8) ? script_getnum(st, 8) : 0;
+		offsety = script_hasdata(st, 9) ? script_getnum(st, 9) : 0;
+		unit_skilluse_pos2(&md->bl, tbl->x + offsetx, tbl->y + offsety, skill_id, skill_lv, casttime * 1000, cancel);
+	}
+	else
+		unit_skilluse_id2(&md->bl, tbl->id, skill_id, skill_lv, casttime * 1000, cancel);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 
 BUILDIN_FUNC(setsteppath) {
 
@@ -26487,7 +26578,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mesclear, ""),
 	BUILDIN_DEF(cap_value, "iii"),
 	BUILDIN_DEF(mobremove, "i"),
-	BUILDIN_DEF(getsameipinfo,"s"),
+	BUILDIN_DEF(getsameipinfo,"?"),
 	BUILDIN_DEF(logout,"i?"),
 	BUILDIN_DEF(searcharray, "rv"),
 	BUILDIN_DEF(countinventory,"i"),
@@ -26525,7 +26616,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unitskilluse, "ivi??"),
 	BUILDIN_DEF(unitskillfixed, "iiiii"),
 	BUILDIN_DEF(unitskillfixedreset, "i"),
-	BUILDIN_DEF(unitheadmsg, "isi"),
+	BUILDIN_DEF(when_progressbar_abort_doevent, "?"),
+	BUILDIN_DEF(mobskill, "iviiii??"),
+
 	//邮箱系统
 #ifdef SCRIPT_SENDMAIL
 	BUILDIN_DEF(mail_create, "sss?"),

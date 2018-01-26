@@ -89,24 +89,6 @@
 	@times 攻击过多少次, 当达到 @maxtimes 时清零
 	@rate 攻击触发事件的概率
 	@event_name 攻击触发事件的名称
-	
----------------------------------------
-
-*unitheadmsg <GID>,"<文本>",<范围>;
-
-在GID对应的对象的头上面显示一串文字, 类似于npctalk, 区别在于显示的文字不会出现在你的聊天对话框中.
-
-文本:
-	气泡显示的内容.
-
-范围:
-	AREA,				// 范围内
-	AREA_WOS,			// 范围内除去自己
-	AREA_WOC,			// area, without chatrooms
-	AREA_WOSC,			// area, without own chatroom
-	AREA_CHAT_WOC,		// hearable area, without chatrooms
-	CHAT,				// current chatroom
-	CHAT_WOS,			// current chatroom, without self
 
 ---------------------------------------
 
@@ -240,9 +222,9 @@
 
 如果执行成功的话, 会赋予以下数组在线玩家的信息:
 
-@sameip_aid[]		使用指定IP在线的玩家账号编号数组(AccountID)
-@sameip_cid[]		使用指定IP在线的玩家角色编号数组(CharID)
-@sameip_name$[]		使用指定IP在线的玩家角色名数组
+$@sameip_aid[]		使用指定IP在线的玩家账号编号数组(AccountID)
+$@sameip_cid[]		使用指定IP在线的玩家角色编号数组(CharID)
+$@sameip_name$[]		使用指定IP在线的玩家角色名数组
 
 返回值及 @sameip_amount 变量都会赋予目前使用指定IP登录的玩家个数.
 
