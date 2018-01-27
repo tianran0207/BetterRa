@@ -2902,6 +2902,7 @@
 	export_constant(W_DOUBLE_DS);
 	export_constant(W_DOUBLE_DA);
 	export_constant(W_DOUBLE_SA);
+	export_constant(MAX_WEAPON_TYPE_ALL);
 
 	/* ammunition types */
 	export_constant(A_ARROW);
@@ -4955,6 +4956,10 @@
 	export_constant_npc(JT_4_M_SNOWMAN_R);
 	export_constant_npc(JT_4_M_SNOWMAN_G);
 	export_constant_npc(JT_WARPEFFECTNPC);
+	export_constant_npc(JT_4_F_DANGDANG);
+	export_constant_npc(JT_4_M_DANGDANG);
+	export_constant_npc(JT_4_F_DANGDANG1);
+	export_constant_npc(JT_4_LEAFCAT);
 	#undef export_constant_npc
 
 	/* special effects */
@@ -6115,6 +6120,10 @@
 	export_constant(HAT_EF_QSCARABA);
 	export_constant(HAT_EF_FSTONE);
 	export_constant(HAT_EF_MAGICCIRCLE);
+
+	/* pet catch */
+	export_constant(PET_CATCH_UNIVERSAL);
+	export_constant(PET_CATCH_UNIVERSAL_ITEM);
 
 	#undef export_constant
 	#undef export_constant2

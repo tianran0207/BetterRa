@@ -738,12 +738,13 @@ int pc_equippoint_sub(struct map_session_data *sd,struct item_data* id){
 		return 0; //Not equippable by players.
 
 	ep = id->equip;
-	if(id->look == W_DAGGER	||
-		id->look == W_1HSWORD ||
-		id->look == W_1HAXE) {
-		if(ep == EQP_HAND_R && (pc_checkskill(sd,AS_LEFT) > 0 || (sd->class_&MAPID_UPPERMASK) == MAPID_ASSASSIN ||
-			(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO))//Kagerou and Oboro can dual wield daggers. [Rytech]
-			return EQP_ARMS;
+	if(id->look == W_DAGGER	|| id->look == W_1HSWORD || id->look == W_1HAXE) {
+		if(pc_checkskill(sd,AS_LEFT) > 0 || (sd->class_&MAPID_UPPERMASK) == MAPID_ASSASSIN || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO) { //Kagerou and Oboro can dual wield daggers. [Rytech]
+			if (ep == EQP_WEAPON)
+				return EQP_ARMS;
+			if (ep == EQP_SHADOW_WEAPON)
+				return EQP_SHADOW_ARMS;
+		}
 	}
 	return ep;
 }
@@ -1098,6 +1099,10 @@ uint8 pc_isequip(struct map_session_data *sd,int n)
 	if(item->sex != 2 && sd->status.sex != item->sex)
 		return ITEM_EQUIP_ACK_FAIL;
 
+	//fail to equip if item is restricted
+	if (!battle_config.allow_equip_restricted_item && itemdb_isNoEquip(item, sd->bl.m))
+		return ITEM_EQUIP_ACK_FAIL;
+
 	if (sd->sc.count) {
 		if(item->equip & EQP_ARMS && item->type == IT_WEAPON && sd->sc.data[SC_STRIPWEAPON]) // Also works with left-hand weapons [DracoRPG]
 			return ITEM_EQUIP_ACK_FAIL;
@@ -1130,15 +1135,11 @@ uint8 pc_isequip(struct map_session_data *sd,int n)
 		}
 	}
 
-	//fail to equip if item is restricted
-	if (!battle_config.allow_equip_restricted_item && itemdb_isNoEquip(item, sd->bl.m))
+	//Not equipable by class. [Skotlex]
+	if (!(1ULL << (sd->class_&MAPID_BASEMASK)&item->class_base[(sd->class_&JOBL_2_1) ? 1 : ((sd->class_&JOBL_2_2) ? 2 : 0)]))
 		return ITEM_EQUIP_ACK_FAIL;
 
-	//Not equipable by class. [Skotlex]
-	if (!(1ULL<<(sd->class_&MAPID_BASEMASK)&item->class_base[(sd->class_&JOBL_2_1)?1:((sd->class_&JOBL_2_2)?2:0)]))
-		return ITEM_EQUIP_ACK_FAIL;
-	
-	if (!pc_isItemClass(sd,item))
+	if (!pc_isItemClass(sd, item))
 		return ITEM_EQUIP_ACK_FAIL;
 
 	return ITEM_EQUIP_ACK_OK;
@@ -1346,6 +1347,8 @@ bool pc_authok(struct map_session_data *sd, uint32 login_id2, time_t expiration_
 	sd->hatEffectIDs = NULL;
 	sd->hatEffectCount = 0;
 #endif
+
+	sd->catch_target_class = PET_CATCH_FAIL;
 
 	// Check EXP overflow, since in previous revision EXP on Max Level can be more than 'official' Max EXP
 	if (pc_is_maxbaselv(sd) && sd->status.base_exp > MAX_LEVEL_BASE_EXP) {
@@ -5158,8 +5161,8 @@ int pc_useitem(struct map_session_data *sd,int n)
 
 	sd->itemid = item.nameid;
 	sd->itemindex = n;
-	if(sd->catch_target_class != -1) //Abort pet catching.
-		sd->catch_target_class = -1;
+	if(sd->catch_target_class != PET_CATCH_FAIL) //Abort pet catching.
+		sd->catch_target_class = PET_CATCH_FAIL;
 
 	amount = item.amount;
 	script = id->script;
@@ -5584,24 +5587,26 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 	sd->state.warping = 1;
 	sd->state.workinprogress = WIP_DISABLE_NONE;
 
-	if(map[sd->bl.m].instance_id && sd->state.changemap && !map[m].instance_id) {
-		bool instance_found = false;
-		struct party_data *p = NULL;
-		struct guild *g = NULL;
-
-		if (sd->instance_id) {
-			instance_delusers(sd->instance_id);
-			instance_found = true;
-		}
-		if (!instance_found && sd->status.party_id && (p = party_search(sd->status.party_id)) != NULL && p->instance_id) {
-			instance_delusers(p->instance_id);
-			instance_found = true;
-		}
-		if (!instance_found && sd->status.guild_id && (g = guild_search(sd->status.guild_id)) != NULL && g->instance_id)
-			instance_delusers(g->instance_id);
-	}
 	if( sd->state.changemap ) { // Misc map-changing settings
 		int i;
+
+		if(map[sd->bl.m].instance_id && !map[m].instance_id) {
+			bool instance_found = false;
+			struct party_data *p = NULL;
+			struct guild *g = NULL;
+
+			if (sd->instance_id) {
+				instance_delusers(sd->instance_id);
+				instance_found = true;
+			}
+			if (!instance_found && sd->status.party_id && (p = party_search(sd->status.party_id)) != NULL && p->instance_id) {
+				instance_delusers(p->instance_id);
+				instance_found = true;
+			}
+			if (!instance_found && sd->status.guild_id && (g = guild_search(sd->status.guild_id)) != NULL && g->instance_id)
+				instance_delusers(g->instance_id);
+		}
+
 		sd->state.pmap = sd->bl.m;
 		if (sd->sc.count) { // Cancel some map related stuff.
 			if (sd->sc.data[SC_JAILED])
@@ -5647,12 +5652,19 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 	{
 		uint32 ip;
 		uint16 port;
+		struct script_state *st;
+
 		//if can't find any map-servers, just abort setting position.
 		if(!sd->mapindex || map_mapname2ipport(mapindex,&ip,&port))
 			return SETPOS_NO_MAPSERVER;
 
-		if (sd->npc_id)
-			npc_event_dequeue(sd);
+		if (sd->npc_id){
+			npc_event_dequeue(sd,false);
+			st = sd->st;
+		}else{
+			st = nullptr;
+		}
+
 		npc_script_event(sd, NPCE_LOGOUT);
 		//remove from map, THEN change x/y coordinates
 		unit_remove_map_pc(sd,clrtype);
@@ -5665,6 +5677,11 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 
 		//Free session data from this map server [Kevin]
 		unit_free_pc(sd);
+
+		if( st ){
+			// Has to be done here, because otherwise unit_free_pc will free the stack already
+			st->state = END;
+		}
 
 		return SETPOS_OK;
 	}
@@ -9923,16 +9940,21 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos)
 			pos = sd->equip_index[EQI_ACC_R] >= 0 ? EQP_ACC_L : EQP_ACC_R;
 	}
 
+	if(pos == EQP_ARMS && id->equip == EQP_HAND_R) { //Dual wield capable weapon.
+		pos = (req_pos&EQP_ARMS);
+		if (pos == EQP_ARMS) //User specified both slots, pick one for them.
+			pos = sd->equip_index[EQI_HAND_R] >= 0 ? EQP_HAND_L : EQP_HAND_R;
+	}
+
 	if(pos == EQP_SHADOW_ACC) { // Shadow System
 		pos = req_pos&EQP_SHADOW_ACC;
 		if (pos == EQP_SHADOW_ACC)
 			pos = sd->equip_index[EQI_SHADOW_ACC_L] >= 0 ? EQP_SHADOW_ACC_R : EQP_SHADOW_ACC_L;
 	}
-
-	if(pos == EQP_ARMS && id->equip == EQP_HAND_R) { //Dual wield capable weapon.
-		pos = (req_pos&EQP_ARMS);
-		if (pos == EQP_ARMS) //User specified both slots, pick one for them.
-			pos = sd->equip_index[EQI_HAND_R] >= 0 ? EQP_HAND_L : EQP_HAND_R;
+	if(pos == EQP_SHADOW_ARMS && id->equip == EQP_SHADOW_WEAPON) {
+		pos = (req_pos&EQP_SHADOW_ARMS);
+		if( pos == EQP_SHADOW_ARMS )
+			pos = (sd->equip_index[EQI_SHADOW_WEAPON] >= 0 ? EQP_SHADOW_SHIELD : EQP_SHADOW_WEAPON);
 	}
 
 	if (pos&EQP_HAND_R && battle_config.use_weapon_skill_range&BL_PC) {
@@ -11833,7 +11855,7 @@ void pc_check_expiration(struct map_session_data *sd) {
 		char tmpstr[1024];
 
 		strftime(tmpstr,sizeof(tmpstr) - 1,msg_txt(sd,501),localtime(&exp_time)); // "Your account time limit is: %d-%m-%Y %H:%M:%S."
-		clif_wis_message(sd->fd,wisp_server_name,tmpstr,strlen(tmpstr) + 1);
+		clif_wis_message(sd,wisp_server_name,tmpstr,strlen(tmpstr) + 1,0);
 
 		pc_expire_check(sd);
 	}
