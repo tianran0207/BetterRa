@@ -5145,7 +5145,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 			amotion = (1000 - 4 * status->agi - status->dex) * ((TBL_HOM*)bl)->homunculusDB->baseASPD / 1000;
 
 			amotion = status_calc_aspd_rate(bl, sc, amotion);
-				amotion = amotion * status->aspd_rate / 1000;
+			amotion = amotion * status->aspd_rate / 1000;
 #endif
 
 			amotion = status_calc_fix_aspd(bl, sc, amotion);
@@ -5171,13 +5171,13 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 			amotion += sd->bonus.aspd_add;
 #endif
 			amotion = status_calc_fix_aspd(bl, sc, amotion);
-
 			status->amotion = cap_value(amotion,pc_maxaspd(sd),2000);
+
 			status->adelay = 2 * status->amotion;
 		} else { // Mercenary and mobs
 			amotion = b_status->amotion;
 			status->aspd_rate = status_calc_aspd_rate(bl, sc, b_status->aspd_rate);
-				amotion = amotion*status->aspd_rate/1000;
+			amotion = amotion*status->aspd_rate/1000;
 
 			amotion = status_calc_fix_aspd(bl, sc, amotion);
 			status->amotion = cap_value(amotion, battle_config.monster_max_aspd, 2000);

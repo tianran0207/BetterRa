@@ -579,8 +579,10 @@ OnPCInChatroomFilter:
 	// 在这里你需要知道的是，若您使用 processhalt 中断了本事件，那么
 	// 这个 rAthena 自带的 waitingroom 事件将不会被触发。
 	// -------------------------------------------------------
-	//processhalt;
-	//openstorage;
+	if(strnpcinfo(0) != "进入聊天室事件")
+		end;
+	processhalt;
+	openstorage;
 	end;
 }
 
