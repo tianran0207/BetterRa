@@ -516,7 +516,9 @@ function	script	F_GetPlural	{
 function	script	F_InsertPlural	{
 	return sprintf(getarg(3,"%d %s"), getarg(0), ((getarg(0) == 1) ? getarg(1) : callfunc("F_GetPlural",getarg(1),getarg(2,0))));
 }
-
+function	script	F_InsertPlural2	{
+	return sprintf(getarg(3,"%s %d"), ((getarg(0) == 1) ? getarg(1) : callfunc("F_GetPlural",getarg(1),getarg(2,0))), getarg(0));
+}
 
 //////////////////////////////////////////////////////////////////////////////////
 // Returns 'a' or 'an' based on a word.

@@ -13,71 +13,85 @@
 //= 1.0 First version, Renewal guide.
 //= 1.1 Added missing case. [Joseph]
 //= 1.2 Navigation system update. [Euphy]
-//============================================================ 
+//= 2016.03.18 汉化部分文字 [RACN汉化组.至尊宝]
+//= 2016.03.20 汉化完全 [RACN汉化组.杨梅]
+//============================================================
 
-ayothaya,203,169,4	script	Ayothaya Guide Noi#01ay	839,{
-	if (strnpcinfo(0) == "Ayothaya Guide Noi#01ay")
-		set .@n$, "[Noi]";
+ayothaya,203,169,4	script	解说员 努伊#01ay	839,{
+	if (strnpcinfo(0) == "解说员 努伊#01ay")
+		set .@n$, "[努伊]";
 	else
-		set .@n$, "[Noa]";
+		set .@n$, "[卢雅]";
 	mes .@n$;
-	mes "Hello~";
-	mes "Welcome to ^8B4513Ayothaya^000000.";
-	mes "This town is linked to a river through the wild forest.";
-	mes "It's a really calm country.";
-	mes "Take your time to look around.";
+	mes "你好~";
+	mes "欢迎来到 ^8B4513哎呦泰雅^000000，";
+	mes "这里与茂密丛林及河川相连，";
+	mes "是个宁静的村落，";
+	next;
+	mes .@n$;
+	mes "由于比邻海边，所以这里也有水产市场，";
+	mes "还可以管看到许多，在别的国家看不到的建筑物，";
+	mes "那么请你慢慢的逛吧";
 	F_Navi(.@n$);
 	while (1) {
 		next;
-		switch(select("[ Weapon Shop ]:[ Tool Shop ]:[ Tavern ]:[ Shrine ]:[ Fishing Spot ]:[ Aibakthing ]:Remove Marks from Mini-Map:Cancel")) {
+		switch(select("[ 武器商人 ]:[ 道具店 ]:[ 酒店 ]:[ 神殿 ]:[ 钓鱼场 ]:[ 哎伊拜婷 ]:删除小地图的标记:结束对话")) {
 		case 1:
 			mes .@n$;
-			mes "The "+F_Navi("Weapon Shop","ayothaya,163,90","^0000FF");
-			mes "in Ayothaya has special weapons.";
-			mes "You can find great weapons there.";
-			mes "Is there anything else I can do for you?";
+			mes "在"+F_Navi("武器商人","ayothaya,163,90","^0000FF");
+			mes "可以看到哎呦泰雅海滩";
+			mes "男孩们所使用的各式武器，";
+			mes "还需要其它服务吗?";
 			viewpoint 1,163,90,0,0x0A82FF;
 			break;
 		case 2:
 			mes .@n$;
-			mes "Our citizens purchase many products in the "+F_Navi("Tool Shop","ayothaya,131,86","^006400")+".";
-			mes "Make sure you get all you need there.";
-			mes "Do you need anything else?";
+			mes "我们哎呦泰雅居民";
+			mes "到外地旅行时都会到";
+			mes F_Navi("道具店","ayothaya,131,86","^006400")+"买一些必需品";
+			mes "做彻底的准备，";
+			mes "还需要其它服务吗?";
 			viewpoint 1,131,86,1,0xAAFF00;
 			break;
 		case 3:
 			mes .@n$;
-			mes "Part of adventuring is collecting information.";
-			mes "The "+F_Navi("Tavern","ayothaya,229,72","^008080")+" is crowded with lots of travelers where you can get useful information.";
-			mes "Is there anything else I can do for you?";
+			mes "冒险的基本条件就是收集信息，";
+			mes F_Navi("酒店","ayothaya,229,72","^008080")+"是许多旅客";
+			mes "熙熙攘攘的地方，";
+			mes "应该能听到不错的情报喔!";
+			mes "还需要其它服务吗?";
 			viewpoint 1,229,72,2,0x008080;
 			break;
 		case 4:
 			mes .@n$;
-			mes "To calm your heart, go to the "+F_Navi("Shrine","ayothaya,208,280","^FF1493")+" and say a prayer.";
-			mes "Is there anything else I can do for you?";
+			mes "喂了让自己随时保持虔诚之心，";
+			mes "坐在"+F_Navi("神殿","ayothaya,208,280","^FF1493")+"里，";
+			mes "祈祷如何呢?";
+			mes "还需要其它服务吗?";
 			viewpoint 1,208,280,3,0xFF1493;
 			break;
 		case 5:
 			mes .@n$;
-			mes "Ayothaya is close to the beach, so most people enjoy fishing.";
-			mes "They really love to fish.";
-			mes "Go "+F_Navi("fishing","ayothaya,255,99","^8B4513")+" and try to grab a big fish.";
-			mes "Is there anything else I can do for you?";
+			mes "由于哎呦泰雅邻接";
+			mes "海边缘故，来这里";
+			mes "海钓的人非常多，";
+			mes "去"+F_Navi("钓鱼场","ayothaya,255,99","^8B4513");
+			mes "钓钓大鱼怎么样呢?";
+			mes "还需要其它服务吗?";
 			viewpoint 1,255,99,4,0x8B4513;
 			break;
 		case 6:
 			mes .@n$;
-			mes "If you want to return home";
-			mes "find "+F_Navi("Aibakthing","ayothaya,151,68","^00BFFF");
-			mes "and ask him to send you back.";
-			mes "Is there anything else I can do for you?";
+			mes "如果你想返家的话，";
+			mes "建议你去找";
+			mes F_Navi("哎伊拜婷","ayothaya,151,68","^00BFFF")+"，";
+			mes "还需要其它服务吗?";
 			viewpoint 1,151,68,5,0x00BFFF;
 			break;
 		case 7:
 			mes .@n$;
-			mes "I'll remove all marks from your mini-map.";
-			mes "Do you need anything else??";
+			mes "已删除小地图上的标志了，";
+			mes "还需要其它服务吗?";
 			viewpoint 2,1,1,0,0xFFFFFF;
 			viewpoint 2,1,1,1,0xFFFFFF;
 			viewpoint 2,1,1,2,0xFFFFFF;
@@ -87,9 +101,9 @@ ayothaya,203,169,4	script	Ayothaya Guide Noi#01ay	839,{
 			break;
 		case 8:
 			mes .@n$;
-			mes "Enjoy your trip~!";
+			mes "祝您旅途愉快!";
 			close;
 		}
 	}
 }
-ayothaya,146,86,4	duplicate(Ayothaya Guide Noi#01ay)	Ayothaya Guide Noa#02ay	839
+ayothaya,146,86,4	duplicate(解说员 努伊#01ay)	解说员 卢雅#02ay	839

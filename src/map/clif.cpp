@@ -12722,8 +12722,10 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd) {
 	if (event_exist(NPCE_IDENTIFYFILTER)) {
 		pc_setreg(sd, add_str("@identify_idx"), idx);
 		npc_script_event_atonce(sd, NPCE_IDENTIFYFILTER);
-		if (sd->state.processhalt)
+		if (sd->state.processhalt) {
+			clif_menuskill_clear(sd);
 			return;
+		}
 	}
 #endif
 

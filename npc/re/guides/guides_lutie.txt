@@ -15,15 +15,15 @@
 //= 1.2 Navigation system update. [Euphy]
 //============================================================ 
 
-xmas,140,137,3	script	Lutie Guide#xmas	717,{
-	mes "[Lutie Guide]";
+xmas,140,137,3	script	姜饼城 解说员#xmas	717,{
+	mes "[姜饼城 解说员]";
 	mes "Welcome to ^8B4513Lutie^000000,";
 	mes "the Snow Village.";
 	mes "Do you need help navigating the village?";
-	F_Navi("[Lutie Guide]");
+	F_Navi("[姜饼城 Guide]");
 	while (1) {
 		next;
-		switch(select("[ Gift Shop ]:[ Church ]:[ Weapon & Armor Shop ]:[ Tool Shop ]:[ Santa's House ]:[ Toy Factory ]:Remove Marks from Mini-Map:Cancel")) {
+		switch(select("[ Gift Shop ]:[ Church ]:[ 武器、防具店 ]:[ 道具店 ]:[ Santa's House ]:[ Toy Factory ]:删除小地图的标记:结束对话")) {
 		case 1:
 			callsub L_Mark, F_Navi("Gift Shop","xmas,172,131","^008080");
 			viewpoint 1,172,131,2,0x008080;
@@ -33,11 +33,11 @@ xmas,140,137,3	script	Lutie Guide#xmas	717,{
 			viewpoint 1,104,287,1,0xAAFF00;
 			break;
 		case 3:
-			callsub L_Mark, F_Navi("Weapon & Armor Shop","xmas,171,158","^FF1493");
+			callsub L_Mark, F_Navi("武器、防具店","xmas,171,158","^FF1493");
 			viewpoint 1,171,158,3,0xFF1493;
 			break;
 		case 4:
-			callsub L_Mark, F_Navi("Tool Shop","xmas,122,131","^8B4513");
+			callsub L_Mark, F_Navi("道具店","xmas,122,131","^8B4513");
 			viewpoint 1,122,131,4,0x8B4513;
 			break;
 		case 5:
@@ -49,9 +49,9 @@ xmas,140,137,3	script	Lutie Guide#xmas	717,{
 			viewpoint 1,143,312,6,0xFF0000;
 			break;
 		case 7:
-			mes "[Lutie Guide]";
-			mes "Sure, I'll remove all marks from your mini-map.";
-			mes "Is there anything else I can do for you?";
+			mes "[姜饼城 解说员]";
+			mes "已删除小地图上的标志了，";
+			mes "还需要其它服务吗?";
 			viewpoint 2,1,1,0,0xFFFFFF;
 			viewpoint 2,1,1,1,0xFFFFFF;
 			viewpoint 2,1,1,2,0xFFFFFF;
@@ -61,17 +61,17 @@ xmas,140,137,3	script	Lutie Guide#xmas	717,{
 			viewpoint 2,1,1,6,0xFFFFFF;
 			break;
 		case 8:
-			mes "[Lutie Guide]";
+			mes "[姜饼城 解说员]";
 			mes "Be safe on your travels.";
 			close;
 		}
 	}
 	end;
 L_Mark:
-	mes "[Lutie Guide]";
+	mes "[姜饼城 解说员]";
 	mes "Let me mark the location of "+((getarg(1,0))?"":"the");
 	mes getarg(0)+"^000000";
-	mes "on your mini-map.";
-	mes "Would you like to check any other locations?";
+	mes "小地图上了，";
+	mes "还需要其它服务吗?";
 	return;
 }

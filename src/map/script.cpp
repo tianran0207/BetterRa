@@ -23971,11 +23971,11 @@ BUILDIN_FUNC(delinventory)
 {
 	TBL_PC *sd;
 	int idx, count;
-	if (!script_charid2sd(3, sd))
+	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
 	idx = script_getnum(st, 2);
 	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
-		count = script_getnum(st, 2);
+		count = script_getnum(st, 3);
 		pc_delitem(sd, idx, count, 0, 0, LOG_TYPE_SCRIPT);
 	}
 	else {

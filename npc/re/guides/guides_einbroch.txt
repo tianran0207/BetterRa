@@ -14,25 +14,24 @@
 //= 1.1 Navigation system update. [Euphy]
 //============================================================ 
 
-einbroch,72,202,4	script	Einbroch Guide#ein01::GuideEinbroch	852,{
+einbroch,72,202,4	script	解说员#ein01::GuideEinbroch	852,{
 	cutin "ein_soldier",2;
-	mes "[Einbroch Guide]";
-	mes "Welcome";
-	mes "to ^8B4513Einbroch^000000,";
-	mes "the City of Steel.";
-	mes "Please ask me if you";
-	mes "have any questions.";
-	F_Navi("[Einbroch Guide]");
+	mes "[艾音布罗克 解说员]";
+	mes "您好! 这里是秀发兹发德的";
+	mes "钢铁之都 ^8B4513艾音布罗克^000000，";
+	mes "诚挚地欢迎大家的光临，";
+	mes "需要为您介绍吗?";
+	F_Navi("[艾音布罗克 解说员]");
 	next;
 	while (1) {
-		switch(select("[ Main Facilities ]:[ Merchants & Helpers ]:Remove Marks from Mini-Map:Cancel")) {
+		switch(select("[ 主要设施 ]:[ 商人&小帮手 ]:删除小地图的标记:结束对话")) {
 		case 1:
 			set .@loop,1;
 			while (.@loop) {
-				switch(select("[ Airport ]:[ Factory ]:[ Plaza ]:[ Hotel ]:[ Train Station ]:[ Weapon Shop ]:[ Laboratory ]:[ Monument ]:[ Blacksmith Guild ]:[ Gunslinger Guild ]:Previous Menu")) {
+				switch(select("[ 机场 ]:[ Factory ]:[ Plaza ]:[ Hotel ]:[ 火车站 ]:[ 武器商人 ]:[ Laboratory ]:[ Monument ]:[ Blacksmith Guild ]:[ Gunslinger Guild ]:返回上一选单")) {
 				case 1:
-					mes "[Einbroch Guide]";
-					mes "The "+F_Navi("Airport","einbroch,64,204","^FF0000")+" is located";
+					mes "[艾音布罗克 解说员]";
+					mes "The "+F_Navi("机场","einbroch,64,204","^FF0000")+" is located";
 					mes "in the northwestern part";
 					mes "of the city. There you can";
 					mes "see our city's pride and joy, the Airship. Remember that you must pay admission to board the Airship.";
@@ -40,7 +39,7 @@ einbroch,72,202,4	script	Einbroch Guide#ein01::GuideEinbroch	852,{
 					next;
 					break;
 				case 2:
-					mes "[Einbroch Guide]";
+					mes "[艾音布罗克 解说员]";
 					mes "The "+F_Navi("Factory","einbroch,129,79")+", perhaps the";
 					mes "most important facility in";
 					mes "Einbroch, is located in the";
@@ -49,7 +48,7 @@ einbroch,72,202,4	script	Einbroch Guide#ein01::GuideEinbroch	852,{
 					next;
 					break;
 				case 3:
-					mes "[Einbroch Guide]";
+					mes "[艾音布罗克 解说员]";
 					mes "The "+F_Navi("Plaza","einbroch,129,79")+", our biggest";
 					mes "shopping district, can be";
 					mes "found just east from the";
@@ -58,7 +57,7 @@ einbroch,72,202,4	script	Einbroch Guide#ein01::GuideEinbroch	852,{
 					next;
 					break;
 				case 4:
-					mes "[Einbroch Guide]";
+					mes "[艾音布罗克 解说员]";
 					mes "The "+F_Navi("Hotel","einbroch,254,199")+" is east of";
 					mes "the Plaza and offers top";
 					mes "caliber accomodations.";
@@ -68,8 +67,8 @@ einbroch,72,202,4	script	Einbroch Guide#ein01::GuideEinbroch	852,{
 					next;
 					break;
 				case 5:
-					mes "[Einbroch Guide]";
-					mes "The "+F_Navi("Train Station","einbroch,232,272")+" is";
+					mes "[艾音布罗克 解说员]";
+					mes "The "+F_Navi("火车站","einbroch,232,272")+" is";
 					mes "located in the northeast";
 					mes "part of Einbroch. Trains";
 					mes "running between here";
@@ -79,8 +78,8 @@ einbroch,72,202,4	script	Einbroch Guide#ein01::GuideEinbroch	852,{
 					next;
 					break;
 				case 6:
-					mes "[Einbroch Guide]";
-					mes "The "+F_Navi("Weapon Shop","einbroch,216,211")+" is";
+					mes "[艾音布罗克 解说员]";
+					mes "The "+F_Navi("武器商人","einbroch,216,211")+" is";
 					mes "located north from the";
 					mes "Plaza. There you can";
 					mes "purchase weapons for";
@@ -89,7 +88,7 @@ einbroch,72,202,4	script	Einbroch Guide#ein01::GuideEinbroch	852,{
 					next;
 					break;
 				case 7:
-					mes "[Einbroch Guide]";
+					mes "[艾音布罗克 解说员]";
 					mes "The "+F_Navi("Laboratory","einbroch,55,52")+" is an";
 					mes "annex of the Factory and";
 					mes "is located in the southwest";
@@ -98,16 +97,16 @@ einbroch,72,202,4	script	Einbroch Guide#ein01::GuideEinbroch	852,{
 					next;
 					break;
 				case 8:
-					mes "[Einbroch Guide]";
+					mes "[艾音布罗克 解说员]";
 					mes "I will mark the location";
 					mes "of the "+F_Navi("Monument","einbroch,178,173","^808080");
-					mes "on your mini-map.";
-					mes "Would you like to check any other locations?";
+					mes "小地图上了，";
+					mes "还需要其它服务吗?";
 					viewpoint 1,178,173,7,0x808080;
 					next;
 					break;
 				case 9:
-					mes "[Einbroch Guide]";
+					mes "[艾音布罗克 解说员]";
 					mes "The "+F_Navi("Blacksmith Guild","einbroch,255,110")+" is";
 					mes "located in the southeast";
 					mes "part of Einbroch. You can";
@@ -117,11 +116,11 @@ einbroch,72,202,4	script	Einbroch Guide#ein01::GuideEinbroch	852,{
 					next;
 					break;
 				case 10:
-					mes "[Einbroch Guide]";
+					mes "[艾音布罗克 解说员]";
 					mes "I will mark the location";
 					mes "of the "+F_Navi("Gunslinger Guild","einbroch,130,197","^008080");
-					mes "on your mini-map.";
-					mes "Would you like to check any other locations?";
+					mes "小地图上了，";
+					mes "还需要其它服务吗?";
 					viewpoint 1,130,197,9,0x008080;
 					next;
 					break;
@@ -134,43 +133,43 @@ einbroch,72,202,4	script	Einbroch Guide#ein01::GuideEinbroch	852,{
 		case 2:
 			set .@loop,1;
 			while (.@loop) {
-				switch(select("[ Armsmith ]:[ Kafra Employees ]:[ Eden Teleport Officer ]:Previous Menu")) {
+				switch(select("[ Armsmith ]:[ 卡普拉职员s ]:[ 乐园团传送师 ]:返回上一选单")) {
 				case 1:
-					mes "[Einbroch Guide]";
+					mes "[艾音布罗克 解说员]";
 					mes "You may go to ^FF1493Manthasman^000000,";
 					mes "the ^FF1493Armsmith^000000";
 					mes "on the 1st basement floor in the Blacksmith Guild.";
 					viewpoint 1,255,110,10,0xFF1493;
 					next;
-					mes "[Einbroch Guide]";
+					mes "[艾音布罗克 解说员]";
 					mes "I will mark the location";
 					mes "of the "+F_Navi("Armsmith","einbroch,255,110","^FF1493");
-					mes "on your mini-map.";
-					mes "Would you like to check any other locations?";
+					mes "小地图上了，";
+					mes "还需要其它服务吗?";
 					next;
 					break;
 				case 2:
-					mes "[Einbroch Guide]";
+					mes "[艾音布罗克 解说员]";
 					mes "I will mark the locations";
-					mes "of the ^DA70D6Kafra Employees^000000";
-					mes "on your mini-map.";
-					mes "Would you like to check any other locations?";
+					mes "of the ^DA70D6卡普拉职员s^000000";
+					mes "小地图上了，";
+					mes "还需要其它服务吗?";
 					viewpoint 1,242,205,11,0xDA70D6;
 					viewpoint 1,59,203,12,0xDA70D6;
 					next;
 					break;
 				case 3:
-					mes "[Einbroch Guide]";
+					mes "[艾音布罗克 解说员]";
 					mes "You can find";
-					mes "the ^CD1039Eden Teleport Officer^000000";
+					mes "the ^CD1039乐园团传送师^000000";
 					mes "on the 1st floor of the Gunslinger Guild.";
 					viewpoint 1,130,197,13,0xCD1039;
 					next;
-					mes "[Einbroch Guide]";
+					mes "[艾音布罗克 解说员]";
 					mes "I will mark the location";
-					mes "of the "+F_Navi("Eden Teleport Officer","einbroch,130,197","^CD1039");
-					mes "on your mini-map.";
-					mes "Would you like to check any other locations?";
+					mes "of the "+F_Navi("乐园团传送师","einbroch,130,197","^CD1039");
+					mes "小地图上了，";
+					mes "还需要其它服务吗?";
 					next;
 					break;
 				case 4:
@@ -180,7 +179,7 @@ einbroch,72,202,4	script	Einbroch Guide#ein01::GuideEinbroch	852,{
 			}
 			break;
 		case 3:
-			mes "[Einbroch Guide]";
+			mes "[艾音布罗克 解说员]";
 			mes "I'll remove the marks from your mini-map.";
 			mes "Do you need any other help?";
 			viewpoint 2,64,204,0,0xFFFFFF;
@@ -200,7 +199,7 @@ einbroch,72,202,4	script	Einbroch Guide#ein01::GuideEinbroch	852,{
 			next;
 			break;
 		case 4:
-			mes "[Einbroch Guide]";
+			mes "[艾音布罗克 解说员]";
 			mes "Have a safe journey!";
 			close2;
 			cutin "ein_soldier",255;
@@ -208,25 +207,25 @@ einbroch,72,202,4	script	Einbroch Guide#ein01::GuideEinbroch	852,{
 		}
 	}
 }
-einbroch,155,43,4	duplicate(GuideEinbroch)	Einbroch Guide#ein02	852
-einbroch,162,317,4	duplicate(GuideEinbroch)	Einbroch Guide#ein03	852
-einbroch,252,320,3	duplicate(GuideEinbroch)	Einbroch Guide#ein04	852
+einbroch,155,43,4	duplicate(GuideEinbroch)	解说员#ein02	852
+einbroch,162,317,4	duplicate(GuideEinbroch)	解说员#ein03	852
+einbroch,252,320,3	duplicate(GuideEinbroch)	解说员#ein04	852
 
-einbech,67,37,4	script	Einbech Guide#einbech01::GuideEinbech	852,{
+einbech,67,37,4	script	解说员#einbech01::GuideEinbech	852,{
 	cutin "ein_soldier",2;
-	mes "[Einbech Guide]";
+	mes "[艾因贝赫 解说员]";
 	mes "Welcome to ^8B4513Einbech^000000,";
 	mes "the Mining Town. We're";
 	mes "here to assist tourists,";
 	mes "so if you have any questions,";
 	mes "please feel free to ask us.";
-	F_Navi("[Einbech Guide]");
+	F_Navi("[艾因贝赫 Guide]");
 	next;
 	while (1) {
-		switch(select("[ Tavern ]:[ Tool Shop ]:[ Train Station ]:[ Mine ]:[ Kafra Employee ]:Remove Marks from Mini-Map:Cancel")) {
+		switch(select("[ 酒店 ]:[ 道具店 ]:[ 火车站 ]:[ Mine ]:[ 卡普拉职员 ]:删除小地图的标记:结束对话")) {
 		case 1:
-			mes "[Einbech Guide]";
-			mes "The "+F_Navi("Tavern","einbech,157,106")+" is located";
+			mes "[艾因贝赫 解说员]";
+			mes "The "+F_Navi("酒店","einbech,157,106")+" is located";
 			mes "in the southern part of";
 			mes "Einbech. It's a nice place";
 			mes "to relax after a long day.";
@@ -234,8 +233,8 @@ einbech,67,37,4	script	Einbech Guide#einbech01::GuideEinbech	852,{
 			next;
 			break;
 		case 2:
-			mes "[Einbech Guide]";
-			mes "You can find the "+F_Navi("Tool Shop","einbech,177,133")+" in the center of";
+			mes "[艾因贝赫 解说员]";
+			mes "You can find the "+F_Navi("道具店","einbech,177,133")+" in the center of";
 			mes "Einbech. There, you can";
 			mes "purchase any tools you";
 			mes "might need for your travels.";
@@ -243,8 +242,8 @@ einbech,67,37,4	script	Einbech Guide#einbech01::GuideEinbech	852,{
 			next;
 			break;
 		case 3:
-			mes "[Einbech Guide]";
-			mes "The "+F_Navi("Train Stations","einbech,39,215")+" are";
+			mes "[艾因贝赫 解说员]";
+			mes "The "+F_Navi("火车站s","einbech,39,215")+" are";
 			mes "located in the northwest";
 			mes "and northeast parts of";
 			mes "Einbech. There, you can";
@@ -253,7 +252,7 @@ einbech,67,37,4	script	Einbech Guide#einbech01::GuideEinbech	852,{
 			next;
 			break;
 		case 4:
-			mes "[Einbech Guide]";
+			mes "[艾因贝赫 解说员]";
 			mes "The "+F_Navi("Mine","einbech,137,248")+", which is";
 			mes "Einbech's major industry,";
 			mes "is located in the northern";
@@ -263,16 +262,16 @@ einbech,67,37,4	script	Einbech Guide#einbech01::GuideEinbech	852,{
 			next;
 			break;
 		case 5:
-			mes "[Einbech Guide]";
+			mes "[艾因贝赫 解说员]";
 			mes "I will mark the location";
-			mes "of the ^FF1493Kafra Employee^000000";
-			mes "on your mini-map.";
-			mes "Would you like to check any other locations?";
+			mes "of the ^FF1493卡普拉职员^000000";
+			mes "小地图上了，";
+			mes "还需要其它服务吗?";
 			viewpoint 1,181,132,4,0xFF1493;
 			next;
 			break;
 		case 6:
-			mes "[Einbech Guide]";
+			mes "[艾因贝赫 解说员]";
 			mes "I'll remove the marks from your mini-map.";
 			mes "Do you need any other help?";
 			viewpoint 2,157,106,0,0xFFFFFF;
@@ -283,7 +282,7 @@ einbech,67,37,4	script	Einbech Guide#einbech01::GuideEinbech	852,{
 			next;
 			break;
 		case 7:
-			mes "[Einbech Guide]";
+			mes "[艾因贝赫 解说员]";
 			mes "Have a safe journey!";
 			close2;
 			cutin "ein_soldier",255;
@@ -291,4 +290,4 @@ einbech,67,37,4	script	Einbech Guide#einbech01::GuideEinbech	852,{
 		}
 	}
 }
-einbech,48,214,4	duplicate(GuideEinbech)	Einbech Guide#einbech02	852
+einbech,48,214,4	duplicate(GuideEinbech)	解说员#einbech02	852

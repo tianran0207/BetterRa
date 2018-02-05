@@ -15,74 +15,84 @@
 //= 1.2 Navigation system update. [Euphy]
 //============================================================ 
 
-moscovia,161,76,3	script	Moscovia Guide#01mosc	959,{
-	mes "[Moscovia Guide]";
-	mes "A paradise on the sea,";
-	mes "beautiful waves and warm sunshine.";
-	mes "^8B4513Moscovia^000000 is waiting for you.";
-	mes "I'm supporting to offer information about here.";
-	mes "If you want to ask anything just feel free tell me.";
-	F_Navi("[Moscovia Guide]");
-	set .@str$,"Is there anything else I can do for you?";
+moscovia,161,76,3	script	莫斯科比亚 导游#01mosc	959,{
+	mes "[莫斯科比亚 服务人员]";
+	mes "一望无际的海上乐园，";
+	mes "有着漂亮的海洋和温暖的太阳等着你的";
+	mes "欢迎来到^8B4513莫斯科比亚^000000";
+	next;
+	mes "[莫斯科比亚 服务人员]";
+	mes "我是被派遣在 莫斯科比亚 王宫，";
+	mes "队来到这里的旅行者";
+	mes "做为这里那里介绍服务的工作";
+	mes "若有疑问的话就询问我吧";
+	F_Navi("[莫斯科比亚 服务人员]");
+	set .@str$,"需要其它的帮忙吗?";
 	while (1) {
 		next;
-		switch(select("[ Kafra Employee ]:[ Palace ]:[ Chapel ]:[ Weapon Shop ]:[ Armor Shop ]:[ Tool Shop ]:[ Inn ]:[ Return to Alberta ]:Remove Marks from Mini-Map:Cancel")) {
+		switch(select("[ 卡普拉职员 ]:[ 王宫 ]:[ 礼拜堂 ]:[ 武器商人 ]:[ 防具商人 ]:[ 道具店 ]:[ 旅馆 ]:[ 回到艾尔贝塔 ]:删除小地图的标记:结束对话")) {
 		case 1:
-			mes "[Moscovia Guide]";
-			mes "The ^0000FFKafra Employee^000000 has";
-			mes "been marked on your mini-map";
-			mes "Check your mini-map.";
-			mes "Do you need anything else?";
+			mes "[莫斯科比亚 服务人员]";
+			mes "^0000FF卡普拉职员^000000";
+			mes "已经在肖地图上帮你";
+			mes "标记出来了";
+			mes .@str$;
 			viewpoint 1,223,191,0,0x0A82FF;
 			break;
 		case 2:
-			mes "[Moscovia Guide]";
-			mes "In the "+F_Navi("Palace","moscovia,255,140","^006400")+" you will find our Lord the Czar and other servants.";
+			mes "[莫斯科比亚 服务人员]";
+			mes "王宫在"+F_Navi("这里","moscovia,255,140","^006400")+"，";
+			mes "是统治者莫斯科比亚的 勘勒皇帝";
+			mes "和很多臣僚们所聚集的地方";
 			mes .@str$;
 			viewpoint 1,255,140,1,0x0A82FF;
 			break;
 		case 3:
-			mes "[Moscovia Guide]";
-			mes "The "+F_Navi("Chapel","moscovia,253,179","^008080")+" is located here.";
+			mes "[莫斯科比亚 服务人员]";
+			mes ""+F_Navi("礼拜堂","moscovia,253,179","^008080")+"在这里";
+			mes "是祈祷莫斯科比亚安宁的修道士们所在的地方";
 			mes .@str$;
 			viewpoint 1,253,179,2,0xAAFF00;
 			break;
 		case 4:
-			mes "[Moscovia Guide]";
-			mes "You can buy weapons from the best craftsmen in Moscovia if you go to the "+F_Navi("Weapon Shop","moscovia,186,191","^FF1493")+".";
+			mes "[莫斯科比亚 服务人员]";
+			mes ""+F_Navi("武器商人","moscovia,186,191","^FF1493")+"在这里";
+			mes "可以看到莫斯科比亚最好的将人们及最好的武器";
 			mes .@str$;
 			viewpoint 1,186,191,3,0x008080;
 			break;
 		case 5:
-			mes "[Moscovia Guide]";
-			mes "You will find only the best gear at the Moscovia "+F_Navi("Armor Shop","moscovia,204,169","^8B4513")+".";
+			mes "[莫斯科比亚 服务人员]";
+			mes ""+F_Navi("防具商人","moscovia,204,169","^8B4513")+"在这里";
+			mes "再出去旅行之前要充分的做好准备";
 			mes .@str$;
 			viewpoint 1,204,169,4,0xB200FF;
 			break;
 		case 6:
-			mes "[Moscovia Guide]";
-			mes "The "+F_Navi("Tool Shop","moscovia,221,176","^FF1493")+" is located just south from the center of town.";
-			mes "You can find all sorts of things you need for your travels.";
+			mes "[莫斯科比亚 服务人员]";
+			mes ""+F_Navi("道具店","moscovia,221,176","^FF1493")+"在村落的靠南地方";
+			mes "你可以找到很多旅行必备的东西";
 			mes .@str$;
 			viewpoint 1,221,176,5,0xFF1493;
 			break;
 		case 7:
-			mes "[Moscovia Guide]";
-			mes "The Inn "+F_Navi("Sticky Herb Tree","moscovia,227,206")+" is just north from the center of town.";
-			mes "If you need to rest, there is no better place to stay.";
+			mes "[莫斯科比亚 服务人员]";
+			mes "T旅馆 "+F_Navi("常青树","moscovia,227,206")+" 在中间靠北的地方";
+			mes "因旅行时的疲惫";
+			mes "请务必在这里消除后再走吧";
 			mes .@str$;
 			viewpoint 1,227,206,6,0x8B4513;
 			break;
 		case 8:
-			mes "[Moscovia Guide]";
-			mes "You can find the";
-			mes F_Navi("Moscovia P.R. Officer","moscovia,166,53")+" at the docks if";
-			mes "you want to return to Alberta.";
+			mes "[莫斯科比亚 服务人员]";
+			mes "你可以在";
+			mes F_Navi("莫斯科比亚 宣传使节","moscovia,166,53");
+			mes "那里找到回 艾尔贝塔 的船";
 			viewpoint 1,166,53,7,0x00BFFF;
 			break;
 		case 9:
-			mes "[Moscovia Guide]";
-			mes "I'll remove all marks from your mini-map.";
+			mes "[莫斯科比亚 服务人员]";
+			mes "已删除小地图上的标志了，";
 			mes .@str$;
 			viewpoint 2,1,1,0,0xFFFFFF;
 			viewpoint 2,1,1,1,0xFFFFFF;
@@ -94,10 +104,10 @@ moscovia,161,76,3	script	Moscovia Guide#01mosc	959,{
 			viewpoint 2,1,1,7,0xFFFFFF;
 			break;
 		case 10:
-			mes "[Moscovia Guide]";
-			mes "Enjoy your trip~!";
+			mes "[莫斯科比亚 服务人员]";
+			mes "祝您旅途愉快!";
 			close;
 		}
 	}
 }
-moscovia,226,191,4	duplicate(Moscovia Guide#01mosc)	Moscovia Guide#02mosc	959
+moscovia,226,191,4	duplicate(莫斯科比亚 导游#01mosc)	莫斯科比亚 服务人员#02mosc	959

@@ -15,73 +15,73 @@
 //= 1.2 Navigation system update. [Euphy]
 //============================================================ 
 
-geffen,203,116,4	script	Guide#01geffen::GuideGeffen	705,{
+geffen,203,116,4	script	解说员#01geffen::GuideGeffen	705,{
 	cutin "gef_soldier",2;
-	mes "[Geffen Guide]";
-	mes "Welcome to ^8B4513Geffen^000000,";
-	mes "the City of Magic.";
-	mes "Do you need help navigating the city?";
-	F_Navi("[Geffen Guide]");
+	mes "[吉芬 解说员]";
+	mes "这里是魔法之都^8B4513吉芬^000000，";
+	mes "诚挚的欢迎大家的莅临，";
+	mes "需要为您介绍吗?";
+	F_Navi("[吉芬 解说员]");
 	next;
 	while (1) {
-		switch(select("[ Main Facilities ]:[ Merchants & Helpers ]:Remove Marks from Mini-Map:Cancel")) {
+		switch(select("[主要设施]:[ 商人&小帮手 ]:删除小地图的标记:结束对话")) {
 		case 1:
 			set .@loop,1;
 			while (.@loop) {
-				switch(select("[ Magic Academy ]:[ Geffen Tower ]:[ Fountain ]:[ Tool Shop ]:[ Buy & Repair Equipment ]:[ Inn ]:[ Tavern ]:[ Christopher's Forge ]:Previous Menu")) {
+				switch(select("[魔法学校]:[吉芬塔]:[喷 水 池]:[道 具 店]:[装备维修及购买]:[          旅 馆          ]:[          酒 店          ]:[ 克里斯多夫铁工厂 ]:返回上一选单")) {
 				case 1:
-					mes "[Geffen Guide]";
-					mes "The "+F_Navi("Magic Academy","geffen,61,180","^B9062F");
-					mes "handles all magic-related affairs,";
-					mes "including job changes.";
-					mes "Let me mark its location";
-					mes "on your mini-map.";
-					mes "Would you like to check any other locations?";
+					mes "[吉芬 解说员]";
+					mes ""+F_Navi("魔法学校","geffen,61,180","^B9062F");
+					mes "负责魔法师";
+					mes "转职等的工作，";
+					mes "位置已经标记在";
+					mes "小地图上了，";
+					mes "还需要其它服务吗?";
 					viewpoint 1,61,180,0,0xFF0000;
 					next;
 					break;
 				case 2:
-					callsub L_Mark, F_Navi("Geffen Tower","geffen,120,114","^0000FF");
+					callsub L_Mark, F_Navi("[吉芬塔]","geffen,120,114","^0000FF");
 					viewpoint 1,120,114,1,0x0000FF;
 					next;
 					break;
 				case 3:
-					callsub L_Mark, F_Navi("Fountain","geffen,126,48","^FF5400");
+					callsub L_Mark, F_Navi("[喷水池]","geffen,126,48","^FF5400");
 					viewpoint 1,126,48,2,0xFFB400;
 					next;
 					break;
 				case 4:
-					callsub L_Mark, F_Navi("Tool Shop","geffen,44,86","^006400");
+					callsub L_Mark, F_Navi("[道具店]","geffen,44,86","^006400");
 					viewpoint 1,44,86,3,0xAAFF00;
 					next;
 					break;
 				case 5:
-					mes "[Geffen Guide]";
-					mes "If you'd like to ";
-					mes F_Navi("Buy or Repair Equipment","geffen,99,140","^7F3300");
-					mes "then this is the place you'll want to visit.";
-					mes "Let me mark its location";
-					mes "on your mini-map.";
-					mes "Would you like to check any other locations?";
+					mes "[吉芬 解说员]";
+					mes F_Navi("[武器、防具购买]","geffen,99,140","^7F3300");
+					mes "或装备维修的地方，";
+					mes "位置已经标记在";
+					mes "小地图上了，";
+					mes "还需要其它服务吗?";
 					viewpoint 1,99,140,4,0xD2691E;
 					next;
 					break;
 				case 6:
-					callsub L_Mark, F_Navi("Inn","geffen,172,174","^800080");
+					callsub L_Mark, F_Navi("[旅馆]","geffen,172,174","^800080");
 					viewpoint 1,172,174,5,0xDA70D6;
 					next;
 					break;
 				case 7:
-					callsub L_Mark, F_Navi("Tavern","geffen,138,138","^B9062F");
+					callsub L_Mark, F_Navi("[酒馆]","geffen,138,138","^B9062F");
 					viewpoint 1,138,138,6,0xFF0000;
 					next;
 					break;
 				case 8:
-					mes "[Geffen Guide]";
-					mes F_Navi("Christopher's Forge","geffen,182,59","^0000FF")+" is";
-					mes "where you can purchase";
-					mes "Refining materials.";
-					mes "It used to be the old Blacksmith Guild.";
+					mes "[吉芬 解说员]";
+					mes F_Navi("[克里斯多夫的铁工厂]","geffen,182,59","^0000FF")+"";
+					mes "出售各种精链";
+					mes "道具的地方，";
+					mes "据说以前那里曾是";
+					mes "铁匠公会。";
 					viewpoint 1,182,59,6,0x0000FF;
 					next;
 					break;
@@ -94,31 +94,31 @@ geffen,203,116,4	script	Guide#01geffen::GuideGeffen	705,{
 		case 2:
 			set .@loop,1;
 			while (.@loop) {
-				switch(select("[ Eden Teleport Officer ]:[ Kafra Employee ]:[ Pet Groomer ]:[ Chef Assistant ]:[ Dimensional Arcanist Guide ]:Previous Menu")) {
+				switch(select("[ 乐园团传送师  ]:[     卡普拉职员       ]:[     认养宠物商人       ]:[    料理材料商    ]:[   异次元术士解说员  ]:返回上一选单")) {
 				case 1:
-					callsub L_Mark, F_Navi("Eden Teleport Officers","geffen,132,66","^B9062F");
+					callsub L_Mark, F_Navi("乐园团传送师","geffen,132,66","^B9062F");
 					viewpoint 1,61,180,7,0xFF0000;
 					viewpoint 1,132,66,8,0xFF0000;
 					next;
 					break;
 				case 2:
-					callsub L_Mark, "^FF5400Kafra Employees^000000";
+					callsub L_Mark, "^FF5400卡普拉职员^000000";
 					viewpoint 1,203,123,10,0xFFB400;
 					viewpoint 1,120,62,11,0xFFB400;
 					next;
 					break;
 				case 3:
-					callsub L_Mark, F_Navi("Pet Groomer","geffen,193,152","^006400");
+					callsub L_Mark, F_Navi("认养宠物商人","geffen,193,152","^006400");
 					viewpoint 1,193,152,12,0xAAFF00;
 					next;
 					break;
 				case 4:
-					callsub L_Mark, F_Navi("Chef Assistant","geffen,196,111","^7F3300");
+					callsub L_Mark, F_Navi("料理材料商","geffen,196,111","^7F3300");
 					viewpoint 1,196,111,13,0xD2691E;
 					next;
 					break;
 				case 5:
-					callsub L_Mark, F_Navi("Dimensional Arcanist Guide","geffen,140,196","^800080");
+					callsub L_Mark, F_Navi("异次元术士解说员","geffen,140,196","^800080");
 					viewpoint 1,140,196,14,0xDA70D6;
 					next;
 					break;
@@ -129,9 +129,9 @@ geffen,203,116,4	script	Guide#01geffen::GuideGeffen	705,{
 			}
 			break;
 		case 3:
-			mes "[Geffen Guide]";
-			mes "Sure, I'll remove all marks from your mini-map.";
-			mes "Is there anything else I can do for you?";
+			mes "[吉芬 解说员]";
+			mes "已删除小地图上的标志了，";
+			mes "还需要其它服务吗?";
 			viewpoint 2,1,1,0,0xFFFF00;
 			viewpoint 2,1,1,1,0x000000;
 			viewpoint 2,1,1,2,0xFF0000;
@@ -150,8 +150,8 @@ geffen,203,116,4	script	Guide#01geffen::GuideGeffen	705,{
 			next;
 			break;
 		case 4:
-			mes "[Geffen Guide]";
-			mes "Enjoy your stay.";
+			mes "[吉芬 解说员]";
+			mes "祝您旅途愉快!";
 			close2;
 			cutin "gef_soldier",255;
 			end;
@@ -159,14 +159,14 @@ geffen,203,116,4	script	Guide#01geffen::GuideGeffen	705,{
 	}
 	end;
 L_Mark:
-	mes "[Geffen Guide]";
-	mes "Let me mark the location of the";
-	mes getarg(0)+"^000000";
-	mes "on your mini-map.";
-	mes "Would you like to check any other locations?";
+	mes "[吉芬 解说员]";
+	mes getarg(0)+"^000000的";
+	mes "位置已经标记在";
+	mes "小地图上了，";
+	mes "还需要其它服务吗?";
 	return;
 }
 
-geffen,118,62,0	duplicate(GuideGeffen)	Guide#02geffen	705
-geffen,36,123,6	duplicate(GuideGeffen)	Guide#03geffen	705
-geffen,123,203,4	duplicate(GuideGeffen)	Guide#04geffen	705
+geffen,118,62,0	duplicate(GuideGeffen)	解说员#02geffen	705
+geffen,36,123,6	duplicate(GuideGeffen)	解说员#03geffen	705
+geffen,123,203,4	duplicate(GuideGeffen)	解说员#04geffen	705
