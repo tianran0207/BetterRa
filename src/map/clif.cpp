@@ -15415,6 +15415,10 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 /// 0ac0 <mail id>.Q <unknown>.16B (CZ_OPEN_MAILBOX2)
 /// 0ac1 <mail id>.Q <unknown>.16B (CZ_REQ_REFRESH_MAIL_LIST2)
 void clif_parse_Mail_refreshinbox(int fd, struct map_session_data *sd){
+	if (map[sd->bl.m].flag.nomail) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 2344));
+		return;
+	}
 #if PACKETVER < 20150513
 	struct mail_data* md = &sd->mail.inbox;
 

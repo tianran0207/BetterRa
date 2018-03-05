@@ -561,7 +561,8 @@ struct map_session_data {
 
 	struct s_autoevent {
 		short rate, atk_type;
-		unsigned int times, maxtimes;
+		unsigned int number, maxnumber;
+		unsigned int delay, next_time;
 		char event_name[24];
 	} autoevent[3];
 

@@ -149,7 +149,6 @@ struct Battle_Config
 	int get_identify_equip;
 	int mounting_cant_use;
 	int hide_cmd;
-	int baspd_fixed;
 	int share_quests_area;
 	int combo_mode;
 	int buff_for_guild_member;
@@ -157,6 +156,7 @@ struct Battle_Config
 	int enable_amulet;
 	int enable_coply;
 	int display_skill_name;
+	int pet_catch_rate_mode;
 	//------------------------------
 	int warp_point_debug;
 	int enable_critical;

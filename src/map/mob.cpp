@@ -101,6 +101,7 @@ struct mob_chat *mob_chat(short id) {
 struct s_mob_item_drop_ratio {
 	unsigned short nameid;
 	int drop_ratio;
+	int drop_fix;
 	unsigned short mob_id[MAX_ITEMRATIO_MOBS];
 };
 static DBMap *mob_item_drop_ratio;
@@ -2713,6 +2714,13 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				drop_rate = 1;
 			}
 
+			if (md->db->mexp) {
+				if (map[md->bl.m].flag.mvpdroprate)
+					drop_rate = drop_rate = (int)(drop_rate*map[md->bl.m].flag.mvpdroprate / 100);
+			}else if (map[md->bl.m].flag.mobdroprate){
+				drop_rate = drop_rate = (int)(drop_rate*map[md->bl.m].flag.mobdroprate / 100);
+			}
+
 			// change drops depending on monsters size [Valaris]
 			if (battle_config.mob_size_influence) {
 				if (md->special_state.size == SZ_MEDIUM && drop_rate >= 2)
@@ -2916,6 +2924,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 				temp = mdrop[i].p;
 				if (temp != 10000) {
+					if (map[md->bl.m].flag.mvpdroprate)
+						temp = (int)(temp*map[md->bl.m].flag.mvpdroprate / 100);
 					if(temp <= 0 && !battle_config.drop_rate0item)
 						temp = 1;
 					if(rnd()%10000 >= temp) //if ==0, then it doesn't drop
@@ -4127,6 +4137,34 @@ static void item_dropratio_adjust(unsigned short nameid, int mob_id, int *rate_a
 	}
 }
 
+static bool item_dropratefix_adjust(unsigned short nameid, int mob_id, int *rate, int *rate_adjust)
+{
+	struct s_mob_item_drop_ratio *item_ratio = (struct s_mob_item_drop_ratio *)idb_get(mob_item_drop_ratio, nameid);
+	if (item_ratio) {
+		if (item_ratio->mob_id[0]) { // only for listed mobs
+			int i;
+			ARR_FIND(0, MAX_ITEMRATIO_MOBS, i, item_ratio->mob_id[i] == mob_id);
+			if (i < MAX_ITEMRATIO_MOBS) { // found
+				if (!item_ratio->drop_fix)
+					*rate_adjust = item_ratio->drop_ratio;
+				else {
+					*rate = cap_value(item_ratio->drop_fix, 0, 10000);
+					return false;
+				}
+			}
+		}
+		else { // for all mobs
+			if (!item_ratio->drop_fix)
+				*rate_adjust = item_ratio->drop_ratio;
+			else {
+				*rate = cap_value(item_ratio->drop_fix, 0, 10000);
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 /*==========================================
  * processes one mobdb entry
  *------------------------------------------*/
@@ -4921,6 +4959,41 @@ static bool mob_readdb_itemratio(char* str[], int columns, int current)
 	return true;
 }
 
+static bool mob_readdb_itemratefix(char* str[], int columns, int current)
+{
+	unsigned short nameid;
+	int ratefix, i;
+	struct s_mob_item_drop_ratio *item_ratio;
+	nameid = atoi(str[0]);
+
+	if (itemdb_exists(nameid) == NULL) {
+		ShowWarning("mob_readdb_itemratio: Invalid item id %hu.\n", nameid);
+		return false;
+	}
+
+	ratefix = atoi(str[1]);
+
+	if (!(item_ratio = (struct s_mob_item_drop_ratio *)idb_get(mob_item_drop_ratio, nameid)))
+		CREATE(item_ratio, struct s_mob_item_drop_ratio, 1);
+
+	item_ratio->drop_fix = ratefix;
+	memset(item_ratio->mob_id, 0, sizeof(item_ratio->mob_id));
+	for (i = 0; i < columns - 2; i++) {
+		uint16 mob_id = atoi(str[i + 2]);
+		if (mob_db(mob_id) == NULL)
+			ShowError("mob_readdb_itemratio: Invalid monster with ID %hu (Item:%hu Col:%d).\n", mob_id, nameid, columns);
+		else
+			item_ratio->mob_id[i] = atoi(str[i + 2]);
+	}
+
+	if (!item_ratio->nameid) {
+		item_ratio->nameid = nameid;
+		idb_put(mob_item_drop_ratio, nameid, item_ratio);
+	}
+
+	return true;
+}
+
 /**
  * Read additional monster drop from db file
  * @author [Cydh]
@@ -5167,9 +5240,9 @@ static void mob_drop_ratio_adjust(void){
 						break;
 				}
 			}
-
-			item_dropratio_adjust( nameid, mob_id, &rate_adjust );
-			rate = mob_drop_adjust( rate, rate_adjust, ratemin, ratemax );
+			//item_dropratio_adjust( nameid, mob_id, &rate_adjust );
+			if(item_dropratefix_adjust(nameid, mob_id, &rate, &rate_adjust))
+				rate = mob_drop_adjust( rate, rate_adjust, ratemin, ratemax );
 
 			// calculate and store Max available drop chance of the item
 			// but skip treasure chests.
@@ -5352,6 +5425,7 @@ static void mob_load(void)
 		sv_readdb(dbsubpath1, "mob_avail.txt", ',', 2, 12, -1, &mob_readdb_mobavail,silent);
 		sv_readdb(dbsubpath2, "mob_race2_db.txt", ',', 2, MAX_RACE2_MOBS, -1, &mob_readdb_race2, silent);
 		sv_readdb(dbsubpath1, "mob_item_ratio.txt", ',', 2, 2+MAX_ITEMRATIO_MOBS, -1, &mob_readdb_itemratio, silent);
+		sv_readdb(dbsubpath1, "mob_item_ratefix.txt", ',', 2, 2+MAX_ITEMRATIO_MOBS, -1, &mob_readdb_itemratefix, silent);
 		sv_readdb(dbsubpath1, "mob_chat_db.txt", '#', 3, 3, -1, &mob_parse_row_chatdb, silent);
 		sv_readdb(dbsubpath2, "mob_random_db.txt", ',', 4, 4, -1, &mob_readdb_group, silent);
 		sv_readdb(dbsubpath2, "mob_branch.txt", ',', 4, 4, -1, &mob_readdb_group, silent);

@@ -8031,7 +8031,6 @@ static const struct _battle_data {
 	{ "get_identify_equip",                 &battle_config.get_identify_equip,              0,      0,      1|2|4|8|16|32,  },
 	{ "mounting_cant_use",                  &battle_config.mounting_cant_use,               0,      0,      1|2|4|8|16|32|64|128|256, },
 	{ "hide_cmd",                           &battle_config.hide_cmd,                        0,      0,      1,              },
-	{ "bAspd_fixed",                        &battle_config.baspd_fixed,                     1,      0,      1,              },
 	{ "combo_mode",                         &battle_config.combo_mode,                      0,      0,      2,              },
 	{ "share_quests_area",                  &battle_config.share_quests_area,               0,      0,      2,              },
 	{ "buff_for_guild_member",              &battle_config.buff_for_guild_member,           0,      0,      1,              },
@@ -8039,6 +8038,7 @@ static const struct _battle_data {
 	{ "enable_amulet",                      &battle_config.enable_amulet,                   0,      0,      1,              },
 	{ "enable_coply",                       &battle_config.enable_coply,                    0,      0,      1,              },
 	{ "display_skill_name",                 &battle_config.display_skill_name,              0,      0,      1,              },
+	{ "pet_catch_rate_mode",                &battle_config.pet_catch_rate_mode,             0,      0,      1,              },
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },

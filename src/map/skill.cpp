@@ -2176,17 +2176,21 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 		int i;
 		for (i = 0; i < ARRAYLENGTH(sd->autoevent); i++)
 		{
+			if (!sd->autoevent[i].atk_type || sd->autoevent[i].next_time > tick || ((sd->autoevent[i].atk_type&BF_NORMAL) && skill_id))
+				continue;
 			if (sd->autoevent[i].rate && rnd() % 1000 >= sd->autoevent[i].rate)
 				continue;
 			if (!(((sd->autoevent[i].atk_type)&attack_type)&BF_WEAPONMASK &&
 				((sd->autoevent[i].atk_type)&attack_type)&BF_RANGEMASK &&
 				((sd->autoevent[i].atk_type)&attack_type)&BF_SKILLMASK))
 				continue; // one or more trigger conditions were not fulfilled
-			if (sd->autoevent[i].maxtimes && sd->autoevent[i].times < sd->autoevent[i].maxtimes) {
-				sd->autoevent[i].times++;
+			if (sd->autoevent[i].maxnumber && sd->autoevent[i].number < sd->autoevent[i].maxnumber) {
+				sd->autoevent[i].number++;
 				continue;
 			}
-			sd->autoevent[i].times = 1;
+			sd->autoevent[i].number = 1;
+			if (sd->autoevent[i].delay)
+				sd->autoevent[i].next_time = tick + sd->autoevent[i].delay;
 			npc_event(sd, sd->autoevent[i].event_name, 0);
 		}
 	}
@@ -3198,13 +3202,15 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	ud = unit_bl2ud(src);
 	if (ud->skill_fixed.skill_id == skill_id || ud->skill_fixed.skill_id == -1) {
 		if (ud->skill_fixed.damage) {
+			int element = skill_get_ele(skill_id, skill_lv);
 			if(ud->skill_fixed.type & 2)
 				dmg.damage = ud->skill_fixed.damage;
 			else
 				dmg.damage += ud->skill_fixed.damage;
+
+			if (element != ELE_NEUTRAL || !(battle_config.attack_attr_none&src->type))
+				dmg.damage = battle_attr_fix(src, bl, dmg.damage, element, tstatus->def_ele, tstatus->ele_lv);
 		}
-			
-		memset(&ud->skill_fixed, 0, sizeof(ud->skill_fixed));
 	}
 
 	//If the damage source is a unit, the damage is not delayed

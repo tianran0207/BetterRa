@@ -25487,20 +25487,20 @@ static short buildin_getattacktype_sub(short atk_type) {
 }
 
 BUILDIN_FUNC(addatkevent) {
-	short rate;
-	short atk_type = 0;
-	unsigned int maxtimes = 0;
+	short rate, atk_type;
+	unsigned int maxnumber, delay;
 	int i;
 	TBL_PC* sd;
 	const char *event_name;
 
-	if (!script_charid2sd(6, sd))
+	if (!script_charid2sd(7, sd))
 		return SCRIPT_CMD_FAILURE; // no player attached
 
 	atk_type = buildin_getattacktype_sub(script_getnum(st, 2));
 	rate = script_getnum(st, 3);
-	maxtimes = script_getnum(st, 4);
+	maxnumber = script_getnum(st, 4);
 	event_name = script_getstr(st, 5);
+	delay = script_getnum(st, 6);
 
 	ARR_FIND(0, ARRAYLENGTH(sd->autoevent), i, sd->autoevent[i].atk_type == atk_type);
 	if (i == ARRAYLENGTH(sd->autoevent)) {
@@ -25511,9 +25511,10 @@ BUILDIN_FUNC(addatkevent) {
 		return SCRIPT_CMD_FAILURE;
 	}
 	sd->autoevent[i].atk_type = atk_type;
-	sd->autoevent[i].maxtimes = maxtimes;
-	sd->autoevent[i].times = 0;
+	sd->autoevent[i].maxnumber = maxnumber;
+	sd->autoevent[i].number = 0;
 	sd->autoevent[i].rate = rate;
+	sd->autoevent[i].delay = delay;
 	safestrncpy(sd->autoevent[i].event_name, event_name, sizeof(sd->autoevent[i].event_name));
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -25553,14 +25554,16 @@ BUILDIN_FUNC(getatkevent) {
 
 	ARR_FIND(0, ARRAYLENGTH(sd->autoevent), i, sd->autoevent[i].atk_type == atk_type);
 	if (i == ARRAYLENGTH(sd->autoevent)) {
-		pc_setreg(sd, add_str("@times"), 0);
-		pc_setreg(sd, add_str("@maxtimes"), 0);
+		pc_setreg(sd, add_str("@number"), 0);
+		pc_setreg(sd, add_str("@maxnumber"), 0);
+		pc_setreg(sd, add_str("@delay"), 0);
 		pc_setreg(sd, add_str("@rate"), 0);
 		pc_setregstr(sd, add_str("@event_name"), "");
 		return SCRIPT_CMD_SUCCESS;
 	}
-	pc_setreg(sd, add_str("@times"), sd->autoevent[i].times);
-	pc_setreg(sd, add_str("@maxtimes"), sd->autoevent[i].maxtimes);
+	pc_setreg(sd, add_str("@number"), sd->autoevent[i].number);
+	pc_setreg(sd, add_str("@maxnumber"), sd->autoevent[i].maxnumber);
+	pc_setreg(sd, add_str("@delay"), sd->autoevent[i].delay);
 	pc_setreg(sd, add_str("@rate"), sd->autoevent[i].rate);
 	pc_setregstr(sd, add_str("@event_name"), sd->autoevent[i].event_name);
 	return SCRIPT_CMD_SUCCESS;
@@ -25940,6 +25943,53 @@ BUILDIN_FUNC(bot_stop)
 	map_delbot(map_id2bot(sd->bl.id), true);
 
 	return SCRIPT_CMD_SUCCESS;
+}
+
+static int http_parse(int fd) {
+
+
+
+}
+
+
+BUILDIN_FUNC(http_get)
+{
+	//uint32 ip;
+	//uint16 post;
+	//int http_fd, len;
+	//char http[2048];
+	//char *host, *folder;
+	//safestrncpy(http, script_getstr(st, 2), 2048);
+	//
+	//if ((host = strchr(http, ':')) == NULL) {
+	//	script_pushint(st, 0);
+	//	return SCRIPT_CMD_SUCCESS;
+	//}
+	//host += 3;
+	//if (folder = strchr(host, '/')) == NULL) {
+	//;
+	//if (folder)
+	//ShowDebug("%s", folder);
+	return SCRIPT_CMD_SUCCESS;
+	//ip = host2ip(script_getstr(st, 2));
+	//post = script_getnum(st, 3);
+	//http_fd = make_connection(ip, post, false, 10);
+	//if (http_fd == -1){
+	//	script_pushint(st, -1);
+	//	return SCRIPT_CMD_SUCCESS;
+	//}
+	//session[http_fd]->func_parse = http_parse;
+	//session[http_fd]->flag.server = 1;
+	//realloc_fifo(http_fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
+	//
+	//WFIFOHEAD(http_fd, 2048);
+	//len += strlen("GET / HTTP / 1.1\n");
+	//memcpy(WFIFOP(http_fd, 0), "GET / HTTP/1.1\n", strlen("GET / HTTP / 1.1\n"));
+	//len += strlen("Accept: */*\n");
+	//memcpy(WFIFOP(http_fd, len), "Accept: */*\n", strlen("Accept: */*\n"));
+	//len += strlen("Accept: */*\n");
+	//memcpy(WFIFOP(http_fd, len), "Accept: */*\n", strlen("Accept: */*\n"));
+	//WFIFOSET(fd, 60);
 }
 
 // declarations that were supposed to be exported from npc_chat.c
@@ -26644,7 +26694,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(unloadduplicate, "unloadcopynpc", "s"),
 	BUILDIN_DEF(is_attach, "?"),
 	BUILDIN_DEF(unitskilltowide, "iviiiii"),
-	BUILDIN_DEF(addatkevent, "iiis?"),
+	BUILDIN_DEF(addatkevent, "iiisi?"),
 	BUILDIN_DEF(delatkevent, "i?"),
 	BUILDIN_DEF(getatkevent, "i?"),
 	BUILDIN_DEF(gettarget, "?"),
@@ -26695,6 +26745,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(tribe_mobteam, "i"),
 	BUILDIN_DEF(tribe_getteam, "?"),
 	BUILDIN_DEF(tribe_monster, "isiisi?"),
-
+	BUILDIN_DEF(http_get, "si"),
 	{NULL,NULL,NULL},
 };

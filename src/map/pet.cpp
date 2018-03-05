@@ -693,7 +693,19 @@ int pet_catch_process2(struct map_session_data* sd, int target_id)
 		return 1;
 	}
 
-	pet_catch_rate = (pet->capture + (sd->status.base_level - md->level)*30 + sd->battle_status.luk*20)*(200 - get_percentage(md->status.hp, md->status.max_hp))/100;
+	//pet_catch_rate = (pet->capture + (sd->status.base_level - md->level)*30 + sd->battle_status.luk*20)*(200 - get_percentage(md->status.hp, md->status.max_hp))/100;
+
+	switch (battle_config.pet_catch_rate_mode) {
+	case 0:
+		pet_catch_rate = (pet->capture + (sd->status.base_level - md->level) * 30 + sd->battle_status.luk * 20)*(200 - get_percentage(md->status.hp, md->status.max_hp)) / 100;
+		break;
+	case 1:
+		pet_catch_rate = (pet->capture + sd->battle_status.luk * 20)*(200 - get_percentage(md->status.hp, md->status.max_hp)) / 100;
+		break;
+	case 2:
+		pet_catch_rate = pet->capture*(200 - get_percentage(md->status.hp, md->status.max_hp)) / 100;
+		break;
+	}
 
 	if(pet_catch_rate < 1)
 		pet_catch_rate = 1;

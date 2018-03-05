@@ -638,6 +638,9 @@ struct map_data {
 	int iwall_num; // Total of invisible walls in this map
 	struct map_flag {
 		int mobinfo;
+		int mobdroprate;
+		int mvpdroprate;
+		unsigned nomail : 1;
 		unsigned tribe : 1;
 		unsigned hideguildinfo : 1;
 		unsigned hidepartyinfo : 1;
