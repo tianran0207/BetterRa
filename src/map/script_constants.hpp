@@ -4960,6 +4960,11 @@
 	export_constant_npc(JT_4_M_DANGDANG);
 	export_constant_npc(JT_4_F_DANGDANG1);
 	export_constant_npc(JT_4_LEAFCAT);
+	export_constant_npc(JT_4_NASARIAN);
+	export_constant_npc(JT_4_NASARIAN_EM);
+	export_constant_npc(JT_4_TEDDY_BEAR_W);
+	export_constant_npc(JT_4_TEDDY_BEAR_B);
+	export_constant_npc(JT_4_TEDDY_BEAR_B_L);
 	#undef export_constant_npc
 
 	/* special effects */
@@ -6124,6 +6129,35 @@
 	/* pet catch */
 	export_constant(PET_CATCH_UNIVERSAL);
 	export_constant(PET_CATCH_UNIVERSAL_ITEM);
+
+	/* monster modes */
+	export_constant(MD_NONE);
+	export_constant(MD_CANMOVE);
+	export_constant(MD_LOOTER);
+	export_constant(MD_AGGRESSIVE);
+	export_constant(MD_ASSIST);
+	export_constant(MD_CASTSENSOR_IDLE);
+	export_constant(MD_NORANDOM_WALK);
+	export_constant(MD_NOCAST_SKILL);
+	export_constant(MD_CANATTACK);
+	export_constant(MD_CASTSENSOR_CHASE);
+	export_constant(MD_CHANGECHASE);
+	export_constant(MD_ANGRY);
+	export_constant(MD_CHANGETARGET_MELEE);
+	export_constant(MD_CHANGETARGET_CHASE);
+	export_constant(MD_TARGETWEAK);
+	export_constant(MD_RANDOMTARGET);
+	export_constant(MD_IGNOREMELEE);
+	export_constant(MD_IGNOREMAGIC);
+	export_constant(MD_IGNORERANGED);
+	export_constant(MD_MVP);
+	export_constant(MD_IGNOREMISC);
+	export_constant(MD_KNOCKBACK_IMMUNE);
+	export_constant(MD_TELEPORT_BLOCK);
+	export_constant(MD_FIXED_ITEMDROP);
+	export_constant(MD_DETECTOR);
+	export_constant(MD_STATUS_IMMUNE);
+	export_constant(MD_SKILL_IMMUNE);
 
 	#undef export_constant
 	#undef export_constant2

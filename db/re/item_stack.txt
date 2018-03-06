@@ -18,13 +18,13 @@
 // 512,4,12  // Will not allow more than 4 Apples in storages.
 
 // Rune Knight
-12725,60,1  // Nauthiz Rune
-12726,60,1  // Raido Rune
-12727,60,1  // Berkana Rune
-12728,60,1  // Isa Rune
-12730,60,1  // Uruz Rune
-12733,60,1  // Hagalaz Rune
-22540,60,1  // Lux Anima Rune
+12725,60,1  //束缚符文石
+12726,60,1  //调和符文石
+12727,60,1  //再生符文石
+12728,60,1  //静止符文石
+12730,60,1  //轮回符文石
+12733,60,1  //毁灭符文石
+22540,60,1  //光魂符文石
 
 // Arch Bishop
-12333,3,1  // Ancilla
+12333,3,1  //辅助者

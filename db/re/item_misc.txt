@@ -3,1370 +3,1370 @@
 // GroupID,ItemID,Rate
 //
 // Cookie Bag
-IG_CookieBag,529,5		//Candy
-IG_CookieBag,530,5		//Candy Cane
-IG_CookieBag,538,5		//Well-baked Cookie
-IG_CookieBag,539,5		//Piece of Cake
-IG_CookieBag,558,1		//Chocolate
-IG_CookieBag,559,1		//Hand-made Chocolate
-IG_CookieBag,560,1		//Hand-made White Chocolate
-IG_CookieBag,561,1		//White Chocolate
-IG_CookieBag,564,5		//Rice Ball
-IG_CookieBag,570,5		//Lucky Candy
-IG_CookieBag,571,5		//Lucky Candy Cane
-IG_CookieBag,572,5		//Lucky Cookie
-IG_CookieBag,573,1		//Chocolate Drink
-IG_CookieBag,12122,1	//Sesame Pastry
-IG_CookieBag,12123,1	//Honey Pastry
-IG_CookieBag,12124,1	//Rainbow Cake
+IG_CookieBag,529,5		//糖果
+IG_CookieBag,530,5		//拐杖糖
+IG_CookieBag,538,5		//姜饼
+IG_CookieBag,539,5		//小蛋糕
+IG_CookieBag,558,1		//巧克力
+IG_CookieBag,559,1		//手制巧克力
+IG_CookieBag,560,1		//手制巧克力
+IG_CookieBag,561,1		//白色情人巧克力
+IG_CookieBag,564,5		//肉粽
+IG_CookieBag,570,5		//红色吉祥糖果
+IG_CookieBag,571,5		//幸运的拐杖糖
+IG_CookieBag,572,5		//幸运的姜饼
+IG_CookieBag,573,1		//巧克力饮料
+IG_CookieBag,12122,1	//茶食
+IG_CookieBag,12123,1	//油果
+IG_CookieBag,12124,1	//彩色糕饼
 // First Aid Kit
-IG_FirstAid,501,5		// Red Potion
-IG_FirstAid,502,5		// Orange Potion
-IG_FirstAid,503,5		// Yellow Potion
-IG_FirstAid,504,5		// White Potion
-IG_FirstAid,505,5		// Blue Potion
-IG_FirstAid,506,5		// Green Potion
-IG_FirstAid,545,5		// Condensed Red Potion
-IG_FirstAid,546,5		// Condensed Yellow Potion
-IG_FirstAid,547,5		// Condensed White Potion
-IG_FirstAid,569,5		// Novice Potion
-IG_FirstAid,605,5		// Anodyne
-IG_FirstAid,645,5		// Concentration Potion
-IG_FirstAid,656,5		// Awakening Potion
-IG_FirstAid,657,5		// Berserk Potion
-IG_FirstAid,678,1		// Poison Bottle
-IG_FirstAid,12016,5	// Speed Potion
-IG_FirstAid,12017,5	// Slow Potion
-IG_FirstAid,12020,5	// Cursed_Water
+IG_FirstAid,501,5		//红色药水
+IG_FirstAid,502,5		//赤色药水
+IG_FirstAid,503,5		//黄色药水
+IG_FirstAid,504,5		//白色药水
+IG_FirstAid,505,5		//蓝色药水
+IG_FirstAid,506,5		//绿色药水
+IG_FirstAid,545,5		//红色纤细药水
+IG_FirstAid,546,5		//黄色纤细药水
+IG_FirstAid,547,5		//白色纤细药水
+IG_FirstAid,569,5		//初学者专用药水
+IG_FirstAid,605,5		//曼特疗伤药
+IG_FirstAid,645,5		//集中药水
+IG_FirstAid,656,5		//觉醒药水
+IG_FirstAid,657,5		//菠色克药水
+IG_FirstAid,678,1		//毒药瓶
+IG_FirstAid,12016,5	//移速变化药水
+IG_FirstAid,12017,5	//移速变化药水
+IG_FirstAid,12020,5	//暗水
 // Herbs
-IG_Herb,507,1		// Red Herb
-IG_Herb,508,1		// Yellow Herb
-IG_Herb,509,1		// White Herb
+IG_Herb,507,1		//红色药草
+IG_Herb,508,1		//黄色药草
+IG_Herb,509,1		//白色药草
 // Fruits
-IG_Fruit,512,1	// Apple
-IG_Fruit,513,1	// Banana
-IG_Fruit,514,1	// Grape
-IG_Fruit,515,1	// Carrot
-IG_Fruit,516,1	// Potato
+IG_Fruit,512,1	//苹果
+IG_Fruit,513,1	//香蕉
+IG_Fruit,514,1	//葡萄
+IG_Fruit,515,1	//红萝卜
+IG_Fruit,516,1	//蕃薯
 // Meat
-IG_Meat,517,1	// Meat
-IG_Meat,528,1	// Monster Food
+IG_Meat,517,1	//肉
+IG_Meat,528,1	//魔物饲料
 // Candy
-IG_Candy,529,1	// Candy
-IG_Candy,530,1	// Candy Cane
+IG_Candy,529,1	//糖果
+IG_Candy,530,1	//拐杖糖
 // Juice
-IG_Juice,531,1	// Apple Juice
-IG_Juice,532,1	// Banana Juice
-IG_Juice,534,1	// Carrot Juice
+IG_Juice,531,1	//苹果汁
+IG_Juice,532,1	//香蕉汁
+IG_Juice,534,1	//红萝卜汁
 // Fish
-IG_Fish,544,1	// Raw Fish
-IG_Fish,551,1	// Sushi
+IG_Fish,544,1	//生鱼片
+IG_Fish,551,1	//明虾寿司
 // Boxes
-IG_Box,603,1	// Old Blue Box
-IG_Box,617,1	// Old Purple Box
-IG_Box,644,1	// Gift Box
+IG_Box,603,1	//神秘箱子
+IG_Box,617,1	//神秘紫箱
+IG_Box,644,1	//礼物箱
 // Gemstones
-IG_Gemstone,715,1	// Yellow Gemstone
-IG_Gemstone,716,1	// Red Gemstone
-IG_Gemstone,717,1	// Blue Gemstone
+IG_Gemstone,715,1	//黄色魔力矿石
+IG_Gemstone,716,1	//红色魔力矿石
+IG_Gemstone,717,1	//蓝色魔力矿石
 // Elemental Resist Potions
-IG_Resist,12118,1	// Fire Resist Potion
-IG_Resist,12119,1	// Cold Resist Potion
-IG_Resist,12120,1	// Earth Resist Potion
-IG_Resist,12121,1	// Thunder Resist Potion
+IG_Resist,12118,1	//火属性抵抗药水
+IG_Resist,12119,1	//水属性抵抗药水
+IG_Resist,12120,1	//地属性抵抗药水
+IG_Resist,12121,1	//风属性抵抗药水
 // Ores
-IG_Ore,1002,30	// Iron_Ore
-IG_Ore,998,28	// Iron
-IG_Ore,993,26	// Yellow_Live
-IG_Ore,1003,24	// Coal
-IG_Ore,992,22	// Wind_Of_Verdure
-IG_Ore,1010,20	// Phracon
-IG_Ore,991,18	// Crystal_Blue
-IG_Ore,990,16	// Boody_Red
-IG_Ore,999,14	// Steel
-IG_Ore,1011,12	// Emveretarcon
-IG_Ore,757,10	// Elunium_Stone
-IG_Ore,756,9	// Oridecon_Stone
-IG_Ore,997,8	// Great_Nature
-IG_Ore,996,7	// Rough_Wind
-IG_Ore,995,6	// Mistic_Frozen
-IG_Ore,994,5	// Flame_Heart
-IG_Ore,985,4	// Elunium
-IG_Ore,984,3	// Oridecon
-IG_Ore,969,2	// Gold
-IG_Ore,714,1	// Emperium
+IG_Ore,1002,30	//铁矿石
+IG_Ore,998,28	//铁
+IG_Ore,993,26	//地灵矿石
+IG_Ore,1003,24	//煤矿
+IG_Ore,992,22	//风灵矿石
+IG_Ore,1010,20	//强化武器金属-级数一
+IG_Ore,991,18	//水灵矿石
+IG_Ore,990,16	//火灵矿石
+IG_Ore,999,14	//钢铁
+IG_Ore,1011,12	//强化武器金属-级数二
+IG_Ore,757,10	//铝原石
+IG_Ore,756,9	//神之金属原石
+IG_Ore,997,8	//土灵原石
+IG_Ore,996,7	//风灵原石
+IG_Ore,995,6	//水灵原石
+IG_Ore,994,5	//火灵原石
+IG_Ore,985,4	//铝
+IG_Ore,984,3	//神之金属
+IG_Ore,969,2	//黄金
+IG_Ore,714,1	//华丽金属
 // Food Types
-IG_Food,526,5	// Royal_Jelly
-IG_Food,12042,10	// Str_Dish02
-IG_Food,12057,10	// Agi_Dish02
-IG_Food,12053,10	// Vit_Dish03
-IG_Food,12062,10	// Dex_Dish02
-IG_Food,12068,10	// Luk_Dish03
-IG_Food,12047,10	// Int_Dish02
-IG_Food,531,30	// Apple_Juice
-IG_Food,532,30	// Banana_Juice
-IG_Food,533,30	// Grape_Juice
-IG_Food,534,30	// Carrot_Juice
-IG_Food,538,30	// Well_Baked_Cookie
-IG_Food,536,50	// Ice_Cream
-IG_Food,544,50	// Fish_Slice
-IG_Food,548,50	// Cheese
-IG_Food,551,50	// Shusi
-IG_Food,553,50	// Bun
-IG_Food,554,50	// Mojji
-IG_Food,535,50	// Pumpkin
-IG_Food,516,100	// Sweet_Potato
-IG_Food,513,100	// Banana
-IG_Food,512,600	// Apple
+IG_Food,526,5	//蜂胶
+IG_Food,12042,10	//凉拌蛙蹼
+IG_Food,12057,10	//口感滑爽的面
+IG_Food,12053,10	//蛤蜊汤
+IG_Food,12062,10	//巧克力奶油蛋糕
+IG_Food,12068,10	//番薯饼
+IG_Food,12047,10	//万叶红茶
+IG_Food,531,30	//苹果汁
+IG_Food,532,30	//香蕉汁
+IG_Food,533,30	//葡萄汁
+IG_Food,534,30	//红萝卜汁
+IG_Food,538,30	//姜饼
+IG_Food,536,50	//冰淇淋
+IG_Food,544,50	//生鱼片
+IG_Food,548,50	//吉士
+IG_Food,551,50	//明虾寿司
+IG_Food,553,50	//包子
+IG_Food,554,50	//甜米糕
+IG_Food,535,50	//南瓜
+IG_Food,516,100	//蕃薯
+IG_Food,513,100	//香蕉
+IG_Food,512,600	//苹果
 // Recovery Types
-IG_Recovery,522,5	// Fruit_Of_Mastela
-IG_Recovery,521,5	// Leaflet_Of_Aloe
-IG_Recovery,520,10	// Leaflet_Of_Hinal
-IG_Recovery,545,10	// Red_Slim_Potion
-IG_Recovery,12118,10	// Resist_Earth
-IG_Recovery,508,20	// Yellow_Herb
-IG_Recovery,501,20	// Red_Potion
-IG_Recovery,511,30	// Green_Herb
-IG_Recovery,507,30	// Red_Herb
-IG_Recovery,569,50	// Novice_Potion
-IG_Recovery,549,50	// Nice_Sweet_Potato
-IG_Recovery,529,100	// Candy
-IG_Recovery,528,200	// Monster's_Feed
-IG_Recovery,550,600	// Popped_Rice
+IG_Recovery,522,5	//玛丝黛拉果实
+IG_Recovery,521,5	//芦荟叶子
+IG_Recovery,520,10	//西纳雷叶子
+IG_Recovery,545,10	//红色纤细药水
+IG_Recovery,12118,10	//火属性抵抗药水
+IG_Recovery,508,20	//黄色药草
+IG_Recovery,501,20	//红色药水
+IG_Recovery,511,30	//绿色药草
+IG_Recovery,507,30	//红色药草
+IG_Recovery,569,50	//初学者专用药水
+IG_Recovery,549,50	//美味蕃薯
+IG_Recovery,529,100	//糖果
+IG_Recovery,528,200	//魔物饲料
+IG_Recovery,550,600	//仙贝
 // Minerals - Unused
-IG_Mineral,714,1	// Emperium
-IG_Mineral,756,1	// Rough Oridecon
-IG_Mineral,757,1	// Rough Elunium
-IG_Mineral,969,1	// Gold
-IG_Mineral,984,1	// Oridecon
-IG_Mineral,985,1	// Elunium
-IG_Mineral,990,1	// Red Blood
-IG_Mineral,991,1	// Crystal Blue
-IG_Mineral,992,1	// Wind of Verdure
-IG_Mineral,993,1	// Green Live
-IG_Mineral,994,1	// Flame Heart
-IG_Mineral,995,1	// Mystic Frozen
-IG_Mineral,996,1	// Rough Wind
-IG_Mineral,997,1	// Great Nature
-IG_Mineral,998,1	// Iron
-IG_Mineral,999,1	// Steel
-IG_Mineral,1002,1	// Iron Ore
-IG_Mineral,1003,1	// Coal
-IG_Mineral,1010,1	// Phracon
-IG_Mineral,1011,1	// Emveretarcon
+IG_Mineral,714,1	//华丽金属
+IG_Mineral,756,1	//神之金属原石
+IG_Mineral,757,1	//铝原石
+IG_Mineral,969,1	//黄金
+IG_Mineral,984,1	//神之金属
+IG_Mineral,985,1	//铝
+IG_Mineral,990,1	//火灵矿石
+IG_Mineral,991,1	//水灵矿石
+IG_Mineral,992,1	//风灵矿石
+IG_Mineral,993,1	//地灵矿石
+IG_Mineral,994,1	//火灵原石
+IG_Mineral,995,1	//水灵原石
+IG_Mineral,996,1	//风灵原石
+IG_Mineral,997,1	//土灵原石
+IG_Mineral,998,1	//铁
+IG_Mineral,999,1	//钢铁
+IG_Mineral,1002,1	//铁矿石
+IG_Mineral,1003,1	//煤矿
+IG_Mineral,1010,1	//强化武器金属-级数一
+IG_Mineral,1011,1	//强化武器金属-级数二
 // Set Of Taiming Item
-IG_Taming,619,1	// Unripe Apple
-IG_Taming,620,1	// Orange Juice
-IG_Taming,621,1	// Bitter Herb
-IG_Taming,622,1	// Rainbow Carrot
-IG_Taming,623,1	// Earthworm the Dude
-IG_Taming,624,1	// Rotten Fish
-IG_Taming,625,1	// Rusty Iron
-IG_Taming,626,1	// Monster Juice
-IG_Taming,627,1	// Sweet Milk
-IG_Taming,628,1	// Well-Dried Bone
-IG_Taming,629,1	// Singing Flower
-IG_Taming,630,1	// Dew Laden Moss
-IG_Taming,631,1	// Deadly Noxious Herb
-IG_Taming,632,1	// Fatty Chubby Earthworm
-IG_Taming,633,1	// Sweet Potato
-IG_Taming,634,1	// Tropical Banana
-IG_Taming,635,1	// Orc Trophy
-IG_Taming,636,1	// No Recipient
-IG_Taming,637,1	// Old Broom
-IG_Taming,638,1	// Silver Knife of Chastity
-IG_Taming,639,1	// Armlet of Obedience
-IG_Taming,640,1	// Shining Stone
-IG_Taming,641,1	// Contracts in Shadow
-IG_Taming,642,1	// Book of the Devil
-IG_Taming,659,1	// Her Heart
-IG_Taming,660,1	// Forbidden Red Candle
-IG_Taming,661,1	// Soft Apron
-IG_Taming,10001,1	// Skull Helm
-IG_Taming,10002,1	// Monster Oxygen Mask
-IG_Taming,10003,1	// Transparent Headgear
-IG_Taming,10004,1	// Pacifier
-IG_Taming,10005,1	// Wig
-IG_Taming,10006,1	// Queen's Hair Ornament
-IG_Taming,10007,1	// Silk Ribbon
-IG_Taming,10008,1	// Punisher
-IG_Taming,10009,1	// Wild Flower
-IG_Taming,10010,1	// Battered Pot
-IG_Taming,10011,1	// Stellar Hairpin
-IG_Taming,10012,1	// Tiny Egg Shell
-IG_Taming,10013,1	// Backpack
-IG_Taming,10014,1	// Rocker Glasses
-IG_Taming,10015,1	// Green Lace
-IG_Taming,10016,1	// Golden Bell
-IG_Taming,10017,1	// Bark Shorts
-IG_Taming,10018,1	// Monkey Circlet
-IG_Taming,10019,1	// Red Scarf
-IG_Taming,10020,1	// Grave Keeper's Sword
-IG_Taming,12373,1	// Boy's Pure Heart
-IG_Taming,12374,1	// Ice Fireworks
-IG_Taming,12395,1	// Tantan Noodle
+IG_Taming,619,1	//青苹果
+IG_Taming,620,1	//浓缩柳橙汁
+IG_Taming,621,1	//苦味草
+IG_Taming,622,1	//彩色红萝卜
+IG_Taming,623,1	//变态蚯蚓
+IG_Taming,624,1	//腐臭之鱼
+IG_Taming,625,1	//锈铁
+IG_Taming,626,1	//魔物饮料
+IG_Taming,627,1	//魔物牛奶
+IG_Taming,628,1	//营养大骨
+IG_Taming,629,1	//呢喃花
+IG_Taming,630,1	//青苔
+IG_Taming,631,1	//青嫩毒草
+IG_Taming,632,1	//营养蚯蚓
+IG_Taming,633,1	//魔物番薯
+IG_Taming,634,1	//魔物香蕉
+IG_Taming,635,1	//魔物之证
+IG_Taming,636,1	//魔物信件
+IG_Taming,637,1	//魔物扫把
+IG_Taming,638,1	//纯洁银刃
+IG_Taming,639,1	//驯服手镯
+IG_Taming,640,1	//闪烁之石
+IG_Taming,641,1	//黑暗合约书
+IG_Taming,642,1	//恶魔召唤书
+IG_Taming,659,1	//心爱女人之回忆
+IG_Taming,660,1	//红色蜡烛
+IG_Taming,661,1	//摇曳的围裙
+IG_Taming,10001,1	//牛角骨盔
+IG_Taming,10002,1	//宠物防毒面具
+IG_Taming,10003,1	//潜水头盔
+IG_Taming,10004,1	//宠物奶嘴
+IG_Taming,10005,1	//三色假发
+IG_Taming,10006,1	//蛇饰发箍
+IG_Taming,10007,1	//宠物发带
+IG_Taming,10008,1	//体罚棒
+IG_Taming,10009,1	//野生花
+IG_Taming,10010,1	//变形锅子
+IG_Taming,10011,1	//宠物发夹
+IG_Taming,10012,1	//宠物蛋壳帽
+IG_Taming,10013,1	//宠物书包
+IG_Taming,10014,1	//蝗虫眼镜
+IG_Taming,10015,1	//宠物围兜兜
+IG_Taming,10016,1	//宠物铃铛
+IG_Taming,10017,1	//树皮裤
+IG_Taming,10018,1	//猴子发箍
+IG_Taming,10019,1	//红色领巾
+IG_Taming,10020,1	//灵幻道士之剑
+IG_Taming,12373,1	//少男的情书
+IG_Taming,12374,1	//火焰冰
+IG_Taming,12395,1	//担担面
 // Bundle Of Magic Scroll
-IG_Scroll,686,1	// Level 3 Earth Spike
-IG_Scroll,687,1	// Level 5 Earth Spike
-IG_Scroll,688,1	// Level 3 Cold Bolt
-IG_Scroll,689,1	// Level 5 Cold Bolt
-IG_Scroll,690,1	// Level 3 Fire Bolt
-IG_Scroll,691,1	// Level 5 Fire Bolt
-IG_Scroll,692,1	// Level 3 Lightening Bolt
-IG_Scroll,693,1	// Level 5 Lightening Bolt
-IG_Scroll,694,1	// Level 3 Soul Strike
-IG_Scroll,695,1	// Level 5 Soul Strike
-IG_Scroll,696,1	// Level 1 Fire Ball
-IG_Scroll,697,1	// Level 5 Fire Ball
-IG_Scroll,698,1	// Level 1 Fire Wall
-IG_Scroll,699,1	// Level 5 Fire Wall
-IG_Scroll,700,1	// Level 1 Frost Diver
-IG_Scroll,12000,1	// Level 5 Frost Diver
-IG_Scroll,12001,1	// Level 3 Heal
-IG_Scroll,12002,1	// Level 5 Heal
+IG_Scroll,686,1	//地震术 等级3
+IG_Scroll,687,1	//地震术 等级5
+IG_Scroll,688,1	//冰箭术 等级3
+IG_Scroll,689,1	//冰箭术 等级5
+IG_Scroll,690,1	//火箭术 等级3
+IG_Scroll,691,1	//火箭术 等级5
+IG_Scroll,692,1	//雷击术 等级3
+IG_Scroll,693,1	//雷击术 等级5
+IG_Scroll,694,1	//圣灵召唤 等级3
+IG_Scroll,695,1	//圣灵召唤 等级5
+IG_Scroll,696,1	//火球术 等级1
+IG_Scroll,697,1	//火球术 等级5
+IG_Scroll,698,1	//火焰之壁 等级1
+IG_Scroll,699,1	//火焰之壁 等级5
+IG_Scroll,700,1	//冰冻术 等级1
+IG_Scroll,12000,1	//冰冻术 等级5
+IG_Scroll,12001,1	//治愈术 等级3
+IG_Scroll,12002,1	//治愈术 等级5
 // Random Quiver
-IG_Quiver,12004,1	// Quiver
-IG_Quiver,12005,1	// Iron Arrow Quiver
-IG_Quiver,12006,1	// Steel Arrow Quiver
-IG_Quiver,12007,1	// Oridecon Arrow Quiver
-IG_Quiver,12008,1	// Fire Arrow Quiver
-IG_Quiver,12009,1	// Silver Arrow Quiver
-IG_Quiver,12010,1	// Wind Arrow Quiver
-IG_Quiver,12011,1	// Stone Arrow Quiver
-IG_Quiver,12012,1	// Crystal Arrow Quiver
-IG_Quiver,12013,1	// Shadow Arrow Quiver
-IG_Quiver,12014,1	// Immaterial Arrow Quiver
-IG_Quiver,12015,1	// Rusty Arrow Quiver
-IG_Quiver,12183,2	// Holy Arrow Quiver
+IG_Quiver,12004,1	//箭矢筒
+IG_Quiver,12005,1	//铁箭矢筒
+IG_Quiver,12006,1	//钢铁箭矢筒
+IG_Quiver,12007,1	//神之金属箭矢筒
+IG_Quiver,12008,1	//火箭矢筒
+IG_Quiver,12009,1	//银箭矢筒
+IG_Quiver,12010,1	//风灵箭矢筒
+IG_Quiver,12011,1	//地灵箭矢筒
+IG_Quiver,12012,1	//水灵箭矢筒
+IG_Quiver,12013,1	//影子箭矢筒
+IG_Quiver,12014,1	//无形箭矢筒
+IG_Quiver,12015,1	//铁锈箭矢筒
+IG_Quiver,12183,2	//神圣的箭筒
 // Wrapped Mask
-IG_Mask,2278,10	// Mr. Smile
-IG_Mask,2281,10	// Opera Masque
-IG_Mask,2288,10	// Mr. Scream
-IG_Mask,2292,10	// Welding Mask
-IG_Mask,2297,10	// Goblin Mask
-IG_Mask,5005,10	// Gas Mask
-IG_Mask,5086,10	// Alarm Mask
-IG_Mask,5087,10	// Poker Face
-IG_Mask,5088,10	// Surprised Mask
-IG_Mask,5089,10	// Annoyed Mask
-IG_Mask,5090,10	// Goblin Leader Mask
-IG_Mask,5121,1	// Zherlthsh Mask
-IG_Mask,5176,2	// Hahoe Mask
+IG_Mask,2278,10	//笑脸面具
+IG_Mask,2281,10	//舞会面具
+IG_Mask,2288,10	//整人面具
+IG_Mask,2292,10	//钢铁面具
+IG_Mask,2297,10	//哥布灵面具
+IG_Mask,5005,10	//防毒面具
+IG_Mask,5086,10	//钟怪假面
+IG_Mask,5087,10	//无表情的假面
+IG_Mask,5088,10	//吓坏眼的假面
+IG_Mask,5089,10	//讨厌的假面
+IG_Mask,5090,10	//哥布灵首领假面
+IG_Mask,5121,1	//艾斯恩魔女假面
+IG_Mask,5176,2	//传统面具
 // Accessory Box
-IG_Accesory,2601,10	// Ring
-IG_Accesory,2602,11	// Earring
-IG_Accesory,2603,12	// Necklace
-IG_Accesory,2604,12	// Glove
-IG_Accesory,2605,12	// Brooch
-IG_Accesory,2607,12	// Clip
-IG_Accesory,2608,14	// Rosary
-IG_Accesory,2609,14	// Skull Ring
-IG_Accesory,2610,14	// Gold Ring
-IG_Accesory,2611,14	// Silver Ring
-IG_Accesory,2612,14	// Flower Ring
-IG_Accesory,2613,11	// Diamond Ring
-IG_Accesory,2615,1	// Safety Ring
-IG_Accesory,2616,1	// Critical Ring
-IG_Accesory,2617,10	// Celebrant's Mitten
-IG_Accesory,2618,11	// Matyr's Leash
-IG_Accesory,2619,10	// Bow Thimble
-IG_Accesory,2621,1	// Ring
-IG_Accesory,2622,1	// Earring
-IG_Accesory,2623,10	// Necklace
-IG_Accesory,2624,1	// Glove
-IG_Accesory,2625,1	// Brooch
-IG_Accesory,2626,1	// Rosary
-IG_Accesory,2627,10	// Belt
-IG_Accesory,2628,14	// Novice Armlet
-IG_Accesory,2654,1	// Shinobi Sash
-IG_Accesory,2656,1	// Armor Charm
-IG_Accesory,2658,10	// Nile Rose
-IG_Accesory,2659,2	// Vesper Core 01
-IG_Accesory,2660,2	// Vesper Core 02
-IG_Accesory,2661,2	// Vesper Core 03
-IG_Accesory,2662,2	// Vesper Core 04
-IG_Accesory,2671,1	// Bow Thimble
-IG_Accesory,2677,1	// Spiritual Ring
-IG_Accesory,2680,9	// Ring of Minor Spirits
-IG_Accesory,2700,2	// Red Silk of Seal
-IG_Accesory,2701,1	// Glove of Orleans
-IG_Accesory,2703,1	// Expert Ring
-IG_Accesory,2716,1	// Librarian Glove
-IG_Accesory,2717,1	// Pocket Watch
-IG_Accesory,2718,1	// Lunatic Brooch
-IG_Accesory,2719,1	// Iron Wrist
+IG_Accesory,2601,10	//力量戒指
+IG_Accesory,2602,11	//智力耳环
+IG_Accesory,2603,12	//体力项链
+IG_Accesory,2604,12	//防御手套
+IG_Accesory,2605,12	//敏捷别针
+IG_Accesory,2607,12	//发夹
+IG_Accesory,2608,14	//幸运珠链
+IG_Accesory,2609,14	//骷髅戒指
+IG_Accesory,2610,14	//金戒指
+IG_Accesory,2611,14	//银戒指
+IG_Accesory,2612,14	//花戒指
+IG_Accesory,2613,11	//钻石戒指
+IG_Accesory,2615,1	//防御戒指
+IG_Accesory,2616,1	//潜能戒指
+IG_Accesory,2617,10	//智慧手套
+IG_Accesory,2618,11	//黑狐颈链
+IG_Accesory,2619,10	//神射手套
+IG_Accesory,2621,1	//力量戒指
+IG_Accesory,2622,1	//智力耳环
+IG_Accesory,2623,10	//体力项链
+IG_Accesory,2624,1	//防御手套
+IG_Accesory,2625,1	//敏捷别针
+IG_Accesory,2626,1	//幸运珠链
+IG_Accesory,2627,10	//皮带
+IG_Accesory,2628,14	//初学者手镯
+IG_Accesory,2654,1	//火忍西怒毕的腰带
+IG_Accesory,2656,1	//过度的改变
+IG_Accesory,2658,10	//尼罗玫瑰
+IG_Accesory,2659,2	//晚祷钟核心 01
+IG_Accesory,2660,2	//晚祷钟核心 02
+IG_Accesory,2661,2	//晚祷钟核心 03
+IG_Accesory,2662,2	//晚祷钟核心 04
+IG_Accesory,2671,1	//神射手套
+IG_Accesory,2677,1	//精灵戒指
+IG_Accesory,2680,9	//下级精灵的戒指
+IG_Accesory,2700,2	//封印的红色绸缎
+IG_Accesory,2701,1	//奥尔里昂的手套
+IG_Accesory,2703,1	//强化 指环
+IG_Accesory,2716,1	//图书管理员的手套
+IG_Accesory,2717,1	//银色怀表
+IG_Accesory,2718,1	//月亮胸针
+IG_Accesory,2719,1	//铁护腕
 // jewels
-IG_Jewel,715,100	// Yellow_Gemstone
-IG_Jewel,716,100	// Red_Gemstone
-IG_Jewel,717,100	// Blue_Gemstone
-IG_Jewel,718,10	// Dark_Red_Jewel
-IG_Jewel,719,10	// Violet_Jewel
-IG_Jewel,720,10	// Skyblue_Jewel
-IG_Jewel,721,10	// Azure_Jewel
-IG_Jewel,722,10	// Scarlet_Jewel
-IG_Jewel,723,10	// Cardinal_Jewel
-IG_Jewel,724,10	// Cardinal_Jewel_
-IG_Jewel,725,10	// Red_Jewel
-IG_Jewel,726,10	// Blue_Jewel
-IG_Jewel,727,10	// White_Jewel
-IG_Jewel,728,10	// Golden_Jewel
-IG_Jewel,729,10	// Bluish_Green_Jewel 
-IG_Jewel,730,5	// Crystal_Jewel
-IG_Jewel,731,4	// Crystal_Jewel_
-IG_Jewel,732,3	// Crystal_Jewel__
-IG_Jewel,733,27	// Crystal_Jewel___
-IG_Jewel,746,50	// Glass_Bead
+IG_Jewel,715,100	//黄色魔力矿石
+IG_Jewel,716,100	//红色魔力矿石
+IG_Jewel,717,100	//蓝色魔力矿石
+IG_Jewel,718,10	//深红宝石
+IG_Jewel,719,10	//紫宝石
+IG_Jewel,720,10	//天蓝宝石
+IG_Jewel,721,10	//绿宝石
+IG_Jewel,722,10	//珍珠
+IG_Jewel,723,10	//红宝石
+IG_Jewel,724,10	//诅咒红宝石
+IG_Jewel,725,10	//大红宝石
+IG_Jewel,726,10	//蓝宝石
+IG_Jewel,727,10	//白宝石
+IG_Jewel,728,10	//黄宝石
+IG_Jewel,729,10	//青绿宝石
+IG_Jewel,730,5	//1克拉钻石
+IG_Jewel,731,4	//2克拉钻石
+IG_Jewel,732,3	//3克拉钻石
+IG_Jewel,733,27	//受损的钻石
+IG_Jewel,746,50	//玻璃珠
 // Egg Boy
-IG_EggBoy,514,300	// Grape
-IG_EggBoy,564,522	// Rice Ball
-IG_EggBoy,660,20	// Forbidden Red Candle
-IG_EggBoy,682,100	// Distilled Fighting Spirit
-IG_EggBoy,683,50	// Herb of Incantation
-IG_EggBoy,2274,5	// Ghost Bandana
-IG_EggBoy,5072,2	// Incubus Horn
+IG_EggBoy,514,300	//葡萄
+IG_EggBoy,564,522	//肉粽
+IG_EggBoy,660,20	//红色蜡烛
+IG_EggBoy,682,100	//雄黄酒
+IG_EggBoy,683,50	//艾草
+IG_EggBoy,2274,5	//亡者发箍
+IG_EggBoy,5072,2	//恶魔侍者的角
 // Egg Girl
-IG_EggGirl,514,300	// Grape
-IG_EggGirl,564,522	// Rice Ball
-IG_EggGirl,661,20	// Soft Apron
-IG_EggGirl,682,100	// Distilled Fighting Spirit
-IG_EggGirl,683,50	// Herb of Incantation
-IG_EggGirl,5042,5	// Bao Bao
-IG_EggGirl,5066,2	// Succubus Horn
+IG_EggGirl,514,300	//葡萄
+IG_EggGirl,564,522	//肉粽
+IG_EggGirl,661,20	//摇曳的围裙
+IG_EggGirl,682,100	//雄黄酒
+IG_EggGirl,683,50	//艾草
+IG_EggGirl,5042,5	//丸子头饰
+IG_EggGirl,5066,2	//恶魔女仆的角
 // Lotto Box
-IG_LottoBox,7391,1	// Lotto Ball 31
-IG_LottoBox,7392,1	// Lotto Ball 32
-IG_LottoBox,7393,1	// Lotto Ball 33
-IG_LottoBox,7394,1	// Lotto Ball 34
-IG_LottoBox,7395,1	// Lotto Ball 35
-IG_LottoBox,7396,1	// Lotto Ball 36
-IG_LottoBox,7397,1	// Lotto Ball 37
-IG_LottoBox,7398,1	// Lotto Ball 38
-IG_LottoBox,7540,1	// Lotto Ball 39
-IG_LottoBox,7541,1	// Lotto Ball 40
+IG_LottoBox,7391,1	//31号球
+IG_LottoBox,7392,1	//32号球
+IG_LottoBox,7393,1	//33号球
+IG_LottoBox,7394,1	//34号球
+IG_LottoBox,7395,1	//35号球
+IG_LottoBox,7396,1	//36号球
+IG_LottoBox,7397,1	//37号球
+IG_LottoBox,7398,1	//38号球
+IG_LottoBox,7540,1	//39号球
+IG_LottoBox,7541,1	//40号球
 // Food Package
-IG_FoodBag,512,1	// Apple
-IG_FoodBag,513,1	// Banana
-IG_FoodBag,514,1	// Grape
-IG_FoodBag,515,1	// Carrot
-IG_FoodBag,516,1	// Potato
-IG_FoodBag,517,1	// Meat
-IG_FoodBag,518,1	// Honey
-IG_FoodBag,519,1	// Milk
-IG_FoodBag,520,1	// Hinalle Leaflet
-IG_FoodBag,521,1	// Aloe Leaflet
-IG_FoodBag,522,1	// Mastela Fruit
-IG_FoodBag,526,1	// Royal Jelly
-IG_FoodBag,529,1	// Candy
-IG_FoodBag,530,1	// Candy Cane
-IG_FoodBag,531,1	// Apple Juice
-IG_FoodBag,532,1	// Banana Juice
-IG_FoodBag,533,1	// Grape Juice
-IG_FoodBag,534,1	// Carrot Juice
-IG_FoodBag,536,1	// Ice Cream
-IG_FoodBag,538,1	// Well-baked Cookie
-IG_FoodBag,539,1	// Piece of Cake
-IG_FoodBag,544,1	// Raw Fish
-IG_FoodBag,548,1	// Cheese
-IG_FoodBag,549,1	// Yam
-IG_FoodBag,550,1	// Rice Cake
-IG_FoodBag,551,1	// Sushi
-IG_FoodBag,553,1	// Bao
-IG_FoodBag,554,1	// Mochi
-IG_FoodBag,555,1	// Traditional Rice Cake
-IG_FoodBag,556,1	// Rice Cake Stick
-IG_FoodBag,557,1	// Neatly Sliced Rice Cake
-IG_FoodBag,558,1	// Chocolate
-IG_FoodBag,559,1	// Hand-made Chocolate
-IG_FoodBag,560,1	// Hand-made White Chocolate
-IG_FoodBag,561,1	// White Chocolate
-IG_FoodBag,564,1	// Rice Ball
-IG_FoodBag,566,1	// Tom Yum Goong
-IG_FoodBag,567,1	// Shrimp
-IG_FoodBag,568,1	// Lemon
-IG_FoodBag,576,1	// Prickly Fruit
-IG_FoodBag,607,1	// Yggdrasil Berry
-IG_FoodBag,608,1	// Yggdrasil Seed
-IG_FoodBag,663,1	// Songpyun
+IG_FoodBag,512,1	//苹果
+IG_FoodBag,513,1	//香蕉
+IG_FoodBag,514,1	//葡萄
+IG_FoodBag,515,1	//红萝卜
+IG_FoodBag,516,1	//蕃薯
+IG_FoodBag,517,1	//肉
+IG_FoodBag,518,1	//蜂蜜
+IG_FoodBag,519,1	//牛奶
+IG_FoodBag,520,1	//西纳雷叶子
+IG_FoodBag,521,1	//芦荟叶子
+IG_FoodBag,522,1	//玛丝黛拉果实
+IG_FoodBag,526,1	//蜂胶
+IG_FoodBag,529,1	//糖果
+IG_FoodBag,530,1	//拐杖糖
+IG_FoodBag,531,1	//苹果汁
+IG_FoodBag,532,1	//香蕉汁
+IG_FoodBag,533,1	//葡萄汁
+IG_FoodBag,534,1	//红萝卜汁
+IG_FoodBag,536,1	//冰淇淋
+IG_FoodBag,538,1	//姜饼
+IG_FoodBag,539,1	//小蛋糕
+IG_FoodBag,544,1	//生鱼片
+IG_FoodBag,548,1	//吉士
+IG_FoodBag,549,1	//美味蕃薯
+IG_FoodBag,550,1	//仙贝
+IG_FoodBag,551,1	//明虾寿司
+IG_FoodBag,553,1	//包子
+IG_FoodBag,554,1	//甜米糕
+IG_FoodBag,555,1	//糕饼
+IG_FoodBag,556,1	//长条年糕
+IG_FoodBag,557,1	//刀工很好的长条年糕
+IG_FoodBag,558,1	//巧克力
+IG_FoodBag,559,1	//手制巧克力
+IG_FoodBag,560,1	//手制巧克力
+IG_FoodBag,561,1	//白色情人巧克力
+IG_FoodBag,564,1	//肉粽
+IG_FoodBag,566,1	//泰式BBQ
+IG_FoodBag,567,1	//虾子
+IG_FoodBag,568,1	//柠檬
+IG_FoodBag,576,1	//榴槤
+IG_FoodBag,607,1	//天地树果实
+IG_FoodBag,608,1	//天地树芽
+IG_FoodBag,663,1	//年糕
 IG_FoodBag,669,1	// Rice-Cake Soup
 // Potions
-IG_Potion,501,1	// Red Potion
-IG_Potion,502,1	// Orange Potion
-IG_Potion,503,1	// Yellow Potion
-IG_Potion,504,1	// White Potion
+IG_Potion,501,1	//红色药水
+IG_Potion,502,1	//赤色药水
+IG_Potion,503,1	//黄色药水
+IG_Potion,504,1	//白色药水
 // Red Box_
-IG_RedBox_2,5137,1	// Alice Doll
-IG_RedBox_2,5138,9	// Magic Eyes
-IG_RedBox_2,5139,10	// Lotus
-IG_RedBox_2,5140,10	// Kawaii Ribbon
+IG_RedBox_2,5137,1	//爱丽丝女仆头饰
+IG_RedBox_2,5138,9	//魔导师的帽子
+IG_RedBox_2,5139,10	//海棠花发夹
+IG_RedBox_2,5140,10	//红蝶丝带
 // Old Bleu Box
-IG_BleuBox,519,1	// Milk
-IG_BleuBox,538,1	// Well-baked Cookie
-IG_BleuBox,644,1	// Gift Box
-IG_BleuBox,687,1	// Level 5 Earth Spike
-IG_BleuBox,689,1	// Level 5 Cold Bolt
-IG_BleuBox,691,1	// Level 5 Fire Bolt
-IG_BleuBox,693,1	// Level 5 Lightening Bolt
-IG_BleuBox,697,1	// Level 5 Fire Ball
-IG_BleuBox,699,1	// Level 5 Fire Wall
-IG_BleuBox,12000,1	// Level 5 Frost Diver
-IG_BleuBox,12002,1	// Level 5 Heal
+IG_BleuBox,519,1	//牛奶
+IG_BleuBox,538,1	//姜饼
+IG_BleuBox,644,1	//礼物箱
+IG_BleuBox,687,1	//地震术 等级5
+IG_BleuBox,689,1	//冰箭术 等级5
+IG_BleuBox,691,1	//火箭术 等级5
+IG_BleuBox,693,1	//雷击术 等级5
+IG_BleuBox,697,1	//火球术 等级5
+IG_BleuBox,699,1	//火焰之壁 等级5
+IG_BleuBox,12000,1	//冰冻术 等级5
+IG_BleuBox,12002,1	//治愈术 等级5
 // Red Box
-IG_RedBox,5099,1	// Neko Mimi
-IG_RedBox,5137,11	// Alice Doll
-IG_RedBox,5138,11	// Magic Eyes
-IG_RedBox,5139,11	// Lotus
-IG_RedBox,5140,11	// Kawaii Ribbon
-IG_RedBox,5142,11	// Crescent Helm
-IG_RedBox,5143,12	// Kabuki Mask
-IG_RedBox,5152,1	// Phoenix Crown
-IG_RedBox,5181,11	// Helm of Darkness
-IG_RedBox,5182,1	// Puppy Hat
-IG_RedBox,5183,11	// Nest Hat
-IG_RedBox,5185,11	// Laurel Crown
-IG_RedBox,5186,11	// Geographer Decoration
-IG_RedBox,5187,10	// Twin Ribbon
+IG_RedBox,5099,1	//咪咪帽
+IG_RedBox,5137,11	//爱丽丝女仆头饰
+IG_RedBox,5138,11	//魔导师的帽子
+IG_RedBox,5139,11	//海棠花发夹
+IG_RedBox,5140,11	//红蝶丝带
+IG_RedBox,5142,11	//大名的头盔
+IG_RedBox,5143,12	//能剧面具
+IG_RedBox,5152,1	//凤冠
+IG_RedBox,5181,11	//暗黑假面
+IG_RedBox,5182,1	//趴趴狗
+IG_RedBox,5183,11	//雀巢帽
+IG_RedBox,5185,11	//月桂树之冠
+IG_RedBox,5186,11	//阳光的向日葵
+IG_RedBox,5187,10	//少女的小红发带
 // Green Box
-IG_GreenBox,573,100	// Chocolate Drink
-IG_GreenBox,607,99	// Yggdrasil Berry
-IG_GreenBox,608,100	// Yggdrasil Seed
-IG_GreenBox,5182,1	// Puppy Hat
-IG_GreenBox,12018,100	// Firecracker
-IG_GreenBox,12075,100	// Steamed Tongue
-IG_GreenBox,12080,100	// Dragon Breath Cocktail
-IG_GreenBox,12085,100	// Immortal Stew
-IG_GreenBox,12090,100	// Steamed Desert Scorpions
-IG_GreenBox,12095,100	// Hwergelmir's Tonic
-IG_GreenBox,12100,100	// Cooked Nine Tail
+IG_GreenBox,573,100	//巧克力饮料
+IG_GreenBox,607,99	//天地树果实
+IG_GreenBox,608,100	//天地树芽
+IG_GreenBox,5182,1	//趴趴狗
+IG_GreenBox,12018,100	//鞭炮
+IG_GreenBox,12075,100	//舌头料理
+IG_GreenBox,12080,100	//鸡尾酒龙的呼吸
+IG_GreenBox,12085,100	//不死之汤
+IG_GreenBox,12090,100	//沙漠蝎子蒸锅
+IG_GreenBox,12095,100	//禾贝勒开米勒酒
+IG_GreenBox,12100,100	//特大九尾狐尾巴料理
 // Old Yellow Box
-IG_YellowBox,5259,1	// Elephant Hat
-IG_YellowBox,5260,1	// Cookie Hat
-IG_YellowBox,5261,1	// Silver Tiara
-IG_YellowBox,5262,1	// Golden Tiara
+IG_YellowBox,5259,1	//大象 帽子
+IG_YellowBox,5260,1	//库基 帽子
+IG_YellowBox,5261,1	//银色冠冕
+IG_YellowBox,5262,1	//金色冠冕
 // Hometown Gift
-IG_HometownGift,663,1	// Korean Rice Cake
-IG_HometownGift,12122,1	// Sesame Pastry
-IG_HometownGift,12123,1	// Honey Pastry
-IG_HometownGift,12124,1	// Rainbow Cake
-IG_HometownGift,12195,1	// Plain Rice Cake
-IG_HometownGift,12196,1	// Hearty Rice Cake
-IG_HometownGift,12197,1	// Salty Rice Cake
-IG_HometownGift,12198,1	// Lucky Rice Cake
+IG_HometownGift,663,1	//年糕
+IG_HometownGift,12122,1	//茶食
+IG_HometownGift,12123,1	//油果
+IG_HometownGift,12124,1	//彩色糕饼
+IG_HometownGift,12195,1	//纯味的糕饼
+IG_HometownGift,12196,1	//饱足感的糕饼
+IG_HometownGift,12197,1	//咸咸的糕饼
+IG_HometownGift,12198,1	//幸运的糕饼
 // Masquerade Ball Box
-IG_Masquerade,5296,10	// Drooping Nine Tail
+IG_Masquerade,5296,10	//懒洋洋九尾狐帽
 IG_Masquerade,5297,1	// Soul Wing
 IG_Masquerade,5298,10	// Dokebi's Wig
-IG_Masquerade,5299,10	// Pagdayaw
+IG_Masquerade,5299,10	//进化宝塔头盔
 // Tresure Box WoE
-IG_Tresure_Box_WoE,603,6	// Old Blue Box
-IG_Tresure_Box_WoE,658,6	// Tribal Solidarity
-IG_Tresure_Box_WoE,678,3	// Poison Bottle
-IG_Tresure_Box_WoE,732,9	// 3carat Diamond
-IG_Tresure_Box_WoE,12010,24	// Wind Arrow Quiver
-IG_Tresure_Box_WoE,12011,25	// Stone Arrow Quiver
-IG_Tresure_Box_WoE,12012,26	// Crystal Arrow Quiver
-IG_Tresure_Box_WoE,12105,12	// Taming Gift Set
-IG_Tresure_Box_WoE,12107,2	// Wrapped Mask
-IG_Tresure_Box_WoE,12108,9	// Scroll Package
-IG_Tresure_Box_WoE,12110,9	// First Aid Kit
-IG_Tresure_Box_WoE,12111,36	// Bundle of Food
-IG_Tresure_Box_WoE,12130,48	// Cookie Bag
-IG_Tresure_Box_WoE,12149,27	// Bullet Casing
-IG_Tresure_Box_WoE,12150,27	// Shell of Blood Casing
-IG_Tresure_Box_WoE,12151,27	// Silver Bullet Casing
-IG_Tresure_Box_WoE,12183,7	// Holy Arrow Quiver
-IG_Tresure_Box_WoE,12194,6	// Present from Home
-IG_Tresure_Box_WoE,12260,22	// Summer Event Suit
-IG_Tresure_Box_WoE,12702,8	// Old Bleu Box
+IG_Tresure_Box_WoE,603,6	//神秘箱子
+IG_Tresure_Box_WoE,658,6	//组织的团结力
+IG_Tresure_Box_WoE,678,3	//毒药瓶
+IG_Tresure_Box_WoE,732,9	//3克拉钻石
+IG_Tresure_Box_WoE,12010,24	//风灵箭矢筒
+IG_Tresure_Box_WoE,12011,25	//地灵箭矢筒
+IG_Tresure_Box_WoE,12012,26	//水灵箭矢筒
+IG_Tresure_Box_WoE,12105,12	//饲养礼物礼盒
+IG_Tresure_Box_WoE,12107,2	//包装的面具
+IG_Tresure_Box_WoE,12108,9	//咒文书一迭
+IG_Tresure_Box_WoE,12110,9	//急救箱
+IG_Tresure_Box_WoE,12111,36	//食物褓袋
+IG_Tresure_Box_WoE,12130,48	//饼干袋子
+IG_Tresure_Box_WoE,12149,27	//弹壳
+IG_Tresure_Box_WoE,12150,27	//弹壳血色
+IG_Tresure_Box_WoE,12151,27	//弹壳银色
+IG_Tresure_Box_WoE,12183,7	//神圣的箭筒
+IG_Tresure_Box_WoE,12194,6	//故乡礼物
+IG_Tresure_Box_WoE,12260,22	//凉爽的夏日服装
+IG_Tresure_Box_WoE,12702,8	//神秘蓝箱
 // Masquerade Ball Box2
-IG_Masquerade_2,5211,1	// Ribbon Hat
-IG_Masquerade_2,5213,13	// Rabbit Ears
-IG_Masquerade_2,5289,10	// Vanilmirth Hat
-IG_Masquerade_2,5304,10	// Executioner Hood
+IG_Masquerade_2,5211,1	//少女礼帽
+IG_Masquerade_2,5213,13	//兔女郎发圈
+IG_Masquerade_2,5289,10	//巴尼米乐斯帽子
+IG_Masquerade_2,5304,10	//盲目的斗篷
 // Easter Scroll
-IG_Easter_Scroll,636,110	// No Recipient
-IG_Easter_Scroll,637,110	// Old Broom
-IG_Easter_Scroll,638,110	// Silver Knife of Chastity
-IG_Easter_Scroll,639,110	// Armlet of Obedience
-IG_Easter_Scroll,640,110	// Shining Stone
-IG_Easter_Scroll,641,110	// Contracts in Shadow
-IG_Easter_Scroll,642,110	// Book of the Devil
-IG_Easter_Scroll,643,205	// Pet Incubator
-IG_Easter_Scroll,659,110	// Her Heart
-IG_Easter_Scroll,2264,1	// Munak Hat
-IG_Easter_Scroll,2274,1	// Ghost Bandana
-IG_Easter_Scroll,5046,1	// Bongun Hat
-IG_Easter_Scroll,5167,1	// Munak Hat [1]
-IG_Easter_Scroll,5168,1	// Bongun Hat [1]
+IG_Easter_Scroll,636,110	//魔物信件
+IG_Easter_Scroll,637,110	//魔物扫把
+IG_Easter_Scroll,638,110	//纯洁银刃
+IG_Easter_Scroll,639,110	//驯服手镯
+IG_Easter_Scroll,640,110	//闪烁之石
+IG_Easter_Scroll,641,110	//黑暗合约书
+IG_Easter_Scroll,642,110	//恶魔召唤书
+IG_Easter_Scroll,643,205	//携带用孵蛋器
+IG_Easter_Scroll,659,110	//心爱女人之回忆
+IG_Easter_Scroll,2264,1	//殭尸帽
+IG_Easter_Scroll,2274,1	//亡者发箍
+IG_Easter_Scroll,5046,1	//妖道帽
+IG_Easter_Scroll,5167,1	//僵尸帽
+IG_Easter_Scroll,5168,1	//妖道帽
 // Pierre Treasurebox
-IG_Pierre_Treasurebox,603,11	// Old Blue Box
-IG_Pierre_Treasurebox,604,3	// Dead Branch
-IG_Pierre_Treasurebox,617,5	// Old Purple Box
-IG_Pierre_Treasurebox,644,3	// Gift Box
-IG_Pierre_Treasurebox,975,3	// Scarlet Dyestuff
-IG_Pierre_Treasurebox,976,3	// Lemon Dyestuff
-IG_Pierre_Treasurebox,978,3	// Cobaltblue Dyestuff
-IG_Pierre_Treasurebox,979,3	// Darkgreen Dyestuff
-IG_Pierre_Treasurebox,980,3	// Orange Dyestuff
-IG_Pierre_Treasurebox,981,3	// Violet Dyestuff
-IG_Pierre_Treasurebox,982,3	// White Dyestuff
-IG_Pierre_Treasurebox,983,3	// Black Dyestuff
-IG_Pierre_Treasurebox,7289,3	// Peridot
-IG_Pierre_Treasurebox,7290,3	// Phlogopite
-IG_Pierre_Treasurebox,7291,3	// Agate
-IG_Pierre_Treasurebox,7292,3	// Muscovite
-IG_Pierre_Treasurebox,7293,3	// Rose Quartz
-IG_Pierre_Treasurebox,7294,3	// Turquoise
-IG_Pierre_Treasurebox,7295,3	// Citrin
-IG_Pierre_Treasurebox,7296,3	// Pyroxene
-IG_Pierre_Treasurebox,7297,3	// Biotite
-IG_Pierre_Treasurebox,12018,3	// Firecracker
-IG_Pierre_Treasurebox,12075,3	// Steamed Tongue
-IG_Pierre_Treasurebox,12085,3	// Immortal Stew
-IG_Pierre_Treasurebox,12090,3	// Steamed Desert Scorpions
-IG_Pierre_Treasurebox,12095,3	// Hwergelmir's Tonic
-IG_Pierre_Treasurebox,12100,3	// Cooked Nine Tail
-IG_Pierre_Treasurebox,12103,1	// Bloody Branch
+IG_Pierre_Treasurebox,603,11	//神秘箱子
+IG_Pierre_Treasurebox,604,3	//枯树枝
+IG_Pierre_Treasurebox,617,5	//神秘紫箱
+IG_Pierre_Treasurebox,644,3	//礼物箱
+IG_Pierre_Treasurebox,975,3	//红色染料
+IG_Pierre_Treasurebox,976,3	//黄色染料
+IG_Pierre_Treasurebox,978,3	//蓝色染料
+IG_Pierre_Treasurebox,979,3	//绿色染料
+IG_Pierre_Treasurebox,980,3	//赤色染料
+IG_Pierre_Treasurebox,981,3	//紫色染料
+IG_Pierre_Treasurebox,982,3	//白色染料
+IG_Pierre_Treasurebox,983,3	//黑色染料
+IG_Pierre_Treasurebox,7289,3	//橄榄石
+IG_Pierre_Treasurebox,7290,3	//金云母
+IG_Pierre_Treasurebox,7291,3	//玛瑙
+IG_Pierre_Treasurebox,7292,3	//白云母
+IG_Pierre_Treasurebox,7293,3	//玫瑰石英
+IG_Pierre_Treasurebox,7294,3	//绿松石
+IG_Pierre_Treasurebox,7295,3	//黄水晶
+IG_Pierre_Treasurebox,7296,3	//辉石
+IG_Pierre_Treasurebox,7297,3	//黑云母
+IG_Pierre_Treasurebox,12018,3	//鞭炮
+IG_Pierre_Treasurebox,12075,3	//舌头料理
+IG_Pierre_Treasurebox,12085,3	//不死之汤
+IG_Pierre_Treasurebox,12090,3	//沙漠蝎子蒸锅
+IG_Pierre_Treasurebox,12095,3	//禾贝勒开米勒酒
+IG_Pierre_Treasurebox,12100,3	//特大九尾狐尾巴料理
+IG_Pierre_Treasurebox,12103,1	//血迹树枝
 // Cherish Box
 IG_Cherish_Box,5454,1	// Puppy Hat
-IG_Cherish_Box,5455,4	// Decorative Geographer
+IG_Cherish_Box,5455,4	//邪恶向日葵发饰
 IG_Cherish_Box,5456,5	// Summer Hat
 // Cherish Box Ori
 IG_Cherish_Box_Ori,2712,3	// Collector's Edition Book
-IG_Cherish_Box_Ori,5212,2	// Solar Panels
-IG_Cherish_Box_Ori,5256,1	// Valkyrie Feather Band
-IG_Cherish_Box_Ori,5305,2	// Pirate Dagger
+IG_Cherish_Box_Ori,5212,2	//卫星发夹
+IG_Cherish_Box_Ori,5256,1	//巴基力羽毛帽子
+IG_Cherish_Box_Ori,5305,2	//海盗匕首
 IG_Cherish_Box_Ori,5332,2	// Loki Mask
 // Louise_Costume_Box
-IG_Louise_Costume_Box,12132,18	// Red_Bag
-IG_Louise_Costume_Box,12260,2	// Cool_Summer_Outfit
+IG_Louise_Costume_Box,12132,18	//红色包裹
+IG_Louise_Costume_Box,12260,2	//凉爽的夏日服装
 // Xmas_Gift
-IG_Xmas_Gift,559,18	// Light_Orange_Pot
-IG_Xmas_Gift,560,18	// HandMade_Chocolate_
-IG_Xmas_Gift,573,18	// Chocolate_Drink
-IG_Xmas_Gift,603,24	// Old_Blue_Box
-IG_Xmas_Gift,644,66	// Gift_Box
-IG_Xmas_Gift,732,12	// Crystal_Jewel__
-IG_Xmas_Gift,5136,12	// Santa's_Hat_
-IG_Xmas_Gift,12016,12	// Speed_Up_Potion
-IG_Xmas_Gift,12017,12	// Slow_Down_Potion
-IG_Xmas_Gift,12105,6	// Set_Of_Taiming_Item
-IG_Xmas_Gift,12107,6	// Wrapped_Mask
-IG_Xmas_Gift,12108,12	// Bundle_Of_Magic_Scroll
-IG_Xmas_Gift,12110,12	// First_Aid_Kit
-IG_Xmas_Gift,12130,12	// Cookie_Bag
-IG_Xmas_Gift,12132,6	// Red_Bag
-IG_Xmas_Gift,12354,24	// Buche_De_Noel
-IG_Xmas_Gift,12702,36	// Old_Bleu_Box
-IG_Xmas_Gift,14546,6	// Fire_Cracker_Love
-IG_Xmas_Gift,14550,6	// Fire_Cracker_Xmas
+IG_Xmas_Gift,559,18	//手制巧克力
+IG_Xmas_Gift,560,18	//手制巧克力
+IG_Xmas_Gift,573,18	//巧克力饮料
+IG_Xmas_Gift,603,24	//神秘箱子
+IG_Xmas_Gift,644,66	//礼物箱
+IG_Xmas_Gift,732,12	//3克拉钻石
+IG_Xmas_Gift,5136,12	//邪恶老公公的圣诞帽
+IG_Xmas_Gift,12016,12	//移速变化药水
+IG_Xmas_Gift,12017,12	//移速变化药水
+IG_Xmas_Gift,12105,6	//饲养礼物礼盒
+IG_Xmas_Gift,12107,6	//包装的面具
+IG_Xmas_Gift,12108,12	//咒文书一迭
+IG_Xmas_Gift,12110,12	//急救箱
+IG_Xmas_Gift,12130,12	//饼干袋子
+IG_Xmas_Gift,12132,6	//红色包裹
+IG_Xmas_Gift,12354,24	//圣诞节蛋糕
+IG_Xmas_Gift,12702,36	//神秘蓝箱
+IG_Xmas_Gift,14546,6	//我爱你 烟花
+IG_Xmas_Gift,14550,6	//圣诞快乐 烟花
 // Fruit Basket
-IG_Fruit_Basket,512,6	// Apple
-IG_Fruit_Basket,513,5	// Banana
-IG_Fruit_Basket,514,4	// Grape
-IG_Fruit_Basket,522,3	// Mastela Fruit
-IG_Fruit_Basket,535,2	// Pumpkin
-IG_Fruit_Basket,568,6	// Lemon
-IG_Fruit_Basket,576,2	// Prickly Fruit
-IG_Fruit_Basket,578,4	// Strawberry
-IG_Fruit_Basket,582,3	// Orange
-IG_Fruit_Basket,587,2	// Red Prickly Fruit
-IG_Fruit_Basket,607,1	// Yggdrasil Berry
-IG_Fruit_Basket,608,1	// Yggdrasil Seed
-IG_Fruit_Basket,7164,5	// Solid Peach
-IG_Fruit_Basket,7182,4	// Cacao
-IG_Fruit_Basket,11520,5	// Mora Mandarin
-IG_Fruit_Basket,12574,4	// Mora Berry
+IG_Fruit_Basket,512,6	//苹果
+IG_Fruit_Basket,513,5	//香蕉
+IG_Fruit_Basket,514,4	//葡萄
+IG_Fruit_Basket,522,3	//玛丝黛拉果实
+IG_Fruit_Basket,535,2	//南瓜
+IG_Fruit_Basket,568,6	//柠檬
+IG_Fruit_Basket,576,2	//榴槤
+IG_Fruit_Basket,578,4	//草莓
+IG_Fruit_Basket,582,3	//橙子
+IG_Fruit_Basket,587,2	//红色榴莲
+IG_Fruit_Basket,607,1	//天地树果实
+IG_Fruit_Basket,608,1	//天地树芽
+IG_Fruit_Basket,7164,5	//石榴桃
+IG_Fruit_Basket,7182,4	//可可
+IG_Fruit_Basket,11520,5	//莫拉柑橘
+IG_Fruit_Basket,12574,4	//莫拉水果
 // Improved Coin Bag
-IG_Improved_Coin_Bag,6080,5	// Manuk Coin
-IG_Improved_Coin_Bag,6081,5	// Splendide Coin
-IG_Improved_Coin_Bag,6304,5	// Proof Of Sapha's Honor
-IG_Improved_Coin_Bag,6380,5	// Mora Village Coin
-IG_Improved_Coin_Bag,6418,1	// A Grade Coin
-IG_Improved_Coin_Bag,6419,2	// B Grade Coin
-IG_Improved_Coin_Bag,6420,1	// C Grade Coin
-IG_Improved_Coin_Bag,12636,8	// Malangdo Canned Specialties
+IG_Improved_Coin_Bag,6080,5	//马努克金币
+IG_Improved_Coin_Bag,6081,5	//辉煌领域金币
+IG_Improved_Coin_Bag,6304,5	//沙帕功勋证
+IG_Improved_Coin_Bag,6380,5	//莫拉村硬币
+IG_Improved_Coin_Bag,6418,1	//A级代币
+IG_Improved_Coin_Bag,6419,2	//B级代币
+IG_Improved_Coin_Bag,6420,1	//C级代币
+IG_Improved_Coin_Bag,12636,8	//绵绵岛风味罐头
 // Intermediate Coin Bag
-IG_Intermediate_Coin_Bag,6080,4	// Manuk Coin
-IG_Intermediate_Coin_Bag,6081,4	// Splendide Coin
-IG_Intermediate_Coin_Bag,6304,4	// Proof Of Sapha's Honor
-IG_Intermediate_Coin_Bag,6380,4	// Mora Village Coin
-IG_Intermediate_Coin_Bag,6419,1	// B Grade Coin
-IG_Intermediate_Coin_Bag,6420,2	// C Grade Coin
-IG_Intermediate_Coin_Bag,6421,1	// D Grade Coin
-IG_Intermediate_Coin_Bag,12636,9	// Malangdo Canned Specialties
+IG_Intermediate_Coin_Bag,6080,4	//马努克金币
+IG_Intermediate_Coin_Bag,6081,4	//辉煌领域金币
+IG_Intermediate_Coin_Bag,6304,4	//沙帕功勋证
+IG_Intermediate_Coin_Bag,6380,4	//莫拉村硬币
+IG_Intermediate_Coin_Bag,6419,1	//B级代币
+IG_Intermediate_Coin_Bag,6420,2	//C级代币
+IG_Intermediate_Coin_Bag,6421,1	//D级代币
+IG_Intermediate_Coin_Bag,12636,9	//绵绵岛风味罐头
 // Minor Coin Bag
-IG_Minor_Coin_Bag,6080,3	// Manuk Coin
-IG_Minor_Coin_Bag,6081,3	// Splendide Coin
-IG_Minor_Coin_Bag,6304,3	// Proof Of Sapha's Honor
-IG_Minor_Coin_Bag,6380,3	// Mora Village Coin
-IG_Minor_Coin_Bag,6420,1	// C Grade Coin
-IG_Minor_Coin_Bag,6421,2	// D Grade Coin
-IG_Minor_Coin_Bag,6422,1	// E Grade Coin
-IG_Minor_Coin_Bag,12636,10	// Malangdo Canned Specialties
+IG_Minor_Coin_Bag,6080,3	//马努克金币
+IG_Minor_Coin_Bag,6081,3	//辉煌领域金币
+IG_Minor_Coin_Bag,6304,3	//沙帕功勋证
+IG_Minor_Coin_Bag,6380,3	//莫拉村硬币
+IG_Minor_Coin_Bag,6420,1	//C级代币
+IG_Minor_Coin_Bag,6421,2	//D级代币
+IG_Minor_Coin_Bag,6422,1	//E级代币
+IG_Minor_Coin_Bag,12636,10	//绵绵岛风味罐头
 // S Grade Coin Bag
-IG_S_Grade_Coin_Bag,6423,3	// Sea God's Wrath
-IG_S_Grade_Coin_Bag,6418,2	// A Grade Coin
-IG_S_Grade_Coin_Bag,6419,1	// B Grade Coin
+IG_S_Grade_Coin_Bag,6423,3	//海神之愤怒
+IG_S_Grade_Coin_Bag,6418,2	//A级代币
+IG_S_Grade_Coin_Bag,6419,1	//B级代币
 // A Grade Coin Bag
-IG_A_Grade_Coin_Bag,6418,3	// A Grade Coin
-IG_A_Grade_Coin_Bag,6419,2	// B Grade Coin
-IG_A_Grade_Coin_Bag,6420,1	// C Grade Coin
+IG_A_Grade_Coin_Bag,6418,3	//A级代币
+IG_A_Grade_Coin_Bag,6419,2	//B级代币
+IG_A_Grade_Coin_Bag,6420,1	//C级代币
 // Advanced Weapons Box
-IG_Advanced_Weapons_Box,1130,2	// Nagan
-IG_Advanced_Weapons_Box,1131,7	// Ice_Falchon
-IG_Advanced_Weapons_Box,1132,1	// Edge
-IG_Advanced_Weapons_Box,1133,7	// Fire_Brand
-IG_Advanced_Weapons_Box,1134,7	// Caesar's Sword
-IG_Advanced_Weapons_Box,1135,7	// Cutlas
-IG_Advanced_Weapons_Box,1136,7	// Solar_Sword
-IG_Advanced_Weapons_Box,1137,2	// Excalibur
-IG_Advanced_Weapons_Box,1138,7	// Mysteltainn
-IG_Advanced_Weapons_Box,1139,7	// Tirfing
-IG_Advanced_Weapons_Box,1140,7	// Byeollungum
-IG_Advanced_Weapons_Box,1141,7	// Immaterial_Sword
-IG_Advanced_Weapons_Box,1148,7	// Star_Dust_Blade
-IG_Advanced_Weapons_Box,1164,7	// Muramasa
-IG_Advanced_Weapons_Box,1165,2	// Masamune
-IG_Advanced_Weapons_Box,1166,7	// Dragon_Slayer
-IG_Advanced_Weapons_Box,1167,7	// Schweizersabel
-IG_Advanced_Weapons_Box,1168,7	// Zweihander
-IG_Advanced_Weapons_Box,1169,2	// Executioner
-IG_Advanced_Weapons_Box,1170,7	// Katzbalger
-IG_Advanced_Weapons_Box,1171,7	// Zweihander_
-IG_Advanced_Weapons_Box,1175,2	// Altas_Weapon
-IG_Advanced_Weapons_Box,1176,7	// Muscle_Cutter
-IG_Advanced_Weapons_Box,1178,7	// Schweizersabel_
-IG_Advanced_Weapons_Box,1179,2	// Executioner__
-IG_Advanced_Weapons_Box,1180,7	// Dragon_Slayer_
-IG_Advanced_Weapons_Box,1181,7	// Tae_Goo_Lyeon
-IG_Advanced_Weapons_Box,1182,7	// Bloody_Eater
-IG_Advanced_Weapons_Box,1185,1	// Violet_Fear
-IG_Advanced_Weapons_Box,1186,1	// Death_Guidance
-IG_Advanced_Weapons_Box,1188,7	// Veteran_Sword
-IG_Advanced_Weapons_Box,1189,5	// Krasnaya
-IG_Advanced_Weapons_Box,1196,2	// Chrome_Metal_Two-Hand_Sword
-IG_Advanced_Weapons_Box,1223,2	// Forturn_Sword
-IG_Advanced_Weapons_Box,1224,4	// Sword_Breaker
-IG_Advanced_Weapons_Box,1227,5	// Weeder_Knife
-IG_Advanced_Weapons_Box,1228,2	// Combat_Knife
-IG_Advanced_Weapons_Box,1229,5	// Kitchen_Knife
-IG_Advanced_Weapons_Box,1230,1	// Ice_Pick
-IG_Advanced_Weapons_Box,1231,1	// Bazerald
-IG_Advanced_Weapons_Box,1232,5	// Assasin_Dagger
-IG_Advanced_Weapons_Box,1233,5	// Exorciser
-IG_Advanced_Weapons_Box,1234,2	// Moonlight_Dagger
-IG_Advanced_Weapons_Box,1235,5	// Azoth
-IG_Advanced_Weapons_Box,1236,5	// Sucsamad
-IG_Advanced_Weapons_Box,1237,5	// Grimtooth
-IG_Advanced_Weapons_Box,1240,5	// Princess_Knife
-IG_Advanced_Weapons_Box,1241,5	// Cursed_Dagger
-IG_Advanced_Weapons_Box,1242,5	// Counter_Dagger
-IG_Advanced_Weapons_Box,1244,5	// Holy_Dagger
-IG_Advanced_Weapons_Box,1261,1	// Infiltrator
-IG_Advanced_Weapons_Box,1263,5	// Unholy_Touch
-IG_Advanced_Weapons_Box,1265,2	// Bloody_Roar
-IG_Advanced_Weapons_Box,1266,1	// Infiltrator_
-IG_Advanced_Weapons_Box,1268,2	// Wild_Beast_Claw
-IG_Advanced_Weapons_Box,1269,2	// Inverse_Scale
-IG_Advanced_Weapons_Box,1270,5	// Drill_Katar
-IG_Advanced_Weapons_Box,1271,5	// Blood_Tears
-IG_Advanced_Weapons_Box,1284,5	// Krishna
-IG_Advanced_Weapons_Box,1285,5	// Chakram
-IG_Advanced_Weapons_Box,1305,5	// Cleaver
-IG_Advanced_Weapons_Box,1311,5	// Vecer_Axe
-IG_Advanced_Weapons_Box,1363,2	// Bloody_Axe
-IG_Advanced_Weapons_Box,1364,5	// Great_Axe
-IG_Advanced_Weapons_Box,1365,5	// Sabbath
-IG_Advanced_Weapons_Box,1366,1	// Light Epsilon
-IG_Advanced_Weapons_Box,1367,5	// Slaughter
-IG_Advanced_Weapons_Box,1368,5	// Tomahawk
-IG_Advanced_Weapons_Box,1369,2	// Guillotine
-IG_Advanced_Weapons_Box,1370,1	// Doom_Slayer
-IG_Advanced_Weapons_Box,1371,1	// Doom_Slayer_
-IG_Advanced_Weapons_Box,1376,1	// Heart_Breaker
-IG_Advanced_Weapons_Box,1377,1	// Hurricane_Fury
-IG_Advanced_Weapons_Box,1385,5	// Bradium_Stonehammer
-IG_Advanced_Weapons_Box,1387,2	// Giant_Axe
-IG_Advanced_Weapons_Box,1413,5	// Gungnir
-IG_Advanced_Weapons_Box,1414,5	// Gelerdria
-IG_Advanced_Weapons_Box,1415,2	// Brocca
-IG_Advanced_Weapons_Box,1416,5	// Tjungkuletti
-IG_Advanced_Weapons_Box,1418,5	// Gungnir_
-IG_Advanced_Weapons_Box,1420,5	// Long_Horn
-IG_Advanced_Weapons_Box,1421,2	// Battle_Hook
-IG_Advanced_Weapons_Box,1422,1	// Hunting_Spear
-IG_Advanced_Weapons_Box,1433,2	// Imperial_Spear
-IG_Advanced_Weapons_Box,1466,5	// Crescent_Scythe
-IG_Advanced_Weapons_Box,1467,5	// Bill_Guisarme
-IG_Advanced_Weapons_Box,1468,5	// Zephyrus
-IG_Advanced_Weapons_Box,1469,5	// Longinus's_Spear
-IG_Advanced_Weapons_Box,1470,5	// Brionac
-IG_Advanced_Weapons_Box,1471,5	// Hell_Fire
-IG_Advanced_Weapons_Box,1473,5	// Wizardy_Staff
-IG_Advanced_Weapons_Box,1474,5	// Gae_Bolg
-IG_Advanced_Weapons_Box,1477,5	// Spectral_Spear
-IG_Advanced_Weapons_Box,1478,5	// Ahlspiess
-IG_Advanced_Weapons_Box,1479,5	// Spectral_Spear_
-IG_Advanced_Weapons_Box,1480,5	// Gae_Bolg_
-IG_Advanced_Weapons_Box,1481,5	// Zephyrus_
-IG_Advanced_Weapons_Box,1484,2	// Cardo
-IG_Advanced_Weapons_Box,1523,2	// Spike
-IG_Advanced_Weapons_Box,1524,5	// Golden_Mace
-IG_Advanced_Weapons_Box,1525,5	// Long_Mace
-IG_Advanced_Weapons_Box,1527,5	// Quadrille
-IG_Advanced_Weapons_Box,1528,1	// Grand_Cross
-IG_Advanced_Weapons_Box,1538,2	// Spike_
-IG_Advanced_Weapons_Box,1539,5	// Golden_Mace_
-IG_Advanced_Weapons_Box,1540,1	// Grand_Cross_
-IG_Advanced_Weapons_Box,1541,5	// Nemesis
-IG_Advanced_Weapons_Box,1557,5	// Book_Of_The_Apocalypse
-IG_Advanced_Weapons_Box,1558,5	// Girl's_Diary
-IG_Advanced_Weapons_Box,1559,5	// Legacy_Of_Dragon
-IG_Advanced_Weapons_Box,1561,5	// Hardcover_Book
-IG_Advanced_Weapons_Box,1562,5	// Battlefield_Textbook
-IG_Advanced_Weapons_Box,1565,1	// Ledger of Death
-IG_Advanced_Weapons_Box,1616,5	// Wing Staff
-IG_Advanced_Weapons_Box,1629,5	// Gentleman's Staff
-IG_Advanced_Weapons_Box,1631,5	// Holy_Stick
-IG_Advanced_Weapons_Box,1636,1	// Thorn_Staff
-IG_Advanced_Weapons_Box,1637,1	// Eraser
-IG_Advanced_Weapons_Box,1643,5	// Dead_Tree_Cane
-IG_Advanced_Weapons_Box,1654,2	// Mental_Stick
-IG_Advanced_Weapons_Box,1719,2	// Bow_Of_Roguemaster
-IG_Advanced_Weapons_Box,1720,2	// Bow_Of_Rudra
-IG_Advanced_Weapons_Box,1722,2	// Ballista
-IG_Advanced_Weapons_Box,1724,5	// Dragon_Wing
-IG_Advanced_Weapons_Box,1725,5	// Bow_Of_Minstrel
-IG_Advanced_Weapons_Box,1727,2	// Balistar_
-IG_Advanced_Weapons_Box,1737,5	// Ixion_Wing
-IG_Advanced_Weapons_Box,1740,5	// Nepenthes_Bow
-IG_Advanced_Weapons_Box,1741,5	// Cursed_Lyre
-IG_Advanced_Weapons_Box,1745,5	// Falken_Blitz
-IG_Advanced_Weapons_Box,1813,5	// Kaiser_Knuckle
-IG_Advanced_Weapons_Box,1814,1	// Berserk
-IG_Advanced_Weapons_Box,1815,5	// Claw_Of_Garm
-IG_Advanced_Weapons_Box,1816,1	// Berserk_
-IG_Advanced_Weapons_Box,1830,2	// Sura's Rampage
-IG_Advanced_Weapons_Box,1913,5	// Electronic_Guitar
-IG_Advanced_Weapons_Box,1918,5	// Oriental_Lute
-IG_Advanced_Weapons_Box,1920,1	// Berserk_Guitar
-IG_Advanced_Weapons_Box,1922,5	// Oriental_Lute_
-IG_Advanced_Weapons_Box,1926,5	// Harp_Of_Nepenthes
-IG_Advanced_Weapons_Box,1930,2	// Green_Whistle
-IG_Advanced_Weapons_Box,1962,5	// Lariat_Whip
-IG_Advanced_Weapons_Box,1963,5	// Rapture_Rose
-IG_Advanced_Weapons_Box,1964,5	// Chemeti_Whip
-IG_Advanced_Weapons_Box,1969,5	// Blade_Whip
-IG_Advanced_Weapons_Box,1970,5	// Queen's_Whip
-IG_Advanced_Weapons_Box,1972,5	// Electric_Eel
-IG_Advanced_Weapons_Box,1973,5	// Sea_Witch_Foot
-IG_Advanced_Weapons_Box,1974,5	// Carrot_Whip
-IG_Advanced_Weapons_Box,1976,5	// Queen's_Whip_
-IG_Advanced_Weapons_Box,1979,5	// Stem_Of_Nepenthes
-IG_Advanced_Weapons_Box,1984,2	// Stem_Whip
-IG_Advanced_Weapons_Box,1985,1	// Rose_Vine
-IG_Advanced_Weapons_Box,2000,1	// Destruction_Rod
-IG_Advanced_Weapons_Box,2001,5	// Divine_Cross
-IG_Advanced_Weapons_Box,2004,5	// Kronos
-IG_Advanced_Weapons_Box,2005,5	// Dea_Staff
-IG_Advanced_Weapons_Box,13046,5	// Krieg
-IG_Advanced_Weapons_Box,13047,5	// Weihna
-IG_Advanced_Weapons_Box,13061,5	// Black_Wing
-IG_Advanced_Weapons_Box,13062,1 // Ancient_Dagger
-IG_Advanced_Weapons_Box,13421,5	// Ruber
-IG_Advanced_Weapons_Box,13431,2	// Chrome_Metal_Sword
-IG_Advanced_Weapons_Box,16000,5	// Erde
-IG_Advanced_Weapons_Box,16001,5	// Red_Square_Bag
-IG_Advanced_Weapons_Box,16010,5	// Red_Ether_Bag
-IG_Advanced_Weapons_Box,18103,5	// Mystic_Bow
-IG_Advanced_Weapons_Box,1476,1	// Crescent_Scythe_
-IG_Advanced_Weapons_Box,1526,5	// Slash
-IG_Advanced_Weapons_Box,1290,1	// Agent_Katar
-IG_Advanced_Weapons_Box,1291,1	// Guillotine_Katar
-IG_Advanced_Weapons_Box,1392,1	// Ygnus_Stale
-IG_Advanced_Weapons_Box,1393,1	// End_Sektura
-IG_Advanced_Weapons_Box,1435,1	// Cannon_Spear
-IG_Advanced_Weapons_Box,1584,1	// Chilly_Spell_Book
-IG_Advanced_Weapons_Box,1659,1	// Recovery_Light
-IG_Advanced_Weapons_Box,13069,1	// Aztoe_Nail
-IG_Advanced_Weapons_Box,13070,1	// Scarletto_Nail
-IG_Advanced_Weapons_Box,16017,1	// Bloody_Cross
-IG_Advanced_Weapons_Box,18109,1	// Catapult
-IG_Advanced_Weapons_Box,18110,1	// Big_CrossBow
-IG_Advanced_Weapons_Box,18111,1	// Creeper_Bow
+IG_Advanced_Weapons_Box,1130,2	//多刃尖刺刀
+IG_Advanced_Weapons_Box,1131,7	//水灵之刀
+IG_Advanced_Weapons_Box,1132,1	//秘剑 慕恋
+IG_Advanced_Weapons_Box,1133,7	//火灵之剑
+IG_Advanced_Weapons_Box,1134,7	//利剪剑
+IG_Advanced_Weapons_Box,1135,7	//狂击之剑
+IG_Advanced_Weapons_Box,1136,7	//烈阳之剑
+IG_Advanced_Weapons_Box,1137,2	//石中剑
+IG_Advanced_Weapons_Box,1138,7	//妖剑 弒光
+IG_Advanced_Weapons_Box,1139,7	//魔刀 吞神
+IG_Advanced_Weapons_Box,1140,7	//首领之剑
+IG_Advanced_Weapons_Box,1141,7	//圣剑 浑沌
+IG_Advanced_Weapons_Box,1148,7	//星尘剑
+IG_Advanced_Weapons_Box,1164,7	//名刀 不知火
+IG_Advanced_Weapons_Box,1165,2	//秘刀 十六夜月
+IG_Advanced_Weapons_Box,1166,7	//龙牙剑
+IG_Advanced_Weapons_Box,1167,7	//风灵之剑
+IG_Advanced_Weapons_Box,1168,7	//巨大双手剑
+IG_Advanced_Weapons_Box,1169,2	//死神之剑
+IG_Advanced_Weapons_Box,1170,7	//亚蓝斯之剑
+IG_Advanced_Weapons_Box,1171,7	//巨大双手剑
+IG_Advanced_Weapons_Box,1175,2	//阿特罗斯的 凶器
+IG_Advanced_Weapons_Box,1176,7	//割肉 刀
+IG_Advanced_Weapons_Box,1178,7	//风灵之剑
+IG_Advanced_Weapons_Box,1179,2	//死神之剑
+IG_Advanced_Weapons_Box,1180,7	//龙牙剑
+IG_Advanced_Weapons_Box,1181,7	//太刀
+IG_Advanced_Weapons_Box,1182,7	//嗜血者
+IG_Advanced_Weapons_Box,1185,1	//纳户特基格的双剑
+IG_Advanced_Weapons_Box,1186,1	//死亡引导者
+IG_Advanced_Weapons_Box,1188,7	//老兵之剑
+IG_Advanced_Weapons_Box,1189,5	//红云长剑
+IG_Advanced_Weapons_Box,1196,2	//铬黄 金属 双持 剑
+IG_Advanced_Weapons_Box,1223,2	//幸运短剑
+IG_Advanced_Weapons_Box,1224,4	//削刃短剑
+IG_Advanced_Weapons_Box,1227,5	//锄草短剑
+IG_Advanced_Weapons_Box,1228,2	//战斗短剑
+IG_Advanced_Weapons_Box,1229,5	//厨刀
+IG_Advanced_Weapons_Box,1230,1	//破甲短锥
+IG_Advanced_Weapons_Box,1231,1	//华丽短剑
+IG_Advanced_Weapons_Box,1232,5	//妖短剑 泣神怨
+IG_Advanced_Weapons_Box,1233,5	//除灵短剑
+IG_Advanced_Weapons_Box,1234,2	//月灵短剑
+IG_Advanced_Weapons_Box,1235,5	//变形短剑
+IG_Advanced_Weapons_Box,1236,5	//砂尘短剑
+IG_Advanced_Weapons_Box,1237,5	//魔短剑 暗噬
+IG_Advanced_Weapons_Box,1240,5	//皇家短剑
+IG_Advanced_Weapons_Box,1241,5	//诅咒的短剑
+IG_Advanced_Weapons_Box,1242,5	//反击短剑
+IG_Advanced_Weapons_Box,1244,5	//神圣大驹短剑
+IG_Advanced_Weapons_Box,1261,1	//刺杀拳刃
+IG_Advanced_Weapons_Box,1263,5	//邪恶拳刃
+IG_Advanced_Weapons_Box,1265,2	//血拳刃
+IG_Advanced_Weapons_Box,1266,1	//刺杀 拳刃
+IG_Advanced_Weapons_Box,1268,2	//巨魔 指甲
+IG_Advanced_Weapons_Box,1269,2	//龙之 咆哮
+IG_Advanced_Weapons_Box,1270,5	//钻孔拳刃
+IG_Advanced_Weapons_Box,1271,5	//血之 泪
+IG_Advanced_Weapons_Box,1284,5	//奎师那之刃
+IG_Advanced_Weapons_Box,1285,5	//脉轮之刃
+IG_Advanced_Weapons_Box,1305,5	//切削之斧
+IG_Advanced_Weapons_Box,1311,5	//贝克战斧
+IG_Advanced_Weapons_Box,1363,2	//血斧
+IG_Advanced_Weapons_Box,1364,5	//克莱伊特斧
+IG_Advanced_Weapons_Box,1365,5	//暗灵之斧
+IG_Advanced_Weapons_Box,1366,1	//智天使之斧
+IG_Advanced_Weapons_Box,1367,5	//斯勒特斧
+IG_Advanced_Weapons_Box,1368,5	//风灵之斧
+IG_Advanced_Weapons_Box,1369,2	//斩首之斧
+IG_Advanced_Weapons_Box,1370,1	//超重双手斧
+IG_Advanced_Weapons_Box,1371,1	//超重双手斧
+IG_Advanced_Weapons_Box,1376,1	//碎心 斧
+IG_Advanced_Weapons_Box,1377,1	//狂怒 飓风
+IG_Advanced_Weapons_Box,1385,5	//魔力之石石锤
+IG_Advanced_Weapons_Box,1387,2	//守护巨人战斧
+IG_Advanced_Weapons_Box,1413,5	//刚尼尔长矛
+IG_Advanced_Weapons_Box,1414,5	//地灵之矛
+IG_Advanced_Weapons_Box,1415,2	//魔力之矛
+IG_Advanced_Weapons_Box,1416,5	//邪灵之矛
+IG_Advanced_Weapons_Box,1418,5	//刚尼尔长矛
+IG_Advanced_Weapons_Box,1420,5	//长角之 矛
+IG_Advanced_Weapons_Box,1421,2	//强袭 战矛
+IG_Advanced_Weapons_Box,1422,1	//狩猎之 矛
+IG_Advanced_Weapons_Box,1433,2	//帝王钻 长矛
+IG_Advanced_Weapons_Box,1466,5	//死神之镰
+IG_Advanced_Weapons_Box,1467,5	//修尔特长矛
+IG_Advanced_Weapons_Box,1468,5	//风灵之矛
+IG_Advanced_Weapons_Box,1469,5	//龙戚弩斯长矛
+IG_Advanced_Weapons_Box,1470,5	//圣光之戟
+IG_Advanced_Weapons_Box,1471,5	//火灵之矛
+IG_Advanced_Weapons_Box,1473,5	//大巫师之杖
+IG_Advanced_Weapons_Box,1474,5	//加野矛
+IG_Advanced_Weapons_Box,1477,5	//幻影长矛
+IG_Advanced_Weapons_Box,1478,5	//锥骑长枪
+IG_Advanced_Weapons_Box,1479,5	//幻影长矛
+IG_Advanced_Weapons_Box,1480,5	//加野矛
+IG_Advanced_Weapons_Box,1481,5	//风灵之矛
+IG_Advanced_Weapons_Box,1484,2	//柱枪
+IG_Advanced_Weapons_Box,1523,2	//暗盲之锤
+IG_Advanced_Weapons_Box,1524,5	//黄金之锤
+IG_Advanced_Weapons_Box,1525,5	//秘银长锤
+IG_Advanced_Weapons_Box,1527,5	//秘锤 冷月
+IG_Advanced_Weapons_Box,1528,1	//圣锤 十字星
+IG_Advanced_Weapons_Box,1538,2	//暗盲之锤
+IG_Advanced_Weapons_Box,1539,5	//黄金之锤
+IG_Advanced_Weapons_Box,1540,1	//圣锤 十字星
+IG_Advanced_Weapons_Box,1541,5	//复仇女神
+IG_Advanced_Weapons_Box,1557,5	//预言录
+IG_Advanced_Weapons_Box,1558,5	//日记本
+IG_Advanced_Weapons_Box,1559,5	//天龙的遗产
+IG_Advanced_Weapons_Box,1561,5	//精装之书
+IG_Advanced_Weapons_Box,1562,5	//前章之书
+IG_Advanced_Weapons_Box,1565,1	//死亡笔记
+IG_Advanced_Weapons_Box,1616,5	//羽翼之杖
+IG_Advanced_Weapons_Box,1629,5	//绅士的手杖
+IG_Advanced_Weapons_Box,1631,5	//神圣权杖
+IG_Advanced_Weapons_Box,1636,1	//诅咒魔杖
+IG_Advanced_Weapons_Box,1637,1	//净化之仗
+IG_Advanced_Weapons_Box,1643,5	//古树之杖
+IG_Advanced_Weapons_Box,1654,2	//精神掌控之杖
+IG_Advanced_Weapons_Box,1719,2	//盗贼之弓
+IG_Advanced_Weapons_Box,1720,2	//炽天使之弓
+IG_Advanced_Weapons_Box,1722,2	//贝利斯塔强弩
+IG_Advanced_Weapons_Box,1724,5	//天龙之翼
+IG_Advanced_Weapons_Box,1725,5	//吟游诗人之弓
+IG_Advanced_Weapons_Box,1727,2	//贝利斯塔强弩
+IG_Advanced_Weapons_Box,1737,5	//伊克西翁之翼
+IG_Advanced_Weapons_Box,1740,5	//猪笼草之弓
+IG_Advanced_Weapons_Box,1741,5	//诅咒之弓
+IG_Advanced_Weapons_Box,1745,5	//红色闪电
+IG_Advanced_Weapons_Box,1813,5	//风灵拳套
+IG_Advanced_Weapons_Box,1814,1	//秘拳套 闪光
+IG_Advanced_Weapons_Box,1815,5	//卡仑的指甲
+IG_Advanced_Weapons_Box,1816,1	//秘拳套闪光
+IG_Advanced_Weapons_Box,1830,2	//霸王乱舞
+IG_Advanced_Weapons_Box,1913,5	//电子吉他
+IG_Advanced_Weapons_Box,1918,5	//琵琶
+IG_Advanced_Weapons_Box,1920,1	//英勇 吉他
+IG_Advanced_Weapons_Box,1922,5	//琵琶
+IG_Advanced_Weapons_Box,1926,5	//猪笼草竖琴
+IG_Advanced_Weapons_Box,1930,2	//绿色 鸣笛
+IG_Advanced_Weapons_Box,1962,5	//细刃鞭子
+IG_Advanced_Weapons_Box,1963,5	//毒鞭 蔷薇
+IG_Advanced_Weapons_Box,1964,5	//秘鞭 眷恋
+IG_Advanced_Weapons_Box,1969,5	//利刃之鞭
+IG_Advanced_Weapons_Box,1970,5	//女王的鞭子
+IG_Advanced_Weapons_Box,1972,5	//电鳗
+IG_Advanced_Weapons_Box,1973,5	//海魔女之 足
+IG_Advanced_Weapons_Box,1974,5	//胡萝卜鞭子
+IG_Advanced_Weapons_Box,1976,5	//女王的鞭子
+IG_Advanced_Weapons_Box,1979,5	//猪笼草的茎
+IG_Advanced_Weapons_Box,1984,2	//节 鞭
+IG_Advanced_Weapons_Box,1985,1	//玫瑰蔓
+IG_Advanced_Weapons_Box,2000,1	//毁灭之 杖
+IG_Advanced_Weapons_Box,2001,5	//圣十字之 杖
+IG_Advanced_Weapons_Box,2004,5	//克罗诺斯之杖
+IG_Advanced_Weapons_Box,2005,5	//黛雅之杖
+IG_Advanced_Weapons_Box,13046,5	//战争短剑
+IG_Advanced_Weapons_Box,13047,5	//威娜短剑
+IG_Advanced_Weapons_Box,13061,5	//黑 翼
+IG_Advanced_Weapons_Box,13062,1 //古代 短剑
+IG_Advanced_Weapons_Box,13421,5	//火红单手剑
+IG_Advanced_Weapons_Box,13431,2	//铬黄 金属 剑
+IG_Advanced_Weapons_Box,16000,5	//艾尔德之锤
+IG_Advanced_Weapons_Box,16001,5	//红色手提包
+IG_Advanced_Weapons_Box,16010,5	//红色 乙醚 包包
+IG_Advanced_Weapons_Box,18103,5	//神秘 弓
+IG_Advanced_Weapons_Box,1476,1	//死神之镰
+IG_Advanced_Weapons_Box,1526,5	//魔锤 安魂曲
+IG_Advanced_Weapons_Box,1290,1	//特务拳刃
+IG_Advanced_Weapons_Box,1291,1	//斩首拳刃
+IG_Advanced_Weapons_Box,1392,1	//火焰战斧
+IG_Advanced_Weapons_Box,1393,1	//急冻战斧
+IG_Advanced_Weapons_Box,1435,1	//钙矿石长矛
+IG_Advanced_Weapons_Box,1584,1	//寒气篇魔法书
+IG_Advanced_Weapons_Box,1659,1	//元气之光魔杖
+IG_Advanced_Weapons_Box,13069,1	//绿光魔短剑
+IG_Advanced_Weapons_Box,13070,1	//红光魔短剑
+IG_Advanced_Weapons_Box,16017,1	//嗜血十字锤
+IG_Advanced_Weapons_Box,18109,1	//元戎弩
+IG_Advanced_Weapons_Box,18110,1	//超异能十字弓
+IG_Advanced_Weapons_Box,18111,1	//束缚之弓
 // Splendid Box
-IG_Splendid_Box,1189,1	// Krasnaya
-IG_Splendid_Box,1191,1	// Alca Bringer
-IG_Splendid_Box,1196,1	// Two-Handed Chrome Metal Sword
-IG_Splendid_Box,1284,1	// Krishna
-IG_Splendid_Box,1285,1	// Chakram
-IG_Splendid_Box,1287,1	// Durga
-IG_Splendid_Box,1311,1	// Vecer Axe
-IG_Splendid_Box,1387,1	// Giant Axe
-IG_Splendid_Box,1433,1	// Imperial Spear
-IG_Splendid_Box,1649,1	// Laphine Staff
-IG_Splendid_Box,1745,1	// Falken Blitz
-IG_Splendid_Box,1746,1	// Elven Bow
-IG_Splendid_Box,1930,1	// Green Whistle
-IG_Splendid_Box,1984,1	// Stem Whip
-IG_Splendid_Box,2148,1	// Rosa Shield
-IG_Splendid_Box,2153,1	// Imperial Guard
-IG_Splendid_Box,13046,1	// Krieg
-IG_Splendid_Box,13047,1	// Weihna
-IG_Splendid_Box,13061,1	// Black Wing
-IG_Splendid_Box,13421,1	// Ruber
-IG_Splendid_Box,15000,1	// Bone Plate
-IG_Splendid_Box,15014,1	// Ebone Armor
-IG_Splendid_Box,16000,1	// Erde
-IG_Splendid_Box,16001,1	// Red Square Bag
-IG_Splendid_Box,16003,1	// Carga Mace
-IG_Splendid_Box,16010,1	// Red Ether Bag
-IG_Splendid_Box,18103,2	// Mystic Bow
+IG_Splendid_Box,1189,1	//红云长剑
+IG_Splendid_Box,1191,1	//海鹰召唤者
+IG_Splendid_Box,1196,1	//铬黄 金属 双持 剑
+IG_Splendid_Box,1284,1	//奎师那之刃
+IG_Splendid_Box,1285,1	//脉轮之刃
+IG_Splendid_Box,1287,1	//圣灵拳刃
+IG_Splendid_Box,1311,1	//贝克战斧
+IG_Splendid_Box,1387,1	//守护巨人战斧
+IG_Splendid_Box,1433,1	//帝王钻 长矛
+IG_Splendid_Box,1649,1	//精灵之杖
+IG_Splendid_Box,1745,1	//红色闪电
+IG_Splendid_Box,1746,1	//精灵之弓
+IG_Splendid_Box,1930,1	//绿色 鸣笛
+IG_Splendid_Box,1984,1	//节 鞭
+IG_Splendid_Box,2148,1	//玫瑰盾牌
+IG_Splendid_Box,2153,1	//帝王钻 盾牌
+IG_Splendid_Box,13046,1	//战争短剑
+IG_Splendid_Box,13047,1	//威娜短剑
+IG_Splendid_Box,13061,1	//黑 翼
+IG_Splendid_Box,13421,1	//火红单手剑
+IG_Splendid_Box,15000,1	//骷髅板甲
+IG_Splendid_Box,15014,1	//漆黑盔甲
+IG_Splendid_Box,16000,1	//艾尔德之锤
+IG_Splendid_Box,16001,1	//红色手提包
+IG_Splendid_Box,16003,1	//卡尔加权杖
+IG_Splendid_Box,16010,1	//红色 乙醚 包包
+IG_Splendid_Box,18103,2	//神秘 弓
 // Armor Card Album
-IG_CardAlbum_Armor,4001,1	// Poring Card
-IG_CardAlbum_Armor,4003,1	// Pupa Card
-IG_CardAlbum_Armor,4008,1	// Picky Card
-IG_CardAlbum_Armor,4011,1	// Picky Egg Card
-IG_CardAlbum_Armor,4014,1	// Roda Frog Card
-IG_CardAlbum_Armor,4016,1	// Thief Bug Card
-IG_CardAlbum_Armor,4021,1	// Rocker Card
-IG_CardAlbum_Armor,4023,1	// Baby Desert Wolf Card
-IG_CardAlbum_Armor,4031,1	// Peco Peco Card
-IG_CardAlbum_Armor,4042,1	// Steel Chonchon Card
-IG_CardAlbum_Armor,4061,1	// Cornutus Card
-IG_CardAlbum_Armor,4078,1	// Savage Card
-IG_CardAlbum_Armor,4089,1	// Swordfish Card
-IG_CardAlbum_Armor,4098,1	// Dokebi Card
-IG_CardAlbum_Armor,4099,1	// Pasana Card
-IG_CardAlbum_Armor,4101,1	// Sandman Card
-IG_CardAlbum_Armor,4105,1	// Marc Card
-IG_CardAlbum_Armor,4114,1	// Argiope Card
-IG_CardAlbum_Armor,4119,1	// Bathory Card
-IG_CardAlbum_Armor,4141,1	// Evil Druid Card
-IG_CardAlbum_Armor,4150,1	// Goat Card
-IG_CardAlbum_Armor,4158,1	// Sky Deleter Card
-IG_CardAlbum_Armor,4162,1	// Grizzly Card
-IG_CardAlbum_Armor,4166,1	// Nightmare Terror Card
-IG_CardAlbum_Armor,4170,1	// Dark Frame Card
-IG_CardAlbum_Armor,4173,1	// Demon Pungus Card
-IG_CardAlbum_Armor,4181,1	// Disguise Card
-IG_CardAlbum_Armor,4189,1	// Wraith Dead Card
-IG_CardAlbum_Armor,4191,1	// Loli Ruri Card
-IG_CardAlbum_Armor,4194,1	// Rybio Card
-IG_CardAlbum_Armor,4201,1	// Majoruros Card
-IG_CardAlbum_Armor,4213,1	// Brilight Card
-IG_CardAlbum_Armor,4216,1	// Sasquatch Card
-IG_CardAlbum_Armor,4218,1	// Succubus Card
-IG_CardAlbum_Armor,4220,1	// Solider Card
-IG_CardAlbum_Armor,4222,1	// Skeleton Prisoner Card
-IG_CardAlbum_Armor,4233,1	// Baby Leopard Card
-IG_CardAlbum_Armor,4234,1	// Anolian Card
-IG_CardAlbum_Armor,4242,1	// Apocalipse Card
-IG_CardAlbum_Armor,4259,1	// Wooden Golem Card
-IG_CardAlbum_Armor,4270,1	// Giant Spider Card
-IG_CardAlbum_Armor,4279,1	// Earth Deleter Card
-IG_CardAlbum_Armor,4280,1	// Geographer Card
-IG_CardAlbum_Armor,4286,1	// Karakasa Card
-IG_CardAlbum_Armor,4295,1	// Kraben Card
-IG_CardAlbum_Armor,4298,1	// Creamy Fear Card
-IG_CardAlbum_Armor,4299,1	// Clock Card
-IG_CardAlbum_Armor,4300,1	// Chimera Card
-IG_CardAlbum_Armor,4301,1	// Killer Mantis Card
-IG_CardAlbum_Armor,4315,1	// Pest Card
-IG_CardAlbum_Armor,4332,1	// Waste Stove Card
-IG_CardAlbum_Armor,4333,1	// Venomous Card
-IG_CardAlbum_Armor,4337,1	// Porcellio Card
-IG_CardAlbum_Armor,4338,1	// Obsidian Card
-IG_CardAlbum_Armor,4339,1	// Mineral Card
-IG_CardAlbum_Armor,4346,1	// Egnigem Cenia Card
-IG_CardAlbum_Armor,4353,1	// Remover Card
-IG_CardAlbum_Armor,4369,1	// Venatu Card
-IG_CardAlbum_Armor,4370,1	// Dimik Card
-IG_CardAlbum_Armor,4371,1	// Archdam Card
-IG_CardAlbum_Armor,4382,1	// Yellow Novus Card
-IG_CardAlbum_Armor,4383,1	// Red Novus Card
-IG_CardAlbum_Armor,4387,1	// Ancient Mimic Card
-IG_CardAlbum_Armor,4392,1	// Dame of Sentinel Card
-IG_CardAlbum_Armor,4393,1	// Mistress of Shelter Card
-IG_CardAlbum_Armor,4400,1	// Aliza Card
-IG_CardAlbum_Armor,4401,1	// Alicel Card
-IG_CardAlbum_Armor,4404,1	// Skogul Card
-IG_CardAlbum_Armor,4405,1	// Frus Card
-IG_CardAlbum_Armor,4409,1	// Agav Card
-IG_CardAlbum_Armor,4410,1	// Echio Card
-IG_CardAlbum_Armor,4426,1	// Byorgue Card
-IG_CardAlbum_Armor,4450,1	// Banshee Master Card
+IG_CardAlbum_Armor,4001,1	//波利卡片
+IG_CardAlbum_Armor,4003,1	//虫蛹卡片
+IG_CardAlbum_Armor,4008,1	//小鸡卡片
+IG_CardAlbum_Armor,4011,1	//蛋壳小鸡卡片
+IG_CardAlbum_Armor,4014,1	//罗达蛙卡片
+IG_CardAlbum_Armor,4016,1	//盗虫卡片
+IG_CardAlbum_Armor,4021,1	//摇滚蝗虫卡片
+IG_CardAlbum_Armor,4023,1	//沙漠幼狼卡片
+IG_CardAlbum_Armor,4031,1	//大嘴鸟卡片
+IG_CardAlbum_Armor,4042,1	//绿苍蝇卡片
+IG_CardAlbum_Armor,4061,1	//卡那多斯卡片
+IG_CardAlbum_Armor,4078,1	//野猪卡片
+IG_CardAlbum_Armor,4089,1	//异变鱼卡片
+IG_CardAlbum_Armor,4098,1	//土人卡片
+IG_CardAlbum_Armor,4099,1	//帕莎纳卡片
+IG_CardAlbum_Armor,4101,1	//泥人卡片
+IG_CardAlbum_Armor,4105,1	//马克卡片
+IG_CardAlbum_Armor,4114,1	//艾吉欧蜈蚣卡片
+IG_CardAlbum_Armor,4119,1	//巫婆卡片
+IG_CardAlbum_Armor,4141,1	//暗神官卡片
+IG_CardAlbum_Armor,4150,1	//魔羌卡片
+IG_CardAlbum_Armor,4158,1	//七彩飞龙卡片
+IG_CardAlbum_Armor,4162,1	//暴焰野熊卡片
+IG_CardAlbum_Armor,4166,1	//七彩梦魇卡片
+IG_CardAlbum_Armor,4170,1	//镜妖卡片
+IG_CardAlbum_Armor,4173,1	//天邪鬼卡片
+IG_CardAlbum_Armor,4181,1	//假面鬼卡片
+IG_CardAlbum_Armor,4189,1	//狂暴恶灵卡片
+IG_CardAlbum_Armor,4191,1	//银月魔女卡片
+IG_CardAlbum_Armor,4194,1	//瑞比欧卡片
+IG_CardAlbum_Armor,4201,1	//狂暴米诺斯卡片
+IG_CardAlbum_Armor,4213,1	//伊特瓢虫卡片
+IG_CardAlbum_Armor,4216,1	//雪熊卡片
+IG_CardAlbum_Armor,4218,1	//恶魔女仆卡片
+IG_CardAlbum_Armor,4220,1	//岩石龟卡片
+IG_CardAlbum_Armor,4222,1	//邪骸战俘卡片
+IG_CardAlbum_Armor,4233,1	//小花豹卡片
+IG_CardAlbum_Armor,4234,1	//虎蜥人卡片
+IG_CardAlbum_Armor,4242,1	//阿修罗机械战士卡片
+IG_CardAlbum_Armor,4259,1	//机木人卡片
+IG_CardAlbum_Armor,4270,1	//狂暴蜘蛛卡片
+IG_CardAlbum_Armor,4279,1	//七彩地龙卡片
+IG_CardAlbum_Armor,4280,1	//邪恶向日葵卡片
+IG_CardAlbum_Armor,4286,1	//伞妖卡片
+IG_CardAlbum_Armor,4295,1	//克莱本卡片
+IG_CardAlbum_Armor,4298,1	//狂暴克瑞米卡片
+IG_CardAlbum_Armor,4299,1	//古钟魔卡片
+IG_CardAlbum_Armor,4300,1	//凯美拉卡片
+IG_CardAlbum_Armor,4301,1	//狂暴螳螂卡片
+IG_CardAlbum_Armor,4315,1	//单眼虫卡片
+IG_CardAlbum_Armor,4332,1	//废铁暖炉卡片
+IG_CardAlbum_Armor,4333,1	//毒液魔卡片
+IG_CardAlbum_Armor,4337,1	//三叶铁甲虫卡片
+IG_CardAlbum_Armor,4338,1	//黑曜石卡片
+IG_CardAlbum_Armor,4339,1	//矿石魔卡片
+IG_CardAlbum_Armor,4346,1	//暗●剑士卡片
+IG_CardAlbum_Armor,4353,1	//消防魔卡片
+IG_CardAlbum_Armor,4369,1	//红凡娜图卡片
+IG_CardAlbum_Armor,4370,1	//迪靡克卡片
+IG_CardAlbum_Armor,4371,1	//阿克坦卡片
+IG_CardAlbum_Armor,4382,1	//黄诺博斯卡片
+IG_CardAlbum_Armor,4383,1	//诺博斯卡片
+IG_CardAlbum_Armor,4387,1	//狂暴邪恶箱卡片
+IG_CardAlbum_Armor,4392,1	//监视者卡片
+IG_CardAlbum_Armor,4393,1	//安息者卡片
+IG_CardAlbum_Armor,4400,1	//爱丽哲卡片
+IG_CardAlbum_Armor,4401,1	//爱丽削卡片
+IG_CardAlbum_Armor,4404,1	//皮影魔卡片
+IG_CardAlbum_Armor,4405,1	//彩妆皮影魔卡片
+IG_CardAlbum_Armor,4409,1	//阿加波卡片
+IG_CardAlbum_Armor,4410,1	//艾基奥卡片
+IG_CardAlbum_Armor,4426,1	//狂徒卡片
+IG_CardAlbum_Armor,4450,1	//女妖首领卡片
 // Headgear Card Album
-IG_CardAlbum_Helm,4010,1	// Willow Card
-IG_CardAlbum_Helm,4039,1	// Stainer Card
-IG_CardAlbum_Helm,4041,1	// Coco Card
-IG_CardAlbum_Helm,4046,1	// Martin Card
-IG_CardAlbum_Helm,4052,1	// Elder Willow Card
-IG_CardAlbum_Helm,4087,1	// Giearth Card
-IG_CardAlbum_Helm,4110,1	// Ghoul Card
-IG_CardAlbum_Helm,4112,1	// Marduk Card
-IG_CardAlbum_Helm,4122,1	// Deviruchi Card
-IG_CardAlbum_Helm,4127,1	// Nightmare Card
-IG_CardAlbum_Helm,4161,1	// Grand Peco Card
-IG_CardAlbum_Helm,4169,1	// Dark Illusion Card
-IG_CardAlbum_Helm,4177,1	// Dryad Card
-IG_CardAlbum_Helm,4185,1	// Rideword Card
-IG_CardAlbum_Helm,4188,1	// Leib Olmai Card
-IG_CardAlbum_Helm,4195,1	// Leaf Cat Card
-IG_CardAlbum_Helm,4206,1	// Myst Case Card
-IG_CardAlbum_Helm,4223,1	// Stalactic Golem Card
-IG_CardAlbum_Helm,4229,1	// Tower Keeper Card
-IG_CardAlbum_Helm,4241,1	// Arc Angeling Card
-IG_CardAlbum_Helm,4258,1	// Evil Nymph Card
-IG_CardAlbum_Helm,4260,1	// Wootan Shooter Card
-IG_CardAlbum_Helm,4261,1	// Wootan Fighter Card
-IG_CardAlbum_Helm,4269,1	// Incubus Card
-IG_CardAlbum_Helm,4271,1	// Giant Hornet Card
-IG_CardAlbum_Helm,4278,1	// Gibbet Card
-IG_CardAlbum_Helm,4288,1	// Carat Card
-IG_CardAlbum_Helm,4296,1	// Cramp Card
-IG_CardAlbum_Helm,4311,1	// Permeter Card
-IG_CardAlbum_Helm,4336,1	// Ungoliant Card
-IG_CardAlbum_Helm,4343,1	// Holden Card
-IG_CardAlbum_Helm,4354,1	// Gemini-S58 Card
-IG_CardAlbum_Helm,4358,1	// Seyren Windsor Card
-IG_CardAlbum_Helm,4364,1	// Margaretha Sorin Card
-IG_CardAlbum_Helm,4366,1	// Kathryne Keyron Card
-IG_CardAlbum_Helm,4379,1	// Blue Acidus Card
-IG_CardAlbum_Helm,4411,1	// Vanberk Card
-IG_CardAlbum_Helm,4412,1	// Isilla Card
-IG_CardAlbum_Helm,4434,1	// Knocker Card
-IG_CardAlbum_Helm,4438,1	// Banshee Card
+IG_CardAlbum_Helm,4010,1	//树精卡片
+IG_CardAlbum_Helm,4039,1	//瓢虫卡片
+IG_CardAlbum_Helm,4041,1	//松鼠卡片
+IG_CardAlbum_Helm,4046,1	//土拨鼠卡片
+IG_CardAlbum_Helm,4052,1	//长老树精卡片
+IG_CardAlbum_Helm,4087,1	//基尔瑟卡片
+IG_CardAlbum_Helm,4110,1	//绿腐尸卡片
+IG_CardAlbum_Helm,4112,1	//马尔杜克卡片
+IG_CardAlbum_Helm,4122,1	//小恶魔卡片
+IG_CardAlbum_Helm,4127,1	//梦魇卡片
+IG_CardAlbum_Helm,4161,1	//七彩大嘴鸟卡片
+IG_CardAlbum_Helm,4169,1	//迷幻之王卡片
+IG_CardAlbum_Helm,4177,1	//森林妖姬卡片
+IG_CardAlbum_Helm,4185,1	//飞行魔书卡片
+IG_CardAlbum_Helm,4188,1	//狂暴大脚熊卡片
+IG_CardAlbum_Helm,4195,1	//群叶猫卡片
+IG_CardAlbum_Helm,4206,1	//邪恶礼盒卡片
+IG_CardAlbum_Helm,4223,1	//钟乳巨石怪卡片
+IG_CardAlbum_Helm,4229,1	//钟塔守护者卡片
+IG_CardAlbum_Helm,4241,1	//圣天使波利卡片
+IG_CardAlbum_Helm,4258,1	//妖仙女卡片
+IG_CardAlbum_Helm,4260,1	//伍坦弹弓手卡片
+IG_CardAlbum_Helm,4261,1	//伍坦战士卡片
+IG_CardAlbum_Helm,4269,1	//恶魔侍者卡片
+IG_CardAlbum_Helm,4271,1	//狂暴蜂兵卡片
+IG_CardAlbum_Helm,4278,1	//鬼娃树卡片
+IG_CardAlbum_Helm,4288,1	//卡拉特小丑卡片
+IG_CardAlbum_Helm,4296,1	//蓝鼠卡片
+IG_CardAlbum_Helm,4311,1	//果树龟卡片
+IG_CardAlbum_Helm,4336,1	//温古力安特卡片
+IG_CardAlbum_Helm,4343,1	//摩尔卡片
+IG_CardAlbum_Helm,4354,1	//双子星-S58卡片
+IG_CardAlbum_Helm,4358,1	//暗●骑士领主卡片
+IG_CardAlbum_Helm,4364,1	//暗●神官卡片
+IG_CardAlbum_Helm,4366,1	//暗●超魔导师卡片
+IG_CardAlbum_Helm,4379,1	//灰俄希托斯卡片
+IG_CardAlbum_Helm,4411,1	//凡贝尔克卡片
+IG_CardAlbum_Helm,4412,1	//依斯拉卡片
+IG_CardAlbum_Helm,4434,1	//敲击者卡片
+IG_CardAlbum_Helm,4438,1	//女妖卡片
 // Accessory Card Album
-IG_CardAlbum_Acc,4022,1	// Spore Card
-IG_CardAlbum_Acc,4027,1	// Kukre Card
-IG_CardAlbum_Acc,4028,1	// Tarou Card
-IG_CardAlbum_Acc,4033,1	// Poporing Card
-IG_CardAlbum_Acc,4034,1	// Wormtail Card
-IG_CardAlbum_Acc,4036,1	// Muka Card
-IG_CardAlbum_Acc,4044,1	// Smokie Card
-IG_CardAlbum_Acc,4048,1	// Poison Spore Card
-IG_CardAlbum_Acc,4051,1	// Yoyo Card
-IG_CardAlbum_Acc,4053,1	// Vitata Card
-IG_CardAlbum_Acc,4064,1	// Zerom Card
-IG_CardAlbum_Acc,4073,1	// Pirate Skeleton Card
-IG_CardAlbum_Acc,4077,1	// Phen Card
-IG_CardAlbum_Acc,4079,1	// Mantis Card
-IG_CardAlbum_Acc,4084,1	// Marine Sphere Card
-IG_CardAlbum_Acc,4091,1	// Kobold Card
-IG_CardAlbum_Acc,4093,1	// Obeaune Card
-IG_CardAlbum_Acc,4103,1	// Horong Card
-IG_CardAlbum_Acc,4139,1	// Joker Card
-IG_CardAlbum_Acc,4149,1	// Gargoyle Card
-IG_CardAlbum_Acc,4152,1	// Galapago Card
-IG_CardAlbum_Acc,4154,1	// Dumpling Child Card
-IG_CardAlbum_Acc,4175,1	// Poisonous Toad Card
-IG_CardAlbum_Acc,4187,1	// Raydric Archer Card
-IG_CardAlbum_Acc,4190,1	// Wraith Card
-IG_CardAlbum_Acc,4193,1	// Lude Card
-IG_CardAlbum_Acc,4196,1	// Marin Card
-IG_CardAlbum_Acc,4205,1	// Mimic Card
-IG_CardAlbum_Acc,4209,1	// Violy Card
-IG_CardAlbum_Acc,4212,1	// Bongun Card
-IG_CardAlbum_Acc,4215,1	// Blazer Card
-IG_CardAlbum_Acc,4219,1	// Sage Worm Card
-IG_CardAlbum_Acc,4224,1	// Stem Worm Card
-IG_CardAlbum_Acc,4227,1	// Spring Rabbit Card
-IG_CardAlbum_Acc,4228,1	// Sleeper Card
-IG_CardAlbum_Acc,4230,1	// Shinobi Card
-IG_CardAlbum_Acc,4232,1	// Hermit Plant Card
-IG_CardAlbum_Acc,4237,1	// Owl Duke Card
-IG_CardAlbum_Acc,4238,1	// Owl Baron Card
-IG_CardAlbum_Acc,4252,1	// Alligator Card
-IG_CardAlbum_Acc,4256,1	// Orc Archer Card
-IG_CardAlbum_Acc,4262,1	// Cloud Hermit Card
-IG_CardAlbum_Acc,4264,1	// Wind Ghost Card
-IG_CardAlbum_Acc,4265,1	// Jing Guai Card
-IG_CardAlbum_Acc,4272,1	// Zhu Po Long Card
-IG_CardAlbum_Acc,4282,1	// Tengu Card
-IG_CardAlbum_Acc,4283,1	// Greatest General Card
-IG_CardAlbum_Acc,4293,1	// Cookie Card
-IG_CardAlbum_Acc,4294,1	// Quve Card
-IG_CardAlbum_Acc,4321,1	// Hylozoist Card
-IG_CardAlbum_Acc,4326,1	// Sea-Otter Card
-IG_CardAlbum_Acc,4327,1	// Bloody Butterfly Card
-IG_CardAlbum_Acc,4331,1	// Heater Card
-IG_CardAlbum_Acc,4344,1	// Anopheles Card
-IG_CardAlbum_Acc,4347,1	// Armeyer Dinze Card
-IG_CardAlbum_Acc,4348,1	// Wickebine Tres Card
-IG_CardAlbum_Acc,4349,1	// Errende Ebecee Card
-IG_CardAlbum_Acc,4355,1	// Gremlin Card
-IG_CardAlbum_Acc,4356,1	// Beholder Card
-IG_CardAlbum_Acc,4377,1	// Grove Card
-IG_CardAlbum_Acc,4384,1	// Hydrolancer Card
-IG_CardAlbum_Acc,4385,1	// Dragon Egg Card
-IG_CardAlbum_Acc,4389,1	// Plasma Card
-IG_CardAlbum_Acc,4391,1	// Baroness of Retribution Card
-IG_CardAlbum_Acc,4415,1	// Snowier Card
-IG_CardAlbum_Acc,4416,1	// Siroma Card
-IG_CardAlbum_Acc,4418,1	// Gazeti Card
-IG_CardAlbum_Acc,4423,1	// Galion Card
-IG_CardAlbum_Acc,4424,1	// Stapo Card
-IG_CardAlbum_Acc,4433,1	// Imp Card
-IG_CardAlbum_Acc,4436,1	// Ragged Zombie Card
-IG_CardAlbum_Acc,4437,1	// Hell Poodle Card
+IG_CardAlbum_Acc,4022,1	//魔菇卡片
+IG_CardAlbum_Acc,4027,1	//库克雷卡片
+IG_CardAlbum_Acc,4028,1	//白鼠卡片
+IG_CardAlbum_Acc,4033,1	//波波利卡片
+IG_CardAlbum_Acc,4034,1	//森灵卡片
+IG_CardAlbum_Acc,4036,1	//摩卡卡片
+IG_CardAlbum_Acc,4044,1	//狸猫卡片
+IG_CardAlbum_Acc,4048,1	//毒魔菇卡片
+IG_CardAlbum_Acc,4051,1	//溜溜猴卡片
+IG_CardAlbum_Acc,4053,1	//黑蚁卡片
+IG_CardAlbum_Acc,4064,1	//杰洛米卡片
+IG_CardAlbum_Acc,4073,1	//邪骸海盗卡片
+IG_CardAlbum_Acc,4077,1	//剑鱼卡片
+IG_CardAlbum_Acc,4079,1	//螳螂卡片
+IG_CardAlbum_Acc,4084,1	//气泡虫卡片
+IG_CardAlbum_Acc,4091,1	//犬妖卡片
+IG_CardAlbum_Acc,4093,1	//人鱼卡片
+IG_CardAlbum_Acc,4103,1	//鬼火卡片
+IG_CardAlbum_Acc,4139,1	//裘卡卡片
+IG_CardAlbum_Acc,4149,1	//蝙蝠弓箭手卡片
+IG_CardAlbum_Acc,4152,1	//啤酒企鹅卡片
+IG_CardAlbum_Acc,4154,1	//元宵童子卡片
+IG_CardAlbum_Acc,4175,1	//牛蛙卡片
+IG_CardAlbum_Acc,4187,1	//幽灵弓箭手卡片
+IG_CardAlbum_Acc,4190,1	//恶灵卡片
+IG_CardAlbum_Acc,4193,1	//南瓜魂卡片
+IG_CardAlbum_Acc,4196,1	//冰波利卡片
+IG_CardAlbum_Acc,4205,1	//邪恶箱卡片
+IG_CardAlbum_Acc,4209,1	//薇欧莉卡片
+IG_CardAlbum_Acc,4212,1	//妖道卡片
+IG_CardAlbum_Acc,4215,1	//火焰妖卡片
+IG_CardAlbum_Acc,4219,1	//贤者虫卡片
+IG_CardAlbum_Acc,4224,1	//灰森灵卡片
+IG_CardAlbum_Acc,4227,1	//弹簧兔卡片
+IG_CardAlbum_Acc,4228,1	//沙妖卡片
+IG_CardAlbum_Acc,4230,1	//火忍西怒毕卡片
+IG_CardAlbum_Acc,4232,1	//人参精卡片
+IG_CardAlbum_Acc,4237,1	//鸮袅首领卡片
+IG_CardAlbum_Acc,4238,1	//鸮袅男爵卡片
+IG_CardAlbum_Acc,4252,1	//鳄鱼人卡片
+IG_CardAlbum_Acc,4256,1	//兽人弓箭手卡片
+IG_CardAlbum_Acc,4262,1	//恶云仙人卡片
+IG_CardAlbum_Acc,4264,1	//风魔巫师卡片
+IG_CardAlbum_Acc,4265,1	//豹皮怪卡片
+IG_CardAlbum_Acc,4272,1	//舞狮卡片
+IG_CardAlbum_Acc,4282,1	//天狗卡片
+IG_CardAlbum_Acc,4283,1	//将军魔碑卡片
+IG_CardAlbum_Acc,4293,1	//甜饼人卡片
+IG_CardAlbum_Acc,4294,1	//万圣魔卡片
+IG_CardAlbum_Acc,4321,1	//兔斯拉卡片
+IG_CardAlbum_Acc,4326,1	//海獭卡片
+IG_CardAlbum_Acc,4327,1	//血蝴蝶卡片
+IG_CardAlbum_Acc,4331,1	//火焰龟卡片
+IG_CardAlbum_Acc,4344,1	//疟蚊卡片
+IG_CardAlbum_Acc,4347,1	//暗●商人卡片
+IG_CardAlbum_Acc,4348,1	//暗●盗贼卡片
+IG_CardAlbum_Acc,4349,1	//暗●服事卡片
+IG_CardAlbum_Acc,4355,1	//小妖精卡片
+IG_CardAlbum_Acc,4356,1	//恶魔之眼卡片
+IG_CardAlbum_Acc,4377,1	//绿变色龙卡片
+IG_CardAlbum_Acc,4384,1	//三头龙卡片
+IG_CardAlbum_Acc,4385,1	//龙蛋卡片
+IG_CardAlbum_Acc,4389,1	//等离子体卡片
+IG_CardAlbum_Acc,4391,1	//代行刑者卡片
+IG_CardAlbum_Acc,4415,1	//雪怪卡片
+IG_CardAlbum_Acc,4416,1	//小雪怪卡片
+IG_CardAlbum_Acc,4418,1	//寒冰雕像卡片
+IG_CardAlbum_Acc,4423,1	//疯狂鬣狗卡片
+IG_CardAlbum_Acc,4424,1	//石头波利卡片
+IG_CardAlbum_Acc,4433,1	//熔岩魔卡片
+IG_CardAlbum_Acc,4436,1	//变异僵尸卡片
+IG_CardAlbum_Acc,4437,1	//地狱犬卡片
 // Shoes Card Album
-IG_CardAlbum_Shoes,4009,1	// Chonchon Card
-IG_CardAlbum_Shoes,4038,1	// Zombie Card
-IG_CardAlbum_Shoes,4050,1	// Male Thief Bug Card
-IG_CardAlbum_Shoes,4070,1	// Eggyra Card
-IG_CardAlbum_Shoes,4097,1	// Matyr Card
-IG_CardAlbum_Shoes,4100,1	// Sohee Card
-IG_CardAlbum_Shoes,4107,1	// Verit Card
-IG_CardAlbum_Shoes,4151,1	// Gajomart Card
-IG_CardAlbum_Shoes,4160,1	// Firelock Soldier Card
-IG_CardAlbum_Shoes,4164,1	// Gullinbursti Card
-IG_CardAlbum_Shoes,4186,1	// Raggler Card
-IG_CardAlbum_Shoes,4199,1	// Merman Card
-IG_CardAlbum_Shoes,4200,1	// Megalith Card
-IG_CardAlbum_Shoes,4204,1	// Mini Demon Card
-IG_CardAlbum_Shoes,4208,1	// Miyabi Doll Card
-IG_CardAlbum_Shoes,4221,1	// Skeleton General Card
-IG_CardAlbum_Shoes,4235,1	// Christmas Cookie Card
-IG_CardAlbum_Shoes,4239,1	// Iron Fist Card
-IG_CardAlbum_Shoes,4244,1	// Alarm Card
-IG_CardAlbum_Shoes,4245,1	// Am Mut Card
-IG_CardAlbum_Shoes,4249,1	// Ancient Worm Card
-IG_CardAlbum_Shoes,4257,1	// Wild Rose Card
-IG_CardAlbum_Shoes,4267,1	// Explosion Card
-IG_CardAlbum_Shoes,4275,1	// Zombie Prisoner Card
-IG_CardAlbum_Shoes,4290,1	// Cat O' Nine Tails Card
-IG_CardAlbum_Shoes,4319,1	// Freezer Card
-IG_CardAlbum_Shoes,4378,1	// Gold Acidus Card
-IG_CardAlbum_Shoes,4381,1	// Green Ferus Card
-IG_CardAlbum_Shoes,4396,1	// Odium of Thanatos Card
-IG_CardAlbum_Shoes,4417,1	// Ice Titan Card
-IG_CardAlbum_Shoes,4435,1	// Zombie Slaughter Card
+IG_CardAlbum_Shoes,4009,1	//苍蝇卡片
+IG_CardAlbum_Shoes,4038,1	//腐尸卡片
+IG_CardAlbum_Shoes,4050,1	//玛勒盗虫卡片
+IG_CardAlbum_Shoes,4070,1	//转转蛋卡片
+IG_CardAlbum_Shoes,4097,1	//黑狐卡片
+IG_CardAlbum_Shoes,4100,1	//鬼女卡片
+IG_CardAlbum_Shoes,4107,1	//木乃伊犬卡片
+IG_CardAlbum_Shoes,4151,1	//狂暴鬼火卡片
+IG_CardAlbum_Shoes,4160,1	//武士火枪兵卡片
+IG_CardAlbum_Shoes,4164,1	//狂暴野猪卡片
+IG_CardAlbum_Shoes,4186,1	//奈吉鸟卡片
+IG_CardAlbum_Shoes,4199,1	//人鱼士兵卡片
+IG_CardAlbum_Shoes,4200,1	//邪恶摩艾卡片
+IG_CardAlbum_Shoes,4204,1	//狂暴小恶魔卡片
+IG_CardAlbum_Shoes,4208,1	//米雅毕卡片
+IG_CardAlbum_Shoes,4221,1	//邪骸战士长卡片
+IG_CardAlbum_Shoes,4235,1	//XMAS甜饼人卡片
+IG_CardAlbum_Shoes,4239,1	//铁蝎卡片
+IG_CardAlbum_Shoes,4244,1	//钟怪卡片
+IG_CardAlbum_Shoes,4245,1	//狂暴小土人卡片
+IG_CardAlbum_Shoes,4249,1	//狂暴蜈蚣卡片
+IG_CardAlbum_Shoes,4257,1	//狂暴野猫卡片
+IG_CardAlbum_Shoes,4267,1	//爆炎蝙蝠卡片
+IG_CardAlbum_Shoes,4275,1	//腐尸战俘卡片
+IG_CardAlbum_Shoes,4290,1	//狂暴月夜猫卡片
+IG_CardAlbum_Shoes,4319,1	//水灵龟卡片
+IG_CardAlbum_Shoes,4378,1	//俄希托斯卡片
+IG_CardAlbum_Shoes,4381,1	//绿贝勒斯卡片
+IG_CardAlbum_Shoes,4396,1	//达纳托斯的憎恨卡片
+IG_CardAlbum_Shoes,4417,1	//寒冰巨人卡片
+IG_CardAlbum_Shoes,4435,1	//僵尸屠戮者卡片
 // Shield Card Album
-IG_CardAlbum_Shield,4012,1	// Thief Bug Egg Card
-IG_CardAlbum_Shield,4013,1	// Andre Egg Card
-IG_CardAlbum_Shield,4032,1	// Ambernite Card
-IG_CardAlbum_Shield,4045,1	// Horn Card
-IG_CardAlbum_Shield,4058,1	// Thara Frog Card
-IG_CardAlbum_Shield,4066,1	// Orc Warrior Card
-IG_CardAlbum_Shield,4067,1	// Megalodon Card
-IG_CardAlbum_Shield,4074,1	// Bigfoot Card
-IG_CardAlbum_Shield,4075,1	// Argos Card
-IG_CardAlbum_Shield,4083,1	// Rafflesia Card
-IG_CardAlbum_Shield,4090,1	// Munak Card
-IG_CardAlbum_Shield,4120,1	// Sky Petite Card
-IG_CardAlbum_Shield,4124,1	// Medusa Card
-IG_CardAlbum_Shield,4136,1	// Khalitzburg Card
-IG_CardAlbum_Shield,4138,1	// Anubis Card
-IG_CardAlbum_Shield,4207,1	// Mysteltainn Card
-IG_CardAlbum_Shield,4217,1	// Enchanted Peach Tree Card
-IG_CardAlbum_Shield,4226,1	// Sting Card
-IG_CardAlbum_Shield,4231,1	// Mi Gao Card
-IG_CardAlbum_Shield,4240,1	// Arclouze Card
-IG_CardAlbum_Shield,4248,1	// Ancient Mummy Card
-IG_CardAlbum_Shield,4250,1	// Executioner Card
-IG_CardAlbum_Shield,4253,1	// Alice Card
-IG_CardAlbum_Shield,4254,1	// Ogretooth Card
-IG_CardAlbum_Shield,4277,1	// Zealotus Card
-IG_CardAlbum_Shield,4304,1	// Tamruan Card
-IG_CardAlbum_Shield,4309,1	// Parasite Card
-IG_CardAlbum_Shield,4314,1	// Penomena Card
-IG_CardAlbum_Shield,4322,1	// High Orc Card
-IG_CardAlbum_Shield,4340,1	// Teddy Bear Card
-IG_CardAlbum_Shield,4397,1	// Despero of Thanatos Card
-IG_CardAlbum_Shield,4413,1	// Hodremlin Card
-IG_CardAlbum_Shield,4414,1	// Seeker Card
-IG_CardAlbum_Shield,4420,1	// Muscipular Card
-IG_CardAlbum_Shield,4439,1	// Flame Skull Card
-IG_CardAlbum_Shield,4442,1	// Tatacho Card
-IG_CardAlbum_Shield,4443,1	// Aqua Elemental Card
-IG_CardAlbum_Shield,4444,1	// Draco Card
-IG_CardAlbum_Shield,4445,1	// Luciola Vespa Card
-IG_CardAlbum_Shield,4447,1	// Centipede Card
-IG_CardAlbum_Shield,4448,1	// Cornus Card
-IG_CardAlbum_Shield,4449,1	// Dark Shadow Card
+IG_CardAlbum_Shield,4012,1	//盗虫卵卡片
+IG_CardAlbum_Shield,4013,1	//蚁卵卡片
+IG_CardAlbum_Shield,4032,1	//蜗牛卡片
+IG_CardAlbum_Shield,4045,1	//锹形虫卡片
+IG_CardAlbum_Shield,4058,1	//突变蛙卡片
+IG_CardAlbum_Shield,4066,1	//兽人战士卡片
+IG_CardAlbum_Shield,4067,1	//邪骸食人鱼卡片
+IG_CardAlbum_Shield,4074,1	//大脚熊卡片
+IG_CardAlbum_Shield,4075,1	//艾斯蜘蛛卡片
+IG_CardAlbum_Shield,4083,1	//草精卡片
+IG_CardAlbum_Shield,4090,1	//殭尸卡片
+IG_CardAlbum_Shield,4120,1	//毕帝特飞龙卡片
+IG_CardAlbum_Shield,4124,1	//米杜沙卡片
+IG_CardAlbum_Shield,4136,1	//卡利斯格卡片
+IG_CardAlbum_Shield,4138,1	//安毕斯卡片
+IG_CardAlbum_Shield,4207,1	//弒神者卡片
+IG_CardAlbum_Shield,4217,1	//猴桃木卡片
+IG_CardAlbum_Shield,4226,1	//史汀卡片
+IG_CardAlbum_Shield,4231,1	//米糕卡片
+IG_CardAlbum_Shield,4240,1	//卷甲虫卡片
+IG_CardAlbum_Shield,4248,1	//狂暴木乃伊卡片
+IG_CardAlbum_Shield,4250,1	//行刑者卡片
+IG_CardAlbum_Shield,4253,1	//爱丽丝女仆卡片
+IG_CardAlbum_Shield,4254,1	//兽牙怪卡片
+IG_CardAlbum_Shield,4277,1	//艾斯恩魔女卡片
+IG_CardAlbum_Shield,4304,1	//塔噜安卡片
+IG_CardAlbum_Shield,4309,1	//苗娃佩瑞丝卡片
+IG_CardAlbum_Shield,4314,1	//梅纳海葵卡片
+IG_CardAlbum_Shield,4322,1	//兽人战士长卡片
+IG_CardAlbum_Shield,4340,1	//玩偶熊卡片
+IG_CardAlbum_Shield,4397,1	//达纳托斯的绝望卡片
+IG_CardAlbum_Shield,4413,1	//邪恶妖精卡片
+IG_CardAlbum_Shield,4414,1	//搜索者卡片
+IG_CardAlbum_Shield,4420,1	//邪恶噬人花卡片
+IG_CardAlbum_Shield,4439,1	//火焰颅骨卡片
+IG_CardAlbum_Shield,4442,1	//哒哒乔卡片
+IG_CardAlbum_Shield,4443,1	//水元素卡片
+IG_CardAlbum_Shield,4444,1	//飞龙卡片
+IG_CardAlbum_Shield,4445,1	//毒黄蜂卡片
+IG_CardAlbum_Shield,4447,1	//变异蜈蚣卡片
+IG_CardAlbum_Shield,4448,1	//飞马卡片
+IG_CardAlbum_Shield,4449,1	//黑影幽灵卡片
 // Weapon Card Album
-IG_CardAlbum_Weapon,4002,1	// Fabre Card
-IG_CardAlbum_Weapon,4004,1	// Drops Card
-IG_CardAlbum_Weapon,4005,1	// Santa Poring Card
-IG_CardAlbum_Weapon,4006,1	// Lunatic Card
-IG_CardAlbum_Weapon,4007,1	// Peco Peco Egg Card
-IG_CardAlbum_Weapon,4017,1	// Savage Babe Card
-IG_CardAlbum_Weapon,4018,1	// Andre Larva Card
-IG_CardAlbum_Weapon,4019,1	// Hornet Card
-IG_CardAlbum_Weapon,4020,1	// Familiar Card
-IG_CardAlbum_Weapon,4024,1	// Plankton Card
-IG_CardAlbum_Weapon,4025,1	// Skeleton Card
-IG_CardAlbum_Weapon,4026,1	// Female Thief Bug Card
-IG_CardAlbum_Weapon,4029,1	// Wolf Card
-IG_CardAlbum_Weapon,4030,1	// Mandragora Card
-IG_CardAlbum_Weapon,4035,1	// Hydra Card
-IG_CardAlbum_Weapon,4037,1	// Snake Card
-IG_CardAlbum_Weapon,4043,1	// Andre Card
-IG_CardAlbum_Weapon,4049,1	// Vadon Card
-IG_CardAlbum_Weapon,4055,1	// Marina Card
-IG_CardAlbum_Weapon,4057,1	// Metaller Card
-IG_CardAlbum_Weapon,4060,1	// Goblin Card
-IG_CardAlbum_Weapon,4062,1	// Anacondaq Card
-IG_CardAlbum_Weapon,4063,1	// Caramel Card
-IG_CardAlbum_Weapon,4065,1	// Kaho Card
-IG_CardAlbum_Weapon,4068,1	// Scorpion Card
-IG_CardAlbum_Weapon,4069,1	// Drainliar Card
-IG_CardAlbum_Weapon,4072,1	// Golem Card
-IG_CardAlbum_Weapon,4076,1	// Magnolia Card
-IG_CardAlbum_Weapon,4080,1	// Flora Card
-IG_CardAlbum_Weapon,4082,1	// Desert Wolf Card
-IG_CardAlbum_Weapon,4085,1	// Orc Skeleton Card
-IG_CardAlbum_Weapon,4086,1	// Soldier Skeleton Card
-IG_CardAlbum_Weapon,4092,1	// Skeleton Worker Card
-IG_CardAlbum_Weapon,4094,1	// Archer Skeleton Card
-IG_CardAlbum_Weapon,4096,1	// Zenorc Card
-IG_CardAlbum_Weapon,4104,1	// Requiem Card
-IG_CardAlbum_Weapon,4106,1	// Mummy Card
-IG_CardAlbum_Weapon,4111,1	// Strouf Card
-IG_CardAlbum_Weapon,4115,1	// Hunter Fly Card
-IG_CardAlbum_Weapon,4117,1	// Sidewinder Card
-IG_CardAlbum_Weapon,4118,1	// Earth Petite Card
-IG_CardAlbum_Weapon,4125,1	// Deviace Card
-IG_CardAlbum_Weapon,4126,1	// Minorous Card
-IG_CardAlbum_Weapon,4130,1	// Scorpion King Card
-IG_CardAlbum_Weapon,4140,1	// Abysmal Knight Card
-IG_CardAlbum_Weapon,4153,1	// Crab Card
-IG_CardAlbum_Weapon,4155,1	// Goblin Leader Card
-IG_CardAlbum_Weapon,4156,1	// Goblin Steamrider Card
-IG_CardAlbum_Weapon,4157,1	// Goblin Archer Card
-IG_CardAlbum_Weapon,4163,1	// Gryphon Card
-IG_CardAlbum_Weapon,4165,1	// Gig Card
-IG_CardAlbum_Weapon,4167,1	// Nereid Card
-IG_CardAlbum_Weapon,4171,1	// Dark Priest Card
-IG_CardAlbum_Weapon,4172,1	// The Paper Card
-IG_CardAlbum_Weapon,4176,1	// Dullahan Card
-IG_CardAlbum_Weapon,4180,1	// Driller Card
-IG_CardAlbum_Weapon,4182,1	// Diabolic Card
-IG_CardAlbum_Weapon,4184,1	// Lava Golem Card
-IG_CardAlbum_Weapon,4192,1	// Rotar Zairo Card
-IG_CardAlbum_Weapon,4202,1	// Mao Guai Card
-IG_CardAlbum_Weapon,4203,1	// Mutant Dragonoid Card
-IG_CardAlbum_Weapon,4214,1	// Bloody Murderer Card
-IG_CardAlbum_Weapon,4225,1	// Stone Shooter Card
-IG_CardAlbum_Weapon,4246,1	// Assaulter Card
-IG_CardAlbum_Weapon,4247,1	// Aster Card
-IG_CardAlbum_Weapon,4251,1	// Elder Card
-IG_CardAlbum_Weapon,4255,1	// Orc Lady Card
-IG_CardAlbum_Weapon,4268,1	// Injustice Card
-IG_CardAlbum_Weapon,4273,1	// Shell Fish Card
-IG_CardAlbum_Weapon,4274,1	// Zombie Master Card
-IG_CardAlbum_Weapon,4281,1	// Zipper Bear Card
-IG_CardAlbum_Weapon,4284,1	// Chepet Card
-IG_CardAlbum_Weapon,4289,1	// Caterpillar Card
-IG_CardAlbum_Weapon,4291,1	// Kobold Leader Card
-IG_CardAlbum_Weapon,4292,1	// Kobold Archer Card
-IG_CardAlbum_Weapon,4297,1	// Cruiser Card
-IG_CardAlbum_Weapon,4307,1	// Beetle King Card
-IG_CardAlbum_Weapon,4308,1	// Tri Joint Card
-IG_CardAlbum_Weapon,4310,1	// Panzer Goblin Card
-IG_CardAlbum_Weapon,4312,1	// Seal Card
-IG_CardAlbum_Weapon,4316,1	// False Angel Card
-IG_CardAlbum_Weapon,4317,1	// Mobster Card
-IG_CardAlbum_Weapon,4320,1	// Bloody Knight Card
-IG_CardAlbum_Weapon,4323,1	// Hatii Babe Card
-IG_CardAlbum_Weapon,4329,1	// Phendark Card
-IG_CardAlbum_Weapon,4335,1	// Pitman Card
-IG_CardAlbum_Weapon,4341,1	// Metaling Card
-IG_CardAlbum_Weapon,4345,1	// Hill Wind Card
-IG_CardAlbum_Weapon,4350,1	// Laurell Weinder Card
-IG_CardAlbum_Weapon,4360,1	// Eremes Guile Card
-IG_CardAlbum_Weapon,4362,1	// Howard Alt-Eisen Card
-IG_CardAlbum_Weapon,4368,1	// Cecil Damon Card
-IG_CardAlbum_Weapon,4380,1	// Red Ferus Card
-IG_CardAlbum_Weapon,4388,1	// Death Word Card
-IG_CardAlbum_Weapon,4390,1	// Breeze Card
-IG_CardAlbum_Weapon,4394,1	// Lady Solace Card
-IG_CardAlbum_Weapon,4395,1	// Maero of Thanatos Card
-IG_CardAlbum_Weapon,4398,1	// Dolor of Thanatos Card
-IG_CardAlbum_Weapon,4406,1	// Skeggiold Card
-IG_CardAlbum_Weapon,4421,1	// Drosera Card
-IG_CardAlbum_Weapon,4427,1	// Sword Guardian Card
-IG_CardAlbum_Weapon,4428,1	// Bow Guardian Card
-IG_CardAlbum_Weapon,4440,1	// Necromancer Card
-IG_CardAlbum_Weapon,4452,1	// Centipede Larva Card
-IG_CardAlbum_Weapon,4453,1	// Hillsrion Card
+IG_CardAlbum_Weapon,4002,1	//绿棉虫卡片
+IG_CardAlbum_Weapon,4004,1	//土波利卡片
+IG_CardAlbum_Weapon,4005,1	//圣诞波利卡片
+IG_CardAlbum_Weapon,4006,1	//疯兔卡片
+IG_CardAlbum_Weapon,4007,1	//大嘴鸟蛋卡片
+IG_CardAlbum_Weapon,4017,1	//小野猪卡片
+IG_CardAlbum_Weapon,4018,1	//白蚁幼虫卡片
+IG_CardAlbum_Weapon,4019,1	//蜂兵卡片
+IG_CardAlbum_Weapon,4020,1	//吸血蝙蝠卡片
+IG_CardAlbum_Weapon,4024,1	//漂浮虫卡片
+IG_CardAlbum_Weapon,4025,1	//邪骸战士卡片
+IG_CardAlbum_Weapon,4026,1	//浮勒盗虫卡片
+IG_CardAlbum_Weapon,4029,1	//狼卡片
+IG_CardAlbum_Weapon,4030,1	//曼陀萝魔花卡片
+IG_CardAlbum_Weapon,4035,1	//海葵卡片
+IG_CardAlbum_Weapon,4037,1	//青蛇卡片
+IG_CardAlbum_Weapon,4043,1	//白蚁卡片
+IG_CardAlbum_Weapon,4049,1	//螃蟹卡片
+IG_CardAlbum_Weapon,4055,1	//水母卡片
+IG_CardAlbum_Weapon,4057,1	//重金属蝗虫卡片
+IG_CardAlbum_Weapon,4060,1	//哥布灵卡片
+IG_CardAlbum_Weapon,4062,1	//黄蛇卡片
+IG_CardAlbum_Weapon,4063,1	//刺猬虫卡片
+IG_CardAlbum_Weapon,4065,1	//卡浩卡片
+IG_CardAlbum_Weapon,4068,1	//蝎子卡片
+IG_CardAlbum_Weapon,4069,1	//红蝙蝠卡片
+IG_CardAlbum_Weapon,4072,1	//巨石怪卡片
+IG_CardAlbum_Weapon,4076,1	//魔锅蛋卡片
+IG_CardAlbum_Weapon,4080,1	//噬人花卡片
+IG_CardAlbum_Weapon,4082,1	//沙漠之狼卡片
+IG_CardAlbum_Weapon,4085,1	//邪骸兽人卡片
+IG_CardAlbum_Weapon,4086,1	//邪骸士兵卡片
+IG_CardAlbum_Weapon,4092,1	//邪骸矿工卡片
+IG_CardAlbum_Weapon,4094,1	//邪骸弓箭手卡片
+IG_CardAlbum_Weapon,4096,1	//兹诺克卡片
+IG_CardAlbum_Weapon,4104,1	//诺可伊卡片
+IG_CardAlbum_Weapon,4106,1	//木乃伊卡片
+IG_CardAlbum_Weapon,4111,1	//海神卡片
+IG_CardAlbum_Weapon,4115,1	//赤苍蝇卡片
+IG_CardAlbum_Weapon,4117,1	//黑蛇卡片
+IG_CardAlbum_Weapon,4118,1	//毕帝特地龙卡片
+IG_CardAlbum_Weapon,4125,1	//狄奥斯卡片
+IG_CardAlbum_Weapon,4126,1	//米洛斯卡片
+IG_CardAlbum_Weapon,4130,1	//蝎子之王卡片
+IG_CardAlbum_Weapon,4140,1	//深渊骑士卡片
+IG_CardAlbum_Weapon,4153,1	//卡拉蟹卡片
+IG_CardAlbum_Weapon,4155,1	//哥布灵首领卡片
+IG_CardAlbum_Weapon,4156,1	//喷射哥布灵卡片
+IG_CardAlbum_Weapon,4157,1	//弓箭哥布灵卡片
+IG_CardAlbum_Weapon,4163,1	//狮鹫兽卡片
+IG_CardAlbum_Weapon,4165,1	//沙漠毒蝎卡片
+IG_CardAlbum_Weapon,4167,1	//奈利虫卡片
+IG_CardAlbum_Weapon,4171,1	//暗黑祭司卡片
+IG_CardAlbum_Weapon,4172,1	//纸妖卡片
+IG_CardAlbum_Weapon,4176,1	//无颅武士卡片
+IG_CardAlbum_Weapon,4180,1	//爆钻伞蜥卡片
+IG_CardAlbum_Weapon,4182,1	//赤焰小恶魔卡片
+IG_CardAlbum_Weapon,4184,1	//熔岩巨石卡片
+IG_CardAlbum_Weapon,4192,1	//直升机哥布灵卡片
+IG_CardAlbum_Weapon,4202,1	//狐仙卡片
+IG_CardAlbum_Weapon,4203,1	//半龙人卡片
+IG_CardAlbum_Weapon,4214,1	//嗜血怪人卡片
+IG_CardAlbum_Weapon,4225,1	//石炮火树卡片
+IG_CardAlbum_Weapon,4246,1	//风灵龟卡片
+IG_CardAlbum_Weapon,4247,1	//海星卡片
+IG_CardAlbum_Weapon,4251,1	//邪灵魔导士卡片
+IG_CardAlbum_Weapon,4255,1	//兽人女战士卡片
+IG_CardAlbum_Weapon,4268,1	//邪恶使者卡片
+IG_CardAlbum_Weapon,4273,1	//贝壳魔灵卡片
+IG_CardAlbum_Weapon,4274,1	//腐尸首领卡片
+IG_CardAlbum_Weapon,4281,1	//拉链熊卡片
+IG_CardAlbum_Weapon,4284,1	//魔灵娃娃卡片
+IG_CardAlbum_Weapon,4289,1	//狂暴绿绵虫卡片
+IG_CardAlbum_Weapon,4291,1	//犬妖首领卡片
+IG_CardAlbum_Weapon,4292,1	//犬妖弓箭手卡片
+IG_CardAlbum_Weapon,4297,1	//玩具士兵卡片
+IG_CardAlbum_Weapon,4307,1	//巨象甲虫卡片
+IG_CardAlbum_Weapon,4308,1	//三叶虫卡片
+IG_CardAlbum_Weapon,4310,1	//狂暴哥布灵卡片
+IG_CardAlbum_Weapon,4312,1	//海豹宝宝卡片
+IG_CardAlbum_Weapon,4316,1	//伪天使卡片
+IG_CardAlbum_Weapon,4317,1	//流氓卡片
+IG_CardAlbum_Weapon,4320,1	//血腥骑士卡片
+IG_CardAlbum_Weapon,4323,1	//卡仑宝宝卡片
+IG_CardAlbum_Weapon,4329,1	//阿修罗狂战士卡片
+IG_CardAlbum_Weapon,4335,1	//矿工魔卡片
+IG_CardAlbum_Weapon,4341,1	//金属波利卡片
+IG_CardAlbum_Weapon,4345,1	//希尔士兵卡片
+IG_CardAlbum_Weapon,4350,1	//暗●魔法师卡片
+IG_CardAlbum_Weapon,4360,1	//暗●十字刺客卡片
+IG_CardAlbum_Weapon,4362,1	//暗●神工匠卡片
+IG_CardAlbum_Weapon,4368,1	//暗●神射手卡片
+IG_CardAlbum_Weapon,4380,1	//红贝勒斯卡片
+IG_CardAlbum_Weapon,4388,1	//死亡魔书卡片
+IG_CardAlbum_Weapon,4390,1	//微风卡片
+IG_CardAlbum_Weapon,4394,1	//慰劳者卡片
+IG_CardAlbum_Weapon,4395,1	//达纳托斯的悲哀卡片
+IG_CardAlbum_Weapon,4398,1	//达纳托斯的苦恼卡片
+IG_CardAlbum_Weapon,4406,1	//褐方体恶魔卡片
+IG_CardAlbum_Weapon,4421,1	//茅膏菜卡片
+IG_CardAlbum_Weapon,4427,1	//机械剑士卡片
+IG_CardAlbum_Weapon,4428,1	//机械狙击手卡片
+IG_CardAlbum_Weapon,4440,1	//亡灵巫师卡片
+IG_CardAlbum_Weapon,4452,1	//变异蜈蚣幼虫卡片
+IG_CardAlbum_Weapon,4453,1	//希斯利安卡片
 // Garment Card Album
-IG_CardAlbum_Garment,4015,32	// Condor Card
-IG_CardAlbum_Garment,4056,32	// Dustiness Card
-IG_CardAlbum_Garment,4071,32	// Orc Zombie Card
-IG_CardAlbum_Garment,4081,32	// Hode Card
-IG_CardAlbum_Garment,4088,32	// Frilldora Card
-IG_CardAlbum_Garment,4095,32	// Marse Card
-IG_CardAlbum_Garment,4102,32	// Whisper Card
-IG_CardAlbum_Garment,4108,32	// Myst Card
-IG_CardAlbum_Garment,4109,32	// Jakk Card
-IG_CardAlbum_Garment,4113,32	// Marionette Card
-IG_CardAlbum_Garment,4116,32	// Isis Card
-IG_CardAlbum_Garment,4129,32	// Bapho Jr. Card
-IG_CardAlbum_Garment,4133,32	// Raydric Card
-IG_CardAlbum_Garment,4159,32	// Nine Tail Card
-IG_CardAlbum_Garment,4174,1	// Deviling Card
-IG_CardAlbum_Garment,4178,32	// Dragon Tail Card
-IG_CardAlbum_Garment,4179,32	// Dragon Fly Card
-IG_CardAlbum_Garment,4183,1	// Vagabond Wolf Card
-IG_CardAlbum_Garment,4197,1	// Mastering Card
-IG_CardAlbum_Garment,4210,1	// Wanderer Card
-IG_CardAlbum_Garment,4211,1	// Vocal Card
-IG_CardAlbum_Garment,4266,32	// Eclipse Card
-IG_CardAlbum_Garment,4285,32	// Choco Card
-IG_CardAlbum_Garment,4287,32	// Kapha Card
-IG_CardAlbum_Garment,4303,32	// Giant Whisper Card
-IG_CardAlbum_Garment,4306,1	// Toad Card
-IG_CardAlbum_Garment,4313,32	// Punk Card
-IG_CardAlbum_Garment,4325,32	// Harpy Card
-IG_CardAlbum_Garment,4328,32	// Yao Jun Card
-IG_CardAlbum_Garment,4334,32	// Noxious Card
-IG_CardAlbum_Garment,4351,1	// Kavach Icarus Card
-IG_CardAlbum_Garment,4373,32	// Green Maiden Card
-IG_CardAlbum_Garment,4375,32	// Orc Baby Card
-IG_CardAlbum_Garment,4402,32	// Aliot Card
-IG_CardAlbum_Garment,4422,32	// Roween Card
-IG_CardAlbum_Garment,4429,32	// Salamander Card
-IG_CardAlbum_Garment,4431,32	// Kasa Card
-IG_CardAlbum_Garment,4432,33	// Magmaring Card
+IG_CardAlbum_Garment,4015,32	//秃鹰卡片
+IG_CardAlbum_Garment,4056,32	//猎蝇卡片
+IG_CardAlbum_Garment,4071,32	//兽人腐尸卡片
+IG_CardAlbum_Garment,4081,32	//蚯蚓卡片
+IG_CardAlbum_Garment,4088,32	//伞蜥卡片
+IG_CardAlbum_Garment,4095,32	//乌贼卡片
+IG_CardAlbum_Garment,4102,32	//白幽灵卡片
+IG_CardAlbum_Garment,4108,32	//麦斯特卡片
+IG_CardAlbum_Garment,4109,32	//南瓜先生卡片
+IG_CardAlbum_Garment,4113,32	//傀儡娃娃卡片
+IG_CardAlbum_Garment,4116,32	//蛇女伊丝卡片
+IG_CardAlbum_Garment,4129,32	//小巴风特卡片
+IG_CardAlbum_Garment,4133,32	//幽灵剑士卡片
+IG_CardAlbum_Garment,4159,32	//九尾狐卡片
+IG_CardAlbum_Garment,4174,1	//恶魔波利卡片
+IG_CardAlbum_Garment,4178,32	//刺尾蜻蜓卡片
+IG_CardAlbum_Garment,4179,32	//龙蝇卡片
+IG_CardAlbum_Garment,4183,1	//流浪之狼卡片
+IG_CardAlbum_Garment,4197,1	//波利之王卡片
+IG_CardAlbum_Garment,4210,1	//邪骸浪人卡片
+IG_CardAlbum_Garment,4211,1	//蝗虫之王卡片
+IG_CardAlbum_Garment,4266,32	//蓝疯兔卡片
+IG_CardAlbum_Garment,4285,32	//巧克猴卡片
+IG_CardAlbum_Garment,4287,32	//钓鱼河童卡片
+IG_CardAlbum_Garment,4303,32	//巨大白幽灵卡片
+IG_CardAlbum_Garment,4306,1	//蛙王卡片
+IG_CardAlbum_Garment,4313,32	//朽魔卡片
+IG_CardAlbum_Garment,4325,32	//鸟人哈比卡片
+IG_CardAlbum_Garment,4328,32	//妖君卡片
+IG_CardAlbum_Garment,4334,32	//废气魔卡片
+IG_CardAlbum_Garment,4351,1	//暗●弓箭手卡片
+IG_CardAlbum_Garment,4373,32	//小青卡片
+IG_CardAlbum_Garment,4375,32	//兽人婴儿卡片
+IG_CardAlbum_Garment,4402,32	//爱丽俄卡片
+IG_CardAlbum_Garment,4422,32	//鼬卡片
+IG_CardAlbum_Garment,4429,32	//熔岩蜥蜴卡片
+IG_CardAlbum_Garment,4431,32	//不死鸟卡片
+IG_CardAlbum_Garment,4432,33	//熔岩波利卡片
 // Flamel Card
-IG_Flamel_Card,545,1		// Condensed Red Potion
-IG_Flamel_Card,546,1		// Condensed Yellow Potion
-IG_Flamel_Card,547,1		// Condensed White Potion
+IG_Flamel_Card,545,1		//红色纤细药水
+IG_Flamel_Card,546,1		//黄色纤细药水
+IG_Flamel_Card,547,1		//白色纤细药水
 //Candy Holder
-IG_Candy_Holder,518,10 //Honey
-IG_Candy_Holder,529,20	//Candy
-IG_Candy_Holder,538,15	//Well_Baked_Cookie
-IG_Candy_Holder,539,10	//Piece_Of_Cake
-IG_Candy_Holder,580,20	//Bread
-IG_Candy_Holder,603,1	//Old_Blue_Box
-IG_Candy_Holder,607,1	//Yggdrasilberry
-IG_Candy_Holder,616,1	//Old_Card_Album
-IG_Candy_Holder,617,1	//Old_Violet_Box
-IG_Candy_Holder,641,1	//Contracts_In_Shadow
-IG_Candy_Holder,7460,10	//Niflheim_Ticket
-IG_Candy_Holder,11550,5	//Pumpkin_Cake
-IG_Candy_Holder,12192,5	//Pumpkin_Pie
+IG_Candy_Holder,518,10 //蜂蜜
+IG_Candy_Holder,529,20	//糖果
+IG_Candy_Holder,538,15	//姜饼
+IG_Candy_Holder,539,10	//小蛋糕
+IG_Candy_Holder,580,20	//面包
+IG_Candy_Holder,603,1	//神秘箱子
+IG_Candy_Holder,607,1	//天地树果实
+IG_Candy_Holder,616,1	//老旧收集册
+IG_Candy_Holder,617,1	//神秘紫箱
+IG_Candy_Holder,641,1	//黑暗合约书
+IG_Candy_Holder,7460,10	//尼芙菲姆用 特级游券
+IG_Candy_Holder,11550,5	//南瓜蛋糕
+IG_Candy_Holder,12192,5	//南瓜派
 //Lucky Bag
-IG_Lucky_Bag,12018,8	//Fire_Cracker
-IG_Lucky_Bag,663,6	//Korea_Rice_Cake
-IG_Lucky_Bag,668,2	//Handsei
+IG_Lucky_Bag,12018,8	//鞭炮
+IG_Lucky_Bag,663,6	//年糕
+IG_Lucky_Bag,668,2	//红包
 IG_Lucky_Bag,7647,3	//Taiwan_Luk_Coin
 IG_Lucky_Bag,7649,1	//Big_Luk_Bookmark
 //Holy Egg 2
-IG_Holy_Egg_2,984,4	//Oridecon
-IG_Holy_Egg_2,985,10	//Elunium
-IG_Holy_Egg_2,547,30	//White_Slim_Potion
-IG_Holy_Egg_2,505,30	//Blue_Potion
-IG_Holy_Egg_2,607,3	//Yggdrasilberry
-IG_Holy_Egg_2,608,2	//Seed_Of_Yggdrasil
-IG_Holy_Egg_2,610,15	//Leaf_Of_Yggdrasil
-IG_Holy_Egg_2,616,5	//Old_Card_Album
-IG_Holy_Egg_2,5198,1	//Drooping_Bunny
+IG_Holy_Egg_2,984,4	//神之金属
+IG_Holy_Egg_2,985,10	//铝
+IG_Holy_Egg_2,547,30	//白色纤细药水
+IG_Holy_Egg_2,505,30	//蓝色药水
+IG_Holy_Egg_2,607,3	//天地树果实
+IG_Holy_Egg_2,608,2	//天地树芽
+IG_Holy_Egg_2,610,15	//天地树叶子
+IG_Holy_Egg_2,616,5	//老旧收集册
+IG_Holy_Egg_2,5198,1	//趴趴兔
 //God Material Box
-IG_God_Material_Box,7073,5 //Jewel_Of_Prayer
-IG_God_Material_Box,7074,5 //Iron_Glove
-IG_God_Material_Box,7075,5 //Iron_Maiden
-IG_God_Material_Box,7076,5 //Mystery_Wheel
-IG_God_Material_Box,7077,5 //Silver_Fancy
-IG_God_Material_Box,7078,5 //Anger_Of_Valkurye
-IG_God_Material_Box,7079,5 //Feather_Of_Angel
-IG_God_Material_Box,7080,5 //Foot_Step_Of_Cat
-IG_God_Material_Box,7081,5 ///Beard_Of_Women
-IG_God_Material_Box,7082,5 //Root_Of_Stone
-IG_God_Material_Box,7083,5 //Soul_Of_Fish
-IG_God_Material_Box,7084,5 //Saliva_Of_Bird
-IG_God_Material_Box,7085,5 //Tendon_Of_Bear
-IG_God_Material_Box,7086,5 //Symbol_Of_Sun
-IG_God_Material_Box,7087,5 //Breath_Of_Soul
-IG_God_Material_Box,7088,5 //Crystal_Of_Snow
-IG_God_Material_Box,7089,5 //Indication_Of_Tempest
-IG_God_Material_Box,7090,5 //Slilince_Wave
-IG_God_Material_Box,7091,5 //Rough_Billows
-IG_God_Material_Box,7092,5 //Air_Stream
+IG_God_Material_Box,7073,5 //菲力亚宝石
+IG_God_Material_Box,7074,5 //拖尔的铁手套
+IG_God_Material_Box,7075,5 //拷问器具
+IG_God_Material_Box,7076,5 //未知的锯齿轮子
+IG_God_Material_Box,7077,5 //银饰品
+IG_God_Material_Box,7078,5 //巴吉利的愤怒
+IG_God_Material_Box,7079,5 //天使翅膀羽毛
+IG_God_Material_Box,7080,5 //猫脚步声音
+IG_God_Material_Box,7081,5 //女人的胡须
+IG_God_Material_Box,7082,5 //石头的根
+IG_God_Material_Box,7083,5 //鱼的灵魂
+IG_God_Material_Box,7084,5 //鸟的口水
+IG_God_Material_Box,7085,5 //熊的筋
+IG_God_Material_Box,7086,5 //太阳神的象征
+IG_God_Material_Box,7087,5 //灵魂的呼吸声音
+IG_God_Material_Box,7088,5 //雪的结晶
+IG_God_Material_Box,7089,5 //爆风雨的征兆
+IG_God_Material_Box,7090,5 //安静的水波
+IG_God_Material_Box,7091,5 //海浪雕像
+IG_God_Material_Box,7092,5 //空气雕像
 // Elemental Points
-IG_Element,6360,1 // Scarlet_Pts
-IG_Element,6361,1 // Indigo_Pts
-IG_Element,6362,1 // Yellow_Wish_Pts
-IG_Element,6363,1 // Lime_Green_Pts
+IG_Element,6360,1 //火灵碎片
+IG_Element,6361,1 //水灵碎片
+IG_Element,6362,1 //风灵精华
+IG_Element,6363,1 //地灵精华
 // Poisons
-IG_Poison,12717,1 // Poison_Paralysis
-IG_Poison,12718,1 // Poison_Leech
-IG_Poison,12719,1 // Poison_Oblivion
-IG_Poison,12720,1 // Poison_Disheart
-IG_Poison,12721,1 // Poison_Numb
-IG_Poison,12722,1 // Poison_Fever
-IG_Poison,12723,1 // Poison_Laughing
-IG_Poison,12724,1 // Poison_Fatigue
+IG_Poison,12717,1 //瘫痪毒药
+IG_Poison,12718,1 //吸血毒药
+IG_Poison,12719,1 //忘却毒药
+IG_Poison,12720,1 //污染毒药
+IG_Poison,12721,1 //神经毒药
+IG_Poison,12722,1 //发热毒药
+IG_Poison,12723,1 //爆笑毒药
+IG_Poison,12724,1 //疲劳毒药
 // Cash Foods
-IG_Cash_Food,12202,1 // Str_Dish10_
-IG_Cash_Food,12203,1 // Agi_Dish10_
-IG_Cash_Food,12204,1 // Int_Dish10_
-IG_Cash_Food,12205,1 // Dex_Dish10_
-IG_Cash_Food,12206,1 // Luk_Dish10_
-IG_Cash_Food,12207,1 // Vit_Dish10_
+IG_Cash_Food,12202,1 //力量料理
+IG_Cash_Food,12203,1 //敏捷料理
+IG_Cash_Food,12204,1 //智力料理
+IG_Cash_Food,12205,1 //灵巧料理
+IG_Cash_Food,12206,1 //幸运料理
+IG_Cash_Food,12207,1 //体力料理
 // Bombs
-IG_Bomb,13260,1 // Apple_Bomb
-IG_Bomb,13261,1 // Coconut_Bomb
-IG_Bomb,13262,1 // Melon_Bomb
-IG_Bomb,13263,1 // Pineapple_Bomb
-IG_Bomb,13264,1 // Banana_Bomb
-IG_Bomb,13265,1 // Black_Lump
-IG_Bomb,13266,1 // Black_Hard_Lump
-IG_Bomb,13267,1 // Very_Hard_Lump
+IG_Bomb,13260,1 //苹果炸弹
+IG_Bomb,13261,1 //椰果炸弹
+IG_Bomb,13262,1 //甜瓜炸弹
+IG_Bomb,13263,1 //菠萝炸弹
+IG_Bomb,13264,1 //香蕉炸弹
+IG_Bomb,13265,1 //黑色聚合物
+IG_Bomb,13266,1 //黑色坚硬的聚合物
+IG_Bomb,13267,1 //非常坚硬的聚合物
 // Throwable Items
-IG_Throwable,13268,1 // Mysterious_Powder
+IG_Throwable,13268,1 //未知粉末
 IG_Throwable,13269,1 // Boost500_To_Throw
-IG_Throwable,13270,1 // Full_SwingK_To_Throw
-IG_Throwable,13271,1 // Mana_Plus_To_Throw
-IG_Throwable,13272,1 // Cure_Free_To_Throw
+IG_Throwable,13270,1 //投掷型兴奋剂K
+IG_Throwable,13271,1 //投掷型法力增加药水
+IG_Throwable,13272,1 //投掷型自由恢复药水
 IG_Throwable,13273,1 // Stamina_Up_M_To_Throw
 IG_Throwable,13274,1 // Digestive_F_To_Throw
-IG_Throwable,13275,1 // HP_Inc_PotS_To_Throw
-IG_Throwable,13276,1 // HP_Inc_PotM_To_Throw
-IG_Throwable,13277,1 // HP_Inc_PotL_To_Throw
-IG_Throwable,13278,1 // SP_Inc_PotS_To_Throw
-IG_Throwable,13279,1 // SP_Inc_PotM_To_Throw
-IG_Throwable,13280,1 // SP_Inc_PotL_To_Throw
-IG_Throwable,13281,1 // En_White_PotZ_To_Throw
-IG_Throwable,13282,1 // Vitata500_To_Throw
-IG_Throwable,13283,1 // En_Cel_Juice_To_Throw
-IG_Throwable,13284,1 // Savage_BBQ_To_Throw
-IG_Throwable,13285,1 // Wug_Cocktail_To_Throw
-IG_Throwable,13286,1 // M_Brisket_To_Throw
-IG_Throwable,13287,1 // Siroma_Icetea_To_Throw
-IG_Throwable,13288,1 // Drocera_Stew_To_Throw
-IG_Throwable,13289,1 // Petti_Noodle_To_Throw
-IG_Throwable,13290,1 // Black_Thing_To_Throw
+IG_Throwable,13275,1 //投掷型 HP增加药水(小)
+IG_Throwable,13276,1 //投掷型 HP增加药水(中)
+IG_Throwable,13277,1 //投掷型 HP增加药水(大)
+IG_Throwable,13278,1 //投掷型 SP增加药水(小)
+IG_Throwable,13279,1 //投掷型 SP增加药水(中)
+IG_Throwable,13280,1 //投掷型 SP增加药水(大)
+IG_Throwable,13281,1 //投掷型 浓缩白色药水Z
+IG_Throwable,13282,1 //投掷型 黑蚁500
+IG_Throwable,13283,1 //投掷型浓缩速度泉水
+IG_Throwable,13284,1 //投掷型烤野猪
+IG_Throwable,13285,1 //投掷型狼血鸡尾酒
+IG_Throwable,13286,1 //投掷型小牛排
+IG_Throwable,13287,1 //投掷型城间冰茶
+IG_Throwable,13288,1 //投掷型药草蒸茅膏菜
+IG_Throwable,13289,1 //投掷型毕帝特龙尾面
+IG_Throwable,13290,1 //投掷型黑色物体
 // Mercenary Scrolls
-IG_Mercenary,12153,1 // Bow_Mercenary_Scroll1
-IG_Mercenary,12154,1 // Bow_Mercenary_Scroll2
-IG_Mercenary,12155,1 // Bow_Mercenary_Scroll3
-IG_Mercenary,12156,1 // Bow_Mercenary_Scroll4
-IG_Mercenary,12157,1 // Bow_Mercenary_Scroll5
-IG_Mercenary,12158,1 // Bow_Mercenary_Scroll6
-IG_Mercenary,12159,1 // Bow_Mercenary_Scroll7
-IG_Mercenary,12160,1 // Bow_Mercenary_Scroll8
-IG_Mercenary,12161,1 // Bow_Mercenary_Scroll9
-IG_Mercenary,12162,1 // Bow_Mercenary_Scroll10
-IG_Mercenary,12163,1 // SwordMercenary_Scroll1
-IG_Mercenary,12164,1 // SwordMercenary_Scroll2
-IG_Mercenary,12165,1 // SwordMercenary_Scroll3
-IG_Mercenary,12166,1 // SwordMercenary_Scroll4
-IG_Mercenary,12167,1 // SwordMercenary_Scroll5
-IG_Mercenary,12168,1 // SwordMercenary_Scroll6
-IG_Mercenary,12169,1 // SwordMercenary_Scroll7
-IG_Mercenary,12170,1 // SwordMercenary_Scroll8
-IG_Mercenary,12171,1 // SwordMercenary_Scroll9
-IG_Mercenary,12172,1 // SwordMercenary_Scroll10
-IG_Mercenary,12173,1 // SpearMercenary_Scroll1
-IG_Mercenary,12174,1 // SpearMercenary_Scroll2
-IG_Mercenary,12175,1 // SpearMercenary_Scroll3
-IG_Mercenary,12176,1 // SpearMercenary_Scroll4
-IG_Mercenary,12177,1 // SpearMercenary_Scroll5
-IG_Mercenary,12178,1 // SpearMercenary_Scroll6
-IG_Mercenary,12179,1 // SpearMercenary_Scroll7
-IG_Mercenary,12180,1 // SpearMercenary_Scroll8
-IG_Mercenary,12181,1 // SpearMercenary_Scroll9
-IG_Mercenary,12182,1 // SpearMercenary_Scroll10
+IG_Mercenary,12153,1 //弓箭佣兵召唤书1级
+IG_Mercenary,12154,1 //弓箭佣兵召唤书2级
+IG_Mercenary,12155,1 //弓箭佣兵召唤书3级
+IG_Mercenary,12156,1 //弓箭佣兵召唤书4级
+IG_Mercenary,12157,1 //弓箭佣兵召唤书5级
+IG_Mercenary,12158,1 //弓箭佣兵召唤书6级
+IG_Mercenary,12159,1 //弓箭佣兵召唤书7级
+IG_Mercenary,12160,1 //弓箭佣兵召唤书8级
+IG_Mercenary,12161,1 //弓箭佣兵召唤书9级
+IG_Mercenary,12162,1 //弓箭佣兵召唤书10级
+IG_Mercenary,12163,1 //剑佣兵召唤书1级
+IG_Mercenary,12164,1 //剑佣兵召唤书2级
+IG_Mercenary,12165,1 //剑佣兵召唤书3级
+IG_Mercenary,12166,1 //剑佣兵召唤书4级
+IG_Mercenary,12167,1 //剑佣兵召唤书5级
+IG_Mercenary,12168,1 //剑佣兵召唤书6级
+IG_Mercenary,12169,1 //剑佣兵召唤书7级
+IG_Mercenary,12170,1 //剑佣兵召唤书8级
+IG_Mercenary,12171,1 //剑佣兵召唤书9级
+IG_Mercenary,12172,1 //剑佣兵召唤书10级
+IG_Mercenary,12173,1 //枪佣兵召唤书1级
+IG_Mercenary,12174,1 //枪佣兵召唤书2级
+IG_Mercenary,12175,1 //枪佣兵召唤书3级
+IG_Mercenary,12176,1 //枪佣兵召唤书4级
+IG_Mercenary,12177,1 //枪佣兵召唤书5级
+IG_Mercenary,12178,1 //枪佣兵召唤书6级
+IG_Mercenary,12179,1 //枪佣兵召唤书7级
+IG_Mercenary,12180,1 //枪佣兵召唤书8级
+IG_Mercenary,12181,1 //枪佣兵召唤书9级
+IG_Mercenary,12182,1 //枪佣兵召唤书10级

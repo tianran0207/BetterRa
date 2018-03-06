@@ -34,7 +34,17 @@
 #define MAX_INVENTORY C_MAX_INVENTORY ///Maximum items in player inventory
 /** Max number of characters per account. Note that changing this setting alone is not enough if the client is not hexed to support more characters as well.
 * Max value tested was 265 */
-#define MAX_CHARS C_MAX_CHARS 
+#ifndef MAX_CHARS
+	#if C_MAX_CHARS > 0
+		#define MAX_CHARS C_MAX_CHARS
+	#elif PACKETVER >= 20180124
+		#define MAX_CHARS 15
+	#elif PACKETVER >= 20100413
+		#define MAX_CHARS 12
+	#else
+		#define MAX_CHARS 9
+	#endif
+#endif
 /** Number of slots carded equipment can have. Never set to less than 4 as they are also used to keep the data of forged items/equipment. [Skotlex]
 * Note: The client seems unable to receive data for more than 4 slots due to all related packets having a fixed size. */
 #define MAX_SLOTS 4

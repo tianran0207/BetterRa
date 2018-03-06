@@ -2985,30 +2985,10 @@ static struct Damage battle_calc_attack_masteries(struct Damage wd, struct block
 		}
 
 		if (sc) { // Status change considered as masteries
-			uint8 i;
-
 #ifdef RENEWAL
 			if (sc->data[SC_NIBELUNGEN]) // With renewal, the level 4 weapon limitation has been removed
 				ATK_ADD(wd.masteryAtk, wd.masteryAtk2, sc->data[SC_NIBELUNGEN]->val2);
 #endif
-
-			if (sc->data[SC_MIRACLE])
-				i = 2; //Star anger
-			else
-				ARR_FIND(0, MAX_PC_FEELHATE, i, t_class == sd->hate_mob[i]);
-
-			if (i < MAX_PC_FEELHATE && (skill=pc_checkskill(sd,sg_info[i].anger_id))) {
-				int skillratio = sd->status.base_level + sstatus->dex + sstatus->luk;
-
-				if (i == 2)
-					skillratio += sstatus->str; //Star Anger
-				if (skill < 4)
-					skillratio /= 12 - 3 * skill;
-				ATK_ADDRATE(wd.damage, wd.damage2, skillratio);
-#ifdef RENEWAL
-				ATK_ADDRATE(wd.masteryAtk, wd.masteryAtk2, skillratio);
-#endif
-			}
 
 			if(sc->data[SC_CAMOUFLAGE]) {
 				ATK_ADD(wd.damage, wd.damage2, 30 * min(10, sc->data[SC_CAMOUFLAGE]->val3));
@@ -4476,6 +4456,7 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, s
 	struct status_data *sstatus = status_get_status_data(src);
 	struct status_data *tstatus = status_get_status_data(target);
 	int inf3 = skill_get_inf3(skill_id);
+	uint8 anger_id = 0; // SLS Anger
 
 	// Kagerou/Oboro Earth Charm effect +15% wATK
 	if(sd && sd->spiritcharm_type == CHARM_TYPE_LAND && sd->spiritcharm > 0) {
@@ -4637,6 +4618,9 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, s
 			ATK_ADDRATE(wd.damage, wd.damage2, sc->data[SC_GVG_GIANT]->val3);
 			RE_ALLATK_ADDRATE(wd, sc->data[SC_GVG_GIANT]->val3);
 		}
+
+		if (sc->data[SC_MIRACLE])
+			anger_id = 2; // Always treat all monsters as star flagged monster when in miracle state
 	}
 
 	if ((wd.flag&(BF_LONG|BF_MAGIC)) == BF_LONG) {
@@ -4647,6 +4631,23 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, s
 					RE_ALLATK_ADDRATE(wd, 20);
 			}
 		}
+	}
+
+	if (sd != nullptr && !anger_id)
+		ARR_FIND(0, MAX_PC_FEELHATE, anger_id, status_get_class(target) == sd->hate_mob[anger_id]);
+
+	uint16 anger_level;
+	if (sd != nullptr && anger_id < MAX_PC_FEELHATE && (anger_level = pc_checkskill(sd, sg_info[anger_id].anger_id))) {
+		int skillratio = sd->status.base_level + sstatus->dex + sstatus->luk;
+
+		if (anger_id == 2)
+			skillratio += sstatus->str; // SG_STAR_ANGER additionally has STR added in its formula.
+		if (anger_level < 4)
+			skillratio /= 12 - 3 * anger_level;
+		ATK_ADDRATE(wd.damage, wd.damage2, skillratio);
+#ifdef RENEWAL
+		RE_ALLATK_ADDRATE(wd, skillratio);
+#endif
 	}
 
 	return wd;
@@ -8059,7 +8060,11 @@ static const struct _battle_data {
 	{ "player_damage_delay_rate",           &battle_config.pc_damage_delay_rate,            100,    0,      INT_MAX,        },
 	{ "defunit_not_enemy",                  &battle_config.defnotenemy,                     0,      0,      1,              },
 	{ "gvg_traps_target_all",               &battle_config.vs_traps_bctall,                 BL_PC,  BL_NUL, BL_ALL,         },
+#ifdef RENEWAL
+	{ "traps_setting",                      &battle_config.traps_setting,                   2,      0,      2,              },
+#else
 	{ "traps_setting",                      &battle_config.traps_setting,                   0,      0,      2,              },
+#endif
 	{ "summon_flora_setting",               &battle_config.summon_flora,                    1|2,    0,      1|2,            },
 	{ "clear_skills_on_death",              &battle_config.clear_unit_ondeath,              BL_NUL, BL_NUL, BL_ALL,         },
 	{ "clear_skills_on_warp",               &battle_config.clear_unit_onwarp,               BL_ALL, BL_NUL, BL_ALL,         },
@@ -8543,6 +8548,7 @@ static const struct _battle_data {
 	{ "event_refine_chance",                &battle_config.event_refine_chance,             0,      0,      1,              },
 	{ "autoloot_adjust",                    &battle_config.autoloot_adjust,                 0,      0,      1,              },
 	{ "broadcast_hide_name",                &battle_config.broadcast_hide_name,             2,      0,      NAME_LENGTH,    },
+	{ "skill_drop_items_full",              &battle_config.skill_drop_items_full,           0,      0,      1,              },
 
 #include "../custom/battle_config_init.inc"
 };
