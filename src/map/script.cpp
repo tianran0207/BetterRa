@@ -24164,6 +24164,7 @@ BUILDIN_FUNC(getsameipinfo)
 			i++;
 		}
 	}
+	mapreg_setreg(add_str("$@sameip_amount"), i);
 	mapit_free(iter);
 	return SCRIPT_CMD_SUCCESS;
 }
