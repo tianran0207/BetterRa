@@ -275,57 +275,57 @@
 
 //****
 // NPC Skills
-158,3,6,1,-1,0x20,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_PIERCINGATT,Piercing Attack
-159,-1,6,1,-1,0x40,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_MENTALBREAKER,Spirit Destruction
-160,9,6,1,0,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_RANGEATTACK,Stand off attack
-161,0,0,4,0,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_ATTRICHANGE,Attribute Change
-162,0,0,4,1,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEWATER,Water Attribute Change
-163,0,0,4,2,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEGROUND,Earth Attribute Change
-164,0,0,4,3,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEFIRE,Fire Attribute Change
-165,0,0,4,4,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEWIND,Wind Attribute Change
-166,0,0,4,5,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEPOISON,Poison Attribute Change
-167,0,0,4,6,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEHOLY,Holy Attribute Change
-168,0,0,4,7,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEDARKNESS,Shadow Attribute Change
-169,0,0,4,8,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGETELEKINESIS,Ghost Attribute Change
-170,-9,6,1,-1,0x20,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_CRITICALSLASH,Defense disregard attack
-171,-9,8,1,-1,0,0,10,-2:-3:-4:-5:-6:-7:-8:-9:-10:-11,no,0,0x2,0,weapon,0,0x0,	NPC_COMBOATTACK,Multi-stage Attack
-172,-9,6,1,-1,0x40,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_GUIDEDATTACK,Guided Attack
-173,5,6,4,3,0xE2,5,10,1,no,0,0x40002,0,misc,3,0x0,	NPC_SELFDESTRUCTION,Suicide bombing
-174,-9,6,1,-1,0x2,3,1,1,no,0,0x40002,0,weapon,0,0x0,	NPC_SPLASHATTACK,Splash attack
-175,0,0,4,0,0x41,0,10,1,no,0,0x2,0,misc,0,0x0,	NPC_SUICIDE,Suicide
-176,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_POISON,Poison Attack
-177,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_BLINDATTACK,Blind Attack
-178,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_SILENCEATTACK,Silence Attack
-179,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_STUNATTACK,Stun Attack
-180,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_PETRIFYATTACK,Petrify Attack
-181,-9,6,1,7,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_CURSEATTACK,Curse Attack
-182,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_SLEEPATTACK,Sleep attack
-183,-9,6,1,-3,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_RANDOMATTACK,Random Attack
-184,-9,6,1,1,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_WATERATTACK,Water Attribute Attack
-185,-9,6,1,2,0,0,10,1,no,0,0x2,0,weapon,0,0x10000,	NPC_GROUNDATTACK,Earth Attribute Attack
-186,-9,6,1,3,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_FIREATTACK,Fire Attribute Attack
-187,-9,6,1,4,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_WINDATTACK,Wind Attribute Attack
-188,-9,6,1,5,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_POISONATTACK,Poison Attribute Attack
-189,-9,6,1,6,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_HOLYATTACK,Holy Attribute Attack
-190,-9,6,1,7,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_DARKNESSATTACK,Shadow Attribute Attack
-191,-9,6,1,8,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_TELEKINESISATTACK,Ghost Attribute Attack
-192,-9,6,1,-1,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_MAGICALATTACK,Demon Shock Attack
-193,0,0,4,0,0x1,0,10,1,no,0,0x2,0,none,0,0x0,	NPC_METAMORPHOSIS,Metamorphosis
-194,0,0,4,0,0x1,0,10,1,no,0,0x2,0,none,0,0x0,	NPC_PROVOCATION,Provocation
-195,0,6,4,0,0x50,0,10,1,no,0,0x2,0,misc,0,0x0,	NPC_SMOKING,Smoking
-196,0,0,4,0,0x1,0,10,1,no,0,0x2,0,magic,0,0x0,	NPC_SUMMONSLAVE,Follower Summons
-197,0,0,4,0,0x1,0,10,1,no,0,0x2,0,none,0,0x0,	NPC_EMOTION,Emotion
-198,0,0,4,0,0x1,0,10,1,no,0,0x2,0,magic,0,0x0,	NPC_TRANSFORMATION,Transformation
-199,9,6,1,7,0x40,0,1,1,no,0,0x2,0,weapon,0,0x0,	NPC_BLOODDRAIN,Sucking Blood
-200,9,6,1,7,0,0,1,1,no,0,0x2,0,magic,0,0x0,		NPC_ENERGYDRAIN,Energy Drain
-201,0,0,4,0,0x1,0,1,1,no,0,0x2,0,weapon,0,0x0,	NPC_KEEPING,Keeping
-202,9,6,1,7,0xC0,0,5,1,no,0,0x2,0,misc,0,0x0,		NPC_DARKBREATH,Dark Breath
-203,9,6,1,7,0x1,0,10,1,no,0,0x2,0,magic,0,0x0,	NPC_DARKBLESSING,Dark Blessing
-204,0,0,4,0,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_BARRIER,Barrier
-205,0,0,4,0,0x1,0,1,1,no,0,0x2,0,weapon,0,0x0,	NPC_DEFENDER,Defender
-206,1,6,1,-1,0x1,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_LICK,Lick
-207,9,0,1,0,0x1,0,5,1,no,0,0x2,0,magic,0,0x0,	NPC_HALLUCINATION,Hallucination
-208,0,0,4,0,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_REBIRTH,Rebirth
+158,3,6,1,-1,0x20,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_PIERCINGATT,突刺攻击
+159,-1,6,1,-1,0x40,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_MENTALBREAKER,心神丧失
+160,9,6,1,0,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_RANGEATTACK,远程攻击
+161,0,0,4,0,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_ATTRICHANGE,随机属性转换
+162,0,0,4,1,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEWATER,水属性转换
+163,0,0,4,2,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEGROUND,地属性转换
+164,0,0,4,3,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEFIRE,火属性转换
+165,0,0,4,4,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEWIND,风属性转换
+166,0,0,4,5,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEPOISON,毒属性转换
+167,0,0,4,6,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEHOLY,圣属性转换
+168,0,0,4,7,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEDARKNESS,暗属性转换
+169,0,0,4,8,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGETELEKINESIS,念属性转换
+170,-9,6,1,-1,0x20,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_CRITICALSLASH,必杀一击
+171,-9,8,1,-1,0,0,10,-2:-3:-4:-5:-6:-7:-8:-9:-10:-11,no,0,0x2,0,weapon,0,0x0,	NPC_COMBOATTACK,连锁攻击
+172,-9,6,1,-1,0x40,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_GUIDEDATTACK,必中攻击
+173,5,6,4,3,0xE2,5,10,1,no,0,0x40002,0,misc,3,0x0,	NPC_SELFDESTRUCTION,自毁攻击
+174,-9,6,1,-1,0x2,3,1,1,no,0,0x40002,0,weapon,0,0x0,	NPC_SPLASHATTACK,扩散攻击
+175,0,0,4,0,0x41,0,10,1,no,0,0x2,0,misc,0,0x0,	NPC_SUICIDE,自杀
+176,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_POISON,毒性攻击
+177,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_BLINDATTACK,黑暗攻击
+178,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_SILENCEATTACK,沉默攻击
+179,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_STUNATTACK,晕眩攻击
+180,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_PETRIFYATTACK,石化攻击
+181,-9,6,1,7,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_CURSEATTACK,诅咒攻击
+182,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_SLEEPATTACK,睡眠攻击
+183,-9,6,1,-3,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_RANDOMATTACK,随机属性攻击
+184,-9,6,1,1,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_WATERATTACK,水属性攻击
+185,-9,6,1,2,0,0,10,1,no,0,0x2,0,weapon,0,0x10000,	NPC_GROUNDATTACK,地属性攻击
+186,-9,6,1,3,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_FIREATTACK,火属性攻击
+187,-9,6,1,4,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_WINDATTACK,风属性攻击
+188,-9,6,1,5,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_POISONATTACK,毒属性攻击
+189,-9,6,1,6,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_HOLYATTACK,圣属性攻击
+190,-9,6,1,7,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_DARKNESSATTACK,暗属性攻击
+191,-9,6,1,8,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_TELEKINESISATTACK,念属性攻击
+192,-9,6,1,-1,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_MAGICALATTACK,魔化攻击
+193,0,0,4,0,0x1,0,10,1,no,0,0x2,0,none,0,0x0,	NPC_METAMORPHOSIS,变态
+194,0,0,4,0,0x1,0,10,1,no,0,0x2,0,none,0,0x0,	NPC_PROVOCATION,挑衅
+195,0,6,4,0,0x50,0,10,1,no,0,0x2,0,misc,0,0x0,	NPC_SMOKING,吸烟
+196,0,0,4,0,0x1,0,10,1,no,0,0x2,0,magic,0,0x0,	NPC_SUMMONSLAVE,召唤从者
+197,0,0,4,0,0x1,0,10,1,no,0,0x2,0,none,0,0x0,	NPC_EMOTION,表情符号
+198,0,0,4,0,0x1,0,10,1,no,0,0x2,0,magic,0,0x0,	NPC_TRANSFORMATION,变形
+199,9,6,1,7,0x40,0,1,1,no,0,0x2,0,weapon,0,0x0,	NPC_BLOODDRAIN,生命吸取
+200,9,6,1,7,0,0,1,1,no,0,0x2,0,magic,0,0x0,		NPC_ENERGYDRAIN,法力吸取
+201,0,0,4,0,0x1,0,1,1,no,0,0x2,0,weapon,0,0x0,	NPC_KEEPING,硬化防御
+202,9,6,1,7,0xC0,0,5,1,no,0,0x2,0,misc,0,0x0,		NPC_DARKBREATH,暗影呼吸
+203,9,6,1,7,0x1,0,10,1,no,0,0x2,0,magic,0,0x0,	NPC_DARKBLESSING,暗影赐福
+204,0,0,4,0,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_BARRIER,绝对防御
+205,0,0,4,0,0x1,0,1,1,no,0,0x2,0,weapon,0,0x0,	NPC_DEFENDER,光之盾（怪物）
+206,1,6,1,-1,0x1,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_LICK,法力减少攻击
+207,9,0,1,0,0x1,0,5,1,no,0,0x2,0,magic,0,0x0,	NPC_HALLUCINATION,幻觉攻击
+208,0,0,4,0,0x1,0,1,1,no,0,0x2,0,magic,0,0x0,	NPC_REBIRTH,重生
 209,0,0,4,0,0x1,0,10,1,no,0,0x2,0,magic,0,0x0,	NPC_SUMMONMONSTER,Monster Summons
 
 //****
@@ -475,9 +475,9 @@
 
 //****
 // NPC Skills
-331,0,6,4,0,0x1,0,10,0,no,0,0x2,0,none,0,0x0,	NPC_RANDOMMOVE,Random Move
-332,0,6,4,0,0x1,0,10,0,no,0,0x2,0,none,0,0x0,	NPC_SPEEDUP,Speed UP
-333,0,6,4,0,0x1,0,1,0,no,0,0x2,0,none,0,0x0,		NPC_REVENGE,Revenge
+331,0,6,4,0,0x1,0,10,0,no,0,0x2,0,none,0,0x0,	NPC_RANDOMMOVE,随机移动
+332,0,6,4,0,0x1,0,10,0,no,0,0x2,0,none,0,0x0,	NPC_SPEEDUP,速度提升
+333,0,6,4,0,0x1,0,1,0,no,0,0x2,0,none,0,0x0,		NPC_REVENGE,复仇
 
 //****
 // Marriage Skills
@@ -488,23 +488,23 @@
 //****
 // NPC Skills
 337,9,6,1,-1,0,0,1,1,no,0,0x2,0,weapon,0,0x0,	ITM_TOMAHAWK,投掷风灵之斧
-338,-1,8,1,7,0,0,10,-2,no,0,0x2,0,weapon,0,0x0,	NPC_DARKCROSS,Cross of Darkness
-339,5,6,4,7,0x48,0,10,1,no,0,0x102,0,magic,0,0x0,	NPC_GRANDDARKNESS,Grand cross of Darkness
-340,9,8,1,7,0,0,10,1:1:2:2:3:3:4:4:5:5,yes,0,0x2,0,magic,0,0x0,	NPC_DARKSTRIKE,Soul Strike of Darkness
-341,9,8,1,7,0,0,10,3:4:5:6:7:8:9:10:11:12,yes,0,0x2,0,magic,2:3:3:4:4:5:5:6:6:7,0x0,	NPC_DARKTHUNDER,Darkness Jupitel
-342,9,6,1,0,0x1,0,1,0,no,0,0x2,0,none,0,0x0,		NPC_STOP,Stop
-343,9,6,1,-1,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_WEAPONBRAKER,Break weapon
-344,9,6,1,-1,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_ARMORBRAKE,Break armor
-345,9,6,1,-1,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_HELMBRAKE,Break helm
-346,9,6,1,-1,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_SHIELDBRAKE,Break shield
-347,-9,6,1,9,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_UNDEADATTACK,Undead Element Attack
-348,9,0,1,9,0x1,0,5,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEUNDEAD,Undead Attribute Change
-349,0,6,4,0,0x1,0,10,0,no,0,0x2,0,weapon,0,0x0,	NPC_POWERUP,Power Up
-350,0,6,4,0,0x1,0,10,0,no,0,0x2,0,none,0,0x0,	NPC_AGIUP,Agility UP
-351,0,0,0,0,0x1,0,1,0,no,0,0x2,0,none,0,0x0,		NPC_SIEGEMODE,Siege Mode
-352,2,0,4,0,0x1,0,1,0,no,0,0x2,0,none,0,0x0,		NPC_CALLSLAVE,Recall Slaves
-353,0,0,0,0,0x1,0,1,0,no,0,0x2,0,none,0,0x0,		NPC_INVISIBLE,Invisible
-354,2,6,4,0,0x1,0,20,0,no,0,0x2,0,misc,0,0x0,	NPC_RUN,Run
+338,-1,8,1,7,0,0,10,-2,no,0,0x2,0,weapon,0,0x0,	NPC_DARKCROSS,暗十字攻击
+339,5,6,4,7,0x48,0,10,1,no,0,0x102,0,magic,0,0x0,	NPC_GRANDDARKNESS,暗十字审判
+340,9,8,1,7,0,0,10,1:1:2:2:3:3:4:4:5:5,yes,0,0x2,0,magic,0,0x0,	NPC_DARKSTRIKE,暗灵召唤
+341,9,8,1,7,0,0,10,3:4:5:6:7:8:9:10:11:12,yes,0,0x2,0,magic,2:3:3:4:4:5:5:6:6:7,0x0,	NPC_DARKTHUNDER,暗鸣术
+342,9,6,1,0,0x1,0,1,0,no,0,0x2,0,none,0,0x0,		NPC_STOP,束缚之网
+343,9,6,1,-1,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_WEAPONBRAKER,破坏武器
+344,9,6,1,-1,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_ARMORBRAKE,破坏铠甲
+345,9,6,1,-1,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_HELMBRAKE,破坏头盔
+346,9,6,1,-1,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_SHIELDBRAKE,破坏盾牌
+347,-9,6,1,9,0,0,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_UNDEADATTACK,不死属性攻击
+348,9,0,1,9,0x1,0,5,1,no,0,0x2,0,magic,0,0x0,	NPC_CHANGEUNDEAD,不死属性转换
+349,0,6,4,0,0x1,0,10,0,no,0,0x2,0,weapon,0,0x0,	NPC_POWERUP,力量提升
+350,0,6,4,0,0x1,0,10,0,no,0,0x2,0,none,0,0x0,	NPC_AGIUP,敏捷提升
+351,0,0,0,0,0x1,0,1,0,no,0,0x2,0,none,0,0x0,		NPC_SIEGEMODE,围攻模式
+352,2,0,4,0,0x1,0,1,0,no,0,0x2,0,none,0,0x0,		NPC_CALLSLAVE,呼叫小兵
+353,0,0,0,0,0x1,0,1,0,no,0,0x2,0,none,0,0x0,		NPC_INVISIBLE,潜行
+354,2,6,4,0,0x1,0,20,0,no,0,0x2,0,misc,0,0x0,	NPC_RUN,后退回避（怪物）
 
 //****
 // Lord Knight
@@ -784,34 +784,34 @@
 
 //****
 // Additional NPC Skills (Episode 11.3)
-653,0,8,4,0,0x6,5:7:9:11:13:5:7:9:11:13,10,1,no,0,0x40002,0,magic,0,0x0,	NPC_EARTHQUAKE,地震
-654,6,6,1,3,0,3,10,1,no,0,0x2,14,weapon,0,0x0,	NPC_FIREBREATH,Fire Breath
-655,6,6,1,1,0,3,10,1,no,0,0x2,14,weapon,0,0x0,	NPC_ICEBREATH,Ice Breath
-656,6,6,1,4,0,3,10,1,no,0,0x2,14,weapon,0,0x0,	NPC_THUNDERBREATH,Thunder Breath
-657,6,6,1,5,0,3,10,1,no,0,0x2,14,weapon,0,0x0,	NPC_ACIDBREATH,Acid Breath
-658,6,6,1,7,0,3,10,1,no,0,0x2,14,weapon,0,0x0,	NPC_DARKNESSBREATH,Darkness Breath
-659,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_DRAGONFEAR,龙吼
-660,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_BLEEDING,Bleeding
-661,0,6,4,0,0x2,7,5,1,no,0,0x40002,0,weapon,7,0x0,	NPC_PULSESTRIKE,震动冲击
+653,0,8,4,0,0x6,5:7:9:11:13:5:7:9:11:13,10,1,no,0,0x40002,0,magic,0,0x0,	NPC_EARTHQUAKE,地崩术
+654,6,6,1,3,0,3,10,1,no,0,0x2,14,weapon,0,0x0,	NPC_FIREBREATH,火焰气息
+655,6,6,1,1,0,3,10,1,no,0,0x2,14,weapon,0,0x0,	NPC_ICEBREATH,冰冻气息
+656,6,6,1,4,0,3,10,1,no,0,0x2,14,weapon,0,0x0,	NPC_THUNDERBREATH,闪电气息
+657,6,6,1,5,0,3,10,1,no,0,0x2,14,weapon,0,0x0,	NPC_ACIDBREATH,毒性吐息
+658,6,6,1,7,0,3,10,1,no,0,0x2,14,weapon,0,0x0,	NPC_DARKNESSBREATH,黑暗吐息
+659,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_DRAGONFEAR,龙之恐惧
+660,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_BLEEDING,出血攻击
+661,0,6,4,0,0x2,7,5,1,no,0,0x40002,0,weapon,7,0x0,	NPC_PULSESTRIKE,脉冲攻击
 662,0,6,4,0,0x2,14,10,1,no,0,0x40002,0,weapon,0,0x0,	NPC_HELLJUDGEMENT,地狱审判
-663,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDESILENCE,权杖 沉默
-664,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDEFREEZE,权杖 冰冻
-665,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDEBLEEDING,权杖 流血
-666,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDESTONE,权杖 岩石诅咒
-667,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDECONFUSE,权杖 混乱
-668,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDESLEEP,权杖 沉睡
-669,0,6,4,3,0x3,5,1,1,no,0,0x2,0,magic,0,0x0,	NPC_WIDESIGHT,Wide Sight
-670,7,6,2,7,0xD1,0,10,1,no,0,0x2,0,magic,0,0x0,	NPC_EVILLAND,诅咒之地
-671,0,6,4,0,0x1,0,5,1,no,0,0x2,0,magic,0,0x0,	NPC_MAGICMIRROR,魔法之镜
-672,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_SLOWCAST,攻击延迟
-673,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_CRITICALWOUND,致命伤口
-674,-9,6,1,-1,0x1,0,1,1,no,0,0x2,0,none,0,0x0,	NPC_EXPULSION,Expulsion
-675,0,6,4,0,0x1,0,5,1,no,0,0x2,0,magic,0,0x0,	NPC_STONESKIN,皮肤石化
-676,0,6,4,0,0x1,0,5,1,no,0,0x2,0,magic,0,0x0,	NPC_ANTIMAGIC,暗魔法
-677,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDECURSE,权杖 诅咒
-678,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDESTUN,权杖 眩晕
-679,0,6,4,0,0x2,5:7:9:11:13:13:13:13:13:13,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_VAMPIRE_GIFT,吸血鬼之触
-680,0,6,4,0,0x3,5:7:9:11:13:13:13:13:13:13,10,1,no,0,0x2,0,none,0,0x0,	NPC_WIDESOULDRAIN,法力燃烧
+663,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDESILENCE,广域沉默术
+664,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDEFREEZE,广域冰冻术
+665,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDEBLEEDING,广域出血术
+666,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDESTONE,广域石化术
+667,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDECONFUSE,广域混乱术
+668,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDESLEEP,广域睡眠术
+669,0,6,4,3,0x3,5,1,1,no,0,0x2,0,magic,0,0x0,	NPC_WIDESIGHT,广域火狩
+670,7,6,2,7,0xD1,0,10,1,no,0,0x2,0,magic,0,0x0,	NPC_EVILLAND,暗耀之堂
+671,0,6,4,0,0x1,0,5,1,no,0,0x2,0,magic,0,0x0,	NPC_MAGICMIRROR,魔法反射
+672,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_SLOWCAST,缓唱术
+673,-9,6,1,-1,0,0,5,1,no,0,0x2,0,weapon,0,0x0,	NPC_CRITICALWOUND,致命伤害
+674,-9,6,1,-1,0x1,0,1,1,no,0,0x2,0,none,0,0x0,	NPC_EXPULSION,放逐
+675,0,6,4,0,0x1,0,5,1,no,0,0x2,0,magic,0,0x0,	NPC_STONESKIN,硬化皮肤
+676,0,6,4,0,0x1,0,5,1,no,0,0x2,0,magic,0,0x0,	NPC_ANTIMAGIC,魔法抵抗
+677,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDECURSE,广域诅咒术
+678,0,6,4,0,0x3,2:5:8:11:14,5,1,no,0,0x2,0,none,0,0x0,	NPC_WIDESTUN,广域晕眩术
+679,0,6,4,0,0x2,5:7:9:11:13:13:13:13:13:13,10,1,no,0,0x2,0,weapon,0,0x0,	NPC_VAMPIRE_GIFT,吸血鬼的礼物
+680,0,6,4,0,0x3,5:7:9:11:13:13:13:13:13:13,10,1,no,0,0x2,0,none,0,0x0,	NPC_WIDESOULDRAIN,广域吸魂术
 
 //****
 // Cash Shop Skill
@@ -819,11 +819,11 @@
 
 //****
 // Additional NPC skill (Episode 12)
-682,0,0,4,0,0x1,0,1,1,no,0,0x2,0,none,0,0x0,	NPC_TALK,Talk
+682,0,0,4,0,0x1,0,1,1,no,0,0x2,0,none,0,0x0,	NPC_TALK,说话
 683,-9,0,1,0,0x1,0,5,1,no,0,0x2,0,none,0,0x0,	NPC_HELLPOWER,地狱之力
-684,0,6,4,0,0x3,-1,1,1,no,0,0x2,0,none,0,0x0,	NPC_WIDEHELLDIGNITY,Hell Dignity
-685,0,0,4,0,0x1,0,1,1,no,0,0x2,0,none,0,0x0,	NPC_INVINCIBLE,Invincible
-686,0,0,4,0,0x1,0,1,1,no,0,0x2,0,none,0,0x0,	NPC_INVINCIBLEOFF,Invincible off
+684,0,6,4,0,0x3,-1,1,1,no,0,0x2,0,none,0,0x0,	NPC_WIDEHELLDIGNITY,广域地狱军势
+685,0,0,4,0,0x1,0,1,1,no,0,0x2,0,none,0,0x0,	NPC_INVINCIBLE,无敌
+686,0,0,4,0,0x1,0,1,1,no,0,0x2,0,none,0,0x0,	NPC_INVINCIBLEOFF,无敌结束
 687,0,6,4,0,0x1,0,1,1,yes,0,0x2,0,none,0,0x0,	NPC_ALLHEAL,生命之弦
 
 //****
@@ -851,7 +851,7 @@
 //705,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_WIDESIREN,Wide Siren's Voice
 706,0,6,4,5,0,0,10,1,no,0,0x2,0,magic,0,0x1,	NPC_VENOMFOG,Venom Fog
 //707,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_MILLENNIUMSHIELD,Millenium Shield 2
-//708,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_COMET,Comet 2
+708,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	NPC_COMET,Comet 2
 //709,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_ICEMINE,Ice Mine
 //710,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_ICEEXPLO,Ice Explosion
 //711,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_FLAMECROSS,Flame Cross
@@ -965,7 +965,7 @@
 2222,0,6,4,3,0x1,0,5,1,yes,0,0,0,magic,0,0x0,	WL_SUMMONFB,召唤火球
 2223,0,6,4,4,0x1,0,5,1,yes,0,0,0,magic,0,0x0,	WL_SUMMONBL,召唤闪电球
 2224,0,6,4,1,0x1,0,5,1,yes,0,0,0,magic,0,0x0,	WL_SUMMONWB,召唤水球
-2225,11,6,1,3,0,0,5,1,no,0,0,1,magic,0,0x0,		WL_SUMMON_ATK_FIRE,Summon Attack Fire //CHECK Summon attack ID's dont appear to have a range.
+2225,11,6,1,3,0,0,5,1,no,0,0,1,magic,0,0x0,		WL_SUMMON_ATK_FIRE,Summon Attack Fire 
 2226,11,6,1,4,0,0,5,1,no,0,0,1,magic,0,0x0,		WL_SUMMON_ATK_WIND,Summon Attack Wind
 2227,11,6,1,1,0,0,5,1,no,0,0,1,magic,0,0x0,		WL_SUMMON_ATK_WATER,Summon Attack Water
 2228,11,6,1,2,0,0,5,1,no,0,0,1,magic,0,0x0,		WL_SUMMON_ATK_GROUND,Summon Attack Earth
@@ -1235,11 +1235,11 @@
 2482,11,6,2,0,0x8,0,5,1,yes,0,0,1,weapon,2,0x0,	GN_WALLOFTHORN,荆棘之墙
 2483,11,6,2,0,0x3,4,10,1,yes,0,0x0,0,weapon,0,0x1,	GN_CRAZYWEED,疯狂野草
 2484,0,6,2,2,0x2,2,10,1,no,0,0x40000,0,weapon,0,0x1,	GN_CRAZYWEED_ATK,Crazy Weed Attack
-2485,9,6,2,3,0,0,5,1,yes,0,0,0,magic,0,0x0,		GN_DEMONIC_FIRE,疯狂火焰
+2485,9,6,2,3,0,0,5,1,yes,0,0,1,magic,0,0x0,		GN_DEMONIC_FIRE,疯狂火焰
 2486,9,6,2,0,0,0,5,1,yes,0,0,0,none,0,0x0,		GN_FIRE_EXPANSION,火焰爆炸
 2487,9,6,2,0,0,0,1,1,no,0,0,0,none,0,0x0,		GN_FIRE_EXPANSION_SMOKE_POWDER,Fire Expansion Smoke Powder
 2488,9,6,2,0,0,0,1,1,no,0,0,0,none,0,0x0,		GN_FIRE_EXPANSION_TEAR_GAS,Fire Expansion Tear Gas
-2489,11,8,1,-1,0x28,0,10,1:2:3:4:5:6:7:8:9:10,no,0,0,0,magic,0,0x0,		GN_FIRE_EXPANSION_ACID,Fire Expansion Acid
+2489,11,8,1,0,0x40,0,10,1:2:3:4:5:6:7:8:9:10,no,0,0x18000,0,misc,0,0x0,		GN_FIRE_EXPANSION_ACID,Fire Expansion Acid
 2490,9,6,2,0,0x3,1,5,1,yes,0,0x80,2:3:4:5:6,misc,0,0x0,	GN_HELLS_PLANT,地狱植物
 2491,0,6,1,0,0x90,0,5,1,no,0,0,0,misc,0,0x0,	GN_HELLS_PLANT_ATK,Hell's Plant Attack
 2492,0,6,4,0,0x3,5:6:6:7:7,5,1,yes,0,0,0,none,0,0x0,	GN_MANDRAGORA,曼陀罗的嚎叫
@@ -1354,30 +1354,30 @@
 5014,0,6,4,0,0x1,0,5,1,no,0,0,0,none,0,0x0, ALL_FULL_THROTTLE,全力以赴
 
 // Summoner - Placeholder
-5018,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_BASIC_SKILL,New Basic Skill
-5019,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_BITE,Bite
-5020,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_HIDE,Hide
-5021,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_SCRATCH,Scratch
-5022,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_STOOP,Stoop
-5023,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_LOPE,Lope
-5024,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_SPRITEMABLE,Spirit Marble
-5025,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_POWEROFLAND,Power of Land
-5026,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_SV_STEMSPEAR,Silvervine Stem Spear
-5027,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_CN_POWDERING,Catnip Powdering
-5028,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_CN_METEOR,Catnip Meteor
-5029,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_SV_ROOTTWIST,Silvervine Root Twist
+5018,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_BASIC_SKILL,新基本技能
+5019,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_BITE,狠咬
+5020,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_HIDE,躲藏
+5021,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_SCRATCH,抓伤
+5022,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_STOOP,俯身
+5023,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_LOPE,跳跃
+5024,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_SPRITEMABLE,灵魂魔珠
+5025,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_POWEROFLAND,大地力量
+5026,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_SV_STEMSPEAR,猕猴桃梗枪
+5027,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_CN_POWDERING,猫薄荷洒粉
+5028,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_CN_METEOR,猫薄荷陨石
+5029,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_SV_ROOTTWIST,生命力量
 5030,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_SV_ROOTTWIST_ATK,Silver Vine Root Twist Attack
-5031,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_POWEROFLIFE,Power of Life
-5032,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_SCAROFTAROU,Scar of Tarou
-5033,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_PICKYPECK,Picky Peck
+5031,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_POWEROFLIFE,生命力量
+5032,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_SCAROFTAROU,白鼠创伤
+5033,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_PICKYPECK,小鸡啄击
 5034,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_PICKYPECK_DOUBLE_ATK,Picky Peck Double Attack
-5035,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_ARCLOUSEDASH,Arclouse Dash
-5036,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_LUNATICCARROTBEAT,Lunatic Carrot Beat
-5037,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_POWEROFSEA,Power of Sea
-5038,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_TUNABELLY,Tuna Belly
-5039,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_TUNAPARTY,Tuna Party
-5040,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_BUNCHOFSHRIMP,Bunch of Shrimp
-5041,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_FRESHSHRIMP,Fresh Shrimp
+5035,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_ARCLOUSEDASH,卷甲虫暴冲
+5036,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_LUNATICCARROTBEAT,疯兔胡萝卜重击
+5037,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_POWEROFSEA,海洋力量
+5038,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_TUNABELLY,鲔鱼肚肉
+5039,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_TUNAPARTY,鲔鱼派对
+5040,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_BUNCHOFSHRIMP,虾群
+5041,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	SU_FRESHSHRIMP,活虾
 
 // Unknown Unconfirmed Summoner Skills - Animations Show On These
 //5042,0,0,0,0,0,0,5,0,yes,0,0,0,none,0,0x0,		SU_CN_METEOR_SEC,

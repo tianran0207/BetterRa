@@ -778,7 +778,7 @@ ein_in01,43,252,3	script	坎培堤#ein	4_M_EIN_SOLDIER,{
 	close;
 }
 
-ein_in01,206,224,3	script	饭店 职员#ein	4_M_EINMAN,{
+ein_in01,206,224,3	script	饭店 职员#ein	855,{
 	mes "[饭店 职员]";
 	mes "您好";
 	mes "欢迎来到艾音布罗克酒店";

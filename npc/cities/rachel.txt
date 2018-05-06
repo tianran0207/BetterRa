@@ -61,7 +61,7 @@ ra_san04,137,48,3	script	Loomin-1st Class Secret	111,{
 	mes "^333333The pope was born together";
 	mes "with a twin brother, a fair";
 	mes "skinned boy with pale skin";
-	mes "and silver blonde hair. This";
+	mes "and silver blond hair. This";
 	mes "had never happened before";
 	mes "and presented a unique problem";
 	mes " ";

@@ -571,7 +571,7 @@ moc_ruins,173,70,4	script	Uncle Morroc#moc	1_M_02,{
 	}
 }
 
-moc_fild16,199,212,4	script	资深刺客#moc	1_M_JOBTESTER,{
+moc_fild16,199,212,4	script	资深刺客#moc	55,{
 	mes "[何西]";
 	mes "刺客";
 	mes "要成为好的刺客 必须要锻炼出一股杀气";

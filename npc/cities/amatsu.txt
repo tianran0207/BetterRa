@@ -535,9 +535,9 @@ amatsu,262,197,1	script	传说中的 树木	HIDDEN_NPC,{
 	}
 	else if (jap_tree == 3) {
 		mes "^3355FFUnlike other cherry trees,";
-		mes "this tree has a strong fragnance.";
+		mes "this tree has a strong fragrance.";
 		mes "I just fell into a relaxed";
-		mes "mood. The fragnance eased";
+		mes "mood. The fragrance eased";
 		mes "my burdens and I felt";
 		mes "very comfortable.^000000";
 		next;
@@ -559,7 +559,7 @@ amatsu,262,197,1	script	传说中的 树木	HIDDEN_NPC,{
 		mes "being drained if I stay here";
 		mes "longer. After a glimpse of";
 		mes "the cherry tree, I thought to";
-		mes "mayself, 'I must get out of here quickly.'^000000";
+		mes "myself, 'I must get out of here quickly.'^000000";
 		close;
 	}
 	mes "^3355FF";

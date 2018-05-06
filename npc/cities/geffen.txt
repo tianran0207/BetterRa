@@ -1404,7 +1404,7 @@ geffen_in,109,72,2	script	怪物学者	4_F_01,{
 
 // Lvl 4 weapon quest related NPC ------------------------------------------------------
 
-geffen,203,146,5	script	市民	4W_M_01,{
+geffen,203,146,5	script	市民	97,{
 	mes "[市民]";
 	mes "这有一个精湛的武器师傅";
 	mes "就是德巴兰有四个儿子的人";

@@ -163,7 +163,7 @@ jawaii,240,146,5	script	爪哇咿居民#desc1	4_F_07,{
 	close;
 }
 
-jawaii,168,247,5	script	爪哇咿居民#desc2	4_F_07,{
+jawaii,168,247,5	script	爪哇咿居民#desc2	724,{
 	mes "[哇爪 哇爪]";
 	mes "啊, 你是外地来的游客吧.";
 	mes "如果你迷路了, 那么只要朝着西. 为新婚者们建造的旅馆";

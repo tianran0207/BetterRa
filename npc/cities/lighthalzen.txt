@@ -192,7 +192,7 @@ lighthalzen,89,73,3	script	Sameer#zen15	854,{
 	mes "of morality. In fact, I have";
 	mes "no need for a woman. All";
 	mes "I need are my ship models,";
-	mes "teen novels and dominos.";
+	mes "teen novels and dominoes.";
 	next;
 	mes "[Sameer]";
 	mes "I'm a completely well";
@@ -544,7 +544,7 @@ lhz_in02,34,212,4	script	Maggie#05	91,{
 	mes "amount for the lease and the";
 	mes "laws here won't let me raise";
 	mes "the price of my flowers. Why";
-	mes "are the city officals so greedy?";
+	mes "are the city officials so greedy?";
 	close;
 }
 
@@ -659,7 +659,7 @@ lighthalzen,182,102,3	script	卢修斯#zen5	866,{
 	mes "You seem to be fairly";
 	mes "well-off. Money is good";
 	mes "to have, but be careful not";
-	mes "to become obssessed with it.";
+	mes "to become obsessed with it.";
 	next;
 	mes "[卢修斯]";
 	mes "When you have the chance,";
@@ -1867,7 +1867,7 @@ OnTouch_:
 
 lhz_in01,24,140,3	script	Regenschirm Guard#40	4_M_LGTGUARD,{
 	mes "[雷根贝勒 守卫]";
-	if(isequipped(2241) && isequipped(2243)){
+	if ((MISC_QUEST&512) && countitem(2657) > 0) {// Lab_Passport
 		mes "我是负责前往地下";
 		mes "研究所出入系统的";
 		mes "守卫工作, ";
@@ -2588,7 +2588,7 @@ lighthalzen,77,203,3	script	Victor Perfecto#zen9	869,{
 	mes "Still, it's pretty";
 	mes "depressing to think";
 	mes "that the beauty of nature";
-	mes "can be manmade and";
+	mes "can be man-made and";
 	mes "equated to zeny, you know?";
 	close;
 }
