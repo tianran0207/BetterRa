@@ -8042,6 +8042,8 @@ static const struct _battle_data {
 	{ "pet_catch_rate_mode",                &battle_config.pet_catch_rate_mode,             0,      0,      1,              },
 	{ "instance_lastpoint",                 &battle_config.instance_lastpoint,              0,      0,      1,              },
 	{ "instance_leavepoint",                &battle_config.instance_leavepoint,             0,      0,      1,              },
+	{ "min_storechat_distance",             &battle_config.min_storechat_distance,          1,      0,      10,             },
+	{ "min_npc_distance",                   &battle_config.min_npc_distance,                3,      0,      10,             },
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },

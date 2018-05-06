@@ -26028,7 +26028,7 @@ BUILDIN_FUNC(instance_enter_last) {
 	struct map_session_data *sd = NULL;
 
 	if (!battle_config.instance_leavepoint){
-		ShowError("instance_enter_last: Please: set battle config 'instance_leavepoint' is yes ");
+		ShowError("instance_enter_last: Please set battle config of 'instance_leavepoint'");
 		return SCRIPT_CMD_FAILURE;
 	}
 

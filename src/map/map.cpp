@@ -4888,3 +4888,35 @@ void map_delbot(struct bot_data *bd, bool loginout)
 
 	idb_remove(bot_db, bd->sd->bl.id);
 }
+
+int map_checknear_sub(struct block_list* bl, va_list args) {
+	
+	int flag = va_arg(args, int);
+	
+	if (bl->type == BL_PC) {
+		struct map_session_data* sd = (struct map_session_data*) bl;
+		if (flag & CHECK_PC)
+			return 1;
+		if ((flag & CHECK_VENDING) && sd->vender_id)
+			return 1;
+		if ((flag & CHECK_BUYING_STORE) && sd->buyer_id)
+			return 1;
+	}
+	else if (bl->type & flag) {
+		return 1;
+	}
+	return 0;
+}
+
+int map_checknear(struct block_list* bl, int range, int cell) {
+	
+	if (range == 0)
+		return 0;
+
+	if ((cell & CHECK_VENDING) || (cell & CHECK_BUYING_STORE))
+		return map_foreachinallrange(map_checknear_sub, bl, range, BL_PC, cell);
+	else
+		return map_foreachinallrange(map_checknear_sub, bl, range, cell, cell);
+
+	return 0;
+}

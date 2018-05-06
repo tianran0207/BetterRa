@@ -272,6 +272,23 @@ enum bl_type : uint16{
 /// For common mapforeach calls. Since pets cannot be affected, they aren't included here yet.
 #define BL_CHAR (BL_PC|BL_MOB|BL_HOM|BL_MER|BL_ELEM)
 
+enum check_type : uint16 {
+	CHECK_NUL = 0x000,
+	CHECK_PC = BL_PC,
+	CHECK_MOB = BL_MOB,
+	CHECK_PET = BL_PET,
+	CHECK_HOM = BL_HOM,
+	CHECK_MER = BL_MER,
+	CHECK_ITEM = BL_ITEM,
+	CHECK_SKILL = BL_SKILL,
+	CHECK_NPC = BL_NPC,
+	CHECK_CHAT = BL_CHAT,
+	CHECK_ELEM = BL_ELEM,
+	CHECK_VENDING = 0x400,
+	CHECK_BUYING_STORE = 0x800,
+	CHECK_ALL = 0xFFF,
+};
+
 /// NPC Subtype
 enum npc_subtype : uint8{
 	NPCTYPE_WARP, /// Warp
@@ -1026,4 +1043,5 @@ extern char roulette_table[32];
 
 void do_shutdown(void);
 void not_free(void);
+int map_checknear(struct block_list* bl, int range, int cell);
 #endif /* _MAP_HPP_ */

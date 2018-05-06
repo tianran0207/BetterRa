@@ -9602,6 +9602,7 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 	case BL_MOB:
 		{
 			struct mob_data *md = (struct mob_data *)bl;
+			struct map_session_data* sd = BL_CAST(BL_PC, src);
 			nullpo_retv(md);
 
 			safestrncpy(WBUFCP(buf,6), md->name, NAME_LENGTH);
@@ -9634,13 +9635,13 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 					if (map[bl->m].flag.mobinfo & 2)
 						str_p += sprintf(str_p, "HP: %u%% | ", get_percentage(md->status.hp, md->status.max_hp));
 					if (map[bl->m].flag.mobinfo & 16)//体型
-						str_info1 += sprintf(str_info1, msg_txt(NULL, 2301), msg_txt(NULL, 2302 + md->status.size));
+						str_info1 += sprintf(str_info1, msg_txt(sd, 2301), msg_txt(sd, 2302 + md->status.size));
 					if (map[bl->m].flag.mobinfo & 32) {
 						str_info1 += sprintf(str_info1, " ");
-						str_info1 += sprintf(str_info1, msg_txt(NULL, 2305), msg_txt(NULL, 2306 + md->status.race));
+						str_info1 += sprintf(str_info1, msg_txt(sd, 2305), msg_txt(sd, 2306 + md->status.race));
 					}
 					if (map[bl->m].flag.mobinfo & 64)
-						str_info2 += sprintf(str_info2, msg_txt(NULL, 2320), msg_txt(NULL, 2321 + md->status.def_ele), md->status.ele_lv);
+						str_info2 += sprintf(str_info2, msg_txt(sd, 2320), msg_txt(sd, 2321 + md->status.def_ele), md->status.ele_lv);
 					if (map[bl->m].flag.mobinfo & 8)
 						str_info2 += sprintf(str_info2, " | ID:%d", md->mob_id);
 				}
@@ -9652,13 +9653,13 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 					if (battle_config.show_mob_info & 2)
 						str_p += sprintf(str_p, "HP: %u%% | ", get_percentage(md->status.hp, md->status.max_hp));
 					if (battle_config.show_mob_info & 16)//体型
-						str_info1 += sprintf(str_info1, msg_txt(NULL, 2301), msg_txt(NULL, 2302 + md->status.size));
+						str_info1 += sprintf(str_info1, msg_txt(sd, 2301), msg_txt(sd, 2302 + md->status.size));
 					if (battle_config.show_mob_info & 32) {
 						str_info1 += sprintf(str_info1, " ");
-						str_info1 += sprintf(str_info1, msg_txt(NULL, 2305), msg_txt(NULL, 2306 + md->status.race));
+						str_info1 += sprintf(str_info1, msg_txt(sd, 2305), msg_txt(sd, 2306 + md->status.race));
 					}
 					if (battle_config.show_mob_info & 64)
-						str_info2 += sprintf(str_info2, msg_txt(NULL, 2320), msg_txt(NULL, 2321 + md->status.def_ele), md->status.ele_lv);
+						str_info2 += sprintf(str_info2, msg_txt(sd, 2320), msg_txt(sd, 2321 + md->status.def_ele), md->status.ele_lv);
 					if (battle_config.show_mob_info & 8)
 						str_info2 += sprintf(str_info2, " | ID:%d", md->mob_id);
 				}
@@ -11796,6 +11797,21 @@ void clif_parse_CreateChatRoom(int fd, struct map_session_data* sd)
 		return;
 	}
 
+	if (map_checknear(&sd->bl, battle_config.min_storechat_distance, CHECK_CHAT | CHECK_BUYING_STORE | CHECK_VENDING)) {
+		char output[150];
+		sprintf(output, msg_txt(sd, 2345), battle_config.min_storechat_distance);
+		clif_displaymessage(sd->fd, output);
+		clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 3);
+		return;
+	}
+	if (map_checknear(&sd->bl, battle_config.min_npc_distance, CHECK_NPC)) {
+		char output[150];
+		sprintf(output, msg_txt(sd, 662), battle_config.min_npc_distance);
+		clif_displaymessage(sd->fd, output);
+		clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 3);
+		return;
+	}
+	/*
 	if( npc_isnear(&sd->bl) ) {
 		// uncomment to send msg_txt.
 		//char output[150];
@@ -11804,7 +11820,7 @@ void clif_parse_CreateChatRoom(int fd, struct map_session_data* sd)
 		clif_skill_fail(sd,1,USESKILL_FAIL_THERE_ARE_NPC_AROUND,0);
 		return;
 	}
-
+	*/
 	if( len <= 0 )
 		return; // invalid input
 
