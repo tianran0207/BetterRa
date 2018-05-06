@@ -1546,6 +1546,9 @@ void pc_reg_received(struct map_session_data *sd)
 		clif_parse_LoadEndAck(sd->fd, sd);
 	}
 
+	if (battle_config.instance_lastpoint)
+		instance_enter_last(sd);
+
 	if( pc_isinvisible(sd) ) {
 		sd->vd.class_ = JT_INVISIBLE;
 		clif_displaymessage( sd->fd, msg_txt( sd, 11 ) ); // Invisible: On
@@ -5599,6 +5602,9 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 			bool instance_found = false;
 			struct party_data *p = NULL;
 			struct guild *g = NULL;
+
+			if (map[sd->bl.m].instance_id && battle_config.instance_leavepoint)
+				instance_leave_last(sd);
 
 			if (sd->instance_id) {
 				instance_delusers(sd->instance_id);

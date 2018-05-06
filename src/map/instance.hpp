@@ -45,6 +45,7 @@ struct s_instance_map {
 };
 
 struct instance_data {
+	unsigned int create_tick;
 	unsigned short type; ///< Instance DB ID
 	enum instance_state state; ///< State of instance
 	enum instance_mode mode; ///< Mode of instance
@@ -81,6 +82,8 @@ void instance_getsd(unsigned short instance_id, struct map_session_data **sd, en
 
 int instance_create(int owner_id, const char *name, enum instance_mode mode);
 int instance_destroy(unsigned short instance_id);
+enum e_instance_enter instance_enter_last(struct map_session_data *sd);
+void instance_leave_last(struct map_session_data *sd);
 enum e_instance_enter instance_enter(struct map_session_data *sd, unsigned short instance_id, const char *name, short x, short y);
 int instance_reqinfo(struct map_session_data *sd, unsigned short instance_id);
 int instance_addusers(unsigned short instance_id);

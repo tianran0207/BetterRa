@@ -8040,6 +8040,8 @@ static const struct _battle_data {
 	{ "enable_coply",                       &battle_config.enable_coply,                    0,      0,      1,              },
 	{ "display_skill_name",                 &battle_config.display_skill_name,              0,      0,      1,              },
 	{ "pet_catch_rate_mode",                &battle_config.pet_catch_rate_mode,             0,      0,      1,              },
+	{ "instance_lastpoint",                 &battle_config.instance_lastpoint,              0,      0,      1,              },
+	{ "instance_leavepoint",                &battle_config.instance_leavepoint,             0,      0,      1,              },
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },

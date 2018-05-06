@@ -157,6 +157,8 @@ struct Battle_Config
 	int enable_coply;
 	int display_skill_name;
 	int pet_catch_rate_mode;
+	int instance_lastpoint;
+	int instance_leavepoint;
 	//------------------------------
 	int warp_point_debug;
 	int enable_critical;

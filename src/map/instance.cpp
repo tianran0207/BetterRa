@@ -429,6 +429,7 @@ int instance_create(int owner_id, const char *name, enum instance_mode mode) {
 	instance_data[i].regs.vars = i64db_alloc(DB_OPT_RELEASE_DATA);
 	instance_data[i].regs.arrays = NULL;
 	instance_data[i].cnt_map = 0;
+	instance_data[i].create_tick = gettick();
 
 	switch(mode) {
 		case IM_CHAR:
@@ -707,6 +708,137 @@ int instance_destroy(unsigned short instance_id)
 	memset(&instance_data[instance_id], 0, sizeof(instance_data[instance_id]));
 
 	return 0;
+}
+
+enum e_instance_enter instance_enter_last(struct map_session_data *sd)
+{
+	struct instance_data *im = NULL;
+	struct party_data *pd = NULL;
+	struct guild *gd = NULL;
+	struct clan *cd = NULL;
+	enum instance_mode mode;
+	int16 m;
+	short x, y;
+	unsigned short instance_id = 0;
+	unsigned int instance_create_tick = 0;
+	char reg[128], *point[2];
+	int i;
+
+	nullpo_retr(IE_OTHER, sd);
+
+	point[0] = pc_readregistry_str(sd, add_str("instance_lastpoint$"));
+
+	if (!point[0] || point[0][0] == '\0')
+		return IE_NOINSTANCE;
+
+	safestrncpy(reg, point[0], sizeof(reg));
+	pc_setregistry_str(sd, add_str("instance_lastpoint$"), "");
+
+	point[0] = reg;
+
+	for (i = 0; i < 4; i++) {
+		if ((point[1] = strchr(point[0], ':')) == NULL) return IE_OTHER;
+		*point[1] = '\0';
+		switch (i) {
+		case 0: instance_create_tick = atoi(point[0]);  break;
+		case 1: instance_id = atoi(point[0]);  break;
+		case 2: m = atoi(point[0]);  break;
+		case 3: x = atoi(point[0]);  y = atoi(point[1] + 1); break;
+		}
+		point[0] = point[1] + 1;
+	}
+
+	im = &instance_data[instance_id];
+	mode = im->mode;
+
+	if(!instance_create_tick || instance_create_tick != im->create_tick)
+		return IE_NOINSTANCE;
+
+	ARR_FIND(0, im->cnt_map, i, im->map[i]->m == m);
+	if (i == im->cnt_map) 
+		return IE_NOINSTANCE;
+
+	switch (mode) {
+	case IM_NONE:
+		break;
+	case IM_CHAR:
+		if (sd->instance_id == 0) // Player must have an instance
+			return IE_NOINSTANCE;
+		if (im->owner_id != sd->status.char_id)
+			return IE_OTHER;
+		break;
+	case IM_PARTY:
+		if (sd->status.party_id == 0) // Character must be in instance party
+			return IE_NOMEMBER;
+		if ((pd = party_search(sd->status.party_id)) == NULL)
+			return IE_NOMEMBER;
+		if (pd->instance_id == 0 || im == NULL) // Party must have an instance
+			return IE_NOINSTANCE;
+		if (im->owner_id != pd->party.party_id)
+			return IE_OTHER;
+		break;
+	case IM_GUILD:
+		if (sd->status.guild_id == 0) // Character must be in instance guild
+			return IE_NOMEMBER;
+		if ((gd = guild_search(sd->status.guild_id)) == NULL)
+			return IE_NOMEMBER;
+		if (gd->instance_id == 0) // Guild must have an instance
+			return IE_NOINSTANCE;
+		if (im->owner_id != gd->guild_id)
+			return IE_OTHER;
+		break;
+	case IM_CLAN:
+		if (sd->status.clan_id == 0) // Character must be in instance clan
+			return IE_NOMEMBER;
+		if ((cd = clan_search(sd->status.clan_id)) == NULL)
+			return IE_NOMEMBER;
+		if (cd->instance_id == 0) // Clan must have an instance
+			return IE_NOINSTANCE;
+		if (im->owner_id != cd->id)
+			return IE_OTHER;
+		break;
+	}
+
+	if (im->state != INSTANCE_BUSY)
+		return IE_OTHER;
+
+	if (pc_setpos(sd, map_id2index(m), x, y, CLR_OUTSIGHT))
+		return IE_OTHER;
+
+	// If there was an idle timer, let's stop it
+	instance_stopidletimer(im, instance_id);
+
+	// Now we start the instance timer
+	instance_startkeeptimer(im, instance_id);
+
+	return IE_OK;
+}
+
+void instance_leave_last(struct map_session_data *sd) 
+{
+	struct instance_data *im = NULL;
+	struct party_data *pd = NULL;
+	struct guild *gd = NULL;
+	struct clan *cd = NULL;
+	unsigned short instance_id = 0;
+	char output[128];
+
+	if (sd->instance_id)
+		instance_id = sd->instance_id;
+	if (instance_id == 0 && sd->status.party_id && (pd = party_search(sd->status.party_id)) != NULL && pd->instance_id)
+		instance_id = pd->instance_id;
+	if (instance_id == 0 && sd->status.guild_id && (gd = guild_search(sd->status.guild_id)) != NULL && gd->instance_id)
+		instance_id = gd->instance_id;
+	if (instance_id == 0 && sd->status.clan_id && (cd = clan_search(sd->status.clan_id)) != NULL && cd->instance_id)
+		instance_id = cd->instance_id;
+
+	im = &instance_data[instance_id];
+
+	if (im == NULL || im->mode == IM_NONE)
+		return;
+
+	sprintf(output, "%u:%u:%d:%d:%d", im->create_tick ,instance_id, sd->bl.m, sd->bl.x, sd->bl.y);
+	pc_setregistry_str(sd, add_str("instance_lastpoint$"), output);
 }
 
 /*==========================================

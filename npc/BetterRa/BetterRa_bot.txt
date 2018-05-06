@@ -1,4 +1,4 @@
-prontera,154,110,5	script	test	65,{
+prontera,154,110,5	script	机器人测试人员	65,{
 	@item_hp_id = 501;					// 红药水的物品ID
 	@item_sp_id = 505;					// 蓝药水的物品ID
 	@item_heal_delay = 200;				// 回复道具使用延时 200 毫秒, 最小100毫秒, 再小没有效果

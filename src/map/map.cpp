@@ -2077,6 +2077,14 @@ int map_quit(struct map_session_data *sd) {
 	if( map[sd->bl.m].instance_id )
 		instance_delusers(map[sd->bl.m].instance_id);
 
+	if (battle_config.instance_lastpoint) { //玩家在副本中下线后记录下线位置
+
+		if(map[sd->bl.m].instance_id)
+			instance_leave_last(sd);
+		else
+			pc_setregistry_str(sd, add_str("instance_lastpoint$"), "");
+	}
+
 	unit_remove_map_pc(sd,CLR_RESPAWN);
 
 	if( map[sd->bl.m].instance_id ) { // Avoid map conflicts and warnings on next login

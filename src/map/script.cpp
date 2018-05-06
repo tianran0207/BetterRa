@@ -26024,6 +26024,20 @@ BUILDIN_FUNC(bot_login)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(instance_enter_last) {
+	struct map_session_data *sd = NULL;
+
+	if (!battle_config.instance_leavepoint){
+		ShowError("instance_enter_last: Please: set battle config 'instance_leavepoint' is yes ");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, instance_enter_last(sd));
+	return SCRIPT_CMD_SUCCESS;
+}
 
 static int http_parse(int fd) {
 
@@ -26826,6 +26840,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(tribe_mobteam, "i"),
 	BUILDIN_DEF(tribe_getteam, "?"),
 	BUILDIN_DEF(tribe_monster, "isiisi?"),
+	BUILDIN_DEF(instance_enter_last, "?"),
 	BUILDIN_DEF(http_get, "si"),
 	BUILDIN_DEF(bot_login, ""),
 	{NULL,NULL,NULL},
