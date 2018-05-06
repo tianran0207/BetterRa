@@ -1,0 +1,422 @@
+Index: conf/import/battle_conf.txt
+===================================================================
+--- conf/import/battle_conf.txt	(版本 2357)
++++ conf/import/battle_conf.txt	(工作副本)
+@@ -0,0 +1,22 @@
++//===========================================================================
++// 不同帐号类型(跨区)的玩家是否允许相互交易?
++// 帐号类型为数据库 login 表内的 server 类型
++// 设置 0 为无视是否跨区帐号(全区交易)
++// 设置 1 为仅仅 server 类型 1 的帐号可交易
++//===========================================================================
++map_server_filter: 0
++
++//===========================================================================
++// 当 map_server_filter 不为 0 时, 可交易权限
++// 数值参考为 item_trade.txt 的交易权限
++// 1   - 无法丢弃
++// 2   - 无法交易 (无法公开)
++// 4   - 已婚的人可无视限制2
++// 8   - 不能被卖出给NPC
++// 16  - 不能被放入手推车中
++// 32  - 不能被放入仓库中
++// 64  - 不能被放入公会仓库中
++// 128 - 不能被附加到邮件
++// 256 - 不能被拍卖
++//===========================================================================
++server_item_trade: 0
+Index: conf/import/login_conf.txt
+===================================================================
+--- conf/import/login_conf.txt	(版本 2357)
++++ conf/import/login_conf.txt	(工作副本)
+@@ -0,0 +1,16 @@
++//===========================================================================
++// 不同帐号类型(跨区)的玩家是否允许登录服务器?
++// 帐号类型为数据库 login 表内的 server 类型
++// 设置 0 为无视是否跨区帐号(全区登录)
++// 设置 1 为仅仅 server 类型 1 的帐号可登录
++// 默认: 1
++//===========================================================================
++login_server_filter: 1
+Index: conf/login_athena.conf
+===================================================================
+--- conf/msg_conf/map_msg.conf	(版本 2357)
++++ conf/msg_conf/map_msg.conf	(工作副本)
+@@ -256,7 +256,7 @@
+ 243: 地图技能关闭
+ 244: 地图技能开启
+ 245: 伺服器启动时间: %ld 天, %ld 小时, %ld 分钟, %ld 秒
+-246: 你的GM层级不允许你完成这个动作
++246: 你的GM不允许你完成这个动作
+ 247: 你不允许传送到这个地图
+ 248: 你不允许在目前地图传送
+ 249: 你不允许传送到你的储存点地图
+Index: sql-files/main.sql
+===================================================================
+--- sql-files/main.sql	(版本 2357)
++++ sql-files/main.sql	(工作副本)
+@@ -3980,3 +3980,8 @@
+  `fame` tinyint(3) unsigned default '0',
+  PRIMARY KEY (`char_id`)
+  ) ENGINE=MyISAM;
++
++-- ----------------------------
++-- upgrade_v8.18.0 for `login`
++-- ----------------------------
++ALTER TABLE `login` ADD `server` int(10) NOT NULL default '0';
+Index: sql-files/upgrades/upgrade_v8.18.0.sql
+===================================================================
+--- sql-files/upgrades/upgrade_v8.18.0.sql	(版本 2357)
++++ sql-files/upgrades/upgrade_v8.18.0.sql	(工作副本)
+@@ -10,6 +10,10 @@
+ ALTER TABLE `homunculus`
+ 	ADD COLUMN `autofeed` tinyint(2) NOT NULL default '0' AFTER `vaporize`;
+ 
++-- ----------------------------
++-- upgrade_v8.18.0 for `login`
++-- ----------------------------
++ALTER TABLE `login` ADD `server` int(10) NOT NULL default '0';
+ 
+ /*
+ ---------------------------------------------
+Index: src/login/account.cpp
+===================================================================
+--- src/login/account.cpp	(版本 2357)
++++ src/login/account.cpp	(工作副本)
+@@ -8,6 +8,7 @@
+  */
+ 
+ #include "account.hpp"
++#include "login.hpp"	// 自定义代码 - 不同帐号类型登录不同服务器(跨区登录)
+ 
+ #include <stdlib.h>
+ #include <string.h>
+@@ -539,7 +540,34 @@
+ 	Sql_GetData(sql_handle, 17, &data, NULL); acc->old_group = atoi(data);
+ #endif
+ 	Sql_FreeResult(sql_handle);
++	
++	// 自定义代码 开始 - 不同帐号类型登录不同服务器(跨区登录)
++	if (acc->sex == 'S'){
++		acc->server = login_config.login_server_filter;
++		return true;
++	} 
+ 
++	if (login_config.login_server_filter) {
++		if (SQL_ERROR == Sql_Query(sql_handle, "SELECT `server` FROM `%s` WHERE `account_id` = %d",
++			db->account_db, account_id))
++		{
++			Sql_ShowDebug(sql_handle);
++			return false;
++		}
++
++		if (SQL_SUCCESS != Sql_NextRow(sql_handle))
++		{// no such entry
++			Sql_FreeResult(sql_handle);
++			return false;
++		}
++
++		Sql_GetData(sql_handle, 0, &data, NULL);
++		Sql_FreeResult(sql_handle);
++
++		acc->server = atoi(data);
++	}
++	// 自定义代码 结束
++
+ 	return true;
+ }
+ 
+@@ -599,6 +627,11 @@
+ 			SqlStmt_ShowDebug(stmt);
+ 			break;
+ 		}
++		// 自定义代码 开始 - 不同帐号类型登录不同服务器(跨区登录)
++		if(login_config.login_server_filter)
++			if (SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `server` = %d WHERE `account_id` = '%d'", db->account_db, login_config.login_server_filter, acc->account_id))
++				Sql_ShowDebug(sql_handle);
++		// 自定义代码 结束
+ 	}
+ 	else
+ 	{// update account table
+Index: src/login/account.hpp
+===================================================================
+--- src/login/account.hpp	(版本 2357)
++++ src/login/account.hpp	(工作副本)
+@@ -39,6 +39,7 @@
+ 	char birthdate[10+1];   // assigned birth date (format: YYYY-MM-DD)
+ 	char pincode[PINCODE_LENGTH+1];		// pincode system
+ 	time_t pincode_change;	// (timestamp): last time of pincode change
++	unsigned int server;	// 自定义代码 - 不同帐号类型登录不同服务器(跨区登录)
+ #ifdef VIP_ENABLE
+ 	int old_group;
+ 	time_t vip_time;
+Index: src/login/login.cpp
+===================================================================
+--- src/login/login.cpp	(版本 2357)
++++ src/login/login.cpp	(工作副本)
+@@ -315,6 +315,12 @@
+ 		{
+ 			int result;
+ 			// remove the _M/_F suffix
++			
++			// 自定义代码 开始 - 不同帐号类型登录不同服务器(跨区登录)
++			if (login_config.login_server_filter == 0)
++				return 0;
++			// 自定义代码 结束
++			
+ 			len -= 2;
+ 			sd->userid[len] = '\0';
+ 
+@@ -329,6 +335,11 @@
+ 		return 0; // 0 = Unregistered ID
+ 	}
+ 
++	// 自定义代码 开始 - 不同帐号类型登录不同服务器(跨区登录)
++	if (login_config.login_server_filter != 0 && acc.server != login_config.login_server_filter)
++		return 0;
++	// 自定义代码 结束
++
+ 	if( !login_check_password(sd->md5key, sd->passwdenc, sd->passwd, acc.pass) ) {
+ 		ShowNotice("Invalid password (account: '%s', ip: %s)\n", sd->userid, ip);
+ 		return 1; // 1 = Incorrect Password
+@@ -643,6 +654,12 @@
+ 				}
+ 				login_config.char_per_account = MIN_CHARS;
+ 			}
++			
++		// 自定义代码 开始 - 不同帐号类型登录不同服务器(跨区登录)
++		} else if (strcmpi(w1, "login_server_filter") == 0) { //filter account [CTR]
++			login_config.login_server_filter = atoi(w2);
++		// 自定义代码 结束
++		
+ 		}
+ #ifdef VIP_ENABLE
+ 		else if(strcmpi(w1,"vip_group")==0)
+@@ -718,6 +735,9 @@
+ 	login_config.client_hash_check = 0;
+ 	login_config.client_hash_nodes = NULL;
+ 	login_config.char_per_account = MAX_CHARS - MAX_CHAR_VIP - MAX_CHAR_BILLING;
++	
++	login_config.login_server_filter = 0;	// 自定义代码 - 不同帐号类型登录不同服务器(跨区登录)
++	
+ #ifdef VIP_ENABLE
+ 	login_config.vip_sys.char_increase = MAX_CHAR_VIP;
+ 	login_config.vip_sys.group = 5;
+Index: src/login/login.hpp
+===================================================================
+--- src/login/login.hpp	(版本 2357)
++++ src/login/login.hpp	(工作副本)
+@@ -105,6 +105,9 @@
+ 	char lanconf_name[256];							/// name of lan config file
+ 
+ 	int char_per_account;							/// number of characters an account can have
++	
++	int login_server_filter;						// 自定义代码 - 不同帐号类型登录不同服务器(跨区登录)
++	
+ #ifdef VIP_ENABLE
+ 	struct {
+ 		unsigned int group;							/// VIP group ID
+Index: src/map/battle.cpp
+===================================================================
+--- src/map/battle.cpp	(版本 2357)
++++ src/map/battle.cpp	(工作副本)
+@@ -8535,6 +8535,12 @@
+ 	{ "autoloot_adjust",                    &battle_config.autoloot_adjust,                 0,      0,      1,              },
+ 	{ "broadcast_hide_name",                &battle_config.broadcast_hide_name,             2,      0,      NAME_LENGTH,    },
+ 	{ "skill_drop_items_full",              &battle_config.skill_drop_items_full,           0,      0,      1,              },
++	
++	// 自定义代码 开始 - 不同帐号类型(跨区)的玩家是否允许相互交易
++	{ "server_item_trade",					&battle_config.server_item_trade,				0,		0,		1|2|4|8|16|32|64|128|256,	},
++	{ "map_server_filter",					&battle_config.map_server_filter,				0,		0,		INT_MAX,		},
++	// 自定义代码 结束
++	
+ 	{ "feature.homunculus_autofeed",        &battle_config.feature_homunculus_autofeed,     1,      0,      1,              },
+ 	{ "feature.homunculus_autofeed_rate",   &battle_config.feature_homunculus_autofeed_rate,30,     0,    100,              },
+     { "summoner_trait",                     &battle_config.summoner_trait,                  3,      0,      3,              },
+Index: src/map/battle.hpp
+===================================================================
+--- src/map/battle.hpp	(版本 2357)
++++ src/map/battle.hpp	(工作副本)
+@@ -671,7 +671,8 @@
+ 	int summoner_trait;
+ 
+ 	int itemlink_system;	// 自定义代码 - 道具连接系统
+-
++	int server_item_trade;	// 自定义代码 - 不同帐号类型(跨区)的玩家是否允许相互交易
++	int map_server_filter;	// 自定义代码 - 不同帐号类型(跨区)的玩家是否允许相互交易
+ #include "../custom/battle_config_struct.inc"
+ };
+ 
+Index: src/map/mail.cpp
+===================================================================
+--- src/map/mail.cpp	(版本 2357)
++++ src/map/mail.cpp	(工作副本)
+@@ -203,6 +203,11 @@
+ 		}
+ #endif
+ 
++		// 自定义代码 开始 - 不同帐号类型(跨区)的玩家是否允许相互交易
++		if (battle_config.map_server_filter != 0 && sd->state.server != battle_config.map_server_filter && !(battle_config.server_item_trade & 128))
++			return MAIL_ATTACH_UNTRADEABLE;
++		// 自定义代码 结束
++
+ 		if( amount > sd->inventory.u.items_inventory[idx].amount )
+ 			return MAIL_ATTACH_ERROR;
+ 		if( !pc_can_give_items(sd) || sd->inventory.u.items_inventory[idx].expire_time
+Index: src/map/pc.cpp
+===================================================================
+--- src/map/pc.cpp	(版本 2357)
++++ src/map/pc.cpp	(工作副本)
+@@ -623,6 +623,11 @@
+ 			return true; // NPCTYPE_ITEMSHOP and sell restricted item config is sellable
+ 	}
+ 
++	// 自定义代码 开始 - 不同帐号类型(跨区)的玩家是否允许相互交易
++	if (battle_config.map_server_filter != 0 && sd->state.server != battle_config.map_server_filter && !(battle_config.server_item_trade & 8))
++		return false;
++	// 自定义代码 结束
++
+ 	if (!itemdb_cansell(item, pc_get_group_level(sd)))
+ 		return false;
+ 
+@@ -636,6 +641,12 @@
+  */
+ bool pc_can_give_items(struct map_session_data *sd)
+ {
++
++	// 自定义代码 开始 - 不同帐号类型(跨区)的玩家是否允许相互交易
++	if (battle_config.map_server_filter != 0 && sd->state.server != battle_config.map_server_filter)
++		return false;
++	// 自定义代码 结束
++
+ 	return pc_has_permission(sd, PC_PERM_TRADE);
+ }
+ 
+@@ -1293,7 +1304,29 @@
+ 			return false;
+ 		}
+ 	}
++	
++	// 自定义代码 开始 - 不同帐号类型(跨区)的玩家是否允许相互交易
++	if (!battle_config.server_item_trade) {
++		char* data;
++		if (SQL_ERROR == Sql_Query(mmysql_handle, "SELECT `server` FROM `login` WHERE `account_id` = %d", sd->status.account_id))
++		{
++			Sql_ShowDebug(mmysql_handle);
++			return false;
++		}
+ 
++		if (SQL_SUCCESS != Sql_NextRow(mmysql_handle))
++		{// no such entry
++			Sql_FreeResult(mmysql_handle);
++			return false;
++		}
++
++		Sql_GetData(mmysql_handle, 0, &data, NULL);
++		Sql_FreeResult(mmysql_handle);
++
++		sd->state.server = atoi(data);
++	}
++	// 自定义代码 结束
++
+ 	clif_authok(sd);
+ 
+ 	//Prevent S. Novices from getting the no-death bonus just yet. [Skotlex]
+@@ -5153,6 +5186,11 @@
+ 		return 1;
+ 	}
+ 
++	// 自定义代码 开始 - 不同帐号类型(跨区)的玩家是否允许相互交易
++	if (battle_config.map_server_filter != 0 && sd->state.server != battle_config.map_server_filter && !(battle_config.server_item_trade & 16))
++		return 1;
++	// 自定义代码 结束
++
+ 	if( !itemdb_cancartstore(item, pc_get_group_level(sd)) || (item->bound > BOUND_ACCOUNT && !pc_can_give_bounded_items(sd)))
+ 	{ // Check item trade restrictions	[Skotlex]
+ 		clif_displaymessage (sd->fd, msg_txt(sd,264));
+@@ -9083,6 +9121,12 @@
+ 		return false;
+ 	if( !pc_can_give_items(sd) || sd->sc.cant.drop) //check if this GM level can drop items
+ 		return false;
++
++	// 自定义代码 开始 - 不同帐号类型(跨区)的玩家是否允许相互交易
++	if (battle_config.map_server_filter != 0 && sd->state.server != battle_config.map_server_filter && !(battle_config.server_item_trade & 1))
++		return false;
++	// 自定义代码 结束
++
+ 	return (itemdb_isdropable(item, pc_get_group_level(sd)));
+ }
+ 
+Index: src/map/pc.hpp
+===================================================================
+--- src/map/pc.hpp	(版本 2357)
++++ src/map/pc.hpp	(工作副本)
+@@ -273,8 +273,9 @@
+ 		bool mail_writing; // Whether the player is currently writing a mail in RODEX or not
+ 		bool cashshop_open;
+ 		
+ 		unsigned int processhalt : 1;	// 自定义代码 - 道具连接系统
++		unsigned int server;			// 自定义代码 - 不同帐号类型(跨区)的玩家是否允许相互交易
+ 		
+ 	} state;
+ 	struct {
+Index: src/map/storage.cpp
+===================================================================
+--- src/map/storage.cpp	(版本 2358)
++++ src/map/storage.cpp	(工作副本)
+@@ -261,6 +261,11 @@
+ 	if( data->stack.storage && amount > data->stack.amount ) // item stack limitation
+ 		return 2;
+ 
++	// 自定义代码 开始 - 不同帐号类型(跨区)的玩家是否允许相互交易
++	if (battle_config.map_server_filter != 0 && sd->state.server != battle_config.map_server_filter && !(battle_config.server_item_trade & 32))
++		return 1;
++	// 自定义代码 结束
++
+ 	if( !itemdb_canstore(it, pc_get_group_level(sd)) ) { // Check if item is storable. [Skotlex]
+ 		clif_displaymessage (sd->fd, msg_txt(sd,264));
+ 		return 1;
+@@ -645,6 +650,11 @@
+ 	if( id->stack.guildstorage && amount > id->stack.amount ) // item stack limitation
+ 		return false;
+ 
++	// 自定义代码 开始 - 不同帐号类型(跨区)的玩家是否允许相互交易
++	if (battle_config.map_server_filter != 0 && sd->state.server != battle_config.map_server_filter && !(battle_config.server_item_trade & 64))
++		return false;
++	// 自定义代码 结束
++
+ 	if (!itemdb_canguildstore(item_data, pc_get_group_level(sd)) || item_data->expire_time) { // Check if item is storable. [Skotlex]
+ 		clif_displaymessage (sd->fd, msg_txt(sd,264));
+ 		return false;
+Index: src/map/trade.cpp
+===================================================================
+--- src/map/trade.cpp	(版本 2357)
++++ src/map/trade.cpp	(工作副本)
+@@ -378,6 +378,11 @@
+ 	src_lv = pc_get_group_level(sd);
+ 	dst_lv = pc_get_group_level(target_sd);
+ 
++	// 自定义代码 开始 - 不同帐号类型(跨区)的玩家是否允许相互交易
++	if (battle_config.map_server_filter != 0 && sd->state.server != battle_config.map_server_filter && !(battle_config.server_item_trade & 2))
++		return;
++	// 自定义代码 结束
++
+ 	if( !itemdb_cantrade(item, src_lv, dst_lv) && // Can't trade
+ 		(pc_get_partner(sd) != target_sd || !itemdb_canpartnertrade(item, src_lv, dst_lv)) ) { // Can't partner-trade
+ 		clif_displaymessage (sd->fd, msg_txt(sd,260));
+Index: src/map/vending.cpp
+===================================================================
+--- src/map/vending.cpp	(版本 2357)
++++ src/map/vending.cpp	(工作副本)
+@@ -474,6 +474,11 @@
+ 
+ 		index -= 2; // offset adjustment (client says that the first cart position is 2)
+ 
++		// 自定义代码 开始 - 不同帐号类型(跨区)的玩家是否允许相互交易
++		if (battle_config.map_server_filter != 0 && sd->state.server != battle_config.map_server_filter && !(battle_config.server_item_trade & 2))
++			continue;
++		// 自定义代码 结束
++
+ 		if( index < 0 || index >= MAX_CART // invalid position
+ 		||  pc_cartitem_amount(sd, index, amount) < 0 // invalid item or insufficient quantity
+ 		//NOTE: official server does not do any of the following checks!
