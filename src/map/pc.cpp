@@ -12758,24 +12758,53 @@ static int pcbot_ai_sub_hard_lootsearch(struct block_list *bl, va_list ap) {
 	}
 	return 1;
 }
+static void pcbot_useitem(struct map_session_data *sd, int i) {
+	pc_useitem(sd, i);
+	if (sd->inventory.u.items_inventory[i].amount == 5) {
+		pc_setreg(sd, add_str("@lack_itemid"), sd->inventory.u.items_inventory[i].nameid);
+		npc_script_event(sd, NPCE_BOTITEMLACKEVENT);
+	}
+}
 
 static int pcbot_fly_away(struct bot_data *bd, unsigned int tick) {
 	int i;
 	struct map_session_data *sd = bd->sd;
-
-	if (tick == 0)
-		tick = gettick();
 
 	if ((i = pc_search_inventory(sd, bd->info.item_fly_id)) == -1) {
 		bd->info.find_fail_fly = 0;
 		bd->info.timeout_fly = 0;
 		return 0;
 	}
-	pc_useitem(sd, i);
+	pcbot_useitem(sd, i);
 	bd->state.move_count = 0;
 	bd->state.next_flytime = tick + bd->info.timeout_fly * 1000;
 	bd->state.next_fly_delay = tick + bd->info.item_fly_delay;
 	return 1;
+}
+
+static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, unsigned int tick) {
+	int result, inf;
+	uint16 skill_id = bd->info.skill_id[bd->skill_idx];
+	uint16 skill_lv = bd->info.skill_lv[bd->skill_idx];
+	struct block_list *src = &bd->sd->bl;
+	//判断地面技能还是单体技能
+	inf = skill_get_inf(skill_id);
+	if (inf&INF_SUPPORT_SKILL) {
+		tbl = src;
+	}
+	if (inf & INF_GROUND_SKILL)
+		result = unit_skilluse_pos2(src, tbl->x, tbl->y, skill_id, skill_lv, skill_castfix(src, skill_id, skill_lv), skill_get_castcancel(skill_id));
+	else 
+		result = unit_skilluse_id2(src, tbl->id, skill_id, skill_lv, skill_castfix(src, skill_id, skill_lv), skill_get_castcancel(skill_id));
+
+	if (result) {
+		//计算下一次使用这个技能的延时
+		int cooldown = pc_get_skillcooldown(bd->sd, skill_id, skill_lv);
+		bd->info.skill_cooldown[bd->skill_idx] = (cooldown > bd->info.skill_delay[bd->skill_idx] ? cooldown : bd->info.skill_delay[bd->skill_idx]) + tick + 100;
+		bd->skill_idx = -1;
+		return true;
+	}
+	return false;
 }
 
 /*==========================================
@@ -12790,9 +12819,11 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 	if (!bd->running)
 		return 0;
 
-	tick = va_arg(args, unsigned int);
 	nullpo_ret(bd->sd);
 	sd = bd->sd;
+
+	tick = va_arg(args, unsigned int);
+
 
 	if (sd->bl.prev == NULL && sd->fd == 0)
 		clif_parse_LoadEndAck(0, sd);
@@ -12805,7 +12836,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 		if (bd->info.item_hp_id && sd->battle_status.hp < sd->battle_status.max_hp * 8 / 10) {
 			if ((i = pc_search_inventory(sd, bd->info.item_hp_id)) != -1) {
 				bd->state.next_heal_delay = tick + bd->info.item_heal_delay;
-				pc_useitem(sd, i);
+				pcbot_useitem(sd, i);
 			}
 			else
 				bd->info.item_hp_id = 0;
@@ -12813,7 +12844,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 		else if (bd->info.item_sp_id && sd->battle_status.sp < sd->battle_status.max_sp * 5 / 10) {
 			if ((i = pc_search_inventory(sd, bd->info.item_sp_id)) != -1) {
 				bd->state.next_heal_delay = tick + bd->info.item_heal_delay;
-				pc_useitem(sd, i);
+				pcbot_useitem(sd, i);
 			}
 			else
 				bd->info.item_sp_id = 0;
@@ -12849,25 +12880,38 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 		return 0;
 	}
 
-	//计算攻击距离
-	bd->min_chase = status_get_status_data(&sd->bl)->rhw.range;
-
 	//如果正在攻击, 检查目标的有效性
 	if (bd->target_id) {
 		tbl = map_id2bl(bd->target_id);
-		if (tbl && tbl->m == sd->bl.m && (sd->ud.attacktimer != INVALID_TIMER || status_check_skilluse(&sd->bl, tbl, 0, 0))) {
-			if (tbl->type != BL_ITEM ) {	//有效攻击目标
-				if (check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
-					unit_attack(&sd->bl, tbl->id, 1);
-					return 1;
-				}
-				if (check_distance_bl(&sd->bl, tbl, 12)) {
-					//走到目标, 由于上次走路失败, 所以直接用A* 走. 如果还是失败则放弃这个目标.
-					if (unit_walktobl(&sd->bl, tbl, sd->ud.chaserange, 0)) { // Count walk path cells
+		if (tbl && tbl->m == sd->bl.m) {
+			if (tbl->type != BL_ITEM  && !status_isdead(tbl)) {	//有效攻击目标
+				//满足条件则技能攻击目标
+				if ((bd->info.atktype & BF_MAGIC) && bd->skill_idx > 0 && sd->ud.skilltimer == INVALID_TIMER && check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
+					if (pcbot_skill(bd, tbl, tick)) {
 						return 1;
 					}
 				}
-			}else{   //有效物品目标
+				//满足条件则普通攻击目标
+				else if ((bd->info.atktype & BF_WEAPON) && sd->ud.attacktimer == INVALID_TIMER && check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
+					if (!unit_attack(&sd->bl, tbl->id, 1))
+						return 1;
+				}
+				//攻击或释放技能失败, 则走的更近一些.
+				bd->min_chase /= 2;
+				//释放技能或者普通攻击失效
+				if (bd->skill_idx > 0 || (bd->info.atktype & BF_WEAPON)){
+					if (check_distance_bl(&sd->bl, tbl, 12)) {
+						//走到目标, 由于上次走路失败, 所以直接用A* 走. 如果还是失败则放弃这个目标.
+						if (unit_walktobl(&sd->bl, tbl, bd->min_chase, 0)) { // Count walk path cells
+							return 1;
+						}
+					}
+				}
+				else {
+					bd->state.next_acttime = tick + 500;
+				}
+
+			}else if (tbl->type == BL_ITEM){   //有效物品目标
 				if (check_distance_bl(&sd->bl, tbl, 1)) {
 					struct flooritem_data *fitem = (struct flooritem_data*)tbl;
 					pc_takeitem(sd, fitem);
@@ -12907,16 +12951,42 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 	map_foreachinallrange(pcbot_ai_sub_hard_activesearch, &sd->bl, 12, BL_CHAR, bd, &tbl);
 
 	if (tbl && pc_can_attack(sd, tbl->id)) {
-		if (!check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
-			unit_walktobl(&sd->bl, tbl, sd->ud.chaserange, sd->ud.state.walk_easy | 2);
+		if ((bd->info.atktype & BF_MAGIC) && bd->info.skill_id[0]) {
+			//寻找冷却完成的技能
+			ARR_FIND(0, MAX_BOT_SKILL_COUNT, i, bd->info.skill_id[i] && bd->info.skill_lv[i] && bd->info.skill_cooldown[i] < tick && sd->battle_status.sp > skill_get_sp(bd->info.skill_id[i], bd->info.skill_lv[i]));
+			if (i < MAX_BOT_SKILL_COUNT) {
+				
+				//计算攻击距离
+				bd->min_chase = skill_get_range2(&sd->bl, bd->info.skill_id[i], bd->info.skill_lv[i], true);
+				//如果够不到则走近魔物
+				bd->skill_idx = i;
+				if (unit_can_move(&sd->bl) && !check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
+					unit_walktobl(&sd->bl, tbl, bd->min_chase, sd->ud.state.walk_easy | 2);
+				}
+				//够得到释放魔法
+				else{
+					pcbot_skill(bd, tbl, tick);
+				}
+				bd->target_id = tbl->id;
+				return 1;
+			}
 		}
-		else {
-			unit_attack(&sd->bl, tbl->id, 1);
+		if ((bd->info.atktype & BF_WEAPON)) {
+			//计算攻击距离
+			bd->min_chase = status_get_status_data(&sd->bl)->rhw.range;
+			//如果够不到则走近魔物
+			if (unit_can_move(&sd->bl) && !check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
+				unit_walktobl(&sd->bl, tbl, bd->min_chase, sd->ud.state.walk_easy | 2);
+			}
+			//够得到直接攻击
+			else {
+				unit_attack(&sd->bl, tbl->id, 1);
+			}
+			bd->target_id = tbl->id;
+			return 1;
 		}
-		bd->target_id = tbl->id;
-		return 1;
 	}
-	else if (unit_can_move(&sd->bl)){
+	if (unit_can_move(&sd->bl)){
 		INT16 x = 0, y = 0, rx = 10, ry = 10;
 
 		//寻路达到最大失败次数
@@ -13008,7 +13078,6 @@ int pcbot_run(struct map_session_data *sd, int timeout) {
 		clif_authfail_fd(sd->fd, 15);
 		chrif_save(sd, SC_AUTOTRADE);
 	}
-
 	bd->running = 1;
 	return count;
 }

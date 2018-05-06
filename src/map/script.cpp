@@ -363,6 +363,8 @@ struct Script_Config script_config = {
 	"OnPCStartRouletteFilter",
 	"OnPCGetRouletteEvent",
 	"OnPCCloseRouletteEvent",
+	//
+	"OnBOTLackItemEvent"
 };
 
 static jmp_buf     error_jump;
@@ -25866,13 +25868,12 @@ static void buildin_bot_reset_sub(TBL_PC *sd) {
 	struct item_data* id = NULL;
 	int i;
 
-	if (!(bd = map_id2bot(sd->bl.id))) {
+	if (!(bd = map_id2bot(sd->bl.id)))
 		CREATE(bd, struct bot_data, 1);
-		memset(bd, 0, sizeof(struct bot_data));
-		bd->sd = sd;
-		map_addbot(bd);
-	}
 
+	memset(bd, 0, sizeof(struct bot_data));
+	
+	bd->sd = sd;
 	bd->info.item_hp_id = pc_readreg(sd, add_str("@item_hp_id"));
 	bd->info.item_sp_id = pc_readreg(sd, add_str("@item_sp_id"));
 	bd->info.item_heal_delay = pc_readreg(sd, add_str("@item_heal_delay"));
@@ -25903,13 +25904,24 @@ static void buildin_bot_reset_sub(TBL_PC *sd) {
 	bd->info.ignore_same_ele = pc_readreg(sd, add_str("@ignore_same_ele"));
 	bd->state.offline = pc_readreg(sd, add_str("@offline")) != 0 ? 1 : 0;
 
+	bd->info.atktype = pc_readreg(sd, add_str("@atktype")) != 0 ? pc_readreg(sd, add_str("@atktype")) : BF_WEAPONMASK;
+
 	for (i = 0; i < MAX_BOT_MOB_COUNT; i++) {
 		bd->info.mob_id[i] = pc_readreg(sd, reference_uid(add_str("@mob_id"), i));
 	}
 	for (i = 0; i < MAX_BOT_ITEM_COUNT; i++) {
 		bd->info.loot_item_id[i] = pc_readreg(sd, reference_uid(add_str("@loot_item_id"), i));
 	}
-
+	for (i = 0; i < MAX_BOT_SKILL_COUNT; i++) {
+		bd->info.skill_id[i] = pc_readreg(sd, reference_uid(add_str("@skill_id"), i));
+	}
+	for (i = 0; i < MAX_BOT_SKILL_COUNT; i++) {
+		bd->info.skill_lv[i] = pc_readreg(sd, reference_uid(add_str("@skill_lv"), i));
+	}
+	for (i = 0; i < MAX_BOT_SKILL_COUNT; i++) {
+		bd->info.skill_delay[i] = pc_readreg(sd, reference_uid(add_str("@skill_delay"), i));
+	}
+	map_addbot(bd);
 }
 
 BUILDIN_FUNC(bot_reset) {
@@ -25959,6 +25971,59 @@ BUILDIN_FUNC(bot_stop)
 
 	return SCRIPT_CMD_SUCCESS;
 }
+
+static int buildin_bot_relogin_sub(int tid, unsigned int tick, int id, intptr_t data) {
+	TBL_PC *sd;
+	if ((sd = map_id2sd(id)) != NULL) {
+		clif_parse_LoadEndAck(0, sd);
+		chrif_save(sd, SC_AUTOTRADE);
+	}
+	return 1;
+}
+
+static int buildin_bot_login_sub(int tid, unsigned int tick, int id, intptr_t data){
+	TBL_PC *sd;
+	if (id == 0) {
+		sd = (struct map_session_data*)data;
+		chrif_authreq(sd, true);
+		clif_parse_LoadEndAck(0, sd);
+
+		add_timer(gettick() + 3000, buildin_bot_login_sub, sd->bl.id, 0);
+	}
+	else if ((sd = map_id2sd(id)) != NULL) {
+		clif_parse_LoadEndAck(0, sd);
+		chrif_save(sd, SC_AUTOTRADE);
+	}
+	return 1;
+}
+
+BUILDIN_FUNC(bot_login)
+{
+	TBL_PC *sd;
+	int account_id = 2000000;
+	int char_id = 150010;
+	int sex = 0;
+	if ((sd = map_id2sd(account_id)) != NULL) {
+		map_quit(sd);
+	}
+
+	if (sd != NULL) {
+		TBL_PC *tbl;
+		CREATE(tbl, TBL_PC, 1);
+		pc_setnewpc(tbl, account_id, char_id, 0, 0, sex, 0);
+		add_timer(gettick() + 3000, buildin_bot_login_sub, 0, (intptr_t)tbl);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	CREATE(sd, TBL_PC, 1);
+	pc_setnewpc(sd, account_id, char_id, 0, 0, sex, 0);
+	chrif_authreq(sd, true);
+	clif_parse_LoadEndAck(0, sd);
+
+	add_timer(gettick() + 3000, buildin_bot_login_sub, sd->bl.id, 0);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 
 static int http_parse(int fd) {
 
@@ -26762,5 +26827,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(tribe_getteam, "?"),
 	BUILDIN_DEF(tribe_monster, "isiisi?"),
 	BUILDIN_DEF(http_get, "si"),
+	BUILDIN_DEF(bot_login, ""),
 	{NULL,NULL,NULL},
 };

@@ -262,6 +262,8 @@ struct Script_Config {
 	const char*	roulette_start_filter_name;
 	const char*	roulette_get_filter_name;
 	const char*	roulette_colse_event_name;
+	// Bot related
+	const char*	bot_lack_item_event_name;
 };
 extern struct Script_Config script_config;
 

@@ -1167,6 +1167,7 @@ enum npce_event : uint8 {
 	NPCE_ROULETTESTARTFILTER,
 	NPCE_ROULETTEGETEVENT,
 	NPCE_ROULETTECLOSEEVENT,
+	NPCE_BOTITEMLACKEVENT,
 	NPCE_MAX
 };
 struct view_data* npc_get_viewdata(int class_);

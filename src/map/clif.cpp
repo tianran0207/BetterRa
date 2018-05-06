@@ -10266,10 +10266,8 @@ void clif_parse_WantToConnection(int fd, struct map_session_data* sd)
 	client_tick = RFIFOL(fd, packet_db[cmd].pos[3]);
 	sex = RFIFOB(fd, packet_db[cmd].pos[4]);
 
-	if ((sd = map_id2sd(account_id)) != NULL && sd->fd == 0 && sd->state.bot) {
+	if ((sd = map_id2sd(account_id)) != NULL && sd->bl.type == BL_PC) {
 		map_quit(sd);
-		clif_authfail_fd(fd, 8); //Still recognizes last connection
-		return;
 	}
 
 	err = clif_parse_WantToConnection_sub(fd);

@@ -4861,8 +4861,8 @@ void map_foreachbot(int(*func)(struct bot_data *bd, va_list args), ...)
 void map_addbot(struct bot_data *bd) {
 	nullpo_retv(bd);
 	nullpo_retv(bd->sd);
-
-	idb_put(bot_db, bd->sd->bl.id, bd);
+	if(!idb_exists(bot_db, bd->sd->bl.id))
+		idb_put(bot_db, bd->sd->bl.id, bd);
 }
 
 void map_delbot(struct bot_data *bd, bool loginout)

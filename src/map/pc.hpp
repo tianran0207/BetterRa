@@ -218,7 +218,7 @@ struct bot_data {
 	unsigned running : 1;
 	struct map_session_data *sd;
 	struct bot_info {
-		unsigned short item_hp_id;
+		unsigned short item_hp_id;			//HPÒ©Ë®ID
 		unsigned short item_sp_id;
 		unsigned short item_heal_delay;
 
@@ -230,6 +230,8 @@ struct bot_data {
 
 		unsigned short skill_id[MAX_BOT_SKILL_COUNT];
 		unsigned short skill_lv[MAX_BOT_SKILL_COUNT];
+		unsigned short skill_delay[MAX_BOT_SKILL_COUNT];
+		unsigned int skill_cooldown[MAX_BOT_SKILL_COUNT];
 		unsigned short skill_type[MAX_BOT_SKILL_COUNT];
 
 		unsigned short mob_id[MAX_BOT_MOB_COUNT];
@@ -241,6 +243,7 @@ struct bot_data {
 		int find_fail_fly;
 		int ignore_same_ele;
 		int ignore_warp;
+		int atktype;
 	} info;
 	struct bot_state {
 		short dir;
@@ -253,7 +256,8 @@ struct bot_data {
 		int move_count;
 	} state;
 	int target_id;
-	int min_chase;
+	int min_chase;            //¹¥»÷¾àÀë
+	int skill_idx;
 };
 
 struct map_session_data {
