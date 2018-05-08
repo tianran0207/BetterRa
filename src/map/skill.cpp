@@ -738,35 +738,21 @@ bool skill_isNotOk(uint16 skill_id, struct map_session_data *sd)
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
 				return true;
 			}
-			if (map_checknear(&sd->bl, battle_config.min_storechat_distance, CHECK_CHAT | CHECK_BUYING_STORE | CHECK_VENDING)) {
+			if (map_checknear(&sd->bl, battle_config.min_storechat_distance - 1, CHECK_CHAT | CHECK_BUYING_STORE | CHECK_VENDING)) {
 				char output[150];
 				sprintf(output, msg_txt(sd, 2345), battle_config.min_storechat_distance);
 				clif_displaymessage(sd->fd, output);
 				clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 3);
 				return true;
 			}
-			if (map_checknear(&sd->bl, battle_config.min_npc_distance, CHECK_NPC)) {
-				char output[150];
-				sprintf(output, msg_txt(sd, 662), battle_config.min_npc_distance);
-				clif_displaymessage(sd->fd, output);
-				clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 3);
-				return true;
-			}
-			/*
-			if( map_getcell(sd->bl.m,sd->bl.x,sd->bl.y,CELL_CHKNOVENDING) ) {
-				clif_displaymessage (sd->fd, msg_txt(sd,204)); // "You can't open a shop on this cell."
-				clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
-				return true;
-			}
 			if( npc_isnear(&sd->bl) ) {
 				// uncomment to send msg_txt.
-				//char output[150];
-				//sprintf(output, msg_txt(662), battle_config.min_npc_vendchat_distance);
-				//clif_displaymessage(sd->fd, output);
+				char output[150];
+				sprintf(output, msg_txt(sd,662), battle_config.min_npc_vendchat_distance);
+				clif_displaymessage(sd->fd, output);
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_THERE_ARE_NPC_AROUND,0);
 				return true;
 			}
-			*/
 		case MC_IDENTIFY:
 			return false; // always allowed
 		case WZ_ICEWALL:

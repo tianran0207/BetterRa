@@ -121,6 +121,20 @@ int8 buyingstore_create(struct map_session_data* sd, int zenylimit, unsigned cha
 
 	nullpo_retr(1, sd);
 
+	if (map_checknear(&sd->bl, battle_config.min_storechat_distance - 1, CHECK_CHAT | CHECK_BUYING_STORE | CHECK_VENDING)) {
+		char output[150];
+		sprintf(output, msg_txt(sd, 2345), battle_config.min_storechat_distance);
+		clif_displaymessage(sd->fd, output);
+		clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 3);
+		return 4;
+	}
+	if (npc_isnear(&sd->bl)) {
+		char output[150];
+		sprintf(output, msg_txt(sd, 662), battle_config.min_npc_vendchat_distance);
+		clif_displaymessage(sd->fd, output);
+		return 4;
+	}
+
 	if( !result || count == 0 )
 	{// canceled, or no items
 		return 5;

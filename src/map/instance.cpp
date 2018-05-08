@@ -834,8 +834,10 @@ void instance_leave_last(struct map_session_data *sd)
 
 	im = &instance_data[instance_id];
 
-	if (im == NULL || im->mode == IM_NONE)
+	if (im == NULL || im->mode == IM_NONE) {
+		pc_setregistry_str(sd, add_str("instance_lastpoint$"), "");
 		return;
+	}
 
 	sprintf(output, "%u:%u:%d:%d:%d", im->create_tick ,instance_id, sd->bl.m, sd->bl.x, sd->bl.y);
 	pc_setregistry_str(sd, add_str("instance_lastpoint$"), output);

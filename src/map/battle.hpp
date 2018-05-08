@@ -160,7 +160,6 @@ struct Battle_Config
 	int instance_lastpoint;
 	int instance_leavepoint;
 	int min_storechat_distance;
-	int min_npc_distance;
 	//------------------------------
 	int warp_point_debug;
 	int enable_critical;
