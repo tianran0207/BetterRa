@@ -721,32 +721,17 @@ enum e_instance_enter instance_enter_last(struct map_session_data *sd)
 	short x, y;
 	unsigned short instance_id = 0;
 	unsigned int instance_create_tick = 0;
-	char reg[128], *point[2];
+	char *str;
 	int i;
 
 	nullpo_retr(IE_OTHER, sd);
 
-	point[0] = pc_readregistry_str(sd, add_str("instance_lastpoint$"));
+	str = pc_readregistry_str(sd, add_str("instance_lastpoint$"));
 
-	if (!point[0] || point[0][0] == '\0')
+	if (str == NULL || sscanf(str, "%u:%hu:%hd:%hd:%hd", &instance_create_tick, &instance_id, &m, &x, &y) != 5)
 		return IE_NOINSTANCE;
 
-	safestrncpy(reg, point[0], sizeof(reg));
 	pc_setregistry_str(sd, add_str("instance_lastpoint$"), "");
-
-	point[0] = reg;
-
-	for (i = 0; i < 4; i++) {
-		if ((point[1] = strchr(point[0], ':')) == NULL) return IE_OTHER;
-		*point[1] = '\0';
-		switch (i) {
-		case 0: instance_create_tick = atoi(point[0]);  break;
-		case 1: instance_id = atoi(point[0]);  break;
-		case 2: m = atoi(point[0]);  break;
-		case 3: x = atoi(point[0]);  y = atoi(point[1] + 1); break;
-		}
-		point[0] = point[1] + 1;
-	}
 
 	im = &instance_data[instance_id];
 	mode = im->mode;
@@ -839,7 +824,7 @@ void instance_leave_last(struct map_session_data *sd)
 		return;
 	}
 
-	sprintf(output, "%u:%u:%d:%d:%d", im->create_tick ,instance_id, sd->bl.m, sd->bl.x, sd->bl.y);
+	sprintf(output, "%u:%hu:%hd:%hd:%hd", im->create_tick ,instance_id, sd->bl.m, sd->bl.x, sd->bl.y);
 	pc_setregistry_str(sd, add_str("instance_lastpoint$"), output);
 }
 
