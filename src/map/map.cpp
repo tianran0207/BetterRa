@@ -3956,6 +3956,12 @@ void map_reloadnpc_sub(const char *cfgName)
 		ptr++;
 		*ptr = '\0';
 
+		if (strcmpi(w1, "http") == 0) {
+			safesnprintf(w1, sizeof(w1), "http://%s", w2);
+			safestrncpy(w2, w1, sizeof(w2));
+			safestrncpy(w1, "npc", sizeof(w1));
+		}
+
 		if (strcmpi(w1, "npc") == 0)
 			npc_addsrcfile(w2, false);
 		else if (strcmpi(w1, "delnpc") == 0)
@@ -4915,4 +4921,134 @@ int map_checknear(struct block_list* bl, int range, int cell) {
 		return map_foreachinallrange(map_checknear_sub, bl, range, cell, cell);
 
 	return 0;
+}
+
+struct http_session_data {
+	char url[600];
+	char host[64];
+	char folder[512];
+	int num;
+	bool forscript;
+	bool load_file;
+};
+
+static int http_parse(int fd) {
+
+	struct http_session_data *http_data = (struct http_session_data*)session[fd]->session_data;
+	int contentlen = 0, resultcode, idx = 0;
+	char *req = RFIFOCP(fd, 0);
+	char head[4096], *head_prt[2], *head_end, head_name[64], head_val[512], *content;
+
+	if (session[fd]->flag.eof) {
+		do_close(fd);
+		return 0;
+	}
+
+	if (RFIFOREST(fd) < 15)
+		return 0;
+
+	//ShowStatus("%s\n", req);
+
+	sscanf(req, "HTTP%*[^ ] %d ", &resultcode);
+
+	if (resultcode != 200) {
+		set_eof(fd);
+		return 0;
+	}
+
+	if ((head_end = strstr(req, "\r\n\r\n")) == NULL || head_end - req > 4096)
+		return 0;
+
+	safestrncpy(head, req, head_end - req);
+	head_prt[0] = strstr(req, "\r\n") + 2;
+
+	while (head_prt[0]) {
+
+		if ((head_prt[1] = strstr(head_prt[0], "\r\n")) == NULL || sscanf(head_prt[0], "%63[^:]: %511[^\r\n]", head_name, head_val) < 2)
+			break;
+
+		if (strcmp(head_name, "Content-Length") == 0)
+			contentlen = atoi(head_val);
+
+		if (http_data->forscript) {
+			mapreg_setregstr(reference_uid(add_str("$@http_name$"), idx), head_name);
+			mapreg_setregstr(reference_uid(add_str("$@http_val$"), idx), head_val);
+		}
+
+		head_prt[0] = head_prt[1] + 2;
+		idx++;
+	}
+	if (http_data->forscript) mapreg_setreg(add_str("$@http_header_count"), idx);
+	if (contentlen != RFIFOREST(fd) - (head_end + 4 - req))
+		return 0;
+
+	content = (char *)aMalloc(contentlen + 1);
+	memcpy(content, head_end + 4, contentlen + 1);
+
+	if (http_data->forscript) {
+		mapreg_setreg(add_str("$@http_num"), http_data->num);
+		mapreg_setregstr(add_str("$@http_url$"), http_data->url);
+		mapreg_setregstr(add_str("$@http_host$"), http_data->host);
+		mapreg_setregstr(add_str("$@http_folder$"), http_data->folder);
+		mapreg_setregstr(add_str("$@http_str$"), "");
+		if (contentlen < 1024)
+			mapreg_setregstr(add_str("$@http_str$"), content);
+		npc_event_doall(script_config.http_received_event_name);
+	}
+
+	if (http_data->load_file) {
+		npc_parsesrcfile(http_data->url, true, content);
+		ShowStatus("Load HTTP file: %s done.\r\n", http_data->url);
+	}
+	else
+		aFree(content);
+
+	set_eof(fd);
+	return 0;
+}
+
+bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int num)
+{
+	struct http_session_data* http_data;
+	uint16 post = 80;
+	int http_fd, len;
+	char host[64], folder[512], header[2048], *str_p = header;
+
+	folder[0] = '\0';
+
+	if (sscanf(url, "http://%128[^/]/%1024s", host, folder) == 0)
+		return false;
+
+	sscanf(url, "http://%128[^:/]:%hu", host, &post);
+
+	http_fd = make_connection(host2ip(host), post, true, timeout);
+	session[http_fd]->flag.server = 1;
+
+	if (http_fd == -1)
+		return false;
+
+	session[http_fd]->func_parse = http_parse;
+	realloc_fifo(http_fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
+
+	CREATE(session[http_fd]->session_data, struct http_session_data, 1);
+	http_data = (struct http_session_data*)session[http_fd]->session_data;
+	memset(http_data, 0, sizeof(http_data));
+
+	safestrncpy(http_data->url, url, sizeof(http_data->url));
+	safestrncpy(http_data->host, host, sizeof(host));
+	safestrncpy(http_data->folder, folder, sizeof(folder));
+	http_data->num = num;
+	http_data->forscript = loadfile ? false : forscript;
+	http_data->load_file = loadfile;
+
+	str_p += sprintf(str_p, "GET /%s HTTP/1.1\r\n", folder);
+	str_p += sprintf(str_p, "Accept: */*\r\n");
+	str_p += (post == 80 ? sprintf(str_p, "Host: %s\r\n\r\n", host) : sprintf(str_p, "Host: %s:%hu\r\n\r\n", host, post));
+	len = strlen(header) + 1;
+
+	WFIFOHEAD(http_fd, len);
+	safestrncpy(WFIFOCP(http_fd, 0), header, len);
+	WFIFOSET(http_fd, len - 1);
+
+	return true;
 }

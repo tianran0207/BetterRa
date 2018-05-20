@@ -511,3 +511,21 @@ BetterRa 在官方的基础上做了以下改进:
 	@pet_damage 为宠物在 petskillattack2 中的伤害修正
 	
 ---------------------------------------
+
+*OnHTTPReceivedEvent 事件返回变量:
+
+使用http_get指令成功后的事件.用于获取HTTP GET内容
+
+	$@http_name$          HTTP header 返回名(数组),
+	$@http_val$           HTTP header 值(数组),
+	$@http_header_count   HTTP header 数组长度.
+
+	$@http_num      为 http_get脚本指令中的 <保存数字>
+	$@http_url$     为 http_get脚本指令中的 <URL>
+	$@http_host$    为 http_get脚本指令中的 <网址>
+	$@http_folder$  为 http_get脚本指令中的 <网址剩余部分>
+	$@http_str$     为返回的内容
+	
+---------------------------------------
+
+

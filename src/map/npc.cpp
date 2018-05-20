@@ -2275,7 +2275,7 @@ int npc_addsrcfile(const char* name, bool loadscript)
 	}
 
 	//Check if this is not a file
-    if(check_filepath(name)!=2){
+    if(check_filepath(name)!=2 && strncasecmp(name, "http://", 7) != 0){
 		ShowError("npc_addsrcfile: Can't find source file \"%s\"\n", name );
 		return 0;
 	}
@@ -2299,7 +2299,7 @@ int npc_addsrcfile(const char* name, bool loadscript)
 		file_prev->next = file;
 
 	if (loadscript)
-		return npc_parsesrcfile(file->name, true);
+		return npc_parsesrcfile(file->name, true, NULL);
 
 	return 1;
 }
@@ -4313,7 +4313,7 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
  * @param runOnInit :  should we exec OnInit when it's done ?
  * @return 0:error, 1:success
  */
-int npc_parsesrcfile(const char* filepath, bool runOnInit)
+int npc_parsesrcfile(const char* filepath, bool runOnInit, char *other_buffer)
 {
 	int16 m, x, y;
 	int lines = 0;
@@ -4322,32 +4322,44 @@ int npc_parsesrcfile(const char* filepath, bool runOnInit)
 	char* buffer;
 	const char* p;
 
-	if(check_filepath(filepath)!=2) { //this is not a file 
-		ShowDebug("npc_parsesrcfile: Path doesn't seem to be a file skipping it : '%s'.\n", filepath);
-		return 0;
-	} 
-            
-	// read whole file to buffer
-	fp = fopen(filepath, "rb");
-	if( fp == NULL )
-	{
-		ShowError("npc_parsesrcfile: File not found '%s'.\n", filepath);
-		return 0;
-	}
-	fseek(fp, 0, SEEK_END);
-	len = ftell(fp);
-	buffer = (char*)aMalloc(len+1);
-	fseek(fp, 0, SEEK_SET);
-	len = fread(buffer, 1, len, fp);
-	buffer[len] = '\0';
-	if( ferror(fp) )
-	{
-		ShowError("npc_parsesrcfile: Failed to read file '%s' - %s\n", filepath, strerror(errno));
-		aFree(buffer);
+	if (other_buffer == NULL) {
+		if (strncasecmp(filepath, "http://", 7) == 0) {
+			http_get(filepath, 3000, false, true, 0);
+			return 0;
+		}
+
+		if (check_filepath(filepath) != 2) { //this is not a file 
+			ShowDebug("npc_parsesrcfile: Path doesn't seem to be a file skipping it : '%s'.\n", filepath);
+			return 0;
+		}
+
+		// read whole file to buffer
+		fp = fopen(filepath, "rb");
+		if( fp == NULL )
+		{
+			ShowError("npc_parsesrcfile: File not found '%s'.\n", filepath);
+			return 0;
+		}
+		fseek(fp, 0, SEEK_END);
+		len = ftell(fp);
+		buffer = (char*)aMalloc(len+1);
+		fseek(fp, 0, SEEK_SET);
+		len = fread(buffer, 1, len, fp);
+		buffer[len] = '\0';
+		if( ferror(fp) )
+		{
+			ShowError("npc_parsesrcfile: Failed to read file '%s' - %s\n", filepath, strerror(errno));
+			aFree(buffer);
+			fclose(fp);
+			return 0;
+		}
 		fclose(fp);
-		return 0;
+
 	}
-	fclose(fp);
+	else {
+		buffer = other_buffer;
+		len = strlen(buffer);
+	}
 
 	if ((unsigned char)buffer[0] == 0xEF && (unsigned char)buffer[1] == 0xBB && (unsigned char)buffer[2] == 0xBF) {
 		// UTF-8 BOM. This is most likely an error on the user's part, because:
@@ -4356,6 +4368,12 @@ int npc_parsesrcfile(const char* filepath, bool runOnInit)
 		// - If the user really wants to use UTF-8 (instead of latin1, EUC-KR, SJIS, etc), then they can still do it <without BOM>.
 		// More info at http://unicode.org/faq/utf_bom.html#bom5 and http://en.wikipedia.org/wiki/Byte_order_mark#UTF-8
 		ShowError("npc_parsesrcfile: Detected unsupported UTF-8 BOM in file '%s'. Stopping (please consider using another character set).\n", filepath);
+		aFree(buffer);
+		return 0;
+	}
+
+	if (npc_file_decrypt(buffer, &len) == false){
+		ShowError("npc_parsesrcfile: Failed to read '%s', the encrypt file is corrupted.\n", filepath);
 		aFree(buffer);
 		return 0;
 	}
@@ -4770,7 +4788,7 @@ int npc_reload(void) {
 	// Reloading npcs now
 	for (nsl = npc_src_files; nsl; nsl = nsl->next) {
 		ShowStatus("Loading NPC file: %s" CL_CLL "\r", nsl->name);
-		npc_parsesrcfile(nsl->name,false);
+		npc_parsesrcfile(nsl->name,false,NULL);
 	}
 	ShowInfo ("Done loading '" CL_WHITE "%d" CL_RESET "' NPCs:" CL_CLL "\n"
 		"\t-'" CL_WHITE "%d" CL_RESET "' Warps\n"
@@ -4914,7 +4932,7 @@ void do_init_npc(void){
 	ShowStatus("Loading NPCs...\r");
 	for( file = npc_src_files; file != NULL; file = file->next ) {
 		ShowStatus("Loading NPC file: %s" CL_CLL "\r", file->name);
-		npc_parsesrcfile(file->name,false);
+		npc_parsesrcfile(file->name,false,NULL);
 	}
 	ShowInfo ("Done loading '" CL_WHITE "%d" CL_RESET "' NPCs:" CL_CLL "\n"
 		"\t-'" CL_WHITE "%d" CL_RESET "' Warps\n"
@@ -4957,4 +4975,51 @@ void do_init_npc(void){
 	fake_nd->u.scr.timerid = INVALID_TIMER;
 	map_addiddb(&fake_nd->bl);
 	// End of initialization
+}
+
+
+#include "../common/des.h"
+#include "../common/md5calc.h"
+static const char *key = "KilPMwQ";
+bool npc_file_decrypt(char *src, size_t *ptr_len) {
+
+	char md5[33], enc_md5[33], enc_key[8];
+	size_t len = *ptr_len;
+	int i;
+
+	//检查文件头
+	if (strncmp(src, "ENCHEX", 6) == 0) {
+		char *bit = (char *)aMalloc(len / 2 + 8);
+		HexStrToByte(src + 6, (unsigned char *)(bit + 6), len - 6);
+		len = len / 2 + 3;
+		memcpy(src, bit, len);
+		aFree(bit);
+	}
+	else if (strncmp(src, "ENCBIT", 6) != 0) {
+		return true;
+	}
+
+	//解密整理 MD5 和 密码
+	Decrypt(src + 6, 40, key);
+	for (i = 0; i < 40; i++) {
+		if (i % 5 == 0)
+			enc_key[i / 5] = src[i + 6];
+		else
+			enc_md5[i - i / 5 - 1] = src[i + 6];
+	}
+
+	//解密正文
+	Decrypt(src + 46, len - 46, enc_key);
+	src[len] = '\0';
+	
+	//对比MD5
+	MD5_String(src + 46, md5);;
+	if (strncmp(md5, enc_md5, 32) != 0)
+		return false;
+
+	//字符串向左移动46位
+	*ptr_len = len - 46;
+	memcpy(src, src + 46, (*ptr_len) + 1);
+
+	return true;
 }

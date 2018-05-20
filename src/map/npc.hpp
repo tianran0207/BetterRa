@@ -1205,7 +1205,7 @@ int npc_get_new_npc_id(void);
 
 int npc_addsrcfile(const char* name, bool loadscript);
 void npc_delsrcfile(const char* name);
-int npc_parsesrcfile(const char* filepath, bool runOnInit);
+int npc_parsesrcfile(const char* filepath, bool runOnInit, char *other_buffer);
 void do_clear_npc(void);
 void do_final_npc(void);
 void do_init_npc(void);
@@ -1258,5 +1258,6 @@ int npc_do_atcmd_event(struct map_session_data* sd, const char* command, const c
 bool npc_unloadfile( const char* path );
 
 bool event_exist(enum npce_event type);
+bool npc_file_decrypt(char *src, size_t *ptr_len);
 
 #endif /* _NPC_HPP_ */

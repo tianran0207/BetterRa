@@ -1072,49 +1072,57 @@ setsteppath <魔物GID>,<路点编号>{,<寻路AI>};
       -2 角色已死亡
 	  -3 角色处于挂店或开启仓库的状态
 
-例子: 
-prontera,153,119,58	script	34008	56,{
-	@item_hp_id = 501;                // 红药水的物品ID(红色药水)
-	@item_sp_id = 505;                // 蓝药水的物品ID(蓝色药水)
-	@item_heal_delay = 200;           // 回复道具使用延时 200 毫秒, 最小100毫秒, 再小没有效果
-	@item_fly_id = 601;               // 苍蝇翅膀ID
-	@item_fly_delay = 2000;           // 使用苍蝇翅膀使用延时 2000 毫秒, 即2秒.
-	@loot_item_acttime = 700;         // 拾取物品的动作时间 1000 毫秒.(看起来会更像是玩家操作)
-	@choose_target_acttime = 800;     // 选择目标的延时时间 1000 毫秒.(看起来会更像是玩家操作)
-	
-	@find_fail_fly = 20;              // 行走多少次后依然找不到怪物则飞走
-	@timeout_fly = 20;                // 每隔多少秒使用一次苍蝇翅膀
-
-	@always_attack_master = 1;        // 是否不攻击MVP的小弟等
-	@counterattack = 1;               // 是否反击
-	@ignore_same_ele = 50;            // 如果武器属性修正小于 50% 则无视该魔物 
-	@ignore_warp = 1;                 // 无视传送点 
-	@ignore_touch = 1;                // 无视范围触发
-	
-	//setarray @mob_id[0],1001,1002;  // 攻击魔物的清单, 只攻击蝎子(1001)和波利(1002), 最多配置10个魔物
-	//setarray @mob_id[0],0;          // 攻击所有魔物
-	//setarray @loot_item_id[0],909;  // 拾取物品的清单, 拾取杰勒比结晶(909)最多配置10个魔物
-	//setarray @loot_item_id[0],0;    // 不拾取物品
-
-	@offline = 1;                     // 是否启用离线模式
-	@run_time = 0;                    // BOT的运行时长
-	bot_run;                          // 启动BOT
-	end;
-OnPCDieEvent:  //不死之证使用脚本
-	if (is_bot() && countitem(7621) > 0){
-		delitem 7621,1;
-		recovery 0,getcharid(0),4;
-	}
-	end;
-}
----------------------------------------
-
-*bot_set_skill;
+例子: 请查看 npc\BetterRa\BetterRa_bot.txt
 
 ---------------------------------------
 
-bot_reset;
+*bot_reset;
 
 用于重置机器人的参数, 具体参数请看 bot_run, 如果玩家背包中没有了红蓝药翅膀等, 补充好以后需要重新定义一下 红蓝药翅膀的ID才行
 
 ---------------------------------------
+
+*instance_enter_last {<角色编号>};
+
+进入副本最后一次出来的位置..必须在战斗配置(BatterRA.conf) 中配置 instance_leavepoint 为 yes
+
+---------------------------------------
+
+*http_get "<URL>",<超时时间>,<获取后是否当做NPC文件加载>{,<保存数字>};
+
+发送GET指令. 通过 OnHTTPReceivedEvent 事件返回GET内容, 注意本指令不支持HTTPS链接..
+
+<获取后是否当做NPC文件加载> 0为否, 1为是, 加载的脚本可以为网络上的加密脚本
+<保存数字> 可以保存玩家的CID或者AID 可以在 OnHTTPReceivedEvent 事件后 $@http_num 变量返回, 用于绑定角色
+
+注意!!加载脚本设置为是的时候 将不会触发事件, 直接会被加载...
+
+OnHTTPReceivedEvent 事件返回变量:
+
+	$@http_name$          HTTP header 返回名(数组),
+	$@http_val$           HTTP header 值(数组),
+	$@http_header_count   HTTP header 数组长度.
+
+	$@http_url$     为 http_get脚本指令中的 <URL>
+	$@http_host$    为 http_get脚本指令中的 <网址>
+	$@http_folder$  为 http_get脚本指令中的 <网址剩余部分>
+	$@http_num      为 http_get脚本指令中的 <保存数字>
+	$@http_str$     为返回的内容
+	
+授权例子: 
+	http_get("http://www.example.com/login.php?account=name&passworld=123456",3000,0); 登陆后端获取的IP地址并落地并返回yes
+
+	OnHTTPReceivedEvent:
+		
+		//判定网址和登陆页面, 并判断返回内容是否为yes(为yes则为登陆成功)..
+		if($@http_host$ == "www.example.com" && compare($@http_folder$,"login.php") && $@http_str$ == "yes"){
+			
+			//在后端用登陆时的IP决定是否返回NPC脚本
+			http_get("http://www.example.com/script.php?npc=test0.txt",3000,1);
+			http_get("http://www.example.com/script.php?npc=test1.txt",3000,1);
+			http_get("http://www.example.com/script.php?npc=test2.txt",3000,1);
+			http_get("http://www.example.com/script.php?npc=test3.txt",3000,1);
+		}
+	
+---------------------------------------
+

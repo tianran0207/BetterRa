@@ -1044,4 +1044,6 @@ extern char roulette_table[32];
 void do_shutdown(void);
 void not_free(void);
 int map_checknear(struct block_list* bl, int range, int cell);
+bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int num);
+
 #endif /* _MAP_HPP_ */

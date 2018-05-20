@@ -364,7 +364,9 @@ struct Script_Config script_config = {
 	"OnPCGetRouletteEvent",
 	"OnPCCloseRouletteEvent",
 	//
-	"OnBOTLackItemEvent"
+	"OnBOTLackItemEvent",
+	//
+	"OnHTTPReceivedEvent"
 };
 
 static jmp_buf     error_jump;
@@ -26353,58 +26355,12 @@ BUILDIN_FUNC(instance_enter_last) {
 	return SCRIPT_CMD_SUCCESS;
 }
 
-static int http_parse(int fd) {
-
-	int len = 0;
-	char *req = RFIFOCP(fd, 0);
-
-
-	if ((int)RFIFOREST(fd) < 10)
-		return 0;
-
-	ShowDebug("%s", req);
-
-	len = RFIFOREST(fd);
-	
-	do_close(fd);
-	return 0;
-}
-
-
 BUILDIN_FUNC(http_get)
 {
-	uint32 ip;
-	uint16 post = 80;
-	int http_fd, len;
-	char host[128], folder[1024], header[2048], *str_p = header;
-
-	if (sscanf(script_getstr(st, 2), "http://%1024[^/]/%1024s", host, folder) == 0)
-		return SCRIPT_CMD_FAILURE;
-
-	sscanf(script_getstr(st, 2), "http://%128[^:/]:%hu", host, &post);
-
-	ip = host2ip(host);
-
-	http_fd = make_connection(ip, post, false, 10);
-	if (http_fd == -1){
-		script_pushint(st, 0);
-		return SCRIPT_CMD_SUCCESS;
-	}
-	
-	session[http_fd]->func_parse = http_parse;
-	realloc_fifo(http_fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
-	
-	str_p += sprintf(str_p, "GET /%s HTTP/1.1\r\n", "app/test.php");
-	str_p += sprintf(str_p, "Accept: */*\r\n");
-	str_p += sprintf(str_p, "Host: %s:%hu\r\n\r\n", host, post);
-
-	len = strlen(header) + 1;
-
-	WFIFOHEAD(http_fd, len);
-	safestrncpy(WFIFOCP(http_fd, 0), header, len);
-	WFIFOSET(http_fd, len - 1);
-	
-	script_pushint(st, 1);
+	int rev, cid;
+	cid = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
+	rev = http_get(script_getstr(st, 2), script_getnum(st, 3), true, script_getnum(st, 4) != 0, cid) == true ? 1 : 0;
+	script_pushint(st, rev);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -27164,7 +27120,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(tribe_getteam, "?"),
 	BUILDIN_DEF(tribe_monster, "isiisi?"),
 	BUILDIN_DEF(instance_enter_last, "?"),
-	BUILDIN_DEF(http_get, "si"),
+	BUILDIN_DEF(http_get, "sii?"),
 	BUILDIN_DEF(bot_login, ""),
 	{NULL,NULL,NULL},
 };
