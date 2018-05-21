@@ -4538,7 +4538,7 @@ int npc_script_event(struct map_session_data* sd, enum npce_event type){
 
 int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 {
-	int i;
+
 	if (type == NPCE_MAX)
 		return 0;
 	if (!sd) {
@@ -4546,14 +4546,19 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 		return 0;
 	}
 	sd->state.processhalt = 0;
-	for (i = 0; i<script_event[type].event_count; i++)
-		run_script(script_event[type].event[i]->nd->u.scr.script, script_event[type].event[i]->pos, sd->bl.id, script_event[type].event[i]->nd->bl.id);
-	return i;
+
+	std::vector<struct script_event_s>& vector = script_event[type];
+
+	for (struct script_event_s& evt : vector) {
+		run_script(evt.event->nd->u.scr.script, evt.event->pos, sd->bl.id, evt.event->nd->bl.id);
+	}
+
+	return vector.size();
 }
 
 bool event_exist(enum npce_event type)
 {
-	return script_event[type].event_count > 0 ? true : false;
+	return script_event[type].size() > 0;
 }
 
 const char *npc_get_script_event_name(int npce_index)
