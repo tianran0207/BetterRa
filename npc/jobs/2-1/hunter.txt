@@ -1,17 +1,17 @@
-//===== rAthena Script ======================================= 
+//===== rAthena Script =======================================
 //= Hunter Job Quest
-//===== By: ================================================== 
+//===== By: ==================================================
 //= EREMES THE CANIVALIZER (Aegis)Translated by yoshiki (Aegis)
 //= Converted by kobra_k88
 //= Further bugfixed and tested by Lupus
-//===== Current Version: ===================================== 
+//===== Current Version: =====================================
 //= 3.7
-//===== Compatible With: ===================================== 
+//===== Compatible With: =====================================
 //= rAthena Project
-//===== Description: ========================================= 
+//===== Description: =========================================
 //= [Official Conversion]
 //= Job Change quest for Hunter class.
-//===== Additional Comments: ================================= 
+//===== Additional Comments: =================================
 //= 0.5 Fully working.
 //= 0.6 Changed global variable names to unique ones.
 //= 0.7 - 0.8 Updates for rAthena +Knight2,Crusader2 fix
@@ -53,10 +53,10 @@
 //= 3.5 Added Quest Log commands. [Kisuka]
 //= 3.6 Removed the need for use of 'goto.' [L0ne_W0lf]
 //= 3.7 Modified the quest to renewal. [Vali] (Thanks to Muad_Dib for the necessary info).
-//============================================================ 
+//============================================================
 
 // Notices in the old Hunter Guild.
-//============================================================ 
+//============================================================
 in_hunter,99,99,4	script	猎人公告#hnt::HntNotice	4_F_JOB_HUNTER,{
 	mes "============ 通知 ============";
 	mes "我们以此通告告知现在猎人转职点已经";
@@ -78,7 +78,7 @@ pay_fild10,148,252,3	duplicate(HntNotice)	转职地点#hu	4_BOARD3
 
 // Actual Job quest start
 //============================================================
-hu_in01,386,373,4	script	猎人工会成员#hnt	4_F_JOB_HUNTER,{
+hu_in01,386,373,4	script	猎人工会成员#hnt	727,{
 	if (Upper == 1) {
 		mes "[猎人谢林]";
 		mes "Oh, how have you been? It's been a long time, hasn't it?";
@@ -153,12 +153,7 @@ hu_in01,386,373,4	script	猎人工会成员#hnt	4_F_JOB_HUNTER,{
 		close;
 	}
 	else if (BaseJob == Job_Archer) {
-		if (SkillPoint) {
-			mes "[猎人谢林]";
-			mes "You can't apply to change jobs if you still have unused skill points. Use your remaining skill points first.";
-			close;
-		}
-		else if (HNTR_Q == 17 && countitem(1007) == 0) {
+		if (HNTR_Q == 17 && countitem(1007) == 0) {
 			mes "[猎人谢林]";
 			mes "Hmm... I've been informed that you passed the test. But you don't have the necessary 'Necklace of Wisdom (Penetration)' that proves your accomplishment.";
 			next;
@@ -166,7 +161,7 @@ hu_in01,386,373,4	script	猎人工会成员#hnt	4_F_JOB_HUNTER,{
 			mes "I'll let you change your job, but you must bring back a 'Necklace of Wisdom (Penetration),' no matter what it takes.";
 			close;
 		}
-		else if (HNTR_Q == 17 && countitem(1007) > 0 && JobLevel > 39) {
+		else if (HNTR_Q == 17 && countitem(1007) > 0) {
 			mes "[猎人谢林]";
 			mes "Oh...?";
 			mes "You passed";
@@ -178,11 +173,11 @@ hu_in01,386,373,4	script	猎人工会成员#hnt	4_F_JOB_HUNTER,{
 			mes "I will now change";
 			mes "your job to a Hunter~";
 			next;
-			delitem 1007,1; //Penetration
+			delitem 1007,1; // Penetration
 			mes "[猎人谢林]";
 			mes "Tada~ Congratulations!";
 			mes "You look great as a Hunter!!";
-			set .@joblvl, JobLevel;
+			.@joblvl = JobLevel;
 			completequest 4013;
 			callfunc "Job_Change",Job_Hunter;
 			callfunc "F_ClearJobVar";		// clears all job variables for the current player
@@ -198,12 +193,12 @@ hu_in01,386,373,4	script	猎人工会成员#hnt	4_F_JOB_HUNTER,{
 				getitem 1710,1; //CrossBow
 			close;
 		}
-		else if ((JobLevel > 39) && ((HNTR_Q == 0) || (HNTR_Q == 1))) {
+		else if (HNTR_Q == 0 || HNTR_Q == 1) {
 			if (HNTR_Q == 0) {
 				mes "[猎人工会成员]";
 				mes "Oh, you're an Archer! It seems as if you've trained enough as an Archer... You came here to become a Hunter, right?";
 				next;
-				switch(select("是的这就是我来这里的目的.:转职有什么要求?:....我还不想转职.")) {
+				switch( select( "是的这就是我来这里的目的.", "转职有什么要求?", "....我还不想转职." ) ) {
 				case 1:
 					mes "[猎人工会成员]";
 					mes "Hehe~";
@@ -224,214 +219,201 @@ hu_in01,386,373,4	script	猎人工会成员#hnt	4_F_JOB_HUNTER,{
 					mes "Well then,";
 					mes "shall we begin?";
 					next;
-					if (select("是的,让我们开始吧.:不, 我稍后再来.") == 1) {
-						if(checkquest(4000) == -1) {
+					if (select( "是的,让我们开始吧.", "不, 我稍后再来.") == 2) {
+						mes "[Hunter Sherin]";
+						mes "Okay...";
+						mes "Come back";
+						mes "when you're ready~";
+						close;
+					}
+					if (isbegin_quest(4000) == 0)
 							setquest 4000;
-						}
 						mes "[猎人谢林]";
 						mes "Listen carefully to the scenarios I describe. When I ask a question, you choose an answer. Pretty simple, don't you think?";
 						next;
 						mes "[猎人谢林]";
 						mes "I just want to know how you think about life, and why you want to become a Hunter, so there's no need to be nervous.";
-						next;
-					}
-					else {
-						mes "[猎人谢林]";
-						mes "好的...";
-						mes "等你准备好了";
-						mes "再来吧~";
-						close;
-					}
 					break;
 				case 2:
-					set .@selection,2;
-					break;
+					mes "[Hunter Guildsman]";
+					mes "Job change";
+					mes "requirements?";
+					mes "First...";
+					mes "You must be an Archer.";
+						next;
+					mes "[Hunter Guildsman]";
+					mes "Second...";
+					mes "You must be";
+					mes "at least Job Level 40.";
+					next;
+					mes "[Hunter Guildsman]";
+					mes "Third...";
+					mes "You must bring all of the items that will be requested by the guild. You can worry about that later.";
+					next;
+					mes "[Hunter Guildsman]";
+					mes "Fourth...";
+					mes "You've gotta pass the test administered by the guild. If you have had enough training as an Archer, you should be able to pass the test~";
+						close;
 				case 3:
-					set .@selection,3;
-					break;
+					mes "[Hunter Guildsman]";
+					mes "Okay then,";
+					mes "see you next time~";
+					close;
 				}
 			}
 			else if (HNTR_Q == 1) {
 				mes "[猎人谢林]";
 				mes "欢迎回来...!";
 				mes "Well, let's start with the interview. This time, carefully think about the answers to each question.";
-				next;
 			}
-			switch(.@selection) {
-			default:
-				mes "[猎人谢林]";
-				mes "好吧,";
-				mes "让我们开始.";
-				next;
-				mes "[猎人谢林]";
-				mes "You are an Archer, and you don't know where you should go to hunt. What do you do?";
-				next;
-				switch(select("Scream out loud asking where you should go.:Quietly ask a person passing by.:Wander around alone and search for a place.")) {
-				case 2:
-				case 3:
-					set .@hunter_t,.@hunter_t+10;
-				default:
-					break;
-				}
-				mes "[猎人谢林]";
-				mes "So you've decided on a place to hunt. You're going to hunt the monsters known as Hodes in the Sograt Desert.";
-				next;
-				mes "[猎人谢林]";
-				mes "But you are in Payon!!";
-				mes "How do you go to the desert?";
-				next;
-				switch(select("Ask a Priest to open a free warp portal.:Use the Kafra service.:Walk with a friend.")) {
-				case 2:
-				case 3:
-					set .@hunter_t,.@hunter_t+10;
-				default:
-					break;
-				}
-				mes "[猎人谢林]";
-				mes "There is no Priest to ask for a warp, and no friend is around to walk with you. You must use the Kafra service, but you have no Zeny!";
-				next;
-				mes "[猎人谢林]";
-				mes "How would you go";
-				mes "about to make the";
-				mes "Zeny that you need?";
-				next;
-				switch(select("Beg here and there.:Sell items I do not need.:Hunt at a nearby field.")) {
-				case 2:
-				case 3:
-					set .@hunter_t,.@hunter_t+10;
-				default:
-					break;
-				}
-				mes "[猎人谢林]";
-				mes "So you finally arrive at the Sograt Desert. But you realize that Hodes are a bit too strong for you to hunt alone.";
-				next;
-				mes "[猎人谢林]";
-				mes "What is your";
-				mes "solution to this";
-				mes "situation?";
-				next;
-				if (select("Attack a Hode from the top of a hill.:Go back to town.:Attack someone else's Hode.") == 2)
-					set .@hunter_t,.@hunter_t+10;
-				mes "[Hunter Sherin]";
-				mes "Let's say you were having too much trouble hunting Hodes and returned to town. Now you are out of HP and a Priest happens to be around. How would you ask for a Heal?";
-				next;
-				if (select("Would it be possible to get a Heal, please?:Heal, please.:Heal me.") == 1)
-					set .@hunter_t,.@hunter_t+10;
-				mes "[猎人谢林]";
-				mes "This time, you found a rare item while you were going through your inventory. You go out to sell the item, and there are many people with stores and chatrooms open.";
-				next;
-				mes "[猎人谢林]";
-				mes "What is the";
-				mes "best way to";
-				mes "sell your item?";
-				next;
-				switch(select("Scream out loud to everyone in sight.:Open a chatroom and wait.:Look to see if anyone already wants it.")) {
-				case 2:
-				case 3:
-					set .@hunter_t,.@hunter_t+10;
-				default:
-					break;
-				}
-				mes "[猎人谢林]";
-				mes "While you are waiting, someone is begging for items and Zeny. What should you do?";
-				next;
-				if (select("Give some of my items and Zeny.:Ignore and walk away.:Tell the person about a good place to hunt.") == 1)
-					set .@hunter_t,.@hunter_t+10;
-				mes "[猎人谢林]";
-				mes "By now, you decide to go to the Maze by yourself.";
-				next;
-				mes "[猎人谢林]";
-				mes "But on your way, you run";
-				mes "into someone that is lost.";
-				mes "What should you do?";
-				next;
-				switch(select("Tell them which way to go.:Guide them to their destination.:Ignore.")) {
-				case 1:
-				case 2:
-					set .@hunter_t,.@hunter_t+10;
-				default:
-					break;
-				}
-				mes "[猎人谢林]";
-				mes "After meeting this lost person, you decide to get back to hunting. Just then, you find that someone is attacking a boss!";
-				next;
-				mes "[猎人谢林]";
-				mes "What should you do?";
-				next;
-				if (select("^FF0000Watch, then attack when asked for help.^000000:Attack and see what happens.:Just go back to town.") == 1)
-					set .@hunter_t,.@hunter_t+10;
-				mes "[猎人谢林]";
-				mes "You are now very exhausted after your day of hunting. It's time to go back to town.";
-				next;
-				mes "[猎人谢林]";
-				mes "But what's this!? You find an expensive item lying on the floor! What should you do with it?";
-				next;
-				switch(select("- 把它捡起来, 拿好.:- 试图找到失主.:- 不管它.")) {
-				case 2:
-				case 3:
-					set .@hunter_t,.@hunter_t+10;
-				default:
-					break;
-				}
-				mes "[猎人谢林]";
-				mes "Okay, this is the end of the test!";
-				next;
-				if (.@hunter_t == 100) {
-					set HNTR_Q,2;
-					changequest 4000,4001;
-					mes "[猎人谢林]";
-					mes "Well done! Your answers show you've got the right outlook on life. You definitely have the right qualities to become a Hunter~";
-					next;
-					mes "[猎人谢林]";
-					mes "I'm glad to say you've passed the interview~ Now, go to that person in the corner and confirm which item is necessary for your job change test~";
-					close;
-				}
-				else if (.@hunter_t == 90) {
-					set HNTR_Q,2;
-					changequest 4000,4001;
-					mes "[猎人谢林]";
-					mes "Well, I'm looking at your answers and your score isn't perfect. But I'll let you pass anyway. I don't know what our Guildmaster will think, though.";
-					next;
-					mes "[猎人谢林]";
-					mes "Just remember to always keep basic etiquette in mind. Try harder in the following tests and make me happy, okay?";
-					close;
-				}
-				set HNTR_Q,1;
-				mes "[猎人谢林]";
-				mes "Hmm... I don't think this'll work out. You can't become a Hunter without knowing basic etiquette.";
-				next;
-				mes "[猎人谢林]";
-				mes "Think about how you answered the questions one more time. In order to value nature, you must first value your relationship with others.";
-				next;
-				mes "[猎人谢林]";
-				mes "Then, you'll be more in tune with nature and with other people. It's this kind of harmony that makes the best Hunters.";
-				close;
+			next;
+			mes "[猎人谢林]";
+			mes "好吧,";
+			mes "让我们开始.";
+			next;
+			mes "[猎人谢林]";
+			mes "You are an Archer, and you don't know where you should go to hunt. What do you do?";
+			next;
+			switch( select( "Scream out loud asking where you should go.", "Quietly ask a person passing by.", "Wander around alone and search for a place." ) ) {
 			case 2:
-				mes "[猎人工会成员]";
-				mes "你想知道转职的";
-				mes "要求?";
-				mes "第一...";
-				mes "你必须是一名弓箭手.";
-				next;
-				mes "[猎人工会成员]";
-				mes "第二...";
-				mes "你的职业等级";
-				mes "至少需要高于40.";
-				next;
-				mes "[猎人工会成员]";
-				mes "第三...";
-				mes "You must bring all of the items that will be requested by the guild. You can worry about that later.";
-				next;
-				mes "[猎人工会成员]";
-				mes "第四...";
-				mes "You've gotta pass the test administered by the guild. If you have had enough training as an Archer, you should be able to pass the test~";
-				break;
 			case 3:
-				mes "[猎人工会成员]";
-				mes "好了,";
-				mes "下次见~";
+				.@hunter_t += 10;
+			default:
+				break;
+			}
+			mes "[猎人谢林]";
+			mes "So you've decided on a place to hunt. You're going to hunt the monsters known as Hodes in the Sograt Desert.";
+			next;
+			mes "[猎人谢林]";
+			mes "But you are in Payon!!";
+			mes "How do you go to the desert?";
+			next;
+			switch( select( "Ask a Priest to open a free warp portal.", "Use the Kafra service.", "Walk with a friend." ) ) {
+			case 2:
+			case 3:
+				.@hunter_t += 10;
+			default:
+				break;
+			}
+			mes "[猎人谢林]";
+			mes "There is no Priest to ask for a warp, and no friend is around to walk with you. You must use the Kafra service, but you have no Zeny!";
+			next;
+			mes "[猎人谢林]";
+			mes "How would you go";
+			mes "about to make the";
+			mes "Zeny that you need?";
+			next;
+			switch( select( "Beg here and there.", "Sell items I do not need.", "Hunt at a nearby field." ) ) {
+			case 2:
+			case 3:
+				.@hunter_t += 10;
+			default:
+				break;
+			}
+			mes "[猎人谢林]";
+			mes "So you finally arrive at the Sograt Desert. But you realize that Hodes are a bit too strong for you to hunt alone.";
+			next;
+			mes "[猎人谢林]";
+			mes "What is your";
+			mes "solution to this";
+			mes "situation?";
+			next;
+			if (select( "Attack a Hode from the top of a hill.", "Go back to town.", "Attack someone else's Hode." ) == 2)
+				.@hunter_t += 10;
+			mes "[Hunter Sherin]";
+			mes "Let's say you were having too much trouble hunting Hodes and returned to town. Now you are out of HP and a Priest happens to be around. How would you ask for a Heal?";
+			next;
+			if (select( "Would it be possible to get a Heal, please?", "Heal, please.", "Heal me." ) == 1)
+				.@hunter_t += 10;
+			mes "[猎人谢林]";
+			mes "This time, you found a rare item while you were going through your inventory. You go out to sell the item, and there are many people with stores and chatrooms open.";
+			next;
+			mes "[猎人谢林]";
+			mes "What is the";
+			mes "best way to";
+			mes "sell your item?";
+			next;
+			switch( select( "Scream out loud to everyone in sight.", "Open a chatroom and wait.", "Look to see if anyone already wants it." ) ) {
+			case 2:
+			case 3:
+				.@hunter_t += 10;
+			default:
+				break;
+			}
+			mes "[猎人谢林]";
+			mes "While you are waiting, someone is begging for items and Zeny. What should you do?";
+			next;
+			if (select("Give some of my items and Zeny.", "Ignore and walk away.", "Tell the person about a good place to hunt.") == 1)
+				.@hunter_t += 10;
+			mes "[猎人谢林]";
+			mes "By now, you decide to go to the Maze by yourself.";
+			next;
+			mes "[猎人谢林]";
+			mes "But on your way, you run";
+			mes "into someone that is lost.";
+			mes "What should you do?";
+			next;
+			switch( select( "Tell them which way to go.", "Guide them to their destination.", "Ignore." ) ) {
+			case 1:
+			case 2:
+				.@hunter_t += 10;
+			default:
+				break;
+			}
+			mes "[猎人谢林]";
+			mes "After meeting this lost person, you decide to get back to hunting. Just then, you find that someone is attacking a boss!";
+			next;
+			mes "[猎人谢林]";
+			mes "What should you do?";
+			next;
+			if (select( "Watch, then attack when asked for help.", "Attack and see what happens.", "Just go back to town." ) == 1)
+				.@hunter_t += 10;
+			mes "[猎人谢林]";
+			mes "You are now very exhausted after your day of hunting. It's time to go back to town.";
+			next;
+			mes "[猎人谢林]";
+			mes "But what's this!? You find an expensive item lying on the floor! What should you do with it?";
+			next;
+			switch(select("- 把它捡起来, 拿好.", "- 试图找到失主.", "- 不管它.")) {
+			case 2:
+			case 3:
+			.@hunter_t += 10;
+			default:
+				break;
+			}
+			mes "[猎人谢林]";
+			mes "Okay, this is the end of the test!";
+			next;
+			if (.@hunter_t == 100) {
+				HNTR_Q = 2;
+				changequest 4000,4001;
+				mes "[猎人谢林]";
+				mes "Well done! Your answers show you've got the right outlook on life. You definitely have the right qualities to become a Hunter~";
+				next;
+				mes "[猎人谢林]";
+				mes "I'm glad to say you've passed the interview~ Now, go to that person in the corner and confirm which item is necessary for your job change test~";
 				close;
 			}
+			else if (.@hunter_t == 90) {
+				HNTR_Q = 2;
+				changequest 4000,4001;
+				mes "[猎人谢林]";
+				mes "Well, I'm looking at your answers and your score isn't perfect. But I'll let you pass anyway. I don't know what our Guildmaster will think, though.";
+				next;
+				mes "[猎人谢林]";
+				mes "Just remember to always keep basic etiquette in mind. Try harder in the following tests and make me happy, okay?";
+				close;
+			}
+			HNTR_Q = 1;
+			mes "[猎人谢林]";
+			mes "Hmm... I don't think this'll work out. You can't become a Hunter without knowing basic etiquette.";
+			next;
+			mes "[猎人谢林]";
+			mes "Think about how you answered the questions one more time. In order to value nature, you must first value your relationship with others.";
+			next;
+			mes "[猎人谢林]";
+			mes "Then, you'll be more in tune with nature and with other people. It's this kind of harmony that makes the best Hunters.";
+			close;
 		}
 		else if (HNTR_Q > 2 && HNTR_Q < 10) {
 			mes "[猎人谢林]";
@@ -475,23 +457,14 @@ hu_in01,382,382,4	script	工会接待员#hnt	4_M_JOB_HUNTER,{
 		mes "[工会接待员]";
 		mes "你好. 别人称我为... ^660000恶魔猎手^000000. 我分管申请处理. 你的名字是 ... " + strcharinfo(0) + ", 对吗?";
 		next;
-		set .@selection,select("- 是的, 这是正确的.:- 没了~~(heeheehee)");
-		if (.@selection == 2) {
+		if (select( "- 是的, 这是正确的.", "- 没了~~(heeheehee)" ) == 2) {
 			mes "[恶魔猎手]";
 			mes "嘿, 别再瞎搞了.";
 			mes "你的名字是 " + strcharinfo(0) + ", 对吗?";
 			next;
-			if (select("- 是的...:- 呵呵. 再次回答你, 这不是~~") == 1) {
+			if (select("- 是的...", "- 呵呵. 再次回答你, 这不是~~") == 2) {
 				mes "[恶魔猎手]";
-				mes "Okay, then. These are the items you need for the test. Since we provide all of the necessary arrows you'll use for the test, we need you to get the materials to make them.";
-				next;
-				mes "[恶魔猎手]";
-				mes "You see, right now we're having some financial problems. Let's see, we're short on these items...";
-				next;
-			}
-			else {
-				mes "[恶魔猎手]";
-				mes "Leave if you plan to trifle me your petty tricks. Do you not realize that you are toying with ^660000The 恶魔猎手^000000?!'";
+				mes "Leave if you plan to trifle me your petty tricks. Do you not realize that you are toying with ^660000The Demon Hunter^000000?!'";
 				close2;
 				warp "hugel",208,223;
 				end;
@@ -503,85 +476,121 @@ hu_in01,382,382,4	script	工会接待员#hnt	4_M_JOB_HUNTER,{
 		mes "[恶魔猎手]";
 		mes "You see, we're having some financial problems. Let's see, we're short on these items...";
 		next;
-		if(checkre(0)) set .@i,1;
-		switch(rand(1,7)) {
-		//Insect_Feeler/Claw_Of_Desert_Wolf, Wooden_Block, White_Herb
-		case 1: setarray .@items[0], (.@i?928:7030),5, 1019,5, 509,3, 3; changequest 4001,4002; break;
-		//Bill_Of_Birds, Skel_Bone, Green_Herb
-		case 2: setarray .@items[0], 925,3, 932,5, 511,3, 4; changequest 4001,4003; break;
-		//Colorful_Shell/Posionous_Canine, Animal's_Skin, Red_Herb
-		case 3: setarray .@items[0], (.@i?1013:937),3, 919,3, 507,5, 5; changequest 4001,4004; break;
-		//Horn/Dokkaebi_Horn, Poison_Spore/Piece_Of_Egg_Shell, Fluff
-		case 4: setarray .@items[0], (.@i?947:1021),3, (.@i?7033:7032),3, 914,10, 6; changequest 4001,4005; break;
-		//Shell, Worm_Peelings, Yellow_Herb
-		case 5: setarray .@items[0], 935,9, 955,9, 508,9, 7; changequest 4001,4006; break;
-		//Tooth_Of_Bat, Sticky_Mucus, Bear's_Foot
-		case 6: setarray .@items[0], 913,3, 938,1, 948,1, 8; changequest 4001,4007; break;
-		//Porcupine_Spike, Yoyo_Tail, Acorn
-		case 7: setarray .@items[0], 1027,2, 942,1, 1026,1, 9; changequest 4001,4008; break;
+		if (checkre(RENEWAL) == true)
+			.@i = 1;
+		switch( rand(1,7) ) {
+		case 1:
+			// Insect_Feeler/Claw_Of_Desert_Wolf, Wooden_Block, White_Herb
+			setarray .@items[0], (.@i?928:7030),5, 1019,5, 509,3, 3;
+			changequest 4001,4002;
+			break;
+		case 2:
+			// Bill_Of_Birds, Skel_Bone, Green_Herb
+			setarray .@items[0], 925,3, 932,5, 511,3, 4;
+			changequest 4001,4003;
+			break;
+		case 3:
+			// Colorful_Shell/Posionous_Canine, Animal's_Skin, Red_Herb
+			setarray .@items[0], (.@i?1013:937),3, 919,3, 507,5, 5;
+			changequest 4001,4004;
+			break;
+		case 4:
+			// Horn/Dokkaebi_Horn, Poison_Spore/Piece_Of_Egg_Shell, Fluff
+			setarray .@items[0], (.@i?947:1021),3, (.@i?7033:7032),3, 914,10, 6;
+			changequest 4001,4005;
+			break;
+		case 5:
+			// Shell, Worm_Peelings, Yellow_Herb
+			setarray .@items[0], 935,9, 955,9, 508,9, 7;
+			changequest 4001,4006;
+			break;
+		case 6:
+			// Tooth_Of_Bat, Sticky_Mucus, Bear's_Foot
+			setarray .@items[0], 913,3, 938,1, 948,1, 8;
+			changequest 4001,4007;
+			break;
+		case 7:
+			// Porcupine_Spike, Yoyo_Tail, Acorn
+			setarray .@items[0], 1027,2, 942,1, 1026,1, 9;
+			changequest 4001,4008;
+			break;
 		}
-		if (.@selection == 1) {
-			mes "[恶魔猎手]";
-			mes "唔. ^660000"+.@items[1]+" "+getitemname(.@items[0])+"^000000 用于使用箭头提示 ^660000"+.@items[3]+" "+getitemname(.@items[2])+"^000000 可用在很多地方. 还要 ^660000"+.@items[5]+" "+getitemname(.@items[4])+"^000000 谢谢.";
-			set HNTR_Q,.@items[6];
-			next;
-			mes "[恶魔猎手]";
+		mes "[Demon Hunter]";
+		mes "唔. ^660000" + .@items[1] + " " + getitemname(.@items[0]) + "^000000 用于使用箭头提示. ^660000" + .@items[3] + " " + getitemname(.@items[2]) + "^000000 可用在很多地方. 还要 ^660000" + .@items[5] + " " + getitemname(.@items[4]) + "^000000 谢谢.";
+		HNTR_Q = .@items[6];
+		next;
+		mes "[恶魔猎手]";
+		if (HNTR_Q >= 5)
+			mes "By the way, a member of our Hunter Guild is at the Archer Guild on official business. I believe you have to go visit this person since he is in charge of the testing.";
+		else {
 			mes "Oh right. Our Guildmaster has gone on an official trip to the Payon Central Palace. You have to go visit him because the one that administers the test.";
-			next;
-			mes "[恶魔猎手]";
-			mes "Alright then, come back to me when you have everything ready~";
+			mes "You can find him in a building east of the Payon Central Palace.";
 		}
+		next;
+		mes "[恶魔猎手]";
+		mes "Alright then, come back to me when you have everything ready~";
 		close;
 	}
 	else if (HNTR_Q >= 3 && HNTR_Q <= 9) {
-		if(checkre(0)) set .@i,1;
+		if (checkre(RENEWAL) == true)
+			.@i = 1;
 		switch(HNTR_Q) {
-		//Insect_Feeler/Claw_Of_Desert_Wolf, Wooden_Block, White_Herb
-		case 3: setarray .@items[0], (.@i?928:7030),5, 1019,5, 509,3, 10; break;
-		//Bill_Of_Birds, Skel_Bone, Green_Herb
-		case 4: setarray .@items[0], 925,3, 932,5, 511,3, 10; break;
-		//Colorful_Shell/Posionous_Canine, Animal's_Skin, Red_Herb
-		case 5: setarray .@items[0], (.@i?1013:937),3, 919,3, 507,5, 10; break;
-		//Horn/Dokkaebi_Horn, Poison_Spore/Piece_Of_Egg_Shell, Fluff
-		case 6: setarray .@items[0], (.@i?947:1021),3, (.@i?7033:7032),3, 914,10, 10; break;
-		//Shell, Worm_Peelings, Yellow_Herb
-		case 7: setarray .@items[0], 935,9, 955,9, 508,9, 11; break;
-		//Tooth_Of_Bat, Sticky_Mucus, Bear's_Foot
-		case 8: setarray .@items[0], 913,3, 938,1, 948,1, 11; break;
-		//Porcupine_Spike, Yoyo_Tail, Acorn
-		case 9: setarray .@items[0], 1027,2, 942,1, 1026,1, 11; break;
+		case 3:
+			// Insect_Feeler/Claw_Of_Desert_Wolf, Wooden_Block, White_Herb
+			setarray .@items[0], (.@i?928:7030),5, 1019,5, 509,3, 10;
+			break;
+		case 4:
+			// Bill_Of_Birds, Skel_Bone, Green_Herb
+			setarray .@items[0], 925,3, 932,5, 511,3, 10;
+			break;
+		case 5:
+			// Colorful_Shell/Posionous_Canine, Animal's_Skin, Red_Herb
+			setarray .@items[0], (.@i?1013:937),3, 919,3, 507,5, 10;
+			break;
+		case 6:
+			// Horn/Dokkaebi_Horn, Poison_Spore/Piece_Of_Egg_Shell, Fluff
+			setarray .@items[0], (.@i?947:1021),3, (.@i?7033:7032),3, 914,10, 10;
+			break;
+		case 7:
+			// Shell, Worm_Peelings, Yellow_Herb
+			setarray .@items[0], 935,9, 955,9, 508,9, 11;
+			break;
+		case 8:
+			// Tooth_Of_Bat, Sticky_Mucus, Bear's_Foot
+			setarray .@items[0], 913,3, 938,1, 948,1, 11;
+			break;
+		case 9:
+			// Porcupine_Spike, Yoyo_Tail, Acorn
+			setarray .@items[0], 1027,2, 942,1, 1026,1, 11;
+			break;
 		}
 		mes "[恶魔猎手]";
 		mes "Hmm?";
 		next;
 		if (countitem(.@items[0]) >= .@items[1] && countitem(.@items[2]) >= .@items[3] && countitem(.@items[4]) >= .@items[5]) {
-			mes "[恶魔猎手]";
-			mes "You brought all of the necessary materials... You can get directions to the testing area from our Guildmaster who is currently in the Payon Central Palace.";
-			set HNTR_Q,.@items[6];
-			if(checkquest(4002) != -1) {
+			HNTR_Q = .@items[6];
+			if (isbegin_quest(4002) == 1)
 				changequest 4002,4009;
-			}
-			else if(checkquest(4003) != -1) {
+			else if (isbegin_quest(4003) == 1)
 				changequest 4003,4009;
-			}
-			else if(checkquest(4004) != -1) {
+			else if (isbegin_quest(4004) == 1)
 				changequest 4004,4009;
-			}
-			else if(checkquest(4005) != -1) {
+			else if (isbegin_quest(4005) == 1)
 				changequest 4005,4009;
-			}
-			else if(checkquest(4006) != -1) {
+			else if (isbegin_quest(4006) == 1)
 				changequest 4006,4010;
-			}
-			else if(checkquest(4007) != -1) {
+			else if (isbegin_quest(4007) == 1)
 				changequest 4007,4010;
-			}
-			else {
+			else
 				changequest 4008,4010;
-			}
 			delitem .@items[0],.@items[1];
 			delitem .@items[2],.@items[3];
 			delitem .@items[4],.@items[5];
+			mes "[Demon Hunter]";
+			if (HNTR_Q == 10)
+				mes "You brought all of the necessary materials... You can get directions to the testing area from our Guildmaster who is currently in the Payon Central Palace.";
+			else
+				mes "You brought all of the necessary materials... To get directions to the testing area, go talk to our Guildmaster who is at the Archer Guild.";
 			close;
 		}
 		mes "[恶魔猎手]";
@@ -590,9 +599,9 @@ hu_in01,382,382,4	script	工会接待员#hnt	4_M_JOB_HUNTER,{
 		next;
 		mes "[恶魔猎手]";
 		mes "需要的东西是";
-		mes "^660000"+.@items[1]+" "+getitemname(.@items[0])+"^000000,";
-		mes "^660000"+.@items[3]+" "+getitemname(.@items[2])+"^000000 和";
-		mes "^660000"+.@items[5]+" "+getitemname(.@items[4])+"^000000.";
+		mes "^660000" + .@items[1] + " " + getitemname(.@items[0]) + "^000000,";
+		mes "^660000" + .@items[3] + " " + getitemname(.@items[2]) + "^000000 和";
+		mes "^660000" + .@items[5] + " " + getitemname(.@items[4]) + "^000000.";
 		mes "等你收集了所有的物品后";
 		mes "再过来找我.";
 		close;
@@ -619,7 +628,7 @@ payon_in03,131,7,3	script	猎人#htnGM	1_M_ORIENT01,{
 		mes "[猎人工会会长]";
 		mes "Hmpf. You must be here for the Hunter job test. Let me tell you about the testing process. What would you like to know?";
 		next;
-		switch(select("- 测试有什么内容?:- 合格的要求是什么?:- 有什么要注意的?:- 开始测试.")) {
+		switch(select("- 测试有什么内容?", "- 合格的要求是什么?", "- 有什么要注意的?", "- 开始测试.")) {
 		case 1:
 			mes "[猎人工会会长]";
 			mes "You have to hunt down certain monsters with a particular name. But you must avoid all the traps while you're at it.";
@@ -645,21 +654,25 @@ payon_in03,131,7,3	script	猎人#htnGM	1_M_ORIENT01,{
 			mes "If the person in front succeeds, resigns or fails, the next person waiting in the chatroom is sent to the testing area. If nobody is waiting, the test will begin as soon as you enter the chatroom.";
 			close;
 		case 4:
-			if (.@a0) {
+			// Note: aegis typo
+			// if (.@a0) {
+			// 	mes "[Hunter Guildmaster]";
+			// 	mes "Okay. I'll send you to the testing area right now. Don't blame me if you get lost or confused because you didn't listen to my explanation.";
+			// }
+			// else {
+			// 	mes "[Hunter Guildmaster]";
+			// 	mes "Okay. Best of luck.";
+			// 	mes "I'll send you right now.";
+			// }
 				mes "[猎人工会会长]";
 				mes "Okay. I'll send you to the testing area right now. Don't blame me if you get lost or confused because you didn't listen to my explanation.";
 				next;
 			}
 			mes "[猎人工会会长]";
-			mes "Okay. Best of luck.";
-			mes "I'll send you right now.";
-			next;
-		}
-		mes "[猎人工会会长]";
 		mes "Well, then. Your arrows are probably still being made, so you can use mine to take the test.";
-		set HNTR_Q,12;
+		HNTR_Q = 12;
 		changequest 4009,4011;
-		getitem 1751,200; //Silver_Arrow
+		getitem 1751,200; // Silver_Arrow
 		close2;
 		warp "job_hunte",176,22;
 		end;
@@ -690,7 +703,7 @@ payon_in03,131,7,3	script	猎人#htnGM	1_M_ORIENT01,{
 		mes "If you have any";
 		mes "questions, ask now.";
 		next;
-		switch(select("- 测试有什么内容?:- 合格的要求是什么?:- 有什么要注意的?:- 开始测试.")) {
+		switch( select( "- 测试有什么内容?", "- 合格的要求是什么?", "- 有什么要注意的?", "- 开始测试." ) ) {
 		case 1:
 			mes "[猎人工会会长]";
 			mes "You have to hunt down certain monsters with a particular name, but you also avoid all the traps at the same time. This is to test your ability to move swiftly and locate targets in various situations.";
@@ -724,12 +737,12 @@ payon_in03,131,7,3	script	猎人#htnGM	1_M_ORIENT01,{
 		mes "[猎人工会会长]";
 		mes "Anyway, I believe you've prepared it yourself. Let's begin now.";
 		next;
-		if (select("- 好的, 让我们开始吧...:- 啊, 稍等.") == 1) {
-			mes "[猎人工会会长]";
+		if (select( "- 好的, 让我们开始吧...", "- 啊, 稍等." ) == 1) {
+			mes "[Hunter Guildmaster]";
 			mes "Okay!! I hope";
 			mes "you will pass this time!";
 			close2;
-			set HNTR_Q,12;
+			HNTR_Q = 12;
 			warp "job_hunte",176,22;
 			end;
 		}
@@ -742,9 +755,9 @@ payon_in03,131,7,3	script	猎人#htnGM	1_M_ORIENT01,{
 		mes "[猎人工会会长]";
 		mes "Wow, you came back in one piece!";
 		mes "I mean, good job. I'll give you the item which proves that you have passed the test.";
-		set HNTR_Q,17;
+		HNTR_Q = 17;
 		savepoint "payon",104,99,1,1;
-		getitem 1007,1; //Penetration
+		getitem 1007,1; // Penetration
 		changequest 4012,4013;
 		next;
 		mes "[猎人工会会长]";
@@ -773,25 +786,21 @@ payon_in02,21,31,1	script	猎人#htnGM2	1_M_ORIENT01,{
 		mes "[猎人工会会长]";
 		mes "Mmm. I see you're here for the Hunter job test. Let me explain the testing process. What would you like to know?";
 		next;
-		switch(select("- 测试有什么内容?:- 合格的要求是什么?:- 有什么要注意的?:- 开始测试.")) {
+		switch(select("- 测试有什么内容?", "- 合格的要求是什么?", "- 有什么要注意的?", "- 开始测试.")) {
 		case 1:
 			mes "[猎人工会会长]";
 			mes "You have to hunt down certain monsters with a particular name, but you must avoid all of the traps here at the same time.";
 			next;
 			mes "[猎人工会会长]";
 			mes "This is to test your ability to move swiftly and locate targets in various situations.";
-			close2;
-			cutin "job_huntermaster",255;
-			end;
+			close3;
 		case 2:
 			mes "[猎人工会会长]";
 			mes "Within the given time, you will start in the 6 o'clock direction of the map, hunt the target monsters, and hit the escape switch that will appear in the center of the map.";
 			next;
 			mes "[猎人工会会长]";
 			mes "You will pass if you are able to escape in the 12 o'clock direction of the map when the switch is activated.";
-			close2;
-			cutin "job_huntermaster",255;
-			end;
+			close3;
 		case 3:
 			mes "[猎人工会会长]";
 			mes "Mmm. Warnings... Well, if you fall into a trap, you have to start the test over from the beginning. And only one person can take the test at a time.";
@@ -801,30 +810,33 @@ payon_in02,21,31,1	script	猎人#htnGM2	1_M_ORIENT01,{
 			next;
 			mes "[猎人工会会长]";
 			mes "If the person currently taking the test passes or fails, the next person waiting in the chatroom is sent to the testing area. If nobody is waiting, the test will begin as soon as you enter the chatroom.";
-			close2;
-			cutin "job_huntermaster",255;
-			end;
+			close3;
 		case 4:
-			if (.@a0) {
+			// Note: aegis typo
+			// if (.@a0) {
+			// 	mes "[Hunter Guildmaster]";
+			// 	mes "...Okay. I'll send you to the testing area right now. Don't blame me if you get lost or confused because you didn't listen to the explanation.";
+			// 	next;
+			// }
+			// else {
+			// 	mes "[Hunter Guildmaster]";
+			// 	mes "Okay, best of luck.";
+			// 	mes "I'll send you right now.";
+			// }
+			// next;
 				mes "[猎人工会会长]";
 				mes "...Okay. I'll send you to the testing area right now. Don't blame me if you get lost or confused because you didn't listen to the explanation.";
 				next;
 			}
 			mes "[猎人工会会长]";
-			mes "Okay, best of luck.";
-			mes "I'll send you right now.";
-			next;
-		}
-		mes "[猎人工会会长]";
 		mes "Well, your arrows are probably still being made, so you can use mine to take the test.";
-		getitem 1751,200; //Silver_Arrow
+		getitem 1751,200; // Silver_Arrow
 		next;
 		mes "[猎人工会会长]";
 		mes "祝你好运.";
-		set HNTR_Q,12;
+		HNTR_Q = 12;
 		changequest 4010,4011;
 		warp "job_hunte",176,22;
-		cutin "job_huntermaster",255;
 		end;
 	}
 	else if (HNTR_Q > 1 && HNTR_Q < 10) {
@@ -838,9 +850,7 @@ payon_in02,21,31,1	script	猎人#htnGM2	1_M_ORIENT01,{
 		next;
 		mes "[猎人工会会长]";
 		mes "Stop by once you have gathered all the items needed for the test.";
-		close2;
-		cutin "job_huntermaster",255;
-		end;
+		close3;
 	}
 	else if (HNTR_Q == 10) {
 		mes "[猎人]";
@@ -852,9 +862,7 @@ payon_in02,21,31,1	script	猎人#htnGM2	1_M_ORIENT01,{
 		next;
 		mes "[猎人]";
 		mes "If you wish to change jobs, I think you need to go visit the person at Payon Central Palace.";
-		close2;
-		cutin "job_huntermaster",255;
-		end;
+		close3;
 	}
 	else if (HNTR_Q > 11 && HNTR_Q < 16) {
 		mes "[猎人工会会长]";
@@ -865,25 +873,21 @@ payon_in02,21,31,1	script	猎人#htnGM2	1_M_ORIENT01,{
 		mes "have questions,";
 		mes "feel free to ask.";
 		next;
-		switch(select("What is the test?:What are the requirements to pass the test?:Any warnings?:Begin test.")) {
+		switch( select( "What is the test?", "What are the requirements to pass the test?", "Any warnings?", "Begin test." ) ) {
 		case 1:
 			mes "[猎人工会会长]";
 			mes "You have to hunt down certain monsters with a particular name, but you must avoid all of the traps here at the same time.";
 			next;
 			mes "[猎人工会会长]";
 			mes "This is to test your ability to move swiftly and locate targets in various situations.";
-			close2;
-			cutin "job_huntermaster",255;
-			end;
+			close3;
 		case 2:
 			mes "[猎人工会会长]";
 			mes "Within the given time, you will start in the 6 o'clock direction of the map, hunt the target monsters, and hit the escape switch that will appear in the center of the map.";
 			next;
 			mes "[猎人工会会长]";
 			mes "You will pass if you are able to escape in the 12 o'clock direction of the map when the switch is activated.";
-			close2;
-			cutin "job_huntermaster",255;
-			end;
+			close3;
 		case 3:
 			mes "[猎人工会会长]";
 			mes "Mmm. Warnings... Well, if you fall into a trap, you have to start the test over from the beginning. And only one person can take the test at a time.";
@@ -893,9 +897,7 @@ payon_in02,21,31,1	script	猎人#htnGM2	1_M_ORIENT01,{
 			next;
 			mes "[猎人工会会长]";
 			mes "If the person currently taking the test passes or fails, the next person waiting in the chatroom is sent to the testing area. If nobody is waiting, the test will begin as soon as you enter the chatroom.";
-			close2;
-			cutin "job_huntermaster",255;
-			end;
+			close3;
 		case 4:
 			mes "[猎人工会会长]";
 			mes "Okay, good luck.";
@@ -911,13 +913,13 @@ payon_in02,21,31,1	script	猎人#htnGM2	1_M_ORIENT01,{
 		mes "you're ready.";
 		mes "Let's begin.";
 		next;
-		if (select("是的, 让我们开始吧.:- 啊, 等等.") == 1) {
+		if (select( "是的, 让我们开始吧.", "- 啊, 等等." ) == 1) {
 			mes "[猎人工会会长]";
 			mes "Okay!! Now...";
 			mes "Pass this time!";
 			close2;
-			cutin "job_huntermaster",255;
-			set HNTR_Q,12;
+			cutin "",255;
+			HNTR_Q = 12;
 			warp "job_hunte",176,22;
 			end;
 		}
@@ -926,25 +928,22 @@ payon_in02,21,31,1	script	猎人#htnGM2	1_M_ORIENT01,{
 		mes "Come back when";
 		mes "you're done with";
 		mes "your preparations.";
-		close2;
-		cutin "job_huntermaster",255;
-		end;
+		close3;
 	}
 	else if (HNTR_Q == 16) {
 		mes "[猎人工会会长]";
 		mes "Wow. You're back in one piece!";
 		mes "I mean, good job. Well then, I'll give you the item which serves as proof that you passed the test.";
-		set HNTR_Q,17;
+		HNTR_Q = 17;
 		savepoint "payon",104,99,1,1;
 		getitem 1007,1; //Penetration
+		changequest 4012,4013;
 		next;
 		mes "[猎人工会会长]";
 		mes "Well...";
 		mes "There you go.";
 		mes "Now hurry back to the Hunter Guild, and join us~";
-		close2;
-		cutin "job_huntermaster",255;
-		end;
+		close3;
 	}
 	else if (HNTR_Q == 17) {
 		mes "[猎人工会会长]";
@@ -955,16 +954,12 @@ payon_in02,21,31,1	script	猎人#htnGM2	1_M_ORIENT01,{
 		mes "They're waiting";
 		mes "for you back";
 		mes "at the Hunter Guild.";
-		close2;
-		cutin "job_huntermaster",255;
-		end;
+		close3;
 	}
 	else {
 		mes "[猎人]";
 		mes "What do you want? I'm on an official trip and am busy at the moment. Now if you'll excuse me.";
-		close2;
-		cutin "job_huntermaster",255;
-		end;
+		close3;
 	}
 }
 
@@ -999,22 +994,20 @@ OnTouch_:
 		mes "[向导]";
 		mes "If it's too hard, it wouldn't hurt to try again next time. Would you like to resign for now?";
 		next;
-		switch(select("- 继续尝试.:- 放弃.")) {
-		case 1:
+		if (select( "- 继续尝试.", "- 放弃." ) == 1) {
 			mes "[向导]";
 			mes "好的. 尽自己全力,成为一名伟大的猎人.请进入等候室,如果有人已经在参加考试, 则必须等别人完成后.";
 			close;
-		case 2:
+		}
 			mapannounce "job_hunte",strcharinfo(0)+ " 已经放弃. 下一位, 请进入.",bc_map;
 			mes "[向导]";
 			mes "非常好. 我会送你去斐扬. 希望下次再见到你. 离开后记得保存.";
 			// donpcevent "等候室#hnt::OnStart";
 			close2;
-			set HNTR_Q,13;
+		HNTR_Q = 13;
 			savepoint "payon",104,99,1,1;
 			warp "payon_in02",21,27;
 		}
-	}
 	else if (HNTR_Q > 15) {
 		mes "[向导]";
 		mes "你不应该在这里.第一次变更职业的道具寻找的进展如何了?";
@@ -1052,7 +1045,7 @@ OnInit:
 OnEnable:
 	donpcevent "开关#hnt::OnDisable";
 	enablenpc "管理#hnt";
-	set .MyMobs,6;
+	.MyMobs = 6;
 	initnpctimer;
 	// Target Mosnters
 	monster "job_hunte",67,80,"职业变更怪物",1015,1,"管理#hnt::OnMyMobDead";
@@ -1095,10 +1088,10 @@ OnEnable:
 	end;
 
 OnMyMobDead:
-	set .MyMobs,.MyMobs-1;
+	.MyMobs--;
 	if (.MyMobs < 3) {
 		mapannounce "job_hunte","好的, 干的不错... 现在, 找到地图中间的开关!! 要小心陷阱!!",bc_map;
-		set HNTR_Q,14;
+		HNTR_Q = 14;
 		donpcevent "开关#hnt::OnEnable";
 		donpcevent "管理#hnt::OnDisable";
 	}
@@ -1109,7 +1102,7 @@ OnMyMobDead:
 
 OnMyMobDead2:
 	mapannounce "job_hunte",strcharinfo(0)+ "!! 你犯了个错误...请重试一次.",bc_map;
-	set HNTR_Q,13;
+	HNTR_Q = 13;
 	warp "job_hunte",176,22;
 	donpcevent "管理#hnt::OnReset";
 	donpcevent "等候室#hnt::OnStart";
@@ -1209,9 +1202,9 @@ job_hunte,93,101,1	script	开关#hnt	1_SHADOW_NPC,1,1,{
 OnTouch_:
 	mes "^3355FF这里有3个按钮";
 	mes "在退出控制器上.^000000";
-	set HNTR_Q,15;
+	HNTR_Q = 15;
 	next;
-	switch(select("- 退出:- 取消:- 重试")) {
+	switch( select( "- 退出", "- 取消", "- 重试" ) ) {
 	case 1:
 		mes "^3355FF退出传送门";
 		mes "现在被激活.^000000";
@@ -1231,7 +1224,7 @@ OnTouch_:
 		mes "送回";
 		mes "等候室.^000000";
 		close2;
-		set HNTR_Q,13;
+		HNTR_Q = 13;
 		warp "job_hunte",176,22;
 		donpcevent "管理#hnt::OnReset";
 		donpcevent "等候室#hnt::OnStart";
@@ -1249,6 +1242,7 @@ OnEnable:
 }
 
 job_hunte,89,139,0	script	出口#hnttest	WARPNPC,2,2,{
+	end;
 OnInit:
 	disablenpc "出口#hnttest";
 	end;
@@ -1256,7 +1250,7 @@ OnInit:
 OnTouch_:
 	donpcevent "管理#hnt::OnReset";
 	donpcevent "等候室#hnt::OnStart";
-	set HNTR_Q,16;
+	HNTR_Q = 16;
 	changequest 4011,4012;
 	savepoint "payon",104,99,1,1;
 	if (rand(2))
@@ -1270,7 +1264,7 @@ OnTouch_:
 //============================================================
 job_hunte,52,140,0	script	1-1::HntTrap	-1,0,1,{
 OnTouch_:
-	switch(rand(200)) {
+	switch( rand(200) ) {
 	default:
 	case 1: mapannounce "job_hunte",strcharinfo(0) + ",你就掉进了陷阱.您将返回到起点.",bc_map; break;
 	case 2: mapannounce "job_hunte",strcharinfo(0) + ",是你!回去重新开始!",bc_map; break;
@@ -1404,7 +1398,7 @@ OnTouch_:
 	case 130: mapannounce "job_hunte",strcharinfo(0) + ",没关系哭.只是不要太大声.",bc_map; break;
 	case 131: mapannounce "job_hunte",strcharinfo(0) + "哦......男人.这是累人建立所有这些陷阱.你们必须停止落入他们!",bc_map; break;
 	}
-	set HNTR_Q,13;
+	HNTR_Q = 13;
 	warp "job_hunte",176,22;
 	donpcevent "管理#hnt::OnReset";
 	donpcevent "等候室#hnt::OnStart";
@@ -1640,7 +1634,7 @@ job_hunte,65,92,0	duplicate(HntTrap)	57-3	-1,0,0
 job_hunte,65,93,0	script	57-4::HntTrap2	-1,{
 OnTouch_:
 	mapannounce "job_hunte",strcharinfo(0) + ", has failed me! Go back to where you started!",bc_map;
-	set HNTR_Q,13;
+	HNTR_Q = 13;
 	warp "job_hunte",176,22;
 	donpcevent "管理#hnt::OnReset";
 	donpcevent "等候室#hnt::OnStart";
