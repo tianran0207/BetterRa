@@ -75,6 +75,9 @@ void pet_set_intimate(struct pet_data *pd, int value)
 
 	nullpo_retv(pd);
 
+	if (battle_config.pet_ignore_intimate_decrease && value < pd->pet.intimate)
+		value = pd->pet.intimate;
+
 	intimate = pd->pet.intimate;
 	sd = pd->master;
 

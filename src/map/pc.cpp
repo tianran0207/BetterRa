@@ -2699,15 +2699,15 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 			break;
 		case SP_WEAPON_ADD_DAMAGE:
 			if(sd->state.lr_flag != 2)
-				sd->bonus.weapon_add_damage+=val;
+				sd->c_bonus.weapon_add_damage += val;
 			break;
 		case SP_MAGIC_ADD_DAMAGE:
 			if(sd->state.lr_flag != 2)
-				sd->bonus.magic_add_damage +=val;
+				sd->c_bonus.magic_add_damage += val;
 			break;
 		case SP_MISC_ADD_DAMAGE:
 			if(sd->state.lr_flag != 2)
-				sd->bonus.misc_add_damage +=val;
+				sd->c_bonus.misc_add_damage += val;
 			break;
 		case SP_ATTACKRANGE:
 			switch (sd->state.lr_flag) {
@@ -3194,6 +3194,30 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_SKILLTREE_COOLDOWNRATE:
+		if (sd->state.lr_flag != 2) {
+			if ((pc_jobid2mapid(sd->status.class_) & MAPID_BASEMASK) == (pc_jobid2mapid(type2) & MAPID_BASEMASK)) {
+				sd->c_bonus.skill_tree.c_idxrate = pc_class2idx(sd->status.class_);
+				sd->c_bonus.skill_tree.c_cooldownrate = val;
+			}
+		}
+		break;
+	case SP_SKILLTREE_COOLDOWN:
+		if (sd->state.lr_flag != 2) {
+			if ((pc_jobid2mapid(sd->status.class_) & MAPID_BASEMASK) == (pc_jobid2mapid(type2) & MAPID_BASEMASK)) {
+				sd->c_bonus.skill_tree.c_idx = pc_class2idx(sd->status.class_);
+				sd->c_bonus.skill_tree.c_cooldown = val;
+			}
+		}
+		break;
+	case SP_SKILLTREE_DELAYRATW:
+		if (sd->state.lr_flag != 2) {
+			if ((pc_jobid2mapid(sd->status.class_) & MAPID_BASEMASK) == (pc_jobid2mapid(type2) & MAPID_BASEMASK)) {
+				sd->c_bonus.skill_tree.d_idxrate = pc_class2idx(sd->status.class_);
+				sd->c_bonus.skill_tree.d_delayrate = val;
+			}
+		}
+		break;
 	case SP_ADDELE: // bonus2 bAddEle,e,x;
 		PC_BONUS_CHK_ELEMENT(type2,SP_ADDELE);
 		if(!sd->state.lr_flag)
@@ -5895,6 +5919,29 @@ int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 sk
 		cooldown += sd->skillcooldown[i].val;
 		cooldown = max(0,cooldown);
 	}
+
+	if (sd->c_bonus.skill_tree.c_idxrate && cooldown) {
+		int c = sd->c_bonus.skill_tree.c_idxrate, i;
+		for (i = 0; i < MAX_SKILL_TREE; i++) {
+			if (skill_tree[c][i].skill_id == skill_id) {
+				cooldown = cooldown * sd->c_bonus.skill_tree.c_cooldownrate / 100;
+				cooldown = max(0, cooldown);
+				break;
+			}
+		}
+	}
+
+	if (sd->c_bonus.skill_tree.c_idx && cooldown) {
+		int c = sd->c_bonus.skill_tree.c_idx, i;
+		for (i = 0; i < MAX_SKILL_TREE; i++) {
+			if (skill_tree[c][i].skill_id == skill_id) {
+				cooldown += sd->c_bonus.skill_tree.c_cooldown;
+				cooldown = max(0, cooldown);
+				break;
+			}
+		}
+	}
+
 	return cooldown;
 }
 
@@ -10965,6 +11012,12 @@ void pc_delspiritcharm(struct map_session_data *sd, int count, int type)
 int pc_level_penalty_mod(int level_diff, uint32 mob_class, enum e_mode mode, int type)
 {
 	int rate = 100;
+
+	if (type == 1 && !battle_config.enable_re_exp_fix)
+		return rate;
+
+	if (type == 2 && !battle_config.enable_re_drop_fix)
+		return rate;
 
 	if (type == 2 && (mode&MD_FIXED_ITEMDROP))
 		return rate;

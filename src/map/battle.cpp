@@ -1045,14 +1045,34 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 
 	if (src->type == BL_PC) {
 		sd = (struct map_session_data *)src;
-		if (flag&BF_WEAPON && sd->bonus.weapon_add_damage)
-			damage += sd->bonus.weapon_add_damage;
+		if (flag&BF_WEAPON && sd->c_bonus.weapon_add_damage)
+			damage += sd->c_bonus.weapon_add_damage;
 
-		if (flag&BF_MAGIC && sd->bonus.magic_add_damage)
-			damage += sd->bonus.magic_add_damage;
+		if (flag&BF_MAGIC && sd->c_bonus.magic_add_damage)
+			damage += sd->c_bonus.magic_add_damage;
 
-		if (flag&BF_MISC && sd->bonus.misc_add_damage)
-			damage += sd->bonus.misc_add_damage;
+		if (flag&BF_MISC && sd->c_bonus.misc_add_damage)
+			damage += sd->c_bonus.misc_add_damage;
+	}
+
+	if (src->type & battle_config.enable_damage_rate) {
+		if (flag&BF_SKILL) {
+			if (flag&BF_WEAPON && battle_config.weapon_damage_rate != 100)
+				damage = damage * battle_config.weapon_damage_rate / 100;
+
+			if (flag&BF_MAGIC && battle_config.magic_damage_rate != 100)
+				damage = damage * battle_config.magic_damage_rate / 100;
+
+			if (flag&BF_MISC && battle_config.misc_damage_rate != 100)
+				damage = damage * battle_config.misc_damage_rate / 100;
+		}
+		else {
+			if (flag&BF_LONG && battle_config.long_damage_rate != 100)
+				damage = damage * battle_config.long_damage_rate / 100;
+
+			if (flag&BF_SHORT && battle_config.short_damage_rate != 100)
+				damage = damage * battle_config.short_damage_rate / 100;
+		}
 	}
 
 	sc = status_get_sc(bl); //check target status
@@ -8039,6 +8059,15 @@ static const struct _battle_data {
 	{ "instance_lastpoint",                 &battle_config.instance_lastpoint,              0,      0,      1,              },
 	{ "instance_leavepoint",                &battle_config.instance_leavepoint,             0,      0,      1,              },
 	{ "min_storechat_distance",             &battle_config.min_storechat_distance,          1,      0,      10,             },
+	{ "pet_ignore_intimate_decrease",       &battle_config.pet_ignore_intimate_decrease,    0,      0,      1,              },
+	{ "short_attack_damage_rate",           &battle_config.short_damage_rate,               100,    0,      INT_MAX,        },
+	{ "long_attack_damage_rate",            &battle_config.long_damage_rate,                100,    0,      INT_MAX,        },
+	{ "weapon_attack_damage_rate",          &battle_config.weapon_damage_rate,              100,    0,      INT_MAX,        },
+	{ "magic_attack_damage_rate",           &battle_config.magic_damage_rate,               100,    0,      INT_MAX,        },
+	{ "misc_attack_damage_rate",            &battle_config.misc_damage_rate,                100,    0,      INT_MAX,        },
+	{ "enable_damage_rate",                 &battle_config.enable_damage_rate,              BL_NUL, BL_NUL, BL_ALL,         },
+	{ "enable_re_drop_fix",                 &battle_config.enable_re_drop_fix,              0,      0,      1,              },
+	{ "enable_re_exp_fix",                  &battle_config.enable_re_exp_fix,               0,      0,      1,              },
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },

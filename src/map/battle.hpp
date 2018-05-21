@@ -160,6 +160,15 @@ struct Battle_Config
 	int instance_lastpoint;
 	int instance_leavepoint;
 	int min_storechat_distance;
+	int pet_ignore_intimate_decrease;
+	int short_damage_rate;
+	int long_damage_rate;
+	int weapon_damage_rate;
+	int magic_damage_rate;
+	int misc_damage_rate;
+	int enable_damage_rate;
+	int enable_re_drop_fix;
+	int enable_re_exp_fix;
 	//------------------------------
 	int warp_point_debug;
 	int enable_critical;

@@ -519,6 +519,10 @@
 	export_constant2("bMiscAddDamage", SP_MISC_ADD_DAMAGE);
 	export_constant2("bSkillDamage", SP_SKILL_DAMAGE);
 	export_constant2("bSkillForAOE", SP_SKILL_AOE);
+	export_constant2("bSkillTreeCooldownRate", SP_SKILLTREE_COOLDOWNRATE);
+	export_constant2("bSkillTreeCooldown", SP_SKILLTREE_COOLDOWN);
+	export_constant2("bSkillTreeDelayRate", SP_SKILLTREE_DELAYRATW);
+	export_constant2("bSkillTreeDelay", SP_SKILLTREE_DELAY);
 
 	export_constant2("bMaxHP",SP_MAXHP);
 	export_constant2("bMaxSP",SP_MAXSP);

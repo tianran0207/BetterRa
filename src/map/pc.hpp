@@ -558,9 +558,22 @@ struct map_session_data {
 		uint8 absorb_dmg_maxhp; // [Cydh]
 		short critical_rangeatk;
 		short weapon_atk_rate, weapon_matk_rate;
-		int weapon_add_damage, magic_add_damage, misc_add_damage;
 	} bonus;
 	// zeroed vars end here.
+
+	struct s_custom_bonus {
+		int weapon_add_damage, magic_add_damage, misc_add_damage;
+		struct s_job_cooldown {
+			int c_idxrate;
+			int c_cooldownrate;
+			int c_idx;
+			int c_cooldown;
+			int d_idxrate;
+			int d_delayrate;
+			int d_idx;
+			int d_delay;
+		}skill_tree;
+	}c_bonus;
 
 	struct s_autoevent {
 		short rate, atk_type;

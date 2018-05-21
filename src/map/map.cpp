@@ -5016,10 +5016,10 @@ bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int n
 
 	folder[0] = '\0';
 
-	if (sscanf(url, "http://%128[^/]/%1024s", host, folder) == 0)
+	if (sscanf(url, "http://%64[^/]/%512s", host, folder) == 0)
 		return false;
 
-	sscanf(url, "http://%128[^:/]:%hu", host, &post);
+	sscanf(url, "http://%64[^:/]:%hu", host, &post);
 
 	http_fd = make_connection(host2ip(host), post, true, timeout);
 	session[http_fd]->flag.server = 1;

@@ -3445,7 +3445,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->addeff)
 		+ sizeof(sd->addeff_atked)
 		+ sizeof(sd->addeff_onskill)
-		+ sizeof(sd->skilldamage)
+		+ sizeof(sd->skilldamage) //自定义
 		+ sizeof(sd->skillatk)
 		+ sizeof(sd->skillusesprate)
 		+ sizeof(sd->skillusesp)
@@ -3455,7 +3455,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->skillcastrate)
 		+ sizeof(sd->skillfixcastrate)
 		+ sizeof(sd->subskill)
-		+ sizeof(sd->skillforaoe)
+		+ sizeof(sd->skillforaoe) //自定义
 		+ sizeof(sd->skillcooldown)
 		+ sizeof(sd->skillfixcast)
 		+ sizeof(sd->skillvarcast)
@@ -3479,6 +3479,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	);
 
 	memset (&sd->bonus, 0, sizeof(sd->bonus));
+	memset (&sd->c_bonus, 0, sizeof(sd->c_bonus));
 
 	// Autobonus
 	pc_delautobonus(sd,sd->autobonus,ARRAYLENGTH(sd->autobonus),true);

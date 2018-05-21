@@ -16828,6 +16828,28 @@ int skill_delayfix(struct block_list *bl, uint16 skill_id, uint16 skill_lv)
 	if (battle_config.delay_rate != 100)
 		time = time * battle_config.delay_rate / 100;
 
+	if (sd->c_bonus.skill_tree.d_idxrate && time) {
+		int c = sd->c_bonus.skill_tree.d_idxrate, i;
+		for (i = 0; i < MAX_SKILL_TREE; i++) {
+			if (skill_tree[c][i].skill_id == skill_id) {
+				time = time * sd->c_bonus.skill_tree.d_delayrate / 100;
+				time = max(0, time);
+				break;
+			}
+		}
+	}
+
+	if (sd->c_bonus.skill_tree.d_idx && time) {
+		int c = sd->c_bonus.skill_tree.d_idx, i;
+		for (i = 0; i < MAX_SKILL_TREE; i++) {
+			if (skill_tree[c][i].skill_id == skill_id) {
+				time += sd->c_bonus.skill_tree.d_delay;
+				time = max(0, time);
+				break;
+			}
+		}
+	}
+
 	//ShowInfo("Delay delayfix = %d\n",time);
 
 	return max(time,0);
