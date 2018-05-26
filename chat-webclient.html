@@ -1,0 +1,261 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="https://apps.bdimg.com/libs/bootstrap/3.3.4/css/bootstrap.css">
+	<script src="https://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="https://apps.bdimg.com/libs/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	<title>菜鸟教程(runoob.com)</title>
+	</head>
+	<body>
+	<div class="container" style="padding-top: 50px">
+		<div class="row clearfix">
+			<div class="col-md-6 column">
+				<h2>Chat-Server 测试页面</h2>
+				<div id="login" class="form-horizontal">
+					<div class="form-group">
+						<label class="col-sm-3 control-label">地址</label>
+						<div class="col-sm-9">
+							<input name="address" type="text" class="form-control" placeholder="chat-server的地址和端口(127.0.0.1:8080)."/>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">角色名称</label>
+						<div class="col-sm-9">
+							<input name="nickname" type="text" class="form-control" placeholder="游戏中角色的名称(非账号)"/>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">密码</label>
+						<div class="col-sm-9">
+							<input name="password" type="text" class="form-control"  placeholder="游戏的密码"/>
+						</div>
+					</div>
+					<button type="button" class="btn btn-primary btn-lg btn-block">登陆</button>
+				</div>
+				<div style="display:none">
+					<ul id="channel" class="nav nav-pills">
+						<li class="active"><a href="JavaScript:void(0)">全部 <span class="badge">0</span></a></li>
+						<li><a href="JavaScript:void(0)">公开 <span class="badge">0</span></a></li>
+						<li><a href="JavaScript:void(0)">公会 <span class="badge">0</span></a></li>
+						<li><a href="JavaScript:void(0)">队伍 <span class="badge">0</span></a></li>
+						<li><a href="JavaScript:void(0)">私聊 <span class="badge">0</span></a></li>
+					</ul>
+					<div id="FILL" class="form-group" style="padding:10px;overflow-y:scroll;width:100%;height:400px"></div>
+					<div class="input-group dropup">
+						<div class="input-group-btn">
+							<button name="channel" type="button" class="btn btn-default  dropdown-toggle" data-toggle="dropdown">公开
+								<span class="caret"></span>
+							</button>
+							<ul id="channellist" class="dropdown-menu">
+								<li><a href="JavaScript:void(0)">公开</a></li>
+								<li><a href="JavaScript:void(0)">公会</a></li>
+								<li><a href="JavaScript:void(0)">队伍</a></li>
+								<li><a href="JavaScript:void(0)">私聊</a></li>
+							</ul>
+						</div><!-- /btn-group -->
+						<input name="sendname" type="text" class="form-control" style="width:80px;display:none">
+						<span class="input-group-addon" style="width:0%">内容</span>
+						<input name="content" type="text" class="form-control">
+						<span class="input-group-btn">
+							<button id="send" class="btn btn-primary" type="button">发送</button>
+						</span>
+					</div><!-- /input-group -->
+				</div>
+			</div>
+			<div class="col-md-6 column">
+			</div>
+		</div>
+	</div>
+<script>
+var channelid = 1;
+var channel = 0;
+var ws;
+var sh;
+var recv = new Array();
+var nickname = "";
+
+$("#channellist a").click(function(){
+	channelid = $("#channellist a").index($(this)) + 1;
+	$('button[name="channel"]').html($(this).text()+' <span class="caret"></span>');
+	if(channelid == 4) 
+		$('input[name="sendname"]').show();
+	else
+		$('input[name="sendname"]').hide();
+});
+
+$("#channel a").click(function(){
+	$("#channel li").removeClass("active");
+	$(this).parent().addClass("active");
+	channel = $("#channel a").index($(this));
+	
+	$("#FILL").html("");
+	var idx = 0;
+	var color = "#FF0000"
+	$.each(recv, function (index, value){
+		switch(value.substr(0,3)){
+			case 'GL:':  idx = 1; color = "000000"; break;
+			case 'GU:':  idx = 2; color = "00cb69"; break;
+			case 'PR:':  idx = 3; color = "eb9001"; break;
+			case 'WS:':  idx = 4; color = "005aff"; break;
+		}
+		value = makemsg(idx, value, color);
+		if (idx == channel || channel == 0) 
+			$("#FILL").append(value);
+	});
+});
+
+$("#login button").click(function(){
+	
+	nickname = "GM01";
+	console.log(nickname);
+	ChatSocket("127.0.0.1:8080","GM01","123456");
+	//nickname = $('input[name="nickname"]').val();
+	//ChatSocket($('input[name="address"]').val(),$('input[name="nickname"]').val(),$('input[name="password"]').val());
+});
+
+$("#send").click(function(){
+	var content = $('input[name="content"]').val();
+	var msg = "";
+	if (content=="" || (channelid == 4 && $('input[name="sendname"]').val() == "")) 
+		return;
+	
+	var color = "";
+	switch(channelid){
+		case 1: color = "000000"; content = "GL:"+content; break;
+		case 2: color = "00cb69"; content = "GU:"+content; break;
+		case 3: color = "eb9001"; content = "PR:"+content; break;
+		case 4: color = "005aff"; content = "WS:"+$('input[name="sendname"]').val()+"|#|"+content; break;
+	}
+	recv[recv.length] = content.replace(":",":"+nickname+" : ");
+	if (recv.length >= 1000)
+		recv.splice(0,1);
+	$("#channel li:first a span").text(recv.length);
+	
+	num = $("#channel li:nth-child("+(channelid+1)+") a span").text();
+	if(num>999)	num = 999;
+	$("#channel li:nth-child("+(channelid+1)+") a span").text(parseInt(num) + 1);
+	
+	msg = makemsg(channelid, content.replace(":",":"+nickname+" : "), color);
+	if (channelid == channel || channel == 0) 
+		$("#FILL").append(msg);
+		
+	ws.send(content);
+});
+
+function makemsg(idx, msg, color){
+	
+	msg = msg.substr(3);
+	if(msg.substr(0,3) == "WR:")
+		return "<span style='color:#"+color+"'>" + msg.substr(3) + "</span><br>";
+	console.log(msg);
+	if(idx == 4){
+		if(msg.indexOf("|#|") != -1)
+			msg = msg.replace(/^(.*?)\|#\|(.*?)$/, "[发送至 $1 ] $2");
+		else
+			msg = msg.replace(/^(.*?) : (.*?)/, "[来自 $1 ] $2");
+	}
+		
+	msg = "<span style='color:#"+color+"'>" + msg + "</span><br>";
+	
+	return msg;
+}
+
+function JoinMsg(msg){
+	recv[recv.length] = msg;
+	if (recv.length >= 1000)
+		recv.splice(0,1);
+	
+	var idx = 0;
+	var color = "#FF0000";
+	switch(msg.substr(0,3)){
+		case 'GL:':  idx = 1; color = "000000"; break;
+		case 'GU:':  idx = 2; color = "00cb69"; break;
+		case 'PR:':  idx = 3; color = "eb9001"; break;
+		case 'WS:':  idx = 4; color = "005aff"; break;
+	}
+	if(idx != 0){
+		num = $("#channel li:nth-child("+(idx+1)+") a span").text();
+		$("#channel li:nth-child("+(idx+1)+") a span").text(parseInt(num) + 1);
+	}
+	$("#channel li:first a span").text(recv.length);
+	
+	msg = makemsg(idx, msg, color);
+	if (idx == channel || channel == 0) 
+		$("#FILL").append(msg);
+}
+
+function ChatSocket(url,account,password){
+	if ("WebSocket" in window){
+		ws = new WebSocket("ws://"+url+"/"+Base64encode(account+"|"+password));
+		//ws = new WebSocket("ws://123.207.167.163:9010/ajaxchattest");
+		ws.onopen = function(){
+			$("#login").next().show();
+			$("#login").hide();
+			sh=setInterval(function (){
+				ws.send("HBT");
+			},10000);
+		};
+		ws.onmessage = function (evt){
+			if (evt.data != "HBT")
+				JoinMsg(evt.data)
+		};
+		ws.onclose = function(){ 
+			clearInterval(sh);
+			$("#login").next().hide();
+			$("#login").show();
+			alert("连接已关闭..."); 
+		};
+	}else{
+	   alert("您的浏览器不支持 WebSocket!");
+	}
+}
+
+var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";  
+// public method for encoding  
+function Base64encode(input) {  
+	var output = "";  
+	var chr1, chr2, chr3, enc1, enc2, enc3, enc4;  
+	var i = 0;  
+	input = _utf8_encode(input);  
+	while (i < input.length) {  
+		chr1 = input.charCodeAt(i++);  
+		chr2 = input.charCodeAt(i++);  
+		chr3 = input.charCodeAt(i++);  
+		enc1 = chr1 >> 2;  
+		enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);  
+		enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);  
+		enc4 = chr3 & 63;  
+		if (isNaN(chr2)) {  
+			enc3 = enc4 = 64;  
+		} else if (isNaN(chr3)) {  
+			enc4 = 64;  
+		}  
+		output = output +  
+		_keyStr.charAt(enc1) + _keyStr.charAt(enc2) +  
+		_keyStr.charAt(enc3) + _keyStr.charAt(enc4);  
+	}  
+	return output;  
+}
+function _utf8_encode(string) {  
+	string = string.replace(/\r\n/g,"\n");  
+	var utftext = "";  
+	for (var n = 0; n < string.length; n++) {  
+		var c = string.charCodeAt(n);  
+		if (c < 128) {  
+			utftext += String.fromCharCode(c);  
+		} else if((c > 127) && (c < 2048)) {  
+			utftext += String.fromCharCode((c >> 6) | 192);  
+			utftext += String.fromCharCode((c & 63) | 128);  
+		} else {  
+			utftext += String.fromCharCode((c >> 12) | 224);  
+			utftext += String.fromCharCode(((c >> 6) & 63) | 128);  
+			utftext += String.fromCharCode((c & 63) | 128);  
+		}  
+
+	}  
+	return utftext;  
+}
+</script>
+	</body>
+</html>
