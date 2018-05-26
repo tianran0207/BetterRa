@@ -5926,6 +5926,9 @@ int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 sk
 	if (skill_id == SU_TUNABELLY && pc_checkskill(sd, SU_SPIRITOFSEA))
 		cooldown -= skill_get_time(SU_TUNABELLY, skill_lv);
 
+	if (battle_config.pc_cooldown_rate != 100)
+		cooldown = cooldown * battle_config.pc_cooldown_rate / 100;
+
 	ARR_FIND(0, cooldownlen, i, sd->skillcooldown[i].id == skill_id);
 	if (i < cooldownlen) {
 		cooldown += sd->skillcooldown[i].val;

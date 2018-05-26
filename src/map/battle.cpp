@@ -8070,6 +8070,10 @@ static const struct _battle_data {
 	{ "enable_re_exp_fix",                  &battle_config.enable_re_exp_fix,               0,      0,      1,              },
 	{ "mob_ele_attack",                     &battle_config.mob_ele_attack,                  0,      0,      1,              },
 	{ "chat_server_interface",              &battle_config.chat_server_interface,           0,      0,      1,              },
+	{ "pc_cast_rate",                       &battle_config.pc_cast_rate,                    100,    0,      INT_MAX,        },
+	{ "pc_fixed_cast_rate",                 &battle_config.pc_fixed_cast_rate,              100,    0,      INT_MAX,        },
+	{ "pc_cooldown_rate",                   &battle_config.pc_cooldown_rate,                100,    0,      INT_MAX,        },
+	{ "pc_delay_rate",                      &battle_config.pc_delay_rate,                   100,    0,      INT_MAX,        },
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },

@@ -16734,6 +16734,12 @@ int skill_vfcastfix(struct block_list *bl, double time, uint16 skill_id, uint16 
 	if (!(flag&1))
 		time = time * (1 - sqrt(((float)(status_get_dex(bl) * 2 + status_get_int(bl)) / battle_config.vcast_stat_scale)));
 
+	if (sd && battle_config.pc_cast_rate != 100)
+		time = time * (float)battle_config.pc_cast_rate / 100;
+
+	if (sd && battle_config.pc_fixed_cast_rate != 100)
+		fixed = fixed * battle_config.pc_fixed_cast_rate / 100;
+
 	time = time * (1 - (float)min(reduce_cast_rate, 100) / 100);
 	time = max(time, 0) + (1 - (float)min(fixcast_r, 100) / 100) * max(fixed, 0); //Underflow checking/capping
 
@@ -16762,6 +16768,9 @@ int skill_delayfix(struct block_list *bl, uint16 skill_id, uint16 skill_lv)
 
 	if (time < 0)
 		time = -time + status_get_amotion(bl);	// If set to <0, add to attack motion.
+
+	if (sd && battle_config.pc_delay_rate != 100)
+		time = time * battle_config.pc_delay_rate / 100;
 
 	// Delay reductions
 	switch (skill_id) {	//Monk combo skills have their delay reduced by agi/dex.
@@ -16828,7 +16837,7 @@ int skill_delayfix(struct block_list *bl, uint16 skill_id, uint16 skill_lv)
 	if (battle_config.delay_rate != 100)
 		time = time * battle_config.delay_rate / 100;
 
-	if (sd->c_bonus.skill_tree.d_idxrate && time) {
+	if (sd && sd->c_bonus.skill_tree.d_idxrate && time) {
 		int c = sd->c_bonus.skill_tree.d_idxrate, i;
 		for (i = 0; i < MAX_SKILL_TREE; i++) {
 			if (skill_tree[c][i].skill_id == skill_id) {
@@ -16839,7 +16848,7 @@ int skill_delayfix(struct block_list *bl, uint16 skill_id, uint16 skill_lv)
 		}
 	}
 
-	if (sd->c_bonus.skill_tree.d_idx && time) {
+	if (sd && sd->c_bonus.skill_tree.d_idx && time) {
 		int c = sd->c_bonus.skill_tree.d_idx, i;
 		for (i = 0; i < MAX_SKILL_TREE; i++) {
 			if (skill_tree[c][i].skill_id == skill_id) {

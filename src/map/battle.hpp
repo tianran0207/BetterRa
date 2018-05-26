@@ -171,6 +171,10 @@ struct Battle_Config
 	int enable_re_exp_fix;
 	int mob_ele_attack;
 	int chat_server_interface;
+	int pc_cast_rate;
+	int pc_fixed_cast_rate;
+	int pc_cooldown_rate;
+	int pc_delay_rate;
 	//------------------------------
 	int warp_point_debug;
 	int enable_critical;
