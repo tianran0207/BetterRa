@@ -523,6 +523,7 @@
 	export_constant2("bSkillTreeCooldown", SP_SKILLTREE_COOLDOWN);
 	export_constant2("bSkillTreeDelayRate", SP_SKILLTREE_DELAYRATW);
 	export_constant2("bSkillTreeDelay", SP_SKILLTREE_DELAY);
+	export_constant2("bMaxASPD", SP_MAXASPD);
 
 	export_constant2("bMaxHP",SP_MAXHP);
 	export_constant2("bMaxSP",SP_MAXSP);

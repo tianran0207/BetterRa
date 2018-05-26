@@ -19,6 +19,10 @@ struct auction_data;
 struct s_achievement_db;
 struct map_session_data;
 
+extern int chat_fd;
+int intif_chat_server_recv(int fd);
+int intif_chat_server_send(struct map_session_data *sd, struct s_packet_db *info, char* out_name, char* out_full_message);
+
 int intif_parse(int fd);
 
 int intif_broadcast(const char* mes, int len, int type);

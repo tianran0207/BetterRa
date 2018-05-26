@@ -23,3 +23,5 @@ bonus2 bSkillTreeCooldownRate,jobid,n;	职业技能公共技能延迟按百分比调整
 bonus2 bSkillTreeCooldown,jobid,n;		职业技能公共技能延迟调整
 bonus2 bSkillTreeDelayRate,jobid,n;		职业技能独立技能延迟按百分比调整
 bonus2 bSkillTreeDelay,jobid,n;			职业技能独立技能延迟调整
+
+bonus bMaxASPD,n;                       修改ASPD上限(无视CONF中的配置)

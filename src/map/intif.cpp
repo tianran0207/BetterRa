@@ -3819,3 +3819,150 @@ int intif_parse(int fd)
 
 	return 1;
 }
+
+//type 0: chat server login
+//type 1: ping
+//type 2: 世界发言包
+//type 3: 队伍发言包
+//type 4: 公会发言包
+//type 5: 私聊发言包
+
+int CheckForChatServer(void)
+{
+	return ((chat_fd <= 0) || session[chat_fd] == NULL || session[chat_fd]->wdata == NULL);
+}
+
+int intif_chat_server_recv(int fd) {
+	int type, account_id, len;
+	int guild_id, party_id, i;
+	struct guild *g;
+	struct party_data *p;
+	struct map_session_data *sd;
+	const char *mes, *nick, *sendnick;
+	len = RFIFOW(fd, 2);
+	type = RFIFOW(fd, 4);
+
+	switch (type) {
+	case 0:
+		//验证账号密码
+		chat_fd = fd;
+		ShowStatus("Chat-server is connected with ip '" CL_WHITE "%s" CL_RESET "'\n", ip2str(session[fd]->client_addr, NULL));
+		//if(chrif_checkuserid)
+		WFIFOHEAD(fd, 2); WFIFOW(fd, 0) = 0xFC30; WFIFOSET(fd, 2);
+		break;
+	case 1:
+		WFIFOHEAD(fd, 2); WFIFOW(fd, 0) = 0xFC31; WFIFOSET(fd, 2);
+		break;
+	case 2: {
+		const char *fontColor = RFIFOCP(fd, 6); //0xRRGGBB\0
+		mes = RFIFOCP(fd, 15);
+
+		intif_broadcast2(mes, (int)strlen(mes) + 1, strtol(fontColor, (char **)NULL, 0), FW_NORMAL, 12, 0, 0);
+		}
+		break;
+	case 3:
+		account_id = RFIFOL(fd, 6);
+		party_id = RFIFOL(fd, 10);
+		mes = RFIFOCP(fd, 14);
+		if ((p = party_search(party_id)) != NULL) {
+			ARR_FIND(0, MAX_PARTY, i, p->party.member[i].account_id == account_id);
+			if (i != MAX_PARTY) {
+				clif_party_message(p, account_id, mes, (int)strlen(mes) + 1);
+				break;
+			}
+		}
+		WFIFOHEAD(fd, 6);
+		WFIFOW(fd, 0) = 0xFC33;
+		WFIFOL(fd, 2) = account_id;
+		WFIFOSET(fd, 6);
+		break;
+	case 4:
+		account_id = RFIFOL(fd, 6);
+		guild_id = RFIFOL(fd, 10);
+		mes = RFIFOCP(fd, 14);
+		if ((g = guild_search(guild_id)) != NULL) {
+			ARR_FIND(0, g->max_member, i, g->member[i].account_id == account_id);
+			if (i != g->max_member) {
+				clif_guild_message(g, account_id, mes, (int)strlen(mes) + 1);
+				break;
+			}
+		}
+		WFIFOHEAD(fd, 6);
+		WFIFOW(fd, 0) = 0xFC34;
+		WFIFOL(fd, 2) = account_id;
+		WFIFOSET(fd, 6);
+		break;
+	case 5: 
+		nick = RFIFOCP(fd, 10); //NAME_LENGTH
+		sendnick = RFIFOCP(fd, 10 + NAME_LENGTH); //NAME_LENGTH
+		account_id = RFIFOL(fd, 6); //aid
+		mes = RFIFOCP(fd, 10 + NAME_LENGTH * 2);
+		sd = map_nick2sd(nick, false);
+		if (sd)
+			clif_wis_message(sd, sendnick, mes, (int)strlen(mes) + 1, 0);
+		else {
+			WFIFOHEAD(fd, 6);
+			WFIFOW(fd, 0) = 0xFC35;
+			WFIFOL(fd, 2) = account_id;
+			WFIFOSET(fd, 6);
+		}
+		break;
+	default:
+		break;
+	}
+	int length = session[fd]->rdata_size;
+	RFIFOSKIP(fd, len);
+	return 1;
+}
+
+extern void clif_parse_GlobalMessage(int fd, struct map_session_data* sd);
+extern void clif_parse_PartyMessage(int fd, struct map_session_data* sd);
+extern void clif_parse_GuildMessage(int fd, struct map_session_data* sd);
+extern void clif_parse_WisMessage(int fd, struct map_session_data* sd);
+
+int intif_chat_server_send(struct map_session_data *sd, struct s_packet_db *info, char* out_name, char* out_full_message) {
+
+	int len;
+	char message[1024];
+
+	if (CheckForChatServer())
+		return 0;
+
+	if (info->func == clif_parse_GlobalMessage) {
+		len = 4 + strlen(out_full_message) + 1;
+		WFIFOHEAD(chat_fd, len);
+		WFIFOW(chat_fd, 0) = 0xFC41;
+		WFIFOW(chat_fd, 2) = len;
+		safestrncpy(WFIFOCP(chat_fd, 4), out_full_message, len - 4);
+		WFIFOSET(chat_fd, len);
+	}
+	else if (info->func == clif_parse_PartyMessage) {
+		len = 8 + strlen(out_full_message) + 1;
+		WFIFOHEAD(chat_fd, len);
+		WFIFOW(chat_fd, 0) = 0xFC42;
+		WFIFOW(chat_fd, 2) = len;
+		WFIFOL(chat_fd, 4) = sd->status.party_id;
+		safestrncpy(WFIFOCP(chat_fd, 8), out_full_message, len - 8);
+		WFIFOSET(chat_fd, len);
+	}
+	else if (info->func == clif_parse_GuildMessage) {
+		len = 8 + strlen(out_full_message) + 1;
+		WFIFOHEAD(chat_fd, len);
+		WFIFOW(chat_fd, 0) = 0xFC43;
+		WFIFOW(chat_fd, 2) = len;
+		WFIFOL(chat_fd, 4) = sd->status.guild_id;
+		safestrncpy(WFIFOCP(chat_fd, 8), out_full_message, len - 8);
+		WFIFOSET(chat_fd, len);
+	}
+	else if (info->func == clif_parse_WisMessage) {
+		sprintf(message, "%s : %s", sd->status.name, out_full_message + 24);
+		len = 4 + NAME_LENGTH + strlen(message) + 1;
+		WFIFOHEAD(chat_fd, len);
+		WFIFOW(chat_fd, 0) = 0xFC44;
+		WFIFOW(chat_fd, 2) = len;
+		safestrncpy(WFIFOCP(chat_fd, 4), out_name, NAME_LENGTH);
+		safestrncpy(WFIFOCP(chat_fd, 4 + NAME_LENGTH), message, strlen(message) + 1);
+		WFIFOSET(chat_fd, len);
+	}
+	return 1;
+}

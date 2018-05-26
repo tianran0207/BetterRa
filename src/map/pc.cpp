@@ -2541,6 +2541,10 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 	status = &sd->base_status;
 
 	switch(type){
+		case SP_MAXASPD:
+			if (sd->state.lr_flag != 2)
+				sd->c_bonus.max_aspd = val;
+			break;
 		case SP_STR:
 		case SP_AGI:
 		case SP_VIT:
@@ -3194,7 +3198,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 	nullpo_retv(sd);
 
 	switch(type){
-	case SP_SKILLTREE_COOLDOWNRATE:
+	case SP_SKILLTREE_COOLDOWNRATE: //bonus2 bSkillTreeCooldownRate, jobid, n
 		if (sd->state.lr_flag != 2) {
 			if ((pc_jobid2mapid(sd->status.class_) & MAPID_BASEMASK) == (pc_jobid2mapid(type2) & MAPID_BASEMASK)) {
 				sd->c_bonus.skill_tree.c_idxrate = pc_class2idx(sd->status.class_);
@@ -3202,7 +3206,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			}
 		}
 		break;
-	case SP_SKILLTREE_COOLDOWN:
+	case SP_SKILLTREE_COOLDOWN: //bonus2 bSkillTreeCooldown,jobid,n;
 		if (sd->state.lr_flag != 2) {
 			if ((pc_jobid2mapid(sd->status.class_) & MAPID_BASEMASK) == (pc_jobid2mapid(type2) & MAPID_BASEMASK)) {
 				sd->c_bonus.skill_tree.c_idx = pc_class2idx(sd->status.class_);
@@ -3210,11 +3214,19 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			}
 		}
 		break;
-	case SP_SKILLTREE_DELAYRATW:
+	case SP_SKILLTREE_DELAYRATW: //bonus2 bSkillTreeDelayRate, jobid, n;
 		if (sd->state.lr_flag != 2) {
 			if ((pc_jobid2mapid(sd->status.class_) & MAPID_BASEMASK) == (pc_jobid2mapid(type2) & MAPID_BASEMASK)) {
 				sd->c_bonus.skill_tree.d_idxrate = pc_class2idx(sd->status.class_);
 				sd->c_bonus.skill_tree.d_delayrate = val;
+			}
+		}
+		break;
+	case SP_SKILLTREE_DELAY: //bonus2 bSkillTreeDelayRate, jobid, n;
+		if (sd->state.lr_flag != 2) {
+			if ((pc_jobid2mapid(sd->status.class_) & MAPID_BASEMASK) == (pc_jobid2mapid(type2) & MAPID_BASEMASK)) {
+				sd->c_bonus.skill_tree.d_idx = pc_class2idx(sd->status.class_);
+				sd->c_bonus.skill_tree.d_delay = val;
 			}
 		}
 		break;
@@ -12362,6 +12374,9 @@ short pc_maxaspd(struct map_session_data *sd) {
 		return battle_config.max_pvp_aspd;
 	if (map[sd->bl.m].flag.gvg && !battle_config.max_gvg_aspd)
 		return battle_config.max_gvg_aspd;
+
+	if(sd->c_bonus.max_aspd)
+		return sd->c_bonus.max_aspd;
 
 	return (( sd->class_&JOBL_THIRD) ? battle_config.max_third_aspd : (
 			((sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION) ? battle_config.max_extended_aspd :

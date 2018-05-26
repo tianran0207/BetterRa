@@ -8068,6 +8068,8 @@ static const struct _battle_data {
 	{ "enable_damage_rate",                 &battle_config.enable_damage_rate,              BL_NUL, BL_NUL, BL_ALL,         },
 	{ "enable_re_drop_fix",                 &battle_config.enable_re_drop_fix,              0,      0,      1,              },
 	{ "enable_re_exp_fix",                  &battle_config.enable_re_exp_fix,               0,      0,      1,              },
+	{ "mob_ele_attack",                     &battle_config.mob_ele_attack,                  0,      0,      1,              },
+	{ "chat_server_interface",              &battle_config.chat_server_interface,           0,      0,      1,              },
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },

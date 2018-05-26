@@ -244,6 +244,10 @@ void chrif_setpasswd(char *pwd) {
 	memcpy(passwd, pwd, NAME_LENGTH);
 }
 
+bool chrif_checkuserid(char *id, char *pwd) {
+	return (strcmp(userid, id) == 0 && strcmp(passwd, pwd) == 0);
+}
+
 // security check, prints warning if using default password
 void chrif_checkdefaultlogin(void) {
 	// Skip this check if the server is run with run-once flag

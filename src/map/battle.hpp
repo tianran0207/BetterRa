@@ -169,6 +169,8 @@ struct Battle_Config
 	int enable_damage_rate;
 	int enable_re_drop_fix;
 	int enable_re_exp_fix;
+	int mob_ele_attack;
+	int chat_server_interface;
 	//------------------------------
 	int warp_point_debug;
 	int enable_critical;

@@ -574,6 +574,7 @@ struct map_session_data {
 			int d_idx;
 			int d_delay;
 		}skill_tree;
+		int max_aspd;
 	}c_bonus;
 
 	struct s_autoevent {

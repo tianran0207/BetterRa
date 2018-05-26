@@ -36,6 +36,7 @@ struct auth_node {
 
 void chrif_setuserid(char* id);
 void chrif_setpasswd(char* pwd);
+bool chrif_checkuserid(char *id, char *pwd);
 void chrif_checkdefaultlogin(void);
 int chrif_setip(const char* ip);
 void chrif_setport(uint16 port);

@@ -7275,6 +7275,12 @@ unsigned char status_calc_attack_element(struct block_list *bl, struct status_ch
 		return ELE_WATER;
 	if(sc->data[SC_PYROCLASTIC])
 		return ELE_FIRE;
+	
+	if (battle_config.mob_ele_attack && bl->type == BL_MOB) {
+		struct mob_data *md = (struct mob_data *)bl;
+		return md->db->status.def_ele;
+	}
+	
 	return (unsigned char)cap_value(element,0,UCHAR_MAX);
 }
 

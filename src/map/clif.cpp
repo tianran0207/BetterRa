@@ -10181,6 +10181,8 @@ static bool clif_process_message(struct map_session_data* sd, bool whisperFormat
 		sprintf( out_full_message, "%s%s%s", out_name, seperator, out_message );
 	}
 
+	intif_chat_server_send(sd, info, out_name, out_full_message);
+
 	if( is_atcommand( fd, sd, out_message, 1 )  )
 		return false;
 
@@ -20537,6 +20539,7 @@ void clif_parse_changedress( int fd, struct map_session_data* sd ){
 #endif
 }
 
+int chat_fd = -1;
 /*==========================================
  * Main client packet processing function
  *------------------------------------------*/
@@ -20577,6 +20580,10 @@ static int clif_parse(int fd)
 		} else {
 			ShowInfo("Closed connection from '" CL_WHITE "%s" CL_RESET "'.\n", ip2str(session[fd]->client_addr, NULL));
 		}
+
+		if (fd == chat_fd)
+			chat_fd = -1;
+
 		do_close(fd);
 		return 0;
 	}
@@ -20593,6 +20600,12 @@ static int clif_parse(int fd)
 #endif
 
 	cmd = RFIFOW(fd, 0);
+
+	//chat-server interface 
+	if (battle_config.chat_server_interface && cmd == 0x9F0F) {
+		intif_chat_server_recv(fd);
+		return 0;
+	}
 
 #ifdef PACKET_OBFUSCATION
 	// Check if it is a player that tries to connect to the map server.
