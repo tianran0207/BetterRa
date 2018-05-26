@@ -2540,7 +2540,11 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 
 	status = &sd->base_status;
 
-	switch(type){
+	switch(type){ // bonus bCooldownrate,n;
+		case SP_COOLDOWNRATE:
+			if (sd->state.lr_flag != 2)
+				sd->c_bonus.cooldownrate += val;
+			break;
 		case SP_MAXASPD:
 			if (sd->state.lr_flag != 2)
 				sd->c_bonus.max_aspd = val;
@@ -3912,6 +3916,21 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_SKILL_ITEM_FIX: // bonus3 bSkillItemFix,sk,iid,n;
+		if (sd->state.lr_flag != 2) {
+			int i;
+			ARR_FIND(0, ARRAYLENGTH(sd->c_bonus.skillitemfix), i, sd->c_bonus.skillitemfix[i].sk == 0 
+				|| (sd->c_bonus.skillitemfix[i].sk == type2 && sd->c_bonus.skillitemfix[i].iid == type3));
+			if (i == ARRAYLENGTH(sd->c_bonus.skillitemfix))
+			{
+				ShowError("pc_bonus2: SP_ADD_DAMAGE_CLASS: Reached max (%d) number of add Class dmg bonuses per character!\n", ARRAYLENGTH(sd->left_weapon.add_dmg));
+				break;
+			}
+			sd->c_bonus.skillitemfix[i].sk = type2;
+			sd->c_bonus.skillitemfix[i].iid = type3;
+			sd->c_bonus.skillitemfix[i].amount += val;
+		}
+		break;
 	case SP_SKILL_DAMAGE:
 		if (sd->state.lr_flag != 2) {
 			int i;
@@ -5928,6 +5947,9 @@ int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 sk
 
 	if (battle_config.pc_cooldown_rate != 100)
 		cooldown = cooldown * battle_config.pc_cooldown_rate / 100;
+
+	if (sd->c_bonus.cooldownrate) 
+		cooldown = cooldown * sd->c_bonus.cooldownrate / 100;
 
 	ARR_FIND(0, cooldownlen, i, sd->skillcooldown[i].id == skill_id);
 	if (i < cooldownlen) {

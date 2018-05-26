@@ -8053,6 +8053,7 @@ static const struct _battle_data {
 	{ "buff_for_guild_member",              &battle_config.buff_for_guild_member,           0,      0,      1,              },
 	{ "buff_for_tribe_member",              &battle_config.buff_for_tribe_member,           0,      0,      1|2,            },
 	{ "enable_amulet",                      &battle_config.enable_amulet,                   0,      0,      1,              },
+	{ "amulet_type",					    &battle_config.amulet_type,                     5,      IT_USABLE,IT_ARMOR,     },
 	{ "enable_coply",                       &battle_config.enable_coply,                    0,      0,      1,              },
 	{ "display_skill_name",                 &battle_config.display_skill_name,              0,      0,      1,              },
 	{ "pet_catch_rate_mode",                &battle_config.pet_catch_rate_mode,             0,      0,      1,              },

@@ -9339,6 +9339,7 @@ BUILDIN_FUNC(bonus)
 
 	type = script_getnum(st,2);
 	switch( type ) {
+		case SP_SKILL_ITEM_FIX:
 		case SP_AUTOSPELL:
 		case SP_AUTOSPELL_WHENHIT:
 		case SP_AUTOSPELL_ONSKILL:

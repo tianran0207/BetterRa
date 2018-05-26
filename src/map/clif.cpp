@@ -91,7 +91,7 @@ static inline int itemtype(unsigned short nameid) {
 	}
 
 	if( type == IT_AMULET)
-		return IT_ARMOR;
+		return battle_config.amulet_type;
 
 	return ( type == IT_PETEGG ) ? IT_ARMOR : type;
 }

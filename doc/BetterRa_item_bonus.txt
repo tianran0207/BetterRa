@@ -24,4 +24,7 @@ bonus2 bSkillTreeCooldown,jobid,n;		职业技能公共技能延迟调整
 bonus2 bSkillTreeDelayRate,jobid,n;		职业技能独立技能延迟按百分比调整
 bonus2 bSkillTreeDelay,jobid,n;			职业技能独立技能延迟调整
 
+
+bonus bCooldownrate,n;                  技能独立延迟时间 + n%
 bonus bMaxASPD,n;                       修改ASPD上限(无视CONF中的配置)
+bonus3 bSkillItemFix,sk,iid,n;          技能 sk 消耗的物品ID iid 增加 n 个(n可以为负数) 

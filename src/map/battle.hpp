@@ -154,6 +154,7 @@ struct Battle_Config
 	int buff_for_guild_member;
 	int buff_for_tribe_member;
 	int enable_amulet;
+	int amulet_type;
 	int enable_coply;
 	int display_skill_name;
 	int pet_catch_rate_mode;

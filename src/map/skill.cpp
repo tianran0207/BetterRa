@@ -16396,6 +16396,23 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, uint16
 			break;
 	}
 
+	for (i = 0; i < ARRAYLENGTH(sd->c_bonus.skillitemfix); i++) {
+		int n;
+		if (sd->c_bonus.skillitemfix[i].sk != skill_id)
+			continue;
+
+		ARR_FIND(0, ((!level_dependent) ? MAX_SKILL_ITEM_REQUIRE : 2), n, req.itemid[n] == sd->c_bonus.skillitemfix[i].iid);
+		if (n == ((!level_dependent) ? MAX_SKILL_ITEM_REQUIRE : 2)) {
+			ARR_FIND(0, MAX_SKILL_ITEM_REQUIRE, n, req.itemid[n] == 0);
+			if (n == MAX_SKILL_ITEM_REQUIRE)
+				continue;
+			req.itemid[n] = sd->c_bonus.skillitemfix[i].iid;
+		}
+		req.amount[n] += sd->c_bonus.skillitemfix[i].amount;
+		if ((short)req.amount[n] < 1)
+			req.itemid[n] = req.amount[n] = 0;
+	}
+
 	// Check for cost reductions due to skills & SCs
 	switch(skill_id) {
 		case MC_MAMMONITE:

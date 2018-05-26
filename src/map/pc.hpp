@@ -575,6 +575,12 @@ struct map_session_data {
 			int d_delay;
 		}skill_tree;
 		int max_aspd;
+		struct s_skill_noconsume {
+			uint16 sk;
+			unsigned short iid;
+			int amount;
+		}skillitemfix[MAX_PC_BONUS];
+		int cooldownrate;
 	}c_bonus;
 
 	struct s_autoevent {
