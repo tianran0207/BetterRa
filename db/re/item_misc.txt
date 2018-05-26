@@ -1371,32 +1371,32 @@ IG_Mercenary,12180,1 //枪佣兵召唤书8级
 IG_Mercenary,12181,1 //枪佣兵召唤书9级
 IG_Mercenary,12182,1 //枪佣兵召唤书10级
 // PrizeOfHero
-IG_PrizeOfHero,522,7		// Fruit_Of_Mastela
-IG_PrizeOfHero,547,7		// White_Slim_Potion
-IG_PrizeOfHero,607,17		// Yggdrasilberry
-IG_PrizeOfHero,608,10		// Seed_Of_Yggdrasil
-IG_PrizeOfHero,678,7		// Poison_Bottle
-IG_PrizeOfHero,12075,7		// Str_Dish10
-IG_PrizeOfHero,12080,7		// Int_Dish10
-IG_PrizeOfHero,12085,7		// Vit_Dish10
-IG_PrizeOfHero,12090,7		// Agi_Dish10
-IG_PrizeOfHero,12095,7		// Dex_Dish10
-IG_PrizeOfHero,12100,7		// Luk_Dish10
+IG_PrizeOfHero,522,7		//玛丝黛拉果实
+IG_PrizeOfHero,547,7		//白色纤细药水
+IG_PrizeOfHero,607,17		//天地树果实
+IG_PrizeOfHero,608,10		//天地树芽
+IG_PrizeOfHero,678,7		//毒药瓶
+IG_PrizeOfHero,12075,7		//舌头料理
+IG_PrizeOfHero,12080,7		//鸡尾酒龙的呼吸
+IG_PrizeOfHero,12085,7		//不死之汤
+IG_PrizeOfHero,12090,7		//沙漠蝎子蒸锅
+IG_PrizeOfHero,12095,7		//禾贝勒开米勒酒
+IG_PrizeOfHero,12100,7		//特大九尾狐尾巴料理
 IG_PrizeOfHero,12530,2		// Mastela_Fruit_Box
 IG_PrizeOfHero,12534,2		// Yggdrasil_Seed_Box
 IG_PrizeOfHero,12535,1		// Iggdrasilberry_Box
-IG_PrizeOfHero,12549,2		// White_Slim_Pot_Box2
-IG_PrizeOfHero,12550,2		// Poison_Bottle_Box2
-IG_PrizeOfHero,12623,1		// High_Weapon_Box
-IG_PrizeOfHero,12676,7		// Sg_Violet_Potion_Box
-IG_PrizeOfHero,12679,7		// Sg_White_Potion_Box
-IG_PrizeOfHero,12680,7		// Sg_Blue_Potion_Box
-IG_PrizeOfHero,15093,1		// Hero_Plate
-IG_PrizeOfHero,15094,1		// Hero_Magic_Coat
-IG_PrizeOfHero,15095,1		// Hero_Judgement_Shawl
-IG_PrizeOfHero,15096,1		// Hero_Trade_Mail
-IG_PrizeOfHero,15097,1		// Hero_Hidden_Cloth
-IG_PrizeOfHero,15098,1		// Hero_Taget_Suits
-IG_PrizeOfHero,22035,2		// Vet_Nepen_Heel
-IG_PrizeOfHero,22036,2		// Vet_SliverFox_Boots
-IG_PrizeOfHero,22037,2		// Vet_Ungo_Boots
+IG_PrizeOfHero,12549,2		//白色纤细药水箱子
+IG_PrizeOfHero,12550,2		//毒药瓶箱子
+IG_PrizeOfHero,12623,1		//高级武器箱子
+IG_PrizeOfHero,12676,7		//城战紫色药水箱
+IG_PrizeOfHero,12679,7		//城战白色药水箱
+IG_PrizeOfHero,12680,7		//攻城用蓝色药水箱子
+IG_PrizeOfHero,15093,1		//勇者的重甲
+IG_PrizeOfHero,15094,1		//勇者的法袍
+IG_PrizeOfHero,15095,1		//勇者的审判长袍
+IG_PrizeOfHero,15096,1		//勇者的轻甲
+IG_PrizeOfHero,15097,1		//勇者的隐身衣
+IG_PrizeOfHero,15098,1		//勇者的狙杀外套
+IG_PrizeOfHero,22035,2		//勇者的贤者之靴
+IG_PrizeOfHero,22036,2		//勇者的银光狐狸皮靴
+IG_PrizeOfHero,22037,2		//勇者的温格里安特战靴

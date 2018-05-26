@@ -36,9 +36,9 @@
 512,3	//跟踪
 1014,1	//救赎
 
-5063,1	//WE_CALLALLFAMILY
-5064,1	//WE_ONEFOREVER
-5065,1	//WE_CHEERUP
+5063,1	//Call All Family
+5064,1	//One Forever
+5065,1	//Cheer Up
 
 2012,7	//粉碎冲击
 2013,7	//精力重生
