@@ -119,11 +119,12 @@ int unit_delay_walktoxy_timer(int tid, unsigned int tick, int id, intptr_t data)
 int unit_delay_walktobl_timer(int tid, unsigned int tick, int id, intptr_t data);
 
 // Causes the target object to stop moving.
+struct autowalk_data *unit_autowalk(struct block_list *bl);
 int unit_stop_walking(struct block_list *bl,int type);
 int unit_can_move(struct block_list *bl);
 int unit_is_walking(struct block_list *bl);
 int unit_set_walkdelay(struct block_list *bl, unsigned int tick, int delay, int type);
-bool unit_check_step(struct mob_data *md, unsigned int tick);
+bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned int tick);
 
 int unit_escape(struct block_list *bl, struct block_list *target, short dist);
 

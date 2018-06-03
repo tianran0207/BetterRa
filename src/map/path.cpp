@@ -63,13 +63,18 @@ static const char walk_choices [3][3] =
 	{DIR_SOUTHWEST,DIR_SOUTH,DIR_SOUTHEAST},
 };
 
+void path_step_load(void);
+static DBMap* step_db = NULL;
 
 void do_init_path(){
 	BHEAP_INIT(g_open_set);	// [fwi]: BHEAP_STRUCT_VAR already initialized the heap, this is rudendant & just for code-conformance/readability
+	step_db = strdb_alloc(DB_OPT_RELEASE_DATA, NAME_LENGTH);
+	path_step_load();
 }//
 
 void do_final_path(){
 	BHEAP_CLEAR(g_open_set);
+	step_db->destroy(step_db, NULL);
 }//
 
 
@@ -513,4 +518,288 @@ int distance_client(int dx, int dy)
 	if(temp_dist < 0) temp_dist = 0;
 
 	return ((int)temp_dist);
+}
+
+/// Adds new node to heap and updates/re-adds old ones if necessary.
+#define STEPL 4
+#define astart_index(x,y) (((x)/STEPL+(y)*MAX_ASTARTPATH/STEPL) & (MAX_ASTARTPATH*MAX_ASTARTPATH-1))
+
+static int astart_add_path(struct node_heap *heap, struct path_node *tp, int16 x, int16 y, int g_cost, struct path_node *parent, int h_cost)
+{
+	int i = astart_index(x, y);
+
+	if (tp[i].x == x && tp[i].y == y) { // We processed this node before
+		if (g_cost < tp[i].g_cost) { // New path to this node is better than old one
+									 // Update costs and parent
+			tp[i].g_cost = g_cost;
+			tp[i].parent = parent;
+			tp[i].f_cost = g_cost + h_cost;
+			if (tp[i].flag == SET_CLOSED) {
+				heap_push_node(heap, &tp[i]); // Put it in open set again
+			}
+			else if (heap_update_node(heap, &tp[i])) {
+				return 1;
+			}
+			tp[i].flag = SET_OPEN;
+		}
+		return 0;
+	}
+
+	if (tp[i].x || tp[i].y) // Index is already taken; see `tp` array FIXME for details
+		return 1;
+
+	// New node
+	tp[i].x = x;
+	tp[i].y = y;
+	tp[i].g_cost = g_cost;
+	tp[i].parent = parent;
+	tp[i].f_cost = g_cost + h_cost;
+	tp[i].flag = SET_OPEN;
+	heap_push_node(heap, &tp[i]);
+	return 0;
+}
+
+static int astart_check_pass(struct map_data *md, int x, int y, int dir, cell_chk cell) {
+	int i;
+	switch (dir) {
+	case PATH_DIR_NORTH:
+		for (i = 1; i <= STEPL; i++) {
+			if (map_getcellp(md, x, y + i, cell))
+				return 0;
+		}
+		break;
+	case PATH_DIR_SOUTH:
+		for (i = 1; i <= STEPL; i++) {
+			if (map_getcellp(md, x, y - i, cell))
+				return 0;
+		}
+		break;
+	case PATH_DIR_EAST:
+		for (i = 1; i <= STEPL; i++) {
+			if (map_getcellp(md, x + i, y, cell))
+				return 0;
+		}
+		break;
+	case PATH_DIR_WEST:
+		for (i = 1; i <= STEPL; i++) {
+			if (map_getcellp(md, x - i, y, cell))
+				return 0;
+		}
+		break;
+	case (PATH_DIR_SOUTH | PATH_DIR_EAST):
+		for (i = 1; i <= STEPL; i++) {
+			if (map_getcellp(md, x + i, y - i, cell))
+				return 0;
+		}
+		break;
+	case (PATH_DIR_NORTH | PATH_DIR_EAST):
+		for (i = 1; i <= STEPL; i++) {
+			if (map_getcellp(md, x + i, y + i, cell))
+				return 0;
+		}
+		break;
+	case (PATH_DIR_NORTH | PATH_DIR_WEST):
+		for (i = 1; i <= STEPL; i++) {
+			if (map_getcellp(md, x - i, y + i, cell))
+				return 0;
+		}
+		break;
+	case (PATH_DIR_SOUTH | PATH_DIR_WEST):
+		for (i = 1; i <= STEPL; i++) {
+			if (map_getcellp(md, x - i, y - i, cell))
+				return 0;
+		}
+		break;
+	}
+	return 1;
+}
+bool astart_path(struct step_path *sp, int16 m, int16 x0, int16 y0, int16 x1, int16 y1, cell_chk cell)
+{
+	register int i, x, y, dx = 0, dy = 0;
+	struct map_data *md;
+
+	if (!map[m].cell)
+		return false;
+
+	md = &map[m];
+
+	//Do not check starting cell as that would get you stuck.
+	if (x0 < 0 || x0 >= md->xs || y0 < 0 || y0 >= md->ys /*|| map_getcellp(md,x0,y0,cell)*/)
+		return false;
+
+	// Check destination cell
+	if (x1 < 0 || x1 >= md->xs || y1 < 0 || y1 >= md->ys || map_getcellp(md, x1, y1, cell))
+		return false;
+
+	// FIXME: This array is too small to ensure all paths shorter than MAX_WALKPATH
+	// can be found without node collision: calc_index(node1) = calc_index(node2).
+	// Figure out more proper size or another way to keep track of known nodes.
+	struct path_node tp[MAX_ASTARTPATH * MAX_ASTARTPATH];
+	struct path_node *current, *it;
+	int xs = md->xs - 1;
+	int ys = md->ys - 1;
+	int len = 0;
+	int j;
+
+	// A* (A-star) pathfinding
+	// We always use A* for finding walkpaths because it is what game client uses.
+	// Easy pathfinding cuts corners of non-walkable cells, but client always walks around it.
+	BHEAP_RESET(g_open_set);
+
+	memset(tp, 0, sizeof(tp));
+
+	// Start node
+	i = astart_index(x0, y0);
+	tp[i].parent = NULL;
+	tp[i].x = x0;
+	tp[i].y = y0;
+	tp[i].g_cost = 0;
+	tp[i].f_cost = heuristic(x0, y0, x1, y1);
+	tp[i].flag = SET_OPEN;
+
+	heap_push_node(&g_open_set, &tp[i]); // Put start node to 'open' set
+
+	for (;;) {
+		int e = 0; // error flag
+
+				   // Saves allowed directions for the current cell. Diagonal directions
+				   // are only allowed if both directions around it are allowed. This is
+				   // to prevent cutting corner of nearby wall.
+				   // For example, you can only go NW from the current cell, if you can
+				   // go N *and* you can go W. Otherwise you need to walk around the
+				   // (corner of the) non-walkable cell.
+		int allowed_dirs = 0;
+
+		int g_cost;
+
+		if (BHEAP_LENGTH(g_open_set) == 0) {
+			return false;
+		}
+
+		current = BHEAP_PEEK(g_open_set); // Look for the lowest f_cost node in the 'open' set
+		BHEAP_POP2(g_open_set, NODE_MINTOPCMP, swap_ptrcast_pathnode); // Remove it from 'open' set
+
+		x = current->x;
+		y = current->y;
+		g_cost = current->g_cost;
+
+		current->flag = SET_CLOSED; // Add current node to 'closed' set
+
+		if (abs(x - x1) <= STEPL && abs(y - y1) <= STEPL) {
+			break;
+		}
+		
+		if (y < ys && astart_check_pass(md, x, y, PATH_DIR_NORTH, cell)) allowed_dirs |= PATH_DIR_NORTH;
+		if (y >  0 && astart_check_pass(md, x, y, PATH_DIR_SOUTH, cell)) allowed_dirs |= PATH_DIR_SOUTH;
+		if (x < xs && astart_check_pass(md, x, y, PATH_DIR_EAST, cell)) allowed_dirs |= PATH_DIR_EAST;
+		if (x >  0 && astart_check_pass(md, x, y, PATH_DIR_WEST, cell)) allowed_dirs |= PATH_DIR_WEST;
+
+#define chk_dir(d) ((allowed_dirs & (d)) == (d))
+		// Process neighbors of current node
+		if (chk_dir(PATH_DIR_SOUTH | PATH_DIR_EAST) && astart_check_pass(md, x, y, PATH_DIR_SOUTH | PATH_DIR_EAST, cell))
+			e += astart_add_path(&g_open_set, tp, x + STEPL, y - STEPL, g_cost + MOVE_DIAGONAL_COST, current, heuristic(x + STEPL, y - STEPL, x1, y1)); // (x+1, y-1) 5
+		if (chk_dir(PATH_DIR_EAST))
+			e += astart_add_path(&g_open_set, tp, x + STEPL, y, g_cost + MOVE_COST, current, heuristic(x + STEPL, y, x1, y1)); // (x+1, y) 6
+		if (chk_dir(PATH_DIR_NORTH | PATH_DIR_EAST) && astart_check_pass(md, x, y, PATH_DIR_NORTH | PATH_DIR_EAST, cell))
+			e += astart_add_path(&g_open_set, tp, x + STEPL, y + STEPL, g_cost + MOVE_DIAGONAL_COST, current, heuristic(x + STEPL, y + STEPL, x1, y1)); // (x+1, y+1) 7
+		if (chk_dir(PATH_DIR_NORTH))
+			e += astart_add_path(&g_open_set, tp, x, y + STEPL, g_cost + MOVE_COST, current, heuristic(x, y + STEPL, x1, y1)); // (x, y+1) 0
+		if (chk_dir(PATH_DIR_NORTH | PATH_DIR_WEST) && astart_check_pass(md, x, y, PATH_DIR_NORTH | PATH_DIR_WEST, cell))
+			e += astart_add_path(&g_open_set, tp, x - STEPL, y + STEPL, g_cost + MOVE_DIAGONAL_COST, current, heuristic(x - STEPL, y + STEPL, x1, y1)); // (x-1, y+1) 1
+		if (chk_dir(PATH_DIR_WEST))
+			e += astart_add_path(&g_open_set, tp, x - STEPL, y, g_cost + MOVE_COST, current, heuristic(x - STEPL, y, x1, y1)); // (x-1, y) 2
+		if (chk_dir(PATH_DIR_SOUTH | PATH_DIR_WEST) && astart_check_pass(md, x, y, PATH_DIR_SOUTH | PATH_DIR_WEST, cell))
+			e += astart_add_path(&g_open_set, tp, x - STEPL, y - STEPL, g_cost + MOVE_DIAGONAL_COST, current, heuristic(x - STEPL, y - STEPL, x1, y1)); // (x-1, y-1) 3
+		if (chk_dir(PATH_DIR_SOUTH))
+			e += astart_add_path(&g_open_set, tp, x, y - STEPL, g_cost + MOVE_COST, current, heuristic(x, y - STEPL, x1, y1)); // (x, y-1) 4
+#undef chk_dir
+		if (e) {
+			return false;
+		}
+	}
+
+	for (it = current; it->parent != NULL; it = it->parent, len++);
+	if (len/2 > MAX_PATHSTEP)
+		return false;
+
+	// Recreate path
+	sp->number = len / 2 + 1;
+	sp->x[len / 2] = x1;
+	sp->y[len / 2] = y1;
+	for (it = current, j = len/2 - 1; j >= 0; it = it->parent, it = it->parent, j--) {
+		sp->x[j] = it->x;
+		sp->y[j] = it->y;
+	}
+
+	return true;
+	// A* end
+}
+
+struct step_path* get_step(const char *key) {
+	return (struct step_path *)strdb_get(step_db, key);
+}
+
+// flagΪ
+struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid) {
+	struct step_path *sp;
+	char pathname[NAME_LENGTH];
+
+	if(uid > 0)
+		snprintf(pathname, NAME_LENGTH, "%d", uid);
+	else
+		snprintf(pathname, NAME_LENGTH, "%d_%d_%d_%d_%d", m, x0, y0, x1, y1);
+
+	if ((sp = get_step(pathname)) == NULL) {
+		CREATE(sp, struct step_path, 1);
+		if (!astart_path(sp, m, x0, y0, x1, y1, CELL_CHKNOPASS)) {
+			aFree(sp);
+			return NULL;
+		}
+		if (uid > 0) 
+			sp->uid = uid;
+
+		strncpy(sp->pathname, pathname, NAME_LENGTH);
+		strdb_put(step_db, sp->pathname, sp);
+	}
+	return sp;
+}
+
+static bool path_readdb_steppath(char* str[], int columns, int current) {
+
+	struct step_path *steppath;
+	int i;
+	char *point[2], *p;
+
+	steppath = (struct step_path *)strdb_get(step_db, str[0]);
+
+	if (!steppath) {
+		CREATE(steppath, struct step_path, 1);
+		strdb_put(step_db, str[0], steppath);
+	}
+
+	memset(steppath, 0, sizeof(struct step_path));
+	for (i = 0; i < columns - 1; i++) {
+		p = str[i + 1];
+		point[0] = p;
+		p = strchr(p, ':');
+		if (p == NULL) {
+			ShowError("mob_readdb_steppath: Invalid step point in '%s' index line with '%s'\n", str[0], str[i + 1]);
+			strdb_remove(step_db, str[0]);
+			return true;
+		}
+		*p = '\0';
+		p++;
+		point[1] = p;
+		steppath->x[i] = atoi(point[0]);
+		steppath->y[i] = atoi(point[1]);
+		steppath->number++;
+	}
+
+	return true;
+}
+
+#include "../common/strlib.h"
+void path_step_load(void) {
+	bool silent = false;
+	sv_readdb(db_path, "step_path.txt", ',', 2, MAX_PATHSTEP, -1, &path_readdb_steppath, silent);
 }

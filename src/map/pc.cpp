@@ -12822,7 +12822,7 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap) {
 		if (sc && (sc->data[SC_HIDING] || sc->data[SC_CLOAKING] || sc->data[SC_TRICKDEAD] || sc->data[SC_CLOAKINGEXCEED]))
 			return 0;
 
-		if (!path_search(&wpd, sd->bl.m, sd->bl.x, sd->bl.y, bl->x, bl->y, sd->ud.state.walk_easy, CELL_CHKWALL)) // Count walk path cells
+		if (!path_search(&wpd, sd->bl.m, sd->bl.x, sd->bl.y, bl->x, bl->y, sd->ud.state.walk_easy, CELL_CHKNOPASS)) // Count walk path cells
 			return 0;
 
 		if (wpd.path_len > 12)

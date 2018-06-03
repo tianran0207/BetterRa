@@ -125,7 +125,6 @@ struct s_randomsummon_group {
 };
 
 static DBMap *mob_summon_db; /// Random Summon DB. struct s_randomsummon_group -> group_id
-static DBMap *step_db;
 /*==========================================
  * Local prototype declaration   (only required thing)
  *------------------------------------------*/
@@ -1572,7 +1571,7 @@ int mob_randomwalk(struct mob_data *md,unsigned int tick)
 	   !status_has_mode(&md->status,MD_CANMOVE))
 		return 0;
 
-	if (unit_check_step(md, tick))
+	if (unit_check_step(&md->bl, &md->autowalk, tick))
 		return 0;
 
 	r=rnd();
@@ -5069,44 +5068,6 @@ static bool mob_readdb_drop(char* str[], int columns, int current) {
 	return true;
 }
 
-static bool mob_readdb_steppath(char* str[], int columns, int current) {
-	
-	struct step_path *steppath;
-	int i;
-	char *point[2], *p;
-
-	steppath = (struct step_path *)strdb_get(step_db, str[0]);
-
-	if(!steppath) {
-		CREATE(steppath, struct step_path, 1);
-		strdb_put(step_db, str[0], steppath);
-	}
-
-	steppath->number = 0;
-	for (i = 0; i < columns - 1; i++) {
-		p = str[i + 1];
-		point[0] = p;
-		p = strchr(p, ':');
-		if (p == NULL) {
-			ShowError("mob_readdb_steppath: Invalid step point in '%s' index line with '%s'\n", str[0], str[i + 1]);
-			strdb_remove(step_db, str[0]);
-			return true;
-		}
-		*p = '\0';
-		p++;
-		point[1] = p;
-		steppath->x[i] = atoi(point[0]);
-		steppath->y[i] = atoi(point[1]);
-		steppath->number++;
-	}
-	
-	return true;
-}
-
-struct step_path* get_step(const char *key) {
-	return (struct step_path *)strdb_get(step_db, key);
-}
-
 /**
  * Free drop ratio data
  **/
@@ -5434,7 +5395,6 @@ static void mob_load(void)
 		sv_readdb(dbsubpath1, "mob_pouch.txt", ',', 4, 4, -1, &mob_readdb_group, silent);
 		sv_readdb(dbsubpath1, "mob_classchange.txt", ',', 4, 4, -1, &mob_readdb_group, silent);
 		sv_readdb(dbsubpath2, "mob_drop.txt", ',', 3, 5, -1, &mob_readdb_drop, silent);
-		sv_readdb(dbsubpath1, "mob_step_path.txt", ',', 2, MAX_PATH, MAX_PATHINDEX, &mob_readdb_steppath, silent);
 
 		aFree(dbsubpath1);
 		aFree(dbsubpath2);
@@ -5457,7 +5417,6 @@ void mob_db_load(bool is_reload){
 	mob_item_drop_ratio = idb_alloc(DB_OPT_BASE);
 	mob_skill_db = idb_alloc(DB_OPT_BASE);
 	mob_summon_db = idb_alloc(DB_OPT_BASE);
-	step_db = strdb_alloc((DBOptions)(DB_OPT_DUP_KEY|DB_OPT_RELEASE_DATA), NAME_LENGTH);
 	mob_load();
 }
 
@@ -5591,7 +5550,6 @@ void do_final_mob(bool is_reload){
 	mob_item_drop_ratio->destroy(mob_item_drop_ratio,mob_item_drop_ratio_free);
 	mob_skill_db->destroy(mob_skill_db, mob_skill_db_free);
 	mob_summon_db->destroy(mob_summon_db, mob_summon_db_free);
-	step_db->destroy(step_db, NULL);
 
 	if( !is_reload ) {
 		ers_destroy(item_drop_ers);

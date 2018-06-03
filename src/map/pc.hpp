@@ -582,6 +582,7 @@ struct map_session_data {
 		}skillitemfix[MAX_PC_BONUS];
 		int cooldownrate;
 	}c_bonus;
+	struct autowalk_data autowalk;
 
 	struct s_autoevent {
 		short rate, atk_type;

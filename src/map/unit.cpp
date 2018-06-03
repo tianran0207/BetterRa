@@ -746,47 +746,105 @@ static int unit_walktobl_sub(int tid, unsigned int tick, int id, intptr_t data)
 	return 0;
 }
 
-bool unit_check_step(struct mob_data *md, unsigned int tick) {
+struct autowalk_data *unit_autowalk(struct block_list *bl)
+{
+	switch (bl->type) {
+	case BL_NPC: 
+		return &((struct npc_data *)bl)->autowalk;
+	case BL_MOB:
+		return &((struct mob_data *)bl)->autowalk;
+	case BL_PC:
+		return &((struct map_session_data *)bl)->autowalk;
+	}
+	return NULL;
+}
 
+int unit_autowalk_timer(int tid, unsigned int tick, int id, intptr_t data)
+{
+	struct block_list *bl = map_id2bl(id);
+	struct autowalk_data *ad = (struct autowalk_data *)data;
+
+	if (!bl || bl->prev == NULL)
+		return 0;
+	else {
+		unit_check_step(bl, ad, gettick());
+	}
+	return 1;
+}
+
+
+bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned int tick) {
+	struct step_path *path = ad->path;
 	int x, y, i, c, speed;
+	struct mob_data* md;
+	struct map_session_data *sd;
+	struct npc_data *nd;
 
-	if (md->steppath == NULL)
+	nullpo_retr(false, bl);
+	nullpo_retr(false, ad);
+
+	if (path == NULL)
 		return false;
 
-	if (md->stepstep < md->steppath->number) {
-		x = md->steppath->x[md->stepstep];
-		y = md->steppath->y[md->stepstep];
-		md->stepstep++;
-		if (map_getcell(md->bl.m, x, y, CELL_CHKPASS) && unit_walktoxy(&md->bl, x, y, 0)) {
-			speed = status_get_speed(&md->bl);
-			for (i = c = 0; i<md->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
-				if (md->ud.walkpath.path[i] & 1)
-					c += speed*MOVE_DIAGONAL_COST / MOVE_COST;
-				else
-					c += speed;
+	if (ad->step < path->number) {
+		x = path->x[ad->step];
+		y = path->y[ad->step];
+		ad->step++;
+		if (unit_walktoxy(bl, x, y, 2)) {
+			speed = status_get_speed(bl);
+			switch (bl->type) {
+			case BL_MOB:
+				md = (struct mob_data *)bl;
+				for (i = c = 0; i<md->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
+					if (md->ud.walkpath.path[i] & 1)
+						c += speed*MOVE_DIAGONAL_COST / MOVE_COST;
+					else
+						c += speed;
+				}
+				md->state.skillstate = MSS_WALK;
+				md->move_fail_count = 0;
+				md->next_walktime = tick + c;
+				break;
+			case BL_PC:
+				sd = (struct map_session_data *)bl;
+				for (i = c = 0; i<sd->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
+					if (sd->ud.walkpath.path[i] & 1)
+						c += speed*MOVE_DIAGONAL_COST / MOVE_COST;
+					else
+						c += speed;
+				}
+				add_timer(max(tick, sd->ud.canmove_tick)+ c + 1, unit_autowalk_timer, bl->id, (intptr_t)ad);
+				break;
+			case BL_NPC:
+				nd = (struct npc_data *)bl;
+				for (i = c = 0; i<nd->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
+					if (nd->ud.walkpath.path[i] & 1)
+						c += speed*MOVE_DIAGONAL_COST / MOVE_COST;
+					else
+						c += speed;
+				}
+				add_timer(tick + c + 50, unit_autowalk_timer, bl->id, (intptr_t)ad);
+				break;
 			}
-			md->state.skillstate = MSS_WALK;
-			md->move_fail_count = 0;
-			md->next_walktime = tick + c;
 			return true;
 		}
 	}
-	md->steppath = NULL;
-	md->stepstep = 0;
+	memset(ad, 0, sizeof(struct autowalk_data));
 	return false;
 }
 
 bool unit_can_reach_steppath(struct block_list *bl, struct block_list *tbl)
 {
 	struct walkpath_data wpd;
-	struct mob_data* md = BL_CAST(BL_MOB, bl);
-	if (!md || !md->steppath)
+	struct autowalk_data *ad;
+	if ((ad = unit_autowalk(bl)) == NULL) {
 		return true;
-	if (path_search(&wpd, tbl->m, tbl->x, tbl->y, md->steppath->x[md->stepstep], md->steppath->y[md->stepstep], 1, CELL_CHKNOPASS))
-		if (wpd.path_len < 14) {
+	}
+	if (path_search(&wpd, tbl->m, tbl->x, tbl->y, ad->path->x[ad->step], ad->path->y[ad->step], 1, CELL_CHKNOPASS)) {
+		if (wpd.path_len < 14)
 			return true;
-		}
-	unit_check_step(md, gettick());
+	}
+	unit_check_step(bl, ad, gettick());
 	return false;
 }
 

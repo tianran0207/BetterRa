@@ -100,6 +100,8 @@ struct npc_data {
 		unsigned int timeout;
 		unsigned long color;
 	} progressbar;
+
+	struct autowalk_data autowalk;
 };
 
 struct eri;

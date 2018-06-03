@@ -18,6 +18,29 @@ struct walkpath_data {
 	unsigned char path[MAX_WALKPATH];
 };
 
+#define MAX_ASTARTPATH 128
+struct astart_path_data {
+	unsigned char path_len, path_pos;
+	unsigned short x[MAX_ASTARTPATH];
+	unsigned short y[MAX_ASTARTPATH];
+};
+
+#define MAX_PATHSTEP 128
+struct step_path {
+	char pathname[24];
+	unsigned short x[MAX_PATHSTEP];
+	unsigned short y[MAX_PATHSTEP];
+	int number;
+	unsigned int uid;
+};
+struct autowalk_data {
+	struct step_path *path;
+	unsigned int step;
+	unsigned short step_ai;
+};
+struct step_path *get_step(const char *key);
+struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid);
+
 struct shootpath_data {
 	int rx,ry,len;
 	int x[MAX_WALKPATH];

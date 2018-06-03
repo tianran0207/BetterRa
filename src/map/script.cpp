@@ -25448,8 +25448,8 @@ BUILDIN_FUNC(mail_send)
 
 static int buildin_getareagid_sub(struct block_list *bl, va_list ap)
 {
-	struct map_session_data *sd = va_arg(ap, struct map_session_data *);
 	struct script_state *st = va_arg(ap, struct script_state *);
+	struct map_session_data *sd = va_arg(ap, struct map_session_data *);
 	char *varname = va_arg(ap, char *);
 	int *count = va_arg(ap, int *);
 	set_reg(st, sd, reference_uid(add_str(varname), *count), varname, (void *)bl->id, NULL);
@@ -25463,7 +25463,7 @@ BUILDIN_FUNC(getareagid)
 	const char* mapname = NULL;
 	char* varname = NULL;
 	struct script_data *data = NULL;
-	TBL_PC *sd;
+	TBL_PC *sd = map_id2sd(st->rid);
 
 	//获得发送目标类型
 	type = script_getnum(st, 3);
@@ -26068,16 +26068,20 @@ BUILDIN_FUNC(setsteppath) {
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-
 	if (path_search(&wpd, md->bl.m, md->bl.x, md->bl.y, steppath->x[0], steppath->y[0], 1, CELL_CHKNOPASS) && wpd.path_len > 13) {
 		script_pushint(st, 0);
 		ShowDebug("setsteppath: The mob with GID '%d' can not reach the beginning of step path.\n", md->bl.id);
 		return SCRIPT_CMD_SUCCESS;
 	}
-	md->steppath = steppath;
-	md->stepstep = 0;
+	md->autowalk.path = steppath;
+	md->autowalk.step = 0;
 
 	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(unitAstartwalkto) {
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -26362,6 +26366,79 @@ BUILDIN_FUNC(http_get)
 	cid = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
 	rev = http_get(script_getstr(st, 2), script_getnum(st, 3), true, script_getnum(st, 4) != 0, cid) == true ? 1 : 0;
 	script_pushint(st, rev);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(astart_test)
+{
+/*	struct step_path *sp;
+	struct map_session_data *sd = NULL;
+	int16 m, x0, y0, x1, y1;
+	const char *mapname;
+	unsigned int tick = gettick();
+	script_rid2sd(sd);
+
+	mapname = script_getstr(st, 2);
+	x0 = script_getnum(st, 3);
+	y0 = script_getnum(st, 4);
+	x1 = script_getnum(st, 5);
+	y1 = script_getnum(st, 6);
+	m = map_mapname2mapid(mapname);
+	sp = path_Astart_steppath(m, sd->bl.x, sd->bl.y, x1, y1, tick);
+	if (sp == NULL)
+		return SCRIPT_CMD_SUCCESS;
+
+	sd->autowalk.path = sp;
+	sd->autowalk.step = 0;
+	unit_check_step(&sd->bl, &sd->autowalk, tick);
+	*/
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(unit_Astart_walkto)
+{
+	struct block_list *bl;
+	struct step_path *sp;
+	struct autowalk_data *ad;
+	unsigned int tick = gettick();
+	
+
+	if (script_rid2bl(2, bl)) {
+		unsigned int uid = (script_getnum(st, 5) ? bl->id : 0);
+
+		if((ad = unit_autowalk(bl)) ==NULL)
+			return SCRIPT_CMD_SUCCESS;
+
+		if((sp = path_Astart_steppath(bl->m, bl->x, bl->y, script_getnum(st, 3), script_getnum(st, 4), uid)) == NULL)
+			return SCRIPT_CMD_SUCCESS;
+
+		ad->path = sp;
+		ad->step = 0;
+		unit_check_step(bl, ad, tick);
+	}
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+
+BUILDIN_FUNC(instance_enter2)
+{
+	struct instance_db *db;
+	unsigned short instance_id = script_instancegetid(st);
+	struct map_session_data *sd = NULL;
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+	if (instance_data[instance_id].state == INSTANCE_FREE) {
+		script_pushint(st, -1);  //副本不存在
+		return SCRIPT_CMD_SUCCESS;
+	}
+	if ((db = instance_searchtype_db(instance_data[instance_id].type)) == NULL) {
+		script_pushint(st, -1); //副本不存在
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	script_pushint(st, instance_enter(sd, instance_id, StringBuf_Value(db->name), -1, -1));
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -27123,5 +27200,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(instance_enter_last, "?"),
 	BUILDIN_DEF(http_get, "sii?"),
 	BUILDIN_DEF(bot_login, ""),
+
+	BUILDIN_DEF(astart_test, "siiii"),
+	BUILDIN_DEF(unit_Astart_walkto, "iii?"),
+	BUILDIN_DEF(instance_enter2, "?"),
 	{NULL,NULL,NULL},
 };
