@@ -3323,7 +3323,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	if (++calculating > 10) // Too many recursive calls!
 		return -1;
 
-	npc_script_event(sd, NPCE_STATCALCFILTER);
+	npc_script_event_atonce(sd, NPCE_STATCALCFILTER);
 	if (sd->state.processhalt)
 		return 0;
 
@@ -3486,6 +3486,10 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	pc_delautobonus(sd,sd->autobonus3,ARRAYLENGTH(sd->autobonus3),true);
 
 	pc_itemgrouphealrate_clear(sd);
+
+	running_npc_stat_calc_event = true;
+	npc_script_event_atonce(sd, NPCE_STATCALC);
+	running_npc_stat_calc_event = false;
 
 	// Parse amulet
 	if (battle_config.enable_amulet) {
@@ -4059,6 +4063,19 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	if(battle_config.pc_damage_delay_rate != 100)
 		base_status->dmotion = base_status->dmotion*battle_config.pc_damage_delay_rate/100;
 
+	if (battle_config.pc_max_def)
+		base_status->def = cap_value(base_status->def, 0, battle_config.pc_max_def);
+	if (battle_config.pc_max_def2)
+		base_status->def2 = cap_value(base_status->def2, 0, battle_config.pc_max_def2);
+	if (battle_config.pc_max_mdef)
+		base_status->mdef = cap_value(base_status->mdef, 0, battle_config.pc_max_mdef);
+	if (battle_config.pc_max_mdef2)
+		base_status->mdef2 = cap_value(base_status->mdef2, 0, battle_config.pc_max_mdef2);
+	if (battle_config.pc_max_flee)
+		base_status->flee = cap_value(base_status->flee, 0, battle_config.pc_max_flee);
+	if (battle_config.pc_max_flee2)
+		base_status->flee2 = cap_value(base_status->flee2, 0, battle_config.pc_max_flee2 * 10);
+
 // ----- MISC CALCULATIONS -----
 
 	// Weight
@@ -4211,11 +4228,15 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		if (sc->data[SC_MTF_CRIDAMAGE])
 			sd->bonus.crit_atk_rate += sc->data[SC_MTF_CRIDAMAGE]->val1;
 	}
-	status_cpy(&sd->battle_status, base_status);
+	
+// ----- MAX-BONUS CHECK -----
+	//if (battle_config.max_bSubEle) {
+	//	for(i = 0; i <  sd->subele)
+	//
+	//}
 
-	running_npc_stat_calc_event = true;
-	npc_script_event_atonce(sd, NPCE_STATCALC);
-	running_npc_stat_calc_event = false;
+
+	status_cpy(&sd->battle_status, base_status);
 
 // ----- CLIENT-SIDE REFRESH -----
 	if(!sd->bl.prev) {

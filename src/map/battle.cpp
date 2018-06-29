@@ -8075,6 +8075,12 @@ static const struct _battle_data {
 	{ "pc_fixed_cast_rate",                 &battle_config.pc_fixed_cast_rate,              100,    0,      INT_MAX,        },
 	{ "pc_cooldown_rate",                   &battle_config.pc_cooldown_rate,                100,    0,      INT_MAX,        },
 	{ "pc_delay_rate",                      &battle_config.pc_delay_rate,                   100,    0,      INT_MAX,        },
+	{ "pc_max_def",                         &battle_config.pc_max_def,                      0,      0,      INT_MAX,        },
+	{ "pc_max_def2",                        &battle_config.pc_max_def2,                     0,      0,      INT_MAX,        },
+	{ "pc_max_mdef",                        &battle_config.pc_max_mdef,                     0,      0,      INT_MAX,        },
+	{ "pc_max_mdef2",                       &battle_config.pc_max_mdef2,                    0,      0,      INT_MAX,        },
+	{ "pc_max_flee",                        &battle_config.pc_max_flee,                     0,      0,      INT_MAX,        },
+	{ "pc_max_flee2",                       &battle_config.pc_max_flee2,                    0,      0,      INT_MAX,        },
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },

@@ -772,7 +772,9 @@ int unit_autowalk_timer(int tid, unsigned int tick, int id, intptr_t data)
 	return 1;
 }
 
-
+/**
+ * 进行路点行走
+*/
 bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned int tick) {
 	struct step_path *path = ad->path;
 	int x, y, i, c, speed;
@@ -833,11 +835,14 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned i
 	return false;
 }
 
+/** 
+ * 判断目标行走后是否还能返回路点
+*/
 bool unit_can_reach_steppath(struct block_list *bl, struct block_list *tbl)
 {
 	struct walkpath_data wpd;
 	struct autowalk_data *ad;
-	if ((ad = unit_autowalk(bl)) == NULL) {
+	if ((ad = unit_autowalk(bl)) == NULL || ad->path == NULL) {
 		return true;
 	}
 	if (path_search(&wpd, tbl->m, tbl->x, tbl->y, ad->path->x[ad->step], ad->path->y[ad->step], 1, CELL_CHKNOPASS)) {

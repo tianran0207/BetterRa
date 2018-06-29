@@ -3084,11 +3084,11 @@ enum e_refine_chance_type {
 * Required because players have two of these, one in status_data
 * and another for their left hand weapon. */
 struct weapon_atk {
-	unsigned short atk, atk2;
+	unsigned int atk, atk2;
 	unsigned short range;
 	unsigned char ele;
 #ifdef RENEWAL
-	unsigned short matk;
+	unsigned int matk;
 	unsigned char wlv;
 #endif
 };

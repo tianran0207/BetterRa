@@ -176,6 +176,17 @@ struct Battle_Config
 	int pc_fixed_cast_rate;
 	int pc_cooldown_rate;
 	int pc_delay_rate;
+	int pc_max_def;
+	int pc_max_def2;
+	int pc_max_mdef;
+	int pc_max_mdef2;
+	int pc_max_flee;
+	int pc_max_flee2;
+	int max_bSubEle;
+	int max_bSubDefEle;
+	int max_bSubRace;
+	int max_bSubClass;
+	int max_bSubSize;
 	//------------------------------
 	int warp_point_debug;
 	int enable_critical;

@@ -26420,8 +26420,11 @@ BUILDIN_FUNC(unit_Astart_walkto)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-
-BUILDIN_FUNC(instance_enter2)
+/**
+ * 获取玩家当前副本的副本名
+ * instance_name({<char ID>});
+ */
+BUILDIN_FUNC(instance_name)
 {
 	struct instance_db *db;
 	unsigned short instance_id = script_instancegetid(st);
@@ -26429,15 +26432,84 @@ BUILDIN_FUNC(instance_enter2)
 	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
 	if (instance_data[instance_id].state == INSTANCE_FREE) {
-		script_pushint(st, -1);  //副本不存在
+		script_pushconststr(st, "");  //副本不存在
 		return SCRIPT_CMD_SUCCESS;
 	}
 	if ((db = instance_searchtype_db(instance_data[instance_id].type)) == NULL) {
-		script_pushint(st, -1); //副本不存在
+		script_pushconststr(st, ""); //副本不存在
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	script_pushint(st, instance_enter(sd, instance_id, StringBuf_Value(db->name), -1, -1));
+	script_pushstrcopy(st, StringBuf_Value(db->name));
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(readstatus)
+{
+	int value;
+	struct script_data *data = script_getdata(st, 2);
+	TBL_PC *sd = NULL;
+
+	if (script_hasdata(st, 3)) {
+		struct script_data *data2 = script_getdata(st, 3);
+
+		get_val(st, data2);
+		if (data_isint(data2) || script_getnum(st, 3)) {
+			script_charid2sd(3, sd);
+		}
+		else if (data_isstring(data2)) {
+			script_nick2sd(3, sd);
+		}
+	}
+	else {
+		script_rid2sd(sd);
+	}
+
+	if (!sd) {
+		script_pushint(st, -1);
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	// If you use a parameter, return the value behind it
+	switch (script_getnum(st, 2)) {
+	case SP_STR:    value = sd->battle_status.str; break;
+	case SP_AGI:    value = sd->battle_status.agi; break;
+	case SP_VIT:    value = sd->battle_status.vit; break;
+	case SP_INT:    value = sd->battle_status.int_; break;
+	case SP_DEX:    value = sd->battle_status.dex; break;
+	case SP_LUK:    value = sd->battle_status.luk; break;
+	}
+
+	script_pushint(st, value);
+	return SCRIPT_CMD_SUCCESS;
+	
+}
+
+BUILDIN_FUNC(check_nearpc)
+{
+	struct block_list *bl;
+	int x0 = 0, x1 = 0, y0 = 0, y1 = 0;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	x0 = bl->x - AREA_SIZE;
+	y0 = bl->y - AREA_SIZE;
+	x1 = bl->x + AREA_SIZE;
+	y1 = bl->y + AREA_SIZE;
+
+//	switch (script_getnum(st, 2)) {
+//	case AREA:
+//		//map_foreachinallarea(clif_send_sub, bl->m, x0, y0, x1, y1, BL_PC, buf, len, bl, type);
+//		break;
+//	case PARTY_AREA:
+//	case GUILD_AREA:
+//	case BG_AREA:
+//
+//	}
+
+	//script_pushstrcopy(st, StringBuf_Value(db->name));
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -27203,6 +27275,7 @@ struct script_function buildin_func[] = {
 
 	BUILDIN_DEF(astart_test, "siiii"),
 	BUILDIN_DEF(unit_Astart_walkto, "iii?"),
-	BUILDIN_DEF(instance_enter2, "?"),
+	BUILDIN_DEF(instance_name, "?"),
+	BUILDIN_DEF(readstatus, "i?"),
 	{NULL,NULL,NULL},
 };

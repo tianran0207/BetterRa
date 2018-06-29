@@ -35,7 +35,7 @@
 #define C_MAX_REFINE 0               //最大精炼值
 #define C_MAX_EVENTQUEUE 200         //最大事件队列的容量
 
-#define C_SHOW_SERVER_STATS 0
+#define C_SHOW_SERVER_STATS 1
 
 //----------------------------------
 //自定义功能集

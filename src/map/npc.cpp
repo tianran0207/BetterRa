@@ -2823,7 +2823,7 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 
 	if (type != NPCTYPE_SHOP) {
 		if (type == NPCTYPE_ITEMSHOP) nd->u.shop.itemshop_nameid = nameid; // Item shop currency
-		else if (type == NPCTYPE_POINTSHOP) safestrncpy(nd->u.shop.pointshop_str,point_str,strlen(point_str)+1); // Point shop currency
+		else if (type == NPCTYPE_POINTSHOP) strchr(point_str, '|')? safestrncpy(nd->u.shop.pointshop_str, strchr(point_str, '|') + 1, strlen(strchr(point_str, '|'))) :safestrncpy(nd->u.shop.pointshop_str,point_str,strlen(point_str)+1); // Point shop currency
 		nd->u.shop.discount = is_discount > 0;
 	}
 
