@@ -1,6 +1,8 @@
 #ifndef SHA1_H
 #define SHA1_H
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
 SHA-1 in C
 By Steve Reid <steve@edmweb.com>
@@ -40,5 +42,9 @@ void SHA1(
 	char *hash_out,
 	const char *str,
 	int len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SHA1_H */

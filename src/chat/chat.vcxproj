@@ -157,13 +157,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="chat.c" />
+    <ClCompile Include="chat.cpp" />
     <ClCompile Include="support\base64.c" />
     <ClCompile Include="support\sha1.c" />
     <ClCompile Include="support\transcoding.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="chat.h" />
+    <ClInclude Include="chat.hpp" />
     <ClInclude Include="support\base64.h" />
     <ClInclude Include="support\sha1.h" />
     <ClInclude Include="support\transcoding.h" />

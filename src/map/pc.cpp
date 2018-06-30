@@ -1,57 +1,57 @@
-// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
+// Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
 #include "pc.hpp"
 
-#include <stdlib.h>
 #include <math.h>
+#include <stdlib.h>
 
-#include "../common/cbasetypes.h"
-#include "../common/core.h" // get_svn_revision()
-#include "../common/malloc.h"
-#include "../common/nullpo.h"
-#include "../common/random.h"
-#include "../common/showmsg.h"
-#include "../common/socket.h" // session[]
-#include "../common/strlib.h" // safestrncpy()
-#include "../common/timer.h"
-#include "../common/utils.h"
-#include "../common/mmo.h" //NAME_LENGTH
-#include "../common/ers.h"  // ers_destroy
+#include "../common/cbasetypes.hpp"
+#include "../common/core.hpp" // get_svn_revision()
+#include "../common/ers.hpp"  // ers_destroy
+#include "../common/malloc.hpp"
+#include "../common/mmo.hpp" //NAME_LENGTH
+#include "../common/nullpo.hpp"
+#include "../common/random.hpp"
+#include "../common/showmsg.hpp"
+#include "../common/socket.hpp" // session[]
+#include "../common/strlib.hpp" // safestrncpy()
+#include "../common/timer.hpp"
+#include "../common/utils.hpp"
 
+#include "achievement.hpp"
 #include "atcommand.hpp" // get_atcommand_level()
-#include "map.hpp"
 #include "battle.hpp" // battle_config
 #include "battleground.hpp"
+#include "buyingstore.hpp"  // struct s_buyingstore
 #include "channel.hpp"
 #include "chat.hpp"
 #include "chrif.hpp"
+#include "clan.hpp"
+#include "clif.hpp"
 #include "date.hpp" // is_day_of_*()
 #include "duel.hpp"
-#include "intif.hpp"
+#include "elemental.hpp"
+#include "guild.hpp"
 #include "homunculus.hpp"
 #include "instance.hpp"
-#include "mercenary.hpp"
-#include "elemental.hpp"
-#include "pet.hpp" // pet_unlocktarget()
-#include "party.hpp" // party_search()
-#include "storage.hpp"
-#include "quest.hpp"
-#include "npc.hpp"
-#include "guild.hpp"
-#include "clif.hpp"
-#include "buyingstore.hpp"  // struct s_buyingstore
+#include "intif.hpp"
 #include "itemdb.hpp" // MAX_ITEMGROUP
+#include "log.hpp"
+#include "map.hpp"
+#include "mercenary.hpp"
+#include "mob.hpp"
+#include "npc.hpp"
+#include "party.hpp" // party_search()
+#include "pc_groups.hpp"
+#include "pet.hpp" // pet_unlocktarget()
+#include "quest.hpp"
 #include "script.hpp" // struct script_reg, struct script_regstr
 #include "searchstore.hpp"  // struct s_search_store_info
 #include "status.hpp" // OPTION_*, struct weapon_atk
+#include "storage.hpp"
 #include "unit.hpp" // unit_stop_attack(), unit_stop_walking()
 #include "vending.hpp" // struct s_vending
-#include "mob.hpp"
-#include "log.hpp"
-#include "pc_groups.hpp"
-#include "achievement.hpp"
-#include "clan.hpp"
 
 int pc_split_atoui(char* str, unsigned int* val, char sep, int max);
 
@@ -1419,25 +1419,25 @@ void pc_reg_received(struct map_session_data *sd)
 
 	sd->vars_ok = true;
 
-	sd->change_level_2nd = pc_readglobalreg(sd, add_str("jobchange_level"));
-	sd->change_level_3rd = pc_readglobalreg(sd, add_str("jobchange_level_3rd"));
-	sd->die_counter = pc_readglobalreg(sd, add_str("PC_DIE_COUNTER"));
+	sd->change_level_2nd = pc_readglobalreg(sd, add_str(JOBCHANGE2ND_VAR));
+	sd->change_level_3rd = pc_readglobalreg(sd, add_str(JOBCHANGE3RD_VAR));
+	sd->die_counter = pc_readglobalreg(sd, add_str(PCDIECOUNTER_VAR));
 
-	sd->langtype = pc_readaccountreg(sd, add_str("#langtype"));
+	sd->langtype = pc_readaccountreg(sd, add_str(LANGTYPE_VAR));
 	if (msg_checklangtype(sd->langtype,true) < 0)
 		sd->langtype = 0; //invalid langtype reset to default
 
 	// Cash shop
-	sd->cashPoints = pc_readaccountreg(sd, add_str("#CASHPOINTS"));
-	sd->kafraPoints = pc_readaccountreg(sd, add_str("#KAFRAPOINTS"));
+	sd->cashPoints = pc_readaccountreg(sd, add_str(CASHPOINT_VAR));
+	sd->kafraPoints = pc_readaccountreg(sd, add_str(KAFRAPOINT_VAR));
 
 	// Cooking Exp
-	sd->cook_mastery = pc_readglobalreg(sd, add_str("COOK_MASTERY"));
+	sd->cook_mastery = pc_readglobalreg(sd, add_str(COOKMASTERY_VAR));
 
 	if( (sd->class_&MAPID_BASEMASK) == MAPID_TAEKWON )
 	{ // Better check for class rather than skill to prevent "skill resets" from unsetting this
-		sd->mission_mobid = pc_readglobalreg(sd, add_str("TK_MISSION_ID"));
-		sd->mission_count = pc_readglobalreg(sd, add_str("TK_MISSION_COUNT"));
+		sd->mission_mobid = pc_readglobalreg(sd, add_str(TKMISSIONID_VAR));
+		sd->mission_count = pc_readglobalreg(sd, add_str(TKMISSIONCOUNT_VAR));
 	}
 
 	if (battle_config.feature_banking)
@@ -1965,7 +1965,7 @@ int pc_calc_skilltree_normalize_job(struct map_session_data *sd)
 
 			}
 
-			pc_setglobalreg(sd, add_str("jobchange_level"), sd->change_level_2nd);
+			pc_setglobalreg(sd, add_str(JOBCHANGE2ND_VAR), sd->change_level_2nd);
 		}
 
 		if (skill_point < novice_skills + (sd->change_level_2nd - 1))
@@ -1982,7 +1982,7 @@ int pc_calc_skilltree_normalize_job(struct map_session_data *sd)
 						- (sd->status.job_level - 1)
 						- (sd->change_level_2nd - 1)
 						- novice_skills;
-					pc_setglobalreg(sd, add_str("jobchange_level_3rd"), sd->change_level_3rd);
+					pc_setglobalreg(sd, add_str(JOBCHANGE3RD_VAR), sd->change_level_3rd);
 			}
 
 			if (skill_point < novice_skills + (sd->change_level_2nd - 1) + (sd->change_level_3rd - 1))
@@ -2381,6 +2381,9 @@ void pc_exeautobonus(struct map_session_data *sd,struct s_autobonus *autobonus)
 {
 	if (!sd || !autobonus)
 		return;
+
+	if (autobonus->active != INVALID_TIMER)
+		delete_timer(autobonus->active, pc_endautobonus);
 
 	if( autobonus->other_script )
 	{
@@ -3718,6 +3721,21 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			sd->skillusesprate[i].val = val;
 		}
 		break;
+	case SP_SKILL_DELAY:
+		if(sd->state.lr_flag == 2)
+			break;
+		ARR_FIND(0, ARRAYLENGTH(sd->skilldelay), i, sd->skilldelay[i].id == 0 || sd->skilldelay[i].id == type2);
+		if (i == ARRAYLENGTH(sd->skilldelay)) {
+			ShowError("pc_bonus2: SP_SKILL_DELAY: Reached max (%d) number of skills per character, bonus skill %d (%d) lost.\n", ARRAYLENGTH(sd->skilldelay), type2, val);
+			break;
+		}
+		if (sd->skilldelay[i].id == type2)
+			sd->skilldelay[i].val += val;
+		else {
+			sd->skilldelay[i].id = type2;
+			sd->skilldelay[i].val = val;
+		}
+		break;
 	case SP_SKILL_COOLDOWN: // bonus2 bSkillCooldown,sk,t;
 		if(sd->state.lr_flag == 2)
 			break;
@@ -4559,11 +4577,11 @@ int pc_paycash(struct map_session_data *sd, int price, int points, e_log_pick_ty
 		return -1;
 	}
 
-	pc_setaccountreg(sd, add_str("#CASHPOINTS"), sd->cashPoints-cash);
+	pc_setaccountreg(sd, add_str(CASHPOINT_VAR), sd->cashPoints-cash);
 	if( cash ){
 		log_cash( sd, type, LOG_CASH_TYPE_CASH, -cash );
 	}
-	pc_setaccountreg(sd, add_str("#KAFRAPOINTS"), sd->kafraPoints-points);
+	pc_setaccountreg(sd, add_str(KAFRAPOINT_VAR), sd->kafraPoints-points);
 	if( points ){
 		log_cash( sd, type, LOG_CASH_TYPE_KAFRA, -points );
 	}
@@ -4602,7 +4620,7 @@ int pc_getcash(struct map_session_data *sd, int cash, int points, e_log_pick_typ
 			cash = MAX_ZENY-sd->cashPoints;
 		}
 
-		pc_setaccountreg(sd, add_str("#CASHPOINTS"), sd->cashPoints+cash);
+		pc_setaccountreg(sd, add_str(CASHPOINT_VAR), sd->cashPoints+cash);
 		if( cash ){
 			log_cash( sd, type, LOG_CASH_TYPE_CASH, cash );
 		}
@@ -4628,7 +4646,7 @@ int pc_getcash(struct map_session_data *sd, int cash, int points, e_log_pick_typ
 			points = MAX_ZENY-sd->kafraPoints;
 		}
 
-		pc_setaccountreg(sd, add_str("#KAFRAPOINTS"), sd->kafraPoints+points);
+		pc_setaccountreg(sd, add_str(KAFRAPOINT_VAR), sd->kafraPoints+points);
 		if( points ){
 			log_cash( sd, type, LOG_CASH_TYPE_KAFRA, points );
 		}
@@ -6210,6 +6228,7 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_ARCH_BISHOP:           return MAPID_ARCH_BISHOP;
 		case JOB_MECHANIC:              return MAPID_MECHANIC;
 		case JOB_GUILLOTINE_CROSS:      return MAPID_GUILLOTINE_CROSS;
+		case JOB_STAR_EMPEROR:          return MAPID_STAR_EMPEROR;
 	//3-2 Jobs
 		case JOB_ROYAL_GUARD:           return MAPID_ROYAL_GUARD;
 		case JOB_SORCERER:              return MAPID_SORCERER;
@@ -6218,6 +6237,7 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_SURA:                  return MAPID_SURA;
 		case JOB_GENETIC:               return MAPID_GENETIC;
 		case JOB_SHADOW_CHASER:         return MAPID_SHADOW_CHASER;
+		case JOB_SOUL_REAPER:           return MAPID_SOUL_REAPER;
 	//Trans 3-1 Jobs
 		case JOB_RUNE_KNIGHT_T:         return MAPID_RUNE_KNIGHT_T;
 		case JOB_WARLOCK_T:             return MAPID_WARLOCK_T;
@@ -6241,6 +6261,7 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_BABY_BISHOP:           return MAPID_BABY_BISHOP;
 		case JOB_BABY_MECHANIC:         return MAPID_BABY_MECHANIC;
 		case JOB_BABY_CROSS:            return MAPID_BABY_CROSS;
+		case JOB_BABY_STAR_EMPEROR:     return MAPID_BABY_STAR_EMPEROR;
 	//Baby 3-2 Jobs
 		case JOB_BABY_GUARD:            return MAPID_BABY_GUARD;
 		case JOB_BABY_SORCERER:         return MAPID_BABY_SORCERER;
@@ -6249,6 +6270,7 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_BABY_SURA:             return MAPID_BABY_SURA;
 		case JOB_BABY_GENETIC:          return MAPID_BABY_GENETIC;
 		case JOB_BABY_CHASER:           return MAPID_BABY_CHASER;
+		case JOB_BABY_SOUL_REAPER:      return MAPID_BABY_SOUL_REAPER;
 	//Doram Jobs
 		case JOB_SUMMONER:              return MAPID_SUMMONER;
 		default:
@@ -6359,6 +6381,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_ARCH_BISHOP:           return JOB_ARCH_BISHOP;
 		case MAPID_MECHANIC:              return JOB_MECHANIC;
 		case MAPID_GUILLOTINE_CROSS:      return JOB_GUILLOTINE_CROSS;
+		case MAPID_STAR_EMPEROR:          return JOB_STAR_EMPEROR;
 	//3-2 Jobs
 		case MAPID_ROYAL_GUARD:           return JOB_ROYAL_GUARD;
 		case MAPID_SORCERER:              return JOB_SORCERER;
@@ -6366,6 +6389,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_SURA:                  return JOB_SURA;
 		case MAPID_GENETIC:               return JOB_GENETIC;
 		case MAPID_SHADOW_CHASER:         return JOB_SHADOW_CHASER;
+		case MAPID_SOUL_REAPER:           return JOB_SOUL_REAPER;
 	//Trans 3-1 Jobs
 		case MAPID_RUNE_KNIGHT_T:         return JOB_RUNE_KNIGHT_T;
 		case MAPID_WARLOCK_T:             return JOB_WARLOCK_T;
@@ -6388,6 +6412,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_BABY_BISHOP:           return JOB_BABY_BISHOP;
 		case MAPID_BABY_MECHANIC:         return JOB_BABY_MECHANIC;
 		case MAPID_BABY_CROSS:            return JOB_BABY_CROSS;
+		case MAPID_BABY_STAR_EMPEROR:     return JOB_BABY_STAR_EMPEROR;
 	//Baby 3-2 Jobs
 		case MAPID_BABY_GUARD:            return JOB_BABY_GUARD;
 		case MAPID_BABY_SORCERER:         return JOB_BABY_SORCERER;
@@ -6395,6 +6420,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_BABY_SURA:             return JOB_BABY_SURA;
 		case MAPID_BABY_GENETIC:          return JOB_BABY_GENETIC;
 		case MAPID_BABY_CHASER:           return JOB_BABY_CHASER;
+		case MAPID_BABY_SOUL_REAPER:      return JOB_BABY_SOUL_REAPER;
 	//Doram Jobs
 		case MAPID_SUMMONER:              return JOB_SUMMONER;
 		default:
@@ -6642,6 +6668,18 @@ const char* job_name(int class_)
 
 	case JOB_BABY_STAR_GLADIATOR2:
 		return msg_txt(NULL,756);
+
+	case JOB_STAR_EMPEROR:
+	case JOB_SOUL_REAPER:
+	case JOB_BABY_STAR_EMPEROR:
+	case JOB_BABY_SOUL_REAPER:
+		return msg_txt(NULL,782 - JOB_STAR_EMPEROR + class_);
+
+	case JOB_STAR_EMPEROR2:
+		return msg_txt(NULL,782);
+
+	case JOB_BABY_STAR_EMPEROR2:
+		return msg_txt(NULL,784);
 
 	default:
 		return msg_txt(NULL,655);
@@ -7571,7 +7609,7 @@ int pc_resetstate(struct map_session_data* sd)
 	if( sd->mission_mobid ) { //bugreport:2200
 		sd->mission_mobid = 0;
 		sd->mission_count = 0;
-		pc_setglobalreg(sd, add_str("TK_MISSION_ID"), 0);
+		pc_setglobalreg(sd, add_str(TKMISSIONID_VAR), 0);
 	}
 
 	status_calc_pc(sd, SCO_NONE);
@@ -7971,7 +8009,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 
 	pc_setdead(sd);
 
-	pc_setglobalreg(sd, add_str("PC_DIE_COUNTER"), sd->die_counter+1);
+	pc_setglobalreg(sd, add_str(PCDIECOUNTER_VAR), sd->die_counter+1);
 	pc_setparam(sd, SP_KILLERRID, src?src->id:0);
 
 	//Reset menu skills/item skills
@@ -8774,12 +8812,12 @@ bool pc_jobchange(struct map_session_data *sd,int job, char upper)
 	// changing from 1st to 2nd job
 	if ((b_class&JOBL_2) && !(sd->class_&JOBL_2) && (sd->class_&MAPID_UPPERMASK) != MAPID_SUPER_NOVICE) {
 		sd->change_level_2nd = sd->status.job_level;
-		pc_setglobalreg(sd, add_str("jobchange_level"), sd->change_level_2nd);
+		pc_setglobalreg(sd, add_str(JOBCHANGE2ND_VAR), sd->change_level_2nd);
 	}
 	// changing from 2nd to 3rd job
 	else if((b_class&JOBL_THIRD) && !(sd->class_&JOBL_THIRD)) {
 		sd->change_level_3rd = sd->status.job_level;
-		pc_setglobalreg(sd, add_str("jobchange_level_3rd"), sd->change_level_3rd);
+		pc_setglobalreg(sd, add_str(JOBCHANGE3RD_VAR), sd->change_level_3rd);
 	}
 
 	if(sd->cloneskill_idx > 0) {
@@ -9420,21 +9458,21 @@ int pc_setregistry(struct map_session_data *sd, int64 reg, int val)
 	// These should be stored elsewhere e.g. char ones in char table, the cash ones in account_data table!
 	switch( regname[0] ) {
 		default: //Char reg
-			if( !strcmp(regname,"PC_DIE_COUNTER") && sd->die_counter != val ) {
+			if( !strcmp(regname,PCDIECOUNTER_VAR) && sd->die_counter != val ) {
 				int i = (!sd->die_counter && (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE);
 				sd->die_counter = val;
 				if( i )
 					status_calc_pc(sd,SCO_NONE); // Lost the bonus.
-			} else if( !strcmp(regname,"COOK_MASTERY") && sd->cook_mastery != val ) {
+			} else if( !strcmp(regname,COOKMASTERY_VAR) && sd->cook_mastery != val ) {
 				val = cap_value(val, 0, 1999);
 				sd->cook_mastery = val;
 			}
 			break;
 		case '#':
-			if( !strcmp(regname,"#CASHPOINTS") && sd->cashPoints != val ) {
+			if( !strcmp(regname,CASHPOINT_VAR) && sd->cashPoints != val ) {
 				val = cap_value(val, 0, MAX_ZENY);
 				sd->cashPoints = val;
-			} else if( !strcmp(regname,"#KAFRAPOINTS") && sd->kafraPoints != val ) {
+			} else if( !strcmp(regname,KAFRAPOINT_VAR) && sd->kafraPoints != val ) {
 				val = cap_value(val, 0, MAX_ZENY);
 				sd->kafraPoints = val;
 			}
@@ -10839,28 +10877,27 @@ bool pc_setstand(struct map_session_data *sd, bool force){
 }
 
 /**
- * Mechanic (MADO GEAR)
+ * Calculate Overheat value
+ * @param sd: Player data
+ * @param heat: Amount of Heat to adjust
  **/
-void pc_overheat(struct map_session_data *sd, int val) {
-	int heat = val, skill,
-		limit[] = { 10, 20, 28, 46, 66 };
+void pc_overheat(struct map_session_data *sd, int16 heat) {
+	struct status_change_entry *sce = NULL;
+	int16 limit[] = { 150, 200, 280, 360, 450 };
+	uint16 skill_lv;
 
-	if( !pc_ismadogear(sd) || sd->sc.data[SC_OVERHEAT] )
-		return; // already burning
+	nullpo_retv(sd);
 
-	skill = cap_value(pc_checkskill(sd,NC_MAINFRAME),0,4);
-	if( sd->sc.data[SC_OVERHEAT_LIMITPOINT] ) {
-		heat += sd->sc.data[SC_OVERHEAT_LIMITPOINT]->val1;
-		status_change_end(&sd->bl,SC_OVERHEAT_LIMITPOINT,INVALID_TIMER);
-	}
-
-	heat = max(0,heat); // Avoid negative HEAT
-	if( heat >= limit[skill] )
-		sc_start(&sd->bl,&sd->bl,SC_OVERHEAT,100,0,1000);
-	else
-		sc_start(&sd->bl,&sd->bl,SC_OVERHEAT_LIMITPOINT,100,heat,30000);
-
-	return;
+	skill_lv = cap_value(pc_checkskill(sd, NC_MAINFRAME), 0, 4);
+	if ((sce = sd->sc.data[SC_OVERHEAT_LIMITPOINT])) {
+		sce->val1 += heat;
+		sce->val1 = cap_value(sce->val1, 0, 1000);
+		if (sd->sc.data[SC_OVERHEAT])
+			status_change_end(&sd->bl, SC_OVERHEAT, INVALID_TIMER);
+		if (sce->val1 > limit[skill_lv])
+			sc_start(&sd->bl, &sd->bl, SC_OVERHEAT, 100, sce->val1, 1000);
+	} else if (heat > 0)
+		sc_start(&sd->bl, &sd->bl, SC_OVERHEAT_LIMITPOINT, 100, heat, 1000);
 }
 
 /**

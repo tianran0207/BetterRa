@@ -1,12 +1,12 @@
-// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
+// Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
 #ifndef _SCRIPT_HPP_
 #define _SCRIPT_HPP_
 
-#include "../common/cbasetypes.h"
-#include "../common/db.h"
-#include "../common/mmo.h"
+#include "../common/cbasetypes.hpp"
+#include "../common/db.hpp"
+#include "../common/mmo.hpp"
 
 #define NUM_WHISPER_VAR 10
 
@@ -440,7 +440,9 @@ enum petinfo_types {
 	PETINFO_HUNGRY,
 	PETINFO_RENAMED,
 	PETINFO_LEVEL,
-	PETINFO_BLOCKID
+	PETINFO_BLOCKID,
+	PETINFO_EGGID,
+	PETINFO_FOODID
 };
 
 enum questinfo_types {
@@ -1955,6 +1957,11 @@ enum e_hat_effects {
 	HAT_EF_LEVEL160_WHITE,
 	HAT_EF_FULL_BLOOMCHERRY_TREE,
 	HAT_EF_C_BLESSINGS_OF_SOUL,
+	HAT_EF_MANYSTARS,
+	HAT_EF_SUBJECT_AURA_GOLD,
+	HAT_EF_SUBJECT_AURA_WHITE,
+	HAT_EF_SUBJECT_AURA_RED,
+	HAT_EF_C_SHINING_ANGEL_WING,
 	HAT_EF_MAX
 };
 
@@ -2032,10 +2039,6 @@ int script_reg_destroy(DBKey key, DBData *data, va_list ap);
 /* */
 void script_generic_ui_array_expand(unsigned int plus);
 unsigned int *script_array_cpy_list(struct script_array *sa);
-
-#ifdef BETA_THREAD_TEST
-void queryThread_log(char * entry, int length);
-#endif
 
 const char* get_first_func_name(unsigned char *buf);
 void script_bonus_calc(struct map_session_data *sd);

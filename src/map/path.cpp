@@ -1,22 +1,22 @@
-// Copyright (c) Athena Dev Teams - Licensed under GNU GPL
+// Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
 #include "path.hpp"
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
-#include "../common/cbasetypes.h"
-#include "../common/db.h"
-#include "../common/malloc.h"
-#include "../common/nullpo.h"
-#include "../common/random.h"
-#include "../common/showmsg.h"
+#include "../common/cbasetypes.hpp"
+#include "../common/db.hpp"
+#include "../common/malloc.hpp"
+#include "../common/nullpo.hpp"
+#include "../common/random.hpp"
+#include "../common/showmsg.hpp"
 
-#include "map.hpp"
 #include "battle.hpp"
+#include "map.hpp"
 
 #define SET_OPEN 0
 #define SET_CLOSED 1
@@ -798,7 +798,7 @@ static bool path_readdb_steppath(char* str[], int columns, int current) {
 	return true;
 }
 
-#include "../common/strlib.h"
+#include "../common/strlib.hpp"
 void path_step_load(void) {
 	bool silent = false;
 	sv_readdb(db_path, "step_path.txt", ',', 2, MAX_PATHSTEP, -1, &path_readdb_steppath, silent);

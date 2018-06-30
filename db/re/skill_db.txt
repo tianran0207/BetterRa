@@ -68,7 +68,7 @@
 //    0x00800 - skill range affected by RA_RESEARCHTRAP
 //    0x01000 - skill that does not affect user that has NC_HOVERING active
 //    0x02000 - skill that can be using while riding warg
-//    0x04000 - skill that can't be used while in mado
+//    0x04000 - skill that can be used while on Madogear
 //    0x08000 - skill that can be used to target while under SC__MANHOLE effect
 //    0x10000 - skill that affects hidden targets
 //    0x20000 - skill that affects SC_GLOOMYDAY_SK
@@ -91,7 +91,7 @@
 //****
 // Mage
 9,0,0,0,0,0,0,10,0,no,0,0,0,none,0,0x0,		MG_SRECOVERY,禅心
-10,0,6,4,3,0x3,3,1,1,yes,0,0,0,magic,0,0x4000,		MG_SIGHT,火狩
+10,0,6,4,3,0x3,3,1,1,yes,0,0,0,magic,0,0x0,		MG_SIGHT,火狩
 11,9,6,1,8,0x6,1,10,1,yes,0,0x42000,0,magic,0,0x0,		MG_NAPALMBEAT,心灵爆破
 12,9,8,2,8,0x1,0,10,1,yes,0,0,0,magic,0,0x0,		MG_SAFETYWALL,暗之障壁
 13,9,8,1,8,0,0,10,1:1:2:2:3:3:4:4:5:5,yes,0,0x2000,0,magic,0,0x0,		MG_SOULSTRIKE,圣灵召唤
@@ -110,7 +110,7 @@
 23,0,0,0,0,0,0,10,0,no,0,0,0,weapon,0,0x0,		AL_DEMONBANE,天使之击
 24,0,6,4,6,0x3,2,1,1,yes,0,0x0,0,magic,0,0x0,		AL_RUWACH,光猎
 25,9,6,2,0,0x1,0,1,1,yes,0,0,0,magic,0,0x0,		AL_PNEUMA,光之障壁
-26,0,6,4,0,0x1,0,2,1,yes,0,0,0,magic,0,0x40,		AL_TELEPORT,瞬间移动
+26,0,6,4,0,0x1,0,2,1,yes,0,0,0,magic,0,0x4040,		AL_TELEPORT,瞬间移动
 27,9,6,2,0,0x1,0,4,1,yes,0,0,3,magic,0,0x0,		AL_WARP,传送之阵
 28,9,6,16,6,0x21,0,10,1,yes,0,0x2000,0,magic,0,0x0,	AL_HEAL,治愈术
 29,9,6,16,0,0x1,0,10,1,yes,0,0,0,magic,0,0x0,	AL_INCAGI,加速术
@@ -144,7 +144,7 @@
 48,-1,8,0,-1,0,0,10,2,no,0,0,0,weapon,0,0x0,		TF_DOUBLE,二刀连击
 49,0,0,0,0,0,0,10,0,no,0,0,0,weapon,0,0x0,		TF_MISS,残影
 50,1,6,1,0,1,0,10,1,no,0,0,0,weapon,0,0x0,		TF_STEAL,偷窃
-51,1,6,4,0,1,0,10,1,no,0,0,0,none,0,0x84044,		TF_HIDING,隐匿
+51,1,6,4,0,1,0,10,1,no,0,0,0,none,0,0x80044,		TF_HIDING,隐匿
 52,-2,6,1,5,0,0,10,1,no,0,0,0,weapon,0,0x0,		TF_POISON,施毒
 53,9,6,16,5,0x1,0,1,1,no,0,0,0,weapon,0,0x0,		TF_DETOXIFY,解毒
 //
@@ -213,13 +213,13 @@
 105,0,0,0,0,0,0,1,0,no,0,0,0,weapon,0,0x0,		BS_HILTBINDING,武器保有
 106,0,0,0,0,0,0,1,0,no,0,0,0,weapon,0,0x0,		BS_FINDINGORE,寻找矿石
 107,0,0,0,0,0,0,10,0,no,0,0,0,weapon,0,0x0,		BS_WEAPONRESEARCH,武器研究
-108,2,6,16,0,0x1,0,1,1,yes,0,0,0,weapon,0,0x4000,	BS_REPAIRWEAPON,武器修理
+108,2,6,16,0,0x1,0,1,1,yes,0,0,0,weapon,0,0x0,	BS_REPAIRWEAPON,武器修理
 109,0,0,0,0,0,0,5,0,no,0,0,0,weapon,0,0x0,		BS_SKINTEMPER,强化火属性
-110,1,6,2,0,0x3,2:2:2:2:2:12,5,1,no,0,0,0,weapon,0,0x4000,	BS_HAMMERFALL,大地之击
-111,0,6,4,0,0x3,-1,5,1,no,0,0,0,weapon,0,0x4000,	BS_ADRENALINE,速度激发
-112,0,6,4,0,0x3,-1,5,1,no,0,0,0,weapon,0,0x4000,	BS_WEAPONPERFECT,无视体型攻击
-113,0,6,4,0,0x3,-1,5,1,no,0,0,0,weapon,0,0x4000,	BS_OVERTHRUST,凶砍
-114,0,6,4,0,0x1,0,5,1,no,0,0,0,weapon,0,0x4000,		BS_MAXIMIZE,武器值最大化
+110,1,6,2,0,0x3,2:2:2:2:2:12,5,1,no,0,0,0,weapon,0,0x0,	BS_HAMMERFALL,大地之击
+111,0,6,4,0,0x3,-1,5,1,no,0,0,0,weapon,0,0x0,	BS_ADRENALINE,速度激发
+112,0,6,4,0,0x3,-1,5,1,no,0,0,0,weapon,0,0x0,	BS_WEAPONPERFECT,无视体型攻击
+113,0,6,4,0,0x3,-1,5,1,no,0,0,0,weapon,0,0x0,	BS_OVERTHRUST,凶砍
+114,0,6,4,0,0x1,0,5,1,no,0,0,0,weapon,0,0x0,		BS_MAXIMIZE,武器值最大化
 
 //****
 // Hunter
@@ -334,7 +334,7 @@
 211,1,6,1,0,0x1,0,10,1,no,0,0,0,weapon,0,0x0,	RG_STEALCOIN,偷钱
 212,-1,6,1,-1,0x40,0,10,1,no,0,0,0,weapon,0,0x4,	RG_BACKSTAP,背刺
 213,0,0,0,0,0,0,5,0,no,0,0,0,none,0,0x0,		RG_TUNNELDRIVE,潜遁
-214,0,6,4,-1,0x2,3,5,1,no,0,0x40000,0,weapon,0,0x4,	RG_RAID,潜击
+214,0,6,4,-1,0x2,4,5,1,no,0,0x40000,0,weapon,0,0x4,	RG_RAID,潜击
 215,1,6,1,0,0x1,0,5,1,no,0,0,0,weapon,0,0x0,		RG_STRIPWEAPON,卸除武器
 216,1,6,1,0,0x1,0,5,1,no,0,0,0,weapon,0,0x0,		RG_STRIPSHIELD,卸除盾牌
 217,1,6,1,0,0x1,0,5,1,no,0,0,0,weapon,0,0x0,		RG_STRIPARMOR,卸除铠甲
@@ -561,10 +561,10 @@
 
 //****
 // Whitesmith
-384,0,0,4,0,0x1,0,10,1,yes,0,0,0,weapon,0,0x4000,	WS_MELTDOWN,野蛮凶砍
+384,0,0,4,0,0x1,0,10,1,yes,0,0,0,weapon,0,0x0,	WS_MELTDOWN,野蛮凶砍
 385,0,0,4,0,0x1,0,1,1,yes,0,0,0,none,0,0x0,	WS_CREATECOIN,金钱铸造
 386,0,0,4,0,0x1,0,1,1,yes,0,0,0,none,0,0x0,	WS_CREATENUGGET,金属块制造
-387,0,6,4,0,0x1,0,1,1,no,0,0,0,weapon,0,0x4000,		WS_CARTBOOST,手推车加速
+387,0,6,4,0,0x1,0,1,1,no,0,0,0,weapon,0,0x0,		WS_CARTBOOST,手推车加速
 388,9,6,2,0,0x1,0,5,1,no,0,0,0,none,0,0x0,		WS_SYSTEMCREATE,攻击塔制作
 
 //****
@@ -678,7 +678,7 @@
 
 //****
 // Blacksmith
-459,0,6,4,0,0x3,-1,1,1,no,0,0x8,0,weapon,0,0x4000,		BS_ADRENALINE2,所有速度激发
+459,0,6,4,0,0x3,-1,1,1,no,0,0x8,0,weapon,0,0x0,		BS_ADRENALINE2,所有速度激发
 
 //****
 // Soul Linker
@@ -702,7 +702,7 @@
 474,0,0,4,0,0x1,0,10,1,no,0,0x2,0,none,0,0x0,	NPC_EMOTION_ON,Emotion ON
 475,0,0,4,0,0x1,0,1,1,yes,0,0,0,none,0,0x0,		ST_PRESERVE,自由保护
 476,1,6,1,0,0x1,0,5,1,yes,0,0,0,weapon,0,0x0,	ST_FULLSTRIP,所有卸除
-477,0,6,4,0,0x1,0,10,1,no,0,0,0,weapon,0,0x4000,	WS_WEAPONREFINE,武器精练
+477,0,6,4,0,0x1,0,10,1,no,0,0,0,weapon,0,0x0,	WS_WEAPONREFINE,武器精练
 478,3,6,2,0,0x3,3,10,1,no,0,0,0,none,0,0x0,		CR_SLIMPITCHER,纤细药水投掷
 479,1,6,16,0,0x1,0,5,1,yes,0,0,0,weapon,0,0x0,	CR_FULLPROTECTION,所有化学武器保护
 480,5,8,1,-1,0,0,5,5,no,0,0,0,weapon,0,0x20000,		PA_SHIELDCHAIN,连续盾击
@@ -710,8 +710,8 @@
 482,0,6,4,0,0x1,0,5,1,no,0,0,0,magic,0,0x0,		PF_DOUBLECASTING,双倍投掷
 483,18,6,2,0,0x1,1:2:3:4:5,1,1,no,0,0,0,none,0,0x0,	HW_GANBANTEIN,咖般塔音
 484,18,6,2,2,0xD1,0,5,1,yes,0,0x18000,0,misc,0,0x11010,		HW_GRAVITATION,重力原野
-485,-2,6,1,-1,0x0,0,10,1,no,0,0,0,weapon,0,0x4000,	WS_CARTTERMINATION,手推车终结技
-486,0,6,4,0,0x1,0,5,1,no,0,0,0,weapon,0,0x4000,		WS_OVERTHRUSTMAX,凶砍最大值
+485,-2,6,1,-1,0x0,0,10,1,no,0,0,0,weapon,0,0x0,	WS_CARTTERMINATION,手推车终结技
+486,0,6,4,0,0x1,0,5,1,no,0,0,0,weapon,0,0x0,		WS_OVERTHRUSTMAX,凶砍最大值
 487,0,6,4,0,0x1,0,5,1,no,0,0,0,none,0,0x8,		CG_LONGINGFREEDOM,不要拘束我
 488,0,6,4,0,0x1,1,5,1,no,0,0x20,0,misc,0,0x1,	CG_HERMODE,海罗默德的手杖
 489,9,6,1,0,0x41,0,5,1,no,0,0,0,misc,0,0x0,		CG_TAROTCARD,命运的塔罗牌
@@ -863,7 +863,7 @@
 717,0,6,1,0,0xD2,18,10,1,no,0,0x2,0,misc,0,0x0,		NPC_MAXPAIN_ATK,Max Pain Attack
 718,0,0,4,0,0x1,0,10,1,no,0,0x2,0,magic,0,0x0,	NPC_DEATHSUMMON,Death Summon
 //719,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_HELLBURNING,Hell Burning
-//720,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_JACKFROST,Jack Frost 2
+720,0,8,4,1,0x2,5:6:7:8:9,5,-5,no,0,0,0,magic,0,0x0,	NPC_JACKFROST,Jack Frost 2
 //721,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_WIDEWEB,Wide Web
 //722,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_WIDESUCK,Wide Suck
 //723,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_STORMGUST2,Storm Gust 2
@@ -893,6 +893,12 @@
 //747,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_LEASH,Leash
 //748,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_WIDELEASH,Wide Leash
 //749,0,0,0,0,0,0,??,0,no,0,0,0,none,0,0x0,		NPC_WIDECRITICALWOUND,Wide Critical Wound
+//750,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		NPC_EARTHQUAKE_K,Earthquake K
+//751,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		NPC_ALL_STAT_DOWN,All Stat Down
+//752,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		NPC_GRADUAL_GRAVITY,Gradual Gravity
+//753,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		NPC_DAMAGE_HEAL,Damage Heal
+//754,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		NPC_IMMUNE_PROPERTY,Immune Property
+//755,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		NPC_MOVE_COORDINATE,Move Coordinate
 
 //****
 // 2nd Quest Skills
@@ -907,8 +913,8 @@
 1009,-9,6,1,-1,0,0,1,1,no,0,0x1,0,weapon,3,0x0,	HT_PHANTASMIC,幻箭
 1010,9,6,1,0,0x1,0,1,0,no,0,0x1,0,misc,0,0x0,	BA_PANGVOICE,苦痛之音
 1011,9,6,1,0,0x1,0,1,0,no,0,0x1,0,misc,0,0x0,	DC_WINKCHARM,媚眼
-1012,0,0,0,0,0,0,1,0,no,0,0x1,0,weapon,0,0x4000,	BS_UNFAIRLYTRICK,不正当的手段
-1013,0,6,4,0,0x3,2,1,0,no,0,0x1,0,weapon,0,0x2000,	BS_GREED,贪婪
+1012,0,0,0,0,0,0,1,0,no,0,0x1,0,weapon,0,0x0,	BS_UNFAIRLYTRICK,不正当的手段
+1013,0,6,4,0,0x3,2,1,0,no,0,0x1,0,weapon,0,0x6000,	BS_GREED,贪婪
 1014,0,6,4,6,0x3,14,1,0,yes,0,0x1,0,magic,0,0x0,	PR_REDEMPTIO,救赎
 1015,9,6,16,0,0x1,0,1,1,no,0,0x401,0,weapon,0,0x0,	MO_KITRANSLATION,注气
 1016,-1,6,1,-1,0x2,1,1,1,no,0,0x1,0,weapon,5,0x0,	MO_BALKYOUNG,气爆散
@@ -1048,34 +1054,34 @@
 //****
 // NC Mechanic
 2255,0,0,0,0,0,0,5,0,no,0,0,0,none,0,0x0,		NC_MADOLICENCE,魔导机械执照
-2256,11,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x0,	NC_BOOSTKNUCKLE,喷射飞拳
-2257,3,6,1,-1,0,0,3,1,no,0,0,0,weapon,0,0x0,	NC_PILEBUNKER,冲击锥
-2258,13,6,1,-1,0x2,1,3,1,no,0,0x40000,0,weapon,0,0x0,	NC_VULCANARM,火神炮
-2259,5,6,1,3,0,1,3,1,no,0,0,5,weapon,0,0x0,		NC_FLAMELAUNCHER,火焰喷射器
-2260,7,6,2,1,0x2,2:3:4,3,1,no,0,0x40000,0,weapon,0,0x0,	NC_COLDSLOWER,急速冰冻
-2261,9:11:13,6,1,-1,0x42,3:2:1,3,1,no,0,0,0,weapon,0,0x0,	NC_ARMSCANNON,加农炮
-2262,0,6,4,0,0x1,0,3,1,no,0,0,0,none,0,0x0,		NC_ACCELERATION,涡轮增压
-2263,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,0x0,		NC_HOVERING,悬浮
-2264,0,6,4,0,0x1,0,1,1,no,0,0,0,none,7,0x0,		NC_F_SIDESLIDE,前侧滑
-2265,0,6,4,0,0x1,0,1,1,no,0,0,0,none,7,0x0,		NC_B_SIDESLIDE,后侧滑
+2256,11,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x4000,	NC_BOOSTKNUCKLE,喷射飞拳
+2257,3,6,1,-1,0,0,3,1,no,0,0,0,weapon,0,0x4000,	NC_PILEBUNKER,冲击锥
+2258,13,6,1,-1,0x2,1,3,1,no,0,0x40000,0,weapon,0,0x4000,	NC_VULCANARM,火神炮
+2259,5,6,1,3,0,1,3,1,no,0,0,5,weapon,0,0x4000,		NC_FLAMELAUNCHER,火焰喷射器
+2260,7,6,2,1,0x2,2:3:4,3,1,no,0,0x40000,0,weapon,0,0x4000,	NC_COLDSLOWER,急速冰冻
+2261,9:11:13,6,1,-1,0x42,3:2:1,3,1,no,0,0,0,weapon,0,0x4000,	NC_ARMSCANNON,加农炮
+2262,0,6,4,0,0x1,0,3,1,no,0,0,0,none,0,0x4000,		NC_ACCELERATION,涡轮增压
+2263,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,0x4000,		NC_HOVERING,悬浮
+2264,0,6,4,0,0x1,0,1,1,no,0,0,0,none,7,0x4000,		NC_F_SIDESLIDE,前侧滑
+2265,0,6,4,0,0x1,0,1,1,no,0,0,0,none,7,0x4000,		NC_B_SIDESLIDE,后侧滑
 2266,0,0,0,0,0,0,4,0,no,0,0,0,none,0,0x0,		NC_MAINFRAME,机械结构改造
-2267,0,6,4,0,0xCA,2:3:4,3,1,no,0,0x40000,0,weapon,5,0x0,	NC_SELFDESTRUCTION,自爆
-2268,0,6,4,0,0x1,0,4,1,yes,0,0,0,none,0,0x0,	NC_SHAPESHIFT,装甲变更
-2269,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,0x0,		NC_EMERGENCYCOOL,紧急制冷
-2270,0,6,4,0,0x3,7,1,1,yes,0,0,0,none,0,0x0,	NC_INFRAREDSCAN,红外扫描
-2271,9,6,1,0,0x1,0,3,1,yes,0,0,0,none,0,0x0,	NC_ANALYZE,分析
-2272,0,6,4,0,0x3,2,3,1,no,0,0,0,none,0,0x0,	NC_MAGNETICFIELD,磁场
-2273,0,6,4,0,0x1,0,3,1,no,0,0,0,none,0,0x0,	NC_NEUTRALBARRIER,中粒子屏障
-2274,0,6,4,0,0x1,0,3,1,no,0,0,0,none,0,0x0,	NC_STEALTHFIELD,光学迷彩立场
-2275,5:6:7:8:9,6,16,0,0x1,0,5,1,yes,0,0,0,magic,0,0x0,	NC_REPAIR,机械维修
+2267,0,6,4,0,0xCA,2:3:4,3,1,no,0,0x40000,0,weapon,5,0x4000,	NC_SELFDESTRUCTION,自爆
+2268,0,6,4,0,0x1,0,4,1,yes,0,0,0,none,0,0x4000,	NC_SHAPESHIFT,装甲变更
+2269,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,0x4000,		NC_EMERGENCYCOOL,紧急制冷
+2270,0,6,4,0,0x3,7,1,1,yes,0,0,0,none,0,0x4000,	NC_INFRAREDSCAN,红外扫描
+2271,9,6,1,0,0x1,0,3,1,yes,0,0,0,none,0,0x4000,	NC_ANALYZE,分析
+2272,0,6,4,0,0x3,2,3,1,no,0,0,0,none,0,0x4000,	NC_MAGNETICFIELD,磁场
+2273,0,6,4,0,0x1,0,3,1,no,0,0,0,none,0,0x4000,	NC_NEUTRALBARRIER,中粒子屏障
+2274,0,6,4,0,0x1,0,3,1,no,0,0,0,none,0,0x4000,	NC_STEALTHFIELD,光学迷彩立场
+2275,5:6:7:8:9,6,16,0,0x1,0,5,1,yes,0,0,0,magic,0,0x4000,	NC_REPAIR,机械维修
 2276,0,0,0,0,0,0,10,0,no,0,0,0,none,0,0x0,		NC_TRAININGAXE,斧修炼
 2277,0,0,0,0,0,0,5,0,no,0,0,0,none,0,0x0,		NC_RESEARCHFE,火和大地研究
-2278,5:6:7:8:9,6,1,-1,0,0,5,1,no,0,0,0,weapon,2:3:4:5:6,0x0,	NC_AXEBOOMERANG,回旋斧
-2279,1,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x0,	NC_POWERSWING,强力回旋
-2280,0,8,4,-1,0x2,2:2:3:3:3,5,-6,no,0,0x40000,0,weapon,0,0x0,	NC_AXETORNADO,利刃风暴
-2281,2,6,2,0,0x1,0,5,1,yes,0,0,2,none,0,0x0,	NC_SILVERSNIPER,银色狙击手
-2282,2,6,2,0,0x1,0,5,1,yes,0,0,2,none,0,0x0,	NC_MAGICDECOY,FAW 魔法傀儡
-2283,5,6,1,0,0x1,0,1,1,no,0,0,0,none,0,0x0,		NC_DISJOINT,FAW解除
+2278,5:6:7:8:9,6,1,-1,0,0,5,1,no,0,0,0,weapon,2:3:4:5:6,0x4000,	NC_AXEBOOMERANG,回旋斧
+2279,1,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x4000,	NC_POWERSWING,强力回旋
+2280,0,8,4,-1,0x2,2:2:3:3:3,5,-6,no,0,0x40000,0,weapon,0,0x4000,	NC_AXETORNADO,利刃风暴
+2281,2,6,2,0,0x1,0,5,1,yes,0,0,2,none,0,0x4000,	NC_SILVERSNIPER,银色狙击手
+2282,2,6,2,0,0x1,0,5,1,yes,0,0,2,none,0,0x4000,	NC_MAGICDECOY,FAW 魔法傀儡
+2283,5,6,1,0,0x1,0,1,1,no,0,0,0,none,0,0x4000,		NC_DISJOINT,FAW解除
 
 //****
 // SC Shadow Chaser
@@ -1295,6 +1301,50 @@
 //2573,0,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0,	RL_B_FLICKER_ATK,Bind Flicker Attack
 //2574,0,6,1,-1,0,0,10,1,no,0,0,0,weapon,0,0,	RL_GLITTERING_GREED_ATK,Flip The Coin Greed Attack
 
+// Star Emperor
+2574,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_LIGHTOFMOON,Light of Moon
+2575,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_LUNARSTANCE,Lunar Stance
+2576,0,0,4,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_FULLMOONKICK,Full Moon Kick
+2577,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_LIGHTOFSTAR,Light of Star
+2578,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_STARSTANCE,Star Stance
+2579,0,0,4,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_NEWMOONKICK,New Moon Kick
+2580,1,0,1,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_FLASHKICK,Flash Kick
+2581,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_STAREMPEROR,Star Emperor
+2582,3,0,1,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_NOVAEXPLOSING,Nova Explosing
+2583,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_UNIVERSESTANCE,Universe Stance
+2584,0,0,4,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_FALLINGSTAR,Falling Star
+2585,9,0,1,0,0,0,1,0,yes,0,0,0,none,0,0,		SJ_GRAVITYCONTROL,Gravity Control
+2586,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_BOOKOFDIMENSION,Book of Dimension
+2587,7,0,2,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_BOOKOFCREATINGSTAR,Book of Creating Star
+2588,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_DOCUMENT,Document
+2589,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0,		SJ_PURIFY,Purify
+2590,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_LIGHTOFSUN,Light of Sun
+2591,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_SUNSTANCE,Sun Stance
+2592,0,0,4,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_SOLARBURST,Solar Burst
+2593,1,0,1,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_PROMINENCEKICK,Prominence Kick
+2594,0,0,1,0,0,0,7,0,yes,0,0x4000,0,none,0,0,	SJ_FALLINGSTAR_ATK,Falling Star Attack
+2595,0,0,1,0,0,0,7,0,yes,0,0x4000,0,none,0,0,	SJ_FALLINGSTAR_ATK2,Falling Star Attack 2
+
+// Soul Reaper
+2596,9,0,16,0,0,0,5,0,yes,0,0,0,none,0,0,		SP_SOULGOLEM,Soul Golem
+2597,9,0,16,0,0,0,5,0,yes,0,0,0,none,0,0,		SP_SOULSHADOW,Soul Shadow
+2598,9,0,16,0,0,0,5,0,yes,0,0,0,none,0,0,		SP_SOULFALCON,Soul Falcon
+2599,9,0,16,0,0,0,5,0,yes,0,0,0,none,0,0,		SP_SOULFAIRY,Soul Fairy
+2600,9,0,1,0,0,0,5,0,yes,0,0,0,none,0,0,		SP_CURSEEXPLOSION,Curse Explosion
+2601,9,0,1,0,0,0,5,0,yes,0,0,0,none,0,0,		SP_SOULCURSE,Soul Curse
+2602,9,0,1,0,0,0,5,0,yes,0,0,0,none,0,0,		SP_SPA,Espa
+2603,9,0,1,0,0,0,5,0,yes,0,0,0,none,0,0,		SP_SHA,Esha
+2604,9,0,1,0,0,0,7,0,yes,0,0,0,none,0,0,		SP_SWHOO,Eswhoo
+// TODO: Why does this have a range?
+2605,11,0,4,0,0,0,7,0,yes,0,0,0,none,0,0,		SP_SOULUNITY,Soul Unity
+2606,9,0,1,0,0,0,5,0,yes,0,0,0,none,0,0,		SP_SOULDIVISION,Soul Division
+2607,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SP_SOULREAPER,Soul Reaper
+2608,9,0,16,0,0,0,3,0,yes,0,0,0,none,0,0,		SP_SOULREVOLVE,Soul Revolve
+2609,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SP_SOULCOLLECT,Soul Collect
+2610,7,0,1,0,0,0,5,0,yes,0,0,0,none,0,0,		SP_SOULEXPLOSION,Soul Explosion
+2611,0,0,0,0,0,0,5,0,no,0,0,0,none,0,0,		SP_SOULENERGY,Soul Energy
+2612,7,0,16,0,0,0,5,0,yes,0,0,0,none,0,0,		SP_KAUTE,Kaute
+
 //****
 // Kagerou & Oboro
 3001,0,6,4,0,0,0,1,1,no,0,0,0,none,0,0x4,		KO_YAMIKUMO,暗云
@@ -1346,7 +1396,7 @@
 5003,7,6,1,-1,0x2,4:5:6:7:-1,5,1,no,0,0,0,weapon,0,0x0, GN_ILLUSIONDOPING,致幻剂
 5004,9,6,2,1,0x42,1:1:1:2:2:2:3:3:4:4,10,1,no,0,0x40000,0,weapon,0,0x0, RK_DRAGONBREATH_WATER,龙之吐息 - 水
 5005,0,6,4,0,0x3,3,1,1,no,0,0,0,none,0,0x0, RK_LUXANIMA,Lux Anima
-5006,1,6,2,3,0x2,3,5,1,no,0,0,3,misc,0,0x0, NC_MAGMA_ERUPTION,熔岩喷发
+5006,1,6,2,3,0x2,3,5,1,no,0,0,3,misc,0,0x4000, NC_MAGMA_ERUPTION,熔岩喷发
 5007,0,6,4,0,0x3,5:6:7:8:9,5,1,no,0,0,0,none,0,0x0, WM_FRIGG_SONG,丰饶之歌
 5008,0,6,4,0,0x3,11,5,1,no,0,0,0,none,0,0x0, SO_ELEMENTAL_SHIELD,精灵结界
 5009,1,6,1,0,0x1,0,5,1,no,0,0,0,none,0,0x0, SR_FLASHCOMBO,闪光连击
@@ -1354,7 +1404,7 @@
 5011,0,6,4,0,0x1,0,5,1,no,0,0,0,none,0,0x0, AB_OFFERTORIUM,奉献祈福
 5012,0,6,4,0,0x1,0,5,1,no,0,0,0,none,0,0x0, WL_TELEKINESIS_INTENSE,强念传动
 5013,0,6,4,0,0x3,0,5,1,no,0,0,0,none,0,0x0, LG_KINGS_GRACE,王之守护
-5014,0,6,4,0,0x1,0,5,1,no,0,0,0,none,0,0x0, ALL_FULL_THROTTLE,全力以赴
+5014,0,6,4,0,0x1,0,5,1,no,0,0,0,none,0,0x4000, ALL_FULL_THROTTLE,全力以赴
 
 // Summoner
 5018,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,		SU_BASIC_SKILL,新基本技能
@@ -1404,6 +1454,10 @@
 5063,1,6,4,0,0x1,0,1,1,yes,0,0x4,0,none,0,0,	WE_CALLALLFAMILY,Call All Family
 5064,3,6,16,0,0x1,0,1,1,yes,0,0x4,0,none,0,0,	WE_ONEFOREVER,One Forever
 5065,1,6,4,0,0x3,3,1,1,yes,0,0x4,0,none,0,0,	WE_CHEERUP,Cheer Up
+
+// New Arch Bishop Skills
+5072,11,0,1,0,0,0,5,0,yes,0,0,0,none,0,0,		AB_VITUPERATUM,Vituperatum
+5073,0,0,4,0,0,0,1,0,yes,0,0,0,none,0,0,		AB_CONVENIO,Convenio
 
 //****
 // Homunculus S

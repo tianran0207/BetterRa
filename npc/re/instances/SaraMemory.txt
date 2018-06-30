@@ -1113,71 +1113,73 @@ OnDisable:
 OnEnable:
 	enablenpc instance_npcname("#MobsSara01", instance_id());
 	set .@map$, instance_mapname("1@sara");
-	monster .@map$,107,325,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,115,325,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,116,317,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,108,317,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,116,311,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,108,311,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
+	.@event$ = instance_npcname("#MobsSara01")+"::OnMyMobDead";
+	killmonster .@map$, .@event$;
+	monster .@map$,107,325,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,115,325,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,116,317,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,108,317,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,116,311,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,108,311,"ì³ÑïÊ¿±ø",2543,1, .@event$;
 
-	monster .@map$,101,295,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,105,295,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,109,295,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,113,295,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,117,295,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,121,295,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
+	monster .@map$,101,295,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,105,295,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,109,295,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,113,295,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,117,295,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,121,295,"ì³ÑïÊ¿±ø",2543,1, .@event$;
 
-	monster .@map$,122,227,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,122,225,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,122,223,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,122,221,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,122,219,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,122,217,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,121,227,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,121,225,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,121,223,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,121,221,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,121,219,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,121,217,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
+	monster .@map$,122,227,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,122,225,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,122,223,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,122,221,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,122,219,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,122,217,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,121,227,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,121,225,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,121,223,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,121,221,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,121,219,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,121,217,"¾¯ÎÀÈ®",2545,1, .@event$;
 
-	monster .@map$,151,231,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,153,231,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,155,231,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,157,231,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,159,231,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,161,231,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
+	monster .@map$,151,231,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,153,231,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,155,231,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,157,231,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,159,231,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,161,231,"ì³ÑïÊ¿±ø",2543,1, .@event$;
 
-	monster .@map$,187,215,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,187,217,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,187,219,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,187,221,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,187,223,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,187,225,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,188,215,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,188,217,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,188,219,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,188,221,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,188,223,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,188,225,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
+	monster .@map$,187,215,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,187,217,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,187,219,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,187,221,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,187,223,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,187,225,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,188,215,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,188,217,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,188,219,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,188,221,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,188,223,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,188,225,"ì³ÑïÊ¿±ø",2543,1, .@event$;
 
-	monster .@map$,192,250,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,194,250,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,196,250,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,198,250,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
+	monster .@map$,192,250,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,194,250,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,196,250,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,198,250,"¾¯ÎÀÈ®",2545,1, .@event$;
 
-	monster .@map$,196,254,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,196,256,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,196,258,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,199,254,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,199,256,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,199,258,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
+	monster .@map$,196,254,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,196,256,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,196,258,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,199,254,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,199,256,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,199,258,"ì³ÑïÊ¿±ø",2543,1, .@event$;
 
-	monster .@map$,204,246,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,204,248,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,204,250,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,204,252,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,204,254,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
-	monster .@map$,206,251,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara01")+"::OnMyMobDead";
+	monster .@map$,204,246,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,204,248,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,204,250,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,204,252,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,204,254,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,206,251,"¾¯ÎÀÈ®",2545,1, .@event$;
 	set 'Sara_Mobs,58;
 	initnpctimer;
 	end;
@@ -1213,27 +1215,29 @@ OnDisable:
 OnEnable:
 	enablenpc instance_npcname("#MobsSara02", instance_id());
 	set .@map$, instance_mapname("1@sara");
-	monster .@map$,228,312,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
-	monster .@map$,227,312,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
-	monster .@map$,229,315,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
+	.@event$ = instance_npcname("#MobsSara02")+"::OnMyMobDead";
+	killmonster .@map$, .@event$;
+	monster .@map$,228,312,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,227,312,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,229,315,"¾¯ÎÀÈ®",2546,1, .@event$;
 
-	monster .@map$,247,290,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
-	monster .@map$,248,290,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
-	monster .@map$,249,290,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
+	monster .@map$,247,290,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,248,290,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,249,290,"ì³ÑïÊ¿±ø",2544,1, .@event$;
 
-	monster .@map$,223,264,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
-	monster .@map$,230,248,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
-	monster .@map$,227,248,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
+	monster .@map$,223,264,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,230,248,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,227,248,"ì³ÑïÊ¿±ø",2544,1, .@event$;
 
-	monster .@map$,238,229,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
-	monster .@map$,225,220,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
-	monster .@map$,228,220,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
+	monster .@map$,238,229,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,225,220,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,228,220,"ì³ÑïÊ¿±ø",2544,1, .@event$;
 
-	monster .@map$,220,212,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
-	monster .@map$,223,212,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
+	monster .@map$,220,212,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,223,212,"ì³ÑïÊ¿±ø",2544,1, .@event$;
 
-	monster .@map$,219,203,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
-	monster .@map$,222,203,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara02")+"::OnMyMobDead";
+	monster .@map$,219,203,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,222,203,"¾¯ÎÀÈ®",2546,1, .@event$;
 	set 'Sara_Mobs,16;
 	end;
 
@@ -1259,59 +1263,61 @@ OnDisable:
 OnEnable:
 	enablenpc instance_npcname("#MobsSara03", instance_id());
 	set .@map$, instance_mapname("1@sara");
-	monster .@map$,255,91,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,255,92,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,255,93,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,255,94,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,254,91,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,254,92,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,254,93,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,254,94,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
+	.@event$ = instance_npcname("#MobsSara03")+"::OnMyMobDead";
+	killmonster .@map$, .@event$;
+	monster .@map$,255,91,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,255,92,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,255,93,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,255,94,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,254,91,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,254,92,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,254,93,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,254,94,"¾¯ÎÀÈ®",2545,1, .@event$;
 
-	monster .@map$,228,65,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";	
-	monster .@map$,228,64,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";	
-	monster .@map$,228,63,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,228,62,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
+	monster .@map$,228,65,"ì³ÑïÊ¿±ø",2543,1, .@event$;	
+	monster .@map$,228,64,"ì³ÑïÊ¿±ø",2543,1, .@event$;	
+	monster .@map$,228,63,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,228,62,"ì³ÑïÊ¿±ø",2543,1, .@event$;
 
-	monster .@map$,198,62,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,195,56,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,195,60,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,195,62,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,192,56,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,192,60,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,192,62,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
+	monster .@map$,198,62,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,195,56,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,195,60,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,195,62,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,192,56,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,192,60,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,192,62,"¾¯ÎÀÈ®",2546,1, .@event$;
 
-	monster .@map$,187,68,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,188,63,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
+	monster .@map$,187,68,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,188,63,"¾¯ÎÀÈ®",2546,1, .@event$;
 
-	monster .@map$,120,39,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,121,39,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,121,39,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
+	monster .@map$,120,39,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,121,39,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,121,39,"ì³ÑïÊ¿±ø",2543,1, .@event$;
 
-	monster .@map$,93,64,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,93,68,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,93,72,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,93,76,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,90,64,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,90,68,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,90,72,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,90,76,"¾¯ÎÀÈ®",2545,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
+	monster .@map$,93,64,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,93,68,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,93,72,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,93,76,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,90,64,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,90,68,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,90,72,"¾¯ÎÀÈ®",2545,1, .@event$;
+	monster .@map$,90,76,"¾¯ÎÀÈ®",2545,1, .@event$;
 
-	monster .@map$,87,67,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,87,63,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,87,59,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,87,55,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
+	monster .@map$,87,67,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,87,63,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,87,59,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,87,55,"ì³ÑïÊ¿±ø",2543,1, .@event$;
 
-	monster .@map$,84,67,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,84,63,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,84,59,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,84,55,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
+	monster .@map$,84,67,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,84,63,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,84,59,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,84,55,"¾¯ÎÀÈ®",2546,1, .@event$;
 
-	monster .@map$,81,67,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,81,63,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,81,59,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,81,55,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
-	monster .@map$,81,51,"¾¯ÎÀÈ®",2546,1,instance_npcname("#MobsSara03")+"::OnMyMobDead";
+	monster .@map$,81,67,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,81,63,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,81,59,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,81,55,"¾¯ÎÀÈ®",2546,1, .@event$;
+	monster .@map$,81,51,"¾¯ÎÀÈ®",2546,1, .@event$;
 	set 'Sara_Mobs,45;
 	end;
 
@@ -1337,58 +1343,60 @@ OnDisable:
 OnEnable:
 	enablenpc instance_npcname("#MobsSara04", instance_id());
 	set .@map$, instance_mapname("1@sara");
-	monster .@map$,155,97,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,157,97,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,159,97,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,161,97,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
+	.@event$ = instance_npcname("#MobsSara04")+"::OnMyMobDead";
+	killmonster .@map$, .@event$;
+	monster .@map$,155,97,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,157,97,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,159,97,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,161,97,"ì³ÑïÊ¿±ø",2543,1, .@event$;
 
-	monster .@map$,201,113,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,204,113,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,207,113,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,210,113,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,213,113,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
+	monster .@map$,201,113,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,204,113,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,207,113,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,210,113,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,213,113,"ì³ÑïÊ¿±ø",2544,1, .@event$;
 
-	monster .@map$,201,117,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,204,117,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,207,117,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,210,117,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,213,117,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
+	monster .@map$,201,117,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,204,117,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,207,117,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,210,117,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,213,117,"ì³ÑïÊ¿±ø",2544,1, .@event$;
 
-	monster .@map$,223,152,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,223,148,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,223,144,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
+	monster .@map$,223,152,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,223,148,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,223,144,"ì³ÑïÊ¿±ø",2544,1, .@event$;
 
-	monster .@map$,221,152,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,221,148,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,221,144,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
+	monster .@map$,221,152,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,221,148,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,221,144,"ì³ÑïÊ¿±ø",2544,1, .@event$;
 
-	monster .@map$,151,174,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,153,174,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,155,174,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,157,174,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,159,174,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
+	monster .@map$,151,174,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,153,174,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,155,174,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,157,174,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,159,174,"ì³ÑïÊ¿±ø",2543,1, .@event$;
 
-	monster .@map$,151,177,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,153,177,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,155,177,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,157,177,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,159,177,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
+	monster .@map$,151,177,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,153,177,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,155,177,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,157,177,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,159,177,"ì³ÑïÊ¿±ø",2543,1, .@event$;
 
-	monster .@map$,151,180,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,153,180,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,155,180,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,157,180,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,159,180,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
+	monster .@map$,151,180,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,153,180,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,155,180,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,157,180,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	monster .@map$,159,180,"ì³ÑïÊ¿±ø",2544,1, .@event$;
 
-	monster .@map$,173,139,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,170,139,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,167,139,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,164,139,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
+	monster .@map$,173,139,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,170,139,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,167,139,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,164,139,"ì³ÑïÊ¿±ø",2543,1, .@event$;
 
-	monster .@map$,173,137,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,170,137,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,167,137,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
-	monster .@map$,164,137,"ì³ÑïÊ¿±ø",2543,1,instance_npcname("#MobsSara04")+"::OnMyMobDead";
+	monster .@map$,173,137,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,170,137,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,167,137,"ì³ÑïÊ¿±ø",2543,1, .@event$;
+	monster .@map$,164,137,"ì³ÑïÊ¿±ø",2543,1, .@event$;
 	set 'Sara_Mobs,43;
 	end;
 
@@ -1428,22 +1436,24 @@ OnDisable:
 OnEnable:
 	enablenpc instance_npcname("#BossSara01", instance_id());
 	set .@map$, instance_mapname("1@sara");
-	monster .@map$,150,232,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#BossSara01")+"::OnMyMobDead";
-	unittalk $@mobid[0],"ÎÒÄê¼ÍÌ«´óÁË£¬²»ÊÊºÏ×öÕâ¸ö¹¤×÷¡£";
-	monster .@map$,150,227,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#BossSara01")+"::OnMyMobDead";
-	unittalk $@mobid[0],"ÎªÁËì³Ñï£¡£¡";
-	monster .@map$,150,222,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#BossSara01")+"::OnMyMobDead";
-	unittalk $@mobid[0],"ÎªÁËì³Ñï£¡£¡";
-	monster .@map$,150,217,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#BossSara01")+"::OnMyMobDead";
-	unittalk $@mobid[0],"ÎªÁËì³Ñï£¡£¡";
-	monster .@map$,161,232,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#BossSara01")+"::OnMyMobDead";
-	unittalk $@mobid[0],"ÎªÁËì³Ñï£¡£¡";
-	monster .@map$,161,227,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#BossSara01")+"::OnMyMobDead";
-	unittalk $@mobid[0],"ÎªÁËì³Ñï£¡£¡";
-	monster .@map$,161,222,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#BossSara01")+"::OnMyMobDead";
-	unittalk $@mobid[0],"ÎªÁËì³Ñï£¡£¡";
-	monster .@map$,161,217,"ì³ÑïÊ¿±ø",2544,1,instance_npcname("#BossSara01")+"::OnMyMobDead";
-	unittalk $@mobid[0],"ÎªÁËì³Ñï£¡£¡";
+	.@event$ = instance_npcname("#BossSara01")+"::OnMyMobDead";
+	killmonster .@map$, .@event$;
+	monster .@map$,150,232,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	unittalk $@mobid[0],"I am getting too old for this sh-";
+	monster .@map$,150,227,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
+	monster .@map$,150,222,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
+	monster .@map$,150,217,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
+	monster .@map$,161,232,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
+	monster .@map$,161,227,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
+	monster .@map$,161,222,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
+	monster .@map$,161,217,"ì³ÑïÊ¿±ø",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
 	areamobuseskill .@map$,155,225,10,2544,"NPC_EMOTION",1,0,0,ET_GO,0;
 	areamobuseskill .@map$,159,236,1,2543,"NPC_EMOTION",1,0,0,ET_SWEAT,0;
 	set 'Sara_Mobs,8;
@@ -1467,8 +1477,10 @@ OnDisable:
 OnEnable:
 	enablenpc instance_npcname("#BossSara02", instance_id());
 	set .@map$, instance_mapname("1@sara");
-	monster .@map$,155,226,"¶¼ÑÓ °¬ÁÕ",2542,1,instance_npcname("#BossSara02")+"::OnMyMobDead";
-	unittalk $@mobid[0],"ÎÒÒªÎªÉ¯À­µÄÂèÂè±¨³ğ£¡£¡";
+	.@event$ = instance_npcname("#BossSara02")+"::OnMyMobDead";
+	killmonster .@map$, .@event$;
+	monster .@map$,155,226,"Doyen Irene",2542,1, .@event$;
+	unittalk $@mobid[0],"I will have revenge for Sara's mom !!";
 	end;
 
 OnMyMobDead:
