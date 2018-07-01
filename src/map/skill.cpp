@@ -16672,6 +16672,8 @@ int skill_vfcastfix(struct block_list *bl, double time, uint16 skill_id, uint16 
 			reduce_cast_rate += sd->bonus.varcastrate; // bonus bVariableCastrate
 		if (sd->bonus.fixcastrate != 0)
 			fixcast_r -= sd->bonus.fixcastrate; // bonus bFixedCastrate
+		if (sd->bonus.fixcastaddrate != 0)
+			fixcast_r -= sd->bonus.fixcastaddrate; // bonus bFixedCastAddRate
 		if (sd->bonus.add_varcast != 0)
 			time += sd->bonus.add_varcast; // bonus bVariableCast
 		if (sd->bonus.add_fixcast != 0)

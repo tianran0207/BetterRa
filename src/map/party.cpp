@@ -663,7 +663,7 @@ int party_leave(struct map_session_data *sd)
 		pc_setregstr(sd, add_str("@left_party_name$"), p->party.name);
 		npc_script_event_atonce(sd, NPCE_PARTYLEAVEFILTER);
 		if (sd->state.processhalt)
-			return false;
+			return 0;
 	}
 #endif //  EVENT_PARTYLEAVEFILTER
 

@@ -525,6 +525,7 @@
 	export_parameter(ROULETTE_SILVER_VAR,SP_ROULETTE_SILVER);
 	export_parameter(ROULETTE_GOLD_VAR,SP_ROULETTE_GOLD);
 
+	//-----------------------------------------------------------------------
 	export_constant2("bWeaponAddDamage", SP_WEAPON_ADD_DAMAGE);
 	export_constant2("bMagicAddDamage", SP_MAGIC_ADD_DAMAGE);
 	export_constant2("bMiscAddDamage", SP_MISC_ADD_DAMAGE);
@@ -537,7 +538,9 @@
 	export_constant2("bMaxASPD", SP_MAXASPD);
 	export_constant2("bSkillItemFix", SP_SKILL_ITEM_FIX);
 	export_constant2("bCooldownrate", SP_COOLDOWNRATE);
-
+	export_constant2("bFixedCastAddRate", SP_FIXCASTADDRATE);
+	export_constant2("bMultiDamageRate", SP_MULTIDAMAGERATE);
+	//-----------------------------------------------------------------------
 	export_constant2("bMaxHP",SP_MAXHP);
 	export_constant2("bMaxSP",SP_MAXSP);
 	export_constant2("bStr",SP_STR);

@@ -28,3 +28,6 @@ bonus2 bSkillTreeDelay,jobid,n;			职业技能独立技能延迟调整
 bonus bCooldownrate,n;                  技能独立延迟时间 + n%
 bonus bMaxASPD,n;                       修改ASPD上限(无视CONF中的配置)
 bonus3 bSkillItemFix,sk,iid,n;          技能 sk 消耗的物品ID iid 增加 n 个(n可以为负数) 
+
+bonus bFixedCastAddRate,n;              固定咏唱时间 + n%(可累加)
+bonus3 bMultiDamageRate,bf,r,n;	    	当玩家使用 bf 攻击时, 有 r/10% 的概率使伤害变为原来的 n% 倍

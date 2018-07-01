@@ -25820,11 +25820,15 @@ BUILDIN_FUNC(getatkevent) {
 }
 
 BUILDIN_FUNC(gettarget) {
-	TBL_PC* sd;
-	if (!script_charid2sd(2, sd))
+	
+	struct block_list *bl;
+	struct unit_data *ud;
+	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_FAILURE;
 
-	script_pushint(st, sd->ud.target);
+	ud = unit_bl2ud(bl);
+
+	script_pushint(st, ud->target);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -25980,13 +25984,13 @@ BUILDIN_FUNC(setsteppath) {
 
 	if (!steppath->number) {
 		script_pushint(st, 0);
-		ShowDebug("setsteppath: The step path have no '%s' index.\n", key);
+		ShowDebug("buildin_setsteppath: The step path have no '%s' index.\n", key);
 		return SCRIPT_CMD_SUCCESS;
 	}
 
 	if (path_search(&wpd, md->bl.m, md->bl.x, md->bl.y, steppath->x[0], steppath->y[0], 1, CELL_CHKNOPASS) && wpd.path_len > 13) {
 		script_pushint(st, 0);
-		ShowDebug("setsteppath: The mob with GID '%d' can not reach the beginning of step path.\n", md->bl.id);
+		ShowDebug("buildin_setsteppath: The mob with GID '%d' can not reach the beginning of step path.\n", md->bl.id);
 		return SCRIPT_CMD_SUCCESS;
 	}
 	md->autowalk.path = steppath;
@@ -26265,7 +26269,7 @@ BUILDIN_FUNC(instance_enter_last) {
 	struct map_session_data *sd = NULL;
 
 	if (!battle_config.instance_leavepoint){
-		ShowError("instance_enter_last: Please set battle config of 'instance_leavepoint'\n");
+		ShowError("buildin_instance_enter_last: Please set battle config of 'instance_leavepoint'\n");
 		return SCRIPT_CMD_FAILURE;
 	}
 
@@ -26402,31 +26406,70 @@ BUILDIN_FUNC(readstatus)
 	
 }
 
-BUILDIN_FUNC(check_nearpc)
+// areateam <teamtype>,{<around>{,<char_id>}}
+BUILDIN_FUNC(getareamember)
 {
-	struct block_list *bl;
-	int x0 = 0, x1 = 0, y0 = 0, y1 = 0;
+	TBL_PC *sd = NULL, *tsd = NULL;
+	struct party_data *p = NULL;
+	struct guild *g = NULL;
+	struct battleground_data *bg = NULL;
+	int x0 = 0, x1 = 0, y0 = 0, y1 = 0, size = 0, i, j = 0;
 
-	if (!script_rid2bl(2, bl))
+	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	x0 = bl->x - AREA_SIZE;
-	y0 = bl->y - AREA_SIZE;
-	x1 = bl->x + AREA_SIZE;
-	y1 = bl->y + AREA_SIZE;
+	size = script_hasdata(st, 3) ? script_getnum(st, 3) : AREA_SIZE;
 
-//	switch (script_getnum(st, 2)) {
-//	case AREA:
-//		//map_foreachinallarea(clif_send_sub, bl->m, x0, y0, x1, y1, BL_PC, buf, len, bl, type);
-//		break;
-//	case PARTY_AREA:
-//	case GUILD_AREA:
-//	case BG_AREA:
-//
-//	}
+	x0 = sd->bl.x - size;
+	y0 = sd->bl.y - size;
+	x1 = sd->bl.x + size;
+	y1 = sd->bl.y + size;
 
-	//script_pushstrcopy(st, StringBuf_Value(db->name));
-
+	switch (script_getnum(st, 2)) {
+	case PARTY_AREA:
+		if (sd && sd->status.party_id)
+			p = party_search(sd->status.party_id);
+		if (!p) break;
+		for (i = 0; i<MAX_PARTY; i++) {
+			if ((tsd = p->data[i].sd) == NULL)
+				continue;
+			if (tsd->bl.x < x0 || tsd->bl.y < y0 || tsd->bl.x > x1 || tsd->bl.y > y1)
+				continue;
+			pc_setreg(sd, reference_uid(add_str("@member_aid"), j), tsd->status.account_id);
+			j++;
+		}
+		break;
+	case GUILD_AREA:
+		if (sd && sd->status.guild_id)
+			g = sd->guild;
+		if (!g) break;
+		for (i = 0; i < g->max_member; i++) {
+			if ((tsd = g->member[i].sd) == NULL)
+				continue;
+			if (tsd->bl.x < x0 || tsd->bl.y < y0 || tsd->bl.x > x1 || tsd->bl.y > y1)
+				continue;
+			pc_setreg(sd, reference_uid(add_str("@member_aid"), j), tsd->status.account_id);
+			j++;
+		}
+		break;
+	case BG_AREA:
+		if (sd && sd->bg_id)
+			bg = bg_team_search(sd->bg_id);
+		if (!bg) break;
+		for (i = 0; i < MAX_BG_MEMBERS; i++){
+			if ((tsd = bg->members[i].sd) == NULL)
+				continue;
+			if (tsd->bl.x < x0 || tsd->bl.y < y0 || tsd->bl.x > x1 || tsd->bl.y > y1)
+				continue;
+			pc_setreg(sd, reference_uid(add_str("@member_aid"), j), tsd->status.account_id);
+			j++;
+		}
+		break;
+	default:
+		ShowError("buildin_areateam: Unsupport this type\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	pc_setreg(sd, add_str("@member_amount"), j);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -27195,5 +27238,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unit_Astart_walkto, "iii?"),
 	BUILDIN_DEF(instance_name, "?"),
 	BUILDIN_DEF(readstatus, "i?"),
+	BUILDIN_DEF(getareamember, "i??"),
 	{NULL,NULL,NULL},
 };

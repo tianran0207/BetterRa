@@ -3466,7 +3466,6 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->addeff)
 		+ sizeof(sd->addeff_atked)
 		+ sizeof(sd->addeff_onskill)
-		+ sizeof(sd->skilldamage) //自定义
 		+ sizeof(sd->skillatk)
 		+ sizeof(sd->skillusesprate)
 		+ sizeof(sd->skillusesp)
@@ -3476,7 +3475,6 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->skillcastrate)
 		+ sizeof(sd->skillfixcastrate)
 		+ sizeof(sd->subskill)
-		+ sizeof(sd->skillforaoe) //自定义
 		+ sizeof(sd->skillcooldown)
 		+ sizeof(sd->skillfixcast)
 		+ sizeof(sd->skillvarcast)
@@ -3498,6 +3496,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->hp_vanish_race)
 		+ sizeof(sd->sp_vanish_race)
 		+ sizeof(sd->skilldelay)
+		+ sizeof(sd->skilldamage) //自定义
+		+ sizeof(sd->skillforaoe) //自定义
 	);
 
 	memset (&sd->bonus, 0, sizeof(sd->bonus));

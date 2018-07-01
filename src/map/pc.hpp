@@ -568,6 +568,7 @@ struct map_session_data {
 		uint8 absorb_dmg_maxhp; // [Cydh]
 		short critical_rangeatk;
 		short weapon_atk_rate, weapon_matk_rate;
+		int fixcastaddrate;
 	} bonus;
 	// zeroed vars end here.
 
@@ -590,6 +591,9 @@ struct map_session_data {
 			int amount;
 		}skillitemfix[MAX_PC_BONUS];
 		int cooldownrate;
+		struct s_multidamagerate {
+			short rate, atk_type, n;
+		}multidamage[MAX_PC_BONUS];
 	}c_bonus;
 	struct autowalk_data autowalk;
 

@@ -1086,6 +1086,7 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 
 	if (src->type == BL_PC) {
 		sd = (struct map_session_data *)src;
+		int i;
 		if (flag&BF_WEAPON && sd->c_bonus.weapon_add_damage)
 			damage += sd->c_bonus.weapon_add_damage;
 
@@ -1094,6 +1095,14 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 
 		if (flag&BF_MISC && sd->c_bonus.misc_add_damage)
 			damage += sd->c_bonus.misc_add_damage;
+
+		for (i = 0; i < MAX_PC_BONUS; i++) {
+			if (sd->c_bonus.multidamage[i].atk_type == 0)
+				break;
+			if (sd->c_bonus.multidamage[i].atk_type&flag && rnd() % 1000 < sd->c_bonus.multidamage[i].rate){
+				damage += damage * sd->c_bonus.multidamage[i].n / 100;
+			}
+		}
 	}
 
 	if (src->type & battle_config.enable_damage_rate) {
@@ -2477,14 +2486,12 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 	struct map_session_data *tsd = BL_CAST(BL_PC, target);
 
 	if (!first_call)
-		return (wd.type == DMG_CRITICAL);
+		return (wd.type == DMG_CRITICAL || wd.type == DMG_MULTI_HIT_CRITICAL);
 
 	if (skill_id == NPC_CRITICALSLASH || skill_id == LG_PINPOINTATTACK) //Always critical skills
 		return true;
 
-	if( !(wd.type&DMG_MULTI_HIT) && sstatus->cri && (!skill_id ||
-		skill_id == KN_AUTOCOUNTER || skill_id == SN_SHARPSHOOTING ||
-		skill_id == MA_SHARPSHOOTING || skill_id == NJ_KIRIKAGE))
+	if (sstatus->cri && (!skill_id || skill_get_nk(skill_id)&NK_CRITICAL))
 	{
 		short cri = sstatus->cri;
 
@@ -5480,8 +5487,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 	wd = battle_calc_multi_attack(wd, src, target, skill_id, skill_lv);
 
 	// crit check is next since crits always hit on official [helvetica]
-	if (is_attack_critical(wd, src, target, skill_id, skill_lv, true))
-		wd.type = DMG_CRITICAL;
+	if (is_attack_critical(wd, src, target, skill_id, skill_lv, true)) {
+		if (wd.type&DMG_MULTI_HIT)
+			wd.type = DMG_MULTI_HIT_CRITICAL;
+		else
+			wd.type = DMG_CRITICAL;
+	}
 
 	// check if we're landing a hit
 	if(!is_attack_hitting(wd, src, target, skill_id, skill_lv, true))

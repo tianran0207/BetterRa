@@ -2550,7 +2550,11 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 			break;
 		case SP_MAXASPD:
 			if (sd->state.lr_flag != 2)
-				sd->c_bonus.max_aspd = val;
+				sd->c_bonus.max_aspd = 2000 - val * 10;
+			break;
+		case SP_FIXCASTADDRATE:
+			if (sd->state.lr_flag != 2)
+				sd->bonus.fixcastaddrate += val;
 			break;
 		case SP_STR:
 		case SP_AGI:
@@ -3934,6 +3938,21 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_MULTIDAMAGERATE: // bonus3 MultiDamageRate,atk_type,rate,n;
+		if (sd->state.lr_flag == 2)
+			break;
+		int i;
+		ARR_FIND(0, ARRAYLENGTH(sd->c_bonus.multidamage), i, sd->c_bonus.multidamage[i].atk_type == 0
+			|| sd->c_bonus.multidamage[i].atk_type == type2);
+		if (i == ARRAYLENGTH(sd->c_bonus.multidamage))
+		{
+			ShowError("pc_bonus2: SP_MULTIDAMAGERATE: Reached max (%d) number of bonuses per character!\n", ARRAYLENGTH(sd->c_bonus.multidamage));
+			break;
+		}
+		sd->c_bonus.multidamage[i].atk_type = type2;
+		sd->c_bonus.multidamage[i].rate = type3;
+		sd->c_bonus.multidamage[i].n += val;
+		break;
 	case SP_SKILL_ITEM_FIX: // bonus3 bSkillItemFix,sk,iid,n;
 		if (sd->state.lr_flag != 2) {
 			int i;
@@ -3941,7 +3960,7 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 				|| (sd->c_bonus.skillitemfix[i].sk == type2 && sd->c_bonus.skillitemfix[i].iid == type3));
 			if (i == ARRAYLENGTH(sd->c_bonus.skillitemfix))
 			{
-				ShowError("pc_bonus2: SP_ADD_DAMAGE_CLASS: Reached max (%d) number of add Class dmg bonuses per character!\n", ARRAYLENGTH(sd->left_weapon.add_dmg));
+				ShowError("pc_bonus2: SP_ADD_DAMAGE_CLASS: Reached max (%d) number of add Class dmg bonuses per character!\n", ARRAYLENGTH(sd->c_bonus.skillitemfix));
 				break;
 			}
 			sd->c_bonus.skillitemfix[i].sk = type2;
@@ -8406,6 +8425,7 @@ int pc_readparam(struct map_session_data* sd,int type)
 		case SP_ADD_ITEM_HEAL_RATE: val = sd->bonus.itemhealrate2; break;
 		case SP_EMATK:           val = sd->bonus.ematk; break;
 		case SP_FIXCASTRATE:     val = sd->bonus.fixcastrate; break;
+		case SP_FIXCASTADDRATE:     val = sd->bonus.fixcastaddrate; break;
 		case SP_ADD_FIXEDCAST:   val = sd->bonus.add_fixcast; break;
 		case SP_ADD_VARIABLECAST:  val = sd->bonus.add_varcast; break;
 		case SP_CASTRATE:
