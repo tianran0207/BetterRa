@@ -1053,6 +1053,7 @@ bool battle_check_sc(struct block_list *src, struct block_list *target, struct s
 int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damage *d,int64 damage,uint16 skill_id,uint16 skill_lv)
 {
 	struct map_session_data *sd = NULL;
+	struct map_session_data *tsd = NULL;
 	struct status_change *sc;
 	struct status_change_entry *sce;
 	int div_ = d->div_, flag = d->flag;
@@ -1085,22 +1086,22 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 	}
 
 	if (src->type == BL_PC) {
-		sd = (struct map_session_data *)src;
+		tsd = (struct map_session_data *)src;
 		int i;
-		if (flag&BF_WEAPON && sd->c_bonus.weapon_add_damage)
-			damage += sd->c_bonus.weapon_add_damage;
+		if (flag&BF_WEAPON && tsd->c_bonus.weapon_add_damage)
+			damage += tsd->c_bonus.weapon_add_damage;
 
-		if (flag&BF_MAGIC && sd->c_bonus.magic_add_damage)
-			damage += sd->c_bonus.magic_add_damage;
+		if (flag&BF_MAGIC && tsd->c_bonus.magic_add_damage)
+			damage += tsd->c_bonus.magic_add_damage;
 
-		if (flag&BF_MISC && sd->c_bonus.misc_add_damage)
-			damage += sd->c_bonus.misc_add_damage;
+		if (flag&BF_MISC && tsd->c_bonus.misc_add_damage)
+			damage += tsd->c_bonus.misc_add_damage;
 
 		for (i = 0; i < MAX_PC_BONUS; i++) {
-			if (sd->c_bonus.multidamage[i].atk_type == 0)
+			if (tsd->c_bonus.multidamage[i].atk_type == 0)
 				break;
-			if (sd->c_bonus.multidamage[i].atk_type&flag && rnd() % 1000 < sd->c_bonus.multidamage[i].rate){
-				damage += damage * sd->c_bonus.multidamage[i].n / 100;
+			if (tsd->c_bonus.multidamage[i].atk_type&flag && rnd() % 1000 < tsd->c_bonus.multidamage[i].rate){
+				damage += damage * tsd->c_bonus.multidamage[i].n / 100;
 			}
 		}
 	}
@@ -1307,7 +1308,7 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 #endif
 
 		if( damage ) {
-			struct map_session_data *tsd = BL_CAST(BL_PC, src);
+			//struct map_session_data *tsd = BL_CAST(BL_PC, src);
 			if( sc->data[SC_DEEPSLEEP] ) {
 				damage += damage / 2; // 1.5 times more damage while in Deep Sleep.
 				status_change_end(bl,SC_DEEPSLEEP,INVALID_TIMER);
@@ -1663,6 +1664,21 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 		else if( element == -3 ) //Use random element
 			element = rnd()%ELE_ALL;
 		pc_overheat(sd, (element == ELE_FIRE ? 3 : 1));
+	}
+
+	if (sd && sd->shield.hp > 0) {
+		if (sd->shield.tick < gettick())
+			memset(&sd->shield, 0, sizeof(sd->shield));
+		else if (sd->shield.race == RC_ALL || sd->shield.race == status_get_race(bl)) {
+			if (sd->shield.hp > damage) {
+				damage = 1;
+				sd->shield.hp -= damage;
+			}
+			else {
+				damage -= sd->shield.hp;
+				memset(&sd->shield, 0, sizeof(sd->shield));
+			}
+		}
 	}
 
 	return damage;

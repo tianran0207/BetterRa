@@ -33,6 +33,18 @@ struct step_path {
 	int number;
 	unsigned int uid;
 };
+
+enum autowolk_type {
+	PH_NONE,
+	PH_WALKBACK,       /// 离开路径30格或回到路径遇到障碍时, 不再追踪, 自动行走返回路径. (默认)
+	PH_WARPBACK,       /// 离开路径直到失去目标后, 传送回路径继续走完路径.
+	PH_IGNOREWALK,     /// 永远不追踪目标, 但如果目标在攻击(拾取)范围内, 依然会攻击(拾取).
+	PH_IGNOREALL,      /// 永远不做任何其他事情, 一路走到路点结束.
+	PH_ASTARTWALK,     /// 离开路径后, 调用A*算法计算路径, 并走到最终规定的路点终点(A*算法比较消耗CPU慎用).
+	PH_ASTARTWALKBACK, /// 离开路径后, 调用A*算法计算返回路径(A*算法比较消耗CPU慎用).
+	PH_MAX,
+};
+
 struct autowalk_data {
 	struct step_path *path;
 	unsigned int step;
@@ -40,6 +52,7 @@ struct autowalk_data {
 };
 struct step_path *get_step(const char *key);
 struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid);
+void path_free(struct step_path *sp);
 
 struct shootpath_data {
 	int rx,ry,len;

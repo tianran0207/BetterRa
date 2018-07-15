@@ -1018,7 +1018,7 @@ extern char market_table[32];
 extern char roulette_table[32];
 
 void do_shutdown(void);
-void not_free(void);
+void not_free(const char *name);
 int map_checknear(struct block_list* bl, int range, int cell);
 bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int num);
 

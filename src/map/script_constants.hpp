@@ -540,6 +540,13 @@
 	export_constant2("bCooldownrate", SP_COOLDOWNRATE);
 	export_constant2("bFixedCastAddRate", SP_FIXCASTADDRATE);
 	export_constant2("bMultiDamageRate", SP_MULTIDAMAGERATE);
+
+	export_constant(PH_WALKBACK);
+	export_constant(PH_WARPBACK);
+	export_constant(PH_IGNOREWALK);
+	export_constant(PH_IGNOREALL);
+	export_constant(PH_ASTARTWALK);
+	export_constant(PH_ASTARTWALKBACK);
 	//-----------------------------------------------------------------------
 	export_constant2("bMaxHP",SP_MAXHP);
 	export_constant2("bMaxSP",SP_MAXSP);

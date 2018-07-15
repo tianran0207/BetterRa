@@ -4846,8 +4846,8 @@ int do_init(int argc, char *argv[])
 	return 0;
 }
 
-void not_free(void){
- ShowWarning("Sorry!!You don't customize this function.\n");
+void not_free(const char *name){
+	ShowWarning("This function '%s' is NOT FREE!! Please contact the author.(QQ:809236588)\n", name);
 }
 
 struct bot_data *map_id2bot(int id) {
@@ -4886,7 +4886,9 @@ void map_delbot(struct bot_data *bd, bool loginout)
 {
 	struct map_session_data* sd;
 
-	nullpo_retv(bd);
+	if (bd == NULL)
+		return;
+
 	nullpo_retv(bd->sd);
 	
 	if (loginout) {

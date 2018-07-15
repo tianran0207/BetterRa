@@ -266,6 +266,9 @@ struct Script_Config {
 	const char*	bot_lack_item_event_name;
 	// HTTP received
 	const char*	http_received_event_name;
+	// Card related
+	const char*	card_insert_filter_name;
+	const char*	card_insert_event_name;
 };
 extern struct Script_Config script_config;
 

@@ -2934,9 +2934,25 @@ ACMD_FUNC(recall) {
 	if (pl_sd->bl.m == sd->bl.m && pl_sd->bl.x == sd->bl.x && pl_sd->bl.y == sd->bl.y) {
 		return -1;
 	}
-	if( pc_setpos(pl_sd, sd->mapindex, sd->bl.x, sd->bl.y, CLR_RESPAWN) == SETPOS_AUTOTRADE ){
-		clif_displaymessage(fd, msg_txt(sd,1025)); // The player is currently autotrading and cannot be recalled.
-		return -1;
+
+	if(pl_sd->state.bot || pc_setpos(pl_sd, sd->mapindex, sd->bl.x, sd->bl.y, CLR_RESPAWN) == SETPOS_AUTOTRADE){
+		uint8 info[3];
+		info[0] = pl_sd->ud.dir;
+		info[1] = pl_sd->head_dir;
+		info[2] = pl_sd->vd.dead_sit;
+		pc_setpos(pl_sd, sd->mapindex, sd->bl.x, sd->bl.y, (clr_type)255);  // 需要 pc_setpos 对255的支持
+		clif_parse_LoadEndAck(0, pl_sd);
+		pc_setdir(pl_sd, info[0], info[1]);
+		clif_changed_dir(&pl_sd->bl, AREA_WOS);
+		if (info[2]) {
+			pc_setsit(pl_sd);
+			skill_sit(pl_sd, 1);
+			clif_sitting(&pl_sd->bl);
+		}
+		chrif_save(pl_sd, CSAVE_AUTOTRADE);
+		return 0;
+		//clif_displaymessage(fd, msg_txt(sd,1025)); // The player is currently autotrading and cannot be recalled.
+		//return -1;
 	}
 
 	sprintf(atcmd_output, msg_txt(sd,46), pl_sd->status.name); // %s recalled!

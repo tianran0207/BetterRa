@@ -94,8 +94,10 @@
 #define ATCOMMAND_FOLLOWPACKET      
 
 #ifdef DEBUG
-	#define BONUS_SKILL_AOE
-	#define SCRIPT_UNITSKILLTOWIDE
+	#define BONUS_SKILL_AOE                 //单体技能改为AOE
+	#define BONUS_MULTIDAMAGERATE           //多倍伤害
+	#define SCRIPT_UNITSKILLTOWIDE          //技能扩散
+	#define SCRIPT_MAGICSHIELD              //魔法护盾
 #endif
 //----------------------------------
 //默认开关

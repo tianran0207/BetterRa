@@ -1533,7 +1533,10 @@ int mob_unlocktarget(struct mob_data *md, unsigned int tick)
 		if (status_has_mode(&md->status,MD_ANGRY) && !md->state.aggressive)
 			md->state.aggressive = 1; //Restore angry state when switching to idle
 		md->state.skillstate = MSS_IDLE;
-		if(battle_config.mob_ai&0x8) //Walk instantly after dropping target
+		
+		if(md->autowalk.path)
+			mob_randomwalk(md, tick);
+		else if(battle_config.mob_ai&0x8) //Walk instantly after dropping target
 			md->next_walktime = tick+rnd()%1000;
 		else
 			md->next_walktime = tick+rnd()%1000+MIN_RANDOMWALKTIME;
@@ -1688,6 +1691,12 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 	if(md->bl.prev == nullptr || md->status.hp == 0)
 		return false;
 
+	if (md->autowalk.path && md->autowalk.step_ai == PH_IGNOREALL) {
+		if (md->ud.walktimer == INVALID_TIMER)
+			unit_check_step(&md->bl, &md->autowalk, tick);
+		return true;
+	}
+	
 	if (DIFF_TICK(tick, md->last_thinktime) < MIN_MOBTHINKTIME)
 		return false;
 

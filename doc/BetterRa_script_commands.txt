@@ -45,6 +45,97 @@
 
 ---------------------------------------
 
+*magicshield <种族>,<护盾血量>,<持续时间>;
+
+在持续时间内，抵挡相应种族的伤害。
+
+参数<种族>: 
+	RC_Angel		天使系
+	RC_Brute		动物系
+	RC_DemiHuman	人形系
+	RC_Demon		恶魔系
+	RC_Dragon		龙系
+	RC_Fish			鱼贝系
+	RC_Formless		无形系
+	RC_Insect		昆虫系
+	RC_Plant		植物系
+	RC_Player		玩家
+	RC_Undead		不死系
+	RC_All			所有种族
+	
+---------------------------------------
+
+*getbonus <类型>,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>}}}};
+
+用来获取bonus的参数，当参数填写变量时则获取相应位置上的参数。此指令可用在 OnPCStatCalcEvent 下面，获取的参数后，再使用相应的bonus对数值进行调整。
+例如 使用当前指令获取玩家对属性的抵抗大于100时，则该属性免疫。如果不想让玩家免疫 可使用 bonus2 bSubEle,e,x; 对该属性的免疫进行调整。
+
+例：
+
+	getbonus bAddEle,Ele_Dark,.@val;
+	dispbottom "你对属性 Ele_Dark 增加 "+.@val+" 的伤害";
+	getbonus bAddEle,Ele_Dark,.@val,BF_SHORT;	
+	dispbottom "近距离物理攻击时, 你对属性 Ele_Dark 增加 "+.@val+" 的伤害";
+	
+	
+被支持的 Bonus 列表:
+	bonus2 bAddEle,e,x;
+	bonus3 bAddEle,e,x,bf;
+	bonus2 bMagicAddEle,e,x;
+	bonus2 bSubEle,e,x;
+	bonus3 bSubEle,e,x,bf;
+	bonus2 bSubDefEle,e,x;
+	
+	bonus2 bAddRace,r,x;
+	bonus2 bMagicAddRace,r,x;
+	bonus2 bSubRace,r,x;
+	
+	bonus2 bAddClass,c,x;
+	bonus2 bMagicAddClass,c,x;
+	bonus2 bSubClass,c,x;
+	
+	bonus2 bAddSize,s,x;
+	bonus2 bMagicAddSize,s,x;
+	bonus2 bSubSize,s,x;
+	
+	bonus2 bAddDamageClass,mid,x;
+	bonus2 bAddMagicDamageClass,mid,x;
+	bonus2 bAddDefMonster,mid,x;
+	bonus2 bAddMDefMonster,mid,x;
+	
+	bonus2 bAddRace2,mr,x;
+	bonus2 bSubRace2,mr,x;
+	bonus2 bMagicAddRace2,mr,x;
+	
+	bonus2 bSubSkill,sk,n;
+
+
+	
+---------------------------------------
+
+*getrateidx <概率数组>;
+*getrateidx <概率>{,<概率>{,<概率>....}};
+
+根据提供的概率返回该概率值在数组中的位置，被概率值越大选中的概率越大。
+
+例：
+	setarray .@rate[0],1000,20,10;
+	.@idx = getrateidx .@rate;
+	dispbottom ".@idx 为 " + .@idx;
+	dispbottom ".@idx 有 1000/(1000+20+10) 的概率为 0";
+	dispbottom ".@idx 有 20/(1000+20+10) 的概率为 1";
+	dispbottom ".@idx 有 10/(1000+20+10) 的概率为 2";
+
+参数: 
+    bStr:  获取玩家所拥有的 STR 总数值
+	bAgi:  获取玩家所拥有的 AGI 总数值
+	bVit:  获取玩家所拥有的 VIT 总数值
+	bInt:  获取玩家所拥有的 INT 总数值
+	bDex:  获取玩家所拥有的 DEX 总数值
+	bLuk:  获取玩家所拥有的 LUK 总数值
+	
+---------------------------------------
+
 *readstatus <参数>;
 
 获取属性的总量。
@@ -1069,17 +1160,26 @@ tribe_monster <阵营编号>,"<地图名字>",<x坐标>,<y坐标>,"<魔物名字
 
 ---------------------------------------
 
-setsteppath <魔物GID>,"<路点名>"{,<寻路AI>};
-setsteppath <魔物GID>,<路点编号>{,<寻路AI>};
+unitsteppath <GID>,"<路点名>"{,<寻路AI>};
+unitsteppath <GID>,<路点编号>{,<寻路AI>};
 
 给魔物设置自动行走路径, 设置自动行走路径后, 魔物将会按照路径的坐标一个一个的按照顺序走下去,直到走到重点为止.
 
-"<路点名>"\<路点编号> 为 mob_step_path.txt 中的第一个字段.
+"<路点名>"\<路点编号> 为 step_path.txt 中的第一个字段.
 
 寻路AI:
-	0: 为追击到离开路径10格后, 自动回到路径继续走完路径. (默认)
-	1: 为追击敌人直到失去目标后, 传送回路径继续走完路径.
-	2: 为追击敌人失去目标后, 如果离路径点过远则则直接放弃路径.
+	PH_WALKBACK: 离开路径30格或回到路径遇到障碍时, 不再追踪, 自动行走返回路径. (默认)
+	PH_WARPBACK: 离开路径直到失去目标后, 传送回路径继续走完路径.
+	PH_IGNOREWALK: 永远不追踪目标, 但如果目标在攻击(拾取)范围内, 依然会攻击(拾取).
+	PH_IGNOREALL: 永远不做任何其他事情, 一路走到路点结束.
+	PH_ASTARTWALK: 离开路径后, 调用A*算法计算路径, 并走到最终规定的路点终点(A*算法比较消耗CPU, 返回距离超过128格时慎用 ).
+	PH_ASTARTWALKBACK: 离开路径后, 调用A*算法计算返回路径(A*算法比较消耗CPU, 返回距离超过128格时慎用 ).
+
+---------------------------------------
+
+*bot_login <account_id>,<char_id>,<性别>;
+
+登陆一个数据库中已有的账号。
 
 ---------------------------------------
 

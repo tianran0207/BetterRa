@@ -1470,7 +1470,7 @@ static enum e_CASHSHOP_ACK npc_cashshop_process_payment(struct npc_data *nd, int
 					clif_messagecolor(&sd->bl, color_table[COLOR_RED], output, false, SELF);
 					return ERROR_TYPE_PURCHASE_FAIL;
 				}
-				pc_setreg2(sd, nd->u.shop.pointshop_str, cost[0] - (price - points));
+				pc_setreg2(sd, nd->u.shop.pointshop_val, cost[0] - (price - points));
 				sprintf(output, msg_txt(sd, 716), nd->u.shop.pointshop_str, cost[0] - (price - points)); // Your '%s' is now: %d
 				clif_messagecolor(&sd->bl, color_table[COLOR_LIGHT_GREEN], output, false, SELF);
 			}
@@ -1626,7 +1626,7 @@ void npc_shop_currency_type(struct map_session_data *sd, struct npc_data *nd, in
 				clif_broadcast(&sd->bl, output, strlen(output) + 1, BC_BLUE,SELF);
 			}
 			
-			cost[0] = pc_readreg2(sd, nd->u.shop.pointshop_str);
+			cost[0] = pc_readreg2(sd, nd->u.shop.pointshop_val);
 			break;
 	}
 }
@@ -2822,7 +2822,17 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 
 	if (type != NPCTYPE_SHOP) {
 		if (type == NPCTYPE_ITEMSHOP) nd->u.shop.itemshop_nameid = nameid; // Item shop currency
-		else if (type == NPCTYPE_POINTSHOP) strchr(point_str, '|')? safestrncpy(nd->u.shop.pointshop_str, strchr(point_str, '|') + 1, strlen(strchr(point_str, '|'))) :safestrncpy(nd->u.shop.pointshop_str,point_str,strlen(point_str)+1); // Point shop currency
+		//else if (type == NPCTYPE_POINTSHOP) safestrncpy(nd->u.shop.pointshop_str,point_str,strlen(point_str)+1); // Point shop currency
+		else if (type == NPCTYPE_POINTSHOP) {
+			if (strchr(point_str, '|')) {
+				safestrncpy(nd->u.shop.pointshop_str, strchr(point_str, '|') + 1, strlen(strchr(point_str, '|')));
+				safestrncpy(nd->u.shop.pointshop_val, point_str, strchr(point_str, '|') - point_str + 1);
+			}
+			else {
+				safestrncpy(nd->u.shop.pointshop_str, point_str, strlen(point_str) + 1);
+				safestrncpy(nd->u.shop.pointshop_val, point_str, strlen(point_str) + 1);
+			}
+		}
 		nd->u.shop.discount = is_discount > 0;
 	}
 
@@ -4665,6 +4675,10 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.roulette_colse_event_name;
 	case NPCE_BOTITEMLACKEVENT:
 		return script_config.bot_lack_item_event_name;
+	case NPCE_CARDINSERTFILTER:
+		return script_config.card_insert_filter_name;
+	case NPCE_CARDINSERTEVENT:
+		return script_config.card_insert_event_name;
 	default:
 		ShowError("npc_get_script_event_name: npce_index is outside the array limits: %d (max: %d).\n", npce_index, NPCE_MAX);
 		return NULL;

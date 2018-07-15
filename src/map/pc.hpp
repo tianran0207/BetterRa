@@ -597,6 +597,12 @@ struct map_session_data {
 	}c_bonus;
 	struct autowalk_data autowalk;
 
+	struct s_shield {
+		short race;
+		int64 hp;
+		unsigned int tick;
+	} shield;
+
 	struct s_autoevent {
 		short rate, atk_type;
 		unsigned int number, maxnumber;
@@ -1195,6 +1201,7 @@ void pc_bonus2(struct map_session_data *sd, int type, int type2, int val);
 void pc_bonus3(struct map_session_data *sd, int type, int type2, int type3, int val);
 void pc_bonus4(struct map_session_data *sd, int type, int type2, int type3, int type4, int val);
 void pc_bonus5(struct map_session_data *sd, int type, int type2, int type3, int type4, int type5, int val);
+bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2ptr, int *val3ptr, int *val4ptr, int *val5ptr);
 
 enum e_addskill_type {
 	ADDSKILL_PERMANENT			= 0,	///< Permanent skill. Remove the skill if level is 0

@@ -739,6 +739,10 @@ struct step_path* get_step(const char *key) {
 	return (struct step_path *)strdb_get(step_db, key);
 }
 
+void path_free(struct step_path *sp) {
+	strdb_remove(step_db, sp->pathname);
+}
+
 // flagΪ
 struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid) {
 	struct step_path *sp;
@@ -764,6 +768,7 @@ struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, in
 	return sp;
 }
 
+#include "../common/strlib.hpp"
 static bool path_readdb_steppath(char* str[], int columns, int current) {
 
 	struct step_path *steppath;
@@ -774,10 +779,11 @@ static bool path_readdb_steppath(char* str[], int columns, int current) {
 
 	if (!steppath) {
 		CREATE(steppath, struct step_path, 1);
-		strdb_put(step_db, str[0], steppath);
+		safestrncpy(steppath->pathname, str[0], NAME_LENGTH);
+		strdb_put(step_db, steppath->pathname, steppath);
 	}
-
-	memset(steppath, 0, sizeof(struct step_path));
+	//memset(steppath, 0, sizeof(struct step_path));
+	steppath->number = 0;
 	for (i = 0; i < columns - 1; i++) {
 		p = str[i + 1];
 		point[0] = p;
@@ -798,7 +804,6 @@ static bool path_readdb_steppath(char* str[], int columns, int current) {
 	return true;
 }
 
-#include "../common/strlib.hpp"
 void path_step_load(void) {
 	bool silent = false;
 	sv_readdb(db_path, "step_path.txt", ',', 2, MAX_PATHSTEP, -1, &path_readdb_steppath, silent);

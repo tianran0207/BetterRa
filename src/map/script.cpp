@@ -360,7 +360,10 @@ struct Script_Config script_config = {
 	//
 	"OnBOTLackItemEvent",
 	//
-	"OnHTTPReceivedEvent"
+	"OnHTTPReceivedEvent",
+	//
+	"OnPCInsertCardFilter",
+	"OnPCInsertCardEvent"
 };
 
 static jmp_buf     error_jump;
@@ -9250,6 +9253,23 @@ BUILDIN_FUNC(statusup2)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+bool buildin_bonus_check_free(int type) {
+	switch (type) {
+	case SP_SKILL_AOE:
+#ifdef BONUS_SKILL_AOE
+		return true;
+#endif
+	case SP_MULTIDAMAGERATE:
+#ifdef BONUS_MULTIDAMAGERATE
+		return true;
+#endif
+		return false;
+	default:
+		break;
+	}
+	return true;
+}
+
 /// See 'doc/item_bonus.txt'
 ///
 /// bonus <bonus type>,<val1>;
@@ -9272,6 +9292,12 @@ BUILDIN_FUNC(bonus)
 		return SCRIPT_CMD_SUCCESS; // no player attached
 
 	type = script_getnum(st,2);
+
+	if (!buildin_bonus_check_free(type)) {
+		ShowWarning("This bonus '%d' is NOT FREE!! Please contact the author.(QQ:809236588)\n", type);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
 	switch( type ) {
 		case SP_SKILL_ITEM_FIX:
 		case SP_AUTOSPELL:
@@ -13986,7 +14012,7 @@ BUILDIN_FUNC(getinventorylist)
 			}
 			pc_setreg(sd,reference_uid(add_str("@inventorylist_expire"), j),sd->inventory.u.items_inventory[i].expire_time);
 			pc_setreg(sd,reference_uid(add_str("@inventorylist_bound"), j),sd->inventory.u.items_inventory[i].bound);
-			pc_setreg(sd,reference_uid(add_str("@inventorylist_idx"), j), sd->inventory.u.items_inventory[i].id);
+			pc_setreg(sd,reference_uid(add_str("@inventorylist_idx"), j), i);
 			_ui64toa(sd->inventory.u.items_inventory[i].unique_id, uid, 10);
 			pc_setregstr(sd,reference_uid(add_str("@inventorylist_uid$"), j), uid);
 			for (k = 0; k < MAX_ITEM_RDM_OPT; k++)
@@ -24436,55 +24462,6 @@ BUILDIN_FUNC(logout)
 	
 }
 
-BUILDIN_FUNC(searcharray)
-{
-	bool isstr = false;
-	struct script_data *array_id;
-	struct reg_db *array_id_ref = NULL;
-	const char *array_id_var, *srcstr, *cmpstr;
-	int array_id_n, i, srcint, cmpint, index = -1;
-	int32 array_id_id, array_id_idx;
-
-	array_id = script_getdata(st, 2);
-	array_id_var = reference_getname(array_id);
-	if (array_id_var[strlen(array_id_var) - 1] == '$') {
-		isstr = true;
-		srcstr = script_getstr(st, 3);
-	}
-	else
-		srcint = script_getnum(st, 3);
-
-	array_id_ref = reference_getref(array_id);
-	array_id_n = script_array_highest_key(st, NULL, array_id_var, array_id_ref);
-	if (array_id_n < 1) {
-		script_pushint(st, -1);
-		return SCRIPT_CMD_SUCCESS;
-	}
-	array_id_id = reference_getid(array_id);
-	array_id_idx = reference_getindex(array_id);
-	if (array_id_n < array_id_idx) {
-		script_pushint(st, -1);
-		return SCRIPT_CMD_SUCCESS;
-	}
-	for (i = 0; i < array_id_n; i++) {
-		if (index != -1)
-			break;
-		else if (isstr) {
-			cmpstr = (const char*)get_val2(st, reference_uid(array_id_id, array_id_idx + i), array_id_ref);
-			if (strcmp(srcstr, cmpstr) == 0) index = array_id_idx + i;
-			script_removetop(st, -1, 0);
-		}
-		else {
-			cmpint = (int)__64BPRTSIZE(get_val2(st, reference_uid(array_id_id, array_id_idx + i), array_id_ref));
-			if (srcint == cmpint) index = array_id_idx + i;
-			script_removetop(st, -1, 0);
-		}
-
-	}
-	script_pushint(st, index);
-	return SCRIPT_CMD_SUCCESS;
-}
-
 BUILDIN_FUNC(countinventory)
 {
 	TBL_PC *sd;
@@ -25715,7 +25692,7 @@ BUILDIN_FUNC(unitskilltowide)
 			add_timer(gettick() + delay * steplen / step, buildin_unitskillwide_sub, bl->id, (intptr_t)info);
 	}
 #else
-	not_free();
+	not_free(script_getfuncname(st));
 #endif // SCRIPT_UNITSKILLTOWIDE
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -25959,15 +25936,25 @@ BUILDIN_FUNC(mobskill)
 }
 
 
-BUILDIN_FUNC(setsteppath) {
-
-	TBL_MOB *md;
-	struct walkpath_data wpd;
+BUILDIN_FUNC(unitsteppath)
+{
 	struct step_path *steppath;
+	struct block_list *bl;
+	struct autowalk_data *ad;
 	const char *key = NULL;
-	char *str_temp = NULL;
+	char str_temp[24];
+	int step_ai;
 
-	md = map_id2md(script_getnum(st, 2));
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	if ((ad = unit_autowalk(bl)) == NULL)
+		return SCRIPT_CMD_SUCCESS;
+
+	if (data_isreference(script_getdata(st, 3))) {
+		ShowError("buildin_unitsteppath: The second parameters cannot be variable.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
 
 	if (script_isstring(st, 3))
 		key = script_getstr(st, 3);
@@ -25975,34 +25962,28 @@ BUILDIN_FUNC(setsteppath) {
 		itoa(script_getnum(st, 3), str_temp, 10);
 		key = str_temp;
 	}
-	steppath = get_step(key);
 
-	if (!md || !steppath) {
-		script_pushint(st, 0);
+	if ((steppath = get_step(key)) == NULL) {
+		ShowWarning("buildin_unitsteppath: The step path have no '%s' index.\n", key);
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	if (!steppath->number) {
-		script_pushint(st, 0);
-		ShowDebug("buildin_setsteppath: The step path have no '%s' index.\n", key);
+	step_ai = script_hasdata(st, 4) ? script_getnum(st, 4) : PH_WALKBACK;
+
+	if (step_ai > PH_NONE &&  step_ai < PH_MAX) {
+		struct walkpath_data wpd;
+		if (step_ai != PH_WARPBACK && !path_search(&wpd, bl->m, bl->x, bl->y, steppath->x[0], steppath->y[0], 1, CELL_CHKNOPASS) && wpd.path_len > 14) {
+			ShowWarning("buildin_unitsteppath: The mob with GID '%d' can not reach the beginning of step path.\n", bl->id);
+			return SCRIPT_CMD_FAILURE;
+		}
+		ad->path = steppath;
+		ad->step = 0;
+		ad->step_ai = step_ai;
+		unit_check_step(bl, ad, gettick());
 		return SCRIPT_CMD_SUCCESS;
 	}
-
-	if (path_search(&wpd, md->bl.m, md->bl.x, md->bl.y, steppath->x[0], steppath->y[0], 1, CELL_CHKNOPASS) && wpd.path_len > 13) {
-		script_pushint(st, 0);
-		ShowDebug("buildin_setsteppath: The mob with GID '%d' can not reach the beginning of step path.\n", md->bl.id);
-		return SCRIPT_CMD_SUCCESS;
-	}
-	md->autowalk.path = steppath;
-	md->autowalk.step = 0;
-
-	script_pushint(st, 1);
-	return SCRIPT_CMD_SUCCESS;
-}
-
-BUILDIN_FUNC(unitAstartwalkto) {
-
-	return SCRIPT_CMD_SUCCESS;
+	ShowWarning("buildin_unitsteppath: The third parameter is invalid.\n", step_ai);
+	return SCRIPT_CMD_FAILURE;
 }
 
 BUILDIN_FUNC(tribe_mobteam) {
@@ -26044,7 +26025,7 @@ BUILDIN_FUNC(tribe_setteam) {
 		tribe_team_set_id(bl, script_getnum(st, 3));
 	}
 	unit_stop_attack(bl);
-	unit_stop_walking(bl, 0);
+	unit_stop_walking(bl, 1 | 4);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -26228,12 +26209,12 @@ static int buildin_bot_login_sub(int tid, unsigned int tick, int id, intptr_t da
 		sd = (struct map_session_data*)data;
 		chrif_authreq(sd, true);
 		clif_parse_LoadEndAck(0, sd);
-
 		add_timer(gettick() + 3000, buildin_bot_login_sub, sd->bl.id, 0);
 	}
 	else if ((sd = map_id2sd(id)) != NULL) {
 		clif_parse_LoadEndAck(0, sd);
 		chrif_save(sd, SC_AUTOTRADE);
+		sd->state.bot = 1;
 	}
 	return 1;
 }
@@ -26241,27 +26222,28 @@ static int buildin_bot_login_sub(int tid, unsigned int tick, int id, intptr_t da
 BUILDIN_FUNC(bot_login)
 {
 	TBL_PC *sd;
-	int account_id = 2000000;
-	int char_id = 150010;
-	int sex = 0;
-	if ((sd = map_id2sd(account_id)) != NULL) {
-		map_quit(sd);
-	}
+	int account_id = script_getnum(st, 2);
+	int char_id = script_getnum(st, 3);
+	int sex = script_getnum(st, 4);
 
-	if (sd != NULL) {
+	if ((sd = map_id2sd(account_id)) != NULL) {
 		TBL_PC *tbl;
+		if (sd->bl.id == account_id) {
+			script_detach_rid(st);
+			channel_pcquit(sd, 0xF); //leave all chan
+			clif_authfail_fd(sd->fd, 15);
+			map_quit(sd);
+		}
 		CREATE(tbl, TBL_PC, 1);
-		pc_setnewpc(tbl, account_id, char_id, 0, 0, sex, 0);
+		pc_setnewpc(tbl, account_id, char_id, 0, gettick(), sex, 0);
 		add_timer(gettick() + 3000, buildin_bot_login_sub, 0, (intptr_t)tbl);
 		return SCRIPT_CMD_SUCCESS;
 	}
 	CREATE(sd, TBL_PC, 1);
-	pc_setnewpc(sd, account_id, char_id, 0, 0, sex, 0);
+	pc_setnewpc(sd, account_id, char_id, 0, gettick(), sex, 0);
 	chrif_authreq(sd, true);
 	clif_parse_LoadEndAck(0, sd);
-
 	add_timer(gettick() + 3000, buildin_bot_login_sub, sd->bl.id, 0);
-
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -26289,32 +26271,6 @@ BUILDIN_FUNC(http_get)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(astart_test)
-{
-/*	struct step_path *sp;
-	struct map_session_data *sd = NULL;
-	int16 m, x0, y0, x1, y1;
-	const char *mapname;
-	unsigned int tick = gettick();
-	script_rid2sd(sd);
-
-	mapname = script_getstr(st, 2);
-	x0 = script_getnum(st, 3);
-	y0 = script_getnum(st, 4);
-	x1 = script_getnum(st, 5);
-	y1 = script_getnum(st, 6);
-	m = map_mapname2mapid(mapname);
-	sp = path_Astart_steppath(m, sd->bl.x, sd->bl.y, x1, y1, tick);
-	if (sp == NULL)
-		return SCRIPT_CMD_SUCCESS;
-
-	sd->autowalk.path = sp;
-	sd->autowalk.step = 0;
-	unit_check_step(&sd->bl, &sd->autowalk, tick);
-	*/
-	return SCRIPT_CMD_SUCCESS;
-}
-
 BUILDIN_FUNC(unit_Astart_walkto)
 {
 	struct block_list *bl;
@@ -26326,7 +26282,7 @@ BUILDIN_FUNC(unit_Astart_walkto)
 	if (script_rid2bl(2, bl)) {
 		unsigned int uid = (script_getnum(st, 5) ? bl->id : 0);
 
-		if((ad = unit_autowalk(bl)) ==NULL)
+		if((ad = unit_autowalk(bl)) == NULL)
 			return SCRIPT_CMD_SUCCESS;
 
 		if((sp = path_Astart_steppath(bl->m, bl->x, bl->y, script_getnum(st, 3), script_getnum(st, 4), uid)) == NULL)
@@ -26470,6 +26426,120 @@ BUILDIN_FUNC(getareamember)
 		return SCRIPT_CMD_FAILURE;
 	}
 	pc_setreg(sd, add_str("@member_amount"), j);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(magicshield)
+{
+#ifdef SCRIPT_MAGICSHIELD
+	TBL_PC *sd;
+
+	if (!script_charid2sd(5, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	sd->shield.race = script_getnum(st, 2);
+	sd->shield.hp = script_getnum(st, 3);
+	sd->shield.tick = gettick() + (script_getnum(st, 4) * 1000);
+	return SCRIPT_CMD_SUCCESS;
+#else
+	not_free(script_getfuncname(st));
+	return SCRIPT_CMD_SUCCESS;
+#endif
+}
+
+BUILDIN_FUNC(getbonus)
+{
+	char* varname = NULL;
+	struct script_data *data[5];
+	TBL_PC *sd;
+
+	int type = script_getnum(st, 2);
+	int i, val[5];
+
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	for (i = 0; i < 5; i++)
+		data[i] = script_hasdata(st, i + 3) ? script_getdata(st, i + 3) : NULL;
+
+	for (i = 0; i < 5; i++) {
+		if (data[i] && data_isstring(data[i])) {
+			ShowWarning("getbonus: error in argument! please give int variable or num.\n");
+			return SCRIPT_CMD_FAILURE;
+		}
+		val[i] = !data[i] || data_isreference(data[i]) ? 0 : conv_num(st, data[i]);
+	}
+
+	if (!pc_bonus_chk(sd, type, &val[0], &val[1], &val[2], &val[3], &val[4])) {
+		ShowWarning("getbonus: the type of '%d' is unsupport.\n", type);
+		return SCRIPT_CMD_FAILURE;
+	}
+	for (i = 0; i < 5; i++) {
+		if (!data[i])
+			continue;
+		if (!data_isreference(data[i]))
+			continue;
+		varname = reference_getname(data[i]);
+		set_reg(st, sd, add_str(varname), varname, (void *)val[i], NULL);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getrateidx)
+{
+	struct script_data *data;
+	const char* name;
+	int id, i, array_size;
+	struct map_session_data* sd = NULL;
+	struct reg_db *ref = NULL;
+
+	int allrate = 0, *value, rate, rate_ = 0;
+
+	data = script_getdata(st, 2);
+
+	if (data_isreference(data))	{
+		name = reference_getname(data);
+		ref = reference_getref(data);
+		if (is_string_variable(name)) {
+			ShowError("buildin_inarray: The array is must be int var.\n");
+			return SCRIPT_CMD_FAILURE;
+		}
+		if (not_server_variable(*name) && !script_rid2sd(sd))
+			return SCRIPT_CMD_FAILURE;
+
+		array_size = script_array_highest_key(st, sd, name, ref);
+		CREATE(value, int, array_size);
+
+		if (array_size > SCRIPT_MAX_ARRAYSIZE)
+		{
+			ShowError("buildin_inarray: The array is too large.\n");
+			script_reportdata(data);
+			st->state = END;
+			return SCRIPT_CMD_FAILURE;
+		}
+		id = reference_getid(data);
+		for (i = 0; i < array_size; ++i) {
+			value[i] = (int32)__64BPRTSIZE(get_val2(st, reference_uid(id, i), ref));
+			allrate += value[i];
+			script_removetop(st, -1, 0);
+		}
+	}
+	else {
+		int i;
+		array_size = script_lastdata(st) - 1;
+		CREATE(value, int, array_size);
+		for( i = 0; i < array_size; i++ ) {
+			value[i] = script_getnum(st, i + 2);
+			allrate += value[i];
+		}
+	}
+	rate = rnd() % allrate;
+	for (i = 0; i < array_size; i++) {
+		if ((rate_ += value[i]) > rate)
+			break;
+	}
+	aFree(value);
+	script_pushint(st, i);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -27150,7 +27220,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mobremove, "i"),
 	BUILDIN_DEF(getsameipinfo,"?"),
 	BUILDIN_DEF(logout,"i?"),
-	BUILDIN_DEF(searcharray, "rv"),
+	BUILDIN_DEF2(inarray, "searcharray", "rv"),
 	BUILDIN_DEF(countinventory,"i"),
 	BUILDIN_DEF(identifybyidx, "i"),
 	BUILDIN_DEF(equipinventory, "i"),
@@ -27224,7 +27294,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bot_stop, "?"),
 	BUILDIN_DEF(is_bot, "?"),
 	//路点系统
-	BUILDIN_DEF(setsteppath, "iv"),
+	BUILDIN_DEF(unitsteppath, "iv?"),
 	//阵营系统
 	BUILDIN_DEF(tribe_setteam, "i?"),
 	BUILDIN_DEF(tribe_mobteam, "i"),
@@ -27232,12 +27302,14 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(tribe_monster, "isiisi?"),
 	BUILDIN_DEF(instance_enter_last, "?"),
 	BUILDIN_DEF(http_get, "sii?"),
-	BUILDIN_DEF(bot_login, ""),
+	BUILDIN_DEF(bot_login, "iii"),
 
-	BUILDIN_DEF(astart_test, "siiii"),
 	BUILDIN_DEF(unit_Astart_walkto, "iii?"),
 	BUILDIN_DEF(instance_name, "?"),
 	BUILDIN_DEF(readstatus, "i?"),
 	BUILDIN_DEF(getareamember, "i??"),
+	BUILDIN_DEF(magicshield, "iii?"),
+	BUILDIN_DEF(getbonus, "i?????"),
+	BUILDIN_DEF(getrateidx, "*"),
 	{NULL,NULL,NULL},
 };

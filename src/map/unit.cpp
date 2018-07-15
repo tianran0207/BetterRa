@@ -773,8 +773,58 @@ int unit_autowalk_timer(int tid, unsigned int tick, int id, intptr_t data)
 }
 
 /**
+ * 回到路点
+ */
+
+int unit_backto_step(struct block_list *bl, struct autowalk_data *ad) {
+	int i;
+	struct walkpath_data wpd;
+	struct unit_data *ud = NULL;
+
+	nullpo_retr(1, bl);
+	nullpo_retr(0, ad);
+
+	if (ad->step_ai == PH_WARPBACK) {
+		unit_warp(bl, bl->m, ad->path->x[ad->step], ad->path->y[ad->step], CLR_OUTSIGHT);
+		return 1;
+	}
+
+	ud = unit_bl2ud(bl);
+	if (ud == NULL) return 0;
+
+	unit_stop_walking(bl, 1 | 4);
+	unit_stop_attack(bl);
+
+	ud->to_x = ad->path->x[ad->step];
+	ud->to_y = ad->path->y[ad->step];
+
+	if (!path_search(&wpd, bl->m, bl->x, bl->y, ud->to_x, ud->to_y, 0, CELL_CHKNOPASS))
+		return 0;
+
+	memcpy(&ud->walkpath, &wpd, sizeof(wpd));
+
+	ud->state.change_walk_target = 0;
+
+	if (bl->type == BL_PC) {
+		((TBL_PC *)bl)->head_dir = 0;
+		clif_walkok((TBL_PC*)bl);
+	}
+	clif_move(ud);
+
+	if (ud->walkpath.path_pos >= ud->walkpath.path_len)
+		i = -1;
+	else if (ud->walkpath.path[ud->walkpath.path_pos] & 1)
+		i = status_get_speed(bl)*MOVE_DIAGONAL_COST / MOVE_COST;
+	else
+		i = status_get_speed(bl);
+	if (i > 0)
+		ud->walktimer = add_timer(gettick() + i, unit_walktoxy_timer, bl->id, i);
+	return 1;
+}
+
+/**
  * 进行路点行走
-*/
+ */
 bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned int tick) {
 	struct step_path *path = ad->path;
 	int x, y, i, c, speed;
@@ -791,13 +841,13 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned i
 	if (ad->step < path->number) {
 		x = path->x[ad->step];
 		y = path->y[ad->step];
-		ad->step++;
-		if (unit_walktoxy(bl, x, y, 2)) {
+		if (unit_walktoxy(bl, x, y, 1)) {
+			ad->step++;
 			speed = status_get_speed(bl);
 			switch (bl->type) {
 			case BL_MOB:
 				md = (struct mob_data *)bl;
-				for (i = c = 0; i<md->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
+				for (i = c = 0; i < md->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
 					if (md->ud.walkpath.path[i] & 1)
 						c += speed*MOVE_DIAGONAL_COST / MOVE_COST;
 					else
@@ -809,17 +859,17 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned i
 				break;
 			case BL_PC:
 				sd = (struct map_session_data *)bl;
-				for (i = c = 0; i<sd->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
+				for (i = c = 0; i < sd->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
 					if (sd->ud.walkpath.path[i] & 1)
 						c += speed*MOVE_DIAGONAL_COST / MOVE_COST;
 					else
 						c += speed;
 				}
-				add_timer(max(tick, sd->ud.canmove_tick)+ c + 1, unit_autowalk_timer, bl->id, (intptr_t)ad);
+				add_timer(max(tick, sd->ud.canmove_tick) + c + 1, unit_autowalk_timer, bl->id, (intptr_t)ad);
 				break;
 			case BL_NPC:
 				nd = (struct npc_data *)bl;
-				for (i = c = 0; i<nd->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
+				for (i = c = 0; i < nd->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
 					if (nd->ud.walkpath.path[i] & 1)
 						c += speed*MOVE_DIAGONAL_COST / MOVE_COST;
 					else
@@ -830,7 +880,46 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned i
 			}
 			return true;
 		}
+		else if (ad->step_ai == PH_ASTARTWALKBACK) {
+			int i, minlen, newstep;
+			struct step_path *sp;
+			minlen = distance_blxy(bl, ad->path->x[ad->step], ad->path->y[ad->step]);
+			for (i = ad->step; i < ad->path->number; i++) {
+				if (check_distance_blxy(bl, ad->path->x[i], ad->path->y[i], minlen)) {
+					minlen = distance_blxy(bl, ad->path->x[i], ad->path->y[i]);
+					newstep = i;
+				}
+			}
+			if ((sp = path_Astart_steppath(bl->m, bl->x, bl->y, ad->path->x[newstep], ad->path->y[newstep], bl->id))) {
+				for (i = newstep; i < ad->path->number && sp->number < MAX_PATHSTEP; i++) {
+					sp->x[sp->number] = ad->path->x[i];
+					sp->y[sp->number] = ad->path->y[i];
+					sp->number++;
+				}
+				ad->path = sp;
+				ad->step = 0;
+				unit_check_step(bl, ad, tick);
+				return true;
+			}
+		}
+		else if (ad->step_ai == PH_ASTARTWALK){
+			struct step_path *sp;
+			if ((sp = path_Astart_steppath(bl->m, bl->x, bl->y, ad->path->x[ad->path->number - 1], ad->path->y[ad->path->number - 1], bl->id))) {
+				ad->path = sp;
+				ad->step = 0;
+				unit_check_step(bl, ad, tick);
+				return true;
+			}
+		}
+		else if (unit_backto_step(bl, ad)) {
+			return true;
+		}
 	}
+
+	if (ad->path->uid == bl->id) {
+		path_free(ad->path);
+	}
+
 	memset(ad, 0, sizeof(struct autowalk_data));
 	return false;
 }
@@ -842,14 +931,41 @@ bool unit_can_reach_steppath(struct block_list *bl, struct block_list *tbl)
 {
 	struct walkpath_data wpd;
 	struct autowalk_data *ad;
-	if ((ad = unit_autowalk(bl)) == NULL || ad->path == NULL) {
+	int i, minlen, newstep;
+	if ((ad = unit_autowalk(bl)) == NULL || ad->path == NULL)
+		return true;
+
+	switch (ad->step_ai) {
+	case PH_IGNOREWALK:
+	case PH_IGNOREALL:
+		return false;
+	case PH_WARPBACK:
+	case PH_ASTARTWALK:
+	case PH_ASTARTWALKBACK:
 		return true;
 	}
-	if (path_search(&wpd, tbl->m, tbl->x, tbl->y, ad->path->x[ad->step], ad->path->y[ad->step], 1, CELL_CHKNOPASS)) {
-		if (wpd.path_len < 14)
-			return true;
+
+	if (path_search(&wpd, tbl->m, tbl->x, tbl->y, ad->path->x[ad->step], ad->path->y[ad->step], 1, CELL_CHKNOREACH)
+		&& wpd.path_len < 30){
+		return true;
 	}
-	unit_check_step(bl, ad, gettick());
+	minlen = wpd.path_len;
+	newstep = ad->step;
+	wpd.path_len = 0;
+	for (i = ad->step; i < ad->path->number; i++) {
+		if (check_distance_blxy(bl, ad->path->x[i], ad->path->y[i], minlen)) {
+			if (path_search(&wpd, tbl->m, tbl->x, tbl->y, ad->path->x[i], ad->path->y[i], 1, CELL_CHKNOREACH)
+				&& wpd.path_len <= minlen) {
+				newstep = i;
+				minlen = wpd.path_len;
+			}
+		}
+	}
+	if (ad->step != newstep) {
+		ad->step = newstep;
+		return true;
+	}
+	unit_backto_step(bl, ad);
 	return false;
 }
 
@@ -3319,6 +3435,7 @@ void unit_free_pc(struct map_session_data *sd)
 int unit_free(struct block_list *bl, clr_type clrtype)
 {
 	struct unit_data *ud = unit_bl2ud( bl );
+	struct autowalk_data *ad;
 
 	nullpo_ret(ud);
 
@@ -3326,6 +3443,9 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 
 	if( bl->prev )	// Players are supposed to logout with a "warp" effect.
 		unit_remove_map(bl, clrtype);
+
+	if ((ad = unit_autowalk(bl)) != NULL && ad->path !=NULL && ad->path->uid == bl->id)
+		path_free(ad->path);
 
 	switch( bl->type ) {
 		case BL_PC: {

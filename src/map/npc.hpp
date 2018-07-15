@@ -77,7 +77,8 @@ struct npc_data {
 			struct npc_item_list *shop_item;
 			uint16 count;
 			unsigned short itemshop_nameid; // Item Shop cost item ID
-			char pointshop_str[32]; // Point Shop cost variable name
+			char pointshop_val[32]; // Point Shop cost variable name
+			char pointshop_str[32]; 
 			bool discount;
 		} shop;
 		struct {
@@ -1174,6 +1175,8 @@ enum npce_event : uint8 {
 	NPCE_ROULETTEGETEVENT,
 	NPCE_ROULETTECLOSEEVENT,
 	NPCE_BOTITEMLACKEVENT,
+	NPCE_CARDINSERTFILTER,
+	NPCE_CARDINSERTEVENT,
 	NPCE_MAX
 };
 struct view_data* npc_get_viewdata(int class_);

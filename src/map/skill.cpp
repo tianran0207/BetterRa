@@ -2206,7 +2206,7 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 			sd->autoevent[i].number = 1;
 			if (sd->autoevent[i].delay)
 				sd->autoevent[i].next_time = tick + sd->autoevent[i].delay;
-			npc_event(sd, sd->autoevent[i].event_name, 0);
+			npc_event_atonce(sd, sd->autoevent[i].event_name);
 		}
 	}
 
@@ -16967,7 +16967,10 @@ void skill_identify(struct map_session_data *sd, int idx)
 	}
 
 #ifdef EVENT_IDENTIFY
-	npc_script_event(sd, NPCE_IDENTIFY);
+	if (event_exist(NPCE_IDENTIFY)) {
+		pc_setreg(sd, add_str("@identify_idx"), idx);
+		npc_script_event_atonce(sd, NPCE_IDENTIFY);
+	}
 #endif
 
 	clif_item_identified(sd,idx,flag);

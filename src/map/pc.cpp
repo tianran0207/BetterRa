@@ -56,8 +56,8 @@
 int pc_split_atoui(char* str, unsigned int* val, char sep, int max);
 
 #define PVP_CALCRANK_INTERVAL 1000	// PVP calculation interval
-#define MAX_LEVEL_BASE_EXP 99999999 ///< Max Base EXP for player on Max Base Level
-#define MAX_LEVEL_JOB_EXP 999999999 ///< Max Job EXP for player on Max Job Level
+#define MAX_LEVEL_BASE_EXP INT_MAX ///< Max Base EXP for player on Max Base Level
+#define MAX_LEVEL_JOB_EXP INT_MAX ///< Max Job EXP for player on Max Job Level
 
 static unsigned int statp[MAX_LEVEL+1];
 #if defined(RENEWAL_DROP) || defined(RENEWAL_EXP)
@@ -4114,7 +4114,6 @@ void pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type
 
 	switch(type){
 	case SP_SKILL_AOE:
-#ifdef BONUS_SKILL_AOE
 		if (sd->state.lr_flag != 2) {
 			int i;
 			ARR_FIND(0, ARRAYLENGTH(sd->skillforaoe), i, sd->skillforaoe[i].val1 == 0 || sd->skillforaoe[i].val1 == type2);
@@ -4128,9 +4127,6 @@ void pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type
 			sd->skillforaoe[i].val3 = type4;
 			sd->skillforaoe[i].val4 = val;
 		}
-#else
-		not_free();
-#endif // BONUS_SKILL_AOE
 		break;
 	case SP_AUTOSPELL: // bonus4 bAutoSpell,sk,y,n,i;
 		if(sd->state.lr_flag != 2)
@@ -4257,6 +4253,145 @@ void pc_bonus5(struct map_session_data *sd,int type,int type2,int type3,int type
 	}
 }
 
+bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2ptr, int *val3ptr, int *val4ptr, int *val5ptr){
+	int i;
+	int val1 = val1ptr ? *val1ptr : 0;
+	int val2 = val2ptr ? *val2ptr : 0;
+	int val3 = val3ptr ? *val3ptr : 0;
+	int val4 = val4ptr ? *val4ptr : 0;
+	int val5 = val5ptr ? *val5ptr : 0;
+
+	nullpo_retr(false, sd);
+
+	switch (type) {
+	case SP_ADDELE:
+		if (!CHK_ELEMENT(val1))
+			break;
+		if (val3 == 0) {
+			*val2ptr = sd->right_weapon.addele[val1] + sd->left_weapon.addele[val1] + sd->arrow_addele[val1];
+		}
+		else {
+			struct weapon_data* wd = (sd->state.lr_flag ? &sd->left_weapon : &sd->right_weapon);
+			for (i = 0; i < ARRAYLENGTH(wd->addele2) && wd->addele2[i].rate != 0; i++) {
+				if (wd->addele2[i].ele != val1 || wd->addele2[i].flag != val3)
+					continue;
+				*val2ptr += wd->addele2[i].rate;
+			}
+		}
+		break;
+	case SP_MAGIC_ADDELE:
+		if (CHK_ELEMENT(val1))
+			*val2ptr = sd->magic_addele_script[val1];
+		break;
+	case SP_SUBELE:
+		if (!CHK_ELEMENT(val1))
+			break;
+		if (val3 == 0) {
+			*val2ptr = sd->subele_script[val1];
+		}
+		else {
+			for (i = 0; i < ARRAYLENGTH(sd->subele2) && sd->subele2[i].rate != 0; i++) {
+				if (sd->subele2[i].ele != val1 || sd->subele2[i].flag != val3)
+					continue;
+				*val2ptr += sd->subele2[i].rate;
+			}
+		}
+		break;
+	case SP_SUBDEF_ELE:
+		if (CHK_ELEMENT(val1))
+			*val2ptr = sd->subdefele[val1];
+		break;
+	case SP_ADDRACE:
+		if (!CHK_RACE(val1))
+			break;
+		*val2ptr = sd->right_weapon.addrace[val1] + sd->left_weapon.addrace[val1] + sd->arrow_addrace[val1];
+		break;
+	case SP_MAGIC_ADDRACE:
+		if (CHK_RACE(val1))
+			*val2ptr = sd->magic_addrace[val1];
+		break;
+	case SP_SUBRACE:
+		if (CHK_RACE(val1))
+			*val2ptr = sd->subrace[val1];
+		break;
+	case SP_ADDCLASS:
+		if (!CHK_CLASS(val1))
+			break;
+		*val2ptr = sd->right_weapon.addclass[val1] + sd->left_weapon.addclass[val1] + sd->arrow_addclass[val1];
+		break;
+	case SP_MAGIC_ADDCLASS:
+		if (CHK_CLASS(val1))
+			*val2ptr = sd->magic_addclass[val1];
+		break;
+	case SP_SUBCLASS:
+		if (CHK_CLASS(val1))
+			*val2ptr = sd->subclass[val1];
+		break;
+	case SP_ADDSIZE:
+		if (!CHK_MOBSIZE(val1))
+			break;
+		*val2ptr = sd->right_weapon.addsize[val1] + sd->left_weapon.addsize[val1] + sd->arrow_addsize[val1];
+		break;
+	case SP_MAGIC_ADDSIZE:
+		if (CHK_MOBSIZE(val1))
+			*val2ptr = sd->magic_addsize[val1];
+		break;
+	case SP_SUBSIZE:
+		if (CHK_MOBSIZE(val1))
+			*val2ptr = sd->subsize[val1];
+		break;
+	case SP_ADD_DAMAGE_CLASS:
+		switch (sd->state.lr_flag) {
+		case 0: //Right hand
+			ARR_FIND(0, ARRAYLENGTH(sd->right_weapon.add_dmg), i, sd->right_weapon.add_dmg[i].class_ == val1);
+			if (i < ARRAYLENGTH(sd->right_weapon.add_dmg))
+				*val2ptr = sd->right_weapon.add_dmg[i].rate;
+			break;
+		case 1: //Left hand
+			ARR_FIND(0, ARRAYLENGTH(sd->left_weapon.add_dmg), i, sd->left_weapon.add_dmg[i].class_ == val1);
+			if (i < ARRAYLENGTH(sd->left_weapon.add_dmg))
+				*val2ptr = sd->left_weapon.add_dmg[i].rate;
+			break;
+		}
+		break;
+	case SP_ADD_MAGIC_DAMAGE_CLASS:
+		ARR_FIND(0, ARRAYLENGTH(sd->add_mdmg), i, sd->add_mdmg[i].class_ == val1);
+		if (i < ARRAYLENGTH(sd->add_mdmg))
+			*val2ptr = sd->add_mdmg[i].rate;
+		break;
+	case SP_ADD_DEF_MONSTER:
+		ARR_FIND(0, ARRAYLENGTH(sd->add_def), i, sd->add_def[i].class_ == val1);
+		if (i < ARRAYLENGTH(sd->add_def))
+			*val2ptr = sd->add_def[i].rate;
+		break;
+	case SP_ADD_MDEF_MONSTER:
+		ARR_FIND(0, ARRAYLENGTH(sd->add_mdef), i, sd->add_mdef[i].class_ == val1);
+		if (i < ARRAYLENGTH(sd->add_mdef))
+			*val2ptr = sd->add_mdef[i].rate;
+		break;
+	case SP_ADDRACE2:
+		if (CHK_RACE2(val1))
+			*val2ptr = sd->right_weapon.addrace2[val1] + sd->left_weapon.addrace2[val1];
+		break;
+	case SP_SUBRACE2:
+		if (CHK_RACE2(val1))
+			*val2ptr = sd->subrace2[val1];
+		break;
+	case SP_MAGIC_ADDRACE2:
+		if (CHK_RACE2(val1))
+			*val2ptr = sd->magic_addrace2[val1];
+		break;
+	case SP_SUB_SKILL:
+		ARR_FIND(0, ARRAYLENGTH(sd->subskill), i, sd->subskill[i].id == val1);
+		if (i < ARRAYLENGTH(sd->subskill))
+			*val2ptr = sd->subskill[i].val;
+		break;
+	default:
+		return false;
+	}
+	return true;
+}
+
 /*==========================================
  *	Grants a player a given skill. Flag values are:
  *	0 - Grant permanent skill to be bound to skill tree
@@ -4355,7 +4490,7 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 		return 0; // target item missing
 	if( sd->inventory.u.items_inventory[idx_card].nameid <= 0 || sd->inventory.u.items_inventory[idx_card].amount < 1 )
 		return 0; // target card missing
-	if( sd->inventory_data[idx_equip]->type != IT_WEAPON && sd->inventory_data[idx_equip]->type != IT_ARMOR )
+	if( sd->inventory_data[idx_equip]->type != IT_WEAPON && sd->inventory_data[idx_equip]->type != IT_ARMOR && sd->inventory_data[idx_equip]->type != IT_SHADOWGEAR)
 		return 0; // only weapons and armor are allowed
 	if( sd->inventory_data[idx_card]->type != IT_CARD )
 		return 0; // must be a card
@@ -4377,6 +4512,16 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 	// remember the card id to insert
 	nameid = sd->inventory.u.items_inventory[idx_card].nameid;
 
+	if (event_exist(NPCE_CARDINSERTFILTER)) {
+		pc_setreg(sd, add_str("@insert_equip_idx"), idx_equip);
+		pc_setreg(sd, add_str("@insert_card_idx"), idx_card);
+		pc_setreg(sd, add_str("@insert_card_id"), nameid);
+		pc_setreg(sd, add_str("@insert_card_slot"), i);
+		npc_script_event_atonce(sd, NPCE_CARDINSERTFILTER);
+		if (sd->state.processhalt)
+			return false;
+	}
+
 	if( pc_delitem(sd,idx_card,1,1,0,LOG_TYPE_OTHER) == 1 )
 	{// failed
 		clif_insert_card(sd,idx_equip,idx_card,1);
@@ -4387,6 +4532,16 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 		sd->inventory.u.items_inventory[idx_equip].card[i] = nameid;
 		log_pick_pc(sd, LOG_TYPE_OTHER,  1, &sd->inventory.u.items_inventory[idx_equip]);
 		clif_insert_card(sd,idx_equip,idx_card,0);
+
+		if (event_exist(NPCE_CARDINSERTEVENT)) {
+			pc_setreg(sd, add_str("@insert_equip_idx"), idx_equip);
+			pc_setreg(sd, add_str("@insert_card_idx"), idx_card);
+			pc_setreg(sd, add_str("@insert_card_id"), nameid);
+			pc_setreg(sd, add_str("@insert_card_slot"), i);
+			npc_script_event_atonce(sd, NPCE_CARDINSERTEVENT);
+			if (sd->state.processhalt)
+				return false;
+		}
 	}
 
 	return 0;
@@ -5655,7 +5810,7 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 		return SETPOS_MAPINDEX;
 	}
 
-	if ( sd->state.autotrade && (sd->vender_id || sd->buyer_id) ) // Player with autotrade just causes clif glitch! @ FIXME
+	if ( sd->state.autotrade && (sd->vender_id || sd->buyer_id) && clrtype != 255 && (clrtype = CLR_RESPAWN)) // Player with autotrade just causes clif glitch! @ FIXME
 		return SETPOS_AUTOTRADE;
 
 #ifdef EVENT_WILLLOADMAPEVENT
