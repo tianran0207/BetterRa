@@ -42,6 +42,7 @@ enum autowolk_type {
 	PH_IGNOREALL,      /// 永远不做任何其他事情, 一路走到路点结束.
 	PH_ASTARTWALK,     /// 离开路径后, 调用A*算法计算路径, 并走到最终规定的路点终点(A*算法比较消耗CPU慎用).
 	PH_ASTARTWALKBACK, /// 离开路径后, 调用A*算法计算返回路径(A*算法比较消耗CPU慎用).
+	PH_STAYPOS,        /// 留在某个坐标点
 	PH_MAX,
 };
 

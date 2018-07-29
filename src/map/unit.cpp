@@ -822,6 +822,54 @@ int unit_backto_step(struct block_list *bl, struct autowalk_data *ad) {
 	return 1;
 }
 
+bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
+	struct mob_data* md;
+	struct walkpath_data wpd;
+	int x, y, i, c, speed;
+
+	if ((md = BL_CAST(BL_MOB, bl)) == NULL)
+		return true;
+
+	x = md->staypos.x;
+	y = md->staypos.y;
+
+	if (!x || !y)
+		return true;
+
+	if (md->staypos.range) {
+		x = md->staypos.x;
+		y = md->staypos.y;
+	}
+	else if (!tbl && bl->x == x && bl->y == y) {
+		md->next_walktime = gettick() + rnd() % 1000 + MIN_RANDOMWALKTIME;
+		return false;
+	}
+
+	if (tbl && path_search(&wpd, tbl->m, tbl->x, tbl->y, x, y, 1, CELL_CHKNOREACH)
+		&& wpd.path_len < 30) {
+		return true;
+	}
+
+
+
+	if (unit_walktoxy(bl, x, y, 1)) {
+		speed = status_get_speed(bl);
+		for (i = c = 0; i < md->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
+			if (md->ud.walkpath.path[i] & 1)
+				c += speed*MOVE_DIAGONAL_COST / MOVE_COST;
+			else
+				c += speed;
+		}
+		md->state.skillstate = MSS_WALK;
+		md->move_fail_count = 0;
+		md->next_walktime = gettick() + rnd() % 1000 + MIN_RANDOMWALKTIME + c;
+	}
+	else
+		unit_warp(bl, bl->m, x, y, CLR_OUTSIGHT);
+
+	return false;
+}
+
 /**
  * 进行路点行走
  */
@@ -835,13 +883,16 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned i
 	nullpo_retr(false, bl);
 	nullpo_retr(false, ad);
 
+	if (bl->type == BL_MOB && !path && !unit_check_staypos(bl, NULL))
+		return true;
+
 	if (path == NULL)
 		return false;
 
 	if (ad->step < path->number) {
 		x = path->x[ad->step];
 		y = path->y[ad->step];
-		if (unit_walktoxy(bl, x, y, 1)) {
+		if (unit_walktoxy(bl, x, y, bl->type == BL_MOB ? 1 : 0)) {
 			ad->step++;
 			speed = status_get_speed(bl);
 			switch (bl->type) {
@@ -932,7 +983,14 @@ bool unit_can_reach_steppath(struct block_list *bl, struct block_list *tbl)
 	struct walkpath_data wpd;
 	struct autowalk_data *ad;
 	int i, minlen, newstep;
-	if ((ad = unit_autowalk(bl)) == NULL || ad->path == NULL)
+
+	if ((ad = unit_autowalk(bl)) == NULL)
+		return true;
+
+	if (bl->type == BL_MOB && !ad->path && !unit_check_staypos(bl, tbl))
+		return false;
+
+	if (ad->path == NULL)
 		return true;
 
 	switch (ad->step_ai) {

@@ -9666,13 +9666,12 @@ BUILDIN_FUNC(end)
 		}
 	}
 
-	if( st->mes_active )
-		st->mes_active = 0;
-
-	if (sd){
-		if (sd->state.callshop == 0)
+	if (sd && !sd->state.event_now){
+		if (sd->state.callshop == 0) {
 			clif_scriptclose(sd, st->oid); // If a menu/select/prompt is active, close it.
-		else 
+			st->mes_active = 0;
+		}
+		else
 			sd->state.callshop = 0;
 	}
 
@@ -26543,6 +26542,30 @@ BUILDIN_FUNC(getrateidx)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(mobstaypos) 
+{
+	TBL_MOB *md;
+	int mobid, x, y;
+
+	mobid = script_getnum(st, 2);
+	x = script_getnum(st, 3);
+	y = script_getnum(st, 4);
+
+	if ((md = map_id2md(mobid)) == NULL)
+		return SCRIPT_CMD_SUCCESS;
+
+	if(map_getcell(md->bl.m, x, y, CELL_CHKNOPASS))
+		return SCRIPT_CMD_SUCCESS;
+
+	mob_stop_attack(md);
+	mob_stop_walking(md, 0);
+
+	md->staypos.m = md->bl.m;
+	md->staypos.x = x;
+	md->staypos.y = y;
+	return SCRIPT_CMD_SUCCESS;
+}
+
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -27311,5 +27334,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(magicshield, "iii?"),
 	BUILDIN_DEF(getbonus, "i?????"),
 	BUILDIN_DEF(getrateidx, "*"),
+	BUILDIN_DEF(mobstaypos, "iii"),
 	{NULL,NULL,NULL},
 };

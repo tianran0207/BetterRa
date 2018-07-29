@@ -8150,7 +8150,7 @@ static const struct _battle_data {
 	{ "amulet_type",					    &battle_config.amulet_type,                     5,      IT_USABLE,IT_ARMOR,     },
 	{ "enable_coply",                       &battle_config.enable_coply,                    0,      0,      1,              },
 	{ "display_skill_name",                 &battle_config.display_skill_name,              0,      0,      1,              },
-	{ "pet_catch_rate_mode",                &battle_config.pet_catch_rate_mode,             0,      0,      1,              },
+	{ "pet_catch_rate_mode",                &battle_config.pet_catch_rate_mode,             0,      0,      2,              },
 	{ "instance_lastpoint",                 &battle_config.instance_lastpoint,              0,      0,      1,              },
 	{ "instance_leavepoint",                &battle_config.instance_leavepoint,             0,      0,      1,              },
 	{ "min_storechat_distance",             &battle_config.min_storechat_distance,          1,      0,      10,             },
@@ -8175,6 +8175,7 @@ static const struct _battle_data {
 	{ "pc_max_mdef2",                       &battle_config.pc_max_mdef2,                    0,      0,      INT_MAX,        },
 	{ "pc_max_flee",                        &battle_config.pc_max_flee,                     0,      0,      INT_MAX,        },
 	{ "pc_max_flee2",                       &battle_config.pc_max_flee2,                    0,      0,      INT_MAX,        },
+	{ "npc_timeout",                        &battle_config.npc_timeout,                     1,      0,      1,              },
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },

@@ -181,11 +181,7 @@ struct Battle_Config
 	int pc_max_mdef2;
 	int pc_max_flee;
 	int pc_max_flee2;
-	int max_bSubEle;
-	int max_bSubDefEle;
-	int max_bSubRace;
-	int max_bSubClass;
-	int max_bSubSize;
+	int npc_timeout;
 	//------------------------------
 	int warp_point_debug;
 	int enable_critical;

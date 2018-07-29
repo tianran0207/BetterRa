@@ -277,7 +277,7 @@ int npc_rr_secure_timeout_timer(int tid, unsigned int tick, int id, intptr_t dat
 	unsigned int timeout = NPC_SECURE_TIMEOUT_NEXT;
 	int cur_tick = gettick(); //ensure we are on last tick
 
-	if ((sd = map_id2sd(id)) == NULL || !sd->npc_id || sd->state.ignoretimeout) {
+	if ((sd = map_id2sd(id)) == NULL || !sd->npc_id || sd->state.ignoretimeout || battle_config.npc_timeout) {
 		if (sd)
 			sd->npc_idle_timer = INVALID_TIMER;
 		return 0; // Not logged in anymore OR no longer attached to a NPC OR using 'ignoretimeout' script command
@@ -4538,9 +4538,11 @@ int npc_script_event(struct map_session_data* sd, enum npce_event type){
 
 	std::vector<struct script_event_s>& vector = script_event[type];
 
+	sd->state.event_now = 1;
 	for( struct script_event_s& evt : vector ){
 		npc_event_sub( sd, evt.event, evt.event_name );
 	}
+	sd->state.event_now = 0;
 
 	return vector.size();
 }
@@ -4558,10 +4560,11 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 
 	std::vector<struct script_event_s>& vector = script_event[type];
 
+	sd->state.event_now = 1;
 	for (struct script_event_s& evt : vector) {
 		run_script(evt.event->nd->u.scr.script, evt.event->pos, sd->bl.id, evt.event->nd->bl.id);
 	}
-
+	sd->state.event_now = 0;
 	return vector.size();
 }
 

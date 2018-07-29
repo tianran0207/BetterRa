@@ -1573,7 +1573,7 @@ int mob_randomwalk(struct mob_data *md,unsigned int tick)
 		return 0;
 
 	if (unit_check_step(&md->bl, &md->autowalk, tick))
-		return 0;
+		return 1;
 
 	r=rnd();
 	rdir=rnd()%4; // Randomize direction in which we iterate to prevent monster cluttering up in one corner
