@@ -249,25 +249,25 @@ dali02,93,146,6	script	助理教授#a1	4_M_REPAIR,{
 				mes "必须先装备沙拉耳环.";
 				close;
 			}
-			setarray .@card[0], getequipcardid(.@part,3), getequipcardid(.@part,2);
-			if (.@card[1] > 0) {// 2 enchants
+			setarray .@card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
+			if (.@card[2] > 0) {// 2 enchants
 				mes "[首席助理]";
 				mes "这个耳环已经不能再附魔了。";
 				close;
 			}
-			if (.@card[0] < 1) {// none enchant
+			if (.@card[3] > 0) {// 1 enchant
 				mes "[首席助理]";
 				mes "现在为莎拉耳环的第4个孔附魔。";
-				.@slot = 0;
+				.@slot = 3;
 			}
-			else {// 1 enchant
+			else {// none enchant
 				mes "[首席助理]";
 				mes "现在为莎拉耳环的第3个孔附魔";
-				.@slot = 1;
+				.@slot = 4;
 			}
 			next;
 			mes "[首席助理]";
-			mes "你想要在装备的第 " + (4-.@slot) + " 个孔上附魔什么属性呢？";
+			mes "你想要在装备的第 " + .@slot + " 个孔上附魔什么属性呢？";
 			next;
 			switch( select( "暴击/暴击伤害", "名弓/FLEE", "降低SP消耗/MATK", "ASPD/技能后延时" ) ) {
 			case 1:
@@ -279,7 +279,7 @@ dali02,93,146,6	script	助理教授#a1	4_M_REPAIR,{
 					4941,	// Critical4
 					4865;	// Fatal3
 				mes "[首席助理]";
-				mes "你选择了为第 " + (4-.@slot) + " 个孔上附魔暴击或暴击伤害的附魔.";
+				mes "你选择了为第 " + .@slot + " 个孔上附魔暴击或暴击伤害的附魔.";
 				break;
 			case 2:
 				setarray .@bonus[0],
@@ -290,7 +290,7 @@ dali02,93,146,6	script	助理教授#a1	4_M_REPAIR,{
 					4944,	// Dodge3
 					4834;	// Expert_Archer3
 				mes "[首席助理]";
-				mes "你选择了为第 " + (4-.@slot) + " 个孔上附增加远程伤害或回避率的附魔.";
+				mes "你选择了为第 " + .@slot + " 个孔上附增加远程伤害或回避率的附魔.";
 				break;
 			case 3:
 				setarray .@bonus[0],
@@ -301,7 +301,7 @@ dali02,93,146,6	script	助理教授#a1	4_M_REPAIR,{
 					4947,	// Thrift3
 					4899;	// Matk5p
 				mes "[首席助理]";
-				mes "你选择了为第 " + (4-.@slot) + " 个孔上附增加降低SP消耗或魔法攻击力的附魔.";
+				mes "你选择了为第 " + .@slot + " 个孔上附增加降低SP消耗或魔法攻击力的附魔.";
 				break;
 			case 4:
 				setarray .@bonus[0],
@@ -312,7 +312,7 @@ dali02,93,146,6	script	助理教授#a1	4_M_REPAIR,{
 					4950,	// Skill_Delay3
 					4873;	// Attack_Delay_3
 				mes "[首席助理]";
-				mes "你选择了为第 " + (4-.@slot) + " 个孔上附增加攻速或减少技能冷却时间.";
+				mes "你选择了为第 " + .@slot + " 个孔上附增加攻速或减少技能冷却时间.";
 				break;
 			}
 			next;
@@ -348,6 +348,11 @@ dali02,93,146,6	script	助理教授#a1	4_M_REPAIR,{
 			specialeffect2 EF_MAGICALATTHIT;
 			specialeffect2 EF_POTION2;
 			delitem 6803,4;// Shard of 巨人
+
+			// anti-hack
+			if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]))
+				close;
+
 			delequip .@part;
 			.@r = rand(100);
 			for ( .@i = 0; .@i < .@bonus_size && (.@bonus_chance * (.@i+1)) < .@r; .@i++ );
@@ -358,9 +363,9 @@ dali02,93,146,6	script	助理教授#a1	4_M_REPAIR,{
 				mes "悲哀地...它是..摧毁...呼..附魔不是一件容易的事。";
 				close;
 			}
-			.@card[.@slot] = .@bonus[.@i];
+			.@card[.@slot-1] = .@bonus[.@i];
 			specialeffect2 EF_ANGEL2;
-			getitem2 .@sarah_item_id,1,1,0,0,0,0,.@card[1],.@card[0];
+			getitem2 .@sarah_item_id,1,1,0,0,.@card[0],.@card[1],.@card[2],.@card[3];
 			mes "[首席助理]";
 			mes "附魔完成！";
 			close;
@@ -404,15 +409,10 @@ dali02,93,146,6	script	助理教授#a1	4_M_REPAIR,{
 				.@column$ = "右";
 			}
 			.@equip_id = getequipid(.@part);
-			//if (.@equip_id == -1) {
-			//	mes "[首席助理]";
-			//	mes "要初始化结界，相关的列必须装备齿轮。";
-			//	close;
-			//}
-			if (.@equip_id != 28310 && .@equip_id != 28311) {
+			setarray .@card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
+			if (.@equip_id == -1) {
 				mes "[首席助理]";
-				mes "为莎拉耳环附魔, ";
-				mes "必须先装备沙拉耳环.";
+				mes "要初始化结界，相关的列必须装备齿轮。";
 				close;
 			}
 			if (getequipcardid(.@part,3) < 1) {
@@ -432,6 +432,11 @@ dali02,93,146,6	script	助理教授#a1	4_M_REPAIR,{
 				specialeffect2 EF_POTION2;
 				specialeffect2 EF_ANGEL2;
 				delitem 6803,1;// Shard of 巨人
+
+				// anti-hack
+				if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]))
+					close;
+
 				delequip .@part;
 				getitem .@equip_id,1;
 				mes "[首席助理]";

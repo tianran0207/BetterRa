@@ -621,6 +621,7 @@ function	script	refinemain	{
 	}
 	.@refineitemid = getequipid(.@part); // save id of the item
 	.@refinerycnt = getequiprefinerycnt(.@part); //save refinery count
+	setarray .@card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
 	.@price = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_ZENY_COST);
 	.@material = getequiprefinecost(.@part, REFINE_COST_NORMAL, REFINE_MATERIAL_ID);
 
@@ -699,7 +700,7 @@ function	script	refinemain	{
 		delitem .@material,1;
 
 		// anti-hack
-		if (callfunc("F_IsEquipIDHack", .@part, .@refineitemid) ||
+		if (callfunc("F_IsEquipIDHack", .@part, .@refineitemid) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]) ||
 		    callfunc("F_IsEquipRefineHack", .@part, .@refinerycnt)) {
 			mes "["+ .@npc_name$ +"]";
 			emotion ET_FRET;
@@ -752,7 +753,7 @@ function	script	refinemain	{
 	}
 
 // New Refining Functions ========================
-	if(getequiprefinerycnt(.@part) < .@safe) {
+	if (.@refinerycnt < .@safe) {
 		mes "[" + .@npc_name$ + "]";
 		mes "你可以选择直接锻冶到安全值，或是要锻冶的次数... 我都没意见......";
 		next;
@@ -761,7 +762,7 @@ function	script	refinemain	{
 		.@menu2 = 2;
 	switch(.@menu2){
 	case 1: 
-		.@refinecnt = .@safe - getequiprefinerycnt(.@part);
+		.@refinecnt = .@safe - .@refinerycnt;
 		break;
 	case 2:
 		next;
@@ -769,7 +770,7 @@ function	script	refinemain	{
 		mes "那么，你要我帮你锻冶多少次呢?";
 		next;
 		input .@refinecnt;
-		.@refinecheck = .@refinecnt + getequiprefinerycnt(.@part);
+		.@refinecheck = .@refinecnt + .@refinerycnt;
 		if (.@refinecnt < 1 || .@refinecheck > 10) {
 			mes "[" + .@npc_name$ + "]";
 			mes "我不能再精练这个物品啦.";
@@ -815,7 +816,9 @@ function	script	refinemain	{
 			mes "对不起,材料不够我也不能帮你.....";
 			close;
 		}
-		if (getequipid(.@part) != .@refineitemid || (.@menu2 == 1 && getequippercentrefinery(.@part) < 100)) {
+		// anti-hack
+		if (callfunc("F_IsEquipIDHack", .@part, .@refineitemid) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]) ||
+				callfunc("F_IsEquipRefineHack", .@part, .@refinerycnt) || (.@menu2 == 1 && getequippercentrefinery(.@part) < 100)) {
 			mes "[" + .@npc_name$ + "]";
 			mes "不要开玩笑了,你以为我是笨蛋吗 !! !?!";
 			mes "快出去...";
@@ -839,6 +842,7 @@ function	script	refinemain	{
 		successrefitem .@part;
 		emotion ET_BEST;
 		.@refinecnt = .@refinecnt - 1;
+		.@refinerycnt = getequiprefinerycnt(.@part);
 		next;
 	}
 	mes "["+ .@npc_name$ +"]";

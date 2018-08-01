@@ -5,6 +5,7 @@
 #define _UNIT_HPP_
 
 #include "../common/cbasetypes.hpp"
+#include "../common/timer.hpp"
 
 #include "path.hpp" // struct walkpath_data
 #include "skill.hpp" // struct skill_timerskill, struct skill_unit_group, struct skill_unit_group_tickset
@@ -115,8 +116,8 @@ int unit_walktobl(struct block_list *bl, struct block_list *target, int range, u
 void unit_run_hit(struct block_list *bl, struct status_change *sc, struct map_session_data *sd, enum sc_type type);
 bool unit_run(struct block_list *bl, struct map_session_data *sd, enum sc_type type);
 int unit_calc_pos(struct block_list *bl, int tx, int ty, uint8 dir);
-int unit_delay_walktoxy_timer(int tid, unsigned int tick, int id, intptr_t data);
-int unit_delay_walktobl_timer(int tid, unsigned int tick, int id, intptr_t data);
+TIMER_FUNC(unit_delay_walktoxy_timer);
+TIMER_FUNC(unit_delay_walktobl_timer);
 
 // Causes the target object to stop moving.
 struct autowalk_data *unit_autowalk(struct block_list *bl);
@@ -152,7 +153,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, uint16 skill_id, uint16 skill_lv, int casttime, int castcancel);
 
 // Step timer used for delayed attack and skill use
-int unit_step_timer(int tid, unsigned int tick, int id, intptr_t data);
+TIMER_FUNC(unit_step_timer);
 void unit_stop_stepaction(struct block_list *bl);
 
 // Cancel unit cast

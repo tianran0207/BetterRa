@@ -1,0 +1,13 @@
+//===== rAthena Script ======================================= 
+//= Cooking Quest
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Official Cooking Quest (10.3)
+//===== Changelogs: ==========================================
+//= 1.0 Location changed in ep16.1 [Capuche]
+//============================================================
+
+prt_castle,43,30,3	duplicate(夏日尔 奥日里昂#cook_)	夏日尔 奥日里昂#cook	4_M_OILMAN
+prt_castle,45,35,5	duplicate(玛德琳 修#cook_)	玛德琳 修#cook	4_COOK
+prt_castle,45,28,3	duplicate(抱着猫的小孩#cook_)	抱着猫的小孩#cook	4_F_YUNYANG
+prt_castle,44,30,5	duplicate(维罗尼卡夫人#cook_)	维罗尼卡夫人#cook	4_F_JOB_ASSASSIN

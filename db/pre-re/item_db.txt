@@ -5142,6 +5142,7 @@
 12580,Vending_Search_Scroll,露天商店检索卡(银),2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ searchstores 10,0; },{},{}
 12581,Vending_Search_Scroll2,露天商店检索卡(金),2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ searchstores 10,1; },{},{}
 12591,Uni_Catalog_Bz,露天商店检索卡(铜),2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ searchstores 10,1; },{},{}
+12609,Old_Ore_Box,Old Ore Box,2,20,,100,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
 12701,Old_Blue_Box_F,陈旧的 蓝色箱子,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12702,Old_Bleu_Box,神秘蓝箱,2,0,,200,,,,,0xFFFFFFFF,7,2,,,,,,{ getrandgroupitem(IG_BleuBox),1; getrandgroupitem(IG_BleuBox),1; },{},{}
 12703,Holy_Egg_2,Holy Egg,11,0,,50,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
@@ -5221,6 +5222,7 @@
 12771,Passion_Hat_Box2,热情的球帽箱子Ⅱ,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12772,Cool_Hat_Box2,斗志的球帽箱子Ⅱ,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12773,Victory_Hat_Box2,胜利的球帽箱子Ⅱ,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12831,Potion_Box,Potion Box,2,0,,50,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
 12848,Falcon_Flute,Falcon Flute,11,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ if(getskilllv("HT_FALCON")) { if(!checkoption(Option_Wug) && !checkoption(Option_Wugrider)) setfalcon (!checkfalcon()); } },{},{}
 12900,Battle_Manual_Box,经验值倍增书箱子,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 12208,10; },{},{}
 12901,Insurance_Package,生命保证证书箱子,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 12209,10; },{},{}
@@ -6579,3 +6581,5 @@
 19505,T_Cigarette,时装-香烟,4,0,,0,,0,,0,0xFFFFFFFF,7,2,4096,,0,0,54,{},{},{}
 19506,T_Valkyrie_Feather_Band,时装-巴基力的羽毛发带,4,0,,0,,0,,0,0xFFFFFFFF,7,2,1024,,0,1,300,{},{},{}
 19507,Fine_Sun,时装-灿烂太阳,4,0,,0,,0,,0,0xFFFFFFFF,7,2,1024,,1,0,654,{},{},{}
+
+22777,Gift_Buff_Set,Gift Buff Set,2,10,,100,,,,0,0xFFFFFFFF,63,2,,,1,,,{},{},{}

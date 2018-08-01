@@ -27,11 +27,13 @@
 //= 1.7 Replaced effect numerics with constants. [L0ne_W0lf]
 //= 1.8 Renamed the variable cooking to cooking_q [ultramage]
 //= 1.8a Minor cleaning. [Euphy]
+//= 1.9 Renewal script update for ep16.1 [Capuche]
+
 //= 2016.03.05 英文直译汉化部分文字 [杨梅]
 //= 2016.03.14 英文直译汉化全部文字, NPC名称来自CRO [杨梅]
 //============================================================ 
 
-prt_castle,43,30,3	script	夏日尔 奥日里昂#cook	878,{
+-	script	夏日尔 奥日里昂#cook_	-1,{
 	if (MaxWeight - Weight < 2000) {
 		mes "[夏日尔 奥日里昂]";
 		mes "非常抱歉,";
@@ -1295,7 +1297,7 @@ L_End:
 	end;
 }
 
-prt_castle,45,35,5	script	玛德琳 修#cook	886,{
+-	script	玛德琳 修#cook_	-1,{
 	if (MaxWeight - Weight < 2000) {
 		mes "[玛德琳 修]";
 		mes "非常抱歉,";
@@ -1829,7 +1831,7 @@ S_SellSets:
 	return;
 }
 
-prt_castle,45,28,3	script	抱着猫的小孩#cook	877,{
+-	script	抱着猫的小孩#cook_	-1,{
 	set .@nyu,rand(1,2);
 	if (.@nyu == 1) {
 		cutin "nyuang_1",2;
@@ -1852,7 +1854,7 @@ prt_castle,45,28,3	script	抱着猫的小孩#cook	877,{
 	end;
 }
 
-prt_castle,44,30,5	script	维罗尼卡夫人#cook	725,{
+-	script	维罗尼卡夫人#cook_	-1,{
 	disablenpc "维罗尼卡夫人#cook";
 	end;
 

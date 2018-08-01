@@ -87,7 +87,7 @@ bool mercenary_create(struct map_session_data *sd, uint16 class_, unsigned int l
 		return false;
 	}
 
-	if (map[sd->bl.m].flag.nomercenary) {
+	if (map_getmapflag(sd->bl.m, MF_NOMERCENARY)) {
 		clif_displaymessage(sd->fd, msg_txt(sd, 2343));
 		return false;
 	}
@@ -279,7 +279,7 @@ void mercenary_save(struct mercenary_data *md) {
 /**
 * Ends contract of Mercenary
 **/
-static int merc_contract_end(int tid, unsigned int tick, int id, intptr_t data) {
+static TIMER_FUNC(merc_contract_end){
 	struct map_session_data *sd;
 	struct mercenary_data *md;
 

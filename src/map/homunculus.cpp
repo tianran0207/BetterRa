@@ -28,7 +28,7 @@
 struct s_homunculus_db homunculus_db[MAX_HOMUNCULUS_CLASS];	//[orn]
 struct homun_skill_tree_entry hskill_tree[MAX_HOMUNCULUS_CLASS][MAX_HOM_SKILL_TREE];
 
-static int hom_hungry(int tid, unsigned int tick, int id, intptr_t data);
+static TIMER_FUNC(hom_hungry);
 static uint16 homunculus_count;
 static unsigned int hexptbl[MAX_LEVEL];
 
@@ -231,7 +231,7 @@ int hom_vaporize(struct map_session_data *sd, int flag)
 
 	hd = sd->hd;
 
-	if (map[sd->bl.m].flag.nohomunculus) {
+	if (map_getmapflag(sd->bl.m, MF_NOHOMUNCULUS)) {
 		clif_displaymessage(sd->fd, msg_txt(sd, 2341));
 		return false;
 	}
@@ -374,7 +374,7 @@ short hom_checkskill(struct homun_data *hd,uint16 skill_id)
 	if (idx < 0) // Invalid skill
 		return 0;
 
-	if (!hd || !&hd->homunculus)
+	if (!hd)
 		return 0;
 
 	if (hd->homunculus.hskill[idx].id == skill_id)
@@ -882,8 +882,7 @@ int hom_food(struct map_session_data *sd, struct homun_data *hd)
 /**
 * Timer to reduce hunger level
 */
-static int hom_hungry(int tid, unsigned int tick, int id, intptr_t data)
-{
+static TIMER_FUNC(hom_hungry){
 	struct map_session_data *sd;
 	struct homun_data *hd;
 
@@ -1085,7 +1084,7 @@ bool hom_call(struct map_session_data *sd)
 {
 	struct homun_data *hd;
 
-	if (map[sd->bl.m].flag.nohomunculus) {
+	if (map_getmapflag(sd->bl.m, MF_NOHOMUNCULUS)) {
 		clif_displaymessage(sd->fd, msg_txt(sd, 2341));
 		return false;
 	}
@@ -1119,7 +1118,7 @@ bool hom_call(struct map_session_data *sd)
 		clif_hominfo(sd,hd,1);
 		clif_hominfo(sd,hd,0); // send this x2. dunno why, but kRO does that [blackhole89]
 		clif_homskillinfoblock(sd);
-		if (battle_config.slaves_inherit_speed&1)
+		if (battle_config.hom_setting&HOMSET_COPY_SPEED)
 			status_calc_bl(&hd->bl, SCB_SPEED);
 		hom_save(hd);
 	} else

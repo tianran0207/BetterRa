@@ -35,7 +35,7 @@ static DBMap* party_db; // int party_id -> struct party_data* (releases data)
 static DBMap* party_booking_db; // uint32 char_id -> struct party_booking_ad_info* (releases data) // Party Booking [Spiria]
 static unsigned long party_booking_nextid = 1;
 
-int party_send_xy_timer(int tid, unsigned int tick, int id, intptr_t data);
+TIMER_FUNC(party_send_xy_timer);
 int party_create_byscript;
 
 /*==========================================
@@ -707,11 +707,11 @@ int party_member_withdraw(int party_id, uint32 account_id, uint32 char_id, char 
 		//TODO: hp bars should be cleared too
 
 		if( p->instance_id ) {
-			int16 m = sd->bl.m;
+			struct map_data *mapdata = map_getmapdata(sd->bl.m);
 
-			if( map[m].instance_id ) { // User was on the instance map
-				if( map[m].save.map )
-					pc_setpos(sd, map[m].save.map, map[m].save.x, map[m].save.y, CLR_TELEPORT);
+			if( mapdata->instance_id ) { // User was on the instance map
+				if( mapdata->save.map )
+					pc_setpos(sd, mapdata->save.map, mapdata->save.x, mapdata->save.y, CLR_TELEPORT);
 				else
 					pc_setpos(sd, sd->status.save_point.map, sd->status.save_point.x, sd->status.save_point.y, CLR_TELEPORT);
 			}
@@ -823,7 +823,7 @@ int party_changeleader(struct map_session_data *sd, struct map_session_data *tsd
 			return -3;
 		}
 
-		if ( map[sd->bl.m].flag.partylock ) {
+		if ( map_getmapflag(sd->bl.m, MF_PARTYLOCK) ) {
 			clif_displaymessage(sd->fd, msg_txt(sd,287));
 			return 0;
 		}
@@ -1045,8 +1045,7 @@ int party_skill_check(struct map_session_data *sd, int party_id, uint16 skill_id
 	return 0;
 }
 
-int party_send_xy_timer(int tid, unsigned int tick, int id, intptr_t data)
-{
+TIMER_FUNC(party_send_xy_timer){
 	struct party_data* p;
 
 	DBIterator *iter = db_iterator(party_db);
@@ -1302,7 +1301,7 @@ int party_foreachsamemap(int (*func)(struct block_list*,va_list),struct map_sess
 		va_end(ap);
 		return total;
 	}
-	if (battle_config.buff_for_tribe_member && map[sd->bl.m].flag.tribe && sd->tribe_id) {
+	if (battle_config.buff_for_tribe_member && map_getmapflag(sd->bl.m, MF_TRIBE) && sd->tribe_id) {
 		int type = 0;
 		if (battle_config.buff_for_tribe_member & 1) type |= BL_PC;
 		if (battle_config.buff_for_tribe_member & 2) type |= BL_MOB;

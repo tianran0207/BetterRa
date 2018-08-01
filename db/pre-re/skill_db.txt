@@ -706,7 +706,7 @@
 477,0,6,4,0,0x1,0,10,1,no,0,0,0,weapon,0,0x0,	WS_WEAPONREFINE,武器精练
 478,3,6,2,0,0x3,3,10,1,no,0,0,0,none,0,0x0,		CR_SLIMPITCHER,纤细药水投掷
 479,1,6,16,0,0x1,0,5,1,yes,0,0,0,weapon,0,0x0,	CR_FULLPROTECTION,所有化学武器保护
-480,5,8,1,0,0,0,5,5,no,0,0,0,weapon,0,0x20000,		PA_SHIELDCHAIN,连续盾击
+480,4,8,1,0,0,0,5,5,no,0,0,0,weapon,0,0x20000,		PA_SHIELDCHAIN,连续盾击
 481,0,0,0,0,0,0,5,0,no,0,0,0,none,0,0x0,		HP_MANARECHARGE,魔力减免
 482,0,6,4,0,0x1,0,5,1,no,0,0,0,magic,0,0x0,		PF_DOUBLECASTING,双倍投掷
 483,18,6,2,0,0x1,1:2:3:4:5,1,1,no,0,0,0,none,0,0x0,	HW_GANBANTEIN,咖般塔音
@@ -1554,3 +1554,4 @@
 10013,0,0,4,0,0x3,0,1,0,yes,0,0x10,0,none,0,0x40,	GD_EMERGENCYCALL,紧急呼叫
 10014,0,0,0,0,0,0,1,0,no,0,0x10,0,none,0,0x0,	GD_DEVELOPMENT,永久的发展
 10015,0,0,4,0,0x3,0,3,0,yes,0,0x10,0,none,0,0x40,	GD_ITEMEMERGENCYCALL,紧急呼叫
+10016,0,0,0,0,0,0,5,0,no,0,0x10,0,none,0,0x0,	GD_GUILD_STORAGE,Guild Storage Expansion

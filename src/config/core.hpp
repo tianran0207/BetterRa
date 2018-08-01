@@ -46,11 +46,6 @@
 #define SHOW_SERVER_STATS
 #endif
 
-/// Uncomment to enable skills damage adjustments
-/// By enabling this, db/skill_damage.txt and the skill_damage mapflag will adjust the
-/// damage rate of specified skills.
-#define ADJUST_SKILL_DAMAGE
-
 /// Uncomment to enable the job base HP/SP table (job_basehpsp_db.txt)
 #define HP_SP_TABLES
 
