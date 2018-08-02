@@ -4279,6 +4279,36 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " NoTomb |");
 	if (map_getmapflag(m_id, MF_NOCOSTUME))
 		strcat(atcmd_output, " NoCostume |");
+	
+	//-------------------------------------
+	if (map_getmapflag(m_id, MF_TRIBE))
+		strcat(atcmd_output, " Trube |");
+	if (map_getmapflag(m_id, MF_HIDEGUILDINFO))
+		strcat(atcmd_output, " HideGuildInfo |");
+	if (map_getmapflag(m_id, MF_HIDEPARTYINFO))
+		strcat(atcmd_output, " HidePartyInfo |");
+	if (map_getmapflag(m_id, MF_MOBINFO))
+		strcat(atcmd_output, " MobInfo |");
+	if (map_getmapflag(m_id, MF_NOTOKEN))
+		strcat(atcmd_output, " NoToken |");
+	if (map_getmapflag(m_id, MF_NOCAPTURE))
+		strcat(atcmd_output, " NoCapture |");
+	if (map_getmapflag(m_id, MF_NOAUTOLOOT))
+		strcat(atcmd_output, " NoAutoLoot |");
+	if (map_getmapflag(m_id, MF_NOPET))
+		strcat(atcmd_output, " NoPet |");
+	if (map_getmapflag(m_id, MF_NOHOMUNCULUS))
+		strcat(atcmd_output, " NoHomunculus |");
+	if (map_getmapflag(m_id, MF_NOMERCENARY))
+		strcat(atcmd_output, " NoMercenary |");
+	if (map_getmapflag(m_id, MF_MOBDROPRATE))
+		strcat(atcmd_output, " MobDropRate |");
+	if (map_getmapflag(m_id, MF_MVPDROPRATE))
+		strcat(atcmd_output, " MvpDropRate |");
+	if (map_getmapflag(m_id, MF_NOMAIL))
+		strcat(atcmd_output, " NoMail |");
+	//-------------------------------------
+
 	clif_displaymessage(fd, atcmd_output);
 
 	switch (list) {

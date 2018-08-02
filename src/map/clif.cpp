@@ -9601,7 +9601,7 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 			}
 			safestrncpy(WBUFCP(buf,6), sd->status.name, NAME_LENGTH);
 
-			if( sd->status.party_id && !map_getmapflag(sd->bl.m, MF_HIDEPARTYINFO)){
+			if( sd->status.party_id){
 				p = party_search(sd->status.party_id);
 			}
 
