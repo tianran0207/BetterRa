@@ -501,10 +501,10 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, uint16 sk
 		hp >>= 1;
 
 	if (sd && ((skill = pc_checkskill(sd, SU_POWEROFSEA)) > 0)) {
-		hp_bonus += 10;
+		hp_bonus += (battle_config.jro_formulas ? 50 : 10);
 
 		if (pc_checkskill(sd, SU_TUNABELLY) == 5 && pc_checkskill(sd, SU_TUNAPARTY) == 5 && pc_checkskill(sd, SU_BUNCHOFSHRIMP) == 5 && pc_checkskill(sd, SU_FRESHSHRIMP) == 5)
-			hp_bonus += 20;
+			hp_bonus += (battle_config.jro_formulas ? 50 : 20);
 	}
 
 	if( sd && (skill = pc_skillheal_bonus(sd, skill_id)) )
@@ -1963,7 +1963,7 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 		sc_start2(src, bl, SC_BLEEDING, skill_lv * 10 + 70, skill_lv, src->id, skill_get_time(skill_id, skill_lv));
 		break;
 	case SU_SV_STEMSPEAR:
-		sc_start2(src, bl, SC_BLEEDING, 10, skill_lv, src->id, skill_get_time2(skill_id, skill_lv));
+		sc_start2(src, bl, SC_BLEEDING, (battle_config.jro_formulas ? 20 : 10), skill_lv, src->id, skill_get_time2(skill_id, skill_lv));
 		break;
 	case SU_CN_METEOR:
 		if (skill_area_temp[3] == 1)
@@ -1974,7 +1974,7 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 		break;
 	case SU_LUNATICCARROTBEAT:
 		if (skill_area_temp[3] == 1)
-			sc_start(src, bl, SC_STUN, 20, skill_lv, skill_get_time2(skill_id, skill_lv));
+			sc_start(src, bl, SC_STUN, (battle_config.jro_formulas ? 50 : 20), skill_lv, skill_get_time2(skill_id, skill_lv));
 		break;
 	} //end switch skill_id
 
@@ -5025,7 +5025,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 				clif_skill_nodamage(NULL, src, AL_HEAL, heal, 1);
 				status_heal(src,heal,0,0);
 			}
-			if (skill_id == SU_SCRATCH && status_get_lv(src) > 29 && (rnd() % 100 < (int)((status_get_lv(src) / 30) * 10 + 10)))
+			if (skill_id == SU_SCRATCH && status_get_lv(src) > 29 && (rnd() % 100 < (int)(battle_config.jro_formulas ? (skill_lv * 5 + 5) : ((status_get_lv(src) / 30) * 10 + 10))))
 				skill_addtimerskill(src, tick + skill_get_delay(skill_id, skill_lv), bl->id, 0, 0, skill_id, skill_lv, BF_WEAPON, flag);
 		} else {
 			int starget = BL_CHAR|BL_SKILL;
@@ -10950,6 +10950,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 
 		if (dstmd && (dstmd->mob_id == MOBID_EMPERIUM || status_get_class_(bl) == CLASS_BATTLEFIELD))
 			heal = 0;
+		else if (battle_config.jro_formulas && status_get_hp(bl) != status_get_max_hp(bl)) {
+			heal = (skill_lv < 3 ? 5 + skill_lv * 5 : 5 + skill_lv * 15) * status_get_max_hp(bl) / 100;
+		}
 		else if (status_get_hp(bl) != status_get_max_hp(bl))
 			heal = ((2 * skill_lv - 1) * 10) * status_get_max_hp(bl) / 100;
 		status_heal(bl, heal, 0, 1|2|4);

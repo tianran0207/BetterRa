@@ -4525,7 +4525,7 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.roulette_open_filter_name;
 	case NPCE_ROULETTESTARTFILTER:
 		return script_config.roulette_start_filter_name;
-	case NPCE_ROULETTEGETEVENT:
+	case NPCE_ROULETTEGETFILTER:
 		return script_config.roulette_get_filter_name;
 	case NPCE_ROULETTECLOSEEVENT:
 		return script_config.roulette_colse_event_name;

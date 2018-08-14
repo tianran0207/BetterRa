@@ -86,7 +86,7 @@
 #define EVENT_TITLECHANGEFILTER
 #define EVENT_ROULETTEOPENFILTER
 #define EVENT_ROULETTESTARTFILTER
-#define EVENT_ROULETTEGETEVENT
+#define EVENT_ROULETTEGETFILTER
 #define EVENT_ROULETTECLOSEEVENT
 
 //----------------------------------
@@ -96,10 +96,12 @@
 #define ATCOMMAND_FOLLOWPACKET      
 
 #ifdef DEBUG
-	#define BONUS_SKILL_AOE                 //单体技能改为AOE
-	#define BONUS_MULTIDAMAGERATE           //多倍伤害
-	#define SCRIPT_UNITSKILLTOWIDE          //技能扩散
-	#define SCRIPT_MAGICSHIELD              //魔法护盾
+	#define PLAYER_LIMIT 5
+	#define BONUS_SKILL_AOE                 // 单体技能改为AOE
+	#define BONUS_MULTIDAMAGERATE           // 多倍伤害
+	#define SCRIPT_UNITSKILLTOWIDE          // 技能扩散
+	#define SCRIPT_ROULETTE                 // 转盘规则
+	#define SCRIPT_MAGICSHIELD              // 魔法护盾
 #endif
 //----------------------------------
 //默认开关

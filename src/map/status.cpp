@@ -3199,6 +3199,7 @@ static int status_get_spbonus(struct block_list *bl, enum e_status_bonus type) {
  * @param isHP true - calculates Max HP, false - calculated Max SP
  * @return max The max value of HP or SP
  */
+static int status_calc_maxhpsp_pc_fix(struct map_session_data* sd, bool isHP);
 static unsigned int status_calc_maxhpsp_pc(struct map_session_data* sd, unsigned int stat, bool isHP) {
 	double dmax = 0;
 	uint16 idx, level, job_id;
@@ -3219,6 +3220,9 @@ static unsigned int status_calc_maxhpsp_pc(struct map_session_data* sd, unsigned
 		dmax += status_get_spbonus(&sd->bl,STATUS_BONUS_FIX);
 		dmax += (int64)(dmax * status_get_spbonus(&sd->bl,STATUS_BONUS_RATE) / 100); //Aegis accuracy
 	}
+
+	if (battle_config.jro_formulas)
+		dmax += status_calc_maxhpsp_pc_fix(sd, isHP);
 
 	//Make sure it's not negative before casting to unsigned int
 	if(dmax < 1) dmax = 1;
@@ -3335,6 +3339,7 @@ bool status_calc_cart_weight(struct map_session_data *sd, enum e_status_calc_wei
  * @param opt: Whether it is first calc (login) or not
  * @return (-1) for too many recursive calls, (1) recursive call, (0) success
  */
+static void status_calc_pc_sub_fix(struct block_list *bl, /*enum scb_flag*/int flag);
 int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 {
 	static int calculating = 0; ///< Check for recursive call preemption. [Skotlex]
@@ -4257,13 +4262,6 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 			sd->ignore_mdef_by_race[RC_DEMON] += sc->data[SC_GLASTHEIM_ATK]->val1;
 		}
 	}
-	
-// ----- MAX-BONUS CHECK -----
-	//if (battle_config.max_bSubEle) {
-	//	for(i = 0; i <  sd->subele)
-	//
-	//}
-
 
 	status_cpy(&sd->battle_status, base_status);
 
@@ -5346,6 +5344,9 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, enum e_status_ca
 		return; // Assume there will be no statuses active
 
 	status_calc_bl_main(bl, flag);
+
+	if (battle_config.jro_formulas && bl->type == BL_PC)
+		status_calc_pc_sub_fix(bl, flag);
 
 	if (opt&SCO_FIRST && bl->type == BL_HOM)
 		return; // Client update handled by caller
@@ -8478,6 +8479,8 @@ void status_display_remove(struct block_list *bl, enum sc_type type) {
  * @param flag: Value which determines what parts to calculate. See e_status_change_start_flags
  * @return adjusted duration based on flag values
  */
+static int status_change_timer_fix(struct status_change_entry *sce, enum sc_type type, unsigned int tick, bool is_start);
+static void status_change_start_fix(struct status_change_entry *sce, enum sc_type type, struct block_list* bl);
 int status_change_start(struct block_list* src, struct block_list* bl,enum sc_type type,int rate,int val1,int val2,int val3,int val4,int tick,unsigned char flag) {
 	struct map_session_data *sd = NULL;
 	struct status_change* sc;
@@ -11688,6 +11691,12 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	sce->val2 = val2;
 	sce->val3 = val3;
 	sce->val4 = val4;
+
+	if (battle_config.jro_formulas) {
+		tick = status_change_timer_fix(sce, type, tick, true);
+		status_change_start_fix(sce, type, bl);
+	}
+
 	if (tick >= 0)
 		sce->timer = add_timer(gettick() + tick, status_change_timer, bl->id, type);
 	else
@@ -12859,6 +12868,8 @@ TIMER_FUNC(status_change_timer){
 	sd = BL_CAST(BL_PC, bl);
 
 	std::function<void (unsigned int)> sc_timer_next = [&sce, &bl, &data](unsigned int t) {
+		if (battle_config.jro_formulas)
+			t = status_change_timer_fix(sce, (sc_type)data, t, false);
 		sce->timer = add_timer(t, status_change_timer, bl->id, data);
 	};
 	
@@ -14773,4 +14784,127 @@ int do_init_status(void)
 void do_final_status(void)
 {
 	ers_destroy(sc_data_ers);
+}
+
+// HP/SP 修正
+static int status_calc_maxhpsp_pc_fix(struct map_session_data* sd, bool isHP)
+{
+	int hp_add = 0, sp_add = 0;
+	nullpo_retr(0, sd);
+	if (pc_checkskill(sd, SU_SPRITEMABLE) > 0) {
+		hp_add += 1000;
+		sp_add += 100;
+	}
+	if (pc_checkskill(sd, SU_POWEROFSEA) > 0) {
+		hp_add += 1000;
+		sp_add += 100;
+		if (pc_checkskill(sd, SU_TUNABELLY) == 5 && pc_checkskill(sd, SU_TUNAPARTY) == 5 && pc_checkskill(sd, SU_BUNCHOFSHRIMP) == 5 && pc_checkskill(sd, SU_FRESHSHRIMP) == 5) {
+			hp_add += 3000;
+			sp_add += 300;
+		}
+	}
+	if (isHP)
+		return hp_add;
+	else
+		return sp_add;
+}
+
+static int status_checkskill(struct block_list *bl, uint16 skill_id) {
+	switch (bl->type) {
+	case BL_PC: return pc_checkskill((TBL_PC *)bl, skill_id);
+	case BL_HOM: return hom_checkskill((TBL_HOM *)bl, skill_id);
+	case BL_MER: return mercenary_checkskill((TBL_MER *)bl, skill_id);
+	}
+	return 0;
+}
+
+// 素质修正
+static void status_calc_pc_sub_fix(struct block_list *bl, /*enum scb_flag*/int flag) {
+	struct status_data *status = status_get_status_data(bl);
+	struct status_data *base_status = status_get_base_status(bl);
+	struct status_change *sc = status_get_sc(bl);
+	struct regen_data *regen = status_get_regen_data(bl);
+	struct map_session_data* sd = BL_CAST(BL_PC, bl);
+	int skill_lv, rate;
+
+	if (sc && sc->count && bl->type == BL_PC) {
+		if (sc->data[SC_SHRIMP]) {
+			if ((skill_lv = status_checkskill(bl, SU_BUNCHOFSHRIMP)) == 0)
+				return;
+			rate = (skill_lv == 1 ? 5 : (skill_lv < 5) ? 5 * (skill_lv - 1) : 30);
+			if (flag & SCB_BATK) {
+				status->batk -= status->batk / (100 + sc->data[SC_SHRIMP]->val2) * 100;
+				status->matk_min -= status->matk_min / (100 + sc->data[SC_SHRIMP]->val2) * 100;
+				status->matk_max -= status->matk_max / (100 + sc->data[SC_SHRIMP]->val2) * 100;
+				status->batk += status->batk * rate / 100;
+				status->matk_min += status->matk_min * rate / 100;
+				status->matk_max += status->matk_max * rate / 100;
+			}
+		}
+		if (sc->data[SC_CHATTERING]) {
+			skill_lv = sc->data[SC_CHATTERING]->val1;
+			rate = (skill_lv < 4 ? 10 + skill_lv * 20 : (skill_lv == 4) ? 100 : 150);
+			status->batk += -sc->data[SC_CHATTERING]->val2 + rate;
+			status->matk_min += -sc->data[SC_CHATTERING]->val2 + rate;
+			status->matk_max += -sc->data[SC_CHATTERING]->val2 + rate;
+		}
+
+		if (sc->data[SC_GROOMING])
+			status->flee += -sc->data[SC_GROOMING]->val2 + (sc->data[SC_GROOMING]->val1 * 10);
+		
+		if (sc->data[SC_CATNIPPOWDER]) {
+			regen->rate.hp = regen->rate.hp * 3 / 4;
+			regen->rate.sp = regen->rate.sp * 3 / 4;
+		}
+
+		if (sc->data[SC_HISS]) {
+			skill_lv = sc->data[SC_HISS]->val1;
+			rate = (skill_lv < 4 ? skill_lv * 5 : (skill_lv == 4) ? 25 : 50);
+			status->flee2 += -sc->data[SC_HISS]->val2 + rate;
+		}
+	}
+	if (pc_checkskill(sd, SU_POWEROFLAND) > 0) {
+		base_status->int_ -= 13;
+		if ((pc_checkskill(sd, SU_SV_STEMSPEAR) + pc_checkskill(sd, SU_CN_POWDERING) + pc_checkskill(sd, SU_CN_METEOR) + pc_checkskill(sd, SU_SV_ROOTTWIST) +
+			pc_checkskill(sd, SU_CHATTERING) + pc_checkskill(sd, SU_MEOWMEOW) + pc_checkskill(sd, SU_NYANGGRASS)) > 19) {
+			status->matk_min -= base_status->matk_min * 10 / 100;
+			status->matk_max -= base_status->matk_max * 10 / 100;
+		}
+	}
+	if (pc_checkskill(sd, SU_POWEROFLIFE) > 0) {
+		base_status->hit += 30;
+		base_status->flee += 30;
+	}
+
+}
+
+// 状态计时器修正
+static int status_change_timer_fix(struct status_change_entry *sce, enum sc_type type, unsigned int tick, bool is_start)
+{
+	int newtick = 0;
+	switch (type) {
+		case SC_FRESHSHRIMP:
+			newtick = (13 - sce->val1 * 2) * 1000;
+			if (is_start)
+				sce->val4 = 120000 / newtick;
+			else
+				newtick += gettick();
+			break;
+	}
+	return newtick ? newtick : tick;
+}
+
+static void status_change_start_fix(struct status_change_entry *sce, enum sc_type type, struct block_list* bl)
+{
+	struct status_data *status = status_get_status_data(bl);
+	struct status_change *sc = status_get_sc(bl);
+	switch (type) {
+		case SC_CATNIPPOWDER:
+			sce->val2 = 30; // WATK%, MATK%
+			break;
+		case SC_CHATTERING:
+			if (sc && sc->count && sc->data[SC_DORAM_WALKSPEED])
+				sc->data[SC_DORAM_WALKSPEED]->val1 = sce->val1 < 5 ? 25 : 50;
+			break;
+	}
 }

@@ -5047,14 +5047,14 @@ void do_shutdown(void)
 	}
 }
 
-#if MAX_ONLINE > 0
-int server_broadcast(int tid, unsigned int tick, int id, intptr_t data) {
-	char mes[256];
-	snprintf(mes, sizeof(mes), "您正在使用的是 BetterRa 官方测试端, 限制连接 %d 个客户端, 请到官网定制服务端.", MAX_ONLINE);
-	intif_broadcast2(mes, (int)strlen(mes) + 1, strtol("0x00FF00", (char **)NULL, 0), FW_NORMAL, 12, 0, 0);
+TIMER_FUNC(server_broadcast) {
+#ifdef PLAYER_LIMIT
+	//char mes[256];	
+	//snprintf(mes, sizeof(mes), "您使用的 BetterRa 测试端只能连接 %d 个玩家, 请联系 QQ809236588 定制客户端.", PLAYER_LIMIT);
+	//intif_broadcast2(mes, (int)strlen(mes) + 1, strtol("0x00FF00", (char **)NULL, 0), FW_NORMAL, 12, 0, 0);
+#endif
 	return 1;
 }
-#endif
 
 int do_init(int argc, char *argv[])
 {
@@ -5156,7 +5156,7 @@ int do_init(int argc, char *argv[])
 	add_timer_func_list(map_removemobs_timer, "map_removemobs_timer");
 	add_timer_interval(gettick()+1000, map_freeblock_timer, 0, 0, 60*1000);
 
-#if MAX_ONLINE > 0
+#ifdef PLAYER_LIMIT
 	add_timer_func_list(server_broadcast, "server_broadcast");
 	add_timer_interval(gettick() + 1000, server_broadcast, 0, 0, 300 * 1000);
 #endif

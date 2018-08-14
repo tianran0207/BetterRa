@@ -3458,6 +3458,7 @@ static struct Damage battle_calc_multi_attack(struct Damage wd, struct block_lis
  *	Initial refactoring by Baalberith
  *	Refined and optimized by helvetica
  */
+static bool battle_attack_skill_ratio_fix(struct Damage wd, struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int* skillratio);
 static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *src,struct block_list *target,uint16 skill_id,uint16 skill_lv)
 {
 	struct map_session_data *sd = BL_CAST(BL_PC, src);
@@ -3506,6 +3507,9 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 			}
 		}
 	}
+
+	if (battle_config.jro_formulas && battle_attack_skill_ratio_fix(wd, src, target, skill_id, skill_lv, &skillratio))
+		return skillratio;
 
 	switch(skill_id) {
 		case SM_BASH:
@@ -4691,8 +4695,8 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, s
 		if (sd && pc_checkskill(sd, SU_POWEROFLIFE) > 0) {
 			if ((pc_checkskill(sd, SU_SCAROFTAROU) + pc_checkskill(sd, SU_PICKYPECK) + pc_checkskill(sd, SU_ARCLOUSEDASH) + pc_checkskill(sd, SU_LUNATICCARROTBEAT) +
 				pc_checkskill(sd, SU_HISS) + pc_checkskill(sd, SU_POWEROFFLOCK) + pc_checkskill(sd, SU_SVG_SPIRIT)) > 19) {
-					ATK_ADDRATE(wd.damage, wd.damage2, 20);
-					RE_ALLATK_ADDRATE(wd, 20);
+					ATK_ADDRATE(wd.damage, wd.damage2, battle_config.jro_formulas ? 10 : 20);
+					RE_ALLATK_ADDRATE(wd, battle_config.jro_formulas ? 10 : 20);
 			}
 		}
 	}
@@ -8110,6 +8114,7 @@ static const struct _battle_data {
 	{ "pc_max_flee",                        &battle_config.pc_max_flee,                     0,      0,      INT_MAX,        },
 	{ "pc_max_flee2",                       &battle_config.pc_max_flee2,                    0,      0,      INT_MAX,        },
 	{ "npc_timeout",                        &battle_config.npc_timeout,                     1,      0,      1,              },
+	//{ "jro_formulas",                       &battle_config.jro_formulas,                    0,      0,      1,              },
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },
@@ -8820,7 +8825,7 @@ int battle_config_read(const char* cfgName)
 		int i;
 		for (i = 0; i < ARRAYLENGTH(battle_data); i++)
 			if (!battle_data_isset[i])
-				ShowWarning("Have no setting '%s', use: %d..\n", battle_data[i].str, battle_data[i].defval);
+				ShowWarning("No such '%s' in conf file, use: %d..\n", battle_data[i].str, battle_data[i].defval);
 		battle_adjust_conf();
 	}
 
@@ -8842,4 +8847,53 @@ void do_init_battle(void)
 void do_final_battle(void)
 {
 	ers_destroy(delay_damage_ers);
+}
+
+
+static bool battle_attack_skill_ratio_fix(struct Damage wd, struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int* skillratio)
+{
+	struct map_session_data *sd = BL_CAST(BL_PC, src);
+	struct map_session_data *tsd = BL_CAST(BL_PC, target);
+	int ratio = *(skillratio);
+	switch (skill_id) {
+	case SU_SCRATCH:
+		ratio += 300 + 200 * skill_lv;
+		break;
+	case SU_PICKYPECK:
+	case SU_PICKYPECK_DOUBLE_ATK:
+		ratio += 1150 + 50 * skill_lv;
+		if (status_get_hp(target) < status_get_max_hp(target) / 100 * (skill_lv * 10 + 20) )
+			ratio *= 2;
+		if (sd && pc_checkskill(sd, SU_SPIRITOFLIFE))
+			ratio += ratio * status_get_hp(src) / status_get_max_hp(src);
+		break;
+	case SU_SCAROFTAROU:
+		ratio += 3900 + 200 * skill_lv;
+		if (sd && pc_checkskill(sd, SU_SPIRITOFLIFE))
+			ratio += ratio * status_get_hp(src) / status_get_max_hp(src);
+		break;
+	case SU_SV_STEMSPEAR:
+		ratio += 4900;
+		break;
+	case SU_LUNATICCARROTBEAT:
+		ratio += 1900 + 100 * skill_lv;
+		if (sd && pc_checkskill(sd, SU_SPIRITOFLIFE))
+			ratio += ratio * status_get_hp(src) / status_get_max_hp(src);
+		break;
+	case SU_SVG_SPIRIT:
+		ratio += 2400 + 100 * skill_lv;
+		if (sd && pc_checkskill(sd, SU_SPIRITOFLIFE))
+			ratio += ratio * status_get_hp(src) / status_get_max_hp(src);
+		break;
+	case SU_BITE:
+		ratio += 1900;
+		if (status_get_hp(target) < status_get_max_hp(target) / 100 * 70)
+			ratio = ratio * 3 / 2;
+		break;
+	}
+	if (ratio == *(skillratio))
+		return false;
+
+	*(skillratio) = ratio;
+	return true;
 }

@@ -19600,7 +19600,6 @@ void clif_parse_roulette_info( int fd, struct map_session_data* sd ){
 		return;
 	}
 
-	return;
 	clif_roulette_info(sd);
 #ifdef EVENT_ROULETTECLOSEEVENT
 	npc_script_event(sd, NPCE_ROULETTECLOSEEVENT);
@@ -19700,35 +19699,10 @@ void clif_parse_roulette_generate( int fd, struct map_session_data* sd ){
 		return;
 	}
 #ifdef EVENT_ROULETTESTARTFILTER
-	if (event_exist(NPCE_ROULETTESTARTFILTER) && !sd->roulette.claimPrize) {
-		int idx, roul_bronze, roul_silver, roul_gold;
-		roul_bronze = pc_readreg2(sd, ROULETTE_BRONZE_VAR);
-		roul_silver = pc_readreg2(sd, ROULETTE_SILVER_VAR);
-		roul_gold = pc_readreg2(sd, ROULETTE_GOLD_VAR);
+	if (event_exist(NPCE_ROULETTESTARTFILTER)) {
 		npc_script_event_atonce(sd, NPCE_ROULETTESTARTFILTER);
-		if (sd->state.processhalt) {
-			int stage = pc_readreg2(sd, "@PrizeStage") - 1;
-			idx = pc_readreg2(sd, "@PrizeIdx") - 1;
-			if (idx >= rd.items[stage] || idx < 0 || stage >= 7 || stage < 0) {
-				ShowError("roulette_event: the param out of range,  @PrizeStage: '%d', @PrizeIdx: '%d'.\n", stage + 1, idx + 1);
-				clif_roulette_generate(sd, GENERATE_ROULETTE_FAILED, 0, 0, 0);
-				return;
-			}
-			if ((roul_bronze > sd->roulette_point.bronze && sd->roulette_point.bronze < 0) ||
-				(roul_silver > sd->roulette_point.silver && sd->roulette_point.silver < 0) ||
-				(roul_gold > sd->roulette_point.gold && sd->roulette_point.gold < 0)) {
-				pc_setreg2(sd, ROULETTE_BRONZE_VAR, roul_bronze);
-				pc_setreg2(sd, ROULETTE_SILVER_VAR, roul_silver);
-				pc_setreg2(sd, ROULETTE_GOLD_VAR, roul_gold);
-				clif_roulette_generate(sd, GENERATE_ROULETTE_NO_ENOUGH_POINT, 0, 0, 0);
-				return;
-			}
-			sd->roulette.prizeStage = stage;
-			sd->roulette.prizeIdx = idx;
-			sd->roulette.claimPrize = true;
-			clif_roulette_generate(sd, GENERATE_ROULETTE_LOSING, sd->roulette.prizeStage, sd->roulette.prizeIdx, 0);
+		if (sd->state.processhalt)
 			return;
-		}
 	}
 #endif
 
@@ -19789,11 +19763,15 @@ void clif_parse_roulette_item( int fd, struct map_session_data* sd ){
 		return;
 	}
 
-#ifdef EVENT_ROULETTEGETEVENT
-	if (event_exist(NPCE_ROULETTEGETEVENT)) {
+#ifdef EVENT_ROULETTEGETFILTER
+	if (event_exist(NPCE_ROULETTEGETFILTER)) {
 		pc_setreg(sd, add_str("@PrizeStage"), sd->roulette.prizeStage + 1);
 		pc_setreg(sd, add_str("@PrizeIdx"), sd->roulette.prizeIdx + 1);
-		npc_script_event(sd, NPCE_ROULETTEGETEVENT);
+		npc_script_event_atonce(sd, NPCE_ROULETTEGETFILTER);
+		if (sd->state.processhalt) {
+			clif_roulette_recvitem_ack(sd, RECV_ITEM_SUCCESS);
+			return;
+		}
 	}
 #endif
 	if (sd->roulette.claimPrize && sd->roulette.prizeIdx != -1) {
@@ -20712,10 +20690,10 @@ static int clif_parse(int fd)
 	if (RFIFOREST(fd) < 2)
 		return 0;
 
-#if MAX_ONLINE > 0
-	if (!sd && fd > MAX_ONLINE + 2) {
-		ShowError("The server is only used to test, It can only connect %d client..\n", MAX_ONLINE);
-		set_eof(fd);
+#ifdef PLAYER_LIMIT
+	if (!sd && map_usercount() > PLAYER_LIMIT - 1) {
+		ShowError("Limit the number of servers to '%d' player., Please contact the author to customize it.\n", PLAYER_LIMIT);
+		do_close(fd);
 		return 0;
 	}
 #endif

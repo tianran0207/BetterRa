@@ -355,7 +355,7 @@ struct Script_Config script_config = {
 	//
 	"OnPCOpenRouletteFilter",
 	"OnPCStartRouletteFilter",
-	"OnPCGetRouletteEvent",
+	"OnPCGetRouletteFilter",
 	"OnPCCloseRouletteEvent",
 	//
 	"OnBOTLackItemEvent",
@@ -25425,7 +25425,10 @@ static int buildin_unitskillwide_sub(int tid, unsigned int tick, int id, intptr_
 
 BUILDIN_FUNC(unitskilltowide)
 {
-#ifdef SCRIPT_UNITSKILLTOWIDE
+#ifndef SCRIPT_UNITSKILLTOWIDE
+	not_free(script_getfuncname(st));
+	return SCRIPT_CMD_FAILURE;
+#endif 
 	int x, y, step, range, delay, steplen = 0, type, reallen, i = 0;
 	uint16 skill_id, skill_lv;
 	struct block_list* bl;
@@ -25433,7 +25436,7 @@ BUILDIN_FUNC(unitskilltowide)
 	struct skillwide *info;
 
 	if (!script_rid2bl(2, bl))
-		return SCRIPT_CMD_SUCCESS;
+		return SCRIPT_CMD_FAILURE;
 
 	data = script_getdata(st, 3);
 	get_val(st, data); // Convert into value in case of a variable
@@ -25485,9 +25488,6 @@ BUILDIN_FUNC(unitskilltowide)
 		else
 			add_timer(gettick() + delay * steplen / step, buildin_unitskillwide_sub, bl->id, (intptr_t)info);
 	}
-#else
-	not_free(script_getfuncname(st));
-#endif // SCRIPT_UNITSKILLTOWIDE
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -26225,7 +26225,10 @@ BUILDIN_FUNC(getareamember)
 
 BUILDIN_FUNC(magicshield)
 {
-#ifdef SCRIPT_MAGICSHIELD
+#ifndef SCRIPT_MAGICSHIELD
+	not_free(script_getfuncname(st));
+	return SCRIPT_CMD_FAILURE;
+#endif
 	TBL_PC *sd;
 
 	if (!script_charid2sd(5, sd))
@@ -26235,10 +26238,6 @@ BUILDIN_FUNC(magicshield)
 	sd->shield.hp = script_getnum(st, 3);
 	sd->shield.tick = gettick() + (script_getnum(st, 4) * 1000);
 	return SCRIPT_CMD_SUCCESS;
-#else
-	not_free(script_getfuncname(st));
-	return SCRIPT_CMD_SUCCESS;
-#endif
 }
 
 BUILDIN_FUNC(getbonus)
@@ -26258,14 +26257,14 @@ BUILDIN_FUNC(getbonus)
 
 	for (i = 0; i < 5; i++) {
 		if (data[i] && data_isstring(data[i])) {
-			ShowWarning("getbonus: error in argument! please give int variable or num.\n");
+			ShowWarning("buildin_getbonus: error in argument! please give int variable or num.\n");
 			return SCRIPT_CMD_FAILURE;
 		}
 		val[i] = !data[i] || data_isreference(data[i]) ? 0 : conv_num(st, data[i]);
 	}
 
 	if (!pc_bonus_chk(sd, type, &val[0], &val[1], &val[2], &val[3], &val[4])) {
-		ShowWarning("getbonus: the type of '%d' is unsupport.\n", type);
+		ShowWarning("buildin_getbonus: the type of '%d' is unsupport.\n", type);
 		return SCRIPT_CMD_FAILURE;
 	}
 	for (i = 0; i < 5; i++) {
@@ -26287,7 +26286,7 @@ BUILDIN_FUNC(getrateidx)
 	struct map_session_data* sd = NULL;
 	struct reg_db *ref = NULL;
 
-	int allrate = 0, *value, rate, rate_ = 0;
+	int allrate = 0, *value, rate = 0, rate_ = 0;
 
 	data = script_getdata(st, 2);
 
@@ -26295,7 +26294,7 @@ BUILDIN_FUNC(getrateidx)
 		name = reference_getname(data);
 		ref = reference_getref(data);
 		if (is_string_variable(name)) {
-			ShowError("buildin_inarray: The array is must be int var.\n");
+			ShowError("buildin_rateidx: The array is must be int var.\n");
 			return SCRIPT_CMD_FAILURE;
 		}
 		if (not_server_variable(*name) && !script_rid2sd(sd))
@@ -26306,7 +26305,7 @@ BUILDIN_FUNC(getrateidx)
 
 		if (array_size > SCRIPT_MAX_ARRAYSIZE)
 		{
-			ShowError("buildin_inarray: The array is too large.\n");
+			ShowError("buildin_rateidx: The array is too large.\n");
 			script_reportdata(data);
 			st->state = END;
 			return SCRIPT_CMD_FAILURE;
@@ -26327,7 +26326,9 @@ BUILDIN_FUNC(getrateidx)
 			allrate += value[i];
 		}
 	}
-	rate = rnd() % allrate;
+	if (allrate != 0)
+		rate = rnd() % allrate;
+	
 	for (i = 0; i < array_size; i++) {
 		if ((rate_ += value[i]) > rate)
 			break;
@@ -26358,6 +26359,131 @@ BUILDIN_FUNC(mobstaypos)
 	md->staypos.m = md->bl.m;
 	md->staypos.x = x;
 	md->staypos.y = y;
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(roulette_bonus)
+{
+#ifndef SCRIPT_ROULETTE
+	not_free(script_getfuncname(st));
+	return SCRIPT_CMD_FAILURE;
+#endif
+	TBL_PC *sd;
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	int fd = sd->fd;
+
+	WFIFOHEAD(fd, packet_len(0xa22));
+	WFIFOW(fd, 0) = 0xa22;
+	WFIFOB(fd, 2) = RECV_ITEM_SUCCESS;
+	WFIFOW(fd, 3) = (short)script_getnum(st, 2); //! TODO: Additional item
+	WFIFOSET(fd, packet_len(0xa22));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(roulette_iteminfo)
+{
+#ifndef SCRIPT_ROULETTE
+	not_free(script_getfuncname(st));
+	return SCRIPT_CMD_FAILURE;
+#endif
+	TBL_PC *sd;
+	int flag = script_getnum(st, 2);
+	int stage = script_getnum(st, 3);
+	int idx = script_getnum(st, 4);
+	if (!script_charid2sd(5, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (stage >= MAX_ROULETTE_LEVEL || stage < 0 || idx >= MAX_ROULETTE_COLUMNS || idx < 0) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	switch (flag) {
+		case 1:
+			script_pushint(st, rd.nameid[stage][idx]);
+			break;
+		case 2:
+			script_pushint(st, rd.qty[stage][idx]);
+			break;
+		case 3:
+			script_pushint(st, rd.flag[stage][idx]);
+			break;
+		default:
+			script_pushint(st, 0);
+			break;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(roulette_open)
+{
+#ifndef SCRIPT_ROULETTE
+	not_free(script_getfuncname(st));
+	return SCRIPT_CMD_FAILURE;
+#endif
+	TBL_PC *sd;
+
+	if (!script_charid2sd(5, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	uint8 stage = script_hasdata(st, 2) ? script_getnum(st, 2) - 1 : (sd->roulette.claimPrize) ? sd->roulette.stage - 1 : 0;
+	int8 prizeIdx = script_hasdata(st, 3) ? script_getnum(st, 3) : (sd->roulette.claimPrize) ? sd->roulette.prizeIdx : -1;
+
+	if (stage >= MAX_ROULETTE_LEVEL || stage < 0 || prizeIdx >= MAX_ROULETTE_COLUMNS || prizeIdx < 0) {
+		stage = 0;
+		prizeIdx = -1;
+	}
+
+	int fd = sd->fd;
+
+	WFIFOHEAD(fd, packet_len(0xa1a));
+	WFIFOW(fd, 0) = 0xa1a;
+	WFIFOB(fd, 2) = 0; // result
+	WFIFOL(fd, 3) = 0; // serial
+	WFIFOB(fd, 7) = stage;
+	WFIFOB(fd, 8) = prizeIdx;
+	WFIFOW(fd, 9) = script_hasdata(st, 4) ? script_getnum(st, 4) : -1; //! TODO: Display bonus item
+	WFIFOL(fd, 11) = sd->roulette_point.gold;
+	WFIFOL(fd, 15) = sd->roulette_point.silver;
+	WFIFOL(fd, 19) = sd->roulette_point.bronze;
+	WFIFOSET(fd, packet_len(0xa1a));
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(roulette_generate)
+{
+#ifndef SCRIPT_ROULETTE
+	not_free(script_getfuncname(st));
+	return SCRIPT_CMD_FAILURE;
+#endif
+	TBL_PC *sd;
+
+	if (!script_charid2sd(6, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	unsigned char result = script_getnum(st, 2);
+	short stage = script_getnum(st, 3);
+	short prizeIdx = script_getnum(st, 4);
+	short bonusItemID = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
+	int fd = sd->fd;
+	if (stage >= MAX_ROULETTE_LEVEL || stage < 0 || prizeIdx >= MAX_ROULETTE_COLUMNS || prizeIdx < 0)
+		return SCRIPT_CMD_SUCCESS;
+
+	sd->roulette.tick = gettick() + max(1, (MAX_ROULETTE_COLUMNS - stage - 3)) * 1000;
+	WFIFOHEAD(fd, packet_len(0xa20));
+	WFIFOW(fd, 0) = 0xa20;
+	WFIFOB(fd, 2) = result;
+	WFIFOW(fd, 3) = stage;
+	WFIFOW(fd, 5) = prizeIdx;
+	WFIFOW(fd, 7) = bonusItemID;
+	WFIFOL(fd, 9) = sd->roulette_point.gold;
+	WFIFOL(fd, 13) = sd->roulette_point.silver;
+	WFIFOL(fd, 17) = sd->roulette_point.bronze;
+	WFIFOSET(fd, packet_len(0xa20));
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -27131,5 +27257,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getbonus, "i?????"),
 	BUILDIN_DEF(getrateidx, "*"),
 	BUILDIN_DEF(mobstaypos, "iii"),
+	BUILDIN_DEF(roulette_bonus, "i"),
+	BUILDIN_DEF(roulette_iteminfo, "iii?"),
+	BUILDIN_DEF(roulette_open, "????"),
+	BUILDIN_DEF(roulette_generate, "iii??"),
 	{NULL,NULL,NULL},
 };
