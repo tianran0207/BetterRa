@@ -4,7 +4,6 @@
 #ifndef	_BETTERRA_CONFIG_H_
 #define	_BETTERRA_CONFIG_H_
 
-#define MAX_ONLINE 0                 //最大连接数量
 //----------------------------------
 //自定义宏定义
 //----------------------------------
@@ -95,20 +94,23 @@
 #define SCRIPT_SENDMAIL
 #define ATCOMMAND_FOLLOWPACKET      
 
-#ifdef DEBUG
-	#define PLAYER_LIMIT 5
-	#define BONUS_SKILL_AOE                 // 单体技能改为AOE
-	#define BONUS_MULTIDAMAGERATE           // 多倍伤害
-	#define SCRIPT_UNITSKILLTOWIDE          // 技能扩散
-	#define SCRIPT_ROULETTE                 // 转盘规则
-	#define SCRIPT_MAGICSHIELD              // 魔法护盾
-#endif
 //----------------------------------
 //默认开关
 //----------------------------------
+
 #define C_READ_KEY_IN_CONFIG
 #define C_MAX_GUILD C_MIN_GUILD + 10 * C_GUILD_SKILL_NUMBER_ADD
 #define CONF_PATH "conf"
 #define MAX_POLICIES 20
 #include "better_customization.h"
+#ifdef BEATVER
+#ifndef _DEBUG
+#define PLAYER_LIMIT 5
+#endif
+#define BONUS_SKILL_AOE                 // 单体技能改为AOE
+#define BONUS_MULTIDAMAGERATE           // 多倍伤害
+#define SCRIPT_UNITSKILLTOWIDE          // 技能扩散
+#define SCRIPT_ROULETTE                 // 转盘规则
+#define SCRIPT_MAGICSHIELD              // 魔法护盾
+#endif
 #endif //_BETTERRA_CONFIG_H_

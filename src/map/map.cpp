@@ -5333,7 +5333,7 @@ static int http_parse(int fd) {
 		return 0;
 	}
 
-	if ((head_end = strstr(req, "\r\n\r\n")) == NULL || head_end - req > 4096)
+	if ((head_end = strstr(req, "\r\n\r\n")) == NULL || head_end - req > FIFOSIZE_SERVERLINK - 1024)
 		return 0;
 
 	safestrncpy(head, req, head_end - req);
@@ -5341,7 +5341,7 @@ static int http_parse(int fd) {
 
 	while (head_prt[0]) {
 
-		if ((head_prt[1] = strstr(head_prt[0], "\r\n")) == NULL || sscanf(head_prt[0], "%63[^:]: %511[^\r\n]", head_name, head_val) < 2)
+		if (((head_prt[1] = strstr(head_prt[0], "\r\n")) == NULL && head_prt[1] < head_end)|| sscanf(head_prt[0], "%63[^:]: %511[^\r\n]", head_name, head_val) < 2)
 			break;
 
 		if (strcmp(head_name, "Content-Length") == 0)
@@ -5367,9 +5367,7 @@ static int http_parse(int fd) {
 		mapreg_setregstr(add_str("$@http_url$"), http_data->url);
 		mapreg_setregstr(add_str("$@http_host$"), http_data->host);
 		mapreg_setregstr(add_str("$@http_folder$"), http_data->folder);
-		mapreg_setregstr(add_str("$@http_str$"), "");
-		if (contentlen < 1024)
-			mapreg_setregstr(add_str("$@http_str$"), content);
+		mapreg_setregstr(add_str("$@http_str$"), http_data->load_file ? "" : content);
 		npc_event_doall(script_config.http_received_event_name);
 	}
 
