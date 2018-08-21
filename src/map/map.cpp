@@ -2126,8 +2126,8 @@ int map_quit(struct map_session_data *sd) {
 	if( mapdata->instance_id )
 		instance_delusers(mapdata->instance_id);
 
-	if (battle_config.instance_lastpoint || battle_config.instance_leavepoint) //玩家在副本中下线后记录下线位置
-		instance_leave_last(sd);
+	//if (battle_config.instance_lastpoint || battle_config.instance_leavepoint) //玩家在副本中下线后记录下线位置
+	//	instance_leave_last(sd);
 
 	unit_remove_map_pc(sd,CLR_RESPAWN);
 

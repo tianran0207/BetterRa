@@ -14829,13 +14829,12 @@ static void status_calc_pc_sub_fix(struct block_list *bl, /*enum scb_flag*/int f
 
 	if (sc && sc->count && bl->type == BL_PC) {
 		if (sc->data[SC_SHRIMP]) {
-			if ((skill_lv = status_checkskill(bl, SU_BUNCHOFSHRIMP)) == 0)
-				return;
+			skill_lv = sc->data[SC_SHRIMP]->val1;
 			rate = (skill_lv == 1 ? 5 : (skill_lv < 5) ? 5 * (skill_lv - 1) : 30);
 			if (flag & SCB_BATK) {
-				status->batk -= status->batk / (100 + sc->data[SC_SHRIMP]->val2) * 100;
-				status->matk_min -= status->matk_min / (100 + sc->data[SC_SHRIMP]->val2) * 100;
-				status->matk_max -= status->matk_max / (100 + sc->data[SC_SHRIMP]->val2) * 100;
+				status->batk = status->batk * 100 / (100 + sc->data[SC_SHRIMP]->val2);
+				status->matk_min = status->matk_min * 100 / (100 + sc->data[SC_SHRIMP]->val2);
+				status->matk_max = status->matk_max * 100 / (100 + sc->data[SC_SHRIMP]->val2);
 				status->batk += status->batk * rate / 100;
 				status->matk_min += status->matk_min * rate / 100;
 				status->matk_max += status->matk_max * rate / 100;

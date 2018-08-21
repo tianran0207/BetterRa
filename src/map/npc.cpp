@@ -3291,8 +3291,8 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 	if(!strcmp(filepath,"INSTANCING")) //Instance NPCs will use this for commands
 		nd->instance_id = mapdata->instance_id;
 
-	if (!strcmp(filepath, "FROMSCRIPT"))
-		nd->instance_id = map[m].instance_id;
+	//if (!strcmp(filepath, "FROMSCRIPT"))
+	//	nd->instance_id = map[m].instance_id;
 
 	nd->u.scr.timerid = INVALID_TIMER;
 

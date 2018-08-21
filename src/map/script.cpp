@@ -17361,10 +17361,13 @@ BUILDIN_FUNC(getunitdata)
 		return SCRIPT_CMD_FAILURE;
 	}
 
-	if(!script_rid2bl(2,bl))
-	{
+	if(!(bl = map_id2bl(script_getnum(st, 2))))	{
+		int i;
+		name = reference_getname(data);
+		for (i = 0; i < 50; i++)
+			set_reg(st, sd, reference_uid(add_str(name), i), name, 0, data->ref);
 		script_pushint(st, -1);
-		return SCRIPT_CMD_FAILURE;
+		return SCRIPT_CMD_SUCCESS;
 	}
 
 	switch (bl->type) {
@@ -18634,6 +18637,33 @@ BUILDIN_FUNC(sleep2)
 			st->state = RUN;
 			st->sleep.tick = 0;
 		}
+	}
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(sleep3)
+{
+	// First call(by function call)
+	if (st->sleep.tick == 0) {
+		int ticks;
+
+		ticks = script_getnum(st, 2);
+
+		if (ticks <= 0) {
+			ShowError("buildin_sleep: negative or zero amount('%d') of milli seconds is not supported\n", ticks);
+			return SCRIPT_CMD_FAILURE;
+		}
+
+		// sleep for the target amount of time
+		st->state = RERUNLINE;
+		st->sleep.tick = ticks;
+		// Second call(by timer after sleeping time is over)
+	}
+	else {
+		// Continue the script
+		st->state = RUN;
+		st->sleep.tick = 0;
 	}
 
 	return SCRIPT_CMD_SUCCESS;
@@ -27149,6 +27179,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(open_roulette,"?"),
 #include "../custom/script_def.inc"
 
+	BUILDIN_DEF(sleep3, "i"),
 	BUILDIN_DEF(processhalt, ""),
 	BUILDIN_DEF2(processhalt, "halt", ""),
 	BUILDIN_DEF(getinventoryinfo, "ii?"),
