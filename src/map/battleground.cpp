@@ -279,7 +279,6 @@ void do_final_battleground(void)
 	bg_team_db->destroy(bg_team_db, NULL);
 }
 
-
 int tribe_team_get_id(struct block_list *bl)
 {
 	nullpo_ret(bl);

@@ -1,8 +1,8 @@
 // Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#ifndef _NPC_HPP_
-#define _NPC_HPP_
+#ifndef NPC_HPP
+#define NPC_HPP
 
 #include "../common/timer.hpp"
 
@@ -80,7 +80,7 @@ struct npc_data {
 			uint16 count;
 			unsigned short itemshop_nameid; // Item Shop cost item ID
 			char pointshop_val[32]; // Point Shop cost variable name
-			char pointshop_str[32]; 
+			char pointshop_str[32]; // Point Shop cost dispaly name
 			bool discount;
 		} shop;
 		struct {
@@ -1267,7 +1267,7 @@ void npc_market_delfromsql_(const char *exname, unsigned short nameid, bool clea
 #endif
 
 #ifdef SECURE_NPCTIMEOUT
-	TIMER_FUNC(npc_rr_secure_timeout_timer);
+	TIMER_FUNC(npc_secure_timeout_timer);
 #endif
 
 // @commands (script-based)
@@ -1278,4 +1278,4 @@ bool npc_unloadfile( const char* path );
 bool event_exist(enum npce_event type);
 bool npc_file_decrypt(char *src, size_t *ptr_len);
 
-#endif /* _NPC_HPP_ */
+#endif /* NPC_HPP */

@@ -1104,6 +1104,7 @@ static void itemdb_read_combos(const char* basedir, bool silent) {
 				continue;
 			id = itemdb_exists(items[0]);
 			if (battle_config.combo_mode == 2 && itemdb_combos_contrast(id, items, retcount, &idx)) {
+				// ´ýÑéÖ¤
 				script_free_code(id->combos[idx]->script);
 				id->combos[idx]->script = parse_script(str[1], path, lines, 0);
 				for (v = 1; v < retcount; v++) {
@@ -1121,8 +1122,7 @@ static void itemdb_read_combos(const char* basedir, bool silent) {
 				if (id->combos == NULL) {
 					CREATE(id->combos, struct item_combo*, 1);
 					id->combos_count = 1;
-				}
-				else {
+				} else {
 					RECREATE(id->combos, struct item_combo*, ++id->combos_count);
 				}
 				CREATE(id->combos[idx], struct item_combo, 1);
@@ -1145,8 +1145,7 @@ static void itemdb_read_combos(const char* basedir, bool silent) {
 					if (it->combos == NULL) {
 						CREATE(it->combos, struct item_combo*, 1);
 						it->combos_count = 1;
-					}
-					else {
+					} else {
 						RECREATE(it->combos, struct item_combo*, ++it->combos_count);
 					}
 					CREATE(it->combos[index], struct item_combo, 1);
@@ -1663,12 +1662,15 @@ static int itemdb_read_sqldb(void) {
 bool itemdb_isNoEquip(struct item_data *id, uint16 m) {
 	if (!id->flag.no_equip)
 		return false;
-	if ((!map_flag_vs2(m) && id->flag.no_equip&1) || // Normal
-		(map_getmapflag(m, MF_PVP) && id->flag.no_equip&2) || // PVP
-		(map_flag_gvg2_no_te(m) && id->flag.no_equip&4) || // GVG
-		(map_getmapflag(m, MF_BATTLEGROUND) && id->flag.no_equip&8) || // Battleground
-		(map_flag_gvg2_te(m) && id->flag.no_equip&16) || // WOE:TE
-		(map_getmapflag(m, MF_RESTRICTED) && id->flag.no_equip&(8*map_getmapdata(m)->zone)) // Zone restriction
+	
+	struct map_data *mapdata = map_getmapdata(m);
+
+	if ((id->flag.no_equip&1 && !mapdata_flag_vs2(mapdata)) || // Normal
+		(id->flag.no_equip&2 && mapdata->flag[MF_PVP]) || // PVP
+		(id->flag.no_equip&4 && mapdata_flag_gvg2_no_te(mapdata)) || // GVG
+		(id->flag.no_equip&8 && mapdata->flag[MF_BATTLEGROUND]) || // Battleground
+		(id->flag.no_equip&16 && mapdata_flag_gvg2_te(mapdata)) || // WOE:TE
+		(id->flag.no_equip&(8*mapdata->zone) && mapdata->flag[MF_RESTRICTED]) // Zone restriction
 		)
 		return true;
 	return false;

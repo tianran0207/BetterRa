@@ -1,8 +1,8 @@
 // Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#ifndef _BATTLEGROUND_HPP_
-#define _BATTLEGROUND_HPP_
+#ifndef BATTLEGROUND_HPP
+#define BATTLEGROUND_HPP
 
 #include "../common/cbasetypes.hpp"
 #include "../common/mmo.hpp" // struct party
@@ -46,4 +46,4 @@ int tribe_team_get_id(struct block_list *bl);
 int tribe_team_set_id(struct block_list *bl, int id);
 int tribe_mob_spawn(const char* mapname, int16 x, int16 y, const char* mobname, int mob_id, const char* event, unsigned int tribe_id);
 int tribe_foreach(int(*func)(struct block_list*, va_list), struct block_list *s_bl, bool samemap, int range, int type, int tribe_id, va_list ap, ...);
-#endif /* _BATTLEGROUND_HPP_ */
+#endif /* BATTLEGROUND_HPP */

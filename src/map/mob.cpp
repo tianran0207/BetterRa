@@ -568,9 +568,10 @@ bool mob_ksprotected (struct block_list *src, struct block_list *target)
 	do {
 		struct status_change_entry *sce;
 		struct map_session_data *pl_sd; // Owner
+		struct map_data *mapdata = map_getmapdata(md->bl.m);
 		char output[128];
 		
-		if( map_getmapflag(md->bl.m, MF_ALLOWKS) || map_flag_ks(md->bl.m) )
+		if( mapdata->flag[MF_ALLOWKS] || mapdata_flag_ks(mapdata) )
 			return false; // Ignores GVG, PVP and AllowKS map flags
 
 		if( md->db->mexp || md->master_id )
@@ -839,8 +840,6 @@ int mob_spawn_guardian(const char* mapname, int16 x, int16 y, const char* mobnam
 		return 0;
 	}
 
-	struct map_data *mapdata = map_getmapdata(m);
-
 	data.m = m;
 	data.num = 1;
 	if(mob_id<=0) {
@@ -856,13 +855,13 @@ int mob_spawn_guardian(const char* mapname, int16 x, int16 y, const char* mobnam
 	}
 	else if( guardian < 0 || guardian >= MAX_GUARDIANS )
 	{
-		ShowError("mob_spawn_guardian: Invalid guardian index %d for guardian %d (castle map %s)\n", guardian, mob_id, mapdata->name);
+		ShowError("mob_spawn_guardian: Invalid guardian index %d for guardian %d (castle map %s)\n", guardian, mob_id, mapname);
 		return 0;
 	}
 
 	if((x<=0 || y<=0) && !map_search_freecell(NULL, m, &x, &y, -1,-1, 1))
 	{
-		ShowWarning("mob_spawn_guardian: Couldn't locate a spawn cell for guardian class %d (index %d) at castle map %s\n",mob_id, guardian, mapdata->name);
+		ShowWarning("mob_spawn_guardian: Couldn't locate a spawn cell for guardian class %d (index %d) at castle map %s\n",mob_id, guardian, mapname);
 		return 0;
 	}
 	data.x = x;
@@ -872,14 +871,14 @@ int mob_spawn_guardian(const char* mapname, int16 x, int16 y, const char* mobnam
 	if (!mob_parse_dataset(&data))
 		return 0;
 
-	gc=guild_mapname2gc(mapdata->name);
+	gc=guild_mapname2gc(mapname);
 	if (gc == NULL)
 	{
-		ShowError("mob_spawn_guardian: No castle set at map %s\n", mapdata->name);
+		ShowError("mob_spawn_guardian: No castle set at map %s\n", mapname);
 		return 0;
 	}
 	if (!gc->guild_id)
-		ShowWarning("mob_spawn_guardian: Spawning guardian %d on a castle with no guild (castle map %s)\n", mob_id, mapdata->name);
+		ShowWarning("mob_spawn_guardian: Spawning guardian %d on a castle with no guild (castle map %s)\n", mob_id, mapname);
 	else
 		g = guild_search(gc->guild_id);
 
@@ -889,7 +888,7 @@ int mob_spawn_guardian(const char* mapname, int16 x, int16 y, const char* mobnam
 		if (md2 && md2->bl.type == BL_MOB &&
 			md2->guardian_data && md2->guardian_data->number == guardian)
 		{
-			ShowError("mob_spawn_guardian: Attempted to spawn guardian in position %d which already has a guardian (castle map %s)\n", guardian, mapdata->name);
+			ShowError("mob_spawn_guardian: Attempted to spawn guardian in position %d which already has a guardian (castle map %s)\n", guardian, mapname);
 			return 0;
 		}
 	}
@@ -953,7 +952,7 @@ int mob_spawn_bg(const char* mapname, int16 x, int16 y, const char* mobname, int
 	data.id = mob_id;
 	if( (x <= 0 || y <= 0) && !map_search_freecell(NULL, m, &x, &y, -1,-1, 1) )
 	{
-		ShowWarning("mob_spawn_bg: Couldn't locate a spawn cell for guardian class %d (bg_id %d) at map %s\n",mob_id, bg_id, map_getmapdata(m)->name);
+		ShowWarning("mob_spawn_bg: Couldn't locate a spawn cell for guardian class %d (bg_id %d) at map %s\n",mob_id, bg_id, mapname);
 		return 0;
 	}
 
@@ -1650,7 +1649,7 @@ int mob_randomwalk(struct mob_data *md,unsigned int tick)
 	}
 	speed=status_get_speed(&md->bl);
 	for(i=c=0;i<md->ud.walkpath.path_len;i++){	// The next walk start time is calculated.
-		if(md->ud.walkpath.path[i]&1)
+		if( direction_diagonal( md->ud.walkpath.path[i] ) )
 			c+=speed*MOVE_DIAGONAL_COST/MOVE_COST;
 		else
 			c+=speed;
@@ -2718,9 +2717,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 			if (md->db->mexp) {
 				if (map_getmapflag(md->bl.m, MF_MVPDROPRATE))
-					drop_rate = drop_rate = (int)(drop_rate*map_getmapflag(md->bl.m, MF_MVPDROPRATE) / 100);
+					drop_rate = (int)(drop_rate*map_getmapflag(md->bl.m, MF_MVPDROPRATE) / 100);
 			}else if (map_getmapflag(md->bl.m, MF_MOBDROPRATE)){
-				drop_rate = drop_rate = (int)(drop_rate*map_getmapflag(md->bl.m, MF_MOBDROPRATE) / 100);
+				drop_rate = (int)(drop_rate*map_getmapflag(md->bl.m, MF_MOBDROPRATE) / 100);
 			}
 
 			// change drops depending on monsters size [Valaris]
@@ -3011,7 +3010,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 					map_foreachinallrange(quest_update_objective_sub, &md->bl, AREA_SIZE, BL_PC, sd->status.party_id, md->mob_id);
 					break;
 				case 1:
-					map_foreachinmap(quest_update_objective_sub, md->bl.m, BL_PC, &md->bl, sd->status.party_id, md->mob_id);
+					map_foreachinmap(quest_update_objective_sub, md->bl.m, BL_PC, sd->status.party_id, md->mob_id);
 					break;
 				case 2:
 					{
@@ -5557,7 +5556,6 @@ void do_final_mob(bool is_reload){
 	mob_item_drop_ratio->destroy(mob_item_drop_ratio,mob_item_drop_ratio_free);
 	mob_skill_db->destroy(mob_skill_db, mob_skill_db_free);
 	mob_summon_db->destroy(mob_summon_db, mob_summon_db_free);
-
 	if( !is_reload ) {
 		ers_destroy(item_drop_ers);
 		ers_destroy(item_drop_list_ers);

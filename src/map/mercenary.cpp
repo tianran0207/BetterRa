@@ -159,14 +159,14 @@ int mercenary_get_faith(struct mercenary_data *md) {
 
 	switch( guild ){
 		case ARCH_MERC_GUILD:
-		return sd->status.arch_faith;
+			return sd->status.arch_faith;
 		case SPEAR_MERC_GUILD:
-		return sd->status.spear_faith;
+			return sd->status.spear_faith;
 		case SWORD_MERC_GUILD:
-		return sd->status.sword_faith;
+			return sd->status.sword_faith;
 		case NONE_MERC_GUILD:
 		default:
-	return 0;
+			return 0;
 	}
 }
 
@@ -187,16 +187,16 @@ void mercenary_set_faith(struct mercenary_data *md, int value) {
 
 	switch( guild ){
 		case ARCH_MERC_GUILD:
-		faith = &sd->status.arch_faith;
+			faith = &sd->status.arch_faith;
 			break;
 		case SPEAR_MERC_GUILD:
-		faith = &sd->status.spear_faith;
+			faith = &sd->status.spear_faith;
 			break;
 		case SWORD_MERC_GUILD:
-		faith = &sd->status.sword_faith;
+			faith = &sd->status.sword_faith;
 			break;
 		case NONE_MERC_GUILD:
-		return;
+			return;
 	}
 
 	*faith += value;
@@ -220,14 +220,14 @@ int mercenary_get_calls(struct mercenary_data *md) {
 
 	switch( guild ){
 		case ARCH_MERC_GUILD:
-		return sd->status.arch_calls;
+			return sd->status.arch_calls;
 		case SPEAR_MERC_GUILD:
-		return sd->status.spear_calls;
+			return sd->status.spear_calls;
 		case SWORD_MERC_GUILD:
-		return sd->status.sword_calls;
+			return sd->status.sword_calls;
 		case NONE_MERC_GUILD:
 		default:
-	return 0;
+			return 0;
 	}
 }
 
@@ -248,16 +248,16 @@ void mercenary_set_calls(struct mercenary_data *md, int value) {
 
 	switch( guild ){
 		case ARCH_MERC_GUILD:
-		calls = &sd->status.arch_calls;
+			calls = &sd->status.arch_calls;
 			break;
 		case SPEAR_MERC_GUILD:
-		calls = &sd->status.spear_calls;
+			calls = &sd->status.spear_calls;
 			break;
 		case SWORD_MERC_GUILD:
-		calls = &sd->status.sword_calls;
+			calls = &sd->status.sword_calls;
 			break;
 		case NONE_MERC_GUILD:
-		return;
+			return;
 	}
 
 	*calls += value;

@@ -1,8 +1,8 @@
 // Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#ifndef _SHOWMSG_HPP_
-#define _SHOWMSG_HPP_
+#ifndef SHOWMSG_HPP
+#define SHOWMSG_HPP
 
 #include "../../3rdparty/libconfig/libconfig.h"
 #include "db.hpp"
@@ -102,4 +102,4 @@ extern void ShowConfigWarning(config_setting_t *config, const char *string, ...)
 void showmsg_init();
 void showmsg_final();
 
-#endif /* _SHOWMSG_HPP_ */
+#endif /* SHOWMSG_HPP */

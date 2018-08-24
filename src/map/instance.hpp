@@ -1,8 +1,8 @@
 // Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#ifndef _INSTANCE_HPP_
-#define _INSTANCE_HPP_
+#ifndef INSTANCE_HPP
+#define INSTANCE_HPP
 
 #include "../common/cbasetypes.hpp"
 #include "../common/mmo.hpp" // struct point
@@ -12,6 +12,8 @@
 
 enum send_target : uint8;
 struct block_list;
+
+extern int16 instance_start;
 
 #define MAX_INSTANCE_DATA		300	// Essentially how many instances we can create, but instance creation is primarily decided by MAX_MAP_PER_SERVER
 #define MAX_MAP_PER_INSTANCE	255	// Max number of maps per instance (Enter map is counted as one) - Supports up to 255 maps
@@ -45,7 +47,6 @@ struct s_instance_map {
 };
 
 struct instance_data {
-	unsigned int create_tick;
 	unsigned short type; ///< Instance DB ID
 	enum instance_state state; ///< State of instance
 	enum instance_mode mode; ///< Mode of instance
@@ -57,6 +58,7 @@ struct instance_data {
 	struct reg_db regs; ///< Instance variables for scripts
 	struct s_instance_map **map; ///< Dynamic array of maps in instance
 	uint8 cnt_map; ///< Number of maps in an instance
+	unsigned int create_tick;
 };
 
 /// Instance DB entry struct
@@ -81,8 +83,8 @@ void instance_getsd(unsigned short instance_id, struct map_session_data **sd, en
 
 int instance_create(int owner_id, const char *name, enum instance_mode mode);
 int instance_destroy(unsigned short instance_id);
-enum e_instance_enter instance_enter_last(struct map_session_data *sd);
 void instance_leave_last(struct map_session_data *sd);
+enum e_instance_enter instance_enter_last(struct map_session_data *sd);
 enum e_instance_enter instance_enter(struct map_session_data *sd, unsigned short instance_id, const char *name, short x, short y);
 int instance_reqinfo(struct map_session_data *sd, unsigned short instance_id);
 int instance_addusers(unsigned short instance_id);
@@ -101,4 +103,4 @@ void do_final_instance(void);
 	#error Too many maps per instance defined! Please adjust MAX_MAP_PER_INSTANCE to a lower value.
 #endif
 
-#endif /* _INSTANCE_HPP_ */
+#endif /* INSTANCE_HPP */

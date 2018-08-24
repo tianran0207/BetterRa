@@ -1400,3 +1400,6 @@ IG_PrizeOfHero,15098,1		//勇者的狙杀外套
 IG_PrizeOfHero,22035,2		//勇者的贤者之靴
 IG_PrizeOfHero,22036,2		//勇者的银光狐狸皮靴
 IG_PrizeOfHero,22037,2		//勇者的温格里安特战靴
+// Private Airship items
+IG_PRIVATE_AIRSHIP,6909,1 // Actinidia_Cat_Fruit
+IG_PRIVATE_AIRSHIP,25464,1 // World_Moving_Rights

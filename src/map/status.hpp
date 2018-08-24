@@ -1,8 +1,8 @@
 // Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#ifndef _STATUS_HPP_
-#define _STATUS_HPP_
+#ifndef STATUS_HPP
+#define STATUS_HPP
 
 #include "../common/mmo.hpp"
 #include "../common/timer.hpp"
@@ -25,11 +25,12 @@ struct status_change;
 #define MAX_REFINE C_MAX_REFINE
 #else
 #ifdef RENEWAL
-#define MAX_REFINE 20
+#	define MAX_REFINE 20
 #else
-#define MAX_REFINE 10
+#	define MAX_REFINE 10
 #endif
 #endif
+
 /// Refine type
 enum refine_type {
 	REFINE_TYPE_ARMOR	= 0,
@@ -3438,4 +3439,4 @@ int status_readdb(void);
 int do_init_status(void);
 void do_final_status(void);
 
-#endif /* _STATUS_HPP_ */
+#endif /* STATUS_HPP */

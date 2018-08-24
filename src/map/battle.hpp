@@ -1,8 +1,8 @@
 // Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#ifndef _BATTLE_HPP_
-#define _BATTLE_HPP_
+#ifndef BATTLE_HPP
+#define BATTLE_HPP
 
 #include "../common/cbasetypes.hpp"
 #include "../common/mmo.hpp"
@@ -160,6 +160,7 @@ struct Battle_Config
 	int instance_lastpoint;
 	int instance_leavepoint;
 	int min_storechat_distance;
+	int min_npc_distance;
 	int pet_ignore_intimate_decrease;
 	int short_damage_rate;
 	int long_damage_rate;
@@ -690,6 +691,7 @@ struct Battle_Config
 	int summoner_trait;
 	int homunculus_autofeed_always;
 	int feature_attendance;
+	int feature_privateairship;
 
 #include "../custom/battle_config_struct.inc"
 };
@@ -710,4 +712,4 @@ struct block_list* battle_getenemyarea(struct block_list *src, int x, int y, int
  **/
 int battle_damage_area( struct block_list *bl, va_list ap);
 
-#endif /* _BATTLE_HPP_ */
+#endif /* BATTLE_HPP */

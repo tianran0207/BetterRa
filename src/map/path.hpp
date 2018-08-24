@@ -1,8 +1,8 @@
 // Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#ifndef _PATH_HPP_
-#define _PATH_HPP_
+#ifndef PATH_HPP
+#define PATH_HPP
 
 #include "../common/cbasetypes.hpp"
 
@@ -12,11 +12,6 @@ enum cell_chk : uint8;
 #define MOVE_DIAGONAL_COST 14
 
 #define MAX_WALKPATH 32
-
-struct walkpath_data {
-	unsigned char path_len,path_pos;
-	unsigned char path[MAX_WALKPATH];
-};
 
 #define MAX_ASTARTPATH 128
 struct astart_path_data {
@@ -55,12 +50,6 @@ struct step_path *get_step(const char *key);
 struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid);
 void path_free(struct step_path *sp);
 
-struct shootpath_data {
-	int rx,ry,len;
-	int x[MAX_WALKPATH];
-	int y[MAX_WALKPATH];
-};
-
 enum directions : int8 {
 	DIR_CENTER = -1,
 	DIR_NORTH = 0,
@@ -72,6 +61,17 @@ enum directions : int8 {
 	DIR_EAST = 6,
 	DIR_NORTHEAST = 7,
 	DIR_MAX
+};
+
+struct walkpath_data {
+	unsigned char path_len,path_pos;
+	enum directions path[MAX_WALKPATH];
+};
+
+struct shootpath_data {
+	int rx,ry,len;
+	int x[MAX_WALKPATH];
+	int y[MAX_WALKPATH];
 };
 
 #define check_distance_bl(bl1, bl2, distance) check_distance((bl1)->x - (bl2)->x, (bl1)->y - (bl2)->y, distance)
@@ -105,8 +105,10 @@ unsigned int distance(int dx, int dy);
 bool check_distance_client(int dx, int dy, int distance);
 int distance_client(int dx, int dy);
 
+bool direction_diagonal( enum directions direction );
+
 //
 void do_init_path();
 void do_final_path();
 
-#endif /* _PATH_HPP_ */
+#endif /* PATH_HPP */

@@ -2565,18 +2565,30 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 
 	status = &sd->base_status;
 
-	switch(type){ // bonus bCooldownrate,n;
-		case SP_COOLDOWNRATE:
+	switch(type){
+		case SP_COOLDOWNRATE:  // bonus bCooldownrate,n;
 			if (sd->state.lr_flag != 2)
 				sd->c_bonus.cooldownrate += val;
 			break;
-		case SP_MAXASPD:
+		case SP_MAXASPD: // bonus MaxASPD,n;
 			if (sd->state.lr_flag != 2)
 				sd->c_bonus.max_aspd = 2000 - val * 10;
 			break;
 		case SP_FIXCASTADDRATE:
 			if (sd->state.lr_flag != 2)
 				sd->bonus.fixcastaddrate += val;
+			break;
+		case SP_WEAPON_ADD_DAMAGE:
+			if(sd->state.lr_flag != 2)
+				sd->c_bonus.weapon_add_damage += val;
+			break;
+		case SP_MAGIC_ADD_DAMAGE:
+			if(sd->state.lr_flag != 2)
+				sd->c_bonus.magic_add_damage += val;
+			break;
+		case SP_MISC_ADD_DAMAGE:
+			if(sd->state.lr_flag != 2)
+				sd->c_bonus.misc_add_damage += val;
 			break;
 		case SP_STR:
 		case SP_AGI:
@@ -2733,18 +2745,6 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 		case SP_SPRATE:
 			if(sd->state.lr_flag != 2)
 				sd->dsprate+=val;
-			break;
-		case SP_WEAPON_ADD_DAMAGE:
-			if(sd->state.lr_flag != 2)
-				sd->c_bonus.weapon_add_damage += val;
-			break;
-		case SP_MAGIC_ADD_DAMAGE:
-			if(sd->state.lr_flag != 2)
-				sd->c_bonus.magic_add_damage += val;
-			break;
-		case SP_MISC_ADD_DAMAGE:
-			if(sd->state.lr_flag != 2)
-				sd->c_bonus.misc_add_damage += val;
 			break;
 		case SP_ATTACKRANGE:
 			switch (sd->state.lr_flag) {
@@ -5001,14 +5001,13 @@ char pc_additem(struct map_session_data *sd,struct item *item,int amount,e_log_p
 char pc_delitem(struct map_session_data *sd,int n,int amount,int type, short reason, e_log_pick_type log_type)
 {
 	nullpo_retr(1, sd);
-	bool status_calc;
 
 	if(n < 0 || sd->inventory.u.items_inventory[n].nameid == 0 || amount <= 0 || sd->inventory.u.items_inventory[n].amount<amount || sd->inventory_data[n] == NULL)
 		return 1;
 
 	log_pick_pc(sd, log_type, -amount, &sd->inventory.u.items_inventory[n]);
 
-	status_calc = sd->inventory_data[n]->type == IT_AMULET;
+	bool status_calc = (sd->inventory_data[n]->type == IT_AMULET);
 
 	sd->inventory.u.items_inventory[n].amount -= amount;
 	sd->weight -= sd->inventory_data[n]->weight*amount ;
@@ -5400,7 +5399,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 	if( id->delay > 0 && !pc_has_permission(sd,PC_PERM_ITEM_UNCONDITIONAL) && pc_itemcd_check(sd, id, tick, n))
 		return 0;
 
-	if (map_getmapflag(sd->bl.m, MF_NOCAPTURE) && sd->inventory_data[n]->type == 2 && sd->inventory_data[n]->script != NULL) {
+	if (map_getmapflag(sd->bl.m, MF_NOPET) && sd->inventory_data[n]->type == 2 && sd->inventory_data[n]->script != NULL) {
 		const char *func_name;
 		func_name = get_first_func_name(sd->inventory_data[n]->script->script_buf);
 		if (func_name && !strnicmp(func_name, "pet", 3)) {
@@ -5423,11 +5422,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 	/* on restricted maps the item is consumed but the effect is not used */
 	if (!pc_has_permission(sd,PC_PERM_ITEM_UNCONDITIONAL) && itemdb_isNoEquip(id,sd->bl.m)) {
 		clif_msg(sd,ITEM_CANT_USE_AREA); // This item cannot be used within this area
-		if( battle_config.allow_consume_restricted_item && !id->flag.delay_consume ) { //need confirmation for delayed consumption items
-			if (id->flag.use_no_consumed) {
-				clif_useitemack(sd, n, item.amount - 1, true);
-				return 0;
-			}
+		if( battle_config.allow_consume_restricted_item && !id->flag.delay_consume && !id->flag.use_no_consumed) { //need confirmation for delayed consumption items
 			clif_useitemack(sd,n,item.amount-1,true);
 			pc_delitem(sd,n,1,1,0,LOG_TYPE_CONSUME);
 		}
@@ -5705,7 +5700,6 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, uint16 skil
 	struct status_data *sd_status, *md_status;
 	struct mob_data *md;
 	struct item tmp_item;
-	struct item_data *i_data;
 
 	if(!sd || !bl || bl->type!=BL_MOB)
 		return 0;
@@ -5765,7 +5759,7 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, uint16 skil
 	log_pick_mob(md, LOG_TYPE_STEAL, -1, &tmp_item);
 
 	//A Rare Steal Global Announce by Lupus
-	i_data = itemdb_search(itemid);
+	struct item_data *i_data = itemdb_search(itemid);
 	if(md->db->dropitem[i].p<=battle_config.rare_drop_announce || (i_data->flag.announce & 4)) {
 		char message[128];
 		sprintf (message, msg_txt(sd,542), (sd->status.name[0])?sd->status.name :"GM", md->db->jname, i_data->jname, (float)md->db->dropitem[i].p/100);
@@ -5830,7 +5824,7 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 		ShowDebug("pc_setpos: Passed mapindex(%d) is invalid!\n", mapindex);
 		return SETPOS_MAPINDEX;
 	}
-
+	// ´ý²âÊÔ
 	if ( sd->state.autotrade && (sd->vender_id || sd->buyer_id) && clrtype != 255 && (clrtype = CLR_RESPAWN)) // Player with autotrade just causes clif glitch! @ FIXME
 		return SETPOS_AUTOTRADE;
 
@@ -8117,8 +8111,11 @@ void pc_close_npc(struct map_session_data *sd,int flag)
 #ifdef SECURE_NPCTIMEOUT
 		sd->npc_idle_timer = INVALID_TIMER;
 #endif
-		clif_scriptclose(sd,sd->npc_id);
-		clif_scriptclear(sd,sd->npc_id); // [Ind/Hercules]
+		if (sd->st && sd->st->state == CLOSE) {
+			clif_scriptclose(sd, sd->npc_id);
+			clif_scriptclear(sd, sd->npc_id); // [Ind/Hercules]
+			sd->st->state = END; // Force to end now
+		}
 		if(sd->st && sd->st->state == END ) {// free attached scripts that are waiting
 			script_free_state(sd->st);
 			sd->st = NULL;
@@ -8367,9 +8364,10 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 
 	if( map_getmapflag( sd->bl.m, MF_PVP_NIGHTMAREDROP ) ) { // Moved this outside so it works when PVP isn't enabled and during pk mode [Ancyker]
 		for(int j=0;j<MAX_DROP_PER_MAP;j++){
-			int id = map_getmapdata(sd->bl.m)->drop_list[j].drop_id;
-			int per = map_getmapdata(sd->bl.m)->drop_list[j].drop_per;
-			enum e_nightmare_drop_type type = map_getmapdata(sd->bl.m)->drop_list[j].drop_type;
+			struct map_data *mapdata = map_getmapdata(sd->bl.m);
+			int id = mapdata->drop_list[j].drop_id;
+			int per = mapdata->drop_list[j].drop_per;
+			enum e_nightmare_drop_type type = mapdata->drop_list[j].drop_type;
 
 			if(id == 0)
 				continue;
@@ -12935,12 +12933,12 @@ bool pc_job_can_entermap(enum e_job jobid, int m, int group_lv) {
 	if (!job_info[idx].noenter_map.zone || group_lv > job_info[idx].noenter_map.group_lv)
 		return true;
 
-	if ((!map_flag_vs2(m) && job_info[idx].noenter_map.zone&1) || // Normal
-		(map_getmapflag(m, MF_PVP) && job_info[idx].noenter_map.zone&2) || // PVP
-		(map_flag_gvg2_no_te(m) && job_info[idx].noenter_map.zone&4) || // GVG
-		(map_getmapflag(m, MF_BATTLEGROUND) && job_info[idx].noenter_map.zone&8) || // Battleground
-		(map_flag_gvg2_te(m) && job_info[idx].noenter_map.zone&16) || // WOE:TE
-		(map_getmapflag(m, MF_RESTRICTED) && job_info[idx].noenter_map.zone&(8*mapdata->zone)) // Zone restriction
+	if ((job_info[idx].noenter_map.zone&1 && !mapdata_flag_vs2(mapdata)) || // Normal
+		(job_info[idx].noenter_map.zone&2 && mapdata->flag[MF_PVP]) || // PVP
+		(job_info[idx].noenter_map.zone&4 && mapdata_flag_gvg2_no_te(mapdata)) || // GVG
+		(job_info[idx].noenter_map.zone&8 && mapdata->flag[MF_BATTLEGROUND]) || // Battleground
+		(job_info[idx].noenter_map.zone&16 && mapdata_flag_gvg2_te(mapdata)) || // WOE:TE
+		(job_info[idx].noenter_map.zone&(8*mapdata->zone) && mapdata->flag[MF_RESTRICTED]) // Zone restriction
 		)
 		return false;
 
@@ -13776,4 +13774,3 @@ void do_init_pc(void) {
 	add_timer_func_list(pcbot_ai_hard, "pcbot_ai_hard");
 	add_timer_interval(gettick() + MIN_MOBTHINKTIME, pcbot_ai_hard, 0, 0, MIN_MOBTHINKTIME);
 }
-

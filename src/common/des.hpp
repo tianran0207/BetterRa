@@ -1,8 +1,8 @@
 // Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#ifndef	_DES_HPP_
-#define	_DES_HPP_
+#ifndef DES_HPP
+#define DES_HPP
 
 #include "cbasetypes.hpp"
 
@@ -22,4 +22,4 @@ void Decrypt(char *src, int len, const char *keyStr);
 void ByteToHexStr(const unsigned char* source, char* dest, int sourceLen);
 void HexStrToByte(const char* source, unsigned char* dest, int sourceLen);
 
-#endif // _DES_HPP_
+#endif /* DES_HPP */

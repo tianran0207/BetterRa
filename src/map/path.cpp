@@ -56,7 +56,7 @@ static BHEAP_STRUCT_VAR(node_heap, g_open_set);	// use static heap for all path 
 /// @}
 
 // Translates dx,dy into walking direction
-static const char walk_choices [3][3] =
+static enum directions walk_choices [3][3] =
 {
 	{DIR_NORTHWEST,DIR_NORTH,DIR_NORTHEAST},
 	{DIR_WEST,DIR_CENTER,DIR_EAST},
@@ -516,6 +516,10 @@ int distance_client(int dx, int dy)
 	return ((int)temp_dist);
 }
 
+bool direction_diagonal( enum directions direction ){
+	return direction == DIR_NORTHWEST || direction == DIR_SOUTHWEST || direction == DIR_SOUTHEAST || direction == DIR_NORTHEAST;
+}
+
 /// Adds new node to heap and updates/re-adds old ones if necessary.
 #define STEPL 4
 #define astart_index(x,y) (((x)/STEPL+(y)*MAX_ASTARTPATH/STEPL) & (MAX_ASTARTPATH*MAX_ASTARTPATH-1))
@@ -739,7 +743,7 @@ void path_free(struct step_path *sp) {
 	strdb_remove(step_db, sp->pathname);
 }
 
-// flagΪ
+// flag?
 struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid) {
 	struct step_path *sp;
 	char pathname[NAME_LENGTH];

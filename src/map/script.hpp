@@ -1,8 +1,8 @@
 // Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#ifndef _SCRIPT_HPP_
-#define _SCRIPT_HPP_
+#ifndef SCRIPT_HPP
+#define SCRIPT_HPP
 
 #include "../common/cbasetypes.hpp"
 #include "../common/db.hpp"
@@ -370,7 +370,7 @@ enum e_script_state { RUN,STOP,END,RERUNLINE,GOTO,RETFUNC,CLOSE };
 struct script_state {
 	struct script_stack* stack;
 	int start,end;
-	int pos, begin;
+	int pos;
 	enum e_script_state state;
 	int rid,oid;
 	struct script_code *script;
@@ -457,9 +457,13 @@ enum questinfo_types {
 	QTYPE_EVENT,
 	QTYPE_EVENT2,
 	QTYPE_WARG,
-	// 7 = free
-	QTYPE_WARG2 = 8,
-	// 9 - 9998 = free
+	QTYPE_CLICKME = QTYPE_WARG,
+	QTYPE_DAILYQUEST,
+	QTYPE_WARG2,
+	QTYPE_EVENT3 = QTYPE_WARG2,
+	QTYPE_JOBQUEST,
+	QTYPE_JUMPING_PORING,
+	// 11 - 9998 = free
 	QTYPE_NONE = 9999
 };
 
@@ -2056,4 +2060,4 @@ const char* get_first_func_name(unsigned char *buf);
 void script_bonus_calc(struct map_session_data *sd);
 bool script_check_RegistryVariableLength(int pType, const char *val, size_t* vlen);
 
-#endif /* _SCRIPT_HPP_ */
+#endif /* SCRIPT_HPP */

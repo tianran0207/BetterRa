@@ -554,18 +554,16 @@ static void script_reportsrc(struct script_state *st)
 	if( bl == NULL )
 		return;
 
-	struct map_data *mapdata = map_getmapdata(bl->m);
-
 	switch( bl->type ) {
 		case BL_NPC:
 			if( bl->m >= 0 )
-				ShowDebug("Source (NPC): %s at %s (%d,%d)\n", ((struct npc_data *)bl)->name, mapdata->name, bl->x, bl->y);
+				ShowDebug("Source (NPC): %s at %s (%d,%d)\n", ((struct npc_data *)bl)->name, map_mapid2mapname(bl->m), bl->x, bl->y);
 			else
 				ShowDebug("Source (NPC): %s (invisible/not on a map)\n", ((struct npc_data *)bl)->name);
 			break;
 		default:
 			if( bl->m >= 0 )
-				ShowDebug("Source (Non-NPC type %d): name %s at %s (%d,%d)\n", bl->type, status_get_name(bl), mapdata->name, bl->x, bl->y);
+				ShowDebug("Source (Non-NPC type %d): name %s at %s (%d,%d)\n", bl->type, status_get_name(bl), map_mapid2mapname(bl->m), bl->x, bl->y);
 			else
 				ShowDebug("Source (Non-NPC type %d): name %s (invisible/not on a map)\n", bl->type, status_get_name(bl));
 			break;
@@ -4243,7 +4241,7 @@ static void script_detach_state(struct script_state* st, bool dequeue_event)
 			 * We're done with this NPC session, so we cancel the timer (if existent) and move on
 			 **/
 			if( sd->npc_idle_timer != INVALID_TIMER ) {
-				delete_timer(sd->npc_idle_timer,npc_rr_secure_timeout_timer);
+				delete_timer(sd->npc_idle_timer,npc_secure_timeout_timer);
 				sd->npc_idle_timer = INVALID_TIMER;
 			}
 #endif
@@ -4283,7 +4281,7 @@ void script_attach_state(struct script_state* st){
 		sd->state.disable_atcommand_on_npc = (!pc_has_permission(sd, PC_PERM_ENABLE_COMMAND));
 #ifdef SECURE_NPCTIMEOUT
 		if( sd->npc_idle_timer == INVALID_TIMER )
-			sd->npc_idle_timer = add_timer(gettick() + (SECURE_NPCTIMEOUT_INTERVAL*1000),npc_rr_secure_timeout_timer,sd->bl.id,0);
+			sd->npc_idle_timer = add_timer(gettick() + (SECURE_NPCTIMEOUT_INTERVAL*1000),npc_secure_timeout_timer,sd->bl.id,0);
 		sd->npc_idle_tick = gettick();
 #endif
 	}
@@ -6467,13 +6465,13 @@ BUILDIN_FUNC(inarray)
 		for (i = 0; i <= array_size; ++i)
 		{
 			temp = (char*)get_val2(st, reference_uid(id, i), ref);
-			script_removetop(st, -1, 0);
 			if (!strcmp(temp, value))
 			{
+				script_removetop(st, -1, 0);
 				script_pushint(st, i);
 				return SCRIPT_CMD_SUCCESS;
 			}
-			
+			script_removetop(st, -1, 0);
 		}
 	}
 	else
@@ -6766,8 +6764,8 @@ static int script_getitem_randomoption(struct script_state *st, struct map_sessi
 	opt_id_n = script_array_highest_key(st, sd, opt_id_var, opt_id_ref);
 
 	if (opt_id_n < 1) {
-		//ShowError("buildin_%s: No option id listed.\n", funcname);
-		return SCRIPT_CMD_SUCCESS;
+		ShowError("buildin_%s: No option id listed.\n", funcname);
+		return SCRIPT_CMD_FAILURE;
 	}
 
 	opt_val_ref = reference_getref(opt_val);
@@ -7200,7 +7198,7 @@ BUILDIN_FUNC(getitem)
 	it.identify = 1;
 	it.bound = BOUND_NONE;
 
-	if( strstr(command,"bound") ) {
+	if( !strcmp(command,"getitembound") ) {
 		char bound = script_getnum(st,4);
 		if( bound < BOUND_NONE || bound >= BOUND_MAX ) {
 			ShowError("script_getitembound: Not a correct bound type! Type=%d\n",bound);
@@ -7276,7 +7274,7 @@ BUILDIN_FUNC(getitem2)
 	const char* command = script_getfuncname(st);
 	int offset = 0;
 
-	if( strstr(command,"bound") ) {
+	if( !strncmp(command,"getitembound",12) ) {
 		int aid_pos = 12;
 		bound = script_getnum(st,11);
 		if( bound < BOUND_NONE || bound >= BOUND_MAX ) {
@@ -7290,7 +7288,7 @@ BUILDIN_FUNC(getitem2)
 		script_mapid2sd(aid_pos,sd);
 	} else {
 		int aid_pos = 11;
-		if (command[strlen(command)-1] == '3') {
+		if (strcmpi(command,"getitem3") == 0) {
 			offset = 11;
 			aid_pos = 14;
 		} 
@@ -9631,12 +9629,13 @@ BUILDIN_FUNC(end)
 		}
 	}
 
-	if (sd && !sd->state.event_now){
-		if (sd->state.callshop == 0) {
+	if( st->mes_active )
+		st->mes_active = 0;
+
+	if (sd){
+		if (sd->state.callshop == 0)
 			clif_scriptclose(sd, st->oid); // If a menu/select/prompt is active, close it.
-			st->mes_active = 0;
-		}
-		else
+		else 
 			sd->state.callshop = 0;
 	}
 
@@ -13454,6 +13453,14 @@ BUILDIN_FUNC(delwall)
 		return SCRIPT_CMD_FAILURE;
 	}
 
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(checkwall)
+{
+	const char *wall_name = script_getstr(st, 2);
+
+	script_pushint(st, map_iwall_exist(wall_name));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -19194,8 +19201,17 @@ BUILDIN_FUNC(questinfo)
 		case QTYPE_JOB2:
 		case QTYPE_EVENT:
 		case QTYPE_EVENT2:
+		// Warg icons were replaced in this client
+#if PACKETVER < 20170315
 		case QTYPE_WARG:
 		case QTYPE_WARG2:
+#else
+		case QTYPE_CLICKME:
+		case QTYPE_DAILYQUEST:
+		case QTYPE_EVENT3:
+		case QTYPE_JOBQUEST:
+		case QTYPE_JUMPING_PORING:
+#endif
 			// Leave everything as it is
 			break;
 		case QTYPE_NONE:
@@ -20548,6 +20564,12 @@ BUILDIN_FUNC(buyingstore)
 		return SCRIPT_CMD_SUCCESS;
 	}
 
+	if (battle_config.min_storechat_distance && map_checknear(&sd->bl, battle_config.min_storechat_distance - 1, CHECK_CHAT | CHECK_BUYING_STORE | CHECK_VENDING)) {
+		char output[150];
+		sprintf(output, msg_txt(sd, 2345), battle_config.min_storechat_distance);
+		clif_displaymessage(sd->fd, output);
+		return SCRIPT_CMD_SUCCESS;
+	}
 	if( npc_isnear(&sd->bl) ) {
 		char output[150];
 		sprintf(output, msg_txt(sd,662), battle_config.min_npc_vendchat_distance);
@@ -26985,6 +27007,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getfreecell,"srr?????"),
 	BUILDIN_DEF(setwall,"siiiiis"),
 	BUILDIN_DEF(delwall,"s"),
+	BUILDIN_DEF(checkwall,"s"),
 	BUILDIN_DEF(searchitem,"rs"),
 	BUILDIN_DEF(mercenary_create,"ii"),
 	BUILDIN_DEF(mercenary_heal,"ii"),
