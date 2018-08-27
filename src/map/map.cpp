@@ -2768,7 +2768,10 @@ int map_delinstancemap(int m)
 	aFree(mapdata->block);
 	aFree(mapdata->block_mob);
 	map_free_questinfo(m);
+	mapdata->flag.clear();
+	mapdata->drop_list.clear();
 	mapdata->damage_adjust = {};
+	mapdata->skill_damage.clear();
 
 	mapindex_removemap( mapdata->index );
 	map_removemapdb(mapdata);
@@ -3554,6 +3557,7 @@ void map_flags_init(void){
 		struct map_data *mapdata = &map[i];
 		union u_mapflag_args args = {};
 
+		mapdata->flag.reserve(MF_MAX); // Reserve the bucket size
 		args.flag_val = 100;
 
 		// additional mapflag data
