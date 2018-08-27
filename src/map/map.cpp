@@ -5282,20 +5282,22 @@ void map_addbot(struct bot_data *bd) {
 
 void map_delbot(struct bot_data *bd, bool loginout)
 {
-	struct map_session_data* sd;
+	struct map_session_data* sd = NULL;
 
 	if (bd == NULL)
 		return;
 
 	nullpo_retv(bd->sd);
 	
-	if (loginout) {
-		sd = map_id2sd(bd->sd->bl.id);
-		if (sd && sd->state.bot)
-			map_quit(sd);
+	if ((sd = bd->sd) != map_id2sd(bd->sd->bl.id)) {
+		ShowError("map_delbot: src sd is not bot sd");
+		return;
 	}
+	sd->state.bot = 0;
+	idb_remove(bot_db, sd->bl.id);
 
-	idb_remove(bot_db, bd->sd->bl.id);
+	if (loginout)
+		map_quit(sd);
 }
 
 int map_checknear_sub(struct block_list* bl, va_list args) {

@@ -15246,6 +15246,14 @@ BUILDIN_FUNC(isequippedcnt)
 			if(!sd->inventory_data[index])
 				continue;
 
+			if (!strcmp(script_getfuncname(st), "isequippedcnt2")) {
+				short k;
+				for (k = 0; k<MAX_SLOTS; k++) {
+					if (sd->inventory.u.items_inventory[index].card[k] == id)
+						ret++; //[Lupus]
+				}
+			}else
+
 			if (itemdb_type(id) != IT_CARD) { //No card. Count amount in inventory.
 				if (sd->inventory_data[index]->nameid == id)
 					ret+= sd->inventory.u.items_inventory[index].amount;
@@ -15302,6 +15310,8 @@ BUILDIN_FUNC(isequipped)
 			if(!sd->inventory_data[index])
 				continue;
 
+			int maxslot = !strcmp(script_getfuncname(st), "isequipped2") ? MAX_SLOTS : sd->inventory_data[index]->slot;
+
 			if (itemdb_type(id) != IT_CARD) {
 				if (sd->inventory_data[index]->nameid != id)
 					continue;
@@ -15309,11 +15319,11 @@ BUILDIN_FUNC(isequipped)
 				break;
 			} else { //Cards
 				short k;
-				if (sd->inventory_data[index]->slot == 0 ||
+				if (maxslot == 0 ||
 					itemdb_isspecial(sd->inventory.u.items_inventory[index].card[0]))
 					continue;
 
-				for (k = 0; k < sd->inventory_data[index]->slot; k++)
+				for (k = 0; k < maxslot; k++)
 				{	//New hash system which should support up to 4 slots on any equipment. [Skotlex]
 					unsigned int hash = 0;
 					if (sd->inventory.u.items_inventory[index].card[k] != id)
@@ -26036,7 +26046,7 @@ BUILDIN_FUNC(bot_stop)
 	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	map_delbot(map_id2bot(sd->bl.id), true);
+	map_delbot(map_id2bot(sd->bl.id), (script_hasdata(st,3) && script_hasdata(st, 3) == 1 ? true : false));
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -27291,7 +27301,7 @@ struct script_function buildin_func[] = {
 	//BOT系统
 	BUILDIN_DEF(bot_reset, ""),
 	BUILDIN_DEF(bot_run, ""),
-	BUILDIN_DEF(bot_stop, "?"),
+	BUILDIN_DEF(bot_stop, "??"),
 	BUILDIN_DEF(is_bot, "?"),
 	//路点系统
 	BUILDIN_DEF(unitsteppath, "iv?"),
@@ -27303,6 +27313,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(instance_enter_last, "?"),
 	BUILDIN_DEF(http_get, "sii?"),
 	BUILDIN_DEF(bot_login, "iii"),
+	BUILDIN_DEF2(isequippedcnt, "isequippedcnt2", "i*"),
+	BUILDIN_DEF2(isequipped, "isequipped2", "i*"),
 
 	BUILDIN_DEF(unit_Astart_walkto, "iii?"),
 	BUILDIN_DEF(instance_name, "?"),
