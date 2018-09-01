@@ -4569,6 +4569,29 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 	return 0;
 }
 
+/**
+ * Returns the count of unidentified items with the option to identify too.
+ * @param sd: Player data
+ * @param identify_item: Whether or not to identify any unidentified items
+ * @return Unidentified items count
+ */
+int pc_identifyall(struct map_session_data *sd, bool identify_item)
+{
+	int unidentified_count = 0;
+
+	for (int i = 0; i < MAX_INVENTORY; i++) {
+		if (sd->inventory.u.items_inventory[i].nameid > 0 && sd->inventory.u.items_inventory[i].identify != 1) {
+			if (identify_item == true) {
+				sd->inventory.u.items_inventory[i].identify = 1;
+				clif_item_identified(sd,i,0);
+			}
+			unidentified_count++;
+		}
+	}
+
+	return unidentified_count;
+}
+
 //
 // Items
 //
@@ -5829,13 +5852,13 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 	if ( sd->state.autotrade && (sd->vender_id || sd->buyer_id) && clrtype != 255 && (clrtype = CLR_RESPAWN)) // Player with autotrade just causes clif glitch! @ FIXME
 		return SETPOS_AUTOTRADE;
 
+	int16 m = map_mapindex2mapid(mapindex);
 #ifdef EVENT_WILLLOADMAPEVENT
 	if (sd->state.active && event_exist(NPCE_WILLLOADMAPEVENT)) {
 		pc_setreg(sd, add_str("@loadmap_oldmap_id"), sd->bl.m);
 		pc_setregstr(sd, add_str("@loadmap_oldmap_name$"), map_mapid2mapname(sd->bl.m));
 		pc_setreg(sd, add_str("@loadmap_oldmap_x"), sd->bl.x);
 		pc_setreg(sd, add_str("@loadmap_oldmap_y"), sd->bl.y);
-		m = map_mapindex2mapid(mapindex);
 		pc_setreg(sd, add_str("@loadmap_newmap_id"), m);
 		pc_setregstr(sd, add_str("@loadmap_newmap_name$"), map_mapid2mapname(m));
 		pc_setreg(sd, add_str("@loadmap_newmap_x"), x);
@@ -5851,7 +5874,7 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 		pc_setrestartvalue(sd,1);
 	}
 
-	int16 m = map_mapindex2mapid(mapindex);
+	//int16 m = map_mapindex2mapid(mapindex);
 	struct map_data *mapdata = map_getmapdata(m);
 
 	sd->state.changemap = (sd->mapindex != mapindex);
