@@ -183,6 +183,7 @@ struct Battle_Config
 	int pc_max_flee;
 	int pc_max_flee2;
 	int npc_timeout;
+	int atcommand_info;
 	int jro_formulas;
 	//------------------------------
 	int warp_point_debug;

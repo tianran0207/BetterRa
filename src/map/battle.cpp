@@ -8126,6 +8126,7 @@ static const struct _battle_data {
 	{ "pc_max_flee",                        &battle_config.pc_max_flee,                     0,      0,      INT_MAX,        },
 	{ "pc_max_flee2",                       &battle_config.pc_max_flee2,                    0,      0,      INT_MAX,        },
 	{ "npc_timeout",                        &battle_config.npc_timeout,                     1,      0,      1,              },
+	{ "atcommand_info",                     &battle_config.atcommand_info,                  0,      0,      1|2,            },
 	//{ "jro_formulas",                       &battle_config.jro_formulas,                    0,      0,      1,              },
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
