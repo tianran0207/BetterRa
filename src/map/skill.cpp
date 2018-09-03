@@ -2189,26 +2189,25 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 		}
 	}
 
-	if (sd && sd->autoevent[0].atk_type) {
-		int i;
-		for (i = 0; i < ARRAYLENGTH(sd->autoevent); i++)
+	if (sd && sd->atkevent[0].atk_type) {
+		for (int i = 0; i < MAX_ATK_EVENT; i++)
 		{
-			if (!sd->autoevent[i].atk_type || sd->autoevent[i].next_time > tick || ((sd->autoevent[i].atk_type&BF_NORMAL) && skill_id))
+			if (!sd->atkevent[i].atk_type)
+				break;
+			if (sd->atkevent[i].next_time > tick || ((sd->atkevent[i].atk_type&BF_NORMAL) && skill_id))
 				continue;
-			if (sd->autoevent[i].rate && rnd() % 1000 >= sd->autoevent[i].rate)
-				continue;
-			if (!(((sd->autoevent[i].atk_type)&attack_type)&BF_WEAPONMASK &&
-				((sd->autoevent[i].atk_type)&attack_type)&BF_RANGEMASK &&
-				((sd->autoevent[i].atk_type)&attack_type)&BF_SKILLMASK))
+			if (!(((sd->atkevent[i].atk_type)&attack_type)&BF_WEAPONMASK &&
+				((sd->atkevent[i].atk_type)&attack_type)&BF_RANGEMASK &&
+				((sd->atkevent[i].atk_type)&attack_type)&BF_SKILLMASK))
 				continue; // one or more trigger conditions were not fulfilled
-			if (sd->autoevent[i].maxnumber && sd->autoevent[i].number < sd->autoevent[i].maxnumber) {
-				sd->autoevent[i].number++;
+			if (sd->atkevent[i].rate && rnd()%1000 >= sd->atkevent[i].rate)
 				continue;
-			}
-			sd->autoevent[i].number = 1;
-			if (sd->autoevent[i].delay)
-				sd->autoevent[i].next_time = tick + sd->autoevent[i].delay;
-			npc_event_atonce(sd, sd->autoevent[i].event_name);
+			if (++sd->atkevent[i].number < sd->atkevent[i].maxnumber)
+				continue;
+
+			npc_event_atonce(sd, sd->atkevent[i].event_name);
+			sd->atkevent[i].next_time = tick + sd->atkevent[i].delay;
+			sd->atkevent[i].number = 1;
 		}
 	}
 
@@ -3212,17 +3211,11 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		}
 	}
 	struct unit_data *ud = unit_bl2ud(src);
-	if (ud->skill_fixed.skill_id == skill_id || ud->skill_fixed.skill_id == -1) {
-		if (ud->skill_fixed.damage) {
-			int element = skill_get_ele(skill_id, skill_lv);
-			if(ud->skill_fixed.type & 2)
-				dmg.damage = ud->skill_fixed.damage;
-			else
-				dmg.damage += ud->skill_fixed.damage;
-
-			if (element != ELE_NEUTRAL || !(battle_config.attack_attr_none&src->type))
-				dmg.damage = battle_attr_fix(src, bl, dmg.damage, element, tstatus->def_ele, tstatus->ele_lv);
-		}
+	if (ud && (ud->skill_fixed.skill_id == skill_id || ud->skill_fixed.skill_id == -1)) {
+		if(ud->skill_fixed.type & 2)
+			dmg.damage = ud->skill_fixed.damage;
+		else
+			dmg.damage += ud->skill_fixed.damage;
 	}
 
 	//If the damage source is a unit, the damage is not delayed

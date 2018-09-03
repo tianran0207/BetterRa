@@ -24126,6 +24126,7 @@ BUILDIN_FUNC(getinventoryinfo)
 	script_pushint(st, -1);
 	return SCRIPT_CMD_SUCCESS;
 }
+
 BUILDIN_FUNC(delinventory)
 {
 	TBL_PC *sd;
@@ -25613,44 +25614,41 @@ BUILDIN_FUNC(addatkevent) {
 	event_name = script_getstr(st, 5);
 	delay = script_getnum(st, 6);
 
-	ARR_FIND(0, ARRAYLENGTH(sd->autoevent), i, sd->autoevent[i].atk_type == atk_type);
-	if (i == ARRAYLENGTH(sd->autoevent)) {
-		ARR_FIND(0, ARRAYLENGTH(sd->autoevent), i, sd->autoevent[i].atk_type == 0);
+	ARR_FIND(0, MAX_ATK_EVENT, i, sd->atkevent[i].atk_type == atk_type);
+	if (i == MAX_ATK_EVENT) {
+		ARR_FIND(0, MAX_ATK_EVENT, i, sd->atkevent[i].atk_type == 0);
 	}
-	if (i == ARRAYLENGTH(sd->autoevent)) {
-		ShowWarning("buildin_addatkevent: Reached max (%d) number of atk event per character! (char_id:%d)\n", ARRAYLENGTH(sd->autoevent), sd->status.char_id);
+	if (i == MAX_ATK_EVENT) {
+		ShowWarning("buildin_addatkevent: Reached max (%d) number of atk event per character! (char_id:%d)\n", MAX_ATK_EVENT, sd->status.char_id);
 		return SCRIPT_CMD_FAILURE;
 	}
-	sd->autoevent[i].atk_type = atk_type;
-	sd->autoevent[i].maxnumber = maxnumber;
-	sd->autoevent[i].number = 0;
-	sd->autoevent[i].rate = rate;
-	sd->autoevent[i].delay = delay;
-	safestrncpy(sd->autoevent[i].event_name, event_name, sizeof(sd->autoevent[i].event_name));
+	sd->atkevent[i].atk_type = atk_type;
+	sd->atkevent[i].maxnumber = maxnumber;
+	sd->atkevent[i].number = 0;
+	sd->atkevent[i].rate = rate;
+	sd->atkevent[i].delay = delay;
+	safestrncpy(sd->atkevent[i].event_name, event_name, sizeof(sd->atkevent[i].event_name));
 	return SCRIPT_CMD_SUCCESS;
 }
 
 BUILDIN_FUNC(delatkevent) {
 	short atk_type = 0;
-	int i,j;
+	int i;
 	TBL_PC* sd;
 
 	if (!script_charid2sd(3,sd))
 		return SCRIPT_CMD_FAILURE; // no player attached
 
-	atk_type = buildin_getattacktype_sub(script_getnum(st, 2));
+	atk_type = buildin_getattacktype_sub(script_getnum(st, 2)); 
 
-	ARR_FIND(0, ARRAYLENGTH(sd->autoevent), i, sd->autoevent[i].atk_type == atk_type);
-	if (i == ARRAYLENGTH(sd->autoevent)) {
+	ARR_FIND(0, MAX_ATK_EVENT, i, sd->atkevent[i].atk_type == atk_type);
+	if (i == MAX_ATK_EVENT) {
 		return SCRIPT_CMD_SUCCESS;
 	}
-	memset(&sd->autoevent[i], 0, sizeof(sd->autoevent[i]));
-	for (j = ARRAYLENGTH(sd->autoevent) - 1; j > 0; j--) {
-		if (sd->autoevent[j].atk_type != 0) {
-			memcpy(&sd->autoevent[i], &sd->autoevent[j], sizeof(sd->autoevent[j]));
-			memset(&sd->autoevent[j], 0, sizeof(sd->autoevent[j]));
-		}
-	}
+	
+	memmove(&sd->atkevent[i], &sd->atkevent[i + 1], sizeof(sd->atkevent) - (i+1)*sizeof(sd->atkevent[0]));
+	memset(&sd->atkevent[MAX_ATK_EVENT - 1], 0, sizeof(sd->atkevent[0]));
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -25658,38 +25656,44 @@ BUILDIN_FUNC(getatkevent) {
 	short atk_type = 0;
 	int i;
 	TBL_PC* sd;
-	if (!script_charid2sd(3, sd))
+	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	atk_type = buildin_getattacktype_sub(script_getnum(st, 2));
 
-	ARR_FIND(0, ARRAYLENGTH(sd->autoevent), i, sd->autoevent[i].atk_type == atk_type);
-	if (i == ARRAYLENGTH(sd->autoevent)) {
-		pc_setreg(sd, add_str("@number"), 0);
-		pc_setreg(sd, add_str("@maxnumber"), 0);
-		pc_setreg(sd, add_str("@delay"), 0);
-		pc_setreg(sd, add_str("@rate"), 0);
-		pc_setregstr(sd, add_str("@event_name"), "");
+	ARR_FIND(0, MAX_ATK_EVENT, i, sd->atkevent[i].atk_type == atk_type);
+	if (i == MAX_ATK_EVENT) {
+		script_pushint(st, -1);
 		return SCRIPT_CMD_SUCCESS;
 	}
-	pc_setreg(sd, add_str("@number"), sd->autoevent[i].number);
-	pc_setreg(sd, add_str("@maxnumber"), sd->autoevent[i].maxnumber);
-	pc_setreg(sd, add_str("@delay"), sd->autoevent[i].delay);
-	pc_setreg(sd, add_str("@rate"), sd->autoevent[i].rate);
-	pc_setregstr(sd, add_str("@event_name"), sd->autoevent[i].event_name);
+
+	switch (script_getnum(st, 3)) {
+	case 1:
+		script_pushint(st, sd->atkevent[i].number);
+		break;
+	case 2:
+		script_pushint(st, sd->atkevent[i].rate);
+		break;
+	case 3:
+		script_pushint(st, sd->atkevent[i].maxnumber);
+		break;
+	case 4:
+		script_pushstrcopy(st, sd->atkevent[i].event_name);
+		break;
+	case 5:
+		script_pushint(st, sd->atkevent[i].delay);
+		break;
+	}
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(gettarget) {
+BUILDIN_FUNC(unitgettarget) {
 	
 	struct block_list *bl;
-	struct unit_data *ud;
 	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_FAILURE;
 
-	ud = unit_bl2ud(bl);
-
-	script_pushint(st, ud->target);
+	script_pushint(st, battle_gettarget(bl));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -25698,11 +25702,11 @@ BUILDIN_FUNC(unitskillfixed) {
 	struct block_list *bl;
 	struct unit_data *ud;
 	
-	if ((bl = map_id2bl(script_getnum(st, 2))) == NULL) {
-		ShowError("buildin_unitskillfixed: Invalid Game ID '%d'", script_getnum(st, 2));
+	if ((bl = map_id2bl(script_getnum(st, 2))) == NULL || (ud = unit_bl2ud(bl)) == NULL) {
+		ShowError("buildin_unitskillfixed: Invalid GID '%d'", script_getnum(st, 2));
 		return SCRIPT_CMD_FAILURE;
 	}
-	ud = unit_bl2ud(bl);
+	
 	ud->skill_fixed.skill_id = script_getnum(st, 3);
 	ud->skill_fixed.damage = script_getnum(st, 4);
 	ud->skill_fixed.casttime = script_getnum(st, 5);
@@ -25715,11 +25719,11 @@ BUILDIN_FUNC(unitskillfixedreset) {
 	struct block_list *bl;
 	struct unit_data *ud;
 
-	if ((bl = map_id2bl(script_getnum(st, 2))) == NULL) {
+	if ((bl = map_id2bl(script_getnum(st, 2))) == NULL || (ud = unit_bl2ud(bl)) == NULL) {
 		ShowError("buildin_unitskillfixed: Invalid Game ID '%d'", script_getnum(st, 2));
 		return SCRIPT_CMD_FAILURE;
 	}
-	ud = unit_bl2ud(bl);
+
 	ud->skill_fixed.skill_id = 0;
 	ud->skill_fixed.damage = 0;
 	ud->skill_fixed.casttime = 0;
@@ -27289,8 +27293,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unitskilltowide, "iviiiii"),
 	BUILDIN_DEF(addatkevent, "iiisi?"),
 	BUILDIN_DEF(delatkevent, "i?"),
-	BUILDIN_DEF(getatkevent, "i?"),
-	BUILDIN_DEF(gettarget, "?"),
+	BUILDIN_DEF(getatkevent, "ii?"),
+	BUILDIN_DEF(unitgettarget, "?"),
+	BUILDIN_DEF2(unitgettarget, "gettarget", "?"),
 	BUILDIN_DEF(unitskilluse, "ivi??"),
 	BUILDIN_DEF(unitskillfixed, "iiiii"),
 	BUILDIN_DEF(unitskillfixedreset, "i"),

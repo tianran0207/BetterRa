@@ -697,6 +697,10 @@ ACMD_FUNC(who) {
 			if (stristr(pl_sd->status.name, player_name) == NULL // search with no case sensitive
 				|| (map_id >= 0 && pl_sd->bl.m != map_id))
 				continue;
+			if (battle_config.atcommand_info & 1)
+				StringBuf_Printf(&buf, "aid: %d | ", pl_sd->bl.id);
+			if (battle_config.atcommand_info & 2)
+				StringBuf_Printf(&buf, "cid: %d | ", pl_sd->bl.id);
 			switch (display_type) {
 				case 2: {
 					StringBuf_Printf(&buf, msg_txt(sd,343), pl_sd->status.name); // "Name: %s "
