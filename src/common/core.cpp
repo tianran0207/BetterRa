@@ -298,7 +298,7 @@ static void display_title(void) {
 	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "       BetterRa 模拟器仅供研究学习使用, 切莫用于商业用途.     " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
 	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "  对使用 BetterRa 带来的法律责任, BetterRa 开发团队概不负责!  " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
 	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "                                                              " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "         更多内容, 请查看: http://brabuild.moexi.com/         " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
+	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "         更多内容, 请查看: http://www.betterra.cn/            " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
 	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "          BetterRa 开发团队出品,  QQ群：419290524             " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
 	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "                                                              " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
 
