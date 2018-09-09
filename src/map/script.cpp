@@ -19867,6 +19867,11 @@ BUILDIN_FUNC(instance_enter)
 	else
 		instance_id = script_instancegetid(st);
 
+	if (instance_id == 0) {
+		ShowError("buildin_instance_enter: Trying to enter invalid instance %hu.\n", instance_id);
+		return SCRIPT_CMD_FAILURE;
+	}
+
 	if (!script_charid2sd(5,sd))
 		return SCRIPT_CMD_FAILURE;
 
