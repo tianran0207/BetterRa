@@ -1005,7 +1005,7 @@
 // AB Arch Bishop
 2038,11,8,1,6,0x2,1,5,-3,yes,0,0,0,magic,0,0x0,	AB_JUDEX,ÉóÅÐ
 2039,0,6,4,0,0x1,0,1,1,yes,0,0,0,magic,0,0x0,	AB_ANCILLA,¸¨ÖúÕß
-2040,11,8,1,6,0,0,10,-10,yes,0,0,0,magic,0,0x0,	AB_ADORAMUS,ÔÞ¸è
+2040,11,8,1,6,0x2,1:1:1:1:1:1:2:2:2:2,10,-10,yes,0,0,0,magic,0,0x0,	AB_ADORAMUS,ÔÞ¸è
 2041,0,6,4,0,0x3,3:7:15,3,1,yes,0,0,0,magic,0,0x0,	AB_CLEMENTIA,´È±¯Ö®ÐÄ
 2042,0,6,4,0,0x3,3:7:15,3,1,yes,0,0,0,magic,0,0x0,	AB_CANTO,Ê¥½à°ÙºÏ
 2043,0,6,4,6,0x3,3:7:15,3,1,yes,0,0,0,magic,0,0x0,	AB_CHEAL,ÖÎÓúÖ®¹â
@@ -1014,8 +1014,8 @@
 2046,0,6,4,6,0x3,15,10,1,yes,0,0,0,magic,0,0x0,	AB_ORATIO,µ»¸æ
 2047,0,6,4,6,0x3,15,4,1,yes,0,0,0,magic,0,0x0,	AB_LAUDAAGNUS,¸áÑòÔÞ¸è
 2048,0,6,4,6,0x3,15,4,1,yes,0,0,0,magic,0,0x0,	AB_LAUDARAMUS,´óÊ÷ÔÞ¸è
-2049,0,0,0,0,0,0,10,0,no,0,0,0,none,0,0x0,		AB_EUCHARISTICA,¸Ð¶÷Æíµ»
-2050,11,6,16,6,0x1,0,1,1,yes,0,0,0,magic,0,0x0,	AB_RENOVATIO,¾»»¯
+2049,0,0,0,0,0,0,0,0,no,0,0,0,none,0,0x0,		AB_EUCHARISTICA,¸Ð¶÷Æíµ»
+2050,11,6,4,6,0x1,15,1,1,yes,0,0,0,magic,0,0x0,	AB_RENOVATIO,¾»»¯
 2051,11,6,16,6,0x21,0,5,1,yes,0,0,0,magic,0,0x0,	AB_HIGHNESSHEAL,¸ß¼¶ÖÎÓú
 2052,11,6,1,0,0x1,0,5,1,yes,0,0x400,0,magic,0,0x10020,	AB_CLEARANCE,ÇýÉ¢
 2053,11,6,16,0,0x1,0,5,1,yes,0,0,0,magic,0,0x0,	AB_EXPIATIO,Êê×ï
@@ -1456,8 +1456,8 @@
 5065,1,6,4,0,0x3,3,1,1,yes,0,0x4,0,none,0,0,	WE_CHEERUP,Cheer Up
 
 // New Arch Bishop Skills
-5072,11,0,1,0,0,0,5,0,yes,0,0,0,none,0,0,		AB_VITUPERATUM,Vituperatum
-5073,0,0,4,0,0,0,1,0,yes,0,0,0,none,0,0,		AB_CONVENIO,Convenio
+5072,9,6,1,0,0x3,1:1:1:2:2,5,0,yes,0,0,0,magic,0,0x0,		AB_VITUPERATUM,Vituperatum
+5073,0,6,4,0,0x1,0,1,0,yes,0,0,0,none,0,0x0,		AB_CONVENIO,Convenio
 
 //****
 // Homunculus S

@@ -2772,6 +2772,8 @@ int map_delinstancemap(int m)
 
 	mapindex_removemap( mapdata->index );
 	map_removemapdb(mapdata);
+
+	map[m].name[0] = '\0';
 	return 1;
 }
 

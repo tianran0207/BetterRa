@@ -1000,7 +1000,7 @@
 // AB Arch Bishop
 2038,11,8,1,6,0x2,1,5,-3,yes,0,0,0,magic,0,0x0,	AB_JUDEX,审判
 2039,0,6,4,0,0x1,0,1,1,yes,0,0,0,magic,0,0x0,	AB_ANCILLA,辅助者
-2040,11,8,1,6,0,0,10,-10,yes,0,0,0,magic,0,0x0,	AB_ADORAMUS,赞歌
+2040,11,8,1,6,0x2,1:1:1:1:1:1:2:2:2:2,10,-10,yes,0,0,0,magic,0,0x0,	AB_ADORAMUS,赞歌
 2041,0,6,4,0,0x3,3:7:15,3,1,yes,0,0,0,magic,0,0x0,	AB_CLEMENTIA,慈悲之心
 2042,0,6,4,0,0x3,3:7:15,3,1,yes,0,0,0,magic,0,0x0,	AB_CANTO,圣洁百合
 2043,0,6,4,6,0x3,3:7:15,3,1,yes,0,0,0,magic,0,0x0,	AB_CHEAL,治愈之光
@@ -1402,6 +1402,10 @@
 5063,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	WE_CALLALLFAMILY,Call All Family
 5064,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	WE_ONEFOREVER,One Forever
 5065,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,	WE_CHEERUP,Cheer Up
+
+// New Arch Bishop Skills
+5072,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,		AB_VITUPERATUM,Vituperatum
+5073,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0x0,		AB_CONVENIO,Convenio
 
 //****
 // Homunculus S
