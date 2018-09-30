@@ -2698,7 +2698,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		dlist->m = md->bl.m;
 		dlist->x = md->bl.x;
 		dlist->y = md->bl.y;
-		dlist->first_charid = (mvp_sd ? mvp_sd->status.char_id : 0);
+		dlist->first_charid = (battle_config.mvpdrop_last_hit_loot && sd ? sd->status.char_id : (mvp_sd ? mvp_sd->status.char_id : 0));
 		dlist->second_charid = (second_sd ? second_sd->status.char_id : 0);
 		dlist->third_charid = (third_sd ? third_sd->status.char_id : 0);
 		dlist->item = NULL;
@@ -3059,8 +3059,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			if (event_exist(NPCE_KILLMVP) && status_has_mode(&md->status, MD_MVP)) {
 				pc_setreg(mvp_sd, add_str("@mob_dead_x"), md->bl.x);
 				pc_setreg(mvp_sd, add_str("@mob_dead_y"), md->bl.y);
-				pc_setreg(mvp_sd, add_str("@mob_lasthit_rid"), sd->status.account_id);
-				pc_setreg(mvp_sd, add_str("@mob_lasthit_cid"), sd->status.char_id);
+				pc_setreg(mvp_sd, add_str("@mob_lasthit_rid"), sd ? sd->status.account_id : 0);
+				pc_setreg(mvp_sd, add_str("@mob_lasthit_cid"), sd ? sd->status.char_id : 0);
 				pc_setreg(mvp_sd, add_str("@mob_mvp_rid"), mvp_sd->status.account_id);
 				pc_setreg(mvp_sd, add_str("@mob_mvp_cid"), mvp_sd->status.char_id);
 				npc_script_event(mvp_sd, NPCE_KILLMVP);
