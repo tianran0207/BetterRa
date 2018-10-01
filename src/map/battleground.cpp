@@ -364,7 +364,7 @@ int tribe_mob_spawn(const char* mapname, int16 x, int16 y, const char* mobname, 
 	data.num = 1;
 	if (mob_id <= 0)
 	{
-		mob_id = mob_get_random_id(-mob_id - 1, 1, 99);
+		mob_id = mob_get_random_id(-mob_id - 1, RMF_DB_RATE, 0);
 		if (!mob_id) return 0;
 	}
 

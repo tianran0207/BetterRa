@@ -2006,8 +2006,11 @@ void clif_selllist_filter(struct map_session_data *sd, const char *filter)
 	const char *p, *len;
 	unsigned short type_list[10], item_list[256];
 	int type_idx = 0, item_idx = 0, n;
+	struct npc_data *nd;
 
 	nullpo_retv(sd);
+	if (!sd->npc_shopid || (nd = map_id2nd(sd->npc_shopid)) == NULL)
+		return;
 
 	if ((p = strstr(filter, "type:")) != NULL && (len = strchr(p, ';')) != NULL) {
 		safestrncpy(filter_copy, p + 5, min(len - p - 1, 1023));
@@ -2056,7 +2059,7 @@ void clif_selllist_filter(struct map_session_data *sd, const char *filter)
 			}
 		}
 		if (idx != -1) {
-			if (!pc_can_sell_item(sd, &sd->inventory.u.items_inventory[idx]))
+			if (!pc_can_sell_item(sd, &sd->inventory.u.items_inventory[idx], nd->subtype))
 				continue;
 			val = sd->inventory_data[idx]->value_sell;
 			if (val < 0)
