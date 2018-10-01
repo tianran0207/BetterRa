@@ -55,26 +55,28 @@
 // 14 attack type (none, weapon, magic, misc)
 // 15 Blowcount (amount of tiles skill knockbacks)
 // 16 inf3 (skill information 3):
-//    0x00001 - skill ignores land protector
-//    0x00002 - free
-//    0x00004 - usable skills while hiding
-//    0x00008 - skill that can be use while in dancing state
-//    0x00010 - skill that could hit emperium
-//    0x00020 - skill ignores SC_STASIS
-//    0x00040 - skill blocked by kagehumi
-//    0x00080 - skill range affected by AC_VULTURE
-//    0x00100 - skill range affected by GS_SNAKEEYE
-//    0x00200 - skill range affected by NJ_SHADOWJUMP
-//    0x00400 - skill range affected by WL_RADIUS
-//    0x00800 - skill range affected by RA_RESEARCHTRAP
-//    0x01000 - skill that does not affect user that has NC_HOVERING active
-//    0x02000 - skill that can be using while riding warg
-//    0x04000 - skill that can be used while on Madogear
-//    0x08000 - skill that can be used to target while under SC__MANHOLE effect
-//    0x10000 - skill that affects hidden targets
-//    0x20000 - skill that affects SC_GLOOMYDAY_SK
-//    0x40000 - skill that is affected by SC_DANCEWITHWUG
-//    0x80000 - skill blocked by RA_WUGBITE
+//    0x000001 - skill ignores land protector
+//    0x000002 - free
+//    0x000004 - usable skills while hiding
+//    0x000008 - skill that can be use while in dancing state
+//    0x000010 - skill that could hit emperium
+//    0x000020 - skill ignores SC_STASIS
+//    0x000040 - skill blocked by kagehumi
+//    0x000080 - skill range affected by AC_VULTURE
+//    0x000100 - skill range affected by GS_SNAKEEYE
+//    0x000200 - skill range affected by NJ_SHADOWJUMP
+//    0x000400 - skill range affected by WL_RADIUS
+//    0x000800 - skill range affected by RA_RESEARCHTRAP
+//    0x001000 - skill that does not affect user that has NC_HOVERING active
+//    0x002000 - skill that can be using while riding warg
+//    0x004000 - skill that can be used while on Madogear
+//    0x008000 - skill that can be used to target while under SC__MANHOLE effect
+//    0x010000 - skill that affects hidden targets
+//    0x020000 - skill that affects SC_GLOOMYDAY_SK
+//    0x040000 - skill that is affected by SC_DANCEWITHWUG
+//    0x080000 - skill blocked by RA_WUGBITE
+//    0x100000 - skill is not blocked by SC_AUTOGUARD (physical-skill only)
+//    0x200000 - skill is not blocked by SC_UTSUSEMI or SC_BUNSINJYUTSU (physical-skill only)
 // 17 Name
 // 18 Description
 1,0,0,0,0,0,0,9,0,no,0,0,0,none,0,0x0,		NV_BASIC,»ù±¾¼¼ÄÜ
@@ -353,8 +355,8 @@
 226,0,0,0,0,0,0,10,0,no,0,0,0,weapon,0,0x0,		AM_AXEMASTERY,¸«Í·Ê¹ÓÃÊìÁ·¶È
 227,0,0,0,0,0,0,10,0,no,0,0,0,none,0,0x0,		AM_LEARNINGPOTION,ÖªÊ¶Ò©Ë®
 228,0,6,4,0,0x1,0,10,0,no,0,0,0,none,0,0x0,		AM_PHARMACY,ÅäÒ©
-229,9,6,2,3,0x9,0,5,1,yes,0,0,0,weapon,0,0x0,	AM_DEMONSTRATION,»ðÑÌÆ¿Í¶ÖÀ
-230,9,6,1,0,0x48,0,5,1,yes,0,0,0,weapon,0,0x0,	AM_ACIDTERROR,Ç¿Ëá¹¥»÷
+229,9,6,2,3,0x9,0,5,1,yes,0,0,0,weapon,0,0x300000,	AM_DEMONSTRATION,»ðÑÌÆ¿Í¶ÖÀ
+230,9,6,1,0,0x48,0,5,1,yes,0,0,0,weapon,0,0x300000,	AM_ACIDTERROR,Ç¿Ëá¹¥»÷
 231,9,6,16,0,0x1,0,5,1,yes,0,0xC00,0,none,0,0x0,	AM_POTIONPITCHER,Ò©Ë®Í¶ÖÀ
 232,4,6,2,0,0x1,0,5,1,no,0,0,5,none,0,0x0,		AM_CANNIBALIZE,ÉúÎïµ÷²¦
 233,1,6,2,0,0x1,0,5,1,no,0,0,3,none,0,0x0,		AM_SPHEREMINE,ÆøÅÝ³æÕÙ»½
@@ -531,7 +533,7 @@
 //****
 // Paladin
 367,9,8,1,0,0xD0,0,5,1,no,0,0x18000,0,misc,0,0x0,		PA_PRESSURE,ÉñÖ®ÍþÑ¹
-368,0,6,4,0,0x61,0,5,1,yes,0,0,0,weapon,0,0x0,	PA_SACRIFICE,ÉáÃü¹¥»÷
+368,0,6,4,0,0x61,0,5,1,yes,0,0,0,weapon,0,0x300000,	PA_SACRIFICE,ÉáÃü¹¥»÷
 369,0,6,4,0,0x41,0,10,1,yes,0,0,0,misc,0,0x0,	PA_GOSPEL,Ê¥Òô
 
 //****
@@ -608,7 +610,7 @@
 
 //****
 // Assassin Cross
-406,0,6,4,-1,0xA,2,10,1,no,0,0x40000,0,weapon,0,0x0,	ASC_METEORASSAULT,ºÚ°µË²¼ä
+406,0,6,4,-1,0xA,2,10,1,no,0,0x40000,0,weapon,0,0x300000,	ASC_METEORASSAULT,ºÚ°µË²¼ä
 407,0,6,4,0,0x1,0,1,0,no,0,0,0,none,0,0x0,		ASC_CDP,¶¾ÒºÖÆ×÷
 
 //****
@@ -732,7 +734,7 @@
 500,0,6,4,0,0x41,0,5,1,no,0,0,0,misc,0,0x0,		GS_GLITTERING,Ë«ÃæÓ²±Ò
 501,9,6,1,-1,0x50,0,1,1,no,0,0,0,misc,0,0x0,		GS_FLING,ÈÓ
 502,-9,8,1,-1,0,0,1,3,no,0,0,0,weapon,0,0x0,		GS_TRIPLEACTION,Èý´ÎÁ¬»÷
-503,-9,6,1,-1,0x8,0,1,1,no,0,0,0,weapon,0,0x0,	GS_BULLSEYE,´Ö×³ÑÛ
+503,-9,6,1,-1,0x8,0,1,1,no,0,0,0,weapon,0,0x300000,	GS_BULLSEYE,´Ö×³ÑÛ
 504,0,6,4,0,0x1,0,1,1,no,0,0,0,weapon,0,0x0,		GS_MADNESSCANCEL,·è¿ñÏûÃð
 505,0,6,4,0,0x1,0,1,1,no,0,0,0,weapon,0,0x0,		GS_ADJUSTMENT,×Ô¶¯µ÷Õû
 506,0,6,4,0,0x1,0,1,1,no,0,0,0,weapon,0,0x0,		GS_INCREASING,Öð½¥¾«È·
@@ -740,7 +742,7 @@
 508,-9,6,1,-1,0x1,0,1,1,no,0,0,0,weapon,0,0x0,	GS_CRACKER,¾ªÏÅ
 509,0,0,0,0,0,0,10,0,no,0,0,0,none,0,0x0,		GS_SINGLEACTION,Ò»´ÎÐÔ¶¯×÷
 510,0,0,0,0,0,0,10,0,no,0,0,0,none,0,0x0,		GS_SNAKEEYE,ÉßÑÛ
-511,-9,8,0,-1,0x100,0,10,2,no,0,0,0,weapon,0,0x0,	GS_CHAINACTION,Á¬Ëø¶¯×÷
+511,-9,8,0,-1,0,0,10,2,no,0,0,0,weapon,0,0x0,	GS_CHAINACTION,Á¬Ëø¶¯×÷
 512,-9,6,1,-1,0,0,10,1,yes,0,0,0,weapon,0,0x0,	GS_TRACKING,¸ú×Ù
 513,-9,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x0,		GS_DISARM,·ÅÏÂÎäÆ÷
 514,-9,6,1,-1,0x20,0,5,1,no,0,0,0,weapon,0,0x100,	GS_PIERCINGSHOT,´Ì´©Éä»÷
@@ -900,7 +902,7 @@
 1001,14,6,1,-1,0,0,1,1,no,0,0x1,0,weapon,0,0x0,	KN_CHARGEATK,³å·æ¹¥»÷
 1002,0,6,4,0,0x1,0,1,0,no,0,0x1,0,weapon,2,0x0,	CR_SHRINK,ÍËËõ
 1003,0,0,0,0,0,0,1,0,no,0,0x1,0,weapon,0,0x0,	AS_SONICACCEL,ÒôËÙÍ¶ÖÀ¼ÓËÙ
-1004,9,8,1,0,0x8,0,1,1,no,0,0x1,0,weapon,0,0x0,	AS_VENOMKNIFE,¾ç¶¾¶Ìµ¶
+1004,9,8,1,0,0x8,0,1,1,no,0,0x1,0,weapon,0,0x300000,	AS_VENOMKNIFE,¾ç¶¾¶Ìµ¶
 1005,1,6,1,0,0x1,0,1,1,no,0,0x1,0,weapon,0,0x0,	RG_CLOSECONFINE,ÇÜÄÃ
 1006,0,6,4,3,0,1,1,1,yes,0,0x40001,0,magic,3,0x0,	WZ_SIGHTBLASTER,»ðá÷³å»÷
 1007,0,6,4,0,0x1,0,1,0,no,0,0x1,0,none,0,0x0,	SA_CREATECON,ÊôÐÔ¾íÖáÖÆ×÷
@@ -1033,8 +1035,8 @@
 2240,0,6,4,0,0,0,1,1,no,0,0,0,none,0,0x0,		RA_WUGMASTERY,ÑµÀÇÊõ
 2241,0,6,4,0,0,0,3,1,no,0,0,0,none,0,0x2000,		RA_WUGRIDER,ÆïÀÇÊõ
 2242,0,6,4,-1,0x42,1,1,1,no,0,0,0,weapon,0,0x42000,	RA_WUGDASH,ÀÇ¼²×ß
-2243,9,6,1,0,0x98,0,5,1,no,0,0,0,weapon,0,0x42000,	RA_WUGSTRIKE,ÀÇÍ»»÷
-2244,9,6,1,0,0x98,0,5,1,no,0,0,0,weapon,0,0x40080,	RA_WUGBITE,ÀÇËºÒ§
+2243,9,6,1,0,0x98,0,5,1,no,0,0,0,weapon,0,0x342000,	RA_WUGSTRIKE,ÀÇÍ»»÷
+2244,9,6,1,0,0x98,0,5,1,no,0,0,0,weapon,0,0x340080,	RA_WUGBITE,ÀÇËºÒ§
 2245,0,0,0,0,0,0,10,0,no,0,0,0,none,0,0x0,		RA_TOOTHOFWUG,ÀÇÑÀ
 2246,0,6,4,0,0x2,3:4:5:6:7,5,1,no,0,0x40000,0,weapon,0,0x0,	RA_SENSITIVEKEEN,ÃôÈñÐá¾õ
 2247,0,6,4,0,0x1,0,5,1,no,0,0,0,none,0,0x80040,		RA_CAMOUFLAGE,Òþ±ÎÕ½Êõ
@@ -1060,7 +1062,7 @@
 2264,0,6,4,0,0x1,0,1,1,no,0,0,0,none,7,0x4000,		NC_F_SIDESLIDE,Ç°²à»¬
 2265,0,6,4,0,0x1,0,1,1,no,0,0,0,none,7,0x4000,		NC_B_SIDESLIDE,ºó²à»¬
 2266,0,0,0,0,0,0,4,0,no,0,0,0,none,0,0x0,		NC_MAINFRAME,»úÐµ½á¹¹¸ÄÔì
-2267,0,6,4,0,0xCA,2:3:4,3,1,no,0,0x40000,0,weapon,5,0x4000,	NC_SELFDESTRUCTION,×Ô±¬
+2267,0,6,4,0,0xCA,2:3:4,3,1,no,0,0x40000,0,weapon,5,0x304000,	NC_SELFDESTRUCTION,×Ô±¬
 2268,0,6,4,0,0x1,0,4,1,yes,0,0,0,none,0,0x4000,	NC_SHAPESHIFT,×°¼×±ä¸ü
 2269,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,0x4000,		NC_EMERGENCYCOOL,½ô¼±ÖÆÀä
 2270,0,6,4,0,0x3,7,1,1,yes,0,0,0,none,0,0x4000,	NC_INFRAREDSCAN,ºìÍâÉ¨Ãè
@@ -1233,7 +1235,7 @@
 2479,9,6,2,0,0,0,5,1,yes,0,0x80,3,misc,0,0x0,	GN_THORNS_TRAP,¾£¼¬ÏÝÚå
 2480,11,6,1,0,0x1,0,5,1,yes,0,0,3,misc,0,0x0,		GN_BLOOD_SUCKER,ÎüÑª²Ý
 2481,11,6,1,-1,0x2,1:2:3:4:5,5,1,yes,0,0,0,weapon,0,0x0,	GN_SPORE_EXPLOSION,±¬Õ¨æß×Ó
-2482,11,6,2,0,0x8,0,5,1,yes,0,0,1,weapon,2,0x0,	GN_WALLOFTHORN,¾£¼¬Ö®Ç½
+2482,11,6,2,0,0x8,0,5,1,yes,0,0,1,weapon,2,0x300000,	GN_WALLOFTHORN,¾£¼¬Ö®Ç½
 2483,11,6,2,0,0x3,4,10,1,yes,0,0x0,0,weapon,0,0x1,	GN_CRAZYWEED,·è¿ñÒ°²Ý
 2484,0,6,2,2,0x2,2,10,1,no,0,0x40000,0,weapon,0,0x1,	GN_CRAZYWEED_ATK,Crazy Weed Attack
 2485,9,6,2,3,0,0,5,1,yes,0,0,1,magic,0,0x0,		GN_DEMONIC_FIRE,·è¿ñ»ðÑæ
