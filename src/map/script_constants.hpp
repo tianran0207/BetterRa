@@ -7336,7 +7336,6 @@
 
 	export_constant(BL_ITEM);
 	export_constant(BL_SKILL);
-	export_constant(BL_NPC);
 	export_constant(BL_CHAT);
 
 	/* skill damage mapflag types */
