@@ -35,7 +35,7 @@ ma_fild02,312,317,5	script	卫兵#buwaya_cave	4_MAL_SOLDIER,{
 		mes "进行探险吧.";
 		close;
 	}
-	if (getcharid(0) == getpartyleader(.@party_id,2)) {
+	if (is_party_leader() == true) {
 		mes "[卫兵]";
 		mes "这里很危险. 请回吧.";
 		mes "如果你在附近没有其他的事情, 还是快点离开吧.";

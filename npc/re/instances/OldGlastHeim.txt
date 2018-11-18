@@ -91,7 +91,7 @@ glast_01,204,273,5	script	华金	4_M_SAGE_C,{
 			mes "[华金]";
 			mes "你的队伍成员呢？";
 		}
-		if (getcharid(0) == getpartyleader(.@party_id,2))
+		if (is_party_leader() == true)
 			.@menu$ = "Generate Time Gap";
 		else {
 			mes "[Hugin]";
@@ -178,7 +178,7 @@ glast_01,204,273,5	script	华金	4_M_SAGE_C,{
 // Floor 1
 //============================================================
 1@gl_k,149,41,5	script	巴尔蒙德#0	4_M_BARMUND,{
-	if (getcharid(0) != getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == false) {
 		mes "[巴尔蒙德]";
 		mes "你们的队长呢? 我们需要帮助..";
 		cutin "gl_barmund2",2;
@@ -316,7 +316,7 @@ glast_01,204,273,5	script	华金	4_M_SAGE_C,{
 1@gl_k,154,54,3	duplicate(卡利斯格十字军#21)	卡利斯格十字军#22	4_F_KHALITZBURG
 
 1@gl_k,149,100,6	script	海因里希#1	4_F_KHALITZBURG,{
-	if (getcharid(0) != getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == false) {
 		mes "[海因里希]";
 		mes "你们的队长呢? 我有很重要的事情跟他说.";
 		cutin "gl_heinrich2",2;
@@ -646,7 +646,7 @@ OnMyMobDead:
 }
 
 1@gl_k,17,51,3	script	候补的服事少年#1	4_M_KID1,{
-	if (getcharid(0) != getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == false) {
 		mes "[候补的服事少年]";
 		mes "Save me, save me, please...";
 		close;
@@ -723,7 +723,7 @@ OnMyMobDead:
 }
 
 1@gl_k,291,145,3	script	精炼工匠的母亲#1	4_F_JOB_BLACKSMITH,{
-	if (getcharid(0) != getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == false) {
 		mes "[精炼工匠的母亲]";
 		mes "有人么？这里需要帮助...";
 		close;

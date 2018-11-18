@@ -52,7 +52,7 @@ ma_scene01,174,179,4	script	酸奶	541,{
 		close;
 	}
 	if (.@baku_time == -1) {
-		if (getcharid(0) == getpartyleader(.@party_id,2)) {
+		if (is_party_leader() == true) {
 			mes "[酸奶]";
 			mes "你是猎杀暴龙队伍的队长吗? 这里几乎没有任何正常的路可以到那里, 我们会用绳索把你们吊下去, 没问题吧?";
 			next;
@@ -131,7 +131,7 @@ sec_in02,26,26,4	script	食月暴龙湖泊	541,{
 	mes "[酸奶]";
 	mes "暴龙有时会变的很无敌. 当碰到这种情况时, 仔细听我的指导. 只要相信我, 一切都会好.";
 	next;
-	if (getcharid(0) == getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == true) {
 		mes "[酸奶]";
 		mes "现在我会把暴龙给弄出湖水.";
 		next;
@@ -515,7 +515,7 @@ OnTimer10000:
 	mes "[酸奶]";
 	mes "嗯. 我们差点就抓住它了, 它动作非常敏捷...";
 	next;
-	if (getcharid(0) == getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == true) {
 		mes "[酸奶]";
 		mes "想不想再来次?";
 		next;

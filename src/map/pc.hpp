@@ -1084,7 +1084,7 @@ short pc_maxaspd(struct map_session_data *sd);
 	#define pc_rightside_def(sd) ((sd)->battle_status.def)
 	#define pc_leftside_mdef(sd) ((sd)->battle_status.mdef2)
 	#define pc_rightside_mdef(sd) ((sd)->battle_status.mdef)
-	#define pc_leftside_matk(sd) (status_base_matk(&(sd)->bl, status_get_status_data(&(sd)->bl), (sd)->status.base_level))
+	#define pc_leftside_matk(sd) (status_base_matk_min(&(sd)->bl, status_get_status_data(&(sd)->bl), (sd)->status.base_level))
 	#define pc_rightside_matk(sd) ((sd)->battle_status.rhw.matk+(sd)->battle_status.lhw.matk+(sd)->bonus.ematk)
 #else
 	#define pc_leftside_atk(sd) ((sd)->battle_status.batk + (sd)->battle_status.rhw.atk + (sd)->battle_status.lhw.atk)
@@ -1223,7 +1223,7 @@ int pc_insert_card(struct map_session_data *sd,int idx_card,int idx_equip);
 
 int pc_identifyall(struct map_session_data *sd, bool identify_item);
 
-int pc_steal_item(struct map_session_data *sd,struct block_list *bl, uint16 skill_lv);
+bool pc_steal_item(struct map_session_data *sd,struct block_list *bl, uint16 skill_lv);
 int pc_steal_coin(struct map_session_data *sd,struct block_list *bl);
 
 int pc_modifybuyvalue(struct map_session_data*,int);

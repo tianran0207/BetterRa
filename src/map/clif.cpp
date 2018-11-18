@@ -1519,11 +1519,7 @@ void clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag)
 	WBUFW(buf,29) = hd->homunculus.hunger;
 	WBUFW(buf,31) = (unsigned short) (hd->homunculus.intimacy / 100) ;
 	WBUFW(buf,33) = 0; // equip id
-#ifdef RENEWAL
-	WBUFW(buf,35) = cap_value(status->rhw.atk2, 0, INT16_MAX);
-#else
-	WBUFW(buf,35) = cap_value(status->rhw.atk2+status->batk, 0, INT16_MAX);
-#endif
+	WBUFW(buf,35) = cap_value(status->rhw.atk2 + status->batk, 0, INT16_MAX);
 	WBUFW(buf,37)=i16min(status->matk_max, INT16_MAX); //FIXME capping to INT16 here is too late
 	WBUFW(buf,39)=status->hit;
 	if (battle_config.hom_setting&HOMSET_DISPLAY_LUK)
@@ -2475,6 +2471,7 @@ void clif_viewpoint(struct map_session_data *sd, int npc_id, int type, int x, in
 ///     2 = bottom right corner
 ///     3 = middle of screen, inside a movable window
 ///     4 = middle of screen, movable with a close button, chrome-less
+///   255 = clear all displayed cutins
 void clif_cutin(struct map_session_data* sd, const char* image, int type)
 {
 	int fd;
@@ -6308,7 +6305,7 @@ void clif_GlobalMessage(struct block_list* bl, const char* message, enum send_ta
 
 	static_assert(CHAT_SIZE_MAX > 8, "CHAT_SIZE_MAX too small for packet");
 	if( len > CHAT_SIZE_MAX ) {
-		ShowWarning("clif_GlobalMessage: Truncating too long message '%s' (len=%d).\n", message, len);
+		ShowWarning("clif_GlobalMessage: Truncating too long message '%s' (len=%" PRIuPTR ").\n", message, len);
 		len = CHAT_SIZE_MAX;
 	}
 	std::unique_ptr<char> buf(new char[8+len]);
@@ -7724,7 +7721,7 @@ void clif_party_message(struct party_data* p, uint32 account_id, const char* mes
 
 		if( len > sizeof(buf)-8 )
 		{
-			ShowWarning("clif_party_message: Truncated message '%s' (len=%d, max=%d, party_id=%d).\n", mes, len, sizeof(buf)-8, p->party.party_id);
+			ShowWarning("clif_party_message: Truncated message '%s' (len=%d, max=%" PRIuPTR ", party_id=%d).\n", mes, len, sizeof(buf)-8, p->party.party_id);
 			len = sizeof(buf)-8;
 		}
 
@@ -8924,7 +8921,7 @@ void clif_guild_message(struct guild *g,uint32 account_id,const char *mes,int le
 	}
 	else if( len > sizeof(buf)-5 )
 	{
-		ShowWarning("clif_guild_message: Truncated message '%s' (len=%d, max=%d, guild_id=%d).\n", mes, len, sizeof(buf)-5, g->guild_id);
+		ShowWarning("clif_guild_message: Truncated message '%s' (len=%d, max=%" PRIuPTR ", guild_id=%d).\n", mes, len, sizeof(buf)-5, g->guild_id);
 		len = sizeof(buf)-5;
 	}
 
@@ -9183,7 +9180,7 @@ void clif_disp_message(struct block_list* src, const char* mes, int len, enum se
 	if( len == 0 ) {
 		return;
 	} else if( len > sizeof(buf)-5 ) {
-		ShowWarning("clif_disp_message: Truncated message '%s' (len=%d, max=%d, aid=%d).\n", mes, len, sizeof(buf)-5, src->id);
+		ShowWarning("clif_disp_message: Truncated message '%s' (len=%d, max=%" PRIuPTR ", aid=%d).\n", mes, len, sizeof(buf)-5, src->id);
 		len = sizeof(buf)-5;
 	}
 
@@ -10428,7 +10425,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 	// Autotraders should ignore this entirely, clif_parse_LoadEndAck is always invoked manually for them
 	if (!sd->state.active || (!sd->state.autotrade && !sd->state.pc_loaded)) { //Character loading is not complete yet!
-		//Let pc_reg_received or intif_parse_StorageReceived reinvoke this when ready.
+		//Let pc_reg_received or pc_scdata_received reinvoke this when ready.
 		sd->state.connect_new = 0;
 		return;
 	}
@@ -10744,7 +10741,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	mail_clear(sd);
 
 	/* Guild Aura Init */
-	if( sd->state.gmaster_flag ) {
+	if( sd->guild && sd->state.gmaster_flag ) {
 		guild_guildaura_refresh(sd,GD_LEADERSHIP,guild_checkskill(sd->guild,GD_LEADERSHIP));
 		guild_guildaura_refresh(sd,GD_GLORYWOUNDS,guild_checkskill(sd->guild,GD_GLORYWOUNDS));
 		guild_guildaura_refresh(sd,GD_SOULCOLD,guild_checkskill(sd->guild,GD_SOULCOLD));
@@ -15978,7 +15975,7 @@ void clif_parse_Mail_setattach(int fd, struct map_session_data *sd){
 
 	if( !chrif_isconnected() )
 		return;
-	if (idx < 0 || amount < 0)
+	if (idx < 0 || amount < 0 || idx >= MAX_INVENTORY)
 		return;
 
 	flag = mail_setitem(sd, idx, amount);
@@ -17222,7 +17219,7 @@ void clif_mercenary_updatestatus(struct map_session_data *sd, int type)
 	switch( type ) {
 		case SP_ATK1:
 			{
-				int atk = rnd()%(status->rhw.atk2 - status->rhw.atk + 1) + status->rhw.atk;
+				int atk = rnd()%(status->rhw.atk2 - status->rhw.atk + 1) + status->batk + status->rhw.atk;
 				WFIFOL(fd,4) = cap_value(atk, 0, INT16_MAX);
 			}
 			break;
@@ -17292,7 +17289,7 @@ void clif_mercenary_info(struct map_session_data *sd)
 	WFIFOL(fd,2) = md->bl.id;
 
 	// Mercenary shows ATK as a random value between ATK ~ ATK2
-	atk = rnd()%(status->rhw.atk2 - status->rhw.atk + 1) + status->rhw.atk;
+	atk = rnd()%(status->rhw.atk2 - status->rhw.atk + 1) + status->batk + status->rhw.atk;
 	WFIFOW(fd,6) = cap_value(atk, 0, INT16_MAX);
 	WFIFOW(fd,8) = min(status->matk_max, UINT16_MAX);
 	WFIFOW(fd,10) = status->hit;
@@ -19254,7 +19251,7 @@ void clif_showscript(struct block_list* bl, const char* message, enum send_targe
 	len = strlen(message)+1;
 
 	if( len > sizeof(buf)-8 ) {
-		ShowWarning("clif_showscript: Truncating too long message '%s' (len=%d).\n", message, len);
+		ShowWarning("clif_showscript: Truncating too long message '%s' (len=%" PRIuPTR ").\n", message, len);
 		len = sizeof(buf)-8;
 	}
 
@@ -19292,7 +19289,7 @@ void clif_clan_message(struct clan *clan,const char *mes,int len){
 	if( len == 0 ){
 		return;
 	}else if( len > (sizeof(buf)-5-NAME_LENGTH) ){
-		ShowWarning("clif_clan_message: Truncated message '%s' (len=%d, max=%d, clan_id=%d).\n", mes, len, sizeof(buf)-5, clan->id);
+		ShowWarning("clif_clan_message: Truncated message '%s' (len=%d, max=%" PRIuPTR ", clan_id=%d).\n", mes, len, sizeof(buf)-5, clan->id);
 		len = sizeof(buf)-5-NAME_LENGTH;
 	}
 

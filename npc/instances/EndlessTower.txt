@@ -220,7 +220,7 @@ e_tower,81,105,0	script	塔之守护石	406,{
 	}
 	switch(.@etower_timer) {
 	case -1:
-		if (getcharid(0) == getpartyleader(.@party_id,2)) {
+		if (is_party_leader() == true) {
 			mes "你的队伍符合进入副本的标准, 现在就预约进入“无尽之塔”吗?";
 			next;
 			switch(select("预约创建 "+.@md_name$+":进入副本:返回艾尔贝塔:结束对话")) {

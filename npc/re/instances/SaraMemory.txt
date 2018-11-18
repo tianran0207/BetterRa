@@ -192,7 +192,7 @@ dali,139,118,4	script	次元装置#sara	10007,{
 			close;
 		}
 
-		if (getcharid(0) == getpartyleader(.@party_id,2))
+		if (is_party_leader() == true)
 		set .@menu$, "启动次元装置:使用次元装置:取消";
 		else
 		set .@menu$, ":使用次元装置:取消";
@@ -242,7 +242,7 @@ dali,139,118,4	script	次元装置#sara	10007,{
 }
 
 1@sara,260,156,6	script	小女孩#01	668,{
-	if(getcharid(0)==getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == true) {
 		unittalk getcharid(3), strcharinfo(0) + "：我这是在哪？";
 		mes "["+strcharinfo(0)+"]";
 		mes "我这是在哪？";
@@ -441,7 +441,7 @@ OnEnable:
 }
 
 1@sara,107,325,6	script	莎拉 艾琳#01	668,{
-	if(getcharid(0)==getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == true) {
 		cutin "sara_9sara1",2;
 		npctalk "莎拉 艾琳：噢！你好！我还记得你。来这有什么事么？";
 		mes "[莎拉 艾琳]";
@@ -570,7 +570,7 @@ OnEnable:
 }
 
 1@sara,152,233,6	script	莎拉 艾琳#02	668,{
-	if(getcharid(0)==getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == true) {
 		cutin "sara_9sara2",2;
 		npctalk "莎拉 艾琳：妈妈！";
 		mes "[莎拉 艾琳]";
@@ -641,7 +641,7 @@ OnEnable:
 }
 
 1@sara,156,236,4	script	都延 艾琳#04	684,{
-	if(getcharid(0)==getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == true) {
 		cutin "sara_elder_irine4",2;
 		npctalk "都延 艾琳：你...你很强大...";
 		mes "[都延 艾琳]";
@@ -726,7 +726,7 @@ OnEnable:
 }
 
 1@sara,39,142,4	script	莎拉 艾琳#03	668,{
-	if(getcharid(0)==getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == true) {
 		mapannounce instance_mapname("1@sara"), "正当你要喊住莎拉时，突然后脑遭到一下重击。",bc_area,"0xffff00";
 		mes "^FF0000正当你要喊住莎拉时，突然后脑遭到一下重击。^000000";
 		next;

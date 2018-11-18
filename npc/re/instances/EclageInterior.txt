@@ -18,7 +18,7 @@ ecl_hub01,132,12,3	script	参谋长#tl02	435,{
 	.@party_id = getcharid(1);
 	.@md_name$ = "艾卡拉奇 内部";
 
-	if (.@party_id == 0 || getpartyleader(.@party_id,2) != getcharid(0)){
+	if (.@party_id == 0 || is_party_leader() == false){
 		mes "-! 警告 !-";
 		mes "当前任务将在纪念馆的地牢里进行.";
 		mes "只有队长能进入，请先组建你的队伍.";
@@ -62,7 +62,7 @@ ecl_hub01,130,15,0	script	关闭的大门	844,{
 		if (select("我要进去.:还是算了.") == 1) {
 			.@party_id = getcharid(1);
 			.@md_name$ = "艾卡拉奇 内部";
-			if (.@party_id == 0 || getpartyleader(.@party_id,2) != getcharid(0)) {
+			if (.@party_id == 0 || is_party_leader() == false) {
 				mes "-! 警告 !-";
 				mes "当前任务将在纪念馆的地牢里进行.";
 				mes "只有队长能进入，请先组建你的队伍.";

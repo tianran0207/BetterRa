@@ -9,11 +9,11 @@
 //  must be edited as well for the client to accept added items.
 
 //---2018 / 05 / 16 - 酒捞袍 眠啊 8517
-6635	//Blacksmith_Blessing
-12507	//E_WOB_Rune
-12508	//E_WOB_Schwaltz
-12509	//E_WOB_Rachel
-12510	//E_WOB_Local
+6635	//铁匠的祝福
+12507	//黄蝴蝶的翅膀
+12508	//绿蝴蝶的翅膀
+12509	//红蝴蝶的翅膀
+12510	//蓝蝴蝶的翅膀
 //22999
 //23136
 //23221
@@ -38,10 +38,10 @@
 //25641
 //25642
 //---2018 / 03 / 14 - 蔓胶畔何前 眠啊
-6752	//Charleston_Parts
+6752	//查尔斯顿零件
 //---2018 / 03 / 05 - 老风傈 酒捞袍 棺 入蝴狼炼阿 霸奇付过措雀林拳 眠啊
-6671	//Geffen_Coin_Magic_Tournament
-6672	//Shard_of_Gray
+6671	//吉芬魔法大赛硬币
+6672	//灰土碎片
 //11620
 25256	//Hazy_Dream_Fragment
 25257	//Bloody_Love_Letter
@@ -88,7 +88,6 @@
 //25129
 //25130
 //25131
-22687	//邪念的碎片
 //23016
 //23080
 4671	//元素使 希莉亚卡片
@@ -779,8 +778,8 @@
 6940	//Moving_Dark_Matter
 6941	//Fragments_Valkyrie_Power
 6942	//Will_Master
-6961	//Huge_Metal_Scrap
-6962	//Old_Fuel
+6961	//古代铁块
+6962	//古代燃料箱
 6905	//破损的魔法石
 //--- 2014 / 12 / 17
 12739	//天雪花

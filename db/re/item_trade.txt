@@ -702,7 +702,7 @@
 6389,499,100	//小坑样本水
 6390,499,100	//守护精灵袋子
 6391,499,100	//后勤补给箱
-6392,499,100	//马努克钸镭箱
+6392,507,100	//马努克钸镭箱
 6396,475,100	//灵魂之锥
 6397,507,100	// PR_Team_Ticket
 6398,507,100	// Develop_Team_Ticket
@@ -3769,6 +3769,7 @@
 22556,24,100	// Luxury_Chocolate
 22557,24,100	// Masterpieces_of_Artisan_Chocolate
 22566,48,100	//永久冰霜
+22567,384,100	//远征队奖励箱
 22569,499,100	// Gift_New_start
 22589,499,100	// Savage_Ora_Ora
 22590,499,100	// Grand_Peco_Ora_Ora
@@ -3923,14 +3924,14 @@
 25184,435,100	// Portable_Sewingbox
 25185,435,100	// Locket_Pendant
 25260,435,100	// Fragment_of_Purple_Ore
-26100,435,100	// Paradise_Foxtail_Staff_II
-26101,435,100	// Paradise_Foxtail_Staff_III
-28105,467,100	// Infinity_Axe
-28310,467,100	// Sarah's_Left_Earring
-28311,467,100	// Sarah's_Right_Earring
+26100,435,100	//P.狐尾草II
+26101,435,100	//P.狐尾草III
+28105,467,100	//无限双手斧
+28310,467,100	//莎拉的左耳环
+28311,467,100	//莎拉的右耳环
 28333,475,100	// Gold_PC_Room_Ring
 28495,403,100	// Sheriffs_Left_Badge
 28496,403,100	// Sheriffs_Right_Badge
-28703,467,100	// Infinity_Dagger
+28703,467,100	//无限短剑
 31140,403,100	// C_Cowboy_Hat_
 31141,403,100	// C_Rose_Corsage_

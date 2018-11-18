@@ -104,13 +104,16 @@
 #define MAX_POLICIES 20
 #include "better_customization.h"
 #ifdef BEATVER
-#ifndef _DEBUG
-#define PLAYER_LIMIT 5
-#endif
-#define BONUS_SKILL_AOE                 // 单体技能改为AOE
-#define BONUS_MULTIDAMAGERATE           // 多倍伤害
-#define SCRIPT_UNITSKILLTOWIDE          // 技能扩散
-#define SCRIPT_ROULETTE                 // 转盘规则
-#define SCRIPT_MAGICSHIELD              // 魔法护盾
+	#ifdef _DEBUG
+		#define PLAYER_LIMIT 20
+	#else
+		#define PLAYER_LIMIT 5
+	#endif
+	#define BONUS_SKILL_AOE                 // 单体技能改为AOE
+	#define BONUS_MULTIDAMAGERATE           // 多倍伤害
+	#define SCRIPT_UNITSKILLTOWIDE          // 技能扩散
+	#define SCRIPT_ROULETTE                 // 转盘规则
+	#define SCRIPT_MAGICSHIELD              // 魔法护盾
+	#define JRO_FORMULAS                    // JRO技能公式
 #endif
 #endif //_BETTERRA_CONFIG_H_

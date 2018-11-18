@@ -392,7 +392,7 @@ mal_in01,160,34,4	script	清洁工小林	545,{
 	}
 	set .@playtime, checkquest(12254,PLAYTIME);
 	if (.@playtime == -1) {
-		if (getcharid(0) == getpartyleader(.@party_id,2)) {
+		if (is_party_leader() == true) {
 			mes "[清洁工小林]";
 			mes "嗯? 什么情况? 如果你是队长的话就告诉我口令!";
 			next;
@@ -455,7 +455,7 @@ L_Enter:
 // Instance: Common Scripts
 //============================================================
 1@pump,63,100,4	script	清洁工小林#0	545,{
-	if (getcharid(0) != getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == false) {
 		mes "[清洁工小林]";
 		mes "我现在正在和你们的队长说话. 请你们耐心等待一会!";
 		close;
@@ -546,7 +546,7 @@ function	script	F_mal_missing	{
 	mes "[清洁工小林]";
 	mes "我不会介意你从自己的队友这里获得帮助. 我希望你能清理完整个洞穴! 不要忘记! 我也会在边上尽我所能给你各种提示和建议. !!";
 	next;
-	if (getcharid(0) != getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == false) {
 		mes "[清洁工小林]";
 		mes "一旦你们的队长完成准备工作, 副本就会开始, 所以请打起精神来!!";
 		close;
@@ -575,7 +575,7 @@ function	script	F_mal_missing	{
 	mes "[清洁工小林]";
 	mes "你们的疏忽导致这里长满了被污染的海藻! 所有的排水渠都收到堵塞的风险!";
 	next;
-	if (getcharid(0) != getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == false) {
 		mes "[清洁工小林]";
 		mes "等你们的队长回过神来, 会告诉你们处罚决定. 现在你们可以做一下思想准备!!";
 		close;

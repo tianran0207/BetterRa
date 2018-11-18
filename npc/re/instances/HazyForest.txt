@@ -32,7 +32,7 @@ bif_fild01,158,340,5	script	精灵士兵#mist	447,{
 		close;
 	}
 	set .@playtime, checkquest(7211,PLAYTIME);
-	if (getcharid(0) == getpartyleader(.@party_id,2)) {
+	if (is_party_leader() == true) {
 		if (.@playtime == 0 || .@playtime == 1) {
 			mes "[精灵士兵]";
 			mes "...你确定你不需要再多准备一下?";

@@ -550,7 +550,8 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, uint16 sk
 				struct status_data *status = status_get_status_data(src);
 				int min, max;
 
-				min = max = status_base_matk(src, status, status_get_lv(src));
+				min = status_base_matk_min(src, status, status_get_lv(src));
+				max = status_base_matk_max(src, status, status_get_lv(src));
 				if( status->rhw.matk > 0 ){
 					int wMatk, variance;
 					wMatk = status->rhw.matk;
@@ -1924,6 +1925,7 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 					case SC_DAILYSENDMAILCNT:
 					case SC_WEDDING:		case SC_XMAS:			case SC_SUMMER:
 					case SC_DRESSUP:		case SC_HANBOK:			case SC_OKTOBERFEST:
+					case SC_LHZ_DUN_N1:		case SC_LHZ_DUN_N2:			case SC_LHZ_DUN_N3:			case SC_LHZ_DUN_N4:
 						continue;
 					case SC_WHISTLE:		case SC_ASSNCROS:		case SC_POEMBRAGI:
 					case SC_APPLEIDUN:		case SC_HUMMING:		case SC_DONTFORGETME:
@@ -1955,7 +1957,6 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 		break;
 	case RL_HAMMER_OF_GOD:
 		sc_start(src,bl,SC_STUN,100,skill_lv,skill_get_time2(skill_id,skill_lv));
-		status_change_end(bl, SC_C_MARKER, INVALID_TIMER);
 		break;
 	case SU_SCRATCH:
 		sc_start2(src, bl, SC_BLEEDING, skill_lv * 10 + 70, skill_lv, src->id, skill_get_time(skill_id, skill_lv));
@@ -2663,7 +2664,7 @@ bool skill_strip_equip(struct block_list *src, struct block_list *target, uint16
 	const enum sc_type sc_atk[5] = {SC_STRIPWEAPON, SC_STRIPSHIELD, SC_STRIPARMOR, SC_STRIPHELM, SC__STRIPACCESSORY};
 	const enum sc_type sc_def[5] = {SC_CP_WEAPON, SC_CP_SHIELD, SC_CP_ARMOR, SC_CP_HELM, SC_NONE};
 	struct status_data *sstatus = status_get_status_data(src), *tstatus = status_get_status_data(target);
-	int rate, time, location;
+	int rate, time, location, mod = 100;
 
 	switch (skill_id) { // Rate
 		case RG_STRIPWEAPON:
@@ -2672,12 +2673,14 @@ bool skill_strip_equip(struct block_list *src, struct block_list *target, uint16
 		case RG_STRIPHELM:
 		case GC_WEAPONCRUSH:
 			rate = 50 * (skill_lv + 1) + 2 * (sstatus->dex - tstatus->dex);
+			mod = 1000;
 			break;
 		case ST_FULLSTRIP: {
 			int min_rate = 50 + 20 * skill_lv;
 
 			rate = min_rate + 2 * (sstatus->dex - tstatus->dex);
 			rate = max(min_rate, rate);
+			mod = 1000;
 			break;
 		}
 		case GS_DISARM:
@@ -2699,7 +2702,7 @@ bool skill_strip_equip(struct block_list *src, struct block_list *target, uint16
 			return false;
 	}
 
-	if (rnd()%100 >= rate)
+	if (rnd()%mod >= rate)
 		return false;
 
 	switch (skill_id) { // Duration
@@ -3552,6 +3555,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		case LG_OVERBRAND_PLUSATK:
 			dmg.dmotion = clif_skill_damage(dsrc,bl,tick,status_get_amotion(src),dmg.dmotion,damage,dmg.div_,skill_id,-1,DMG_SPLASH);
 			break;
+		case NPC_DARKPIERCING:
 		case EL_FIRE_BOMB:
 		case EL_FIRE_BOMB_ATK:
 		case EL_FIRE_WAVE:
@@ -4112,7 +4116,6 @@ int skill_area_sub_count (struct block_list *src, struct block_list *target, uin
 				}
 			}
 		case RL_D_TAIL:
-		case RL_HAMMER_OF_GOD:
 			if (src->type != BL_PC)
 				return 0;
 			{
@@ -4910,6 +4913,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 	case SN_SHARPSHOOTING:
 	case MA_SHARPSHOOTING:
 	case NJ_KAMAITACHI:
+	case NPC_DARKPIERCING:
 	case NPC_ACIDBREATH:
 	case NPC_DARKNESSBREATH:
 	case NPC_FIREBREATH:
@@ -5056,6 +5060,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 	case NPC_VAMPIRE_GIFT:
 	case NPC_MAXPAIN_ATK:
 	case NPC_JACKFROST:
+	case NPC_ARROWSTORM:
 	case RK_IGNITIONBREAK:
 	case AB_JUDEX:
 	case AB_ADORAMUS:
@@ -5091,6 +5096,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 	case RL_FIREDANCE:
 	case RL_S_STORM:
 	case RL_R_TRIP:
+	case RL_HAMMER_OF_GOD:
 	case MH_XENO_SLASHER:
 	case NC_ARMSCANNON:
 	case SU_SCRATCH:
@@ -6101,18 +6107,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 			flag |= 1; // Don't consume requirement
 		break;
 
-	case RL_HAMMER_OF_GOD:
-		if (!(flag&1)) {
-			if (!sd) {
-				skill_attack(skill_get_type(skill_id), src, src, bl, skill_id, skill_lv, tick, flag);
-				break;
-			}
-
-			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skill_id, skill_lv), BL_CHAR|BL_SKILL, src, skill_id, skill_lv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id);
-		} else
-			skill_attack(skill_get_type(skill_id), src, src, bl, skill_id, skill_lv, tick, flag);
-		break;
-
 	case RL_QD_SHOT:
 		if (sd)
 			status_change_end(&sd->bl, SC_QD_SHOT_READY, INVALID_TIMER);
@@ -6793,6 +6787,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 	case ST_PRESERVE:
 	case NPC_INVINCIBLE:
 	case NPC_INVINCIBLEOFF:
+	case MER_INVINCIBLEOFF2:
 	case RK_DEATHBOUND:
 	case AB_EXPIATIO:
 	case AB_DUPLELIGHT:
@@ -7192,6 +7187,16 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		if( !i && ( skill_id == NC_AXETORNADO || skill_id == SR_SKYNETBLOW || skill_id == KO_HAPPOKUNAI ) )
 			clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skill_id, skill_lv, DMG_SKILL);
 	}
+		break;
+
+	case RK_IGNITIONBREAK:
+		skill_area_temp[1] = 0;
+#if PACKETVER >= 20180207
+		clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+#else
+		clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skill_id, skill_lv, DMG_SKILL);
+#endif
+		map_foreachinrange(skill_area_sub, bl, skill_get_splash(skill_id, skill_lv), BL_CHAR|BL_SKILL, src, skill_id, skill_lv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
 		break;
 
 	case SR_WINDMILL:
@@ -8039,6 +8044,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 					case SC_DAILYSENDMAILCNT:
 					case SC_WEDDING:		case SC_XMAS:			case SC_SUMMER:
 					case SC_DRESSUP:		case SC_HANBOK:			case SC_OKTOBERFEST:
+					case SC_LHZ_DUN_N1:		case SC_LHZ_DUN_N2:			case SC_LHZ_DUN_N3:			case SC_LHZ_DUN_N4:
 						continue;
 					case SC_WHISTLE:
 					case SC_ASSNCROS:
@@ -8851,37 +8857,15 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 
 	// New guild skills [Celest]
 	case GD_BATTLEORDER:
-		if(flag&1) {
-			if (status_get_guild_id(src) == status_get_guild_id(bl))
-				sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id, skill_lv));
-		} else if (status_get_guild_id(src)) {
-			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-			map_foreachinallrange(skill_area_sub, src,
-				skill_get_splash(skill_id, skill_lv), BL_PC,
-				src,skill_id,skill_lv,tick, flag|BCT_GUILD|1,
-				skill_castend_nodamage_id);
-			if (sd)
-				guild_block_skill(sd,skill_get_time2(skill_id,skill_lv));
-		}
-		break;
 	case GD_REGENERATION:
-		if(flag&1) {
-			if (status_get_guild_id(src) == status_get_guild_id(bl))
-				sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id, skill_lv));
-		} else if (status_get_guild_id(src)) {
-			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-			map_foreachinallrange(skill_area_sub, src,
-				skill_get_splash(skill_id, skill_lv), BL_PC,
-				src,skill_id,skill_lv,tick, flag|BCT_GUILD|1,
-				skill_castend_nodamage_id);
-			if (sd)
-				guild_block_skill(sd,skill_get_time2(skill_id,skill_lv));
-		}
-		break;
 	case GD_RESTORE:
 		if(flag&1) {
-			if (status_get_guild_id(src) == status_get_guild_id(bl))
-				clif_skill_nodamage(src,bl,AL_HEAL,status_percent_heal(bl,90,90),1);
+			if (status_get_guild_id(src) == status_get_guild_id(bl)) {				
+				if( skill_id == GD_RESTORE )
+					clif_skill_nodamage(src,bl,AL_HEAL,status_percent_heal(bl,90,90),1);
+				else
+					sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id, skill_lv));
+			}
 		} else if (status_get_guild_id(src)) {
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 			map_foreachinallrange(skill_area_sub, src,
@@ -9143,16 +9127,15 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				skill_castend_nodamage_id);
 		}
 		break;
-	case RK_IGNITIONBREAK:
-	case LG_EARTHDRIVE:
+
+	case LG_EARTHDRIVE: {
+			int dummy = 1;
+
 			clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skill_id, skill_lv, DMG_SKILL);
 			i = skill_get_splash(skill_id,skill_lv);
-			if( skill_id == LG_EARTHDRIVE ) {
-				int dummy = 1;
-				map_foreachinallarea(skill_cell_overlap, src->m, src->x-i, src->y-i, src->x+i, src->y+i, BL_SKILL, LG_EARTHDRIVE, &dummy, src);
-			}
-			map_foreachinrange(skill_area_sub, bl,i,BL_CHAR,
-				src,skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
+			map_foreachinallarea(skill_cell_overlap, src->m, src->x-i, src->y-i, src->x+i, src->y+i, BL_SKILL, LG_EARTHDRIVE, &dummy, src);
+			map_foreachinrange(skill_area_sub, bl,i,BL_CHAR,src,skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
+		}
 		break;
 	case RK_GIANTGROWTH:
 	case RK_STONEHARDSKIN:
@@ -9515,6 +9498,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 					case SC_DAILYSENDMAILCNT:
 					case SC_WEDDING:		case SC_XMAS:			case SC_SUMMER:
 					case SC_DRESSUP:		case SC_HANBOK:			case SC_OKTOBERFEST:
+					case SC_LHZ_DUN_N1:		case SC_LHZ_DUN_N2:			case SC_LHZ_DUN_N3:			case SC_LHZ_DUN_N4:
 					continue;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
@@ -10776,7 +10760,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		{
 			int heal = 5 * status_get_lv(&hd->bl) +
 #ifdef RENEWAL
-						status_base_matk(bl, &hd->battle_status, status_get_lv(&hd->bl));
+						status_base_matk_min(bl, &hd->battle_status, status_get_lv(&hd->bl));
 #else
 						status_base_matk_min(&hd->battle_status);
 #endif
@@ -11074,7 +11058,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 
 			// Do the teleport part
 			for (i = 0; i < MAX_PARTY; ++i) {
-				map_session_data *pl_sd = pl_sd = p->data[i].sd;
+				map_session_data *pl_sd = p->data[i].sd;
 
 				if (pl_sd == nullptr || pl_sd == sd || pl_sd->status.party_id != p->party.party_id || pc_isdead(pl_sd) ||
 					sd->bl.m != pl_sd->bl.m)
@@ -11400,6 +11384,22 @@ TIMER_FUNC(skill_castend_id){
 			case SU_CN_POWDERING:
 				ud->skillx = target->x;
 				ud->skilly = target->y;
+				ud->skilltimer = tid;
+				return skill_castend_pos(tid,tick,id,data);
+			case RL_HAMMER_OF_GOD:
+				if ((sc = status_get_sc(target)) && sc->data[SC_C_MARKER]) {
+					ud->skillx = target->x;
+					ud->skilly = target->y;
+				} else {
+					int splash = skill_get_splash(ud->skill_id, ud->skill_lv); // !TODO: What's the random AoE size?
+
+					ud->skillx = target->x + splash;
+					ud->skilly = target->y + splash;
+					if (!map_random_dir(target, &ud->skillx, &ud->skilly)) {
+						ud->skillx = target->x;
+						ud->skilly = target->y;
+					}
+				}
 				ud->skilltimer = tid;
 				return skill_castend_pos(tid,tick,id,data);
 		}
@@ -11851,6 +11851,12 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
 			src, skill_id, skill_lv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id);
 		break;
 
+	case NPC_LEX_AETERNA:
+		i = skill_get_splash(skill_id, skill_lv);
+		map_foreachinallarea(skill_area_sub, src->m, x-i, y-i, x+i, y+i, BL_CHAR, src,
+			PR_LEXAETERNA, 1, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
+		break;
+
 	case SA_VOLCANO:
 	case SA_DELUGE:
 	case SA_VIOLENTGALE:
@@ -11937,6 +11943,8 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
 #endif
 	case NPC_EVILLAND:
 	case NPC_VENOMFOG:
+	case NPC_ICEMINE:
+	case NPC_FLAMECROSS:
 	case RA_ELECTRICSHOCKER:
 	case RA_CLUSTERBOMB:
 	case RA_MAGENTATRAP:
@@ -12277,6 +12285,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
 	case NC_COLDSLOWER:
 	case RK_DRAGONBREATH:
 	case RK_DRAGONBREATH_WATER:
+	case RL_HAMMER_OF_GOD:
 		// Cast center might be relevant later (e.g. for knockback direction)
 		skill_area_temp[4] = x;
 		skill_area_temp[5] = y;
@@ -12885,10 +12894,12 @@ struct skill_unit_group *skill_unitsetting(struct block_list *src, uint16 skill_
 	int active_flag = 1;
 	int subunt = 0;
 	bool hidden = false;
+	struct map_data *mapdata;
 
 	nullpo_retr(NULL, src);
 
-	limit = skill_get_time(skill_id,skill_lv);
+	mapdata = map_getmapdata(src->m);
+	limit = skill_get_time3(mapdata, skill_id,skill_lv);
 	range = skill_get_unit_range(skill_id,skill_lv);
 	interval = skill_get_unit_interval(skill_id);
 	target = skill_get_unit_target(skill_id);
@@ -13299,7 +13310,6 @@ struct skill_unit_group *skill_unitsetting(struct block_list *src, uint16 skill_
 		int unit_val1 = skill_lv;
 		int unit_val2 = 0;
 		int alive = 1;
-		struct map_data *mapdata = map_getmapdata(src->m);
 
 		// are the coordinates out of range?
 		if( ux <= 0 || uy <= 0 || ux >= mapdata->xs || uy >= mapdata->ys ){
@@ -13856,6 +13866,8 @@ int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *bl, uns
 		case UNT_MAGMA_ERUPTION:
 		case UNT_MAKIBISHI:
 		case UNT_VENOMFOG:
+		case UNT_ICEMINE:
+		case UNT_FLAMECROSS:
 			skill_attack(skill_get_type(sg->skill_id),ss,&unit->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
 			break;
 
@@ -16165,17 +16177,10 @@ bool skill_check_condition_castend(struct map_session_data* sd, uint16 skill_id,
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_PAINTBRUSH,0); //Paint brush is required.
 			else if( require.itemid[i] == ITEMID_ANCILLA )
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_ANCILLA,0); //Ancilla is required.
-			else if(skill_id == RL_SLUGSHOT) {
-				if (i < MAX_SKILL_ITEM_REQUIRE - 1) // Check all Slug types
-					continue;
-				else
-					clif_skill_fail(sd, RL_SLUGSHOT, USESKILL_FAIL_NEED_MORE_BULLET, 0); // Bullet is required.
-			} else {
+			else
 				clif_skill_fail( sd, skill_id, USESKILL_FAIL_NEED_ITEM, ( require.itemid[i] << 16 ) | require.amount[i] ); // [%s] required '%d' amount.
-			}
 			return false;
-		} else if (skill_id == RL_SLUGSHOT) // Slug found - simulate priority and cancel the loop
-			break;
+		}
 	}
 
 	/* check the status required */
@@ -16284,9 +16289,6 @@ void skill_consume_requirement(struct map_session_data *sd, uint16 skill_id, uin
 			if( (n = pc_search_inventory(sd,require.itemid[i])) >= 0 )
 				if (!sd->inventory_data[n]->flag.skill_no_consumed)
 					pc_delitem(sd,n,require.amount[i],0,1,LOG_TYPE_CONSUME);
-
-			if (skill_id == RL_SLUGSHOT && n > -1) // Slug found - simulate priority and cancel the loop
-				break;
 		}
 	}
 }
@@ -20704,6 +20706,15 @@ void skill_init_unit_layout (void) {
 						memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
 					}
 					break;
+				case NPC_FLAMECROSS: {
+						static const int dx[] = {-2,-1, 1, 2, 0, 0, 0, 0};
+						static const int dy[] = { 0, 0, 0, 0,-2,-1, 1, 2};
+
+						skill_unit_layout[pos].count = 8;
+						memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
+						memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
+					}
+					break;
 				default:
 					ShowError("unknown unit layout at skill %d\n",i);
 					break;
@@ -21119,6 +21130,24 @@ static bool skill_check_unit_movepos(uint8 check_flag, struct block_list *bl, sh
 		return false;
 
 	return unit_movepos(bl, dst_x, dst_y, easy, checkpath);
+}
+
+/**
+ * Get skill duration after adjustments by skill_duration mapflag
+ * @param mapdata: Source map data
+ * @param skill_id: Skill ID
+ * @param skill_lv: Skill level
+ * @return Adjusted skill duration
+ */
+int skill_get_time3(struct map_data *mapdata, uint16 skill_id, uint16 skill_lv) {
+	int time = 0;
+
+	if (!skill_get_index(skill_id) || !(time = skill_get_time(skill_id, skill_lv)))
+		return 0;
+
+	if (mapdata && !mapdata->skill_duration.empty() && mapdata->skill_duration.find(skill_id) != mapdata->skill_duration.end())
+		return time / 100 * mapdata->skill_duration[skill_id];
+	return time;
 }
 
 /*==========================================

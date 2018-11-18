@@ -894,7 +894,7 @@ OnAgitInvest:
 		set .@guild, getcharid(2);
 		for(set .@i,1; .@i<=5; set .@i,.@i+1) {
 			set .@castle_name$[.@i], getcastlename(.@npc$+"g_cas0"+.@i);
-			set .@owner_id[.@i], getcastledata(.@npc$+"g_cas0"+.@i,1);
+			set .@owner_id[.@i], getcastledata(.@npc$+"g_cas0"+.@i,CD_GUILD_ID);
 			set .@owner_name$[.@i], getguildname(.@owner_id[.@i]);
 			if (.@guild == .@owner_id[.@i]) {
 				set .@menu$, .@menu$+.@castle_name$[.@i]+" ["+.@owner_name$[.@i]+"] 公会:";
@@ -1042,7 +1042,7 @@ OnAgitInvest:
 		for(set .@i,1; .@i<=5; set .@i,.@i+1) {
 			set .@map$, .@npc$+"g_cas0"+.@i;
 			set .@fund[.@i], getd("$@vfund_"+.@npc$+"0"+.@i);
-			mes getcastlename(.@map$)+" "+getguildname(getcastledata(.@map$,1))+" 公会: "+.@fund[.@i];
+			mes getcastlename(.@map$)+" "+getguildname(getcastledata(.@map$,CD_GUILD_ID))+" 公会: "+.@fund[.@i];
 		}
 		set .@fund[0], getd("$@vfund_"+.@npc$+"_extra");
 		mes .@realm$+" 普通: "+.@fund[0];
@@ -1096,7 +1096,7 @@ OnAgitInvest:
 		set .@realm$,"普隆德拉";
 	}
 
-	set .@GID, getcastledata(strnpcinfo(4),1);
+	set .@GID, getcastledata(strnpcinfo(4),CD_GUILD_ID);
 	if (getcharid(2) != .@GID) {
 		mes "[深渊之门管理员]";
 		mes "你似乎并不是拥有这座城堡的公会成员.";

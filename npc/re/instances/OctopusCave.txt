@@ -28,7 +28,7 @@ mal_dun01,151,235,5	script	海星	551,{
 		mes "组成一支队伍, 然后再来找我.";
 		close;
 	}
-	if (getcharid(0) != getpartyleader(.@party_id,2)) {
+	if (is_party_leader() == false) {
 		mes "[海星]";
 		mes "你们的队长在哪里, 呵呵.";
 		mes "我可不是个随便的人,";

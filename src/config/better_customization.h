@@ -13,6 +13,7 @@
 #undef C_AUTOLOOTITEM_SIZE
 #define C_AUTOLOOTITEM_SIZE 100
 
+//ÅÝÄ­ÄÌÆ¿
 #elif SERVER_DIFF == 2
 #undef C_PACKETVER
 #define C_PACKETVER 20180620

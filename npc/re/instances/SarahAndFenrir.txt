@@ -34,7 +34,7 @@ dali02,97,142,3	script	班哈德博士#a1	4_LGTSCIENCE,{
 			mes "这就是我在这里等待你的原因。";
 			next;
 			mes "[班哈德博士]";
-			if (getpartyleader(getcharid(1),2) != getcharid(0)) {
+			if (is_party_leader() == false) {
 				mes "我渴望成为能制造出真正强大的武器的研究员！";
 				mes "为了实现这一点，我们需要 ^0000FF巨人的碎片^000000 ，";
 				mes "它曾经出现在芬里厄和莎拉过去的战斗中。";
@@ -125,7 +125,7 @@ dali02,97,142,3	script	班哈德博士#a1	4_LGTSCIENCE,{
 		next;
 		mes "[班哈德博士]";
 		mes "你觉得怎样？回到过去带 ^0000FF巨人的碎片^000000 回来，我一定会给你足够的报酬。";
-		if (getpartyleader(getcharid(1),2) == getcharid(0)) {
+		if (is_party_leader() == true) {
 			next;
 			if (select("不，还是算了", "好吧，我答应你" ) == 1) {
 				mes "[班哈德博士]";
@@ -716,7 +716,7 @@ OnTimer15500:
 1@glast,199,237,0	script	#glast_move_03	WARPNPC,2,2,{
 	end;
 OnTouch:
-	if (getcharid(0) == getpartyleader(getcharid(1),2))
+	if (is_party_leader() == true)
 		warpparty 'map_glast$,197,263, getcharid(1), 'map_glast$,1,1;
 	end;
 }
@@ -725,7 +725,7 @@ OnTouch:
 1@glast,199,294,0	script	#glast_move_03a	WARPNPC,3,3,{
 	end;
 OnTouch:
-	if (getcharid(0) == getpartyleader(getcharid(1),2))
+	if (is_party_leader() == true)
 		warpparty 'map_glast$,188,334, getcharid(1), 'map_glast$,1,1;
 	end;
 }
@@ -742,7 +742,7 @@ OnTouch:
 1@glast,351,269,0	script	#glast_move_04	WARPNPC,3,3,{
 	end;
 OnTouch:
-	if (getcharid(0) == getpartyleader(getcharid(1),2)) {
+	if (is_party_leader() == true) {
 		donpcevent instance_npcname("#sarah_wrath") + "::OnStop";
 		warpparty 'map_glast$,349,282, getcharid(1), 'map_glast$,1,1;
 	}
@@ -802,7 +802,7 @@ OnTouch:
 1@glast,47,270,0	script	#glast_event_7	HIDDEN_WARP_NPC,5,5,{
 	end;
 OnTouch:
-	if (getcharid(0) != getpartyleader(getcharid(1),2))
+	if (is_party_leader() == false)
 		npctalk "芬里尔：来了么？谢谢你们。", 'fenrir_3$;
 	else {
 		mes "空";
