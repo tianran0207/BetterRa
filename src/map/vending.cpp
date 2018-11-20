@@ -91,6 +91,22 @@ void vending_vendinglistreq(struct map_session_data* sd, int id)
 		clif_displaymessage(sd->fd, msg_txt(sd,246));
 		return;
 	}
+	
+	/**
+	* Extended Vending system [Lilith]
+	**/
+	if (battle_config.extended_vending && vsd->vend_loot) {
+		char output[1024];
+		if (vsd->vend_loot == battle_config.item_zeny)
+			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_jname(vsd->vend_loot), sd->status.zeny);
+		else if(vsd->vend_loot == battle_config.item_cash)
+			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_jname(vsd->vend_loot), sd->cashPoints);
+		else {
+			int idx = pc_search_inventory(sd, vsd->vend_loot);
+			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_jname(vsd->vend_loot), idx == -1 ? 0 : sd->inventory.u.items_inventory[idx].amount);
+		}
+		clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
+	}
 
 	sd->vended_id = vsd->vender_id;  // register vending uid
 
@@ -171,14 +187,55 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 			vend_list[i] = j;
 
 		z += ((double)vsd->vending[j].value * (double)amount);
-		if( z > (double)sd->status.zeny || z < 0. || z > (double)MAX_ZENY ) {
-			clif_buyvending(sd, idx, amount, 1); // you don't have enough zeny
-			return;
-		}
-		if( z + (double)vsd->status.zeny > (double)MAX_ZENY && !battle_config.vending_over_max ) {
-			clif_buyvending(sd, idx, vsd->vending[j].amount, 4); // too much zeny = overflow
-			return;
+		/**
+		* Extended Vending system [Lilith]
+		**/
+		if (battle_config.extended_vending) {
+			if (vsd->vend_loot == battle_config.item_zeny || !vsd->vend_loot) {
+				if (z > (double)sd->status.zeny || z < 0. || z >(double)MAX_ZENY){
+					clif_buyvending(sd, idx, amount, 1);
+					return;
+				}
+				if (z + (double)vsd->status.zeny > (double)MAX_ZENY && !battle_config.vending_over_max){
+					clif_buyvending(sd, idx, vsd->vending[j].amount, 4); // too much zeny = overflow
+					return;
+				}
+			}
+			else if (vsd->vend_loot == battle_config.item_cash) {
+				if (z > sd->cashPoints || z < 0. || z >(double)MAX_ZENY) {
+					clif_broadcast_color(&sd->bl, msg_txt(sd, 2350), "0x00FFFF", SELF);
+					return;
+				}
+			}
+			else {
+				int k, loot_count = 0, vsd_w = 0;
+				for (k = 0; k < MAX_INVENTORY; k++)
+					if (sd->inventory.u.items_inventory[k].nameid == vsd->vend_loot)
+						loot_count += sd->inventory.u.items_inventory[k].amount;
 
+				if (z > loot_count || z < 0){
+					clif_broadcast_color(&sd->bl, msg_txt(sd, 2351), "0x00FFFF", SELF);
+					return;
+				}
+				if (pc_inventoryblank(vsd) <= 0){
+					clif_broadcast_color(&sd->bl, msg_txt(sd, 2352), "0x00FFFF", SELF);
+					return;
+				}
+				vsd_w += itemdb_weight(vsd->vend_loot) * (int)z;
+				if (vsd_w + vsd->weight > vsd->max_weight){
+					clif_broadcast_color(&sd->bl, msg_txt(sd, 2353), "0x00FFFF", SELF);
+					return;
+				}
+			}
+		} else {
+			if( z > (double)sd->status.zeny || z < 0. || z > (double)MAX_ZENY ) {
+				clif_buyvending(sd, idx, amount, 1); // you don't have enough zeny
+				return;
+			}
+			if (z + (double)vsd->status.zeny > (double)MAX_ZENY && !battle_config.vending_over_max) {
+				clif_buyvending(sd, idx, vsd->vending[j].amount, 4); // too much zeny = overflow
+				return;
+			}
 		}
 		w += itemdb_weight(vsd->cart.u.items_cart[idx].nameid) * amount;
 		if( w + sd->weight > sd->max_weight ) {
@@ -213,16 +270,39 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		}
 	}
 
-	pc_payzeny(sd, (int)z, LOG_TYPE_VENDING, vsd);
-	achievement_update_objective(sd, AG_SPEND_ZENY, 1, (int)z);
-	z = vending_calc_tax(sd, z);
-	pc_getzeny(vsd, (int)z, LOG_TYPE_VENDING, sd);
+	/**
+	* Extended Vending system [Lilith]
+	**/
+	if (battle_config.extended_vending && vsd->vend_loot && vsd->vend_loot != battle_config.item_zeny) {
+		if (vsd->vend_loot == battle_config.item_cash) {
+			pc_paycash(sd, (int)z, 0, LOG_TYPE_VENDING);
+			pc_getcash(vsd, (int)z, 0, LOG_TYPE_VENDING);
+		}
+		else {
+			for (i = 0; i < MAX_INVENTORY; i++)
+				if (sd->inventory.u.items_inventory[i].nameid == vsd->vend_loot 
+					&& sd->inventory.u.items_inventory[i].amount >= z){
+					struct item *item = &sd->inventory.u.items_inventory[i];
+					pc_delitem(sd, i, (int)z, 0, 6, LOG_TYPE_VENDING);
+					pc_additem(vsd, item, (int)z, LOG_TYPE_VENDING);
+					break;
+				}
+		}
+	}
+	else {
+		pc_payzeny(sd, (int)z, LOG_TYPE_VENDING, vsd);
+		achievement_update_objective(sd, AG_SPEND_ZENY, 1, (int)z);
+		z = vending_calc_tax(sd, z);
+		pc_getzeny(vsd, (int)z, LOG_TYPE_VENDING, sd);
+	}
+
 
 	for( i = 0; i < count; i++ ) {
 		short amount = *(uint16*)(data + 4*i + 0);
 		short idx    = *(uint16*)(data + 4*i + 2);
 		idx -= 2;
 		z = 0.; // zeny counter
+		int itemid = vsd->cart.u.items_cart[idx].nameid;
 
 		// vending item
 		pc_additem(sd, &vsd->cart.u.items_cart[idx], amount, LOG_TYPE_VENDING);
@@ -246,9 +326,25 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		//print buyer's name
 		if( battle_config.buyer_name ) {
 			char temp[256];
-			sprintf(temp, msg_txt(sd,265), sd->status.name);
+			if (battle_config.ex_vending_info) // Extended Vending system [Lilith]
+				sprintf(temp, msg_txt(sd,2357), sd->status.name, itemdb_jname(itemid), amount, vsd->vending[vend_list[i]].value * amount, vsd->vend_loot ? itemdb_jname(vsd->vend_loot) : "Zeny");
+			else
+				sprintf(temp, msg_txt(sd,265), sd->status.name);
 			clif_messagecolor(&vsd->bl, color_table[COLOR_LIGHT_GREEN], temp, false, SELF);
 		}
+		if (battle_config.ex_vending_info) {
+			char output[256];
+			if (vsd->vend_loot == battle_config.item_zeny)
+				sprintf(output, msg_txt(sd, 2359), (int)z, itemdb_jname(vsd->vend_loot), sd->status.zeny);
+			else if (vsd->vend_loot == battle_config.item_cash)
+				sprintf(output, msg_txt(sd, 2359), (int)z, itemdb_jname(vsd->vend_loot), sd->cashPoints);
+			else {
+				int idx = pc_search_inventory(sd, vsd->vend_loot);
+				sprintf(output, msg_txt(sd, 2359), (int)z, itemdb_jname(vsd->vend_loot), idx == -1 ? 0 : sd->inventory.u.items_inventory[idx].amount);
+			}
+			clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
+		}
+		
 	}
 
 	// compact the vending list

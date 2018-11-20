@@ -185,7 +185,15 @@ struct Battle_Config
 	int atcommand_info;
 	int mvpdrop_last_hit_loot;
 	int jro_formulas;
-	//------------------------------
+
+
+	//---Extended Vending system [Lilith]---
+	int extended_vending;
+	int show_item_vending;
+	int ex_vending_info;
+	int item_zeny;
+	int item_cash;
+	//--------------------------------------
 	int warp_point_debug;
 	int enable_critical;
 	int mob_critical_rate;

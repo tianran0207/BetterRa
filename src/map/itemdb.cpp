@@ -31,6 +31,8 @@ struct item_data *dummy_item; /// This is the default dummy item used for non-ex
 
 struct s_roulette_db rd;
 
+int vending_itemid[MAX_INVENTORY];
+
 /**
 * Check if combo exists
 * @param combo_id
@@ -579,6 +581,33 @@ static bool item_read_announce(char* str[], int columns, int current) {
 		return false;
 	}
 	id->flag.announce = atoi(str[1]);
+	return true;
+}
+
+/**
+* Extended Vending system [Lilith]
+**/
+static bool itemdb_read_vending(char* fields[], int columns, int current)
+{
+	struct item_data* id;
+	int nameid;
+
+	nameid = atoi(fields[0]);
+
+	if ((id = itemdb_exists(nameid)) == NULL)
+	{
+		ShowWarning("itemdb_read_vending: Invalid item id %d.\n", nameid);
+		return false;
+	}
+
+	if (id->type == IT_ARMOR || id->type == IT_WEAPON)
+	{
+		ShowWarning("itemdb_read_vending: item id %d cannot be equipment or weapon.\n", nameid);
+		return false;
+	}
+
+	vending_itemid[current] = nameid;
+
 	return true;
 }
 
@@ -1899,6 +1928,7 @@ static void itemdb_read(void) {
 		}
 		
 		sv_readdb(dbsubpath1, "item_announce.txt",      ',', 2, 2, -1, &item_read_announce, i > 0);
+		sv_readdb(dbsubpath1, "item_vending.txt",       ',', 1, 1, MAX_INVENTORY, &itemdb_read_vending, i > 0); // Extended Vending system [Lilith]
 		sv_readdb(dbsubpath1, "item_avail.txt",         ',', 2, 2, -1, &itemdb_read_itemavail, i > 0);
 		sv_readdb(dbsubpath2, "item_stack.txt",         ',', 3, 3, -1, &itemdb_read_stack, i > 0);
 		sv_readdb(dbsubpath1, "item_nouse.txt",         ',', 3, 3, -1, &itemdb_read_nouse, i > 0);
@@ -2029,6 +2059,7 @@ void itemdb_reload(void) {
 	if (battle_config.feature_roulette)
 		itemdb_roulette_free();
 
+	memset(vending_itemid, 0, sizeof(vending_itemid)); // Extended Vending system [Lilith]
 	// read new data
 	itemdb_read();
 	cashshop_reloaddb();

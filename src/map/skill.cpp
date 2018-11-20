@@ -7645,7 +7645,38 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		{	//Prevent vending of GMs with unnecessary Level to trade/drop. [Skotlex]
 			if ( !pc_can_give_items(sd) )
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
-			else {
+			else if (battle_config.extended_vending) {
+				struct item_data *item;
+				char output[1024];
+				int c = 0, i, d = 0;
+				sd->vend_lvl = skill_lv;
+				if (battle_config.item_zeny)
+					d++;
+				if (battle_config.item_cash)
+					d++;
+				for (c = d, i = 0; i < ARRAYLENGTH(vending_itemid); i++) {
+					if ((item = itemdb_exists(vending_itemid[i])) != NULL &&
+						item->nameid != battle_config.item_zeny && item->nameid != battle_config.item_cash)
+						c++;
+				}
+
+				if (c > 1)
+					clif_vend(sd, sd->vend_lvl);
+				else {
+					sd->state.prevend = 1;
+					if (c) {
+						item = itemdb_exists(battle_config.item_zeny ? battle_config.item_zeny : battle_config.item_cash ? battle_config.item_cash : vending_itemid[0]);
+						sd->vend_loot = item->nameid;
+						sprintf(output, msg_txt(sd, 2356), itemdb_jname(sd->vend_loot));
+						clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
+						clif_openvendingreq(sd, 2 + sd->vend_lvl);
+					}
+					else {
+						sd->vend_loot = 0;
+						clif_openvendingreq(sd, 2 + sd->vend_lvl);
+					}
+				}
+			}else{
 				sd->state.prevend = 1;
 				sd->state.workinprogress = WIP_DISABLE_ALL;
 				sd->vend_skill_lv = skill_lv;
@@ -19970,6 +20001,42 @@ int skill_poisoningweapon(struct map_session_data *sd, unsigned short nameid)
 /*#if PACKETVER >= 20110208 //! TODO: Check the correct PACKVETVER
 	clif_msg(sd,msg);
 #endif*/
+	return 0;
+}
+
+/**
+* Extended Vending system [Lilith]
+**/
+int skill_vending(struct map_session_data *sd, int nameid) {
+
+	struct item_data *item;
+	char output[1024];
+
+	nullpo_ret(sd);
+
+	if (nameid <= 0) {
+		clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0);
+		return 0;
+	}
+
+	if (nameid > MAX_ITEMID)
+		return 0;
+
+	sd->vend_loot = nameid;
+	
+	if (!(item = itemdb_exists(nameid)))
+		return 0;
+
+	sprintf(output, msg_txt(sd, 2354), item->jname);
+	clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
+
+	if (!pc_can_give_items(sd))
+		clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0);
+	else {
+		sd->state.prevend = 1;
+		clif_openvendingreq(sd, 2 + sd->vend_lvl);
+	}
+
 	return 0;
 }
 

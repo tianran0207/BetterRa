@@ -1,5 +1,5 @@
 
-#define SERVER_DIFF 0
+#define SERVER_DIFF 2
 
 #if SERVER_DIFF == 1
 //版本20150916、复兴前，金币上限改21E、自动拾取上限100条

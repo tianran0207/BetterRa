@@ -8127,6 +8127,13 @@ static const struct _battle_data {
 	{ "mvpdrop_last_hit_loot",              &battle_config.mvpdrop_last_hit_loot,           0,      0,      1,              },
 	
 	{ "jro_formulas",                       &battle_config.jro_formulas,                    0,      0,      1,              },
+
+	//--------------------------------------------Extended Vending system [Lilith]---------------------------------------------		 
+	{ "extended_vending",					&battle_config.extended_vending,				1,		0,		1,				},
+	{ "show_item_vending",					&battle_config.show_item_vending,				1,		0,		1,				},
+	{ "ex_vending_info",					&battle_config.ex_vending_info,					1,		0,		1,				},
+	{ "item_zeny",							&battle_config.item_zeny,						0,		0,		MAX_ITEMID,		},
+	{ "item_cash",							&battle_config.item_cash,						0,		0,		MAX_ITEMID,		},
 	//------------------------------------------------------------------------------------------------------------------------
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },

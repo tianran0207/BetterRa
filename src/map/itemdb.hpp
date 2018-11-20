@@ -730,6 +730,8 @@ enum e_random_item_group {
 	IG_PRIVATE_AIRSHIP,
 };
 
+extern int vending_itemid[MAX_INVENTORY];
+
 /// Enum for bound/sell restricted selling
 enum e_itemshop_restrictions {
 	ISR_NONE = 0x0,

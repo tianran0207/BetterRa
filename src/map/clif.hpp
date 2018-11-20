@@ -751,6 +751,7 @@ void clif_vendinglist(struct map_session_data* sd, int id, struct s_vending* ven
 void clif_buyvending(struct map_session_data* sd, int index, int amount, int fail);
 void clif_openvending(struct map_session_data* sd, int id, struct s_vending* vending);
 void clif_vendingreport(struct map_session_data* sd, int index, int amount, uint32 char_id, int zeny);
+int clif_vend(struct map_session_data *sd, int skill_lv);
 
 void clif_movetoattack(struct map_session_data *sd,struct block_list *bl);
 
@@ -822,6 +823,7 @@ void clif_font(struct map_session_data *sd);
 void clif_displaymessage(const int fd, const char* mes);
 void clif_disp_message(struct block_list* src, const char* mes, int len, enum send_target target);
 void clif_broadcast(struct block_list* bl, const char* mes, int len, int type, enum send_target target);
+void clif_broadcast_color(struct block_list* bl, const char* mes, const char *fontColor, enum send_target target);
 void clif_broadcast2(struct block_list* bl, const char* mes, int len, unsigned long fontColor, short fontType, short fontSize, short fontAlign, short fontY, enum send_target target);
 void clif_heal(int fd,int type,int val);
 void clif_resurrection(struct block_list *bl,int type);

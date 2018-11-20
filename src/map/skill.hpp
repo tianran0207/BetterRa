@@ -2197,6 +2197,11 @@ bool skill_check_camouflage(struct block_list *bl, struct status_change_entry *s
 int skill_magicdecoy(struct map_session_data *sd, unsigned short nameid);
 
 /**
+ * Extended Vending system [Lilith]
+ **/
+int skill_vending(struct map_session_data *sd, int nameid);
+
+/**
  * Guiltoine Cross
  **/
 int skill_poisoningweapon( struct map_session_data *sd, unsigned short nameid);

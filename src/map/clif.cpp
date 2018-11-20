@@ -6336,6 +6336,22 @@ void clif_broadcast2(struct block_list* bl, const char* mes, int len, unsigned l
 	clif_send(buf.get(), WBUFW(buf.get(),2), bl, target);
 }
 
+void clif_broadcast_color(struct block_list* bl, const char* mes, const char *fontColor, enum send_target target)
+{
+	unsigned short len = strlen(mes) + 1;
+	std::unique_ptr<unsigned char> buf(new unsigned char[16+len]);
+
+	WBUFW(buf.get(), 0) = 0x1c3;
+	WBUFW(buf.get(), 2) = len + 16;
+	WBUFL(buf.get(), 4) = strtol(fontColor, (char **)NULL, 0);
+	WBUFW(buf.get(), 8) = FW_NORMAL;
+	WBUFW(buf.get(), 10) = 12;
+	WBUFW(buf.get(), 12) = 0;
+	WBUFW(buf.get(), 14) = 0;
+	memcpy(WBUFP(buf.get(), 16), mes, len);
+	clif_send(buf.get(), WBUFW(buf.get(), 2), bl, target);
+}
+
 /*
  * Display *msg to all *users in channel
  */
@@ -12858,6 +12874,9 @@ void clif_parse_SelectArrow(int fd,struct map_session_data *sd) {
 		case GC_POISONINGWEAPON:
 			skill_poisoningweapon(sd,nameid);
 			break;
+		case MC_VENDING: // Extended Vending system [Lilith]
+			skill_vending(sd, nameid);
+			break;
 		case NC_MAGICDECOY:
 			skill_magicdecoy(sd,nameid);
 			break;
@@ -13559,9 +13578,57 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd){
 	if( message[0] == '\0' ) // invalid input
 		return;
 
+	if (battle_config.extended_vending && battle_config.show_item_vending && sd->vend_loot) {
+		char out_msg[1024];
+		sprintf(out_msg, "[%s]%s", itemdb_jname(sd->vend_loot), message);
+		vending_openvending(sd, out_msg, data, len / 8, NULL);
+		return;
+	}
 	vending_openvending(sd, message, data, len/8, NULL);
 }
 
+/**
+* Extended Vending system [Lilith]
+**/
+int clif_vend(struct map_session_data *sd, int skill_lv) {
+
+	struct item_data *item;
+	int c, i, d = 0;
+	int fd;
+
+	nullpo_ret(sd);
+
+	fd = sd->fd;
+	WFIFOHEAD(fd, 8 * 8 + 8);
+	WFIFOW(fd, 0) = 0x1ad;
+	if (battle_config.item_zeny) {
+		WFIFOW(fd, d * 2 + 4) = battle_config.item_zeny;
+		d++;
+	}
+	if (battle_config.item_cash) {
+		WFIFOW(fd, d * 2 + 4) = battle_config.item_cash;
+		d++;
+	}
+	for (c = d, i = 0; i < ARRAYLENGTH(vending_itemid); i++) {
+		if ((item = itemdb_exists(vending_itemid[i])) != NULL &&
+			item->nameid != battle_config.item_zeny && item->nameid != battle_config.item_cash) {
+			WFIFOW(fd, c * 2 + 4) = item->nameid;
+			c++;
+		}
+	}
+	if (c > 0) {
+		sd->menuskill_id = MC_VENDING;
+		sd->menuskill_val = skill_lv;
+		WFIFOW(fd, 2) = c * 2 + 4;
+		WFIFOSET(fd, WFIFOW(fd, 2));
+	}
+	else {
+		clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0);
+		return 0;
+	}
+
+	return 1;
+}
 
 /// Guild creation request (CZ_REQ_MAKE_GUILD).
 /// 0165 <char id>.L <guild name>.24B
