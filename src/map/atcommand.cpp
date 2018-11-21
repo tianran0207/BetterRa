@@ -10060,6 +10060,33 @@ ACMD_FUNC(limitedsale){
 	return 0;
 }
 
+/**
+ * Opens the refineUI
+ * Usage: @refineui
+ */
+ACMD_FUNC(refineui)
+{
+	nullpo_retr(-1, sd);
+
+#if PACKETVER < 20161012
+	clif_displaymessage(fd, msg_txt(sd, 773)); // This command requires packet version 2016-10-12 or newer.
+	return -1;
+#else
+	if( !battle_config.feature_refineui ){
+		clif_displaymessage(fd, msg_txt(sd, 774)); // This command is disabled via configuration.
+		return -1;
+	}
+
+	if( sd->state.refineui_open ){
+		clif_displaymessage(fd, msg_txt(sd, 775)); // You have already opened the refine UI.
+		return -1;
+	}
+
+	clif_refineui_open(sd);
+	return 0;
+#endif
+}
+
 #include "../custom/atcommand.inc"
 
 ACMD_FUNC(followpacket)
@@ -10463,6 +10490,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(recallmap),
 		ACMD_DEF(title),
 		ACMD_DEF(policy),
+		ACMD_DEF(refineui),
 	};
 	AtCommandInfo* atcommand;
 	int i;
