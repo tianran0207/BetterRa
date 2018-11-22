@@ -372,7 +372,6 @@ void chclif_mmo_send082d(int fd, struct char_session_data* sd) {
 }
 
 void chclif_mmo_send099d(int fd, struct char_session_data *sd) {
-	return;
 	WFIFOHEAD(fd,4 + (MAX_CHARS*MAX_CHAR_BUF));
 	WFIFOW(fd,0) = 0x99d;
 	WFIFOW(fd,2) = char_mmo_chars_fromsql(sd, WFIFOP(fd,4)) + 4;

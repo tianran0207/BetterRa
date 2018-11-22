@@ -14,8 +14,21 @@
 
 #elif SERVER_DIFF == 2
 //ÅÝÄ­ÄÌÆ¿
-#undef C_PACKETVER
-#define C_PACKETVER 20180620
+
+#undef C_MAX_ZENY
+#define C_MAX_ZENY INT_MAX
+
+#undef C_MAX_EVENTQUEUE
+#define C_MAX_EVENTQUEUE 1000
+
+#undef C_MAX_MOB_DB 
+#define C_MAX_MOB_DB 10000
+
+#undef C_MAX_PARTY
+#define C_MAX_PARTY 14
+
+#undef C_MAX_HATEFFECT
+#define C_MAX_HATEFFECT 100
 
 #elif SERVER_DIFF == 99
 //¹Ù·½²âÊÔ·þ
