@@ -78,30 +78,35 @@ Armor:
       EnrichedChance: 40
       EventNormalChance: 20
       EventEnrichedChance: 50
+      BlacksmithBlessing: 1
       Bonus: 200
     - Level: 9
       NormalChance: 20
       EnrichedChance: 40
       EventNormalChance: 20
       EventEnrichedChance: 50
+      BlacksmithBlessing: 2
       Bonus: 300
     - Level: 10
       NormalChance: 9
       EnrichedChance: 20
       EventNormalChance: 9
       EventEnrichedChance: 35
+      BlacksmithBlessing: 4
       Bonus: 300
     - Level: 11
       NormalChance: 8
       EnrichedChance: 8
       EventNormalChance: 20
       EventEnrichedChance: 20
+      BlacksmithBlessing: 7
       Bonus: 300
     - Level: 12
       NormalChance: 8
       EnrichedChance: 8
       EventNormalChance: 20
       EventEnrichedChance: 20
+      BlacksmithBlessing: 11
       Bonus: 300
     - Level: 13
       NormalChance: 8
@@ -185,26 +190,31 @@ WeaponLv1:
       EnrichedChance: 90
       EventNormalChance: 60
       EventEnrichedChance: 95
+      BlacksmithBlessing: 1
     - Level: 9
       NormalChance: 40
       EnrichedChance: 70
       EventNormalChance: 40
       EventEnrichedChance: 85
+      BlacksmithBlessing: 2
     - Level: 10
       NormalChance: 19
       EnrichedChance: 30
       EventNormalChance: 19
       EventEnrichedChance: 55
+      BlacksmithBlessing: 4
     - Level: 11
       NormalChance: 18
       EnrichedChance: 18
       EventNormalChance: 40
       EventEnrichedChance: 40
+      BlacksmithBlessing: 7
     - Level: 12
       NormalChance: 18
       EnrichedChance: 18
       EventNormalChance: 40
       EventEnrichedChance: 40
+      BlacksmithBlessing: 11
     - Level: 13
       NormalChance: 18
       EnrichedChance: 18
@@ -289,26 +299,31 @@ WeaponLv2:
       EnrichedChance: 70
       EventNormalChance: 40
       EventEnrichedChance: 85
+      BlacksmithBlessing: 1
     - Level: 9
       NormalChance: 20
       EnrichedChance: 40
       EventNormalChance: 20
       EventEnrichedChance: 60
+      BlacksmithBlessing: 2
     - Level: 10
       NormalChance: 19
       EnrichedChance: 30
       EventNormalChance: 19
       EventEnrichedChance: 45
+      BlacksmithBlessing: 4
     - Level: 11
       NormalChance: 18
       EnrichedChance: 18
       EventNormalChance: 40
       EventEnrichedChance: 40
+      BlacksmithBlessing: 7
     - Level: 12
       NormalChance: 18
       EnrichedChance: 18
       EventNormalChance: 40
       EventEnrichedChance: 40
+      BlacksmithBlessing: 11
     - Level: 13
       NormalChance: 18
       EnrichedChance: 18
@@ -398,26 +413,31 @@ WeaponLv3:
       EnrichedChance: 40
       EventNormalChance: 20
       EventEnrichedChance: 70
+      BlacksmithBlessing: 1
     - Level: 9
       NormalChance: 20
       EnrichedChance: 40
       EventNormalChance: 20
       EventEnrichedChance: 60
+      BlacksmithBlessing: 2
     - Level: 10
       NormalChance: 19
       EnrichedChance: 30
       EventNormalChance: 19
       EventEnrichedChance: 45
+      BlacksmithBlessing: 4
     - Level: 11
       NormalChance: 18
       EnrichedChance: 18
       EventNormalChance: 40
       EventEnrichedChance: 40
+      BlacksmithBlessing: 7
     - Level: 12
       NormalChance: 18
       EnrichedChance: 18
       EventNormalChance: 40
       EventEnrichedChance: 40
+      BlacksmithBlessing: 11
     - Level: 13
       NormalChance: 18
       EnrichedChance: 18
@@ -512,26 +532,31 @@ WeaponLv4:
       EnrichedChance: 40
       EventNormalChance: 20
       EventEnrichedChance: 60
+      BlacksmithBlessing: 1
     - Level: 9
       NormalChance: 20
       EnrichedChance: 40
       EventNormalChance: 20
       EventEnrichedChance: 50
+      BlacksmithBlessing: 2
     - Level: 10
       NormalChance: 9
       EnrichedChance: 20
       EventNormalChance: 9
       EventEnrichedChance: 35
+      BlacksmithBlessing: 4
     - Level: 11
       NormalChance: 8
       EnrichedChance: 8
       EventNormalChance: 20
       EventEnrichedChance: 20
+      BlacksmithBlessing: 7
     - Level: 12
       NormalChance: 8
       EnrichedChance: 8
       EventNormalChance: 20
       EventEnrichedChance: 20
+      BlacksmithBlessing: 11
     - Level: 13
       NormalChance: 8
       EnrichedChance: 8

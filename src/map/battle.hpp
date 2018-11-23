@@ -185,7 +185,7 @@ struct Battle_Config
 	int atcommand_info;
 	int mvpdrop_last_hit_loot;
 	int jro_formulas;
-
+	int shadowgear_refine_ui;
 
 	//---Extended Vending system [Lilith]---
 	int extended_vending;

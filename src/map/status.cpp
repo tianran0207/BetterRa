@@ -47,6 +47,7 @@ enum e_regen {
 
 // Bonus values and upgrade chances for refining equipment
 static struct {
+	int blessing[MAX_REFINE];
 	int chance[REFINE_CHANCE_TYPE_MAX][MAX_REFINE]; /// Success chance
 	int bonus[MAX_REFINE]; /// Cumulative fixed bonus damage
 	int randombonus_max[MAX_REFINE]; /// Cumulative maximum random bonus damage
@@ -14515,6 +14516,11 @@ int status_get_refine_chance(enum refine_type wlv, int refine, bool enriched)
 	return refine_info[wlv].chance[type][refine];
 }
 
+int status_get_refine_blessing(int wlv, int refine)
+{
+	return refine_info[wlv].blessing[refine];
+}
+
 /**
  * Check if status is disabled on a map
  * @param type: Status Change data
@@ -14675,6 +14681,8 @@ static bool status_yaml_readdb_refine_sub(const YAML::Node &node, int refine_inf
 		if (refine_level >= MAX_REFINE)
 			continue;
 
+		if (level["BlacksmithBlessing"].IsDefined())
+			refine_info[refine_info_index].blessing[refine_level] = level["BlacksmithBlessing"].as<int>();
 		if (level["NormalChance"].IsDefined())
 			refine_info[refine_info_index].chance[REFINE_CHANCE_NORMAL][refine_level] = level["NormalChance"].as<int>();
 		if (level["EnrichedChance"].IsDefined())

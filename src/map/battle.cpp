@@ -8125,9 +8125,8 @@ static const struct _battle_data {
 	{ "npc_timeout",                        &battle_config.npc_timeout,                     1,      0,      1,              },
 	{ "atcommand_info",                     &battle_config.atcommand_info,                  0,      0,      1|2,            },
 	{ "mvpdrop_last_hit_loot",              &battle_config.mvpdrop_last_hit_loot,           0,      0,      1,              },
-	
 	{ "jro_formulas",                       &battle_config.jro_formulas,                    0,      0,      1,              },
-
+	{ "shadowgear_refine_ui",				&battle_config.shadowgear_refine_ui,            1,		0,		1,              },
 	//--------------------------------------------Extended Vending system [Lilith]---------------------------------------------		 
 	{ "extended_vending",					&battle_config.extended_vending,				1,		0,		1,				},
 	{ "show_item_vending",					&battle_config.show_item_vending,				1,		0,		1,				},
@@ -8135,6 +8134,7 @@ static const struct _battle_data {
 	{ "item_zeny",							&battle_config.item_zeny,						0,		0,		MAX_ITEMID,		},
 	{ "item_cash",							&battle_config.item_cash,						0,		0,		MAX_ITEMID,		},
 	//------------------------------------------------------------------------------------------------------------------------
+
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },
 	{ "enable_critical",                    &battle_config.enable_critical,                 BL_PC,  BL_NUL, BL_ALL,         },
 	{ "mob_critical_rate",                  &battle_config.mob_critical_rate,               100,    0,      INT_MAX,        },

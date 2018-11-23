@@ -21009,7 +21009,7 @@ void clif_refineui_info( struct map_session_data* sd, uint16 index ){
 	}
 
 	// Only weapons and armors can be refined in the refine UI
-	if( id->type != IT_WEAPON && id->type != IT_ARMOR ){
+	if( id->type != IT_WEAPON && id->type != IT_ARMOR && (!battle_config.shadowgear_refine_ui || id->type != IT_SHADOWGEAR)){
 		return;
 	}
 
@@ -21050,7 +21050,7 @@ void clif_refineui_info( struct map_session_data* sd, uint16 index ){
 	WFIFOW(fd,0) = 0x0AA2;
 	WFIFOW(fd,2) = length;
 	WFIFOW(fd,4) = index + 2;
-	WFIFOB(fd,6) = 0; //TODO: required amount of "Blacksmith Blessing"(id: 6635)
+	WFIFOB(fd, 6) = status_get_refine_blessing(id->wlv, item->refine); //TODO: required amount of "Blacksmith Blessing"(id: 6635)
 
 	for( i = 0; i < material_count; i++ ){
 		WFIFOW(fd,7 + i * 7) = materials[i].cost.nameid;
@@ -21095,7 +21095,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 	bool use_blacksmith_blessing = RFIFOB( fd, 6 ) != 0; // TODO: add logic
 	struct refine_materials materials[REFINEUI_MAT_CNT];
 	uint8 i, material_count;
-	uint16 j;
+	short j, k;
 	struct item *item;
 	struct item_data *id;
 
@@ -21123,7 +21123,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 	}
 
 	// Only weapons and armors can be refined in the refine UI
-	if( id->type != IT_WEAPON && id->type != IT_ARMOR ){
+	if (id->type != IT_WEAPON && id->type != IT_ARMOR && (!battle_config.shadowgear_refine_ui || id->type != IT_SHADOWGEAR)) {
 		return;
 	}
 
@@ -21178,9 +21178,11 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 	}
 
 	// Delete the required material
-	if( pc_delitem( sd, j, 1, 0, 0, LOG_TYPE_CONSUME ) ){
+	if (pc_delitem(sd, j, 1, 0, 0, LOG_TYPE_CONSUME))
 		return;
-	}
+
+	if (use_blacksmith_blessing && ((k = pc_search_inventory(sd, 6635)) < 0 || pc_delitem(sd, k, status_get_refine_blessing(id->wlv, item->refine), 0, 0, LOG_TYPE_CONSUME)))
+		return;
 
 	// Try to refine the item
 	if( materials[i].chance >= rnd() % 100 ){
@@ -21190,11 +21192,15 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		clif_refine( fd, 0, index, item->refine );
 		achievement_update_objective( sd, AG_REFINE_SUCCESS, 2, id->wlv, item->refine );
 		clif_refineui_info( sd, index );
-	}else{
+	}
+	else {
 		// Failure
 
 		// Delete the item if it is breakable
-		if( materials[i].cost.breakable ){
+		if(use_blacksmith_blessing){
+			clif_refine(fd, 3, index, item->refine);
+			clif_refineui_info(sd, index);
+		}else if (materials[i].cost.breakable) {
 			clif_refine( fd, 1, index, item->refine );
 			pc_delitem( sd, index, 1, 0, 0, LOG_TYPE_CONSUME );
 		}else{
