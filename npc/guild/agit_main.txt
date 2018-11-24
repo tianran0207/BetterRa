@@ -620,12 +620,9 @@ OnRecvCastle:
 		if (GetCastleData(strnpcinfo(2),CD_INVESTED_ECONOMY)) {
 			mes " 在过去一天之内,投资了 "+GetCastleData(strnpcinfo(2),CD_INVESTED_ECONOMY)+" 次.";
 		}
-		mes " Now, the Castle Defense level is "+GetCastleData(strnpcinfo(2),CD_CURRENT_DEFENSE)+".^000000";
+		mes "现在的防御度是 "+GetCastleData(strnpcinfo(2),CD_CURRENT_DEFENSE)+".^000000";
 		if (GetCastleData(strnpcinfo(2),CD_INVESTED_DEFENSE)) {
-			mes " ^0000ff- You invested "+GetCastleData(strnpcinfo(2),CD_INVESTED_DEFENSE)+" times in past 1 day.^000000";
-		mes "现在的防御度是 "+GetCastleData(strnpcinfo(2),3)+".^000000";
-		if (GetCastleData(strnpcinfo(2),5)) {
-			mes " ^0000ff- 在过去一天之内,投资了 "+GetCastleData(strnpcinfo(2),5)+" 次.^000000";
+			mes " ^0000ff- 在过去一天之内,投资了 "+GetCastleData(strnpcinfo(2),CD_INVESTED_DEFENSE)+" 次.^000000";
 		}
 		mes " ";
 		mes "以上为城堡情况, 报告完毕.";
