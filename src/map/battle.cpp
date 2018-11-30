@@ -8127,6 +8127,8 @@ static const struct _battle_data {
 	{ "mvpdrop_last_hit_loot",              &battle_config.mvpdrop_last_hit_loot,           0,      0,      1,              },
 	{ "jro_formulas",                       &battle_config.jro_formulas,                    0,      0,      1,              },
 	{ "shadowgear_refine_ui",				&battle_config.shadowgear_refine_ui,            1,		0,		1,              },
+	{ "homunculus_autofeed_rate",           &battle_config.homunculus_autofeed_rate,        10,     0,      100,            },
+	{ "homunculus_max_aspd",                &battle_config.homunculus_max_aspd,             180,    0,      199,            },
 	//--------------------------------------------Extended Vending system [Lilith]---------------------------------------------		 
 	{ "extended_vending",					&battle_config.extended_vending,				1,		0,		1,				},
 	{ "show_item_vending",					&battle_config.show_item_vending,				1,		0,		1,				},
@@ -8723,6 +8725,7 @@ void battle_adjust_conf()
 	}
 #endif // JRO_FORMULAS
 
+	battle_config.homunculus_max_aspd = 2000 - battle_config.homunculus_max_aspd * 10;
 	battle_config.monster_max_aspd = 2000 - battle_config.monster_max_aspd * 10;
 	battle_config.max_aspd = 2000 - battle_config.max_aspd * 10;
 	battle_config.max_third_aspd = 2000 - battle_config.max_third_aspd * 10;

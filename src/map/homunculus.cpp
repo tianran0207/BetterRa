@@ -909,6 +909,10 @@ static TIMER_FUNC(hom_hungry){
 		clif_emotion(&hd->bl, ET_OK);
 	}
 
+	if (battle_config.feature_homunculus_autofeed && hd->homunculus.autofeed && hd->homunculus.hunger <= battle_config.homunculus_autofeed_rate) {
+		hom_food(sd, hd);
+	}
+
 	if (hd->homunculus.hunger < 0) {
 		hd->homunculus.hunger = 0;
 		// Delete the homunculus if intimacy <= 100
@@ -1662,6 +1666,164 @@ void hom_reload_skill(void){
 	read_homunculus_skilldb();
 }
 
+static void hombot_moveto_master(struct map_session_data *sd) {
+	struct block_list *bl = &sd->hd->bl;
+	struct unit_data *ud = NULL;
+
+	unit_calc_pos(bl, sd->bl.x, sd->bl.y, sd->ud.dir);
+	ud = unit_bl2ud(bl);
+	unit_walktoxy(bl, ud->to_x, ud->to_y, 4);
+}
+
+static int hombot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap) {
+
+	struct map_session_data *sd = va_arg(ap, map_session_data *);
+	struct block_list **target = va_arg(ap, struct block_list **);
+
+	int dist;
+
+	//检查是不是敌人
+	if (battle_check_target(&sd->bl, bl, BCT_ENEMY) <= 0) {
+		return 0;
+	}
+
+	//找到离得最近的魔物
+	dist = distance_bl(&sd->bl, bl);
+	if (((*target) == NULL || !check_distance_bl(&sd->bl, *target, dist))) {
+		struct walkpath_data wpd;
+		struct status_change *sc = status_get_sc(bl);
+		if (sc && (sc->data[SC_HIDING] || sc->data[SC_CLOAKING] || sc->data[SC_TRICKDEAD] || sc->data[SC_CLOAKINGEXCEED]))
+			return 0;
+
+		if (!path_search(&wpd, sd->bl.m, sd->bl.x, sd->bl.y, bl->x, bl->y, 1, CELL_CHKNOPASS)) // Count walk path cells
+			return 0;
+
+		if (wpd.path_len > 12)
+			return 0;
+
+		(*target) = bl;
+	}
+	return 1;
+}
+
+static int hombot_ai_lazy(struct map_session_data *sd, va_list args){
+	struct homun_data *hd = NULL;
+	struct block_list *bl = NULL;
+	struct block_list *tbl = NULL;
+	int i, oldpar = 0, skill_id = 0, skill_lv = 0;
+	int result = 0, inf, can_move, min_chase;
+	unsigned int tick = va_arg(args, unsigned int);
+	nullpo_ret(sd);
+
+	if (sd->bl.prev == NULL || !sd->state.active)
+		return 0;
+
+	hd = sd->hd;
+
+	if (!hd || !hom_is_active(hd))
+		return 0;
+
+	bl = &hd->bl;
+
+	//如果正在吟唱
+	if (hd->ud.skilltimer != INVALID_TIMER)
+		return 0;
+
+	if (hd->sc.data[SC_BASILICA])
+		return 0;
+
+	if (distance_bl(bl, &sd->bl) > 14)
+		return 0;
+
+	if (!check_distance_bl(bl, &sd->bl, 12) && unit_can_move(bl)) {
+		hombot_moveto_master(sd);
+		return 0;
+	}
+
+	if (sd->ud.walktimer != INVALID_TIMER)
+		return 0;
+
+	for (i = 0; i < MAX_HOMUNSKILL; i++) {
+		int par = 0;
+		
+		if (DIFF_TICK(tick, hd->ud.canact_tick) < 0 || sd->state.hombot == 1)
+			break;
+		
+		if (hd->homunculus.hskill[i].lv == 0)
+			continue;
+		
+		switch (hd->homunculus.hskill[i].id) {
+		case HFLI_FLEET:
+		case HFLI_SPEED:
+		case HLIF_AVOID:
+		case HAMI_DEFENCE:
+			par = 1;
+			break;
+		default:
+			inf = skill_get_inf(hd->homunculus.hskill[i].id);
+			if (inf&INF_ATTACK_SKILL && sd->state.hombot == 2)
+				par = 100;
+			if (inf&INF_GROUND_SKILL && sd->state.hombot == 3)
+				par = 100;
+		}
+		if (par > oldpar && !skill_isNotOk_hom(hd, hd->homunculus.hskill[i].id, hd->homunculus.hskill[i].lv)) {
+			oldpar = par;
+			skill_id = hd->homunculus.hskill[i].id;
+			skill_lv = hd->homunculus.hskill[i].lv;
+		}
+	}
+	if (sd->enemy_id) {
+		tbl = map_id2bl(sd->enemy_id);
+		sd->enemy_id = 0;
+	}else if (hd->ud.attacktimer != INVALID_TIMER)
+		tbl = map_id2bl(hd->ud.target);
+	else
+		map_foreachinallrange(hombot_ai_sub_hard_activesearch, &sd->bl, 11, BL_CHAR, sd, &tbl);
+
+	can_move = unit_can_move(bl);
+
+	if (skill_id && skill_get_sp(skill_id, skill_lv) < hd->battle_status.sp) {
+		inf = skill_get_inf(skill_id);
+		if (inf&INF_SELF_SKILL) {
+			unit_skilluse_id(bl, bl->id, skill_id, skill_lv);
+			return 0;
+		}
+		if (tbl) {
+			min_chase = skill_get_range2(bl, skill_id, skill_lv, true);
+			if (can_move && !check_distance_bl(bl, tbl, min_chase)) {
+				unit_walktobl(bl, tbl, min_chase, 2);
+				return 0;
+			}
+			if (battle_check_range(bl, tbl, min_chase)) {
+				if (inf&INF_GROUND_SKILL)
+					result = unit_skilluse_pos(bl, tbl->x, tbl->y, skill_id, skill_lv);
+				else
+					result = unit_skilluse_id(bl, tbl->id, skill_id, skill_lv);
+				
+				if (result)
+					return 0;
+			}
+		}
+	}
+	if (tbl) {
+		min_chase = status_get_range(bl);
+		if (can_move && !check_distance_bl(bl, tbl, min_chase)) {
+			unit_walktobl(bl, tbl, min_chase, 2);
+			return 0;
+		}
+		unit_attack(bl, tbl->id, 1);
+	} else if(!check_distance_bl(bl, &sd->bl, 3)){
+		hombot_moveto_master(sd);
+	}
+
+	return 0;
+}
+
+static int hombot_ai_hard(int tid, unsigned int tick, int id, intptr_t data){
+	map_foreachhombot(hombot_ai_lazy, tick);
+	return 0;
+}
+
 void do_init_homunculus(void){
 	int class_;
 
@@ -1676,6 +1838,9 @@ void do_init_homunculus(void){
 	memset(&hom_viewdb, 0, sizeof(hom_viewdb));
 	for (class_ = 0; class_ < ARRAYLENGTH(hom_viewdb); class_++)
 		hom_viewdb[class_].class_ = HM_CLASS_BASE+class_;
+
+	add_timer_func_list(hombot_ai_hard, "hombot_ai_hard");
+	add_timer_interval(gettick() + 1000, hombot_ai_hard, 0, 0, 1000);
 }
 
 void do_final_homunculus(void) {

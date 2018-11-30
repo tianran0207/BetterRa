@@ -1,5 +1,5 @@
 
-#define SERVER_DIFF 2
+#define SERVER_DIFF 0
 
 #if SERVER_DIFF == 1
 //版本20150916、复兴前，金币上限改21E、自动拾取上限100条
@@ -14,21 +14,79 @@
 
 #elif SERVER_DIFF == 2
 //泡沫奶瓶
+#undef C_VIP_ENABLE
+#define C_VIP_ENABLE 1
 
 #undef C_MAX_ZENY
 #define C_MAX_ZENY INT_MAX
 
+#undef C_MAX_INVENTORY
+#define C_MAX_INVENTORY 300
+
 #undef C_MAX_EVENTQUEUE
 #define C_MAX_EVENTQUEUE 1000
 
+#undef C_AUTOLOOTITEM_SIZE
+#define C_AUTOLOOTITEM_SIZE 500
+
+#undef C_MAX_FAME_LIST 
+#define C_MAX_FAME_LIST 100
+
 #undef C_MAX_MOB_DB 
-#define C_MAX_MOB_DB 10000
+#define C_MAX_MOB_DB 18000
 
 #undef C_MAX_PARTY
-#define C_MAX_PARTY 14
+#define C_MAX_PARTY 24
+
+#undef C_MAX_NPC_CLASS2_END 
+#define C_MAX_NPC_CLASS2_END 20000
 
 #undef C_MAX_HATEFFECT
-#define C_MAX_HATEFFECT 100
+#define C_MAX_HATEFFECT 1000
+
+#undef C_MIN_STORAGE
+#define C_MIN_STORAGE 600
+
+#elif SERVER_DIFF == 3
+//づAtメ、
+#undef C_VIP_ENABLE
+#define C_VIP_ENABLE 1
+
+#undef C_GUILD_SKILL_NUMBER_ADD
+#define C_GUILD_SKILL_NUMBER_ADD 10
+
+#undef C_MAX_REFINE
+#define C_MAX_REFINE 100
+
+#undef C_MAX_EVENTQUEUE
+#define C_MAX_EVENTQUEUE 1000
+
+#undef C_MAX_ZENY
+#define C_MAX_ZENY INT_MAX
+
+#undef C_MAX_INVENTORY
+#define C_MAX_INVENTORY 300
+
+#undef C_AUTOLOOTITEM_SIZE
+#define C_AUTOLOOTITEM_SIZE 100
+
+#undef C_MAX_FAME_LIST 
+#define C_MAX_FAME_LIST 100
+
+#undef C_MAX_MOB_DB 
+#define C_MAX_MOB_DB 18000
+
+#undef C_MAX_PARTY
+#define C_MAX_PARTY 128
+
+#undef C_MAX_NPC_CLASS2_END 
+#define C_MAX_NPC_CLASS2_END 32766
+
+#undef C_MAX_HATEFFECT
+#define C_MAX_HATEFFECT 1000
+
+#undef C_MIN_STORAGE
+#define C_MIN_STORAGE 600
 
 #elif SERVER_DIFF == 99
 //官方测试服

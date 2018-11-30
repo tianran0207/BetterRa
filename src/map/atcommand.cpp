@@ -10190,6 +10190,27 @@ ACMD_FUNC(title)
 	return 0;
 }
 
+ACMD_FUNC(homattack)
+{
+
+	int val;
+	nullpo_retr(-1, sd);
+	val = atoi(message);
+
+	if (!hom_is_active(sd->hd)) {
+		clif_displaymessage(fd, msg_txt(sd, 1254)); // You do not have a homunculus.
+		return -1;
+	}
+	if(val)
+		map_addhombot(sd, val);
+	else if (sd->state.hombot)
+		map_delhombot(sd);
+	else
+		map_addhombot(sd, 2);
+		
+	return 0;
+}
+
 /**
  * Fills the reference of available commands in atcommand DBMap
  **/
@@ -10490,6 +10511,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(recallmap),
 		ACMD_DEF(title),
 		ACMD_DEF(policy),
+		ACMD_DEF(homattack),
 		ACMD_DEF(refineui),
 	};
 	AtCommandInfo* atcommand;

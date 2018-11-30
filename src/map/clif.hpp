@@ -582,7 +582,7 @@ void clif_fixpos(struct block_list *bl);	// area
 void clif_npcbuysell(struct map_session_data* sd, int id);	//self
 void clif_buylist(struct map_session_data *sd, struct npc_data *nd);	//self
 void clif_selllist(struct map_session_data *sd);	//self
-void clif_selllist_filter(struct map_session_data *sd, const char *filter);	//self
+void clif_selllist_filter(struct map_session_data *sd, int shopid, const char *filter);	//self
 void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd);
 void clif_parse_NPCMarketClosed(int fd, struct map_session_data *sd);
 void clif_parse_NPCMarketPurchase(int fd, struct map_session_data *sd);

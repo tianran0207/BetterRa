@@ -16850,7 +16850,7 @@ BUILDIN_FUNC(callshop)
 		sd->state.callshop = 1;
 
 		switch (flag) {
-			case 10: clif_selllist_filter(sd, script_hasdata(st,4)?script_getstr(st, 4):""); break; //Sell window by filter
+			case 10: clif_selllist_filter(sd, nd->bl.id, script_hasdata(st,4)?script_getstr(st, 4):""); break; //Sell window by filter
 			case 1: npc_buysellsel(sd,nd->bl.id,0); break; //Buy window
 			case 2: npc_buysellsel(sd,nd->bl.id,1); break; //Sell window
 			default: clif_npcbuysell(sd,nd->bl.id); break; //Show menu
@@ -25624,6 +25624,24 @@ BUILDIN_FUNC(getservantgid)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(homattatck)
+{
+	TBL_PC *sd;
+	int val = script_getnum(st, 2);
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (val)
+		map_addhombot(sd, val);
+	else if (sd->state.hombot)
+		map_delhombot(sd);
+	else
+		map_addhombot(sd, 2);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(setpolicyid)
 {
 	TBL_PC *sd;
@@ -27561,6 +27579,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getareagid, "si?????"),
 	BUILDIN_DEF(unitremove, "i?"),
 	BUILDIN_DEF(getservantgid, "i?"),
+	BUILDIN_DEF(homattatck, "i?"),
 	//行为策略系统
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),

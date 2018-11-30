@@ -5293,7 +5293,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 #endif
 
 			amotion = status_calc_fix_aspd(bl, sc, amotion);
-			status->amotion = cap_value(amotion, battle_config.max_aspd, 2000);
+			status->amotion = cap_value(amotion, battle_config.homunculus_max_aspd, 2000);
 
 			status->adelay = status->amotion;
 		} else if ( bl->type&BL_PC ) {

@@ -101,6 +101,7 @@ Sql* logmysql_handle;
 static DBMap* id_db=NULL; /// int id -> struct block_list*
 static DBMap* pc_db=NULL; /// int id -> struct map_session_data*
 static DBMap* bot_db = NULL;
+static DBMap* hombot_db = NULL;
 static DBMap* mobid_db=NULL; /// int id -> struct mob_data*
 static DBMap* bossid_db=NULL; /// int id -> struct mob_data* (MVP db)
 static DBMap* map_db=NULL; /// unsigned int mapindex -> struct map_data*
@@ -2006,6 +2007,9 @@ int map_quit(struct map_session_data *sd) {
 
 	if (sd->state.bot)
 		map_delbot(map_id2bot(sd->bl.id), false);
+
+	if (sd->state.hombot)
+		map_delhombot(sd);
 
 	if (sd->expiration_tid != INVALID_TIMER)
 		delete_timer(sd->expiration_tid, pc_expiration_timer);
@@ -5009,6 +5013,7 @@ void do_final(void){
 	id_db->destroy(id_db, NULL);
 	pc_db->destroy(pc_db, NULL);
 	bot_db->destroy(bot_db, NULL);
+	hombot_db->destroy(hombot_db, NULL);
 	mobid_db->destroy(mobid_db, NULL);
 	bossid_db->destroy(bossid_db, NULL);
 	nick_db->destroy(nick_db, nick_db_final);
@@ -5269,6 +5274,7 @@ int do_init(int argc, char *argv[])
 	id_db = idb_alloc(DB_OPT_BASE);
 	pc_db = idb_alloc(DB_OPT_BASE);	//Added for reliable map_id2sd() use. [Skotlex]
 	bot_db = idb_alloc(DB_OPT_RELEASE_DATA);
+	hombot_db = idb_alloc(DB_OPT_BASE);
 	mobid_db = idb_alloc(DB_OPT_BASE);	//Added to lower the load of the lazy mob ai. [Skotlex]
 	bossid_db = idb_alloc(DB_OPT_BASE); // Used for Convex Mirror quick MVP search
 	map_db = uidb_alloc(DB_OPT_BASE);
@@ -5423,6 +5429,42 @@ int map_checknear_sub(struct block_list* bl, va_list args) {
 		return 1;
 	}
 	return 0;
+}
+
+void map_foreachhombot(int(*func)(struct map_session_data *sd, va_list args), ...)
+{
+	DBIterator* iter;
+	struct map_session_data * sd;
+
+	iter = db_iterator(hombot_db);
+	for (sd = (struct map_session_data *)dbi_first(iter); dbi_exists(iter); sd = (struct map_session_data *)dbi_next(iter))
+	{
+		va_list args;
+		int ret;
+
+		va_start(args, func);
+		ret = func(sd, args);
+		va_end(args);
+		if (ret == -1)
+			break;// stop iterating
+	}
+	dbi_destroy(iter);
+}
+
+void map_addhombot(struct map_session_data *sd, int type)
+{
+	nullpo_retv(sd);
+	if (!hom_is_active(sd->hd))
+		return;
+	idb_put(hombot_db, sd->bl.id, sd);
+	sd->state.hombot = type;
+}
+
+void map_delhombot(struct map_session_data *sd)
+{
+	nullpo_retv(sd);
+	idb_remove(hombot_db, sd->bl.id);
+	sd->state.hombot = 0;
 }
 
 int map_checknear(struct block_list* bl, int range, int cell) {

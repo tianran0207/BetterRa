@@ -186,7 +186,8 @@ struct Battle_Config
 	int mvpdrop_last_hit_loot;
 	int jro_formulas;
 	int shadowgear_refine_ui;
-
+	int homunculus_autofeed_rate;
+	int homunculus_max_aspd;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int show_item_vending;

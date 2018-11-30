@@ -293,6 +293,7 @@ struct map_session_data {
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct s_state {
 		unsigned bot : 1;
+		unsigned hombot : 3;
 		unsigned processhalt : 1;//processhalt
 		unsigned event_now : 1;
 		unsigned no_touch_warp : 1;

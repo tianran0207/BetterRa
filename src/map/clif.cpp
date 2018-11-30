@@ -1994,7 +1994,7 @@ void clif_selllist(struct map_session_data *sd)
 
 /// Presents list of items, that can be sold to an NPC shop (ZC_PC_SELL_ITEMLIST).
 /// 00c7 <packet len>.W { <index>.W <price>.L <overcharge price>.L }*
-void clif_selllist_filter(struct map_session_data *sd, const char *filter)
+void clif_selllist_filter(struct map_session_data *sd, int shopid, const char *filter)
 {
 
 	int fd, i, c = 0, val, idx;
@@ -2005,8 +2005,11 @@ void clif_selllist_filter(struct map_session_data *sd, const char *filter)
 	struct npc_data *nd;
 
 	nullpo_retv(sd);
-	if (!sd->npc_shopid || (nd = map_id2nd(sd->npc_shopid)) == NULL)
+	
+	if((nd = map_id2nd(shopid)) == NULL)
 		return;
+
+	sd->npc_shopid = shopid;
 
 	if ((p = strstr(filter, "type:")) != NULL && (len = strchr(p, ';')) != NULL) {
 		safestrncpy(filter_copy, p + 5, min(len - p - 1, 1023));
@@ -21272,7 +21275,7 @@ static int clif_parse(int fd)
 #ifdef PLAYER_LIMIT
 	if (!sd && map_usercount() > PLAYER_LIMIT - 1) {
 		ShowError("Limit the number of servers to '%d' player., Please contact the author to customize it.\n", PLAYER_LIMIT);
-		do_close(fd);
+		set_eof(fd);
 		return 0;
 	}
 #endif
