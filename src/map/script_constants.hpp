@@ -554,6 +554,7 @@
 	export_constant(MF_MOBDROPRATE);
 	export_constant(MF_MVPDROPRATE);
 	export_constant(MF_NOMAIL);
+	export_constant(MF_MOBSPAWNBASE);
 	export_constant(PH_WALKBACK);
 	export_constant(PH_WARPBACK);
 	export_constant(PH_IGNOREWALK);

@@ -615,6 +615,7 @@ enum e_mapflag : int16 {
 	MF_MOBDROPRATE,
 	MF_MVPDROPRATE,
 	MF_NOMAIL,
+	MF_MOBSPAWNBASE,
 	MF_MAX
 };
 
@@ -626,6 +627,13 @@ enum e_skill_damage_type : uint8 {
 	SKILLDMG_OTHER,
 	SKILLDMG_MAX,
 	SKILLDMG_CASTER, ///< Only used on getter for caster value
+};
+
+struct s_mob_spawn_base {
+	unsigned int hprate;
+	unsigned int atkrate;
+	unsigned int matkrate;
+	unsigned int hitrate;
 };
 
 /// Struct for MF_SKILL_DAMAGE
@@ -661,6 +669,7 @@ union u_mapflag_args {
 	struct s_drop_list nightmaredrop;
 	struct s_skill_damage skill_damage;
 	struct s_skill_duration skill_duration;
+	struct s_mob_spawn_base mobspawnbase;
 	int flag_val;
 };
 
@@ -792,6 +801,8 @@ struct map_data {
 	
 	/* speeds up clif_updatestatus processing by causing hpmeter to run only when someone with the permission can view it */
 	unsigned short hpmeter_visible;
+
+	struct s_mob_spawn_base mobspawnbase;
 };
 
 /// Stores information about a remote map (for multi-mapserver setups).

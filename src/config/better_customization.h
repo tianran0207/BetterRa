@@ -88,6 +88,49 @@
 #undef C_MIN_STORAGE
 #define C_MIN_STORAGE 600
 
+#elif SERVER_DIFF == 4
+//此方此方
+#undef C_VIP_ENABLE
+#define C_VIP_ENABLE 1
+
+#undef C_MAX_PET_DB
+#define C_MAX_PET_DB 1000
+
+#undef C_MAX_MOB_DB 
+#define C_MAX_MOB_DB 10000
+
+#undef C_MAX_MERCENARY_CLASS
+#define C_MAX_MERCENARY_CLASS 100
+
+#undef C_MAX_INVENTORY
+#define C_MAX_INVENTORY 300
+
+#elif SERVER_DIFF == 5
+
+#undef C_VIP_ENABLE
+#define C_VIP_ENABLE 1
+
+#undef C_MAX_PET_DB
+#define C_MAX_PET_DB 500
+
+#undef C_MAX_ZENY
+#define C_MAX_ZENY INT_MAX
+
+#undef C_AUTOLOOTITEM_SIZE
+#define C_AUTOLOOTITEM_SIZE 20
+
+#undef C_MAX_MERCENARY_CLASS
+#define C_MAX_MERCENARY_CLASS 70
+
+#undef C_MAX_EVENTQUEUE
+#define C_MAX_EVENTQUEUE 500
+
+#undef C_MAX_FAME_LIST 
+#define C_MAX_FAME_LIST 50
+
+#undef C_MAX_NPC_CLASS2_END 
+#define C_MAX_NPC_CLASS2_END 30000
+
 #elif SERVER_DIFF == 99
 //官方测试服
 #undef C_MAX_ZENY

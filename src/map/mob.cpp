@@ -2709,9 +2709,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 			if (md->db->mexp) {
 				if (map_getmapflag(md->bl.m, MF_MVPDROPRATE))
-					drop_rate = (int)(drop_rate*map_getmapflag(md->bl.m, MF_MVPDROPRATE) / 100);
+					drop_rate = drop_rate * map_getmapflag(md->bl.m, MF_MVPDROPRATE) / 100;
 			}else if (map_getmapflag(md->bl.m, MF_MOBDROPRATE)){
-				drop_rate = (int)(drop_rate*map_getmapflag(md->bl.m, MF_MOBDROPRATE) / 100);
+				drop_rate = drop_rate * map_getmapflag(md->bl.m, MF_MOBDROPRATE) / 100;
 			}
 
 			// change drops depending on monsters size [Valaris]
@@ -2918,7 +2918,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				temp = mdrop[i].p;
 				if (temp != 10000) {
 					if (map_getmapflag(md->bl.m, MF_MVPDROPRATE))
-						temp = (int)(temp*map_getmapflag(md->bl.m, MF_MVPDROPRATE) / 100);
+						temp = temp * map_getmapflag(md->bl.m, MF_MVPDROPRATE) / 100;
 					if(temp <= 0 && !battle_config.drop_rate0item)
 						temp = 1;
 					if(rnd()%10000 >= temp) //if ==0, then it doesn't drop

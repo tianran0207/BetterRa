@@ -12583,6 +12583,15 @@ BUILDIN_FUNC(setmapflag)
 	union u_mapflag_args args = {};
 
 	switch(mf) {
+		case MF_MOBSPAWNBASE: 
+			if (script_hasdata(st, 4) && script_isstring(st, 4)) {
+				if (sscanf(script_getstr(st, 4), "%u,%u,%u,%u", &args.mobspawnbase.hprate, &args.mobspawnbase.atkrate, &args.mobspawnbase.matkrate, &args.mobspawnbase.hitrate) == 4)
+					map_setmapflag_sub(m, MF_MOBSPAWNBASE, true, &args);
+			}else {
+				ShowWarning("buildin_setmapflag: Unable to set mobspawnbase mapflag as flag must be string, like '100,100,100,100'.\n");
+				return SCRIPT_CMD_FAILURE;
+			}
+			break;
 		case MF_SKILL_DAMAGE:
 			if (script_hasdata(st, 4) && script_hasdata(st, 5))
 				args.skill_damage.rate[script_getnum(st, 5)] = script_getnum(st, 4);
@@ -26699,6 +26708,43 @@ BUILDIN_FUNC(mobstaypos)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(mobdrop)
+{
+	struct mob_db *db;
+	int gid, i, rate, maxrate, droprate, flag;
+	struct block_list *bl = NULL;
+	struct map_session_data* sd;
+	struct item item_tmp;
+
+	if ((gid = script_getnum(st, 2)) != 0)
+		bl = map_id2bl(gid);
+
+	if ((db = mob_db(script_getnum(st, 3))) == NULL)
+		return SCRIPT_CMD_SUCCESS;
+
+	rate = script_hasdata(st, 4) ? script_getnum(st, 4) : 100;
+	maxrate = script_hasdata(st, 5) ? script_getnum(st, 5) : 10000;
+	for (i = 0; i < MAX_MOB_DROP; i++) {
+		
+		droprate = rate == 100 ? db->dropitem[i].p : db->dropitem[i].p * rate / 100;
+		droprate = droprate > maxrate ? maxrate : droprate;
+		if (droprate < rnd() % 10000)
+			continue;
+		memset(&item_tmp, 0, sizeof(item_tmp));
+		item_tmp.nameid = db->dropitem[i].nameid;
+		item_tmp.amount = 1;
+		item_tmp.identify = 1;
+		if (bl)
+			map_addflooritem(&item_tmp, item_tmp.amount, bl->m, bl->x, bl->y, 0, 0, 0, 0, 0);
+		else if (script_rid2sd(sd) && (flag = pc_additem(sd, &item_tmp, item_tmp.amount, LOG_TYPE_SCRIPT))) {
+			clif_additem(sd, 0, 0, flag);
+			if (pc_candrop(sd, &item_tmp))
+				map_addflooritem(&item_tmp, item_tmp.amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0, 0);
+		}
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -27580,6 +27626,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unitremove, "i?"),
 	BUILDIN_DEF(getservantgid, "i?"),
 	BUILDIN_DEF(homattatck, "i?"),
+	BUILDIN_DEF(mobdrop, "ii??"),
 	//行为策略系统
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),

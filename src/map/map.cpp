@@ -3578,8 +3578,6 @@ void map_flags_init(void){
 		map_setmapflag_sub(i, MF_BEXP, true, &args); // per map base exp multiplicator
 		map_setmapflag_sub(i, MF_JEXP, true, &args); // per map job exp multiplicator
 
-		mapdata->flag[MF_MOBINFO] = -1;
-
 		// Clear adjustment data, will be reset after loading NPC
 		mapdata->damage_adjust = {};
 		mapdata->skill_damage.clear();
@@ -4677,13 +4675,26 @@ bool map_setmapflag_sub(int16 m, enum e_mapflag mapflag, bool status, union u_ma
 	}
 
 	switch(mapflag) {
+		case MF_MOBSPAWNBASE:
+			if (status) {
+				nullpo_retr(false, args);
+				mapdata->mobspawnbase.hprate = args->mobspawnbase.hprate;
+				mapdata->mobspawnbase.atkrate = args->mobspawnbase.atkrate;
+				mapdata->mobspawnbase.matkrate = args->mobspawnbase.matkrate;
+				mapdata->mobspawnbase.hitrate = args->mobspawnbase.hitrate;
+			}
+			mapdata->flag[mapflag] = status;
+			break;
 		case MF_MOBINFO:
 		case MF_MOBDROPRATE:
 		case MF_MVPDROPRATE: 
 			if (status) {
 				nullpo_retr(false, args);
+				if (mapflag == MF_MOBINFO && args->flag_val == 0)
+					args->flag_val = -1;
 				mapdata->flag[mapflag] = args->flag_val;
-			}
+			}else
+				mapdata->flag[mapflag] = false;
 			break;
 		case MF_NOSAVE:
 			if (status) {

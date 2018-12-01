@@ -9698,7 +9698,9 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 #else
 				WBUFW(buf, 0) = cmd = 0x195;
 #endif
-				if (map_getmapflag(md->bl.m, MF_MOBINFO) != -1) {
+				if (map_getmapflag(md->bl.m, MF_MOBINFO) == -1) {
+					;
+				}else if (map_getmapflag(md->bl.m, MF_MOBINFO)) {
 					if (map_getmapflag(md->bl.m, MF_MOBINFO) & 4)
 						str_p += sprintf(str_p, "Lv. %d | ", md->level);
 					if (map_getmapflag(md->bl.m, MF_MOBINFO) & 1)
@@ -9708,7 +9710,7 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 					if (map_getmapflag(md->bl.m, MF_MOBINFO) & 16)//ÌåÐÍ
 						str_info1 += sprintf(str_info1, msg_txt(sd, 2301), msg_txt(sd, 2302 + md->status.size));
 					if (map_getmapflag(md->bl.m, MF_MOBINFO) & 32) {
-						str_info1 += sprintf(str_info1, " ");
+						str_info1 += str_info1 != mobinfo1 ? sprintf(str_info1, " ") : 0;
 						str_info1 += sprintf(str_info1, msg_txt(sd, 2305), msg_txt(sd, 2306 + md->status.race));
 					}
 					if (map_getmapflag(md->bl.m, MF_MOBINFO) & 64)

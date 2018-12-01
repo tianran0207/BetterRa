@@ -4041,12 +4041,28 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		case MF_MVPDROPRATE: {
 			union u_mapflag_args args = {};
 
-			if (sscanf(w4, "%11d", &args.flag_val) < 1)
-				args.flag_val = 0;
-
-			map_setmapflag_sub(m, mapflag, state, &args);
-			}
+			if (state) {
+				if (sscanf(w4, "%11d", &args.flag_val) == 1)
+					map_setmapflag_sub(m, mapflag, true, &args);
+			}else
+				map_setmapflag(m, mapflag, false);
 			break;
+		}
+			
+		case MF_MOBSPAWNBASE: {
+			union u_mapflag_args args = {};
+
+			if (state) {
+				if (sscanf(w4, "%u,%u,%u,%u", &args.mobspawnbase.hprate, &args.mobspawnbase.atkrate, &args.mobspawnbase.matkrate, &args.mobspawnbase.hitrate) == 4)
+					map_setmapflag_sub(m, MF_MOBSPAWNBASE, true, &args);
+				else
+					ShowWarning("npc_parse_mapflag: Zone value not set for the mapflag! Skipped flag from %s (file '%s', line '%d').\n", map_mapid2mapname(m), filepath, strline(buffer, start - buffer));
+			}
+			else
+				map_setmapflag(m, MF_MOBSPAWNBASE, false);
+			break;
+		}
+
 		case MF_INVALID:
 			ShowError("npc_parse_mapflag: unrecognized mapflag '%s' (file '%s', line '%d').\n", w3, filepath, strline(buffer,start-buffer));
 			break;

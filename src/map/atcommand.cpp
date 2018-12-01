@@ -2216,6 +2216,44 @@ ACMD_FUNC(killmonster)
 	return 0;
 }
 
+static int killmonsterall_sub(struct block_list *bl, va_list ap)
+{
+	struct mob_data *md;
+	struct map_session_data *sd;
+
+	nullpo_ret(md = (struct mob_data *)bl);
+	sd = va_arg(ap, struct map_session_data *);
+
+	if (md->guardian_data)
+		return 0; //Do not touch WoE mobs!
+
+	status_damage(&sd->bl, bl, md->status.hp, 0, 0, 1);
+
+	return 1;
+}
+
+ACMD_FUNC(killmonsterall)
+{
+	int map_id, drop_flag;
+	char map_name[MAP_NAME_LENGTH_EXT];
+	nullpo_retr(-1, sd);
+
+	memset(map_name, '\0', sizeof(map_name));
+
+	if (!message || !*message || sscanf(message, "%15s", map_name) < 1)
+		map_id = sd->bl.m;
+	else {
+		if ((map_id = map_mapname2mapid(map_name)) < 0)
+			map_id = sd->bl.m;
+	}
+	
+	map_foreachinmap(killmonsterall_sub, map_id, BL_MOB, sd);
+
+	clif_displaymessage(fd, msg_txt(sd, 165)); // All monsters killed!
+
+	return 0;
+}
+
 /*==========================================
  *
  *------------------------------------------*/
@@ -4268,6 +4306,8 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " MvpDropRate |");
 	if (map_getmapflag(m_id, MF_NOMAIL))
 		strcat(atcmd_output, " NoMail |");
+	if (map_getmapflag(m_id, MF_MOBSPAWNBASE))
+		strcat(atcmd_output, " MobSpawnBase |");
 	//-------------------------------------
 
 	clif_displaymessage(fd, atcmd_output);
@@ -10512,6 +10552,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(title),
 		ACMD_DEF(policy),
 		ACMD_DEF(homattack),
+		ACMD_DEF(killmonsterall),
 		ACMD_DEF(refineui),
 	};
 	AtCommandInfo* atcommand;
