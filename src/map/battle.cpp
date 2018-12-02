@@ -615,7 +615,6 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 	struct status_data *sstatus, ///< Attacker status data
 		*tstatus; ///< Target status data
 	int64 original_damage;
-	int i;
 
 	if( !damage )
 		return 0;
@@ -647,9 +646,9 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 				}
 				cardfix = cardfix * (100 + sd->magic_addsize[tstatus->size] + sd->magic_addsize[SZ_ALL]) / 100;
 				cardfix = cardfix * (100 + sd->magic_addclass[tstatus->class_] + sd->magic_addclass[CLASS_ALL]) / 100;
-				for( i = 0; i < ARRAYLENGTH(sd->add_mdmg) && sd->add_mdmg[i].rate; i++ ) {
-					if( sd->add_mdmg[i].class_ == t_class ) {
-						cardfix = cardfix * (100 + sd->add_mdmg[i].rate) / 100;
+				for (const auto &it : sd->add_mdmg) {
+					if (it.id == t_class) {
+						cardfix = cardfix * (100 + it.val) / 100;
 						break;
 					}
 				}
@@ -663,14 +662,14 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 				if( !(nk&NK_NO_ELEFIX) ) { // Affected by Element modifier bonuses
 					int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL] + tsd->subele_script[rh_ele] + tsd->subele_script[ELE_ALL];
 
-					for( i = 0; ARRAYLENGTH(tsd->subele2) > i && tsd->subele2[i].rate != 0; i++ ) {
-						if( tsd->subele2[i].ele != rh_ele )
+					for (const auto &it : tsd->subele2) {
+						if (it.ele != rh_ele)
 							continue;
-						if( !(((tsd->subele2[i].flag)&flag)&BF_WEAPONMASK &&
-							((tsd->subele2[i].flag)&flag)&BF_RANGEMASK &&
-							((tsd->subele2[i].flag)&flag)&BF_SKILLMASK) )
+						if (!(((it.flag)&flag)&BF_WEAPONMASK &&
+							((it.flag)&flag)&BF_RANGEMASK &&
+							((it.flag)&flag)&BF_SKILLMASK))
 							continue;
-						ele_fix += tsd->subele2[i].rate;
+						ele_fix += it.rate;
 					}
 					if (s_defele != ELE_NONE)
 						ele_fix += tsd->subdefele[s_defele] + tsd->subdefele[ELE_ALL];
@@ -681,9 +680,9 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 				cardfix = cardfix * (100 - tsd->subrace[sstatus->race] - tsd->subrace[RC_ALL]) / 100;
 				cardfix = cardfix * (100 - tsd->subclass[sstatus->class_] - tsd->subclass[CLASS_ALL]) / 100;
 
-				for( i = 0; i < ARRAYLENGTH(tsd->add_mdef) && tsd->add_mdef[i].rate; i++ ) {
-					if( tsd->add_mdef[i].class_ == s_class ) {
-						cardfix = cardfix * (100 - tsd->add_mdef[i].rate) / 100;
+				for (const auto &it : tsd->add_mdef) {
+					if (it.id == s_class) {
+						cardfix = cardfix * (100 - it.val) / 100;
 						break;
 					}
 				}
@@ -714,14 +713,14 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 						int ele_fix = sd->right_weapon.addele[tstatus->def_ele] + sd->arrow_addele[tstatus->def_ele] +
 							sd->right_weapon.addele[ELE_ALL] + sd->arrow_addele[ELE_ALL];
 
-						for( i = 0; ARRAYLENGTH(sd->right_weapon.addele2) > i && sd->right_weapon.addele2[i].rate != 0; i++ ) {
-							if( sd->right_weapon.addele2[i].ele != tstatus->def_ele )
+						for (const auto &it : sd->right_weapon.addele2) {
+							if (it.ele != tstatus->def_ele)
 								continue;
-							if( !(((sd->right_weapon.addele2[i].flag)&flag)&BF_WEAPONMASK &&
-								((sd->right_weapon.addele2[i].flag)&flag)&BF_RANGEMASK &&
-								((sd->right_weapon.addele2[i].flag)&flag)&BF_SKILLMASK) )
+							if (!(((it.flag)&flag)&BF_WEAPONMASK &&
+								((it.flag)&flag)&BF_RANGEMASK &&
+								((it.flag)&flag)&BF_SKILLMASK))
 								continue;
-							ele_fix += sd->right_weapon.addele2[i].rate;
+							ele_fix += it.rate;
 						}
 						cardfix = cardfix * (100 + ele_fix) / 100;
 					}
@@ -740,14 +739,14 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 						if( !(nk&NK_NO_ELEFIX) ) { // Affected by Element modifier bonuses
 							int ele_fix = sd->right_weapon.addele[tstatus->def_ele] + sd->right_weapon.addele[ELE_ALL];
 
-							for( i = 0; ARRAYLENGTH(sd->right_weapon.addele2) > i && sd->right_weapon.addele2[i].rate != 0; i++ ) {
-								if( sd->right_weapon.addele2[i].ele != tstatus->def_ele )
+							for (const auto &it : sd->right_weapon.addele2) {
+								if (it.ele != tstatus->def_ele)
 									continue;
-								if( !(((sd->right_weapon.addele2[i].flag)&flag)&BF_WEAPONMASK &&
-									((sd->right_weapon.addele2[i].flag)&flag)&BF_RANGEMASK &&
-									((sd->right_weapon.addele2[i].flag)&flag)&BF_SKILLMASK) )
+								if (!(((it.flag)&flag)&BF_WEAPONMASK &&
+									((it.flag)&flag)&BF_RANGEMASK &&
+									((it.flag)&flag)&BF_SKILLMASK))
 									continue;
-								ele_fix += sd->right_weapon.addele2[i].rate;
+								ele_fix += it.rate;
 							}
 							cardfix = cardfix * (100 + ele_fix) / 100;
 						}
@@ -760,14 +759,14 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 							if( !(nk&NK_NO_ELEFIX) ) { // Affected by Element modifier bonuses
 								int ele_fix_lh = sd->left_weapon.addele[tstatus->def_ele] + sd->left_weapon.addele[ELE_ALL];
 
-								for( i = 0; ARRAYLENGTH(sd->left_weapon.addele2) > i && sd->left_weapon.addele2[i].rate != 0; i++ ) {
-									if( sd->left_weapon.addele2[i].ele != tstatus->def_ele )
+								for (const auto &it : sd->left_weapon.addele2) {
+									if (it.ele != tstatus->def_ele)
 										continue;
-									if( !(((sd->left_weapon.addele2[i].flag)&flag)&BF_WEAPONMASK &&
-										((sd->left_weapon.addele2[i].flag)&flag)&BF_RANGEMASK &&
-										((sd->left_weapon.addele2[i].flag)&flag)&BF_SKILLMASK) )
+									if (!(((it.flag)&flag)&BF_WEAPONMASK &&
+										((it.flag)&flag)&BF_RANGEMASK &&
+										((it.flag)&flag)&BF_SKILLMASK))
 										continue;
-									ele_fix_lh += sd->left_weapon.addele2[i].rate;
+									ele_fix_lh += it.rate;
 								}
 								cardfix_ = cardfix_ * (100 + ele_fix_lh) / 100;
 							}
@@ -783,23 +782,23 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 							int ele_fix = sd->right_weapon.addele[tstatus->def_ele] + sd->left_weapon.addele[tstatus->def_ele]
 										+ sd->right_weapon.addele[ELE_ALL] + sd->left_weapon.addele[ELE_ALL];
 
-							for( i = 0; ARRAYLENGTH(sd->right_weapon.addele2) > i && sd->right_weapon.addele2[i].rate != 0; i++ ) {
-								if( sd->right_weapon.addele2[i].ele != tstatus->def_ele )
+							for (const auto &it : sd->right_weapon.addele2) {
+								if (it.ele != tstatus->def_ele)
 									continue;
-								if( !(((sd->right_weapon.addele2[i].flag)&flag)&BF_WEAPONMASK &&
-									((sd->right_weapon.addele2[i].flag)&flag)&BF_RANGEMASK &&
-									((sd->right_weapon.addele2[i].flag)&flag)&BF_SKILLMASK) )
+								if (!(((it.flag)&flag)&BF_WEAPONMASK &&
+									((it.flag)&flag)&BF_RANGEMASK &&
+									((it.flag)&flag)&BF_SKILLMASK))
 									continue;
-								ele_fix += sd->right_weapon.addele2[i].rate;
+								ele_fix += it.rate;
 							}
-							for( i = 0; ARRAYLENGTH(sd->left_weapon.addele2) > i && sd->left_weapon.addele2[i].rate != 0; i++ ) {
-								if( sd->left_weapon.addele2[i].ele != tstatus->def_ele )
+							for (const auto &it : sd->left_weapon.addele2) {
+								if (it.ele != tstatus->def_ele)
 									continue;
-								if( !(((sd->left_weapon.addele2[i].flag)&flag)&BF_WEAPONMASK &&
-									((sd->left_weapon.addele2[i].flag)&flag)&BF_RANGEMASK &&
-									((sd->left_weapon.addele2[i].flag)&flag)&BF_SKILLMASK) )
+								if (!(((it.flag)&flag)&BF_WEAPONMASK &&
+									((it.flag)&flag)&BF_RANGEMASK &&
+									((it.flag)&flag)&BF_SKILLMASK))
 									continue;
-								ele_fix += sd->left_weapon.addele2[i].rate;
+								ele_fix += it.rate;
 							}
 							cardfix = cardfix * (100 + ele_fix) / 100;
 						//}
@@ -816,16 +815,16 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 				}
 
 				//! CHECKME: These right & left hand weapon ignores 'left_cardfix_to_right'?
-				for( i = 0; i < ARRAYLENGTH(sd->right_weapon.add_dmg) && sd->right_weapon.add_dmg[i].rate; i++ ) {
-					if( sd->right_weapon.add_dmg[i].class_ == t_class ) {
-						cardfix = cardfix * (100 + sd->right_weapon.add_dmg[i].rate) / 100;
+				for (const auto &it : sd->right_weapon.add_dmg) {
+					if (it.id == t_class) {
+						cardfix = cardfix * (100 + it.val) / 100;
 						break;
 					}
 				}
 				if( left&1 ) {
-					for( i = 0; i < ARRAYLENGTH(sd->left_weapon.add_dmg) && sd->left_weapon.add_dmg[i].rate; i++ ) {
-						if( sd->left_weapon.add_dmg[i].class_ == t_class ) {
-							cardfix_ = cardfix_ * (100 + sd->left_weapon.add_dmg[i].rate) / 100;
+					for (const auto &it : sd->left_weapon.add_dmg) {
+						if (it.id == t_class) {
+							cardfix_ = cardfix_ * (100 + it.val) / 100;
 							break;
 						}
 					}
@@ -845,28 +844,28 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 				if( !(nk&NK_NO_ELEFIX) ) { // Affected by Element modifier bonuses
 					int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL] + tsd->subele_script[rh_ele] + tsd->subele_script[ELE_ALL];
 
-					for( i = 0; ARRAYLENGTH(tsd->subele2) > i && tsd->subele2[i].rate != 0; i++ ) {
-						if( tsd->subele2[i].ele != rh_ele )
+					for (const auto &it : tsd->subele2) {
+						if (it.ele != rh_ele)
 							continue;
-						if( !(((tsd->subele2[i].flag)&flag)&BF_WEAPONMASK &&
-							((tsd->subele2[i].flag)&flag)&BF_RANGEMASK &&
-							((tsd->subele2[i].flag)&flag)&BF_SKILLMASK) )
+						if (!(((it.flag)&flag)&BF_WEAPONMASK &&
+							((it.flag)&flag)&BF_RANGEMASK &&
+							((it.flag)&flag)&BF_SKILLMASK))
 							continue;
-						ele_fix += tsd->subele2[i].rate;
+						ele_fix += it.rate;
 					}
 					cardfix = cardfix * (100 - ele_fix) / 100;
 
 					if( left&1 && lh_ele != rh_ele ) {
 						int ele_fix_lh = tsd->subele[lh_ele] + tsd->subele[ELE_ALL] + tsd->subele_script[lh_ele] + tsd->subele_script[ELE_ALL];
 
-						for( i = 0; ARRAYLENGTH(tsd->subele2) > i && tsd->subele2[i].rate != 0; i++ ) {
-							if( tsd->subele2[i].ele != lh_ele )
+						for (const auto &it : tsd->subele2) {
+							if (it.ele != lh_ele)
 								continue;
-							if( !(((tsd->subele2[i].flag)&flag)&BF_WEAPONMASK &&
-								((tsd->subele2[i].flag)&flag)&BF_RANGEMASK &&
-								((tsd->subele2[i].flag)&flag)&BF_SKILLMASK) )
+							if (!(((it.flag)&flag)&BF_WEAPONMASK &&
+								((it.flag)&flag)&BF_RANGEMASK &&
+								((it.flag)&flag)&BF_SKILLMASK))
 								continue;
-							ele_fix_lh += tsd->subele2[i].rate;
+							ele_fix_lh += it.rate;
 						}
 						cardfix = cardfix * (100 - ele_fix_lh) / 100;
 					}
@@ -877,9 +876,9 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 				cardfix = cardfix * (100 - tsd->subrace2[s_race2]) / 100;
 				cardfix = cardfix * (100 - tsd->subrace[sstatus->race] - tsd->subrace[RC_ALL]) / 100;
 				cardfix = cardfix * (100 - tsd->subclass[sstatus->class_] - tsd->subclass[CLASS_ALL]) / 100;
-				for( i = 0; i < ARRAYLENGTH(tsd->add_def) && tsd->add_def[i].rate; i++ ) {
-					if( tsd->add_def[i].class_ == s_class ) {
-						cardfix = cardfix * (100 - tsd->add_def[i].rate) / 100;
+				for (const auto &it : tsd->add_def) {
+					if (it.id == s_class) {
+						cardfix = cardfix * (100 - it.val) / 100;
 						break;
 					}
 				}
@@ -899,14 +898,14 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 				if( !(nk&NK_NO_ELEFIX) ) { // Affected by Element modifier bonuses
 					int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL] + tsd->subele_script[rh_ele] + tsd->subele_script[ELE_ALL];
 
-					for( i = 0; ARRAYLENGTH(tsd->subele2) > i && tsd->subele2[i].rate != 0; i++ ) {
-						if( tsd->subele2[i].ele != rh_ele )
+					for (const auto &it : tsd->subele2) {
+						if (it.ele != rh_ele)
 							continue;
-						if( !(((tsd->subele2[i].flag)&flag)&BF_WEAPONMASK &&
-							((tsd->subele2[i].flag)&flag)&BF_RANGEMASK &&
-							((tsd->subele2[i].flag)&flag)&BF_SKILLMASK))
+						if (!(((it.flag)&flag)&BF_WEAPONMASK &&
+							((it.flag)&flag)&BF_RANGEMASK &&
+							((it.flag)&flag)&BF_SKILLMASK))
 							continue;
-						ele_fix += tsd->subele2[i].rate;
+						ele_fix += it.rate;
 					}
 					if (s_defele != ELE_NONE)
 						ele_fix += tsd->subdefele[s_defele] + tsd->subdefele[ELE_ALL];
@@ -1086,7 +1085,6 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 
 	if (src->type == BL_PC) {
 		tsd = (struct map_session_data *)src;
-		int i;
 		if (flag&BF_WEAPON && tsd->c_bonus.weapon_add_damage)
 			damage += tsd->c_bonus.weapon_add_damage;
 
@@ -1096,11 +1094,9 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 		if (flag&BF_MISC && tsd->c_bonus.misc_add_damage)
 			damage += tsd->c_bonus.misc_add_damage;
 
-		for (i = 0; i < MAX_PC_BONUS; i++) {
-			if (tsd->c_bonus.multidamage[i].atk_type == 0)
-				break;
-			if (tsd->c_bonus.multidamage[i].atk_type&flag && rnd() % 1000 < tsd->c_bonus.multidamage[i].rate){
-				damage += damage * tsd->c_bonus.multidamage[i].n / 100;
+		for (const auto &it : tsd->multidamage) {
+			if (it.atk_type&flag && rnd() % 1000 < it.rate) {
+				damage += damage * it.n / 100;
 			}
 		}
 	}
@@ -1468,13 +1464,10 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 			skill_castend_damage_id(bl,src,MH_MAGMA_FLOW,sce->val1,gettick(),0);
 
 		if( damage > 0 && (sce = sc->data[SC_STONEHARDSKIN]) ) {
-			sce->val2 -= (int)cap_value(damage,INT_MIN,INT_MAX);
 			if( src->type == BL_MOB ) //using explicit call instead break_equip for duration
 				sc_start(src,src, SC_STRIPWEAPON, 30, 0, skill_get_time2(RK_STONEHARDSKIN, sce->val1));
 			else if (flag&(BF_WEAPON|BF_SHORT))
 				skill_break_equip(src,src, EQP_WEAPON, 3000, BCT_SELF);
-			if( sce->val2 <= 0 )
-				status_change_end(bl, SC_STONEHARDSKIN, INVALID_TIMER);
 		}
 
 		if (src->type == BL_PC && sc->data[SC_GVG_GOLEM]) {
@@ -2215,13 +2208,12 @@ static int battle_range_type(struct block_list *src, struct block_list *target, 
 
 static int battle_blewcount_bonus(struct map_session_data *sd, uint16 skill_id)
 {
-	uint8 i;
-	if (!sd->skillblown[0].id)
+	if (sd->skillblown.empty())
 		return 0;
 	//Apply the bonus blewcount. [Skotlex]
-	for (i = 0; i < ARRAYLENGTH(sd->skillblown) && sd->skillblown[i].id; i++) {
-		if (sd->skillblown[i].id == skill_id)
-			return sd->skillblown[i].val;
+	for (const auto &it : sd->skillblown) {
+		if (it.id == skill_id)
+			return it.val;
 	}
 	return 0;
 }
@@ -5992,7 +5984,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case NJ_BAKUENRYU:
 						skillratio += 50 + 150 * skill_lv;
 						if(sd && sd->spiritcharm_type == CHARM_TYPE_FIRE && sd->spiritcharm > 0)
-							skillratio += 45 * sd->spiritcharm;
+							skillratio += 15 * sd->spiritcharm;
 						break;
 					case NJ_HYOUSENSOU:
 #ifdef RENEWAL
@@ -6916,6 +6908,9 @@ int64 battle_calc_return_damage(struct block_list* bl, struct block_list *src, i
 	sd = BL_CAST(BL_PC, bl);
 	sc = status_get_sc(bl);
 	ssc = status_get_sc(src);
+
+	if (sc && sc->data[SC_WHITEIMPRISON])
+		return 0; // White Imprison does not reflect any damage
 
 	if (flag & BF_SHORT) {//Bounces back part of the damage.
 		if ( (skill_get_inf2(skill_id)&INF2_TRAP || !status_reflect) && sd && sd->bonus.short_weapon_damage_return ) {

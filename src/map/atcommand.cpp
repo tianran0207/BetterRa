@@ -2234,7 +2234,7 @@ static int killmonsterall_sub(struct block_list *bl, va_list ap)
 
 ACMD_FUNC(killmonsterall)
 {
-	int map_id, drop_flag;
+	int map_id;
 	char map_name[MAP_NAME_LENGTH_EXT];
 	nullpo_retr(-1, sd);
 

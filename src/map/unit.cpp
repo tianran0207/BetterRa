@@ -2032,7 +2032,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	}
 
 #ifdef EVENT_USESKILLFILTER
-	if (sd && event_exist(NPCE_USESKILLFILTER)) {
+	if (sd && !sd->runing_event[NPCE_USESKILLFILTER] && event_exist(NPCE_USESKILLFILTER)) {
 		pc_setreg(sd, add_str("@useskill_id"), skill_id);
 		pc_setreg(sd, add_str("@useskill_lv"), skill_lv);
 		pc_setreg(sd, add_str("@useskill_target"), target_id);
@@ -2330,7 +2330,7 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 	}
 
 #ifdef EVENT_USESKILLFILTER
-	if (sd && event_exist(NPCE_USESKILLFILTER)) {
+	if (sd && !sd->runing_event[NPCE_USESKILLFILTER] && event_exist(NPCE_USESKILLFILTER)) {
 		pc_setreg(sd, add_str("@useskill_id"), skill_id);
 		pc_setreg(sd, add_str("@useskill_lv"), skill_lv);
 		pc_setreg(sd, add_str("@useskill_target"), 0);
@@ -3525,9 +3525,10 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 				pc_setrestartvalue(sd,2);
 
 			pc_delinvincibletimer(sd);
-			pc_delautobonus(sd,sd->autobonus,ARRAYLENGTH(sd->autobonus),false);
-			pc_delautobonus(sd,sd->autobonus2,ARRAYLENGTH(sd->autobonus2),false);
-			pc_delautobonus(sd,sd->autobonus3,ARRAYLENGTH(sd->autobonus3),false);
+
+			pc_delautobonus(sd, sd->autobonus, false);
+			pc_delautobonus(sd, sd->autobonus2, false);
+			pc_delautobonus(sd, sd->autobonus3, false);
 
 			if( sd->followtimer != INVALID_TIMER )
 				pc_stop_following(sd);
@@ -3595,8 +3596,6 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 			// Clearing...
 			if (sd->bonus_script.head)
 				pc_bonus_script_clear(sd, BSF_REM_ALL);
-
-			pc_itemgrouphealrate_clear(sd);
 			break;
 		}
 		case BL_PET: {

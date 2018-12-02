@@ -10,6 +10,7 @@
 #include "../common/strlib.hpp"// StringBuf
 #include "../common/timer.hpp"
 
+#include "npc.hpp"
 #include "buyingstore.hpp" // struct s_buyingstore
 #include "clif.hpp" //e_wip_block
 #include "itemdb.hpp" // MAX_ITEMGROUP
@@ -27,7 +28,7 @@ enum e_log_pick_type : uint32;
 enum sc_type : int16;
 
 #define MAX_ATK_EVENT 10 /// Max bonus, usually used by item bonus
-#define MAX_PC_BONUS 10 /// Max bonus, usually used by item bonus
+#define MAX_PC_BONUS 50 /// Max bonus, usually used by item bonus
 #define MAX_PC_SKILL_REQUIRE 5 /// Max skill tree requirement
 #define MAX_PC_FEELHATE 3 /// Max feel hate info
 #define DAMAGELOG_SIZE_PC 100	/// Damage log
@@ -93,9 +94,40 @@ enum prevent_logout_trigger {
 	PLT_DAMAGE = 8
 };
 
+struct skill_cooldown_entry {
+	unsigned short skill_id;
+	int timer;
+};
+
+#ifdef VIP_ENABLE
+struct vip_info {
+	unsigned int enabled : 1;
+	time_t time;
+	bool disableshowrate; //State to disable clif_display_pinfo(). [Cydh]
+};
+#endif
+
+enum npc_timeout_type {
+	NPCT_INPUT = 0,
+	NPCT_MENU  = 1,
+	NPCT_WAIT  = 2,
+};
+
 extern unsigned int equip_bitmask[EQI_MAX];
 
 #define equip_index_check(i) ( (i) >= EQI_ACC_L && (i) < EQI_MAX )
+
+/// Miscellaneous item bonus struct
+struct s_item_bonus {
+	uint16 id;
+	int val;
+};
+
+/// AddEle bonus struct
+struct s_addele2 {
+	short flag, rate;
+	unsigned char ele;
+};
 
 struct weapon_data {
 	int atkmods[3];
@@ -125,16 +157,11 @@ struct weapon_data {
 		short per;  ///< Drain value/rate per attack
 	} hp_drain_rate, sp_drain_rate;
 
-	struct {
-		short class_, rate;
-	}	add_dmg[MAX_PC_BONUS];
-
-	struct {
-		short flag, rate;
-		unsigned char ele;
-	} addele2[MAX_PC_BONUS];
+	std::vector<s_item_bonus> add_dmg;
+	std::vector<s_addele2> addele2;
 };
 
+/// AutoSpell bonus struct
 struct s_autospell {
 	short id, lv, rate, flag;
 	unsigned short card_id;
@@ -165,9 +192,10 @@ struct s_add_drop {
 		group; ///Group ID
 	int rate; ///Rate, 1 ~ 10000, -1 ~ -100000
 	short race; ///Target Race, bitwise value of 1<<x. if < 0 means Monster ID
-	char class_; ///Target Class, bitwise value of 1<<x
+	unsigned short class_; ///Target Class, bitwise value of 1<<x
 };
 
+/// AutoBonus bonus struct
 struct s_autobonus {
 	short rate,atk_type;
 	unsigned int duration;
@@ -176,32 +204,7 @@ struct s_autobonus {
 	unsigned int pos;
 };
 
-struct skill_cooldown_entry {
-	unsigned short skill_id;
-	int timer;
-};
-
-#ifdef VIP_ENABLE
-struct vip_info {
-	unsigned int enabled : 1;
-	time_t time;
-	bool disableshowrate; //State to disable clif_display_pinfo(). [Cydh]
-};
-#endif
-
-enum npc_timeout_type {
-	NPCT_INPUT = 0,
-	NPCT_MENU  = 1,
-	NPCT_WAIT  = 2,
-};
-
-/// Item Group heal rate struct
-struct s_pc_itemgrouphealrate {
-	uint16 group_id; /// Item Group ID
-	short rate; /// Rate
-};
-
-///Timed bonus 'bonus_script' struct [Cydh]
+/// Timed bonus 'bonus_script' struct [Cydh]
 struct s_bonus_script_entry {
 	struct script_code *script;
 	StringBuf *script_buf; //Used for comparing and storing on table
@@ -210,6 +213,28 @@ struct s_bonus_script_entry {
 	enum efst_types icon;
 	uint8 type; //0 - Ignore; 1 - Buff; 2 - Debuff
 	int tid;
+};
+
+/// HP/SP bonus struct
+struct s_regen {
+	short value;
+	int rate;
+	int tick;
+};
+
+struct s_skill_noconsume {
+	uint16 sk;
+	unsigned short iid;
+	int amount;
+};
+
+struct s_multidamagerate {
+	short rate, atk_type, n;
+};
+
+struct s_bonus_multi {
+	unsigned short val1;
+	short val2, val3, val4, val5;
 };
 
 struct policies {
@@ -283,7 +308,7 @@ struct map_session_data {
 	unsigned int packet_account;
 	int policies;
 	int enemy_id;
-
+	bool runing_event[NPCE_MAX];
 	/**
 	 * Extended Vending system [Lilith]
 	**/
@@ -456,7 +481,6 @@ struct map_session_data {
 	int subclass[CLASS_MAX];
 	int subrace2[RC2_MAX];
 	int subsize[SZ_MAX];
-	short reseff[SC_COMMON_MAX-SC_COMMON_MIN+1]; //TODO: Make this for all SC?
 	short coma_class[CLASS_MAX];
 	short coma_race[RC_MAX];
 	short weapon_coma_ele[ELE_MAX];
@@ -488,42 +512,21 @@ struct map_session_data {
 	int dropaddclass[CLASS_MAX];
 	// zeroed arrays end here.
 
-	// zeroed structures start here
-	struct s_autospell autospell[MAX_PC_BONUS], autospell2[MAX_PC_BONUS], autospell3[MAX_PC_BONUS];
-	struct s_addeffect addeff[MAX_PC_BONUS], addeff_atked[MAX_PC_BONUS];
-	struct s_addeffectonskill addeff_onskill[MAX_PC_BONUS];
+	std::vector<s_autospell> autospell, autospell2, autospell3;
+	std::vector<s_addeffect> addeff, addeff_atked;
+	std::vector<s_addeffectonskill> addeff_onskill;
+	std::vector<s_item_bonus> skillatk, skillusesprate, skillusesp, skillheal, skillheal2, skillblown, skillcastrate, skillfixcastrate, subskill, skillcooldown, skillfixcast,
+		skillvarcast, skilldelay, itemhealrate, add_def, add_mdef, add_mdmg, reseff, itemgrouphealrate;
+	std::vector<s_add_drop> add_drop;
+	std::vector<s_addele2> subele2;
+	std::vector<s_autobonus> autobonus, autobonus2, autobonus3; //Auto script on attack, when attacked, on skill usage
 
-	struct s_skill_bonus { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
-		unsigned short id;
-		short val;
-	} skillatk[MAX_PC_BONUS], skillusesprate[MAX_PC_BONUS], skillusesp[MAX_PC_BONUS], skillheal[MAX_PC_BONUS],
-		skillheal2[MAX_PC_BONUS], skillblown[MAX_PC_BONUS], skillcastrate[MAX_PC_BONUS],
-		skillfixcastrate[MAX_PC_BONUS], subskill[MAX_PC_BONUS];
-	struct s_bonus_multi {
-		unsigned short val1;
-		short val2, val3, val4, val5;
-	} skillforaoe[MAX_PC_BONUS], skilldamage[MAX_PC_BONUS]; //custom;
-	struct s_skill_bonus_i32 {
-		uint16 id;
-		int32 val;
-	} skillcooldown[MAX_PC_BONUS], skillfixcast[MAX_PC_BONUS], skillvarcast[MAX_PC_BONUS], skilldelay[MAX_PC_BONUS];
+	// zeroed structures start here
 	struct s_regen {
 		short value;
 		int rate;
 		int tick;
 	} hp_loss, sp_loss, hp_regen, sp_regen, percent_hp_regen, percent_sp_regen;
-	struct {
-		short class_, rate;
-	}	add_def[MAX_PC_BONUS], add_mdef[MAX_PC_BONUS], add_mdmg[MAX_PC_BONUS];
-	struct s_add_drop add_drop[MAX_PC_BONUS];
-	struct s_healrate {
-		unsigned short nameid;
-		int rate;
-	} itemhealrate[MAX_PC_BONUS];
-	struct s_subele2 {
-		short flag, rate;
-		unsigned char ele;
-	} subele2[MAX_PC_BONUS];
 	struct {
 		short value;
 		int rate, tick;
@@ -533,10 +536,6 @@ struct map_session_data {
 			per;	///< % HP/SP vanished/gained
 	} hp_vanish_race[RC_MAX], sp_vanish_race[RC_MAX];
 	// zeroed structures end here
-
-	// manually zeroed structures start here.
-	struct s_autobonus autobonus[MAX_PC_BONUS], autobonus2[MAX_PC_BONUS], autobonus3[MAX_PC_BONUS]; //Auto script on attack, when attacked, on skill usage
-	// manually zeroed structures end here.
 
 	// zeroed vars start here.
 	struct s_bonus {
@@ -567,8 +566,8 @@ struct map_session_data {
 
 		short splash_range, splash_add_range;
 		short add_steal_rate;
-		short add_heal_rate, add_heal2_rate;
-		short sp_gain_value, hp_gain_value, magic_sp_gain_value, magic_hp_gain_value;
+		int add_heal_rate, add_heal2_rate;
+		int sp_gain_value, hp_gain_value, magic_sp_gain_value, magic_hp_gain_value;
 		short sp_vanish_rate, hp_vanish_rate;
 		short sp_vanish_per, hp_vanish_per;
 		unsigned short unbreakable;	// chance to prevent ANY equipment breaking [celest]
@@ -598,16 +597,12 @@ struct map_session_data {
 			int d_delay;
 		}skill_tree;
 		int max_aspd;
-		struct s_skill_noconsume {
-			uint16 sk;
-			unsigned short iid;
-			int amount;
-		}skillitemfix[MAX_PC_BONUS];
 		int cooldownrate;
-		struct s_multidamagerate {
-			short rate, atk_type, n;
-		}multidamage[MAX_PC_BONUS];
 	}c_bonus;
+	std::vector<s_skill_noconsume> skillitemfix;
+	std::vector<s_multidamagerate> multidamage;
+	std::vector<s_bonus_multi> skillforaoe, skilldamage; //custom;
+
 	struct autowalk_data autowalk;
 
 	struct s_shield {
@@ -829,9 +824,6 @@ struct map_session_data {
 		uint16 count;
 	} bonus_script;
 
-	struct s_pc_itemgrouphealrate **itemgrouphealrate; /// List of Item Group Heal rate bonus
-	uint8 itemgrouphealrate_count; /// Number of rate bonuses
-
 	/* Expiration Timer ID */
 	int expiration_tid;
 	time_t expiration_time;
@@ -867,7 +859,6 @@ struct map_session_data {
 };
 
 extern struct eri *pc_sc_display_ers; /// Player's SC display table
-extern struct eri *pc_itemgrouphealrate_ers; /// Player's Item Group Heal Rate table
 
 /**
  * ERS for the bulk of pc vars
@@ -1206,10 +1197,10 @@ bool pc_adoption(struct map_session_data *p1_sd, struct map_session_data *p2_sd,
 
 void pc_updateweightstatus(struct map_session_data *sd);
 
-bool pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short rate,unsigned int dur,short atk_type,const char *o_script,unsigned int pos,bool onskill);
-void pc_exeautobonus(struct map_session_data* sd,struct s_autobonus *bonus);
+bool pc_addautobonus(std::vector<s_autobonus> &bonus, const char *script, short rate, unsigned int dur, short atk_type, const char *o_script, unsigned int pos, bool onskill);
+void pc_exeautobonus(struct map_session_data* sd, struct s_autobonus *bonus);
 TIMER_FUNC(pc_endautobonus);
-void pc_delautobonus(struct map_session_data* sd,struct s_autobonus *bonus,char max,bool restore);
+void pc_delautobonus(struct map_session_data* sd, std::vector<s_autobonus> &bonus, bool restore);
 
 void pc_bonus(struct map_session_data *sd, int type, int val);
 void pc_bonus2(struct map_session_data *sd, int type, int type2, int val);
@@ -1444,7 +1435,6 @@ void pc_bonus_script_free_entry(struct map_session_data *sd, struct s_bonus_scri
 
 void pc_cell_basilica(struct map_session_data *sd);
 
-void pc_itemgrouphealrate_clear(struct map_session_data *sd);
 short pc_get_itemgroup_bonus(struct map_session_data* sd, unsigned short nameid);
 short pc_get_itemgroup_bonus_group(struct map_session_data* sd, uint16 group_id);
 
