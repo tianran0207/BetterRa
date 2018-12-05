@@ -5,6 +5,7 @@
 #define PATH_HPP
 
 #include "../common/cbasetypes.hpp"
+#include "../common/mmo.hpp"
 
 enum cell_chk : uint8;
 
@@ -45,6 +46,8 @@ struct autowalk_data {
 	struct step_path *path;
 	unsigned int step;
 	unsigned short step_ai;
+	unsigned short step_range;
+	char eventname[EVENT_NAME_LENGTH];
 };
 struct step_path *get_step(const char *key);
 struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid);

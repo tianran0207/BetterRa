@@ -15,6 +15,8 @@
 #include "../common/socket.hpp"
 #include "../common/timer.hpp"
 
+#include "mapreg.hpp"
+
 #include "achievement.hpp"
 #include "battle.hpp"
 #include "battleground.hpp"
@@ -963,6 +965,11 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned i
 		path_free(ad->path);
 	}
 
+	mapreg_setreg(add_str("$@mobid"), bl->id);
+
+	if (!npc_event_do(ad->eventname)) {
+		ShowError("unit_check_step: NPCEvent '%s' not found!\n", ad->eventname);
+	}
 	memset(ad, 0, sizeof(struct autowalk_data));
 	return false;
 }
@@ -996,7 +1003,7 @@ bool unit_can_reach_steppath(struct block_list *bl, struct block_list *tbl)
 	}
 
 	if (path_search(&wpd, tbl->m, tbl->x, tbl->y, ad->path->x[ad->step], ad->path->y[ad->step], 1, CELL_CHKNOREACH)
-		&& wpd.path_len < 30){
+		&& wpd.path_len < ad->step_range){
 		return true;
 	}
 	minlen = wpd.path_len;

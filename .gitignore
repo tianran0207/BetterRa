@@ -123,4 +123,5 @@ Thumbs.db
 /pcre8.dll
 /zlib.dll
 personal
-/tools/db_translate/db_translate.bak
+/tools/BetterRA_Tool/BetterRaTool.bak
+/*.map

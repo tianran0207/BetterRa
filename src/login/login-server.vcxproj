@@ -98,8 +98,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ws2_32.lib;$(SolutionDir).vs\build\common.lib;$(SolutionDir).vs\build\libconfig.lib;$(SolutionDir)3rdparty\mysql\lib\$(Platform)\libmysql.lib;$(SolutionDir).vs\build\yaml-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies>ws2_32.lib;$(SolutionDir).vs\build\common.lib;$(SolutionDir)3rdparty\mysql\lib\$(Platform)\libmysql.lib;$(SolutionDir).vs\build\yaml-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;$(SolutionDir).vs\build\common.lib;$(SolutionDir)3rdparty\mysql\lib\$(Platform)\libmysql.lib;$(SolutionDir).vs\build\yaml-cpp.lib;$(SolutionDir).vs\build\libconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -133,8 +132,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>ws2_32.lib;$(SolutionDir).vs\build\common.lib;$(SolutionDir).vs\build\libconfig.lib;$(SolutionDir)3rdparty\mysql\lib\$(Platform)\libmysql.lib;$(SolutionDir).vs\build\yaml-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies>ws2_32.lib;$(SolutionDir).vs\build\common.lib;$(SolutionDir)3rdparty\mysql\lib\$(Platform)\libmysql.lib;$(SolutionDir).vs\build\yaml-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;$(SolutionDir).vs\build\common.lib;$(SolutionDir)3rdparty\mysql\lib\$(Platform)\libmysql.lib;$(SolutionDir).vs\build\yaml-cpp.lib;$(SolutionDir).vs\build\libconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateMapFile>true</GenerateMapFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

@@ -26078,7 +26078,7 @@ BUILDIN_FUNC(unitsteppath)
 	struct step_path *steppath;
 	struct block_list *bl;
 	struct autowalk_data *ad;
-	const char *key = NULL;
+	const char *key = NULL, *eventname;
 	char str_temp[24];
 	int step_ai;
 
@@ -26106,6 +26106,8 @@ BUILDIN_FUNC(unitsteppath)
 	}
 
 	step_ai = script_hasdata(st, 4) ? script_getnum(st, 4) : PH_WALKBACK;
+	eventname = script_hasdata(st, 6) ? script_getstr(st, 6) : "";
+	check_event(st, eventname);
 
 	if (step_ai > PH_NONE &&  step_ai < PH_MAX) {
 		struct walkpath_data wpd;
@@ -26116,6 +26118,8 @@ BUILDIN_FUNC(unitsteppath)
 		ad->path = steppath;
 		ad->step = 0;
 		ad->step_ai = step_ai;
+		ad->step_range = script_hasdata(st, 5) ? (script_getnum(st, 5) < 25 ? script_getnum(st, 5) : 25) : 25;
+		safestrncpy(ad->eventname, eventname, EVENT_NAME_LENGTH);
 		unit_check_step(bl, ad, gettick());
 		return SCRIPT_CMD_SUCCESS;
 	}
@@ -26739,6 +26743,67 @@ BUILDIN_FUNC(mobdrop)
 				map_addflooritem(&item_tmp, item_tmp.amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0, 0);
 		}
 	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+int buildin_sortarray_asc_sub(const void *a, const void *b){
+	return(*(int *)a - *(int *)b);
+}
+
+int buildin_sortarray_desc_sub(const void *a, const void *b){
+	return(*(int *)b - *(int *)a);
+}
+
+BUILDIN_FUNC(sortarray)
+{
+	DBIterator *iter;
+	struct script_data *data;
+	const char* name;
+	int id, i, array_size, size;
+	unsigned int *list = NULL;
+	struct map_session_data* sd = NULL;
+	struct reg_db *ref = NULL;
+	data = script_getdata(st, 2);
+
+	if (!data_isreference(data) || !data_isint(data)){
+		ShowError("buildin_sortarray: not a int variable\n");
+		script_reportdata(data);
+		st->state = END;
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	name = reference_getname(data);
+	id = reference_getid(data);
+	ref = reference_getref(data);
+	if (not_server_variable(*name) && !script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	struct reg_db *src = script_array_src(st, sd, name, ref);
+	struct script_array *sa = static_cast<script_array *>(idb_get(src->arrays, search_str(name)));
+	if (!src || !sa || (array_size = db_size(src->vars)) == 0)
+		return SCRIPT_CMD_SUCCESS;
+
+	int* array_vars = (int*)aMalloc(array_size * sizeof(int));
+
+	iter = db_iterator(src->vars);
+	for (i = 0; i < array_size; i++)
+		array_vars[i] = db_data2i((iter)->next((iter), NULL));
+	dbi_destroy(iter);
+
+	list = script_array_cpy_list(sa);
+	size = sa->size;
+	for (i = 0; i < size; i++)
+		set_reg(st, sd, reference_uid(id, list[i]), name, 0, ref);
+
+	if (script_hasdata(st,3) && script_getnum(st, 3))
+		qsort(array_vars, array_size, sizeof(int), buildin_sortarray_desc_sub);
+	else
+		qsort(array_vars, array_size, sizeof(int), buildin_sortarray_asc_sub);
+
+	for (i = 0; i < array_size; i++)
+		set_reg(st, sd, reference_uid(id, i), name, (void *)array_vars[i], ref);
+	
+	aFree(array_vars);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -27624,6 +27689,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getservantgid, "i?"),
 	BUILDIN_DEF(homattatck, "i?"),
 	BUILDIN_DEF(mobdrop, "ii??"),
+	BUILDIN_DEF(sortarray, "r?"),
 	//行为策略系统
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),
@@ -27634,7 +27700,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bot_stop, "??"),
 	BUILDIN_DEF(is_bot, "?"),
 	//路点系统
-	BUILDIN_DEF(unitsteppath, "iv?"),
+	BUILDIN_DEF(unitsteppath, "iv???"),
 	//阵营系统
 	BUILDIN_DEF(tribe_setteam, "i?"),
 	BUILDIN_DEF(tribe_mobteam, "i"),
