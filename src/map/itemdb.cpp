@@ -1433,10 +1433,10 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 	}
 
 	switch (id->type) {
-		case IT_ARMOR:      id->flag.dropEffect = battle_config.dropefect_armor;         break;
-		case IT_WEAPON:     id->flag.dropEffect = battle_config.dropefect_weapon;        break;
-		case IT_CARD:       id->flag.dropEffect = battle_config.dropefect_card;          break;
-		case IT_SHADOWGEAR: id->flag.dropEffect = battle_config.dropefect_shadowgear;    break;
+		case IT_ARMOR:      id->flag.dropEffect = battle_config.dropeffect_armor;         break;
+		case IT_WEAPON:     id->flag.dropEffect = battle_config.dropeffect_weapon;        break;
+		case IT_CARD:       id->flag.dropEffect = battle_config.dropeffect_card;          break;
+		case IT_SHADOWGEAR: id->flag.dropEffect = battle_config.dropeffect_shadowgear;    break;
 	}
 
 	if (id->type == IT_DELAYCONSUME)

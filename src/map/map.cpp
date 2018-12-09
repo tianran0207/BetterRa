@@ -5202,9 +5202,9 @@ void do_shutdown(void)
 
 TIMER_FUNC(server_broadcast) {
 #ifdef PLAYER_LIMIT
-	//char mes[256];	
-	//snprintf(mes, sizeof(mes), "您使用的 BetterRa 测试端只能连接 %d 个玩家, 请联系 QQ809236588 定制客户端.", PLAYER_LIMIT);
-	//intif_broadcast2(mes, (int)strlen(mes) + 1, strtol("0x00FF00", (char **)NULL, 0), FW_NORMAL, 12, 0, 0);
+	char mes[256];	
+	snprintf(mes, sizeof(mes), msg_txt(NULL, 2300), PLAYER_LIMIT);
+	intif_broadcast2(mes, (int)strlen(mes) + 1, strtol("0x00FF00", (char **)NULL, 0), FW_NORMAL, 12, 0, 0);
 #endif
 	return 1;
 }
@@ -5312,7 +5312,7 @@ int do_init(int argc, char *argv[])
 
 #ifdef PLAYER_LIMIT
 	add_timer_func_list(server_broadcast, "server_broadcast");
-	add_timer_interval(gettick() + 1000, server_broadcast, 0, 0, 300 * 1000);
+	add_timer_interval(gettick() + 1000, server_broadcast, 0, 0, 600 * 1000);
 #endif
 
 	map_do_init_msg();

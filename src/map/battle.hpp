@@ -188,10 +188,10 @@ struct Battle_Config
 	int shadowgear_refine_ui;
 	int homunculus_autofeed_rate;
 	int homunculus_max_aspd;
-	int dropefect_weapon;
-	int dropefect_armor;
-	int dropefect_card;
-	int dropefect_shadowgear;
+	int dropeffect_weapon;
+	int dropeffect_armor;
+	int dropeffect_card;
+	int dropeffect_shadowgear;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int show_item_vending;
