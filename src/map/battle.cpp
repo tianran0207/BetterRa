@@ -8124,6 +8124,10 @@ static const struct _battle_data {
 	{ "shadowgear_refine_ui",				&battle_config.shadowgear_refine_ui,            1,		0,		1,              },
 	{ "homunculus_autofeed_rate",           &battle_config.homunculus_autofeed_rate,        10,     0,      100,            },
 	{ "homunculus_max_aspd",                &battle_config.homunculus_max_aspd,             180,    0,      199,            },
+	{ "dropefect_weapon",                   &battle_config.dropefect_weapon,                0,      0,      6,              },
+	{ "dropefect_armor",                    &battle_config.dropefect_armor,                 0,      0,      6,              },
+	{ "dropefect_card",                     &battle_config.dropefect_card,                  0,      0,      6,              },
+	{ "dropefect_shadow",                   &battle_config.dropefect_shadowgear,            0,      0,      6,              },
 	//--------------------------------------------Extended Vending system [Lilith]---------------------------------------------		 
 	{ "extended_vending",					&battle_config.extended_vending,				1,		0,		1,				},
 	{ "show_item_vending",					&battle_config.show_item_vending,				1,		0,		1,				},

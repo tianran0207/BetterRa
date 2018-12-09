@@ -957,6 +957,25 @@ static bool itemdb_read_nouse(char* fields[], int columns, int current) {
 	return true;
 }
 
+static bool itemdb_read_dropeffect(char* fields[], int columns, int current) {
+	unsigned short nameid = atoi(fields[0]);
+	struct item_data *id;
+	int flag;
+
+	if (!(id = itemdb_exists(nameid))) {
+		ShowError("itemdb_read_dropeffect: Invalid item item with id %hu\n", nameid);
+		return true;
+	}
+	flag = atoi(fields[1]);
+
+	if (flag < 1 || flag > 6) {
+		ShowError("itemdb_read_dropeffect: Invalid dropeffect item with id %hu\n", nameid);
+		return true;
+	}
+	id->flag.dropEffect = flag;
+	return true;
+}
+
 /** Misc Item flags
 * <item_id>,<flag>
 * &1 - As dead branch item
@@ -1411,6 +1430,13 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 	{// catch invalid item types
 		ShowWarning("itemdb_parse_dbrow: Invalid item type %d for item %hu. IT_ETC will be used.\n", id->type, nameid);
 		id->type = IT_ETC;
+	}
+
+	switch (id->type) {
+		case IT_ARMOR:      id->flag.dropEffect = battle_config.dropefect_armor;         break;
+		case IT_WEAPON:     id->flag.dropEffect = battle_config.dropefect_weapon;        break;
+		case IT_CARD:       id->flag.dropEffect = battle_config.dropefect_card;          break;
+		case IT_SHADOWGEAR: id->flag.dropEffect = battle_config.dropefect_shadowgear;    break;
 	}
 
 	if (id->type == IT_DELAYCONSUME)
@@ -1963,6 +1989,7 @@ static void itemdb_read(void) {
 		sv_readdb(dbsubpath2, "item_delay.txt",         ',', 2, 3, -1, &itemdb_read_itemdelay, i > 0);
 		sv_readdb(dbsubpath2, "item_buyingstore.txt",   ',', 1, 1, -1, &itemdb_read_buyingstore, i > 0);
 		sv_readdb(dbsubpath2, "item_flag.txt",          ',', 2, 2, -1, &itemdb_read_flag, i > 0);
+		sv_readdb(dbsubpath2, "item_dropeffect.txt",    ',', 2, 2, -1, &itemdb_read_dropeffect, i > 0);
 		sv_readdb(dbsubpath2, "item_randomopt_group.txt", ',', 5, 2+5*MAX_ITEM_RDM_OPT, -1, &itemdb_read_randomopt_group, i > 0);
 		aFree(dbsubpath1);
 		aFree(dbsubpath2);
