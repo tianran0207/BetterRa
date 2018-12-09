@@ -1939,6 +1939,7 @@ static int npc_selllist_sub(struct map_session_data* sd, int n, unsigned short* 
 	char card_slot[NAME_LENGTH];
 	char option_id[NAME_LENGTH], option_val[NAME_LENGTH], option_param[NAME_LENGTH];
 	int i, j;
+	int key_idx = 0;
 	int key_nameid = 0;
 	int key_amount = 0;
 	int key_refine = 0;
@@ -1948,6 +1949,7 @@ static int npc_selllist_sub(struct map_session_data* sd, int n, unsigned short* 
 	int key_option_id[MAX_ITEM_RDM_OPT], key_option_val[MAX_ITEM_RDM_OPT], key_option_param[MAX_ITEM_RDM_OPT];
 
 	// discard old contents
+	script_cleararray_pc(sd, "@sold_idx", (void*)0);
 	script_cleararray_pc(sd, "@sold_nameid", (void*)0);
 	script_cleararray_pc(sd, "@sold_quantity", (void*)0);
 	script_cleararray_pc(sd, "@sold_refine", (void*)0);
@@ -1977,6 +1979,7 @@ static int npc_selllist_sub(struct map_session_data* sd, int n, unsigned short* 
 	{
 		int idx = item_list[i * 2] - 2;
 
+		script_setarray_pc(sd, "@sold_idx", i, (void*)(intptr_t)idx, &key_idx);
 		script_setarray_pc(sd, "@sold_nameid", i, (void*)(intptr_t)sd->inventory.u.items_inventory[idx].nameid, &key_nameid);
 		script_setarray_pc(sd, "@sold_quantity", i, (void*)(intptr_t)item_list[i*2+1], &key_amount);
 

@@ -17796,6 +17796,42 @@ void clif_instance_changestatus(unsigned int instance_id, int type, unsigned int
 	return;
 }
 
+void clif_parse_InstanceDestroy(int fd, struct map_session_data *sd)
+{
+#if PACKETVER >= 20071128
+	struct s_packet_db* info = &packet_db[RFIFOW(fd, 0)];
+	struct party_data *pd = NULL;
+	struct guild *gd = NULL;
+	struct clan *cd = NULL;
+	unsigned short instance_id = 0;
+	int i;
+
+	if (RFIFOL(fd, info->pos[0]) != 3)
+		return;
+
+	if (sd->instance_id)
+		instance_id = sd->instance_id;
+	if (instance_id == 0 && sd->status.party_id && (pd = party_search(sd->status.party_id)) != NULL && pd->instance_id) {
+		ARR_FIND(0, MAX_PARTY, i, pd->party.member[i].leader);
+		if (i != MAX_PARTY && pd->party.member[i].char_id == sd->status.char_id)
+			instance_id = pd->instance_id;
+	}
+	if (instance_id == 0 && sd->status.guild_id && (gd = guild_search(sd->status.guild_id)) != NULL && gd->instance_id) {
+		if (gd->member[0].char_id == sd->status.char_id) 
+			instance_id = gd->instance_id;
+	}
+	if (instance_id == 0 && sd->status.clan_id && (cd = clan_search(sd->status.clan_id)) != NULL && cd->instance_id) {
+		if (!strcmp(sd->status.name, cd->master))
+			instance_id = cd->instance_id;
+	}
+
+	if (instance_id == 0) {
+		ShowError("clif_parse_InstanceDestroy: Trying to destroy invalid instance %hu.\n", instance_id);
+		return;
+	}
+	instance_destroy(instance_id);
+#endif
+}
 
 /// Notifies clients about item picked up by a party member (ZC_ITEM_PICKUP_PARTY).
 /// 02b8 <account id>.L <name id>.W <identified>.B <damaged>.B <refine>.B <card1>.W <card2>.W <card3>.W <card4>.W <equip location>.W <item type>.B

@@ -126,6 +126,7 @@ int unit_can_move(struct block_list *bl);
 int unit_is_walking(struct block_list *bl);
 int unit_set_walkdelay(struct block_list *bl, unsigned int tick, int delay, int type);
 bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned int tick);
+bool unit_check_around(struct block_list *bl);
 
 int unit_escape(struct block_list *bl, struct block_list *target, short dist);
 

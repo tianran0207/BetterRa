@@ -13578,7 +13578,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 		return 1;
 	}
 
-	map_foreachinallrange(pcbot_ai_sub_hard_activesearch, &sd->bl, 12, BL_CHAR, bd, &tbl);
+	map_foreachinallrange(pcbot_ai_sub_hard_activesearch, &sd->bl, 14, BL_CHAR, bd, &tbl);
 
 	if (tbl && pc_can_attack(sd, tbl->id)) {
 		if ((bd->info.atktype & BF_MAGIC) && bd->info.skill_id[0]) {
@@ -13648,14 +13648,12 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 			rx = 3; ry = 9;
 			break;
 		}
-		for (i = 0; i < 5; i++) {
-			if (map_search_freecell(NULL, sd->bl.m, &x, &y, rx, ry, 1) && unit_can_reach_pos(&sd->bl, x, y, 1)) {
-				unit_walktoxy(&sd->bl, x, y, 1);
-				if (bd->info.find_fail_fly)
-					bd->state.move_count++;
-				bd->state.move_fail_count = 0;
-				return 1;
-			}
+		if (map_search_freecell(&sd->bl, sd->bl.m, &x, &y, rx, ry, 3)) {
+			unit_walktoxy(&sd->bl, x, y, 1);
+			if (bd->info.find_fail_fly)
+				bd->state.move_count++;
+			bd->state.move_fail_count = 0;
+			return 1;
 		}
 		bd->state.move_fail_count++;
 		bd->state.dir += (rnd() % 2) ? 1 : -1;
@@ -13664,7 +13662,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 		else if (bd->state.dir == 4)
 			bd->state.dir = 0;
 
-		if (bd->state.move_fail_count > 1000) {
+		if (bd->state.move_fail_count > 100) {
 			map_delbot(bd, true);
 			return 0;
 		}

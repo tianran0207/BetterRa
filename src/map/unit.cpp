@@ -92,7 +92,7 @@ int unit_walktoxy_sub(struct block_list *bl)
 		return 0;
 
 #ifdef OFFICIAL_WALKPATH
-	if( !path_search_long(NULL, bl->m, bl->x, bl->y, ud->to_x, ud->to_y, CELL_CHKNOPASS) // Check if there is an obstacle between
+	if(unit_check_around(bl) && !path_search_long(NULL, bl->m, bl->x, bl->y, ud->to_x, ud->to_y, CELL_CHKNOPASS) // Check if there is an obstacle between
 		&& wpd.path_len > 14	// Official number of walkable cells is 14 if and only if there is an obstacle between. [malufett]
 		&& (bl->type != BL_NPC) ) // If type is a NPC, please disregard.
 			return 0;
@@ -651,7 +651,7 @@ int unit_walktoxy( struct block_list *bl, short x, short y, unsigned char flag)
 		return 0;
 
 #ifdef OFFICIAL_WALKPATH
-	if( !path_search_long(NULL, bl->m, bl->x, bl->y, x, y, CELL_CHKNOPASS) // Check if there is an obstacle between
+	if(unit_check_around(bl) && !path_search_long(NULL, bl->m, bl->x, bl->y, x, y, CELL_CHKNOPASS) // Check if there is an obstacle between
 		&& wpd.path_len > 14	// Official number of walkable cells is 14 if and only if there is an obstacle between. [malufett]
 		&& (bl->type != BL_NPC) ) // If type is a NPC, please disregard.
 			return 0;
@@ -740,6 +740,19 @@ static TIMER_FUNC(unit_walktobl_sub){
 	return 0;
 }
 
+bool unit_check_around(struct block_list *bl)
+{
+	struct autowalk_data *ad = unit_autowalk(bl);
+	if (ad && ad->path)
+		return false;
+
+	struct map_session_data *sd = BL_CAST(BL_PC, bl);
+	if (sd && sd->state.bot)
+		return false;
+
+	return true;
+}
+
 struct autowalk_data *unit_autowalk(struct block_list *bl)
 {
 	switch (bl->type) {
@@ -771,8 +784,6 @@ int unit_autowalk_timer(int tid, unsigned int tick, int id, intptr_t data)
  */
 
 int unit_backto_step(struct block_list *bl, struct autowalk_data *ad) {
-	int i;
-	struct walkpath_data wpd;
 	struct unit_data *ud = NULL;
 
 	nullpo_retr(1, bl);
@@ -783,37 +794,7 @@ int unit_backto_step(struct block_list *bl, struct autowalk_data *ad) {
 		return 1;
 	}
 
-	ud = unit_bl2ud(bl);
-	if (ud == NULL) return 0;
-
-	unit_stop_walking(bl, 1 | 4);
-	unit_stop_attack(bl);
-
-	ud->to_x = ad->path->x[ad->step];
-	ud->to_y = ad->path->y[ad->step];
-
-	if (!path_search(&wpd, bl->m, bl->x, bl->y, ud->to_x, ud->to_y, 0, CELL_CHKNOPASS))
-		return 0;
-
-	memcpy(&ud->walkpath, &wpd, sizeof(wpd));
-
-	ud->state.change_walk_target = 0;
-
-	if (bl->type == BL_PC) {
-		((TBL_PC *)bl)->head_dir = 0;
-		clif_walkok((TBL_PC*)bl);
-	}
-	clif_move(ud);
-
-	if (ud->walkpath.path_pos >= ud->walkpath.path_len)
-		i = -1;
-	else if (ud->walkpath.path[ud->walkpath.path_pos] & 1)
-		i = status_get_speed(bl)*MOVE_DIAGONAL_COST / MOVE_COST;
-	else
-		i = status_get_speed(bl);
-	if (i > 0)
-		ud->walktimer = add_timer(gettick() + i, unit_walktoxy_timer, bl->id, i);
-	return 1;
+	return unit_walktoxy(bl, ad->path->x[ad->step], ad->path->y[ad->step], 0);
 }
 
 bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
@@ -843,8 +824,6 @@ bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
 		&& wpd.path_len < 30) {
 		return true;
 	}
-
-
 
 	if (unit_walktoxy(bl, x, y, 1)) {
 		speed = status_get_speed(bl);
@@ -886,7 +865,7 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned i
 	if (ad->step < path->number) {
 		x = path->x[ad->step];
 		y = path->y[ad->step];
-		if (unit_walktoxy(bl, x, y, bl->type == BL_MOB ? 1 : 0)) {
+		if (unit_walktoxy(bl, x, y, 1) || unit_walktoxy(bl, x, y, 0)) {
 			ad->step++;
 			speed = status_get_speed(bl);
 			switch (bl->type) {
@@ -926,7 +905,7 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned i
 			return true;
 		}
 		else if (ad->step_ai == PH_ASTARTWALKBACK) {
-			int i, minlen, newstep;
+			int i, minlen, newstep = ad->step;
 			struct step_path *sp;
 			minlen = distance_blxy(bl, ad->path->x[ad->step], ad->path->y[ad->step]);
 			for (i = ad->step; i < ad->path->number; i++) {
@@ -943,16 +922,14 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned i
 				}
 				ad->path = sp;
 				ad->step = 0;
-				unit_check_step(bl, ad, tick);
 				return true;
 			}
 		}
 		else if (ad->step_ai == PH_ASTARTWALK){
 			struct step_path *sp;
-			if ((sp = path_Astart_steppath(bl->m, bl->x, bl->y, ad->path->x[ad->path->number - 1], ad->path->y[ad->path->number - 1], bl->id))) {
+			if (ad->path->number > 0 && (sp = path_Astart_steppath(bl->m, bl->x, bl->y, ad->path->x[ad->path->number - 1], ad->path->y[ad->path->number - 1], bl->id))) {
 				ad->path = sp;
 				ad->step = 0;
-				unit_check_step(bl, ad, tick);
 				return true;
 			}
 		}
@@ -961,15 +938,15 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, unsigned i
 		}
 	}
 
-	if (ad->path->uid == bl->id) {
+	if (ad->eventname[0]) {
+		mapreg_setreg(add_str("$@gid"), bl->id);
+		if (!npc_event_do(ad->eventname))
+			ShowError("unit_check_step: NPCEvent '%s' not found!\n", ad->eventname);
+	}
+
+	if (ad->path->uid == bl->id)
 		path_free(ad->path);
-	}
 
-	mapreg_setreg(add_str("$@mobid"), bl->id);
-
-	if (!npc_event_do(ad->eventname)) {
-		ShowError("unit_check_step: NPCEvent '%s' not found!\n", ad->eventname);
-	}
 	memset(ad, 0, sizeof(struct autowalk_data));
 	return false;
 }
@@ -2763,7 +2740,7 @@ bool unit_can_reach_bl(struct block_list *bl,struct block_list *tbl, int range, 
 		return false;
 
 #ifdef OFFICIAL_WALKPATH
-	if( !path_search_long(NULL, bl->m, bl->x, bl->y, tbl->x-dx, tbl->y-dy, CELL_CHKNOPASS) // Check if there is an obstacle between
+	if(unit_check_around(bl) && !path_search_long(NULL, bl->m, bl->x, bl->y, tbl->x-dx, tbl->y-dy, CELL_CHKNOPASS) // Check if there is an obstacle between
 	  && wpd.path_len > 14	// Official number of walkable cells is 14 if and only if there is an obstacle between. [malufett]
 	  && (bl->type != BL_NPC) ) // If type is a NPC, please disregard.
 		return false;
@@ -2889,7 +2866,7 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int t
 	if( status_isdead(src) || status_isdead(target) ||
 			battle_check_target(src,target,BCT_ENEMY) <= 0 || !status_check_skilluse(src, target, 0, 0)
 #ifdef OFFICIAL_WALKPATH
-	   || !path_search_long(NULL, src->m, src->x, src->y, target->x, target->y, CELL_CHKWALL)
+	   || (unit_check_around(src) && !path_search_long(NULL, src->m, src->x, src->y, target->x, target->y, CELL_CHKWALL))
 #endif
 	   || (sd && !pc_can_attack(sd, target->id)) )
 		return 0; // Can't attack under these conditions
