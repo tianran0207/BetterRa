@@ -389,6 +389,23 @@ int party_recv_info(struct party* sp, uint32 char_id)
 	return 0;
 }
 
+static bool party_change_lock2(struct map_session_data *sd, int type) {
+	struct party_data *p;
+	int i;
+
+	if ((p = party_search(sd->status.party_id)) == NULL)
+		return true;
+
+	ARR_FIND(0, MAX_PARTY, i, p->party.member[i].map && map_getmapflag(map_mapindex2mapid(p->party.member[i].map), MF_PARTYLOCK2) & type);
+	if (i < MAX_PARTY) {
+		char output[256];
+		sprintf(output, msg_txt(sd, 2365), p->party.member[i].name);
+		clif_displaymessage(sd->fd, output);
+		return true;
+	}
+	return false;
+}
+
 ///! TODO: Party invitation cross map-server through inter-server, so does with the reply.
 int party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 {
@@ -453,6 +470,19 @@ int party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 		return 0;
 	}
 
+	if (party_change_lock2(sd, 1))
+		return 0;
+
+#ifdef  EVENT_PARTYJOINFILTER
+	if (event_exist(NPCE_PARTYJOINFILTER)) {
+		pc_setreg(sd, add_str("@join_party_id"), sd->status.party_id);
+		pc_setreg(sd, add_str("@join_party_aid"), tsd->status.account_id);
+		npc_script_event_atonce(sd, NPCE_PARTYJOINFILTER);
+		if (sd->state.processhalt)
+			return false;
+	}
+#endif //  EVENT_PARTYJOINFILTER
+
 	tsd->party_invite=sd->status.party_id;
 	tsd->party_invite_account=sd->status.account_id;
 
@@ -482,16 +512,6 @@ int party_reply_invite(struct map_session_data *sd,int party_id,int flag)
 	tsd = map_id2sd(sd->party_invite_account);
 
 	if( flag == 1 && !sd->party_creating && !sd->party_joining ) { // accepted and allowed
-
-#ifdef  EVENT_PARTYJOINFILTER
-		if (event_exist(NPCE_PARTYJOINFILTER)) {
-			pc_setreg(sd, add_str("@join_party_id"), party_id);
-			npc_script_event_atonce(sd, NPCE_PARTYJOINFILTER);
-			if (sd->state.processhalt)
-				return false;
-		}
-#endif //  EVENT_PARTYJOINFILTER
-
 		sd->party_joining = true;
 		party_fill_member(&member, sd, 0);
 		intif_party_addmember(sd->party_invite, &member);
@@ -612,6 +632,19 @@ int party_removemember(struct map_session_data* sd, uint32 account_id, char* nam
 	if( i == MAX_PARTY )
 		return 0; // no such char in party
 
+	if (party_change_lock2(sd, 2))
+		return 0;
+
+#ifdef  EVENT_PARTYLEAVEFILTER
+	if (event_exist(NPCE_PARTYLEAVEFILTER)) {
+		pc_setreg(sd, add_str("@left_party_id"), p->party.party_id);
+		pc_setregstr(sd, add_str("@left_party_name$"), p->party.name);
+		npc_script_event_atonce(sd, NPCE_PARTYLEAVEFILTER);
+		if (sd->state.processhalt)
+			return 0;
+	}
+#endif //  EVENT_PARTYLEAVEFILTER
+
 	party_trade_bound_cancel(sd);
 	intif_party_leave(p->party.party_id,account_id,p->party.member[i].char_id,p->party.member[i].name,PARTY_MEMBER_WITHDRAW_EXPEL);
 
@@ -655,6 +688,9 @@ int party_leave(struct map_session_data *sd)
 
 	ARR_FIND( 0, MAX_PARTY, i, p->party.member[i].account_id == sd->status.account_id && p->party.member[i].char_id == sd->status.char_id );
 	if( i == MAX_PARTY )
+		return 0;
+
+	if (party_change_lock2(sd, 2))
 		return 0;
 
 #ifdef  EVENT_PARTYLEAVEFILTER
@@ -753,6 +789,9 @@ int party_changeoption(struct map_session_data *sd,int exp,int item)
 
 	if( sd->status.party_id == 0 )
 		return -3;
+
+	if (party_change_lock2(sd, 8))
+		return 0;
 
 	intif_party_changeoption(sd->status.party_id,sd->status.account_id,exp,item);
 
@@ -859,6 +898,9 @@ int party_changeleader(struct map_session_data *sd, struct map_session_data *tsd
 		if (tmi == MAX_PARTY)
 			return 0; // Shouldn't happen
 	}
+
+	if (party_change_lock2(sd, 4))
+		return 0;
 
 	// Change leadership.
 	p->party.member[mi].leader = 0;

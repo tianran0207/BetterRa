@@ -616,6 +616,7 @@ enum e_mapflag : int16 {
 	MF_MVPDROPRATE,
 	MF_NOMAIL,
 	MF_MOBSPAWNBASE,
+	MF_PARTYLOCK2,
 	MF_MAX
 };
 

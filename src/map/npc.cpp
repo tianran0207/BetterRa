@@ -4041,7 +4041,8 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 	switch( mapflag ){
 		case MF_MOBINFO:
 		case MF_MOBDROPRATE:
-		case MF_MVPDROPRATE: {
+		case MF_MVPDROPRATE:
+		case MF_PARTYLOCK2: {
 			union u_mapflag_args args = {};
 
 			if (state) {

@@ -4308,6 +4308,8 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " NoMail |");
 	if (map_getmapflag(m_id, MF_MOBSPAWNBASE))
 		strcat(atcmd_output, " MobSpawnBase |");
+	if (map_getmapflag(m_id, MF_PARTYLOCK2))
+		strcat(atcmd_output, " PartyLock2 |");
 	//-------------------------------------
 
 	clif_displaymessage(fd, atcmd_output);

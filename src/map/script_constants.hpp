@@ -553,6 +553,7 @@
 	export_constant(MF_NOMERCENARY);
 	export_constant(MF_MOBDROPRATE);
 	export_constant(MF_MVPDROPRATE);
+	export_constant(MF_PARTYLOCK2);
 	export_constant(MF_NOMAIL);
 	export_constant(MF_MOBSPAWNBASE);
 	export_constant(PH_WALKBACK);
