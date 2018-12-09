@@ -4458,7 +4458,7 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 	// remember the card id to insert
 	nameid = sd->inventory.u.items_inventory[idx_card].nameid;
 
-	if (event_exist(NPCE_CARDINSERTFILTER)) {
+	if (sd && !sd->runing_event[NPCE_CARDINSERTFILTER] && event_exist(NPCE_CARDINSERTFILTER)) {
 		pc_setreg(sd, add_str("@insert_equip_idx"), idx_equip);
 		pc_setreg(sd, add_str("@insert_card_idx"), idx_card);
 		pc_setreg(sd, add_str("@insert_card_id"), nameid);
@@ -4479,7 +4479,7 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 		log_pick_pc(sd, LOG_TYPE_OTHER,  1, &sd->inventory.u.items_inventory[idx_equip]);
 		clif_insert_card(sd,idx_equip,idx_card,0);
 
-		if (event_exist(NPCE_CARDINSERTEVENT)) {
+		if (sd && !sd->runing_event[NPCE_CARDINSERTEVENT] && event_exist(NPCE_CARDINSERTEVENT)) {
 			pc_setreg(sd, add_str("@insert_equip_idx"), idx_equip);
 			pc_setreg(sd, add_str("@insert_card_idx"), idx_card);
 			pc_setreg(sd, add_str("@insert_card_id"), nameid);
@@ -5359,7 +5359,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 	}
 
 #ifdef EVENT_USEITEMFILTER
-	if (event_exist(NPCE_USEITEMFILTER)) {
+	if (sd && !sd->runing_event[NPCE_USEITEMFILTER] && event_exist(NPCE_USEITEMFILTER)) {
 		pc_setreg(sd, add_str("@useitem_nameid"), item.nameid);
 		pc_setreg(sd, add_str("@useitem_idx"), n);
 		pc_setreg(sd, add_str("@useitem_pos"), n);
@@ -5788,7 +5788,7 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 
 	int16 m = map_mapindex2mapid(mapindex);
 #ifdef EVENT_WILLLOADMAPEVENT
-	if (sd->state.active && event_exist(NPCE_WILLLOADMAPEVENT)) {
+	if (sd && !sd->runing_event[NPCE_WILLLOADMAPEVENT] && sd->state.active && event_exist(NPCE_WILLLOADMAPEVENT)) {
 		pc_setreg(sd, add_str("@loadmap_oldmap_id"), sd->bl.m);
 		pc_setregstr(sd, add_str("@loadmap_oldmap_name$"), map_mapid2mapname(sd->bl.m));
 		pc_setreg(sd, add_str("@loadmap_oldmap_x"), sd->bl.x);
@@ -10210,7 +10210,7 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos)
 	}
 
 #ifdef EVENT_EQUIPFILTER
-	if (event_exist(NPCE_EQUIPFILTER)) {
+	if (sd && !sd->runing_event[NPCE_EQUIPFILTER] && event_exist(NPCE_EQUIPFILTER)) {
 		pc_setreg(sd, add_str("@equip_idx"), n);
 		pc_setreg(sd, add_str("@equip_pos"), n);
 		npc_script_event_atonce(sd, NPCE_EQUIPFILTER);
@@ -10504,7 +10504,7 @@ bool pc_unequipitem(struct map_session_data *sd, int n, int flag) {
 
 
 #ifdef EVENT_UNEQUIPFILTER
-	if (event_exist(NPCE_UNEQUIPFILTER)) {
+	if (sd && !sd->runing_event[NPCE_UNEQUIPFILTER] && event_exist(NPCE_UNEQUIPFILTER)) {
 		pc_setreg(sd, add_str("@unequip_idx"), n);
 		pc_setreg(sd, add_str("@unequip_pos"), n);
 		npc_script_event_atonce(sd, NPCE_UNEQUIPFILTER);

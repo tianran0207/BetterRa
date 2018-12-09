@@ -12860,7 +12860,7 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd) {
 	}
 
 #ifdef EVENT_IDENTIFYFILTER
-	if (event_exist(NPCE_IDENTIFYFILTER)) {
+	if (sd && !sd->runing_event[NPCE_IDENTIFYFILTER] && event_exist(NPCE_IDENTIFYFILTER)) {
 		pc_setreg(sd, add_str("@identify_idx"), idx);
 		npc_script_event_atonce(sd, NPCE_IDENTIFYFILTER);
 		if (sd->state.processhalt) {
@@ -16905,7 +16905,7 @@ void clif_parse_ViewPlayerEquip(int fd, struct map_session_data* sd)
 	if( tsd->status.show_equip || pc_has_permission(sd, PC_PERM_VIEW_EQUIPMENT) ) {
 	
 #ifdef EVENT_VIEWEQUIPFILTER
-		if (event_exist(NPCE_VIEWEQUIPFILTER)) {
+		if (sd && !sd->runing_event[NPCE_VIEWEQUIPFILTER] && event_exist(NPCE_VIEWEQUIPFILTER)) {
 			pc_setregstr(sd, add_str("@view_equip_target_name$"), tsd->status.name);
 			pc_setreg(sd, add_str("@view_equip_target_aid"), tsd->status.account_id);
 			pc_setreg(sd, add_str("@view_equip_target_cid"), tsd->status.char_id);
@@ -19579,7 +19579,7 @@ void clif_parse_change_title(int fd, struct map_session_data *sd)
 	title_id = RFIFOL(fd, 2);
 
 #ifdef EVENT_TITLECHANGEFILTER
-	if (event_exist(NPCE_TITLECHANGEFILTER)) {
+	if (sd && !sd->runing_event[NPCE_TITLECHANGEFILTER] && event_exist(NPCE_TITLECHANGEFILTER)) {
 		pc_setreg(sd, add_str("@trigger_mode"), 0);
 		pc_setreg(sd, add_str("@pre_title_id"), sd->status.title_id);
 		pc_setreg(sd, add_str("@now_title_id"), title_id);
@@ -19674,9 +19674,11 @@ void clif_parse_roulette_open( int fd, struct map_session_data* sd ){
 	nullpo_retv(sd);
 
 #ifdef EVENT_ROULETTEOPENFILTER
-	npc_script_event_atonce(sd, NPCE_ROULETTEOPENFILTER);
-	if (sd->state.processhalt)
-		return;
+	if (sd && !sd->runing_event[NPCE_ROULETTEOPENFILTER] && event_exist(NPCE_ROULETTEOPENFILTER)){
+		npc_script_event_atonce(sd, NPCE_ROULETTEOPENFILTER);
+		if (sd->state.processhalt)
+			return;
+	}
 #endif
 
 	if (!battle_config.feature_roulette) {
@@ -19840,7 +19842,7 @@ void clif_parse_roulette_generate( int fd, struct map_session_data* sd ){
 	}
 	
 #ifdef EVENT_ROULETTESTARTFILTER
-	if (event_exist(NPCE_ROULETTESTARTFILTER)) {
+	if (sd && !sd->runing_event[NPCE_ROULETTESTARTFILTER] && event_exist(NPCE_ROULETTESTARTFILTER)) {
 		npc_script_event_atonce(sd, NPCE_ROULETTESTARTFILTER);
 		if (sd->state.processhalt)
 			return;
@@ -19905,7 +19907,7 @@ void clif_parse_roulette_item( int fd, struct map_session_data* sd ){
 	}
 
 #ifdef EVENT_ROULETTEGETFILTER
-	if (event_exist(NPCE_ROULETTEGETFILTER)) {
+	if (sd && !sd->runing_event[NPCE_ROULETTEGETFILTER] && event_exist(NPCE_ROULETTEGETFILTER)) {
 		pc_setreg(sd, add_str("@PrizeStage"), sd->roulette.prizeStage + 1);
 		pc_setreg(sd, add_str("@PrizeIdx"), sd->roulette.prizeIdx + 1);
 		npc_script_event_atonce(sd, NPCE_ROULETTEGETFILTER);

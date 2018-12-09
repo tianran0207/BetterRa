@@ -3429,9 +3429,11 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	if (++calculating > 10) // Too many recursive calls!
 		return -1;
 
-	npc_script_event_atonce(sd, NPCE_STATCALCFILTER);
-	if (sd->state.processhalt)
-		return 0;
+	if (sd && !sd->runing_event[NPCE_STATCALCFILTER] && event_exist(NPCE_STATCALCFILTER)) {
+		npc_script_event_atonce(sd, NPCE_STATCALCFILTER);
+		if (sd->state.processhalt)
+			return 0;
+	}
 
 	// Remember player-specific values that are currently being shown to the client (for refresh purposes)
 	memcpy(b_skill, &sd->status.skill, sizeof(b_skill));
@@ -3757,7 +3759,8 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	}
 
 	running_npc_stat_calc_event = true;
-	npc_script_event_atonce(sd, NPCE_STATCALC);
+	if (sd && !sd->runing_event[NPCE_STATCALC] && event_exist(NPCE_STATCALC))
+		npc_script_event_atonce(sd, NPCE_STATCALC);
 	running_npc_stat_calc_event = false;
 
 	// Store equipment script bonuses

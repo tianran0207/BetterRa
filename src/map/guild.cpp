@@ -376,7 +376,7 @@ int guild_create(struct map_session_data *sd, const char *name) {
 	}
 
 #ifdef  EVENT_GUILDCREATEFILTER
-	if (event_exist(NPCE_GUILDCREATEFILTER)) {
+	if (sd && !sd->runing_event[NPCE_GUILDCREATEFILTER] && event_exist(NPCE_GUILDCREATEFILTER)) {
 		pc_setregstr(sd, add_str("@create_guild_name$"), name);
 		npc_script_event_atonce(sd, NPCE_GUILDCREATEFILTER);
 		if (sd->state.processhalt)
@@ -689,7 +689,7 @@ int guild_reply_invite(struct map_session_data* sd, int guild_id, int flag) {
 		}
 
 #ifdef  EVENT_GUILDJOINFILTER
-		if (event_exist(NPCE_GUILDJOINFILTER)) {
+		if (sd && !sd->runing_event[NPCE_GUILDJOINFILTER] && event_exist(NPCE_GUILDJOINFILTER)) {
 			pc_setreg(sd, add_str("@join_guild_id"), guild_id);
 			pc_setregstr(sd, add_str("@join_guild_name$"), g->name);
 			npc_script_event_atonce(sd, NPCE_GUILDJOINFILTER);
@@ -808,7 +808,7 @@ int guild_leave(struct map_session_data* sd, int guild_id, uint32 account_id, ui
 		return 0;
 
 #ifdef  EVENT_GUILDLEAVEFILTER
-	if (event_exist(NPCE_GUILDLEAVEFILTER)) {
+	if (sd && !sd->runing_event[NPCE_GUILDLEAVEFILTER] && event_exist(NPCE_GUILDLEAVEFILTER)) {
 		pc_setreg(sd, add_str("@left_guild_id"), guild_id);
 		pc_setregstr(sd, add_str("@left_guild_name$"), g->name);
 		npc_script_event_atonce(sd, NPCE_GUILDLEAVEFILTER);

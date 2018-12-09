@@ -24385,7 +24385,7 @@ BUILDIN_FUNC(setchartitle)
 	title_id = script_getnum(st, 2);
 
 #ifdef EVENT_TITLECHANGEFILTER
-	if (event_exist(NPCE_TITLECHANGEFILTER)) {
+	if (sd && !sd->runing_event[NPCE_TITLECHANGEFILTER] && event_exist(NPCE_TITLECHANGEFILTER)) {
 		pc_setreg(sd, add_str("@trigger_mode"), 1);
 		pc_setreg(sd, add_str("@pre_title_id"), sd->status.title_id);
 		pc_setreg(sd, add_str("@now_title_id"), title_id);

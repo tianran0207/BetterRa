@@ -17089,7 +17089,7 @@ void skill_identify(struct map_session_data *sd, int idx)
 	}
 
 #ifdef EVENT_IDENTIFY
-	if (event_exist(NPCE_IDENTIFY)) {
+	if (sd && !sd->runing_event[NPCE_IDENTIFY] && event_exist(NPCE_IDENTIFY)) {
 		pc_setreg(sd, add_str("@identify_idx"), idx);
 		npc_script_event_atonce(sd, NPCE_IDENTIFY);
 	}
