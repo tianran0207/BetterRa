@@ -391,12 +391,12 @@ int party_recv_info(struct party* sp, uint32 char_id)
 
 static bool party_change_lock2(struct map_session_data *sd, int type) {
 	struct party_data *p;
-	int i;
+	int i, m;
 
 	if ((p = party_search(sd->status.party_id)) == NULL)
 		return true;
 
-	ARR_FIND(0, MAX_PARTY, i, p->party.member[i].map && map_getmapflag(map_mapindex2mapid(p->party.member[i].map), MF_PARTYLOCK2) & type);
+	ARR_FIND(0, MAX_PARTY, i, p->party.member[i].online && (m = map_mapindex2mapid(p->party.member[i].map)) > 0 && (map_getmapflag(m, MF_PARTYLOCK2) & type));
 	if (i < MAX_PARTY) {
 		char output[256];
 		sprintf(output, msg_txt(sd, 2365), p->party.member[i].name);
@@ -632,7 +632,7 @@ int party_removemember(struct map_session_data* sd, uint32 account_id, char* nam
 	if( i == MAX_PARTY )
 		return 0; // no such char in party
 
-	if (party_change_lock2(sd, 2))
+	if (party_change_lock2(sd, 4))
 		return 0;
 
 #ifdef  EVENT_PARTYLEAVEFILTER
@@ -790,7 +790,7 @@ int party_changeoption(struct map_session_data *sd,int exp,int item)
 	if( sd->status.party_id == 0 )
 		return -3;
 
-	if (party_change_lock2(sd, 8))
+	if (party_change_lock2(sd, 16))
 		return 0;
 
 	intif_party_changeoption(sd->status.party_id,sd->status.account_id,exp,item);
@@ -899,7 +899,7 @@ int party_changeleader(struct map_session_data *sd, struct map_session_data *tsd
 			return 0; // Shouldn't happen
 	}
 
-	if (party_change_lock2(sd, 4))
+	if (party_change_lock2(sd, 8))
 		return 0;
 
 	// Change leadership.
