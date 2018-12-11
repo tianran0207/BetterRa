@@ -34,7 +34,7 @@
 #define C_MAX_REFINE 0               //最大精炼值
 #define C_MAX_EVENTQUEUE 200         //最大事件队列的容量
 #define C_MAX_HATEFFECT 0            //最大特殊头饰效果的ID上限
-
+#define C_MAX_RC2 0                  
 
 #define C_SHOW_SERVER_STATS 1
 

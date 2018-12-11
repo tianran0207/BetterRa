@@ -329,7 +329,11 @@ enum e_race2 : uint8{
 	RC2_BIO5_ACOLYTE_MERCHANT,
 	RC2_BIO5_MAGE_ARCHER,
 	RC2_BIO5_MVP,
+#if C_MAX_RC2 > 0
+	RC2_MAX = C_MAX_RC2
+#else
 	RC2_MAX
+#endif
 };
 
 /// Element list
