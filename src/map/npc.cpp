@@ -4601,6 +4601,10 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.card_insert_filter_name;
 	case NPCE_CARDINSERTEVENT:
 		return script_config.card_insert_event_name;
+	case NPCE_REFINEUIFILTER:
+		return script_config.refineui_filter_name;
+	case NPCE_REFINEUIEVENT:
+		return script_config.refineui_event_name;
 	default:
 		ShowError("npc_get_script_event_name: npce_index is outside the array limits: %d (max: %d).\n", npce_index, NPCE_MAX);
 		return NULL;

@@ -4187,105 +4187,107 @@ void pc_bonus5(struct map_session_data *sd,int type,int type2,int type3,int type
 
 bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2ptr, int *val3ptr, int *val4ptr, int *val5ptr){
 
+	nullpo_retr(false, sd);
+
 	int val1 = val1ptr ? *val1ptr : 0;
 	int val2 = val2ptr ? *val2ptr : 0;
 	int val3 = val3ptr ? *val3ptr : 0;
 	int val4 = val4ptr ? *val4ptr : 0;
 	int val5 = val5ptr ? *val5ptr : 0;
-
-	nullpo_retr(false, sd);
-
+	
 	switch (type) {
 	case SP_ADDELE:
-		if (!CHK_ELEMENT(val1))
-			break;
+		PC_BONUS_CHK_ELEMENT(val1, SP_ADDELE);
 		if (val3 == 0) {
-			*val2ptr = sd->right_weapon.addele[val1] + sd->left_weapon.addele[val1] + sd->arrow_addele[val1];
-			break;
+			if (!sd->state.lr_flag || sd->state.lr_flag == 3)
+				*val2ptr = sd->right_weapon.addele[val1];
+			else if (sd->state.lr_flag == 1)
+				*val2ptr = sd->left_weapon.addele[val1];
+			else if (sd->state.lr_flag == 2)
+				*val2ptr = sd->arrow_addele[val1];
 		} else {
-			struct weapon_data* wd = (sd->state.lr_flag ? &sd->left_weapon : &sd->right_weapon);
-			for (const auto &it : wd->addele2) {
+			for (const auto &it : (sd->state.lr_flag ? sd->left_weapon.addele2 : sd->right_weapon.addele2)) {
 				if (it.ele == val1 && it.flag == val3)
-					*val2ptr += it.rate;
+					*val2ptr = it.rate;
 			}
 		}
 		break;
 	case SP_MAGIC_ADDELE:
-		if (CHK_ELEMENT(val1))
-			*val2ptr = sd->magic_addele_script[val1];
+		PC_BONUS_CHK_ELEMENT(val1, SP_MAGIC_ADDELE);
+		*val2ptr = sd->magic_addele_script[val1];
 		break;
 	case SP_SUBELE:
-		if (!CHK_ELEMENT(val1))
-			break;
+		PC_BONUS_CHK_ELEMENT(val1, SP_SUBELE);
 		if (val3 == 0) {
 			*val2ptr = sd->subele_script[val1];
 			break;
 		}
 		for (const auto &it : sd->subele2) {
 			if (it.ele == val1 && it.flag == val3)
-				*val2ptr += it.rate;
+				*val2ptr = it.rate;
 		}
 		break;
 	case SP_SUBDEF_ELE:
-		if (CHK_ELEMENT(val1))
-			*val2ptr = sd->subdefele[val1];
+		PC_BONUS_CHK_ELEMENT(val1, SP_SUBDEF_ELE);
+		*val2ptr = sd->subdefele[val1];
 		break;
 	case SP_ADDRACE:
-		if (!CHK_RACE(val1))
-			break;
-		*val2ptr = sd->right_weapon.addrace[val1] + sd->left_weapon.addrace[val1] + sd->arrow_addrace[val1];
+		PC_BONUS_CHK_RACE(val1, SP_ADDRACE);
+		if (!sd->state.lr_flag || sd->state.lr_flag == 3)
+			*val2ptr = sd->right_weapon.addrace[val1];
+		else if (sd->state.lr_flag == 1)
+			*val2ptr = sd->left_weapon.addrace[val1];
+		else if (sd->state.lr_flag == 2)
+			*val2ptr = sd->arrow_addrace[val1];
 		break;
 	case SP_MAGIC_ADDRACE:
-		if (CHK_RACE(val1))
-			*val2ptr = sd->magic_addrace[val1];
+		PC_BONUS_CHK_RACE(val1, SP_MAGIC_ADDRACE);
+		*val2ptr = sd->magic_addrace[val1];
 		break;
 	case SP_SUBRACE:
-		if (CHK_RACE(val1))
-			*val2ptr = sd->subrace[val1];
+		PC_BONUS_CHK_RACE(val1, SP_SUBRACE);
+		*val2ptr = sd->subrace[val1];
 		break;
 	case SP_ADDCLASS:
-		if (CHK_CLASS(val1))
-			*val2ptr = sd->right_weapon.addclass[val1] + sd->left_weapon.addclass[val1] + sd->arrow_addclass[val1];
+		PC_BONUS_CHK_CLASS(val1, SP_ADDCLASS);
+		if (!sd->state.lr_flag || sd->state.lr_flag == 3)
+			*val2ptr = sd->right_weapon.addclass[val1];
+		else if (sd->state.lr_flag == 1)
+			*val2ptr = sd->left_weapon.addclass[val1];
+		else if (sd->state.lr_flag == 2)
+			*val2ptr = sd->arrow_addclass[val1];
 		break;
 	case SP_MAGIC_ADDCLASS:
-		if (CHK_CLASS(val1))
-			*val2ptr = sd->magic_addclass[val1];
+		PC_BONUS_CHK_CLASS(val1, SP_MAGIC_ADDCLASS);
+		*val2ptr = sd->magic_addclass[val1];
 		break;
 	case SP_SUBCLASS:
-		if (CHK_CLASS(val1))
-			*val2ptr = sd->subclass[val1];
+		PC_BONUS_CHK_CLASS(val1, SP_SUBCLASS);
+		*val2ptr = sd->subclass[val1];
 		break;
 	case SP_ADDSIZE:
-		if (!CHK_MOBSIZE(val1))
-			break;
-		*val2ptr = sd->right_weapon.addsize[val1] + sd->left_weapon.addsize[val1] + sd->arrow_addsize[val1];
+		PC_BONUS_CHK_SIZE(val1, SP_ADDSIZE);
+		if (!sd->state.lr_flag || sd->state.lr_flag == 3)
+			*val2ptr = sd->right_weapon.addsize[val1];
+		else if (sd->state.lr_flag == 1)
+			*val2ptr = sd->left_weapon.addsize[val1];
+		else if (sd->state.lr_flag == 2)
+			*val2ptr = sd->arrow_addsize[val1];
 		break;
 	case SP_MAGIC_ADDSIZE:
-		if (CHK_MOBSIZE(val1))
-			*val2ptr = sd->magic_addsize[val1];
+		PC_BONUS_CHK_SIZE(val1, SP_MAGIC_ADDSIZE);
+		*val2ptr = sd->magic_addsize[val1];
 		break;
 	case SP_SUBSIZE:
-		if (CHK_MOBSIZE(val1))
-			*val2ptr = sd->subsize[val1];
+		PC_BONUS_CHK_SIZE(val1, SP_SUBSIZE);
+		*val2ptr = sd->subsize[val1];
 		break;
 	case SP_ADD_DAMAGE_CLASS:
-		switch (sd->state.lr_flag) {
-		case 0: //Right hand
-			for (const auto &it : sd->right_weapon.add_dmg) {
-				if (it.id == val1) {
-					*val2ptr = it.val;
-					break;
-				}
+		for (const auto &it : (sd->state.lr_flag ? sd->left_weapon.add_dmg : sd->right_weapon.add_dmg)) {
+			if (it.id == val1) {
+				*val2ptr = it.val;
+				break;
 			}
-			break;
-		case 1: //Left hand
-			for (const auto &it : sd->left_weapon.add_dmg) {
-				if (it.id == val1) {
-					*val2ptr = it.val;
-					break;
-				}
-			}
-			break;
 		}
 		break;
 	case SP_ADD_MAGIC_DAMAGE_CLASS:
@@ -4313,16 +4315,19 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 		}
 		break;
 	case SP_ADDRACE2:
-		if (CHK_RACE2(val1))
-			*val2ptr = sd->right_weapon.addrace2[val1] + sd->left_weapon.addrace2[val1];
+		PC_BONUS_CHK_RACE2(val1, SP_ADDRACE2);
+		if (sd->state.lr_flag != 2)
+			*val2ptr = sd->right_weapon.addrace2[val1];
+		else
+			*val2ptr = sd->left_weapon.addrace2[val1];
 		break;
 	case SP_SUBRACE2:
-		if (CHK_RACE2(val1))
-			*val2ptr = sd->subrace2[val1];
+		PC_BONUS_CHK_RACE2(val1, SP_SUBRACE2);
+		*val2ptr = sd->subrace2[val1];
 		break;
 	case SP_MAGIC_ADDRACE2:
-		if (CHK_RACE2(val1))
-			*val2ptr = sd->magic_addrace2[val1];
+		PC_BONUS_CHK_RACE2(val1, SP_MAGIC_ADDRACE2);
+		*val2ptr = sd->magic_addrace2[val1];
 		break;
 	case SP_SUB_SKILL:
 		for (const auto &it : sd->subskill) {
@@ -4336,6 +4341,100 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 		return false;
 	}
 	return true;
+}
+
+void pc_bonus_limit(struct map_session_data *sd, int type, int limit) {
+
+	nullpo_retv(sd);
+	int i;
+
+	for (i = 0; i < ELE_MAX; i++) {
+		if (type == SP_ADDELE) {
+			sd->right_weapon.addele[i] > limit ? sd->right_weapon.addele[i] = limit : 0;
+			sd->left_weapon.addele[i] > limit ? sd->left_weapon.addele[i] = limit : 0;
+			sd->arrow_addele[i] > limit ? sd->arrow_addele[i] = limit : 0;
+			for (auto &it : (sd->state.lr_flag ? sd->left_weapon.addele2 : sd->right_weapon.addele2))
+				it.rate > limit ? it.rate = limit : 0;
+		}
+		if (type == SP_MAGIC_ADDELE)
+			sd->magic_addele_script[i] > limit ? sd->magic_addele_script[i] = limit : 0;
+
+		if (!type || type == SP_SUBELE) { // bSubEle
+			sd->subele_script[i] > limit ? sd->subele_script[i] = limit : 0;
+			for (auto &it : sd->subele2)
+				it.rate > limit ? it.rate = limit : 0;
+		}
+		if (!type || type == SP_SUBDEF_ELE) // bSubDefEle
+			sd->subdefele[i] > limit ? sd->subdefele[i] = limit : 0;
+	}
+	for (i = 0; i < RC_MAX; i++) {
+		if (type == SP_ADDRACE) {
+			sd->right_weapon.addrace[i] > limit ? sd->right_weapon.addrace[i] = limit : 0;
+			sd->left_weapon.addrace[i] > limit ? sd->left_weapon.addrace[i] = limit : 0;
+			sd->arrow_addrace[i] > limit ? sd->arrow_addrace[i] = limit : 0;
+		}
+		if (!type || type == SP_SUBRACE)
+			sd->subrace[i] > limit ? sd->subrace[i] = limit : 0;
+			
+		if (type == SP_MAGIC_ADDRACE) // bSubRace
+			sd->magic_addrace[i] > limit ? sd->magic_addrace[i] = limit : 0;
+
+	}
+	for (i = 0; i < CLASS_MAX; i++) {
+		if (type == SP_ADDCLASS) {
+			sd->right_weapon.addclass[i] > limit ? sd->right_weapon.addclass[i] = limit : 0;
+			sd->left_weapon.addclass[i] > limit ? sd->left_weapon.addclass[i] = limit : 0;
+			sd->arrow_addclass[i] > limit ? sd->arrow_addclass[i] = limit : 0;
+		}
+		if (type == SP_MAGIC_ADDCLASS)
+			sd->magic_addclass[i] > limit ? sd->magic_addclass[i] = limit : 0;
+
+		if (!type || type == SP_SUBCLASS) // bSubClass
+			sd->subclass[i] > limit ? sd->subclass[i] = limit : 0;
+	}
+	for (i = 0; i < SZ_MAX; i++) {
+		if (type == SP_ADDSIZE) {
+			sd->right_weapon.addsize[i] > limit ? sd->right_weapon.addsize[i] = limit : 0;
+			sd->left_weapon.addsize[i] > limit ? sd->left_weapon.addsize[i] = limit : 0;
+			sd->arrow_addsize[i] > limit ? sd->arrow_addsize[i] = limit : 0;
+		}
+		if (type == SP_MAGIC_ADDSIZE)
+			sd->magic_addsize[i] > limit ? sd->magic_addsize[i] = limit : 0;
+
+		if (!type || type == SP_SUBSIZE)
+			sd->subsize[i] > limit ? sd->subsize[i] = limit : 0;
+	}
+	if (type == SP_ADD_DAMAGE_CLASS) {
+		for (auto &it : (sd->state.lr_flag ? sd->left_weapon.add_dmg : sd->right_weapon.add_dmg))
+			it.val > limit ? it.val = limit : 0;
+	}
+	if (type == SP_ADD_MAGIC_DAMAGE_CLASS) {
+		for (auto &it : sd->add_mdmg)
+			it.val > limit ? it.val = limit : 0;
+	}
+	if (!type || type == SP_ADD_DEF_MONSTER) { // bAddDefMonster
+		for (auto &it : sd->add_def)
+			it.val > limit ? it.val = limit : 0;
+	}
+	if (!type || type == SP_ADD_MDEF_MONSTER) { // bAddMDefMonster
+		for (auto &it : sd->add_mdef)
+			it.val > limit ? it.val = limit : 0;
+	}
+	for (i = 1; i < RC2_MAX; i++) {
+		if (type == SP_ADDRACE2) {
+			sd->right_weapon.addrace2[i] > limit ? sd->right_weapon.addrace2[i] = limit : 0;
+			sd->left_weapon.addrace2[i] > limit ? sd->left_weapon.addrace2[i] = limit : 0;
+		}
+		if (!type || type == SP_SUBRACE2) // bSubRace2
+			sd->subrace2[i] > limit ? sd->subrace2[i] = limit : 0;
+
+		if (type == SP_MAGIC_ADDRACE2)
+			sd->magic_addrace2[i] > limit ? sd->magic_addrace2[i] = limit : 0;
+	}
+	if (!type || type == SP_SUB_SKILL) {
+		for (auto &it : sd->subskill)
+			it.val > limit ? it.val = limit : 0;
+	}
 }
 
 /*==========================================

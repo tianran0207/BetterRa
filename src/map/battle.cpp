@@ -8128,6 +8128,7 @@ static const struct _battle_data {
 	{ "dropeffect_armor",                   &battle_config.dropeffect_armor,                0,      0,      6,              },
 	{ "dropeffect_card",                    &battle_config.dropeffect_card,                 0,      0,      6,              },
 	{ "dropeffect_shadowgear",              &battle_config.dropeffect_shadowgear,           0,      0,      6,              },
+	{ "bonus_ratefix",                      &battle_config.bonus_ratefix,                   0,      0,      100,            },
 	//--------------------------------------------Extended Vending system [Lilith]---------------------------------------------		 
 	{ "extended_vending",					&battle_config.extended_vending,				1,		0,		1,				},
 	{ "show_item_vending",					&battle_config.show_item_vending,				1,		0,		1,				},

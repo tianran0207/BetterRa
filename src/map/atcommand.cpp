@@ -4281,7 +4281,7 @@ ACMD_FUNC(mapinfo) {
 	
 	//-------------------------------------
 	if (map_getmapflag(m_id, MF_TRIBE))
-		strcat(atcmd_output, " Trube |");
+		strcat(atcmd_output, " Tribe |");
 	if (map_getmapflag(m_id, MF_HIDEGUILDINFO))
 		strcat(atcmd_output, " HideGuildInfo |");
 	if (map_getmapflag(m_id, MF_HIDEPARTYINFO))

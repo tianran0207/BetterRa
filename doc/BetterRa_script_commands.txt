@@ -1088,8 +1088,7 @@ OnHTTPReceivedEvent 事件返回变量:
 
 *getbonus <类型>,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>}}}};
 
-用来获取bonus的参数，当参数填写变量时则获取相应位置上的参数。此指令可用在 OnPCStatCalcEvent 下面，获取的参数后，再使用相应的bonus对数值进行调整。
-例如 使用当前指令获取玩家对属性的抵抗大于100时，则该属性免疫。如果不想让玩家免疫 可使用 bonus2 bSubEle,e,x; 对该属性的免疫进行调整。
+用来获取bonus的参数，当参数填写变量时则获取相应位置上的参数。
 
 例：
 
@@ -1099,7 +1098,7 @@ OnHTTPReceivedEvent 事件返回变量:
 	dispbottom "近距离物理攻击时, 你对属性 Ele_Dark 增加 "+.@val+" 的伤害";
 	
 	
-被支持的 Bonus 列表:
+支持的 Bonus 列表:
 	bonus2 bAddEle,e,x;
 	bonus3 bAddEle,e,x,bf;
 	bonus2 bMagicAddEle,e,x;
@@ -1130,7 +1129,16 @@ OnHTTPReceivedEvent 事件返回变量:
 	
 	bonus2 bSubSkill,sk,n;
 
+---------------------------------------
 
+bonus_ratefix <类型>,<最大值>{,<角色ID>};
+
+此指令可用在 OnPCStatCalcEvent 事件下面用来修正相应的bonus数值。
+
+例：
+	bonus_ratefix bAddEle,50; // bAddEle属性修正不能大于50%
+	
+支持的 Bonus 列表同getbonus.
 	
 ---------------------------------------
 

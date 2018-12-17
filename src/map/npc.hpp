@@ -1218,6 +1218,8 @@ enum npce_event : uint8 {
 	NPCE_BOTITEMLACKEVENT,
 	NPCE_CARDINSERTFILTER,
 	NPCE_CARDINSERTEVENT,
+	NPCE_REFINEUIFILTER,
+	NPCE_REFINEUIEVENT,
 	NPCE_MAX
 };
 struct view_data* npc_get_viewdata(int class_);

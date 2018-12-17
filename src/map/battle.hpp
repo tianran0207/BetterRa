@@ -192,6 +192,7 @@ struct Battle_Config
 	int dropeffect_armor;
 	int dropeffect_card;
 	int dropeffect_shadowgear;
+	int bonus_ratefix;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int show_item_vending;

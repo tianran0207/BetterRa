@@ -270,6 +270,9 @@ struct Script_Config {
 	// Card related
 	const char*	card_insert_filter_name;
 	const char*	card_insert_event_name;
+	// Refine UI related
+	const char*	refineui_filter_name;
+	const char*	refineui_event_name;
 };
 extern struct Script_Config script_config;
 

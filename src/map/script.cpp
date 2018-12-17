@@ -363,7 +363,10 @@ struct Script_Config script_config = {
 	"OnHTTPReceivedEvent",
 	//
 	"OnPCInsertCardFilter",
-	"OnPCInsertCardEvent"
+	"OnPCInsertCardEvent",
+	//
+	"OnPCRefineUIFilter",
+	"OnPCRefineUIEvent"
 };
 
 static jmp_buf     error_jump;
@@ -26807,6 +26810,17 @@ BUILDIN_FUNC(sortarray)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(bonus_ratefix)
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	pc_bonus_limit(sd, script_getnum(st, 2), script_getnum(st, 3));
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -27690,6 +27704,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(homattatck, "i?"),
 	BUILDIN_DEF(mobdrop, "ii??"),
 	BUILDIN_DEF(sortarray, "r?"),
+	BUILDIN_DEF(bonus_ratefix, "ii?"),
 	//行为策略系统
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),

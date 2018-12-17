@@ -21234,6 +21234,24 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		return;
 	}
 
+	if (use_blacksmith_blessing && (k = pc_search_inventory(sd, 6635)) < 0 && sd->inventory.u.items_inventory[k].amount < status_get_refine_blessing(id->wlv, item->refine))
+		return;
+
+	if (sd && !sd->runing_event[NPCE_REFINEUIFILTER] && event_exist(NPCE_REFINEUIFILTER)) {
+		pc_setreg(sd, add_str("@refine_idx"), index);
+		pc_setreg(sd, add_str("@refine_nameid"), id->nameid);
+		pc_setreg(sd, add_str("@refine_rate"), materials[i].chance);
+		pc_setreg(sd, add_str("@refine_cost"), materials[i].cost.nameid);
+		pc_setreg(sd, add_str("@refine_blessing"), (use_blacksmith_blessing ? 1 : 0));
+		npc_script_event_atonce(sd, NPCE_REFINEUIFILTER);
+		if (sd->state.processhalt)
+			return;
+		materials[i].chance = pc_readreg(sd, add_str("@refine_rate"));
+	}
+
+	if (use_blacksmith_blessing && pc_delitem(sd, k, status_get_refine_blessing(id->wlv, item->refine), 0, 0, LOG_TYPE_CONSUME))
+		return; ;
+
 	// Try to pay for the refine
 	if( pc_payzeny( sd, materials[i].cost.zeny, LOG_TYPE_CONSUME, NULL ) ){
 		clif_npc_buy_result( sd, 1 ); // "You do not have enough zeny."
@@ -21242,9 +21260,6 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 
 	// Delete the required material
 	if (pc_delitem(sd, j, 1, 0, 0, LOG_TYPE_CONSUME))
-		return;
-
-	if (use_blacksmith_blessing && ((k = pc_search_inventory(sd, 6635)) < 0 || pc_delitem(sd, k, status_get_refine_blessing(id->wlv, item->refine), 0, 0, LOG_TYPE_CONSUME)))
 		return;
 
 	// Try to refine the item
@@ -21275,6 +21290,11 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		
 		clif_misceffect( &sd->bl, 2 );
 		achievement_update_objective( sd, AG_REFINE_FAIL, 1, 1 );
+	}
+	if (event_exist(NPCE_REFINEUIEVENT)) {
+		pc_setreg(sd, add_str("@refine_idx"), index);
+		pc_setreg(sd, add_str("@refine_nameid"), id->nameid);
+		npc_script_event(sd, NPCE_REFINEUIEVENT);
 	}
 #endif
 }
@@ -21507,12 +21527,11 @@ void packetdb_readdb(){
 
 	ShowStatus("Using packet version: " CL_WHITE "%d" CL_RESET ".\n", PACKETVER);
 
+#ifdef PACKET_OBFUSCATION
 #ifdef C_READ_KEY_IN_CONFIG
 	if (config_keys[0] != 0 || config_keys[1] != 0 || config_keys[2] != 0)
 		memcpy(clif_cryptKey, config_keys, sizeof(config_keys));
 #endif
-
-#ifdef PACKET_OBFUSCATION
 	ShowStatus("Packet Obfuscation: " CL_GREEN "Enabled" CL_RESET ". Keys: " CL_WHITE "0x%08X, 0x%08X, 0x%08X" CL_RESET "\n", clif_cryptKey[0], clif_cryptKey[1], clif_cryptKey[2]);
 #else
 	ShowStatus("Packet Obfuscation: " CL_RED "Disabled" CL_RESET ".\n");

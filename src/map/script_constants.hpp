@@ -542,6 +542,7 @@
 	export_constant2("bFixedCastAddRate", SP_FIXCASTADDRATE);
 	export_constant2("bMultiDamageRate", SP_MULTIDAMAGERATE);
 
+	export_constant(MF_TRIBE);
 	export_constant(MF_HIDEGUILDINFO);
 	export_constant(MF_HIDEPARTYINFO);
 	export_constant(MF_MOBINFO);
