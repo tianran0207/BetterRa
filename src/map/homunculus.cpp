@@ -909,7 +909,7 @@ static TIMER_FUNC(hom_hungry){
 		clif_emotion(&hd->bl, ET_OK);
 	}
 
-	if (battle_config.feature_homunculus_autofeed && hd->homunculus.autofeed && hd->homunculus.hunger <= battle_config.homunculus_autofeed_rate) {
+	if (battle_config.feature_homunculus_autofeed && hd->homunculus.autofeed && hd->homunculus.hunger <= battle_config.feature_homunculus_autofeed_rate) {
 		hom_food(sd, hd);
 	}
 

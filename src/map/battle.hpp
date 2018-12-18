@@ -186,7 +186,6 @@ struct Battle_Config
 	int mvpdrop_last_hit_loot;
 	int jro_formulas;
 	int shadowgear_refine_ui;
-	int homunculus_autofeed_rate;
 	int homunculus_max_aspd;
 	int dropeffect_weapon;
 	int dropeffect_armor;
@@ -708,6 +707,7 @@ struct Battle_Config
 	int skill_drop_items_full;
 	int switch_remove_edp;
 	int feature_homunculus_autofeed;
+	int feature_homunculus_autofeed_rate;
 	int summoner_trait;
 	int homunculus_autofeed_always;
 	int feature_attendance;

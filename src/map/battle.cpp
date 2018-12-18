@@ -3359,7 +3359,7 @@ static void battle_apply_div_fix(struct Damage* d, uint16 skill_id)
 	if(d->damage) {
 		DAMAGE_DIV_FIX(d->damage, d->div_);
 		//Min damage
-		if(d->damage < d->div_ && (skill_id == SU_LUNATICCARROTBEAT || skill_id == SU_CN_METEOR || (battle_config.skill_min_damage&d->flag)))
+		if(d->damage < d->div_ && (skill_id == SU_LUNATICCARROTBEAT || skill_id == SU_LUNATICCARROTBEAT2 || skill_id == SU_CN_METEOR || skill_id == SU_CN_METEOR2 || (battle_config.skill_min_damage&d->flag)))
 			d->damage = d->div_;
 	} else if (d->div_ < 0) {
 		d->div_ *= -1;
@@ -4415,6 +4415,7 @@ static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *
 				skillratio += skillratio * status_get_hp(src) / status_get_max_hp(src);
 			break;
 		case SU_LUNATICCARROTBEAT:
+		case SU_LUNATICCARROTBEAT2:
 			skillratio += 100 + 100 * skill_lv;
 			if (sd && pc_checkskill(sd, SU_SPIRITOFLIFE))
 				skillratio += skillratio * status_get_hp(src) / status_get_max_hp(src);
@@ -6268,6 +6269,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += 600;
 						break;
 					case SU_CN_METEOR:
+					case SU_CN_METEOR2:
 						skillratio += 100 + 100 * skill_lv;
 						break;
 					case NPC_VENOMFOG:
@@ -8122,7 +8124,6 @@ static const struct _battle_data {
 	{ "mvpdrop_last_hit_loot",              &battle_config.mvpdrop_last_hit_loot,           0,      0,      1,              },
 	{ "jro_formulas",                       &battle_config.jro_formulas,                    0,      0,      1,              },
 	{ "shadowgear_refine_ui",				&battle_config.shadowgear_refine_ui,            1,		0,		1,              },
-	{ "homunculus_autofeed_rate",           &battle_config.homunculus_autofeed_rate,        10,     0,      100,            },
 	{ "homunculus_max_aspd",                &battle_config.homunculus_max_aspd,             180,    0,      199,            },
 	{ "dropeffect_weapon",                  &battle_config.dropeffect_weapon,               0,      0,      6,              },
 	{ "dropeffect_armor",                   &battle_config.dropeffect_armor,                0,      0,      6,              },
@@ -8654,6 +8655,7 @@ static const struct _battle_data {
 	{ "skill_drop_items_full",              &battle_config.skill_drop_items_full,           0,      0,      1,              },
 	{ "switch_remove_edp",                  &battle_config.switch_remove_edp,               2,      0,      3,              },
 	{ "feature.homunculus_autofeed",        &battle_config.feature_homunculus_autofeed,     1,      0,      1,              },
+	{ "feature.homunculus_autofeed_rate",   &battle_config.feature_homunculus_autofeed_rate,30,     0,    100,              },
 	{ "summoner_trait",                     &battle_config.summoner_trait,                  3,      0,      3,              },
 	{ "homunculus_autofeed_always",         &battle_config.homunculus_autofeed_always,      1,      0,      1,              },
 	{ "feature.attendance",                 &battle_config.feature_attendance,              1,      0,      1,              },

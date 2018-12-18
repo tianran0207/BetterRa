@@ -894,7 +894,7 @@ void initChangeTables(void)
 	set_sc( SU_NYANGGRASS			, SC_NYANGGRASS		, EFST_NYANGGRASS		, SCB_DEF|SCB_MDEF );
 	set_sc( SU_GROOMING				, SC_GROOMING		, EFST_GROOMING		, SCB_FLEE );
 	add_sc( SU_PURRING				, SC_GROOMING );
-	add_sc( SU_SHRIMPARTY			, SC_FRESHSHRIMP );
+	set_sc( SU_SHRIMPARTY			, SC_SHRIMPBLESSING , EFST_PROTECTIONOFSHRIMP , SCB_REGEN );
 	add_sc( SU_MEOWMEOW				, SC_CHATTERING );
 	set_sc( SU_CHATTERING			, SC_CHATTERING		, EFST_CHATTERING		, SCB_WATK|SCB_MATK );
 
@@ -1119,7 +1119,6 @@ void initChangeTables(void)
 
 	/* Summoners status icons */
 	StatusIconChangeTable[SC_SPRITEMABLE] = EFST_SPRITEMABLE;
-	StatusIconChangeTable[SC_SHRIMPBLESSING] = EFST_PROTECTIONOFSHRIMP;
 	StatusIconChangeTable[SC_DORAM_BUF_01] = EFST_DORAM_BUF_01;
 	StatusIconChangeTable[SC_DORAM_BUF_02] = EFST_DORAM_BUF_02;
 
@@ -1332,7 +1331,6 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_GLASTHEIM_HPSP] |= SCB_MAXHP|SCB_MAXSP;
 
 	// Summoner
-	StatusChangeFlagTable[SC_SHRIMPBLESSING] |= SCB_REGEN;
 	StatusChangeFlagTable[SC_DORAM_WALKSPEED] |= SCB_SPEED;
 	StatusChangeFlagTable[SC_DORAM_MATK] |= SCB_MATK;
 	StatusChangeFlagTable[SC_DORAM_FLEE2] |= SCB_FLEE2;
@@ -2486,6 +2484,8 @@ unsigned short status_base_atk(const struct block_list *bl, const struct status_
 #ifdef RENEWAL
 			str = (dstr * 10 + dex * 10 / 5 + status->luk * 10 / 3 + level * 10 / 4) / 10;
 #else
+			dstr = str / 10;
+			str += dstr*dstr;
 			str += dex / 5 + status->luk / 5;
 #endif
 			break;
@@ -2493,6 +2493,8 @@ unsigned short status_base_atk(const struct block_list *bl, const struct status_
 #ifdef RENEWAL
 			str = dstr + level;
 #else
+			dstr = str / 10;
+			str += dstr*dstr;
 			str += dex / 5 + status->luk / 5;
 #endif
 			break;
@@ -4653,7 +4655,7 @@ void status_calc_regen(struct block_list *bl, struct status_data *status, struct
 
 		if (sc && sc->count) {
 			if (sc->data[SC_SHRIMPBLESSING])
-				val += 150 / 100;
+				val *= 150 / 100;
 			if (sc->data[SC_ANCILLA])
 				val += sc->data[SC_ANCILLA]->val2 / 100;
 		}
