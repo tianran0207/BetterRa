@@ -729,9 +729,9 @@ end;
 
 prontera,137,125,3	script	GET接口测试	123,{
 	mes "[GET接口测试]";
-	mes "将访调用接口访问 http://brabuild.moexi.com/test.txt";
+	mes "将访调用接口访问 http://www.betterra.cn/test.txt";
 	next;
-	http_get("http://brabuild.moexi.com/test.txt", 3000, 0);
+	http_get("http://www.betterra.cn/test.txt", 3000, 0);
 	mes "[GET接口测试]";
 	mes "访问完成";
 	close;
