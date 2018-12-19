@@ -294,6 +294,9 @@ enum e_race : int8{
 	RC_ANGEL,
 	RC_DRAGON,
 	RC_PLAYER,
+#ifdef ALONE_SUMMONER
+	RC_SUMMONER,
+#endif
 	RC_ALL,
 	RC_MAX //auto upd enum for array size
 };

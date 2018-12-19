@@ -3680,6 +3680,9 @@
 	export_constant(RC_ANGEL);
 	export_constant(RC_DRAGON);
 	export_constant(RC_PLAYER);
+#ifdef ALONE_SUMMONER
+	export_constant(RC_SUMMONER);
+#endif
 	export_constant(RC_ALL);
 
 	export_constant(RC2_NONE);
