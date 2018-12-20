@@ -771,6 +771,7 @@ struct questinfo {
 
 struct map_data {
 	char name[MAP_NAME_LENGTH];
+	char target[MAP_NAME_LENGTH];
 	uint16 index; // The map index used by the mapindex* functions.
 	struct mapcell* cell; // Holds the information of each map cell (NULL if the map is not on this map-server).
 	struct block_list **block;

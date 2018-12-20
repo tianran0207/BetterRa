@@ -3796,6 +3796,12 @@ int map_readallmaps (void)
 			}
 		}
 
+		if (success && mapdata->target && mapdata->target[0]) {
+			safestrncpy(mapdata->name, mapdata->target, MAP_NAME_LENGTH);
+			if (!mapindex_name2id(mapdata->name))
+				mapindex_addmap(-1, mapdata->name);
+		}
+
 		// The map was not found - remove it
 		if (!(idx = mapindex_name2id(mapdata->name)) || !success) {
 			map_delmapid(i);
@@ -4015,7 +4021,14 @@ int map_config_read(const char *cfgName)
 			map_port = (atoi(w2));
 		} else if (strcmpi(w1, "map") == 0)
 			map_addmap(w2);
-		else if (strcmpi(w1, "delmap") == 0)
+		else if (strcmpi(w1, "copy") == 0) {
+			static char src[MAP_NAME_LENGTH], target[MAP_NAME_LENGTH];
+			if (sscanf(w2, "%11[^ ] %11[^\r\n]", target, src) < 2)
+				continue;
+			if (map_addmap(src) && map_num == 0)
+				continue;
+			safestrncpy(map[map_num - 1].target, target, MAP_NAME_LENGTH);
+		}else if (strcmpi(w1, "delmap") == 0)
 			map_delmap(w2);
 		else if (strcmpi(w1, "npc") == 0)
 			npc_addsrcfile(w2, false);
