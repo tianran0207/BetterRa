@@ -3562,6 +3562,16 @@ int map_delmap(char* mapname){
 	return 0;
 }
 
+static int map_copymap(char* str) {
+	char src[MAP_NAME_LENGTH], target[MAP_NAME_LENGTH];
+	if (sscanf(str, "%11[^ ] %11[^\r\n]", target, src) < 2)
+		return 1;
+	if (map_addmap(src) && map_num == 0)
+		return 1;
+	safestrncpy(map[map_num - 1].target, target, MAP_NAME_LENGTH);
+	return 0;
+}
+
 /// Initializes map flags and adjusts them depending on configuration.
 void map_flags_init(void){
 	for (int i = 0; i < map_num; i++) {
@@ -4021,14 +4031,9 @@ int map_config_read(const char *cfgName)
 			map_port = (atoi(w2));
 		} else if (strcmpi(w1, "map") == 0)
 			map_addmap(w2);
-		else if (strcmpi(w1, "copy") == 0) {
-			static char src[MAP_NAME_LENGTH], target[MAP_NAME_LENGTH];
-			if (sscanf(w2, "%11[^ ] %11[^\r\n]", target, src) < 2)
-				continue;
-			if (map_addmap(src) && map_num == 0)
-				continue;
-			safestrncpy(map[map_num - 1].target, target, MAP_NAME_LENGTH);
-		}else if (strcmpi(w1, "delmap") == 0)
+		else if (strcmpi(w1, "copy") == 0)
+			map_copymap(w2);
+		else if (strcmpi(w1, "delmap") == 0)
 			map_delmap(w2);
 		else if (strcmpi(w1, "npc") == 0)
 			npc_addsrcfile(w2, false);
