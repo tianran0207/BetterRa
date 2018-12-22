@@ -4478,12 +4478,17 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 	}
 	sd->state.processhalt = 0;
 	sd->runing_event[type] = true;
+	sd->is_runing_event = true;
+	int npc_id = sd->npc_id;
 	std::vector<struct script_event_s>& vector = script_event[type];
 
 	for (struct script_event_s& evt : vector) {
 		run_script(evt.event->nd->u.scr.script, evt.event->pos, sd->bl.id, evt.event->nd->bl.id);
 	}
 	sd->runing_event[type] = false;
+	sd->is_runing_event = false;
+	sd->npc_id = npc_id;
+	
 	return vector.size();
 }
 
@@ -4605,6 +4610,12 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.refineui_filter_name;
 	case NPCE_REFINEUIEVENT:
 		return script_config.refineui_event_name;
+	case NPCE_CASHSHOPOPENFILTER:
+		return script_config.cashshop_open_filter_name;
+	case NPCE_CASHSHOPBUYFILTER:
+		return script_config.cashshop_buy_filter_name;
+	case NPCE_CASHSHOPCLOSEEVENT:
+		return script_config.cashshop_close_event_name;
 	default:
 		ShowError("npc_get_script_event_name: npce_index is outside the array limits: %d (max: %d).\n", npce_index, NPCE_MAX);
 		return NULL;

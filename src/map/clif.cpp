@@ -16552,6 +16552,11 @@ void clif_cashshop_open( struct map_session_data* sd ){
 void clif_parse_cashshop_list_request(int fd, struct map_session_data* sd);
 void clif_parse_cashshop_open_request( int fd, struct map_session_data* sd ){
 	clif_parse_cashshop_list_request(fd, sd);
+	if (event_exist(NPCE_CASHSHOPOPENFILTER)) {
+		npc_script_event_atonce(sd, NPCE_CASHSHOPOPENFILTER);
+		if (sd->state.processhalt)
+			return;
+	}
 	sd->state.cashshop_open = true;
 	sd->npc_shopid = -1; // Set npc_shopid when using cash shop from "cash shop" button [Aelys|Susu] bugreport:96
 	clif_cashshop_open( sd );
@@ -16560,6 +16565,7 @@ void clif_parse_cashshop_open_request( int fd, struct map_session_data* sd ){
 void clif_parse_cashshop_close( int fd, struct map_session_data* sd ){
 	sd->state.cashshop_open = false;
 	sd->npc_shopid = 0; // Reset npc_shopid when using cash shop from "cash shop" button [Aelys|Susu] bugreport:96
+	npc_script_event(sd, NPCE_CASHSHOPCLOSEEVENT);
 	// No need to do anything here
 }
 

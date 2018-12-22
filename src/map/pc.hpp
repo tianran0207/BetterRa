@@ -308,6 +308,7 @@ struct map_session_data {
 	unsigned int packet_account;
 	int policies;
 	int enemy_id;
+	bool is_runing_event;
 	bool runing_event[NPCE_MAX];
 	/**
 	 * Extended Vending system [Lilith]

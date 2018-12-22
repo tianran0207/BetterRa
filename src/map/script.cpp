@@ -302,71 +302,54 @@ struct Script_Config script_config = {
 	"OnInstanceInit", //instance_init_event_name (is executed right after instance creation)
 	"OnInstanceDestroy", //instance_destroy_event_name (is executed right before instance destruction)
 	
-	"OnPCProgressAbortEvent",					 
-	// 
-	"OnPCHomLvUpEvent",
-	"OnPCHomCallEvent",
-	"OnPCHomRestEvent",
-	"OnPCHomDeadEvent",
-	"OnPCHomAliveEvent",
-	//
-	"OnPCIdentifyFilter",
-	"OnPCIdentifyEvent",
-	//
-	"OnBfReloadScriptEvent",
-	"OnAfReloadScriptEvent",
-	//
-	"OnPCKillMvpEvent",
-	//
-	"OnPCEquipFilter",
-	"OnPCEquipEvent",
-	"OnPCUnequipFilter",
-	"OnPCUnequipEvent",
-	//
-	"OnPCBuffStartEvent",
-	"OnPCBuffEndEvent",
-	//
-	"OnPCPartyCreateFilter",
-	"OnPCPartyJoinFilter",
-	"OnPCPartyLeaveFilter",
-	//
-	"OnPCGuildCreateFilter",
-	"OnPCGuildJoinFilter",
-	"OnPCGuildLeaveFilter",
-	//
-	"OnPCPetLootEvent",
-	"OnPCPetFeedEvent",
-	"OnPCFoodPet",
-	"OnPCPetSkillFilter",
-	//
-	"OnPCViewEquipFilter",
-	//
-	"OnPCUseSkillExFilter",
-	"OnPCUseSkillExEvent",
-	//
-	"OnPCUseItemExFilter",
-	"OnPCUseItemExEvent",
-	//
-	"OnPCWillLoadMapEvent",
-	//
-	"OnPCInChatroomFilter",
-	//
-	"OnPCChangeTitleFilter",
-	//
-	"OnPCOpenRouletteFilter",
-	"OnPCStartRouletteFilter",
-	"OnPCGetRouletteFilter",
-	"OnPCCloseRouletteEvent",
-	//
-	"OnBOTLackItemEvent",
-	//
-	"OnHTTPReceivedEvent",
-	//
-	"OnPCInsertCardFilter",
-	"OnPCInsertCardEvent",
-	//
-	"OnPCRefineUIFilter",
-	"OnPCRefineUIEvent"
+	"OnPCProgressAbortEvent", //progress_abort_event_name
+	"OnPCHomLvUpEvent", //homunculus_lvup_event_name
+	"OnPCHomCallEvent", //homunculus_call_event_name
+	"OnPCHomRestEvent", //homunculus_rest_event_name
+	"OnPCHomDeadEvent", //homunculus_dead_event_name
+	"OnPCHomAliveEvent", //homunculus_alive_event_name
+	"OnPCIdentifyFilter", //identify_filter_event_name
+	"OnPCIdentifyEvent", //identify_event_name
+	"OnBfReloadScriptEvent", //reload_script_bf_name
+	"OnAfReloadScriptEvent", //reload_script_af_name
+	"OnPCKillMvpEvent", //kill_mvp_event_name
+	"OnPCEquipFilter", //equip_filter_event_name
+	"OnPCEquipEvent", //equip_event_name
+	"OnPCUnequipFilter", //unequip_filter_event_name
+	"OnPCUnequipEvent", //unequip_event_name
+	"OnPCBuffStartEvent", //buff_start_event_name
+	"OnPCBuffEndEvent", //buff_end_event_name
+	"OnPCPartyCreateFilter", //party_create_gilter_name
+	"OnPCPartyJoinFilter", //party_join_gilter_name
+	"OnPCPartyLeaveFilter", //party_leave_gilter_name
+	"OnPCGuildCreateFilter", //guild_create_gilter_name
+	"OnPCGuildJoinFilter", //guild_join_gilter_name
+	"OnPCGuildLeaveFilter", //guild_leave_gilter_name
+	"OnPCPetLootEvent", //pet_loot_event_name
+	"OnPCPetFeedEvent", //pet_feed_event_name
+	"OnPCFoodPet", //pet_food_event_name
+	"OnPCPetSkillFilter", //pet_skill_filter_name
+	"OnPCViewEquipFilter", //view_equit_filter_name
+	"OnPCUseSkillExFilter", //use_skill_filter_name
+	"OnPCUseSkillExEvent", //use_skill_event_name
+	"OnPCUseItemExFilter", //use_item_filter_name
+	"OnPCUseItemExEvent", //use_item_event_name
+	"OnPCWillLoadMapEvent", //map_will_load_event_name
+	"OnPCInChatroomFilter", //chatroom_join_filter_name
+	"OnPCChangeTitleFilter", //title_change_filter_name
+	"OnPCOpenRouletteFilter", //roulette_open_filter_name
+	"OnPCStartRouletteFilter", //roulette_start_filter_name
+	"OnPCGetRouletteFilter", //roulette_get_filter_name
+	"OnPCCloseRouletteEvent", //roulette_colse_event_name
+	"OnBOTLackItemEvent", //bot_lack_item_event_name
+	"OnHTTPReceivedEvent", //http_received_event_name
+	"OnPCInsertCardFilter", //card_insert_filter_name
+	"OnPCInsertCardEvent", //card_insert_event_name
+	"OnPCRefineUIFilter", //refineui_filter_name
+	"OnPCRefineUIEvent", //refineui_event_name
+	"OnPCCashShopOpenFilter", //cashshop_open_filter_name
+	"OnPCCashShopBuyFilter", //cashshop_buy_filter_name
+	"OnPCCashShopCloseEvent" //cashshop_close_event_name
 };
 
 static jmp_buf     error_jump;
@@ -4253,11 +4236,17 @@ static void script_detach_state(struct script_state* st, bool dequeue_event)
 	if(st->rid && (sd = map_id2sd(st->rid))!=NULL) {
 		sd->st = st->bk_st;
 		sd->npc_id = st->bk_npcid;
+		sd->state.using_fake_npc = st->bk_using_fake_npc;
+		sd->state.menu_or_input = st->bk_menu_or_input;
+		sd->npc_menu = st->bk_npc_menu;
 		sd->state.disable_atcommand_on_npc = 0;
 		if(st->bk_st) {
 			//Remove tag for removal.
 			st->bk_st = NULL;
 			st->bk_npcid = 0;
+			st->bk_using_fake_npc = 0;
+			st->bk_menu_or_input = 0;
+			st->bk_npc_menu = 0;
 		} else if(dequeue_event) {
 
 #ifdef SECURE_NPCTIMEOUT
@@ -4298,6 +4287,12 @@ void script_attach_state(struct script_state* st){
 			}
 			st->bk_st = sd->st;
 			st->bk_npcid = sd->npc_id;
+			st->bk_using_fake_npc = sd->state.using_fake_npc;
+			st->bk_menu_or_input = sd->state.menu_or_input;
+			st->bk_npc_menu = sd->npc_menu;
+			sd->state.using_fake_npc = 0;
+			sd->state.menu_or_input = 0;
+			sd->npc_menu = 0;
 		}
 		sd->st = st;
 		sd->npc_id = st->oid;
@@ -4428,6 +4423,11 @@ void run_script_main(struct script_state *st)
 	} else if(st->state != END && st->rid) {
 		//Resume later (st is already attached to player).
 		if(st->bk_st) {
+			if (battle_config.overlay_back_stack) {
+				script_free_state(st->bk_st);
+				st->bk_st = NULL;
+				return;
+			}
 			ShowWarning("Unable to restore stack! Double continuation!\n");
 			//Report BOTH scripts to see if that can help somehow.
 			ShowDebug("Previous script (lost):\n");
@@ -9654,6 +9654,9 @@ BUILDIN_FUNC(end)
 		st->mes_active = 0;
 
 	if (sd){
+		if (sd->is_runing_event)
+			return SCRIPT_CMD_SUCCESS;
+
 		if (sd->state.callshop == 0)
 			clif_scriptclose(sd, st->oid); // If a menu/select/prompt is active, close it.
 		else 
@@ -25578,7 +25581,7 @@ BUILDIN_FUNC(unitremove)
 			skill_delunit((struct skill_unit *) bl);
 			break;
 		case BL_MER:
-			mercenary_delete((struct mercenary_data *) bl, 1);
+			mercenary_delete((struct mercenary_data *) bl, 0);
 			break;
 		case BL_PET:
 			pet_menu(((struct pet_data *)bl)->master, 3);
@@ -25606,7 +25609,7 @@ BUILDIN_FUNC(getservantgid)
 	switch (script_getnum(st,2)) {
 		case BL_MER:
 			if (sd->md && mercenary_get_lifetime(sd->md) > 0)
-				script_pushint(st, sd->pd->bl.id);
+				script_pushint(st, sd->md->bl.id);
 			return SCRIPT_CMD_SUCCESS;
 		case BL_HOM:
 			if (hom_is_active(sd->hd))
@@ -26816,6 +26819,40 @@ BUILDIN_FUNC(bonus_ratefix)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(getdaytick)
+{
+	struct tm stm;
+
+	memset(&stm, 0, sizeof(struct tm));
+
+	if (script_lastdata(st) >= 3) {
+		stm.tm_year = script_getnum(st, 2) - 1900;
+		stm.tm_mon = script_getnum(st, 3) - 1;
+		stm.tm_mday = script_getnum(st, 4);
+		stm.tm_hour = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
+		stm.tm_min = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+		stm.tm_sec = script_hasdata(st, 7) ? script_getnum(st, 7) : 0;
+	}
+	else if(script_isstring(st, 2)) {
+		const char *timestr = script_getstr(st, 2);
+
+		if (sscanf(timestr, "%4d-%2d-%2d %2d:%2d:%2d", &stm.tm_year, &stm.tm_mon, &stm.tm_mday,
+			&stm.tm_hour, &stm.tm_min, &stm.tm_sec) < 3) {
+			ShowError("buildin_getdaytick: Invalid string %s.\n", timestr);
+			return SCRIPT_CMD_FAILURE;
+		}
+		stm.tm_year -= 1900;
+		stm.tm_mon -= 1;
+
+	} else {
+		ShowError("buildin_getdaytick: Invalid parameters.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	script_pushint(st, (int)mktime(&stm));
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -27700,6 +27737,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mobdrop, "ii??"),
 	BUILDIN_DEF(sortarray, "r?"),
 	BUILDIN_DEF(bonus_ratefix, "ii?"),
+	BUILDIN_DEF(getdaytick, "v?????"),
 	//行为策略系统
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),

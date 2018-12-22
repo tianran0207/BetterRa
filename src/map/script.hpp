@@ -273,6 +273,10 @@ struct Script_Config {
 	// Refine UI related
 	const char*	refineui_filter_name;
 	const char*	refineui_event_name;
+	// CashShop related
+	const char* cashshop_open_filter_name;
+	const char* cashshop_buy_filter_name;
+	const char* cashshop_close_event_name;
 };
 extern struct Script_Config script_config;
 
@@ -383,6 +387,9 @@ struct script_state {
 	//For backing up purposes
 	struct script_state *bk_st;
 	int bk_npcid;
+	int bk_using_fake_npc;
+	int bk_menu_or_input;
+	int bk_npc_menu;
 	unsigned freeloop : 1;// used by buildin_freeloop
 	unsigned op2ref : 1;// used by op_2
 	unsigned npc_item_flag : 1;

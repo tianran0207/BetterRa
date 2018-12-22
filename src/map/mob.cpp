@@ -3042,24 +3042,25 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				npc_event(mvp_sd,md->npc_event,0);
 			} else
 				npc_event_do(md->npc_event);
-		} else if( mvp_sd && !md->state.npc_killmonster ) {
+		}
+		if( mvp_sd && !md->state.npc_killmonster && (battle_config.always_npc_kill_event || !md->npc_event[0])) {
 			pc_setparam(mvp_sd, SP_KILLEDGID, md->bl.id);
 			pc_setparam(mvp_sd, SP_KILLEDRID, md->mob_id);
 			npc_script_event(mvp_sd, NPCE_KILLNPC); // PCKillNPC [Lance]
 
-#ifdef EVENT_KILLMVP
-			if (event_exist(NPCE_KILLMVP) && status_has_mode(&md->status, MD_MVP)) {
-				pc_setreg(mvp_sd, add_str("@mob_dead_x"), md->bl.x);
-				pc_setreg(mvp_sd, add_str("@mob_dead_y"), md->bl.y);
-				pc_setreg(mvp_sd, add_str("@mob_lasthit_rid"), sd ? sd->status.account_id : 0);
-				pc_setreg(mvp_sd, add_str("@mob_lasthit_cid"), sd ? sd->status.char_id : 0);
-				pc_setreg(mvp_sd, add_str("@mob_mvp_rid"), mvp_sd->status.account_id);
-				pc_setreg(mvp_sd, add_str("@mob_mvp_cid"), mvp_sd->status.char_id);
-				npc_script_event(mvp_sd, NPCE_KILLMVP);
-			}
-#endif // EVENT_KILLMVP
-
 		}
+#ifdef EVENT_KILLMVP
+		if (mvp_sd && !md->state.npc_killmonster && status_has_mode(&md->status, MD_MVP) && (battle_config.always_mvp_kill_event || !md->npc_event[0]) && event_exist(NPCE_KILLMVP)) {
+			pc_setregstr(mvp_sd, add_str("@mob_event$"), md->npc_event);
+			pc_setreg(mvp_sd, add_str("@mob_dead_x"), md->bl.x);
+			pc_setreg(mvp_sd, add_str("@mob_dead_y"), md->bl.y);
+			pc_setreg(mvp_sd, add_str("@mob_lasthit_rid"), sd ? sd->status.account_id : 0);
+			pc_setreg(mvp_sd, add_str("@mob_lasthit_cid"), sd ? sd->status.char_id : 0);
+			pc_setreg(mvp_sd, add_str("@mob_mvp_rid"), mvp_sd->status.account_id);
+			pc_setreg(mvp_sd, add_str("@mob_mvp_cid"), mvp_sd->status.char_id);
+			npc_script_event(mvp_sd, NPCE_KILLMVP);
+		}
+#endif // EVENT_KILLMVP
 	}
 
 	if(md->deletetimer != INVALID_TIMER) {

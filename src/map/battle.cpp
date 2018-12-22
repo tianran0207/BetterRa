@@ -8130,6 +8130,9 @@ static const struct _battle_data {
 	{ "dropeffect_card",                    &battle_config.dropeffect_card,                 0,      0,      6,              },
 	{ "dropeffect_shadowgear",              &battle_config.dropeffect_shadowgear,           0,      0,      6,              },
 	{ "bonus_ratefix",                      &battle_config.bonus_ratefix,                   0,      0,      100,            },
+	{ "always_npc_kill_event",              &battle_config.always_npc_kill_event,           0,      0,      1,              },
+	{ "always_mvp_kill_event",              &battle_config.always_mvp_kill_event,           0,      0,      1,              },
+	{ "overlay_back_stack",                 &battle_config.overlay_back_stack,              0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]---------------------------------------------		 
 	{ "extended_vending",					&battle_config.extended_vending,				1,		0,		1,				},
 	{ "show_item_vending",					&battle_config.show_item_vending,				1,		0,		1,				},
