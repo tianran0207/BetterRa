@@ -4734,6 +4734,12 @@ static void battle_calc_defense_reduction(struct Damage* wd, struct block_list *
 	if (sd) {
 		int i = sd->ignore_def_by_race[tstatus->race] + sd->ignore_def_by_race[RC_ALL];
 		i += sd->ignore_def_by_class[tstatus->class_] + sd->ignore_def_by_class[CLASS_ALL];
+
+		def1 -= sd->c_bonus.ignore_def_by_race[tstatus->race] + sd->c_bonus.ignore_def_by_race[RC_ALL];
+		def2 -= sd->c_bonus.ignore_def_by_race[tstatus->race] + sd->c_bonus.ignore_def_by_race[RC_ALL];
+		def1 -= sd->c_bonus.ignore_def_by_class[tstatus->class_] + sd->c_bonus.ignore_def_by_class[CLASS_ALL];
+		def2 -= sd->c_bonus.ignore_def_by_class[tstatus->class_] + sd->c_bonus.ignore_def_by_class[CLASS_ALL];
+
 		if (i) {
 			i = min(i,100); //cap it to 100 for 0 def min
 			def1 -= def1 * i / 100;
@@ -6345,6 +6351,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 				i = sd->ignore_mdef_by_race[tstatus->race] + sd->ignore_mdef_by_race[RC_ALL];
 				i += sd->ignore_mdef_by_class[tstatus->class_] + sd->ignore_mdef_by_class[CLASS_ALL];
 				i += sd->ignore_mdef_by_race2[status_get_race2(target)];
+
+				mdef -= sd->c_bonus.ignore_mdef_by_race[tstatus->race] + sd->c_bonus.ignore_mdef_by_race[RC_ALL];
+				mdef -= sd->c_bonus.ignore_mdef_by_class[tstatus->class_] + sd->c_bonus.ignore_mdef_by_class[CLASS_ALL];
+
 				if (i)
 				{
 					if (i > 100) i = 100;

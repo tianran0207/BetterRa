@@ -599,6 +599,10 @@ struct map_session_data {
 		}skill_tree;
 		int max_aspd;
 		int cooldownrate;
+		int ignore_mdef_by_race[RC_MAX];
+		int ignore_mdef_by_class[CLASS_MAX];
+		int ignore_def_by_race[RC_MAX];
+		int ignore_def_by_class[CLASS_MAX];
 	}c_bonus;
 	std::vector<s_skill_noconsume> skillitemfix;
 	std::vector<s_multidamagerate> multidamage;

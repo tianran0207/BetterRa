@@ -3223,6 +3223,26 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_IGNORE_MDEF_RACE_VAL: // bonus2 bIgnoreMdefRaceVal,r,n;
+		PC_BONUS_CHK_RACE(type2, SP_IGNORE_MDEF_RACE_VAL);
+		if (sd->state.lr_flag != 2)
+			sd->c_bonus.ignore_mdef_by_race[type2] += val;
+		break;
+	case SP_IGNORE_MDEF_CLASS_VAL: // bonus2 bIgnoreMdefClassVal,c,n;
+		PC_BONUS_CHK_CLASS(type2, SP_IGNORE_MDEF_CLASS_VAL);
+		if (sd->state.lr_flag != 2)
+			sd->c_bonus.ignore_mdef_by_class[type2] += val;
+		break;
+	case SP_IGNORE_DEF_RACE_VAL: // bonus2 bIgnoreDefRaceVal,r,n;
+		PC_BONUS_CHK_RACE(type2, SP_IGNORE_DEF_RACE_VAL);
+		if (sd->state.lr_flag != 2)
+			sd->c_bonus.ignore_def_by_race[type2] += val;
+		break;
+	case SP_IGNORE_DEF_CLASS_VAL: // bonus2 bIgnoreDefClassVal,r,n;
+		PC_BONUS_CHK_CLASS(type2, SP_IGNORE_DEF_CLASS_VAL);
+		if (sd->state.lr_flag != 2)
+			sd->c_bonus.ignore_def_by_class[type2] += val;
+		break;
 	case SP_SKILLTREE_COOLDOWNRATE: //bonus2 bSkillTreeCooldownRate, jobid, n
 		if (sd->state.lr_flag != 2) {
 			if ((pc_jobid2mapid(sd->status.class_) & MAPID_BASEMASK) == (pc_jobid2mapid(type2) & MAPID_BASEMASK)) {
@@ -4337,6 +4357,9 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 			}
 		}
 		break;
+	case SP_DELAYRATE:
+		if (sd->state.lr_flag != 2)
+			*val1ptr = sd->delayrate;
 	default:
 		return false;
 	}
@@ -4435,6 +4458,8 @@ void pc_bonus_limit(struct map_session_data *sd, int type, int limit) {
 		for (auto &it : sd->subskill)
 			it.val > limit ? it.val = limit : 0;
 	}
+	if (type == SP_DELAYRATE)
+		sd->delayrate > limit ? sd->delayrate = limit : 0;
 }
 
 /*==========================================

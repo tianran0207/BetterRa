@@ -2,6 +2,11 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20181224  [添加] 物品扩展 bIgnoreMdefRaceVal 无视 r 种族 n 点魔法防御力 
+* 20181224  [添加] 物品扩展 bIgnoreMdefClassVal 无视 c 类别魔物 n 点魔法防御力
+* 20181224  [添加] 物品扩展 bIgnoreDefRaceVal 无视 r 种族 n 点魔法防御力
+* 20181224  [添加] 物品扩展 bIgnoreDefClassVal 无视 c 类别魔物 n 点魔法防御力
+* 20181224  [添加] 脚本指令 is_attach 获取玩家是否跟脚本有关联, 一般用来判断玩家是否正在跟NPC对话
 * 20181224  [添加] 脚本指令 unitmasterid 获得GID对应的主人的GID, 支持宠物、魔物、生命体、佣兵、元素精灵、技能
 * 20181223  [添加] 战斗配置 always_npc_kill_event 打开此选项在魔物拥有自己的事件标签时也可以触发OnNPCKillEvent
 * 20181223  [添加] 战斗配置 always_mvp_kill_event 打开此选项在魔物拥有自己的事件标签时也可以触发OnMVPKillEvent
@@ -127,8 +132,8 @@
 * 20180718  [修复] 事件 OnPCIdentifyEvent 有时变量返回错误的问题
 * 20180701  [新增] 脚本指令 readstatus 获取属性的总量
 * 20180701  [新增] 技能暴击支持
-* 20180701  [新增] 物品扩展属性 bMultiDamageRate 概率翻倍伤害
-* 20180701  [新增] 物品扩展属性 bFixedCastAddRate 固定咏唱技能时间累加
+* 20180701  [新增] 物品扩展 bMultiDamageRate 概率翻倍伤害
+* 20180701  [新增] 物品扩展 bFixedCastAddRate 固定咏唱技能时间累加
 * 20180701  [新增] 脚本指令 getareamember 获得范围内的团队成员
 * 20180701  [修复] EVENT_PARTYLEAVEFILTER 事件代码的一处错误
 * 20180701  [修复] SP_MAXASPD 攻速不正确问题
