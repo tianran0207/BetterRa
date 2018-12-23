@@ -24366,12 +24366,12 @@ BUILDIN_FUNC(delinventory)
 	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
 	idx = script_getnum(st, 2);
-	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
-		count = script_getnum(st, 3);
+	count = script_getnum(st, 3);
+	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount >= count) {
 		pc_delitem(sd, idx, count, 0, 0, LOG_TYPE_SCRIPT);
 	}
 	else {
-		ShowError("buildin_delinventory: unknow inventory idx '%d', can not del it.\n", idx);
+		ShowError("buildin_delinventory: Unknow inventory idx '%d' or invalid amount '%d', can not del it.\n", idx, count);
 		return SCRIPT_CMD_FAILURE;
 	}
 	return SCRIPT_CMD_SUCCESS;
@@ -24468,7 +24468,7 @@ BUILDIN_FUNC(instance_users)
 
 	if (instance_id == 0) {
 		script_pushint(st, -1);
-		ShowError("buildin_instance_destroy: Trying to destroy invalid instance %hu.\n", instance_id);
+		ShowError("buildin_instance_users: Trying to destroy invalid instance %hu.\n", instance_id);
 		return SCRIPT_CMD_FAILURE;
 	}
 
@@ -24486,22 +24486,13 @@ BUILDIN_FUNC(instance_users)
 
 }
 
-BUILDIN_FUNC(mesclear) 
-{
-	TBL_PC* sd;
-	if (!script_rid2sd(sd) || !st->mes_active || !st->oid)
-		return SCRIPT_CMD_SUCCESS;
-	clif_scriptclear(sd, st->oid);
-	return SCRIPT_CMD_SUCCESS;
-}
-
 BUILDIN_FUNC(cap_value)
 {
 	int defval, minval, maxval;
 	defval = script_getnum(st, 2);
 	minval = script_getnum(st, 3);
 	maxval = script_getnum(st, 4);
-	cap_value(defval, minval, maxval);
+	script_pushint(st, cap_value(defval, minval, maxval));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -24632,7 +24623,7 @@ BUILDIN_FUNC(equipinventory)
 		&& sd->inventory.u.items_inventory[idx].nameid > 0 
 		&& sd->inventory.u.items_inventory[idx].amount > 0 
 		&& sd->inventory.u.items_inventory[idx].equip == 0) {
-		pc_equipitem(sd, sd->equip_index[idx], sd->inventory_data[idx]->equip);
+		pc_equipitem(sd, idx, sd->inventory_data[idx]->equip);
 	}
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -24649,7 +24640,7 @@ BUILDIN_FUNC(unequipinventory)
 		&& sd->inventory.u.items_inventory[idx].nameid > 0
 		&& sd->inventory.u.items_inventory[idx].amount > 0
 		&& sd->inventory.u.items_inventory[idx].equip != 0) {
-		pc_unequipitem(sd, sd->equip_index[idx], 2);
+		pc_unequipitem(sd, idx, 2);
 	}
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -24698,7 +24689,7 @@ BUILDIN_FUNC(itemexists)
 BUILDIN_FUNC(setrenttime)
 {
 	int pos, addtime, expire_time;
-	short idx;
+	short idx = 0;
 	TBL_PC *sd;
 	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
@@ -25096,10 +25087,7 @@ BUILDIN_FUNC(sethotkey)
 	}
 	else {
 		int i;
-		for (i = 0; i < MAX_INVENTORY; i++) {
-			if (sd->inventory.u.items_inventory[i].nameid == id)
-				break;
-		}
+		ARR_FIND(0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].nameid == id);
 		if (i < MAX_INVENTORY) {
 			sd->status.hotkeys[idx].id = id;
 			sd->status.hotkeys[idx].type = type;
@@ -25128,8 +25116,8 @@ BUILDIN_FUNC(bonus_script_remove)
 		struct linkdb_node *next = node->next;
 		struct s_bonus_script_entry *entry = (struct s_bonus_script_entry *)node->data;
 		if (strcmpi(script_str, StringBuf_Value(entry->script_buf)) == 0) {
-			linkdb_erase(&sd->bonus_script.head, (void *)((intptr_t)entry));
 			pc_bonus_script_free_entry(sd, entry);
+			linkdb_erase(&sd->bonus_script.head, (void *)((intptr_t)entry));
 			break;
 		}
 		node = next;
@@ -25152,12 +25140,14 @@ BUILDIN_FUNC(getchartitle)
 	
 	return SCRIPT_CMD_SUCCESS;
 }
+
 BUILDIN_FUNC(getequipidx)
 {
 	int pos;
 	TBL_PC *sd;
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
+
 	pos = script_getnum(st, 2);
 
 	if (equip_index_check(pos))
@@ -25188,11 +25178,11 @@ BUILDIN_FUNC(resetoptionbyidx)
 
 	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
 		ep = sd->inventory.u.items_inventory[idx].equip;
-		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
 		if (ep) pc_unequipitem(sd, idx, 2);
-		memset(sd->inventory.u.items_inventory[idx].option, 0, sizeof(struct s_item_randomoption) * MAX_ITEM_RDM_OPT);
-		clif_delitem(sd, idx, 1, 3);
 		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
+		clif_delitem(sd, idx, 1, 3);
+		memset(sd->inventory.u.items_inventory[idx].option, 0, sizeof(struct s_item_randomoption) * MAX_ITEM_RDM_OPT);
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[idx]);
 		clif_additem(sd, idx, 1, 0);
 		if (ep) pc_equipitem(sd, idx, ep);
 	}
@@ -25222,7 +25212,10 @@ BUILDIN_FUNC(getoptionbyidx)
 			pc_setreg(sd, reference_uid(add_str("@option_value"), i), sd->inventory.u.items_inventory[idx].option[i].value);
 			pc_setreg(sd, reference_uid(add_str("@option_param"), i), sd->inventory.u.items_inventory[idx].option[i].param);
 		}
-	}
+		script_pushint(st, 1);
+	}else
+		script_pushint(st, 0);
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -25247,11 +25240,11 @@ BUILDIN_FUNC(setoptionbyidx)
 
 	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
 		ep = sd->inventory.u.items_inventory[idx].equip;
-		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
 		if (ep) pc_unequipitem(sd, idx, 2);
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
 		clif_delitem(sd, idx, 1, 3);
 		script_getitem_randomoption(st, sd, &sd->inventory.u.items_inventory[idx], command, 3);
-		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[idx]);
 		clif_additem(sd, idx, 1, 0);
 		if (ep) pc_equipitem(sd, idx, ep);
 	}
@@ -25271,7 +25264,7 @@ BUILDIN_FUNC(getidxrandomoption)
 	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
 		
 		i = script_getnum(st, 3);
-		if (idx > -1 && i < MAX_ITEM_RDM_OPT) {
+		if (i > -1 && i < MAX_ITEM_RDM_OPT) {
 			switch (script_getnum(st, 4)) {
 			case ROA_ID:
 				script_pushint(st, sd->inventory.u.items_inventory[idx].option[i].id);
@@ -25281,6 +25274,9 @@ BUILDIN_FUNC(getidxrandomoption)
 				break;
 			case ROA_PARAM:
 				script_pushint(st, sd->inventory.u.items_inventory[idx].option[i].param);
+				break;
+			default:
+				script_pushint(st, 0);
 				break;
 			}
 			return SCRIPT_CMD_SUCCESS;
@@ -25314,7 +25310,7 @@ BUILDIN_FUNC(setidxrandomoption)
 			sd->inventory.u.items_inventory[idx].option[i].value = script_getnum(st, 5);
 			sd->inventory.u.items_inventory[idx].option[i].param = script_getnum(st, 6);
 			clif_delitem(sd, idx, 1, 3);
-			log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
+			log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[idx]);
 			clif_additem(sd, idx, 1, 0);
 			if(ep) pc_equipitem(sd, idx, ep);
 
@@ -25410,21 +25406,18 @@ BUILDIN_FUNC(mail_create)
 	const char *text;
 
 	memset(&script_mail, 0, sizeof(struct mail_message));
-	script_mail.id = 0; // id will be assigned by charserver
-	script_mail.dest_id = 0; // will attempt to resolve name
-	script_mail.send_id = 0;
 	safestrncpy(script_mail.send_name, script_getstr(st, 2), NAME_LENGTH);
 	safestrncpy(script_mail.title, script_getstr(st, 3), MAIL_TITLE_LENGTH);
 	script_mail.type = MAIL_INBOX_NORMAL;
 
 	if (script_mail.title[0] == '\0') {
-		ShowError("buildin_mail: The title can not be empty");
+		ShowError("buildin_mail_create: The title can not be empty");
 		return SCRIPT_CMD_FAILURE; // Message has no length and somehow client verification was skipped.
 	}
 
 	text = script_getstr(st, 4);
 	if (strlen(text))
-		safestrncpy(script_mail.body, text, strlen(text) + 1);
+		safestrncpy(script_mail.body, text, sizeof(script_mail.body));
 
 	script_mail.timestamp = time(NULL);
 	if (script_hasdata(st, 5))
@@ -25448,9 +25441,11 @@ BUILDIN_FUNC(mail_send)
 		nickname = map_charid2nick(script_getnum(st, 2));
 
 	if (nickname == NULL) {
+		ShowError("buildin_mail_send: Invalid mail recipient");
 		return SCRIPT_CMD_FAILURE;
 	}
-	safestrncpy(script_mail.dest_name, nickname, NAME_LENGTH);
+
+	safestrncpy(script_mail.dest_name, nickname, sizeof(script_mail.dest_name));
 	intif_Mail_send(0, &script_mail);
 #endif
 	return SCRIPT_CMD_SUCCESS;
@@ -25602,32 +25597,32 @@ BUILDIN_FUNC(unitremove)
 BUILDIN_FUNC(getservantgid) 
 {
 	TBL_PC *sd;
-
+	int uid = 0;
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	switch (script_getnum(st,2)) {
 		case BL_MER:
 			if (sd->md && mercenary_get_lifetime(sd->md) > 0)
-				script_pushint(st, sd->md->bl.id);
-			return SCRIPT_CMD_SUCCESS;
+				uid = sd->md->bl.id;
+			break;
 		case BL_HOM:
 			if (hom_is_active(sd->hd))
-				script_pushint(st, sd->hd->bl.id);
-			return SCRIPT_CMD_SUCCESS;
+				uid = sd->hd->bl.id;
+			break;
 		case BL_PET:
 			if (sd->status.pet_id > 0 && sd->pd)
-				script_pushint(st, sd->pd->bl.id);
-			return SCRIPT_CMD_SUCCESS;
+				uid = sd->pd->bl.id;
+			break;
 		case BL_ELEM:
 			if (sd->ed && elemental_get_lifetime(sd->ed) > 0)
-				script_pushint(st, sd->ed->bl.id);
-			return SCRIPT_CMD_SUCCESS;
+				uid = sd->ed->bl.id;
+			break;
 		default:
 			ShowError("buildin_unitremove: Invalid block type('%d'）. \n", script_getnum(st, 2));
 			return SCRIPT_CMD_FAILURE;
 	}
-	script_pushint(st, 0);
+	script_pushint(st, uid);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -25932,6 +25927,9 @@ BUILDIN_FUNC(getatkevent) {
 		break;
 	case 5:
 		script_pushint(st, sd->atkevent[i].delay);
+		break;
+	default:
+		script_pushint(st, -1);
 		break;
 	}
 	return SCRIPT_CMD_SUCCESS;
@@ -26649,8 +26647,6 @@ BUILDIN_FUNC(getrateidx)
 			return SCRIPT_CMD_FAILURE;
 
 		array_size = script_array_highest_key(st, sd, name, ref);
-		CREATE(value, int, array_size);
-
 		if (array_size > SCRIPT_MAX_ARRAYSIZE)
 		{
 			ShowError("buildin_rateidx: The array is too large.\n");
@@ -26658,6 +26654,7 @@ BUILDIN_FUNC(getrateidx)
 			st->state = END;
 			return SCRIPT_CMD_FAILURE;
 		}
+		CREATE(value, int, array_size);
 		id = reference_getid(data);
 		for (i = 0; i < array_size; ++i) {
 			value[i] = (int32)__64BPRTSIZE(get_val2(st, reference_uid(id, i), ref));
@@ -26816,6 +26813,21 @@ BUILDIN_FUNC(bonus_ratefix)
 		return SCRIPT_CMD_FAILURE;
 
 	pc_bonus_limit(sd, script_getnum(st, 2), script_getnum(st, 3));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(unitmasterid)
+{
+	struct block_list *bl, *master = NULL;
+
+	if ((bl = map_id2bl(script_getnum(st, 2))) != NULL)
+		master = battle_get_master(bl);
+
+	if (master == NULL || bl == master)
+		script_pushint(st, 0);
+	else
+		script_pushint(st, master->id);
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -27663,7 +27675,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(party_leave, "?"),
 	BUILDIN_DEF(openbank,"?"),
 	BUILDIN_DEF(instance_users, "?"),
-	BUILDIN_DEF(mesclear, ""),
+	BUILDIN_DEF2(clear, "mesclear", ""),
 	BUILDIN_DEF(cap_value, "iii"),
 	BUILDIN_DEF(mobremove, "i"),
 	BUILDIN_DEF(getsameipinfo,"?"),
@@ -27738,6 +27750,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(sortarray, "r?"),
 	BUILDIN_DEF(bonus_ratefix, "ii?"),
 	BUILDIN_DEF(getdaytick, "v?????"),
+	BUILDIN_DEF(unitmasterid, "i"),
 	//行为策略系统
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),

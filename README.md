@@ -2,6 +2,7 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20181224  [添加] 脚本指令 unitmasterid 获得GID对应的主人的GID, 支持宠物、魔物、生命体、佣兵、元素精灵、技能
 * 20181223  [添加] 战斗配置 always_npc_kill_event 打开此选项在魔物拥有自己的事件标签时也可以触发OnNPCKillEvent
 * 20181223  [添加] 战斗配置 always_mvp_kill_event 打开此选项在魔物拥有自己的事件标签时也可以触发OnMVPKillEvent
 * 20181223  [添加] 战斗配置 overlay_back_stack 触发多次对话时, 是否直接覆盖上层堆栈（不报错）。
