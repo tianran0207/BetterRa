@@ -8676,7 +8676,8 @@ static const struct _battle_data {
 	{ "rental_transaction",                 &battle_config.rental_transaction,              1,      0,      1,              },
 	{ "min_shop_buy",                       &battle_config.min_shop_buy,                    1,      0,      INT_MAX,        },
 	{ "min_shop_sell",                      &battle_config.min_shop_sell,                   0,      0,      INT_MAX,        },
-	{ "feature.refineui",                   &battle_config.feature_refineui,                3,      0,      3,              },
+	{ "feature.refineui",                   &battle_config.feature_refineui,                3,      0,      3,              },	
+	{ "feature.equipswitch",                &battle_config.feature_equipswitch,             1,      0,      1,              },
 
 #include "../custom/battle_config_init.inc"
 };
@@ -8830,6 +8831,13 @@ void battle_adjust_conf()
 	if( battle_config.feature_refineui == 2 ){
 		ShowWarning("conf/battle/feature.conf refine UI is enabled in scripts but disabled in general, enabling...\n");
 		battle_config.feature_refineui = 3;
+	}
+#endif
+
+#if PACKETVER < 20170208
+	if (battle_config.feature_equipswitch) {
+		ShowWarning("conf/battle/feature.conf equip switch is enabled but it requires PACKETVER 2017-02-08 or newer, disabling...\n");
+		battle_config.feature_equipswitch = 0;
 	}
 #endif
 

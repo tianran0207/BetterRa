@@ -718,6 +718,7 @@ struct Battle_Config
 	int rental_transaction;
 	int min_shop_buy;
 	int min_shop_sell;
+	int feature_equipswitch;
 
 	int feature_refineui;
 
