@@ -15,8 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libconfig", "3rdparty\libco
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{60D3315D-FBF4-4FBF-8D44-99D5BED11D32}"
 	ProjectSection(SolutionItems) = preProject
-		src\config\better_config.h = src\config\better_config.h
-		src\config\better_customization.h = src\config\better_customization.h
+		src\config\better_config.hpp = src\config\better_config.hpp
+		src\config\better_customization.hpp = src\config\better_customization.hpp
 		src\config\const.hpp = src\config\const.hpp
 		src\config\core.hpp = src\config\core.hpp
 		src\config\classes\general.hpp = src\config\classes\general.hpp

@@ -7,7 +7,7 @@
 #include "../../3rdparty/libconfig/libconfig.h"
 #include "db.hpp"
 #include "malloc.hpp"
-#include "../config/better_config.h"
+#include "../config/better_config.hpp"
 
 // for help with the console colors look here:
 // http://www.edoceo.com/liberum/?doc=printf-with-color

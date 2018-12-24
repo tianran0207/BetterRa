@@ -376,6 +376,7 @@ $@sameip_name$[]		使用指定IP在线的玩家角色名数组
 ---------------------------------------
 
 *processhalt;
+*halt;
 
 在部分支持的事件处理脚本中使用后, 能够在事件脚本结束时, 中断源代码的后续逻辑. 
 此功能仅供脚本专家们使用, 没弄明白它的工作逻辑之前, 请慎重使用.
@@ -567,126 +568,11 @@ $@sameip_name$[]		使用指定IP在线的玩家角色名数组
 
 ---------------------------------------
 
-*getoptionitem <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<Random Option 字符串数组>{,<account ID>};
-*getoptionitem "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<Random Option 字符串数组>{,<account ID>};
+*setoptionbyidx <背包位置序号>,<Random Option ID数组>,<Random Option value数组>,<Random Option param数组>;
 
-[指令弃用声明]
-该指令于 '2017-05-13' 开始被声明弃用, 在未来版本中可能随时会被移除.
-您应该使用 rAthena 官方新提供的 getitem3 指令来替代它, 详细用法请见: doc\script_commands.txt
+设置背包序号指定道具的 Random Option 属性.
 
-根据你提供的一个“Random Option 字符串数组”, 创造出带有指定 Random Option 的道具到玩家的背包中(注意, 如果创造的道具不是“装备”类型的道具, 那么<Random Option 字符串数组>字段将被无视).
-
-单个数组元素的格式:
-	<id>|<value>|<param>
-	
-<Random Option 字符串数组> 的初始化示例:
-	setarray .@opt$[0], 
-		"RDMOPT_VAR_MAXHPAMOUNT|10000|0",
-		"RDMOPT_VAR_MAXSPAMOUNT|10000|0";
-	
-注意: <Random Option 字符串数组> 的元素长度最大不能超过 5 个, 超过的部分将被无视.
-
-返回值:
-	该指令无论成功失败, 都不会有返回值. 有错误会直接输出到地图服务器的终端窗口中.
-
-例如, 要创造一个拥有“最大HP增加20000”拓展属性的短剑, 那么脚本代码如下:
-
-	setarray .@opt$[0], 
-		"RDMOPT_VAR_MAXHPAMOUNT|20000|0";
-		
-	getoptionitem 1201,1,1,0,0,0,0,0,0,.@opt$;
-
----------------------------------------
-
-*readoptarray(<Random Option 字符串数组>,<第几个Option>,<要读取的数据类型>);
-
-[指令弃用声明]
-该指令于 '2017-05-13' 开始被声明弃用, 在未来版本中可能随时会被移除.
-
-快速从 Random Option 字符串数组中读取指定的内容.
-
-要读取的数据类型:
-	ROA_ID - 随机属性的ID, 要和 db/re/item_randomopt_db.txt 中的对应
-	ROA_VALUE - 随机属性的值
-	ROA_PARAM - 随机属性的参数(这个参数的作用取决于item_randomopt_db.txt中如何使用ROA_PARAM, 目前看来所有官方的随机属性都没有用到这个参数)
-
-现在举例说明如何快速的从一个<Random Option 字符串数组>中读取想要的内容:
-
-	setarray .@opt$[0], 
-		"RDMOPT_VAR_MAXHPAMOUNT|10000|0",
-		"RDMOPT_VAR_MAXSPAMOUNT|5000|0";
-	
-	// 读取 .@opt$ 中索引为 1 (第二个元素)的 ROA_VALUE 的值
-	.@result = readoptarray(.@opt$,1,ROA_VALUE);		// .@result = 5000
-	
-	// 读取 .@opt$ 中索引为 0 (第一个元素)的 ROA_ID 的值
-	// 这里不会返回常量字符串 RDMOPT_VAR_MAXHPAMOUNT, 
-	// 而是根据 const.txt 中的定义返回 RDMOPT_VAR_MAXHPAMOUNT 对应的数值 1
-	.@result = readoptarray(.@opt$,0,ROA_ID);		// .@result = 1
-
-返回值:
-	正常的话能返回所需要的内容, 出错则返回 -1
-
----------------------------------------
-
-*writeoptarray(<Random Option 数组>,<第几个Option>,<要修改的数据类型>,<新的值>);
-
-[指令弃用声明]
-该指令于 '2017-05-13' 开始被声明弃用, 在未来版本中可能随时会被移除.
-
-快速从 Random Option 字符串数组中修改指定的内容.
-
-要修改的数据类型:
-	ROA_ID - 随机属性的ID, 要和 db/re/item_randomopt_db.txt 中的对应
-	ROA_VALUE - 随机属性的值
-	ROA_PARAM - 随机属性的参数(这个参数的作用取决于item_randomopt_db.txt中如何使用ROA_PARAM, 目前看来所有官方的随机属性都没有用到这个参数)
-
-现在举例说明如何快速的从一个<Random Option 字符串数组>中修改想要的内容:
-
-	setarray .@opt$[0], 
-		"RDMOPT_VAR_MAXHPAMOUNT|10000|0",
-		"RDMOPT_VAR_MAXSPAMOUNT|5000|0";
-	
-	// 修改 .@opt$ 中索引为 1 (第二个元素)的 ROA_VALUE 的值为 5121
-	.@result = writeoptarray(.@opt$,1,ROA_VALUE,5121);
-	
-	// 修改 .@opt$ 中索引为 0 (第一个元素)的 ROA_ID 的值为 RDMOPT_VAR_STRAMOUNT
-	.@result = writeoptarray(.@opt$,0,ROA_ID,RDMOPT_VAR_STRAMOUNT);
-
-返回值:
-	操作成功则返回 1, 失败则返回 0
-
----------------------------------------
-
-*getoptionarraybyidx <背包位置序号>,<保存到的目标 Random Option 数组名称>;
-
-[指令弃用声明]
-该指令于 '2017-05-13' 开始被声明弃用, 在未来版本中可能随时会被移除.
-
-给定背包位置序号, 获取一个用来表示此物品的 Random Option 字符串数组.
-
-例如:
-	getoptionarraybyidx 2,.@save_opt$;	// 记住数组是字符串类型的, 结尾要有 $ 符号
-
-返回值:
-	操作成功则返回 1, 失败则返回 0
-
----------------------------------------
-
-*getoptionarraybypos <装备位置编号>,<保存到的目标 Random Option 数组名称>;
-
-[指令弃用声明]
-该指令于 '2017-05-13' 开始被声明弃用, 在未来版本中可能随时会被移除.
-
-给定装备位置编号, 获取一个用来表示此物品的 Random Option 字符串数组.
-
-装备位置编号: 是指 EQI_* 开头的位置常量.
-
-例如:
-	getoptionarraybypos EQI_HAND_R,.@save_opt$;	// 记住数组是字符串类型的, 结尾要有 $ 符号
-
-返回值:
-	操作成功则返回 1, 失败则返回 0
+此选项会在 picklog 日志表中留下道具的变化痕迹.
 
 ---------------------------------------
 
@@ -720,7 +606,7 @@ $@sameip_name$[]		使用指定IP在线的玩家角色名数组
 调用指令后, 装备的 Random Option 属性的值保存在三个数组中 @option_id @option_value @option_param
 
 ---------------------------------------
-*getoptionbypos <背包序号>;
+*getoptionbypos <装备位置编号>;
 
 获取装备位置编号指定道具的 Random Option 属性的值.
 
@@ -774,10 +660,13 @@ $@sameip_name$[]		使用指定IP在线的玩家角色名数组
 
 ---------------------------------------
 
+*duplicate("<复制出来的新NPC所在地图名称>,<X坐标>,<Y坐标>,<朝向编号>","duplicate(<来源NPC名称>)","<复制出来的新NPC名称>","<角色编号>");
 *copynpc("<复制出来的新NPC所在地图名称>,<X坐标>,<Y坐标>,<朝向编号>","duplicate(<来源NPC名称>)","<复制出来的新NPC名称>","<角色编号>");
+*dupnpc("<复制出来的新NPC所在地图名称>,<X坐标>,<Y坐标>,<朝向编号>","duplicate(<来源NPC名称>)","<复制出来的新NPC名称>","<角色编号>");
 
 将一个指定的NPC复制到一个新的位置.
 主要的参数是4个字符串, 这四个字符串与使用 duplicate 进行静态复制时候的四个用 %TAB% 分隔的内容是一样的.
+脚本指令可以将NPC复制到副本中, 复制到副本中名称会改变, 请使用 instance_npcname 获得NPC的真实名称.
 
 假设有以下NPC, 我们想把它复制一个新的出来:
 
@@ -811,6 +700,13 @@ $@sameip_name$[]		使用指定IP在线的玩家角色名数组
 
 返回值:
 	复制成功, 则返回复制出来的新NPC的GID, 失败则返回 0
+
+---------------------------------------
+
+*unloadduplicate "<NPC名称>";
+*unloadcopynpc "<NPC名称>";
+
+卸载掉复制的NPC, 如果是副本中的NPC请先用 instance_npcname 指令返回NPC名字.
 
 ---------------------------------------
 
@@ -857,10 +753,7 @@ prontera,150,90,4	script	getareagid_test	123,{
 	返回 -3 : 传递的参数个数不对, 必须是3个、6个或者7个参数
 	返回 -4 : 给定的"返回数组"类型不对, 不能是一个字符串或数值常量, 也不能是字符串数组
 	返回 -5 : 给定的"返回数组"是一个需要依赖玩家的变量类型, 但是没有关联玩家 (比如 . 或 .@ 开头的数字类型数组)
-
-致谢:
-	感谢 “╰づ记忆?斑驳〤” 提供实现代码
-
+	
 ---------------------------------------
 
 mail_create <发件人名>,<题目>,<内容>{,<ZENY>}
@@ -903,7 +796,7 @@ unitremove <GID>,<特效编号>;
 	2: 瞬移特效
 	3: 死亡特效
 
-tribe_setteam <阵营组>;
+tribe_setteam <阵营编号>;
 tribe_setteam <GID>,<阵营编号>;
 
 设置玩家或魔物的阵营组. 不同的阵营组之间是有仇恨的, 也就是说 魔物和魔物之间可以打, 默认阵营为0;
@@ -997,7 +890,7 @@ unitsteppath <GID>,<路点编号>{,<寻路AI>,{<参数>,{<"事件名称">}}};
 
 *instance_enter_last {<角色编号>};
 
-进入副本最后一次出来的位置..必须在战斗配置(BatterRA.conf) 中配置 instance_leavepoint 为 yes
+进入副本最后一次出来的位置..必须在战斗配置(BatterRA.conf) 中配置 instance_leavepoint 为 yes (已停止使用)
 
 ---------------------------------------
 
@@ -1154,14 +1047,6 @@ bonus_ratefix <类型>,<最大值>{,<角色ID>};
 	dispbottom ".@idx 有 1000/(1000+20+10) 的概率为 0";
 	dispbottom ".@idx 有 20/(1000+20+10) 的概率为 1";
 	dispbottom ".@idx 有 10/(1000+20+10) 的概率为 2";
-
-参数: 
-    bStr:  获取玩家所拥有的 STR 总数值
-	bAgi:  获取玩家所拥有的 AGI 总数值
-	bVit:  获取玩家所拥有的 VIT 总数值
-	bInt:  获取玩家所拥有的 INT 总数值
-	bDex:  获取玩家所拥有的 DEX 总数值
-	bLuk:  获取玩家所拥有的 LUK 总数值
 	
 ---------------------------------------
 
@@ -1338,7 +1223,7 @@ bonus_ratefix <类型>,<最大值>{,<角色ID>};
 
 ---------------------------------------
 
-*unitmasterid(<gid>)
+*unitmasterid(<gid>);
 
 获得GID对应的主人的GID, 支持宠物、魔物、生命体、佣兵、元素精灵、技能
 
@@ -1347,12 +1232,82 @@ bonus_ratefix <类型>,<最大值>{,<角色ID>};
 
 ---------------------------------------
 
-*is_attach()
+*is_attach();
 
 获取玩家是否跟脚本有关联, 一般用来判断玩家是否正在跟NPC对话
 
 返回值:
 	正在对话返回1, 没有在对话返回0;
+
+---------------------------------------
+
+*unitskilluse <GID>,<技能ID>,<技能等级>{,<目标GID>,<吟唱时间>{,<是否可打断>}};
+*unitskilluse <GID>,"<技能名称>",<技能等级>{,<目标GID>,<吟唱时间>{,<是否可打断>}};
+
+对目标使用技能, 效果类似于unitskilluseid, 但指令会自动判断地面技能还是目标技能, 当使用技能为地面技能时将会以目标为中心释放技能。
+当是否打断被省略时，技能会根据 skill_db.txt 中的 castcancel 来判断是否可打断。
+
+---------------------------------------
+
+* mobskill <魔物GID>,<技能ID>,<技能等级>,<咏唱时间(秒)>,<是否可打断>,<目标类型>{,<偏移x>,<偏移y>};
+* mobskill <魔物GID>,<"技能名称">,<技能等级>,<咏唱时间(秒)>,<是否可打断>,<目标类型>{,<偏移x>,<偏移y>};
+
+魔物使用技能, 如果怪物正在咏唱则取消目前释放的技能, 此指令对写脚本的人非常友好.
+作者kuku
+
+<是否可打断>
+   0: 不可打断
+   1: 可以打断
+
+<目标类型>
+   0: 自己
+   1: 怪物当前目标
+   2: 怪物的主人
+   3: 随机目标
+   
+<偏移x> 地面技能相对于目标坐标x轴的偏移量
+<偏移y> 地面技能相对于目标坐标y轴的偏移量
+
+---------------------------------------
+
+*sleep3 <时间>
+
+延时函数, 不会丢失与玩家的关联, 但是玩家与脚本没有关联也不会报错.
+
+---------------------------------------
+
+*unitgettarget(<GID>);
+*gettarget(<GID>);
+
+获取GID对象正在攻击的目标的GID.
+
+---------------------------------------
+
+*when_progressbar_abort_doevent;
+*when_progressbar_abort_doevent(<角色ID>);
+
+使用此脚本后 progressbar 被打断后的事件 OnPCProgressAbortEvent 才会被触发.
+
+---------------------------------------
+
+*isequippedcnt2(<物品ID>{,<物品ID>{,<物品ID>{,<物品ID>}}});
+
+用法同 isequippedcnt 可以支持任何物品ID, 主要用于拓展附魔道具. 
+
+返回值:
+	返回数量
+
+---------------------------------------
+
+*isequipped2(<物品ID>{,<物品ID>{,<物品ID>{,<物品ID>}}})
+
+用法同 isequipped 可以支持任何物品ID, 主要用于拓展附魔道具. 
+
+返回值:
+	返回数量
+
+---------------------------------------
+
 
 ---------------------------------------
 --         以下功能为付费功能        --
@@ -1397,7 +1352,3 @@ bonus 物品必须为当前摇奖中的物品时才会显示。
 	1 : 提示失败, 不会摇奖
 	2 : 提示没有足够的硬币, 不会摇奖
 	3 : 失败 下次摇奖会定位到第一行
-
-
-
-

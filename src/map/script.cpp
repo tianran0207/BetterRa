@@ -10901,7 +10901,7 @@ BUILDIN_FUNC(getnpctimer)
 	struct npc_data *nd;
 	TBL_PC *sd;
 	int type = script_getnum(st,2);
-	t_tick val = 0;
+	int val = 0;
 
 	if( script_hasdata(st,3) )
 		nd = npc_name2id(script_getstr(st,3));
@@ -11611,8 +11611,7 @@ BUILDIN_FUNC(sc_end_class)
 BUILDIN_FUNC(getscrate)
 {
 	struct block_list *bl;
-	int type;
-	t_tick rate;
+	int type,rate;
 
 	type=script_getnum(st,2);
 	rate=script_getnum(st,3);
@@ -15322,7 +15321,7 @@ BUILDIN_FUNC(summon)
 	const char *str,*event="";
 	TBL_PC *sd;
 	struct mob_data *md;
-	t_tick tick = gettick();
+	int tick = gettick();
 
 	if (!script_rid2sd(sd))
 		return SCRIPT_CMD_SUCCESS;
@@ -25644,7 +25643,7 @@ BUILDIN_FUNC(getservantgid)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(homattatck)
+BUILDIN_FUNC(homattack)
 {
 	TBL_PC *sd;
 	int val = script_getnum(st, 2);
@@ -27764,7 +27763,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getareagid, "si?????"),
 	BUILDIN_DEF(unitremove, "i?"),
 	BUILDIN_DEF(getservantgid, "i?"),
-	BUILDIN_DEF(homattatck, "i?"),
+	BUILDIN_DEF(homattack, "i?"),
 	BUILDIN_DEF(mobdrop, "ii??"),
 	BUILDIN_DEF(sortarray, "r?"),
 	BUILDIN_DEF(bonus_ratefix, "ii?"),

@@ -102,7 +102,7 @@
 #define C_MAX_GUILD C_MIN_GUILD + 10 * C_GUILD_SKILL_NUMBER_ADD
 #define CONF_PATH "conf"
 #define MAX_POLICIES 20
-#include "better_customization.h"
+#include "better_customization.hpp"
 #ifdef BEATVER
 	#ifdef _DEBUG
 		#define PLAYER_LIMIT 20

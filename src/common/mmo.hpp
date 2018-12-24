@@ -10,7 +10,6 @@
 
 #include "cbasetypes.hpp"
 #include "db.hpp"
-#include "timer.hpp" // t_tick
 
 #ifndef PACKETVER
 	#error Please define PACKETVER in src/config/packets.hpp
@@ -337,14 +336,13 @@ struct script_reg_str {
 //For saving status changes across sessions. [Skotlex]
 struct status_change_data {
 	unsigned short type; //SC_type
-	long val1, val2, val3, val4;
-	t_tick tick; //Remaining duration.
+	long val1, val2, val3, val4, tick; //Remaining duration.
 };
 
 #define MAX_BONUS_SCRIPT_LENGTH 512
 struct bonus_script_data {
 	char script_str[MAX_BONUS_SCRIPT_LENGTH]; //< Script string
-	t_tick tick; ///< Tick
+	uint32 tick; ///< Tick
 	uint16 flag; ///< Flags @see enum e_bonus_script_flags
 	int16 icon; ///< Icon SI
 	uint8 type; ///< 0 - None, 1 - Buff, 2 - Debuff
@@ -352,7 +350,7 @@ struct bonus_script_data {
 
 struct skill_cooldown_data {
 	unsigned short skill_id;
-	t_tick tick;
+	long tick;
 };
 
 enum storage_type {
@@ -451,7 +449,7 @@ struct s_mercenary {
 	short class_;
 	int hp, sp;
 	unsigned int kill_count;
-	t_tick life_time;
+	unsigned int life_time;
 };
 
 struct s_elemental {
@@ -461,7 +459,7 @@ struct s_elemental {
 	enum e_mode mode;
 	int hp, sp, max_hp, max_sp, matk, atk, atk2;
 	short hit, flee, amotion, def, mdef;
-	t_tick life_time;
+	int life_time;
 };
 
 struct s_friend {
