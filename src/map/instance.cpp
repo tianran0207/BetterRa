@@ -719,13 +719,12 @@ int instance_destroy(unsigned short instance_id)
 	return 0;
 }
 
-enum e_instance_enter instance_enter_last(struct map_session_data *sd)
+enum e_instance_enter instance_enter_left(struct map_session_data *sd)
 {
 	struct instance_data *im = NULL;
 	struct party_data *pd = NULL;
 	struct guild *gd = NULL;
 	struct clan *cd = NULL;
-	enum instance_mode mode;
 	int16 m;
 	short x, y;
 	unsigned short instance_id = 0;
@@ -735,15 +734,18 @@ enum e_instance_enter instance_enter_last(struct map_session_data *sd)
 
 	nullpo_retr(IE_OTHER, sd);
 
-	str = pc_readregistry_str(sd, add_str("instance_lastpoint$"));
+	str = pc_readregistry_str(sd, add_str("instance_record$"));
+	if (str == NULL || sscanf(str, "%hd:%hd:%hd:%u-%hu", &m, &x, &y, &instance_create_tick, &instance_id) != 5)
+		return IE_NOINSTANCE;
+	pc_setregistry_str(sd, add_str("instance_record$"), "");
 
-	if (str == NULL || sscanf(str, "%u:%hu:%hd:%hd:%hd", &instance_create_tick, &instance_id, &m, &x, &y) != 5)
+	if (instance_id == 0 || instance_id > MAX_INSTANCE_DATA)
 		return IE_NOINSTANCE;
 
-	pc_setregistry_str(sd, add_str("instance_lastpoint$"), "");
-
 	im = &instance_data[instance_id];
-	mode = im->mode;
+
+	if (im->state != INSTANCE_BUSY)
+		return IE_OTHER;
 
 	if(!instance_create_tick || instance_create_tick != im->create_tick)
 		return IE_NOINSTANCE;
@@ -752,7 +754,7 @@ enum e_instance_enter instance_enter_last(struct map_session_data *sd)
 	if (i == im->cnt_map) 
 		return IE_NOINSTANCE;
 
-	switch (mode) {
+	switch (im->mode) {
 	case IM_NONE:
 		break;
 	case IM_CHAR:
@@ -793,48 +795,26 @@ enum e_instance_enter instance_enter_last(struct map_session_data *sd)
 		break;
 	}
 
-	if (im->state != INSTANCE_BUSY)
-		return IE_OTHER;
-
 	if (pc_setpos(sd, map_id2index(m), x, y, CLR_OUTSIGHT))
 		return IE_OTHER;
-
-	// If there was an idle timer, let's stop it
-	instance_stopidletimer(im, instance_id);
-
-	// Now we start the instance timer
-	instance_startkeeptimer(im, instance_id);
 
 	return IE_OK;
 }
 
-void instance_leave_last(struct map_session_data *sd) 
+void instance_left_point(struct map_session_data *sd, unsigned short instance_id)
 {
-	struct instance_data *im = NULL;
-	struct party_data *pd = NULL;
-	struct guild *gd = NULL;
-	struct clan *cd = NULL;
-	unsigned short instance_id = 0;
+	struct instance_data *im;
 	char output[128];
 
-	if (sd->instance_id)
-		instance_id = sd->instance_id;
-	if (instance_id == 0 && sd->status.party_id && (pd = party_search(sd->status.party_id)) != NULL && pd->instance_id)
-		instance_id = pd->instance_id;
-	if (instance_id == 0 && sd->status.guild_id && (gd = guild_search(sd->status.guild_id)) != NULL && gd->instance_id)
-		instance_id = gd->instance_id;
-	if (instance_id == 0 && sd->status.clan_id && (cd = clan_search(sd->status.clan_id)) != NULL && cd->instance_id)
-		instance_id = cd->instance_id;
+	if (instance_id == 0 || instance_id > MAX_INSTANCE_DATA)
+		return;
 
 	im = &instance_data[instance_id];
-
-	if (im == NULL || im->mode == IM_NONE) {
-		pc_setregistry_str(sd, add_str("instance_lastpoint$"), "");
+	if (im->state != INSTANCE_BUSY)
 		return;
-	}
 
-	sprintf(output, "%u:%hu:%hd:%hd:%hd", im->create_tick ,instance_id, sd->bl.m, sd->bl.x, sd->bl.y);
-	pc_setregistry_str(sd, add_str("instance_lastpoint$"), output);
+	sprintf(output, "%hd:%hd:%hd:%u-%hu", sd->bl.m, sd->bl.x, sd->bl.y, im->create_tick, instance_id);
+	pc_setregistry_str(sd, add_str("instance_record$"), output);
 }
 
 /*==========================================

@@ -2,6 +2,13 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20181226  [支持] 新版客户端中一键切换装备的按钮
+* 20181226  [新增] 战斗配置 instance_leave_record 是否在instance_record$中记录玩家离开副本时的地图坐标信息
+* 20181226  [新增] 脚本指令 instance_enter_left 返回上次离开副本的位置
+* 20181226  [新增] 脚本指令 instance_record 可用来检查 instance_record$ 变量和获取是否合理
+* 20181226  [修改] 现在最大仓库容量为 800 请不要超出此值
+* 20181226  [移除] 移除战斗配置 instance_lastpoint
+* 20181226  [移除] 移除战斗配置 instance_leavepoint
 * 20181224  [修复] 使用 reloadmobdb 指令时可以重新计算魔物的素质属性
 * 20181224  [修复] 跳高技能不能越过墙体和玩家
 * 20181224  [添加] 支持客户端指令 /viewpointvalue 和 /setcamera

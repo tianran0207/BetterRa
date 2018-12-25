@@ -156,8 +156,7 @@ struct Battle_Config
 	int enable_coply;
 	int display_skill_name;
 	int pet_catch_rate_mode;
-	int instance_lastpoint;
-	int instance_leavepoint;
+	int instance_leave_record;
 	int min_storechat_distance;
 	int min_npc_distance;
 	int pet_ignore_intimate_decrease;

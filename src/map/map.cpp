@@ -2130,11 +2130,11 @@ int map_quit(struct map_session_data *sd) {
 
 	struct map_data *mapdata = map_getmapdata(sd->bl.m);
 
+	if (mapdata->instance_id && (battle_config.instance_leave_record & 1)) //玩家在副本中下线后记录下线位置
+		instance_left_point(sd, mapdata->instance_id);
+
 	if( mapdata->instance_id )
 		instance_delusers(mapdata->instance_id);
-
-	//if (battle_config.instance_lastpoint || battle_config.instance_leavepoint) //玩家在副本中下线后记录下线位置
-	//	instance_leave_last(sd);
 
 	unit_remove_map_pc(sd,CLR_RESPAWN);
 

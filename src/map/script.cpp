@@ -26404,10 +26404,10 @@ BUILDIN_FUNC(bot_login)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(instance_enter_last) {
+BUILDIN_FUNC(instance_enter_left) {
 	struct map_session_data *sd = NULL;
 
-	if (!battle_config.instance_leavepoint){
+	if (!battle_config.instance_leave_record){
 		ShowError("buildin_instance_enter_last: Please set battle config of 'instance_leavepoint'\n");
 		return SCRIPT_CMD_FAILURE;
 	}
@@ -26415,7 +26415,71 @@ BUILDIN_FUNC(instance_enter_last) {
 	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	script_pushint(st, instance_enter_last(sd));
+	script_pushint(st, instance_enter_left(sd));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(instance_record) {
+	struct map_session_data *sd = NULL;
+	struct instance_data *im = NULL;
+	int16 m;
+	short x, y;
+	unsigned short instance_id = 0;
+	unsigned int instance_create_tick = 0;
+	char *str;
+	int i;
+	if (!battle_config.instance_leave_record) {
+		ShowError("buildin_instance_enter_last: Please set battle config of 'instance_leavepoint'\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	str = pc_readregistry_str(sd, add_str("instance_record$"));
+	if (str == NULL || sscanf(str, "%hd:%hd:%hd:%u-%hu", &m, &x, &y, &instance_create_tick, &instance_id) != 5) {
+		pc_setregistry_str(sd, add_str("instance_record$"), "");
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	if (instance_id == 0 || instance_id > MAX_INSTANCE_DATA) {
+		pc_setregistry_str(sd, add_str("instance_record$"), "");
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	im = &instance_data[instance_id];
+	ARR_FIND(0, im->cnt_map, i, im->map[i]->m == m);
+
+	if (!instance_create_tick || instance_create_tick != im->create_tick || im->state != INSTANCE_BUSY || i == im->cnt_map) {
+		pc_setregistry_str(sd, add_str("instance_record$"), "");
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	if (!script_hasdata(st, 2)) {
+		script_pushint(st, 1);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	struct map_data *mapdata = map_getmapdata(im->map[i]->src_m);
+
+	switch (script_getnum(st, 2)) {
+	case 1:
+		script_pushstr(st, mapdata->name);
+		break;
+	case 2:
+		script_pushint(st, x);
+		break;
+	case 3:
+		script_pushint(st, y);
+		break;
+	default:
+		script_pushint(st, 0);
+		break;
+	}
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -27785,7 +27849,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(tribe_mobteam, "i"),
 	BUILDIN_DEF(tribe_getteam, "?"),
 	BUILDIN_DEF(tribe_monster, "isiisi?"),
-	BUILDIN_DEF(instance_enter_last, "?"),
+	BUILDIN_DEF(instance_enter_left, "?"),
+	BUILDIN_DEF(instance_record, "?"),
 	BUILDIN_DEF(http_get, "sii?"),
 	BUILDIN_DEF(bot_login, "iii"),
 	BUILDIN_DEF2(isequippedcnt, "isequippedcnt2", "i*"),

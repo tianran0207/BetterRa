@@ -1537,9 +1537,6 @@ void pc_reg_received(struct map_session_data *sd)
 		clif_parse_LoadEndAck(sd->fd, sd);
 	}
 
-	//if (battle_config.instance_lastpoint)
-	//	instance_enter_last(sd);
-
 	if( pc_isinvisible(sd) ) {
 		sd->vd.class_ = JT_INVISIBLE;
 		clif_displaymessage( sd->fd, msg_txt( sd, 11 ) ); // Invisible: On
@@ -5982,6 +5979,9 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 		unsigned short curr_map_instance_id = map_getmapdata(sd->bl.m)->instance_id, new_map_instance_id = (mapdata ? mapdata->instance_id : 0);
 
 		if (curr_map_instance_id != new_map_instance_id) {
+			if (curr_map_instance_id && (battle_config.instance_leave_record & 2)) //玩家在副本中下线后记录下线位置
+				instance_left_point(sd, curr_map_instance_id);
+
 			if (curr_map_instance_id) // Update instance timer for the map on leave
 				instance_delusers(curr_map_instance_id);
 
