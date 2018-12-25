@@ -59,7 +59,7 @@
 #define DEFAULT_WALK_SPEED C_DEFAULT_WALK_SPEED ///Default walk speed
 #define MIN_WALK_SPEED 20 ///Min walk speed
 #define MAX_WALK_SPEED 1000 ///Max walk speed
-#define MAX_STORAGE 900 ///Max number of storage slots a player can have
+#define MAX_STORAGE 800 ///Max number of storage slots a player can have
 #define MAX_GUILD_STORAGE C_MAX_GUILD_STORAGE ///Max number of storage slots a guild
 #define MAX_PARTY C_MAX_PARTY ///Max party member
 #define MAX_GUILD C_MAX_GUILD	///Increased max guild members +6 per 1 extension levels [Lupus]

@@ -771,7 +771,6 @@ struct questinfo {
 
 struct map_data {
 	char name[MAP_NAME_LENGTH];
-	char target[MAP_NAME_LENGTH];
 	uint16 index; // The map index used by the mapindex* functions.
 	struct mapcell* cell; // Holds the information of each map cell (NULL if the map is not on this map-server).
 	struct block_list **block;
@@ -812,6 +811,7 @@ struct map_data {
 	unsigned short hpmeter_visible;
 
 	struct s_mob_spawn_base mobspawnbase;
+	char target[MAP_NAME_LENGTH];
 };
 
 /// Stores information about a remote map (for multi-mapserver setups).
