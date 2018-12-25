@@ -27850,7 +27850,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(tribe_getteam, "?"),
 	BUILDIN_DEF(tribe_monster, "isiisi?"),
 	BUILDIN_DEF(instance_enter_left, "?"),
-	BUILDIN_DEF(instance_record, "?"),
+	BUILDIN_DEF(instance_record, "??"),
 	BUILDIN_DEF(http_get, "sii?"),
 	BUILDIN_DEF(bot_login, "iii"),
 	BUILDIN_DEF2(isequippedcnt, "isequippedcnt2", "i*"),

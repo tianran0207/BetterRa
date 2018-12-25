@@ -1313,7 +1313,7 @@ bonus_ratefix <类型>,<最大值>{,<角色ID>};
 
 ---------------------------------------
 
-*instance_record {<标记>};
+*instance_record {<标记>{,<角色ID>}};
 
 可用来检查变量 instance_record$ 保存的数据是现在玩家正在进行的副本
 可用于获取变量 instance_record$ 中保存的地图、X坐标、Y坐标
