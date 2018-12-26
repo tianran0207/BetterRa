@@ -10,7 +10,7 @@
 * 20181226  [移除] 移除战斗配置 instance_lastpoint
 * 20181226  [移除] 移除战斗配置 instance_leavepoint
 * 20181224  [修复] 使用 reloadmobdb 指令时可以重新计算魔物的素质属性
-* 20181224  [修复] 跳高技能不能越过墙体和玩家
+* 20181224  [修复] 跳高技能不能落点不能是魔物、NPC和玩家
 * 20181224  [添加] 支持客户端指令 /viewpointvalue 和 /setcamera
 * 20181224  [添加] GM指令 camerainfo 用来更新玩家视角限制
 * 20181224  [添加] 脚本指令 camerainfo 用来更新玩家视角限制
