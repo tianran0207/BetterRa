@@ -38,7 +38,7 @@ typedef unsigned int t_tick;
 #define C_MAX_HATEFFECT 0            //最大特殊头饰效果的ID上限
 #define C_MAX_RC2 0                  
 
-#define C_SHOW_SERVER_STATS 1
+#define C_SHOW_SERVER_STATS 0
 
 //----------------------------------
 //自定义功能集

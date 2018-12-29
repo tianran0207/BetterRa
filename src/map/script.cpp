@@ -6788,8 +6788,9 @@ static int script_getitem_randomoption(struct script_state *st, struct map_sessi
 	opt_id_n = script_array_highest_key(st, sd, opt_id_var, opt_id_ref);
 
 	if (opt_id_n < 1) {
-		ShowError("buildin_%s: No option id listed.\n", funcname);
-		return SCRIPT_CMD_FAILURE;
+		//ShowError("buildin_%s: No option id listed.\n", funcname);
+		//return SCRIPT_CMD_FAILURE;
+		return SCRIPT_CMD_SUCCESS;
 	}
 
 	opt_val_ref = reference_getref(opt_val);
