@@ -3849,13 +3849,20 @@ int intif_chat_server_recv(int fd) {
 	len = RFIFOW(fd, 2);
 	type = RFIFOW(fd, 4);
 
+	if (!battle_config.chat_server_interface) {
+		ShowWarning("Chat-Server connection detected. currently this service interface is not open, please set 'chat_server_interface' is 'yes'..\n");
+		WFIFOHEAD(fd, 2); WFIFOW(fd, 0) = 0xFC30; WFIFOW(fd, 2) = 0; WFIFOSET(fd, 4);
+		set_eof(fd);
+		return 0;
+	}
+
 	switch (type) {
 	case 0:
 		//ÑéÖ¤ÕËºÅÃÜÂë
 		chat_fd = fd;
 		ShowStatus("Chat-server is connected with ip '" CL_WHITE "%s" CL_RESET "'\n", ip2str(session[fd]->client_addr, NULL));
 		//if(chrif_checkuserid)
-		WFIFOHEAD(fd, 2); WFIFOW(fd, 0) = 0xFC30; WFIFOSET(fd, 2);
+		WFIFOHEAD(fd, 2); WFIFOW(fd, 0) = 0xFC30; WFIFOW(fd, 2) = 1; WFIFOSET(fd, 4);
 		break;
 	case 1:
 		WFIFOHEAD(fd, 2); WFIFOW(fd, 0) = 0xFC31; WFIFOSET(fd, 2);

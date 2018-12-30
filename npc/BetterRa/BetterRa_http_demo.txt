@@ -1,0 +1,31 @@
+prontera,137,125,3	script	GET接口测试	123,{
+	mes "[GET接口测试]";
+	mes "将访调用接口访问 http://www.betterra.cn/test.txt";
+	next;
+	http_get("http://www.betterra.cn/test.txt", 3000, 0);
+	mes "[GET接口测试]";
+	mes "访问完成";
+	close;
+OnInit:
+	waitingroom "GET接口测试",1;
+	end;
+}
+
+-	script	http_event	-1,{
+OnHTTPReceivedEvent:
+	announce "   URL: " + $@http_url$,bc_all,0x00FF00;
+	announce "  host: " + $@http_host$,bc_all,0x00FF00;
+	announce "folder: " + $@http_folder$,bc_all,0x00FF00;
+	announce "   cid: " + $@http_cid,bc_all,0x00FF00;
+	announce "http header: ",bc_all,0x00FF00;
+	for(.@i = 0; .@i < $@http_header_count; .@i++){
+		announce "    " + $@http_name$[.@i] +": " + $@http_val$[.@i],bc_all,0x00FF00;
+	}
+	explode(.@str$,$@http_str$,"\r\n");
+	announce "content: " + getarraysize(.@str$) + " 行",bc_all,0x00FF00;
+	for(.@i = 0; .@i < getarraysize(.@str$); .@i++){
+		announce replacestr(.@str$[.@i], "\t", "    "),bc_all,0x00FF00;
+		sleep 10;
+	}
+	end;
+}

@@ -277,6 +277,8 @@ struct Script_Config {
 	const char* cashshop_open_filter_name;
 	const char* cashshop_buy_filter_name;
 	const char* cashshop_close_event_name;
+	// StyList related
+	const char* stylist_change_event_name;
 };
 extern struct Script_Config script_config;
 

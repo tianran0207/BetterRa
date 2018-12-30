@@ -185,6 +185,20 @@ int Sql_GetColumnNames(Sql* self, const char* table, char* out_buf, size_t buf_l
 /// Changes the encoding of the connection.
 int Sql_SetEncoding(Sql* self, const char* encoding)
 {
+	if (self && !stricmp(encoding, "auto") && SQL_SUCCESS == Sql_Query(self, "SHOW VARIABLES LIKE 'character_set_database'"))
+	{
+		char* data;
+		size_t len;
+		if (SQL_SUCCESS == Sql_NextRow(self) &&
+			SQL_SUCCESS == Sql_GetData(self, 1, &data, &len) &&
+			Sql_Query(self, "SET NAMES %s", data) == 0)
+		{
+			Sql_FreeResult(self);
+			return SQL_SUCCESS;
+		}
+		Sql_FreeResult(self);
+		return SQL_ERROR;
+	}
 	if( self && Sql_Query(self, "SET NAMES %s", encoding) == 0 )
 		return SQL_SUCCESS;
 	return SQL_ERROR;

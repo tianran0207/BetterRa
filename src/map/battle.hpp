@@ -720,6 +720,7 @@ struct Battle_Config
 	int feature_equipswitch;
 
 	int feature_refineui;
+	int feature_stylistui;
 
 #include "../custom/battle_config_struct.inc"
 };

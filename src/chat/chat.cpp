@@ -572,8 +572,19 @@ static int chat_mapif_keepalive(int fd) {
 	return 1;
 }
 static int chat_mapif_result(int fd) {
-	RFIFOSKIP(fd, 2);
-	ShowStatus("Chat-server Connected to Map-Server.\n\n");
+	int type = RFIFOW(fd, 2);
+	switch (type) {
+	case 0:
+		ShowStatus("Chat-server connection refused.\n");
+		RFIFOSKIP(fd, 4);
+		exit(EXIT_FAILURE);
+		break;
+	case 1:
+		ShowStatus("Chat-server Connected to Map-Server.\n\n");
+		break;
+	}
+	RFIFOSKIP(fd, 4);
+	
 	return 1;
 }
 //----------------------------------------------------------
@@ -767,9 +778,9 @@ int do_init(int argc, char** argv)
 	set_defaultparse(chatclif_parse);
 
 	add_timer_func_list(chat_check_connect_mapserver, "chat_check_connect_mapserver");
-	add_timer_interval(gettick() + 10000, chat_check_connect_mapserver, 0, 0, 20 * 1000);
+	add_timer_interval(gettick() + 15000, chat_check_connect_mapserver, 0, 0, 20 * 1000);
 
-	ShowStatus("Connect map-server after " CL_GREEN " 10 seconds" CL_RESET ".\n", chatserv_config.chat_port);
+	ShowStatus("Connect map-server after " CL_GREEN " 15 seconds" CL_RESET ".\n", chatserv_config.chat_port);
 	ShowStatus("The chat-server is " CL_GREEN "ready" CL_RESET " (Server is listening on the port %d).\n", chatserv_config.chat_port);
 	
 	return 0;

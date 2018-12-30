@@ -617,3 +617,20 @@ BetterRa 在官方的基础上做了以下改进:
 	关闭商城后触发的事件
 	
 ---------------------------------------
+
+*OnPCStylistChangeEvent:
+
+事件描述:
+	在客户端造型设计窗口中点击确定后触发该事件
+
+参数说明:
+	@stylist_hair_color		变化后的发色, 无变化返回 0
+	@stylist_hair_style		变化后的发型, 无变化返回 0
+	@stylist_cloth_color	变化后的衣服颜色, 无变化返回 0
+    @stylist_head_top		变化后的头饰(上), 无变化返回 0
+    @stylist_head_mid		变化后的头饰(中), 无变化返回 0
+    @stylist_head_bottom	变化后的头饰(下), 无变化返回 0
+	
+---------------------------------------
+	
+	

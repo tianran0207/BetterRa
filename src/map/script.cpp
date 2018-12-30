@@ -349,7 +349,8 @@ struct Script_Config script_config = {
 	"OnPCRefineUIEvent", //refineui_event_name
 	"OnPCCashShopOpenFilter", //cashshop_open_filter_name
 	"OnPCCashShopBuyFilter", //cashshop_buy_filter_name
-	"OnPCCashShopCloseEvent" //cashshop_close_event_name
+	"OnPCCashShopCloseEvent", //cashshop_close_event_name
+	"OnPCStylistChangeEvent" //stylist_change_event_name
 };
 
 static jmp_buf     error_jump;
@@ -26947,6 +26948,26 @@ BUILDIN_FUNC(getdaytick)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(stylistui) {
+#if PACKETVER < 20151104
+	ShowError("buildin_open_stylistui: This command requires packet version 2015-11-04 or newer.\n");
+	return SCRIPT_CMD_FAILURE;
+#else
+	struct map_session_data *sd = NULL;
+
+	if (!script_charid2sd(2, sd))
+		return 1;
+
+	if (!battle_config.feature_stylistui) {
+		ShowError("buildin_open_stylistui: This command is disabled via configuration.\n");
+		return 1;
+	}
+
+	clif_ui_open(sd, OUT_UI_STYLIST, 0);
+	return SCRIPT_CMD_SUCCESS;
+#endif
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -27733,6 +27754,7 @@ struct script_function buildin_func[] = {
 	// Refine UI
 	BUILDIN_DEF(getequiprefinecost,"iii?"),
 	BUILDIN_DEF(refineui,"?"),
+	BUILDIN_DEF(stylistui, "?"),
 
 	BUILDIN_DEF2(round, "round", "i"),
 	BUILDIN_DEF2(round, "ceil", "i"),

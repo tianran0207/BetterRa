@@ -1,0 +1,70 @@
+prontera,142,125,3	script	化妆台测试	123,{
+	stylistui();
+	end;
+OnPCStylistChangeEvent:
+	if (@stylist_hair_color > 0)
+		.@zeny += 100000;
+	if (@stylist_hair_style > 0)
+		.@zeny += 100000;
+	if (@stylist_cloth_color > 0)
+		.@count += 1;
+	.@idx = 0;
+	setarray .@hatid[0],2220, 2208, 2211;
+	setarray .@hatcost[0],1000, 800, 400;
+	if (@stylist_head_top > 0 && @stylist_head_top <= getarraysize(.@hatid)){
+		@stylist_head_top -= 1;
+		if(countitem(.@hatid[@stylist_head_top]) < 1){
+			.@mailitem[.@idx] = .@hatid[@stylist_head_top];
+			.@hatcount[.@idx] = 1;
+			.@zeny += .@hatcost[@stylist_head_top];
+			.@idx++;
+		}else{
+			equip .@hatid[@stylist_head_top];
+		}
+	}
+	setarray .@hatid[0],2239, 2201, 2242, 2243, 2205, 2203, 2212;
+	setarray .@hatcost[0],10000, 5000, 24000, 20000, 3500, 4000, 1000;
+	if (@stylist_head_mid > 0 && @stylist_head_mid <= getarraysize(.@hatid)){
+		@stylist_head_mid -= 1;
+		if(countitem(.@hatid[@stylist_head_mid]) < 1){
+			.@mailitem[.@idx] = .@hatid[@stylist_head_mid];
+			.@hatcount[.@idx] = 1;
+			.@zeny += .@hatcost[@stylist_head_mid];
+			.@idx++;
+		}else{
+			equip .@hatid[@stylist_head_mid];
+		}
+	}
+	setarray .@hatid[0],2241;
+	setarray .@hatcost[0],5000;
+	if (@stylist_head_bottom > 0 && @stylist_head_bottom <= getarraysize(.@hatid)){
+		@stylist_head_bottom -= 1;
+		if(countitem(.@hatid[@stylist_head_bottom]) < 1){
+			.@mailitem[.@idx] = .@hatid[@stylist_head_bottom];
+			.@hatcount[.@idx] = 1;
+			.@zeny += .@hatcost[@stylist_head_bottom];
+			.@idx++;
+		}else{
+			equip .@hatid[@stylist_head_bottom];
+		}
+	}
+	if (.@zeny > Zeny || countitem(6046) < .@count){
+		dispbottom "您的金币或道具不够";
+		end;
+	}
+	Zeny -= .@zeny;
+	if(.@count)
+		delitem 6046,.@count;
+	if (@stylist_hair_color > 0)
+		setlook LOOK_HAIR_COLOR,@stylist_hair_color;
+	if (@stylist_hair_style > 0)
+		setlook LOOK_HAIR,@stylist_hair_style;
+	if (@stylist_cloth_color > 0)
+		setlook LOOK_CLOTHES_COLOR,@stylist_cloth_color;
+	if (.@idx)
+		mail getcharid(0), "系统邮件", "造型设计取件", "您在造型设计定制的头饰到货了", 0, .@mailitem, .@hatcount;
+	end;
+OnInit:
+	waitingroom "化妆台测试",1;
+	end;
+}

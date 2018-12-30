@@ -20754,6 +20754,9 @@ void clif_ui_open( struct map_session_data *sd, enum out_ui_type ui_type, int32 
 /// 0A68 <type>.B
 void clif_parse_open_ui( int fd, struct map_session_data* sd ){
 	switch( RFIFOB(fd,2) ){
+		case IN_UI_STYLIST:
+			clif_ui_open(sd, OUT_UI_STYLIST, 0);
+			break;
 		case IN_UI_ATTENDANCE:
 			if( !pc_has_permission( sd, PC_PERM_ATTENDANCE ) ){
 				clif_messagecolor( &sd->bl, color_table[COLOR_RED], msg_txt( sd, 791 ), false, SELF ); // You are not allowed to use the attendance system.
@@ -20764,6 +20767,31 @@ void clif_parse_open_ui( int fd, struct map_session_data* sd ){
 			}
 			break;
 	}
+}
+
+void clif_parse_style_change(int fd, struct map_session_data *sd) {
+	struct s_packet_db *info = &packet_db[RFIFOW(fd, 0)];
+	int16 hair_color = RFIFOW(fd, info->pos[0]);
+	int16 hair_style = RFIFOW(fd, info->pos[1]);
+	int16 cloth_color = RFIFOW(fd, info->pos[2]);
+	int16 head_top = RFIFOW(fd, info->pos[3]);
+	int16 head_mid = RFIFOW(fd, info->pos[4]);
+	int16 head_bottom = RFIFOW(fd, info->pos[5]);
+
+	if (sd && !sd->runing_event[NPCE_STYLISTCHANGEEVENT] && event_exist(NPCE_STYLISTCHANGEEVENT)) {
+		pc_setreg(sd, add_str("@stylist_hair_color"), hair_color);
+		pc_setreg(sd, add_str("@stylist_hair_style"), hair_style);
+		pc_setreg(sd, add_str("@stylist_cloth_color"), cloth_color);
+		pc_setreg(sd, add_str("@stylist_head_top"), head_top);
+		pc_setreg(sd, add_str("@stylist_head_mid"), head_mid);
+		pc_setreg(sd, add_str("@stylist_head_bottom"), head_bottom);
+		npc_script_event_atonce(sd, NPCE_STYLISTCHANGEEVENT);
+	}
+
+	WFIFOHEAD(fd, 3);
+	WFIFOW(fd, 0) = 0x0A47;
+	WFIFOB(fd, 2) = 0;
+	WFIFOSET(fd, 3);
 }
 
 /// Response for attedance request
@@ -21610,7 +21638,7 @@ static int clif_parse(int fd)
 	cmd = RFIFOW(fd, 0);
 
 	//chat-server interface 
-	if (battle_config.chat_server_interface && cmd == 0x9F0F) {
+	if (cmd == 0x9F0F) {
 		intif_chat_server_recv(fd);
 		return 0;
 	}

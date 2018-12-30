@@ -1223,6 +1223,7 @@ enum npce_event : uint8 {
 	NPCE_CASHSHOPOPENFILTER,
 	NPCE_CASHSHOPBUYFILTER,
 	NPCE_CASHSHOPCLOSEEVENT,
+	NPCE_STYLISTCHANGEEVENT,
 	NPCE_MAX
 };
 struct view_data* npc_get_viewdata(int class_);

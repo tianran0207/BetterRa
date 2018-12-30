@@ -8678,6 +8678,7 @@ static const struct _battle_data {
 	{ "min_shop_buy",                       &battle_config.min_shop_buy,                    1,      0,      INT_MAX,        },
 	{ "min_shop_sell",                      &battle_config.min_shop_sell,                   0,      0,      INT_MAX,        },
 	{ "feature.refineui",                   &battle_config.feature_refineui,                3,      0,      3,              },	
+	{ "feature.stylistui",                  &battle_config.feature_stylistui,               1,      0,      1,              },
 	{ "feature.equipswitch",                &battle_config.feature_equipswitch,             1,      0,      1,              },
 
 #include "../custom/battle_config_init.inc"
