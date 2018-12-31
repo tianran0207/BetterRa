@@ -1800,6 +1800,33 @@ int64 battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int64 
 	return damage;
 }
 
+int64 battle_calc_pvp_damage(struct block_list *src, struct block_list *bl, int64 damage, uint16 skill_id, int flag)
+{
+	if (!damage)
+		return 0;
+
+	if (skill_get_inf2(skill_id)&INF2_NO_BG_DMG)
+		return damage; //skill that ignore bg map reduction
+
+	if (flag&BF_SKILL) { //Skills get a different reduction than non-skills. [Skotlex]
+		if (flag&BF_WEAPON)
+			damage = damage * battle_config.pvp_weapon_damage_rate / 100;
+		if (flag&BF_MAGIC)
+			damage = damage * battle_config.pvp_magic_damage_rate / 100;
+		if (flag&BF_MISC)
+			damage = damage * battle_config.pvp_misc_damage_rate / 100;
+	}
+	else { //Normal attacks get reductions based on range.
+		if (flag&BF_SHORT)
+			damage = damage * battle_config.pvp_short_damage_rate / 100;
+		if (flag&BF_LONG)
+			damage = damage * battle_config.pvp_long_damage_rate / 100;
+	}
+
+	damage = i64max(damage, 1); //min 1 damage
+	return damage;
+}
+
 /**
  * HP/SP drain calculation
  * @param damage Damage inflicted to the enemy
@@ -5111,6 +5138,8 @@ static void battle_calc_attack_gvg_bg(struct Damage* wd, struct block_list *src,
 				wd->damage=battle_calc_gvg_damage(src,target,wd->damage,skill_id,wd->flag);
 			else if( mapdata->flag[MF_BATTLEGROUND] )
 				wd->damage=battle_calc_bg_damage(src,target,wd->damage,skill_id,wd->flag);
+			else if (mapdata->flag[MF_PVP])
+				wd->damage = battle_calc_pvp_damage(src, target, wd->damage, skill_id, wd->flag);
 		}
 		else if(!wd->damage) {
 			wd->damage2 = battle_calc_damage(src,target,wd,wd->damage2,skill_id,skill_lv);
@@ -5118,6 +5147,8 @@ static void battle_calc_attack_gvg_bg(struct Damage* wd, struct block_list *src,
 				wd->damage2 = battle_calc_gvg_damage(src,target,wd->damage2,skill_id,wd->flag);
 			else if( mapdata->flag[MF_BATTLEGROUND] )
 				wd->damage2 = battle_calc_bg_damage(src,target,wd->damage2,skill_id,wd->flag);
+			else if (mapdata->flag[MF_PVP])
+				wd->damage = battle_calc_pvp_damage(src, target, wd->damage, skill_id, wd->flag);
 		}
 		else {
 			int64 d1 = wd->damage + wd->damage2,d2 = wd->damage2;
@@ -5126,6 +5157,8 @@ static void battle_calc_attack_gvg_bg(struct Damage* wd, struct block_list *src,
 				wd->damage = battle_calc_gvg_damage(src,target,wd->damage,skill_id,wd->flag);
 			else if( mapdata->flag[MF_BATTLEGROUND] )
 				wd->damage = battle_calc_bg_damage(src,target,wd->damage,skill_id,wd->flag);
+			else if (mapdata->flag[MF_PVP])
+				wd->damage = battle_calc_pvp_damage(src, target, wd->damage, skill_id, wd->flag);
 			//wd->damage2 = (int64)d2*100/d1 * wd->damage/100;
 			wd->damage2 = (int64)d2 * 100 / d1;
 			wd->damage2 = (int64)(wd->damage2 ? wd->damage2 : 1) * wd->damage / 100;
@@ -6466,6 +6499,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 		ad.damage = battle_calc_gvg_damage(src,target,ad.damage,skill_id,ad.flag);
 	else if (mapdata->flag[MF_BATTLEGROUND])
 		ad.damage = battle_calc_bg_damage(src,target,ad.damage,skill_id,ad.flag);
+	else if (mapdata->flag[MF_PVP])
+		ad.damage = battle_calc_pvp_damage(src, target, ad.damage, skill_id, ad.flag);
 
 	// Skill damage adjustment
 	if ((skill_damage = battle_skill_damage(src,target,skill_id)) != 0)
@@ -6860,6 +6895,8 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		md.damage = battle_calc_gvg_damage(src,target,md.damage,skill_id,md.flag);
 	else if(mapdata->flag[MF_BATTLEGROUND])
 		md.damage = battle_calc_bg_damage(src,target,md.damage,skill_id,md.flag);
+	else if (mapdata->flag[MF_PVP])
+		md.damage = battle_calc_pvp_damage(src, target, md.damage, skill_id, md.flag);
 
 	// Skill damage adjustment
 	if ((skill_damage = battle_skill_damage(src,target,skill_id)) != 0)
@@ -8144,6 +8181,12 @@ static const struct _battle_data {
 	{ "always_npc_kill_event",              &battle_config.always_npc_kill_event,           0,      0,      1,              },
 	{ "always_mvp_kill_event",              &battle_config.always_mvp_kill_event,           0,      0,      1,              },
 	{ "overlay_back_stack",                 &battle_config.overlay_back_stack,              0,      0,      1,              },
+	{ "walk_close_to_npc",                  &battle_config.walk_close_to_npc,               0,      0,      INT_MAX,        },
+	{ "pvp_weapon_damage_rate",             &battle_config.pvp_weapon_damage_rate,          100,    0,      INT_MAX,        },
+	{ "pvp_magic_damage_rate",              &battle_config.pvp_magic_damage_rate,           100,    0,      INT_MAX,        },
+	{ "pvp_misc_damage_rate",               &battle_config.pvp_misc_damage_rate,            100,    0,      INT_MAX,        },
+	{ "pvp_short_damage_rate",              &battle_config.pvp_short_damage_rate,           100,    0,      INT_MAX,        },
+	{ "pvp_long_damage_rate",               &battle_config.pvp_long_damage_rate,            100,    0,      INT_MAX,        },
 	//--------------------------------------------Extended Vending system [Lilith]---------------------------------------------		 
 	{ "extended_vending",					&battle_config.extended_vending,				1,		0,		1,				},
 	{ "show_item_vending",					&battle_config.show_item_vending,				1,		0,		1,				},

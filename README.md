@@ -2,6 +2,14 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20181231  [添加] 脚本指令 charid2rid 通过角色ID(charid)对应的账号ID(rid, gid, aid)
+* 20181231  [添加] 脚本指令 getmobdmglog 用来获取对魔物造成伤害的排名数据
+* 20181231  [添加] 战斗配置 walk_close_to_npc 当玩家点击NPC时, 是否自动行走靠近NPC再说话
+* 20181231  [添加] 战斗配置 pvp_short_attack_damage_rate 在PVP地图中的近距离攻击伤害倍率
+* 20181231  [添加] 战斗配置 pvp_long_attack_damage_rate 在PVP地图中的远距离攻击伤害倍率
+* 20181231  [添加] 战斗配置 pvp_weapon_attack_damage_rate 在PVP地图中的物理技能伤害倍率
+* 20181231  [添加] 战斗配置 pvp_magic_attack_damage_rate 在PVP地图中的魔法技能伤害倍率
+* 20181231  [添加] 战斗配置 pvp_misc_attack_damage_rate 在PVP地图中的特殊技能伤害倍率
 * 20181230  [支持] MySQL内码表自动判定机制, inter_athena.conf 中 codepage可以设置为 auto (感谢 尐駒頭寶寶)
 * 20181229  [支持] 简单支持了造型设计窗口
 * 20181229  [添加] 造型设计窗口支持脚本, npc\BetterRa\BetterRa_stylist_demo.txt
@@ -15,9 +23,9 @@
 * 20181228  [修复] 当 chat-server.exe 连接被拒绝时, 程序不会重复连接, 会自动退出
 * 20181228  [添加] 添加 chat-server.exe 支持 websocket测试网页 chat-webclient.html 通过网页和游戏聊天的功能
 * 20181226  [支持] 新版客户端中一键切换装备的按钮
-* 20181226  [新增] 战斗配置 instance_leave_record 是否在instance_record$中记录玩家离开副本时的地图坐标信息
-* 20181226  [新增] 脚本指令 instance_enter_left 返回上次离开副本的位置
-* 20181226  [新增] 脚本指令 instance_record 可用来检查 instance_record$ 变量和获取是否合理
+* 20181226  [添加] 战斗配置 instance_leave_record 是否在instance_record$中记录玩家离开副本时的地图坐标信息
+* 20181226  [添加] 脚本指令 instance_enter_left 返回上次离开副本的位置
+* 20181226  [添加] 脚本指令 instance_record 可用来检查 instance_record$ 变量和获取是否合理
 * 20181226  [修改] 现在最大仓库容量为 800 请不要超出此值
 * 20181226  [移除] 移除战斗配置 instance_lastpoint
 * 20181226  [移除] 移除战斗配置 instance_leavepoint
@@ -48,7 +56,7 @@
 * 20181223  [修复] 所有 Filter 事件中的使用 end 指令将不再影响玩家与NPC之间的正常对话
 * 20181223  [修复] 使用 unitremove 删除佣兵时不再降低佣兵点数
 * 20181223  [修复] 使用 getservantgid 获得佣兵UID时不再返回错误信息
-* 20181220  [新增] maps_athena.conf 支持copy头 复制地图获得新地图 例copy: 12345 prontera 复制普隆德拉的地图到名为12345的地图上
+* 20181220  [添加] maps_athena.conf 支持copy头 复制地图获得新地图 例copy: 12345 prontera 复制普隆德拉的地图到名为12345的地图上
 * 20181218  [修复] 召唤师舔毛技能在异常状态时的表现形式 现在类似于点血愈的表现形式
 * 20181218  [修复] 召唤师技能‘疯兔胡萝卜重击’和‘猫薄荷陨石’技能伤害问题
 * 20181218  [修复] 召唤师技能‘美味活虾派对’不能正确地提高SP恢复的问题
@@ -92,17 +100,17 @@
 * 20181125  [添加] 战斗配置 shadowgear_refine_ui 影装是否可以在精炼UI中精炼
 * 20181123  [添加] 精炼UI对铁匠的祝福的支持
 * 20181122  [修复] 删除账号时不能取消预约的BUG
-* 20181121  [新增] 精炼UI
-* 20181121  [新增] 脚本指令 refineui 用来打开精炼UI
-* 20181121  [新增] GM指令 @refineui 用来打开精炼UI
+* 20181121  [添加] 精炼UI
+* 20181121  [添加] 脚本指令 refineui 用来打开精炼UI
+* 20181121  [添加] GM指令 @refineui 用来打开精炼UI
 * 20181121  [修改] 精炼脚本支持精炼UI版
-* 20181121  [新增] 服务端支持开关 feature.conf -> feature.refineui
-* 20181121  [新增] 商人开启露天商店可以使用cash点数和物品作为交易货币。
-* 20181121  [新增] 战斗配置 露天商店拓展开关 extended_vending
-* 20181121  [新增] 战斗配置 露天商店显示交易货币 show_item_vending
-* 20181121  [新增] 战斗配置 露天商店显示更多交易信息 ex_vending_info
-* 20181121  [新增] 战斗配置 露天商店Zeny展示物品 item_zeny
-* 20181121  [新增] 战斗配置 露天商店Cash展示物品 item_cash
+* 20181121  [添加] 服务端支持开关 feature.conf -> feature.refineui
+* 20181121  [添加] 商人开启露天商店可以使用cash点数和物品作为交易货币。
+* 20181121  [添加] 战斗配置 露天商店拓展开关 extended_vending
+* 20181121  [添加] 战斗配置 露天商店显示交易货币 show_item_vending
+* 20181121  [添加] 战斗配置 露天商店显示更多交易信息 ex_vending_info
+* 20181121  [添加] 战斗配置 露天商店Zeny展示物品 item_zeny
+* 20181121  [添加] 战斗配置 露天商店Cash展示物品 item_cash
 * 20181119  [修改] 99级GM可以使用签到系统
 * 20181119  [修改] BetterRa默认封包版本为 20180620
 * 20181119  [修复] 常量BL_NPC重复赋值的问题
@@ -123,7 +131,7 @@
 * 20180827  [添加] 脚本指令 isequipped2 可以检测插在装备上的任何道具
 * 20180827  [优化] 脚本指令 bot_stop 添加第二个参数为1时 bot被踢掉
 * 20180820  [更新] 转盘规则 demo 文件
-* 20180820  [新增] 当服务器宕机时, 输出dmp文件以便定位错误.
+* 20180820  [添加] 当服务器宕机时, 输出dmp文件以便定位错误.
 * 20180820  [修改] 自定义宏定义规则
 * 20180820  [修复] http->get接口, 不能获取网络内容的问题
 * 20180814  [修复] 脚本指令 getrateidx 报错问题
@@ -160,21 +168,21 @@
 * 20180718  [修复] 脚本指令 getinventorylist 返回变量 inventorylist_idx 错误问题。
 * 20180718  [修复] 脚本指令 addatkevent 攻击事件触发时会排队的问题。
 * 20180718  [修复] 事件 OnPCIdentifyEvent 有时变量返回错误的问题
-* 20180701  [新增] 脚本指令 readstatus 获取属性的总量
-* 20180701  [新增] 技能暴击支持
-* 20180701  [新增] 物品扩展 bMultiDamageRate 概率翻倍伤害
-* 20180701  [新增] 物品扩展 bFixedCastAddRate 固定咏唱技能时间累加
-* 20180701  [新增] 脚本指令 getareamember 获得范围内的团队成员
+* 20180701  [添加] 脚本指令 readstatus 获取属性的总量
+* 20180701  [添加] 技能暴击支持
+* 20180701  [添加] 物品扩展 bMultiDamageRate 概率翻倍伤害
+* 20180701  [添加] 物品扩展 bFixedCastAddRate 固定咏唱技能时间累加
+* 20180701  [添加] 脚本指令 getareamember 获得范围内的团队成员
 * 20180701  [修复] EVENT_PARTYLEAVEFILTER 事件代码的一处错误
 * 20180701  [修复] SP_MAXASPD 攻速不正确问题
 * 20180701  [修复] SP_SKILL_ITEM_FIX 错误提示中数值不正确问题
 * 20180701  [优化] 脚本指令 gettarget 可以传入任何GID
-* 20180629  [新增] 战斗配置项 pc_max_def pc_max_def2 pc_max_mdef pc_max_mdef2 pc_max_flee pc_max_flee2 用来限制最大值
+* 20180629  [添加] 战斗配置项 pc_max_def pc_max_def2 pc_max_mdef pc_max_mdef2 pc_max_flee pc_max_flee2 用来限制最大值
 * 20180629  [开启] 流量信息在窗口标题中显示
 * 20180629  [开启] 技能伤害修正 db/skill_damage.txt
 * 20180629  [优化] 当使用变量名做为商店消耗时 支持 变量名|变量释义 只显示变量释义
-* 20180629  [新增] 脚本指令 instance_name 用于获取玩家所开启的副本的副本名
-* 20180629  [新增] 脚本指令 readstatus 用于获取玩家的素质总数 例：readstatus(bStr);
+* 20180629  [添加] 脚本指令 instance_name 用于获取玩家所开启的副本的副本名
+* 20180629  [添加] 脚本指令 readstatus 用于获取玩家的素质总数 例：readstatus(bStr);
 * 20180629  [修复] ATK最大不能超过 65535 的限制
 * 20180629  [修复] 路点系统的一处错误
 * 20180603  [优化] 路点和寻路

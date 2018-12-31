@@ -25474,19 +25474,24 @@ static int buildin_getareagid_sub(struct block_list *bl, va_list ap)
 {
 	struct script_state *st = va_arg(ap, struct script_state *);
 	struct map_session_data *sd = va_arg(ap, struct map_session_data *);
+
+	int id = va_arg(ap, int);
 	char *varname = va_arg(ap, char *);
+	struct reg_db *ref = va_arg(ap, struct reg_db *);
+	
 	int *count = va_arg(ap, int *);
-	set_reg(st, sd, reference_uid(add_str(varname), *count), varname, (void *)bl->id, NULL);
+	set_reg(st, sd, reference_uid(id, *count), varname, (void *)__64BPRTSIZE(bl->id), ref);
 	(*count)++;
 	return 0;
 }
 
 BUILDIN_FUNC(getareagid)
 {
-	int map_id, type, count;
+	int map_id, type, count, id;
 	const char* mapname = NULL;
 	char* varname = NULL;
 	struct script_data *data = NULL;
+	struct reg_db *ref = NULL;
 	TBL_PC *sd = map_id2sd(st->rid);
 
 	//获得发送目标类型
@@ -25504,6 +25509,8 @@ BUILDIN_FUNC(getareagid)
 	}
 	//获得数组名
 	varname = reference_getname(data);
+	ref = reference_getref(data);
+	id = reference_getid(data);
 
 	//如果为人物变量或者地图名为this,则判断人物是否关联
 	if (not_server_variable(*varname) || !strcmp(mapname, "this")) {
@@ -25538,7 +25545,7 @@ BUILDIN_FUNC(getareagid)
 		y0 = script_getnum(st, 5);
 		x1 = script_getnum(st, 6);
 		y1 = script_getnum(st, 7);
-		map_foreachinarea(buildin_getareagid_sub, map_id, x0, y0, x1, y1, type, st, sd, varname, &count);
+		map_foreachinarea(buildin_getareagid_sub, map_id, x0, y0, x1, y1, type, st, sd, id, varname, ref, &count);
 	}
 	//如果6个参数(方法2)
 	else if (script_hasdata(st, 7)) {
@@ -25548,11 +25555,11 @@ BUILDIN_FUNC(getareagid)
 		center.x = script_getnum(st, 4);
 		center.y = script_getnum(st, 5);
 		range = script_getnum(st, 6);
-		map_foreachinrange(buildin_getareagid_sub, &center, range, type, st, sd, varname, &count);
+		map_foreachinrange(buildin_getareagid_sub, &center, range, type, st, sd, id, varname, ref, &count);
 	}
 	//(方法3)
 	else {
-		map_foreachinmap(buildin_getareagid_sub, map_id, type, st, sd, varname, &count);
+		map_foreachinmap(buildin_getareagid_sub, map_id, type, st, sd, id, varname, ref, &count);
 	}
 	//返回获取的gid数量
 	script_pushint(st, count);
@@ -26702,7 +26709,7 @@ BUILDIN_FUNC(getbonus)
 		if (!data_isreference(data[i]))
 			continue;
 		varname = reference_getname(data[i]);
-		set_reg(st, sd, add_str(varname), varname, (void *)val[i], NULL);
+		set_reg(st, sd, add_str(varname), varname, (void *)__64BPRTSIZE(val[i]), NULL);
 	}
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -26882,7 +26889,7 @@ BUILDIN_FUNC(sortarray)
 		qsort(array_vars, array_size, sizeof(int), buildin_sortarray_asc_sub);
 
 	for (i = 0; i < array_size; i++)
-		set_reg(st, sd, reference_uid(id, i), name, (void *)array_vars[i], ref);
+		set_reg(st, sd, reference_uid(id, i), name, (void *)__64BPRTSIZE(array_vars[i]), ref);
 	
 	aFree(array_vars);
 	return SCRIPT_CMD_SUCCESS;
@@ -26966,6 +26973,66 @@ BUILDIN_FUNC(stylistui) {
 	clif_ui_open(sd, OUT_UI_STYLIST, 0);
 	return SCRIPT_CMD_SUCCESS;
 #endif
+}
+
+BUILDIN_FUNC(getmobdmglog)
+{
+	struct script_data *data = NULL;
+	struct map_session_data *sd = NULL;
+	struct reg_db *ref = NULL;
+	mob_data *md;
+	const char* varname = NULL;
+	int i, key, type, count = 0, maxcount;
+	
+	if ((md = map_id2md(script_getnum(st, 2))) == NULL) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	type = script_getnum(st, 3);
+	if (type != 1 && type != 2) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	data = script_getdata(st, 4);
+	if (!data_isreference(data) || data_isstring(data)) {
+		ShowWarning("buildin_getareagid: error in argument! please give a int variable to store num.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	varname = reference_getname(data);
+	if (not_server_variable(*varname) && !script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	key = add_str(varname);
+	ref = reference_getref(data);
+	maxcount = script_hasdata(st, 5) ? script_getnum(st, 5) : DAMAGELOG_SIZE;
+	for (i = 0; i < DAMAGELOG_SIZE; i++) {
+		if (md->dmglog[i].id == 0 || md->dmglog[i].flag != 0)
+			continue;
+		if (type == 1)
+			set_reg(st, sd, reference_uid(key, i), varname, (void *)__64BPRTSIZE(md->dmglog[i].id), ref);
+		else
+			set_reg(st, sd, reference_uid(key, i), varname, (void *)__64BPRTSIZE(md->dmglog[i].dmg), ref);
+
+		if (maxcount <= ++count)
+			break;
+	}
+	script_pushint(st, count);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(charid2rid)
+{
+	struct map_session_data *sd;
+
+	if ((sd = map_charid2sd(script_getnum(st, 2))) != NULL)
+		script_pushint(st, sd->status.account_id);
+	else
+		script_pushint(st, 0);
+
+	return SCRIPT_CMD_SUCCESS;
 }
 
 BUILDIN_FUNC(roulette_bonus)
@@ -27824,6 +27891,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unitskillfixedreset, "i"),
 	BUILDIN_DEF(when_progressbar_abort_doevent, "?"),
 	BUILDIN_DEF(mobskill, "iviiii??"),
+	BUILDIN_DEF(getmobdmglog, "iir?"),
+	BUILDIN_DEF(charid2rid, "i"),
 
 	//邮箱系统
 #ifdef SCRIPT_SENDMAIL

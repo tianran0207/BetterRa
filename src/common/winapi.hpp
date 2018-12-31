@@ -28,7 +28,7 @@
 #define NOMCX
 #define NOCLIPBOARD
 #define NOCOLOR
-#define NONLS
+//#define NONLS
 #define NOMEMMGR
 #define NOMETAFILE
 #define NOOPENFILE

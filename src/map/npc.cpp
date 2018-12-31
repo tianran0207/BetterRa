@@ -1282,6 +1282,42 @@ void run_tomb(struct map_session_data* sd, struct npc_data* nd)
 	clif_scriptclose(sd, nd->bl.id);
 }
 
+static int npc_walkto_click_timer(int tid, unsigned int tick, int id, intptr_t data)
+{
+	struct map_session_data* sd;
+	struct npc_data* nd;
+	uint8 dir;
+	
+	if ((sd = map_id2sd(id)) == NULL || (nd = map_id2nd((int)data)) == NULL)
+		return 0;
+
+	dir = map_calc_dir(&sd->bl, nd->bl.x, nd->bl.y);
+	unit_setdir(&sd->bl, dir);
+	npc_click(sd, nd);
+
+	return 1;
+}
+
+static int npc_walkto_click(struct map_session_data* sd, struct npc_data* nd) {
+	int i, c;
+	if (!unit_can_move(&sd->bl))
+		return 0;
+
+	if (distance_bl(&sd->bl, &nd->bl) > battle_config.walk_close_to_npc &&
+		unit_walktobl(&sd->bl, &nd->bl, battle_config.walk_close_to_npc, 0))
+	{
+		for (i = c = 0; i < sd->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
+			if (sd->ud.walkpath.path[i] & 1)
+				c += sd->battle_status.speed * MOVE_DIAGONAL_COST / MOVE_COST;
+			else
+				c += sd->battle_status.speed;
+		}
+		add_timer(max(gettick(), sd->ud.canmove_tick) + c + 100, npc_walkto_click_timer, sd->bl.id, (intptr_t)nd->bl.id);
+		return 0;
+	}
+	return 1;
+}
+
 /*==========================================
  * NPC 1st call when clicking on npc
  * Do specific action for NPC type (openshop, run scripts...)
@@ -1301,7 +1337,10 @@ int npc_click(struct map_session_data* sd, struct npc_data* nd)
 	//Hidden/Disabled npc.
 	if (nd->class_ < 0 || nd->sc.option&(OPTION_INVISIBLE|OPTION_HIDE))
 		return 1;
-	
+
+	if (battle_config.walk_close_to_npc && !npc_walkto_click(sd, nd))
+		return 1;
+
 	switch(nd->subtype) {
 		case NPCTYPE_SHOP:
 			clif_npcbuysell(sd,nd->bl.id);

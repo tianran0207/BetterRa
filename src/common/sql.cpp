@@ -185,18 +185,34 @@ int Sql_GetColumnNames(Sql* self, const char* table, char* out_buf, size_t buf_l
 /// Changes the encoding of the connection.
 int Sql_SetEncoding(Sql* self, const char* encoding)
 {
-	if (self && !stricmp(encoding, "auto") && SQL_SUCCESS == Sql_Query(self, "SHOW VARIABLES LIKE 'character_set_database'"))
+	if (self && !stricmp(encoding, "auto"))
 	{
-		char* data;
+		char *data, lang[32];
 		size_t len;
-		if (SQL_SUCCESS == Sql_NextRow(self) &&
-			SQL_SUCCESS == Sql_GetData(self, 1, &data, &len) &&
-			Sql_Query(self, "SET NAMES %s", data) == 0)
+		if (SQL_SUCCESS == Sql_Query(self, "SHOW VARIABLES LIKE 'character_set_database'") &&
+			SQL_SUCCESS == Sql_NextRow(self) &&
+			SQL_SUCCESS == Sql_GetData(self, 1, &data, &len))
 		{
+			safestrncpy(lang, data, sizeof(lang));
 			Sql_FreeResult(self);
-			return SQL_SUCCESS;
+#ifdef WIN32
+			if (!stricmp(lang, "utf8")) {
+				LANGID ID = GetSystemDefaultLangID();
+				switch (ID) {
+				case 0x0404:
+					safestrncpy(lang, "big5", sizeof(lang));
+					break;
+				case 0x0804:
+					safestrncpy(lang, "gbk", sizeof(lang));
+					break;
+				default:
+					return SQL_SUCCESS;
+				}
+			}
+#endif // WIN32
+			if (self && Sql_Query(self, "SET NAMES %s", lang) == 0)
+				return SQL_SUCCESS;
 		}
-		Sql_FreeResult(self);
 		return SQL_ERROR;
 	}
 	if( self && Sql_Query(self, "SET NAMES %s", encoding) == 0 )

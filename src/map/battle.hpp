@@ -194,6 +194,12 @@ struct Battle_Config
 	int always_npc_kill_event;
 	int always_mvp_kill_event;
 	int overlay_back_stack;
+	int walk_close_to_npc;
+	int pvp_weapon_damage_rate;
+	int pvp_magic_damage_rate;
+	int pvp_misc_damage_rate;
+	int pvp_short_damage_rate;
+	int pvp_long_damage_rate;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int show_item_vending;
