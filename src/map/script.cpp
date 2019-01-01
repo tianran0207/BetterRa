@@ -26834,63 +26834,121 @@ BUILDIN_FUNC(mobdrop)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+struct sortarray_s {
+	int val1;
+	int val2;
+};
+
 int buildin_sortarray_asc_sub(const void *a, const void *b){
-	return(*(int *)a - *(int *)b);
+	return((*(struct sortarray_s *)a).val1 - (*(struct sortarray_s *)b).val1);
 }
 
 int buildin_sortarray_desc_sub(const void *a, const void *b){
-	return(*(int *)b - *(int *)a);
+	return((*(struct sortarray_s *)b).val1 - (*(struct sortarray_s *)a).val1);
 }
 
 BUILDIN_FUNC(sortarray)
 {
-	DBIterator *iter;
-	struct script_data *data;
+	struct script_data *data, *sortdata, num;
 	const char* name;
-	int id, i, array_size, size;
+	int id, sortid = 0, i, array_size, type = 0;
 	unsigned int *list = NULL;
 	struct map_session_data* sd = NULL;
-	struct reg_db *ref = NULL;
+	struct reg_db *ref = NULL, *sortref = NULL;
 	data = script_getdata(st, 2);
+	sortdata = script_hasdata(st,3) && data_isreference(script_getdata(st, 3)) ? script_getdata(st, 3) : NULL;
 
-	if (!data_isreference(data) || !data_isint(data)){
+	if (!data_isreference(data) || script_isstring(st, 2)){
 		ShowError("buildin_sortarray: not a int variable\n");
 		script_reportdata(data);
 		st->state = END;
 		return SCRIPT_CMD_FAILURE;
 	}
+	if (sortdata){
+		if (data_isstring(sortdata)) {
+			ShowError("buildin_sortarray: not a int variable\n");
+			return SCRIPT_CMD_FAILURE;
+		}
+		if(!script_hasdata(st, 4)){
+			ShowError("buildin_sortarray: non-existent type\n");
+			return SCRIPT_CMD_FAILURE;
+		}
+		sortid = reference_getid(sortdata);
+		sortref = reference_getref(sortdata);
+		script_array_ensure_zero(st, sd, reference_uid(sortid, 0), sortref);
+		type = script_getnum(st, 4);
+	}else
+		type = script_hasdata(st, 3) ? script_getnum(st, 3) : 1;
 
 	name = reference_getname(data);
 	id = reference_getid(data);
 	ref = reference_getref(data);
+
+	num.ref = ref;
+	num.type = C_NAME;
+	num.u.num = reference_uid(id, 0);
+	get_val_(st, &num, sd);
+	if (num.u.num != 0)
+		script_array_ensure_zero(st, sd, reference_uid(id, 0), ref);
+	
 	if (not_server_variable(*name) && !script_rid2sd(sd))
 		return SCRIPT_CMD_FAILURE;
 
-	struct reg_db *src = script_array_src(st, sd, name, ref);
-	struct script_array *sa = static_cast<script_array *>(idb_get(src->arrays, search_str(name)));
-	if (!src || !sa || (array_size = db_size(src->vars)) == 0)
+	struct reg_db *src;
+	struct script_array *sa;
+
+	if (!(src = script_array_src(st, sd, name, ref)) || !src->arrays)
 		return SCRIPT_CMD_SUCCESS;
 
-	int* array_vars = (int*)aMalloc(array_size * sizeof(int));
-
-	iter = db_iterator(src->vars);
-	for (i = 0; i < array_size; i++)
-		array_vars[i] = db_data2i((iter)->next((iter), NULL));
-	dbi_destroy(iter);
-
+	if (!(sa = static_cast<script_array *>(idb_get(src->arrays, search_str(name)))))
+		return SCRIPT_CMD_SUCCESS;
+		
 	list = script_array_cpy_list(sa);
-	size = sa->size;
-	for (i = 0; i < size; i++)
-		set_reg(st, sd, reference_uid(id, list[i]), name, 0, ref);
+	array_size = sa->size;
 
-	if (script_hasdata(st,3) && script_getnum(st, 3))
-		qsort(array_vars, array_size, sizeof(int), buildin_sortarray_desc_sub);
+	struct sortarray_s *array_vars = (struct sortarray_s *)aMalloc(array_size * sizeof(struct sortarray_s));
+	for (i = 0; i < array_size; i++) {
+		if (sortdata) {
+			if (type & 4) {
+				num.ref = sortref;
+				num.type = C_NAME;
+				num.u.num = reference_uid(sortid, list[i]);
+				get_val_(st, &num, sd);
+				array_vars[i].val2 = (int)num.u.num;
+			}else if(type & 8){
+				array_vars[i].val2 = list[i];
+			}
+		}
+		num.ref = ref;
+		num.type = C_NAME;
+		num.u.num = reference_uid(id, list[i]);
+		get_val_(st, &num, sd);
+		array_vars[i].val1 = (int)num.u.num;
+		set_reg(st, sd, reference_uid(id, list[i]), name, 0, ref);
+	}
+	
+	if (type & 2)
+		qsort((void *)array_vars, array_size, sizeof(struct sortarray_s), buildin_sortarray_desc_sub);
 	else
-		qsort(array_vars, array_size, sizeof(int), buildin_sortarray_asc_sub);
+		qsort((void *)array_vars, array_size, sizeof(struct sortarray_s), buildin_sortarray_asc_sub);
 
 	for (i = 0; i < array_size; i++)
-		set_reg(st, sd, reference_uid(id, i), name, (void *)__64BPRTSIZE(array_vars[i]), ref);
-	
+		set_reg(st, sd, reference_uid(id, i), name, (void *)__64BPRTSIZE(array_vars[i].val1), ref);
+
+	if (sortdata) {
+		name = reference_getname(sortdata);
+		if ((src = script_array_src(st, sd, name, sortref)) && src->arrays &&
+			(sa = static_cast<script_array *>(idb_get(src->arrays, search_str(name)))))
+		{
+			list = script_array_cpy_list(sa);
+			int size = sa->size;
+			for (i = 0; i < size; i++)
+				set_reg(st, sd, reference_uid(sortid, i), name, (void *)0, sortref);
+		}
+		for (i = 0; i < array_size; i++)
+			set_reg(st, sd, reference_uid(sortid, i), name, (void *)__64BPRTSIZE(array_vars[i].val2), sortref);
+	}
+
 	aFree(array_vars);
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -27921,7 +27979,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getservantgid, "i?"),
 	BUILDIN_DEF(homattack, "i?"),
 	BUILDIN_DEF(mobdrop, "ii??"),
-	BUILDIN_DEF(sortarray, "r?"),
+	BUILDIN_DEF(sortarray, "r??"),
 	BUILDIN_DEF(bonus_ratefix, "ii?"),
 	BUILDIN_DEF(getdaytick, "v?????"),
 	BUILDIN_DEF(unitmasterid, "i"),

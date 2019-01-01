@@ -1180,18 +1180,59 @@ bonus_ratefix <类型>,<最大值>{,<角色ID>};
 
 ---------------------------------------
 
-*sortarray <数组>,<是否倒序>;
+*sortarray <数组>{,<标签>};
+*sortarray <参考数组>,<排序数组>,<标签>;
 
 对数组进行排序。
 
-例子：
-	setarray .@a[100],100,9,8,7,6,5,8897,4,32,1,123,455;
-	sortarray .@a, 1;
-	.@size = getarraysize(.@a);
-	for(.@i = 0; .@i < .@size; .@i++) {
-		.@msg$ = .@msg$ + .@a[.@i] + " ";
-	}
-	dispbottom .@msg$;
+<标签>(掩码选项)
+	&1 : 正序排列
+	&2 : 倒序排列
+	&4 : 根据<参考数组>的值对<排序数组>的值进行排序
+	&8 : 根据<参考数组>的值对<参考数组>的键进行排序, 此时<参考数组>正常进行排序, <排序数组>为对键重排的结果的存储数组
+
+说明：
+	键为中括号里面的数字值为变量中保存的数字，.@example[键] = 值;
+	排序键值不受限制
+	
+例1：
+	.@example[100005] = 1;
+	.@example[982254] = 2;
+	.@example[852742] = 3;
+	.@example[758787] = 4;
+	
+	sortarray(.@example, .@result, 1 | 8);  //根据.@example值的顺序对.@exampl的键进行正序排序
+	// .@example 为 1,2,3,4
+	// .@result 为 100005,982254,852742,758787
+	
+	sortarray(.@example, 2); //对值进行反序排序
+	// .@example 为 4,3,2,1
+例2：
+	setarray .@example[10],10,1,3,8,9,5,7,2,4,6,0;
+	
+	sortarray(.@example); //对值进行正序排序
+	// .@example 为 0,1,2,3,4,5,6,7,8,9,10
+	sortarray(.@example, 2); //对值进行反序排序
+	// .@example 为 10,9,8,7,6,5,4,3,2,1,0
+例3：
+	setarray .@example[0],5,1,4,2,3;
+	setarray .@result[0],10,20,30,40,50;
+	
+	sortarray(.@example, .@result, 2 | 4); //根据.@example值的顺序对.@result的值进行反序排序
+	// .@example 为 5,4,3,2,1 
+	// .@result 为 10,30,50,40,20
+	
+	sortarray(.@example, .@result, 1 | 4); //根据.@example值的顺序对.@result的值进行正序排序
+	// .@example 为 1,2,3,4,5
+	// .@result 为 20,40,50,30,10
+	
+例4：
+	setarray .@example[0],5,1,4,2,3;
+	setarray .@result[0],0,0,0,0,0;
+	
+	sortarray(.@example, .@result, 2 | 8); //根据.@example值的顺序对.@exampl的键进行反序排序
+	// .@example 为 5,4,3,2,1
+	// .@result 为 0,2,4,3,1
 
 ---------------------------------------
 

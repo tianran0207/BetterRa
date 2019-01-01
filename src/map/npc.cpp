@@ -1338,7 +1338,7 @@ int npc_click(struct map_session_data* sd, struct npc_data* nd)
 	if (nd->class_ < 0 || nd->sc.option&(OPTION_INVISIBLE|OPTION_HIDE))
 		return 1;
 
-	if (battle_config.walk_close_to_npc && !npc_walkto_click(sd, nd))
+	if (battle_config.walk_close_to_npc && !sd->areanpc_id && !npc_walkto_click(sd, nd))
 		return 1;
 
 	switch(nd->subtype) {
