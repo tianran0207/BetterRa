@@ -9588,7 +9588,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			if( !(tsc && tsc->data[type]) ){
 				i = sc_start2(src,bl,type,rate,skill_lv,src->id,(src == bl)?5000:(bl->type == BL_PC)?skill_get_time(skill_id,skill_lv):skill_get_time2(skill_id, skill_lv));
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,i);
-				if( !i )
+				if( sd && !i )
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
 			}
 		}else

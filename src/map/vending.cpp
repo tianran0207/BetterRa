@@ -273,7 +273,12 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 	/**
 	* Extended Vending system [Lilith]
 	**/
-	if (battle_config.extended_vending && vsd->vend_loot && vsd->vend_loot != battle_config.item_zeny) {
+	if (battle_config.extended_vending && itemdb_exists(vsd->vend_loot) == NULL) {
+		ShowError("vending_purchasereq: Invalid currency, itemid: %d", vsd->vend_loot);
+		return;
+	}
+
+	if (battle_config.extended_vending && vsd->vend_loot != battle_config.item_zeny) {
 		if (vsd->vend_loot == battle_config.item_cash) {
 			pc_paycash(sd, (int)z, 0, LOG_TYPE_VENDING);
 			pc_getcash(vsd, (int)z, 0, LOG_TYPE_VENDING);
@@ -452,6 +457,20 @@ int8 vending_openvending(struct map_session_data* sd, const char* message, const
 	if( i == 0 ) { // no valid item found
 		clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0); // custom reply packet
 		return 5;
+	}
+
+	if (battle_config.extended_vending && battle_config.show_item_vending) {
+		char vend_loot_str[MESSAGE_SIZE];
+		struct item_data* id = NULL;
+		if (sscanf(message, "[%100[^]]]", vend_loot_str) < 1 || (id = itemdb_searchname(vend_loot_str)) == NULL)
+			sd->vend_loot = battle_config.item_zeny;
+		else if (id){
+			ARR_FIND(0, ARRAYLENGTH(vending_itemid), j, vending_itemid[j] == id->nameid);
+			if (j < ARRAYLENGTH(vending_itemid) || battle_config.item_cash == id->nameid)
+				sd->vend_loot = id->nameid;
+			else
+				sd->vend_loot = battle_config.item_zeny;
+		}
 	}
 
 	sd->state.prevend = 0;
