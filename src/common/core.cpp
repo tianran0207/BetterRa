@@ -134,8 +134,8 @@ void signals_init (void) {
 	compat_signal(SIGTERM, sig_proc);
 	compat_signal(SIGINT, sig_proc);
 #ifndef _DEBUG // need unhandled exceptions to debug on Windows
-	compat_signal(SIGSEGV, sig_proc);
-	compat_signal(SIGFPE, sig_proc);
+	//compat_signal(SIGSEGV, sig_proc);
+	//compat_signal(SIGFPE, sig_proc);
 #endif
 #ifndef _WIN32
 	compat_signal(SIGILL, SIG_DFL);
@@ -379,6 +379,9 @@ LONG WINAPI ExceptionFilter(LPEXCEPTION_POINTERS lpExceptionInfo)
 {
 	if (IsDebuggerPresent())
 		return EXCEPTION_CONTINUE_SEARCH;
+	#ifndef MINICORE
+		do_abort();
+	#endif
 	return GenerateMiniDump(NULL, lpExceptionInfo, NULL);
 }
 #endif
