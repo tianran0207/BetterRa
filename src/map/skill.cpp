@@ -18958,7 +18958,7 @@ TIMER_FUNC(skill_unit_timer){
 	return 0;
 }
 
-static int skill_unit_temp[20];  // temporary storage for tracking skill unit skill ids as players move in/out of them
+static int skill_unit_temp[C_MAX_SKILLUNITTEMP];  // temporary storage for tracking skill unit skill ids as players move in/out of them
 /*==========================================
  * flag :
  *	1 : store that skill_unit in array
@@ -19007,14 +19007,14 @@ int skill_unit_move_sub(struct block_list* bl, va_list ap)
 		if( group->src_id == target->id && group->state.song_dance&0x2 ) { //Ensemble check to see if they went out/in of the area [Skotlex]
 			if( flag&1 ) {
 				if( flag&2 ) { //Clear this skill id.
-					ARR_FIND( 0, ARRAYLENGTH(skill_unit_temp), i, skill_unit_temp[i] == skill_id );
-					if( i < ARRAYLENGTH(skill_unit_temp) )
+					ARR_FIND( 0, C_MAX_SKILLUNITTEMP, i, skill_unit_temp[i] == skill_id );
+					if( i < C_MAX_SKILLUNITTEMP)
 						skill_unit_temp[i] = 0;
 				}
 			} else {
 				if( flag&2 ) { //Store this skill id.
-					ARR_FIND( 0, ARRAYLENGTH(skill_unit_temp), i, skill_unit_temp[i] == 0 );
-					if( i < ARRAYLENGTH(skill_unit_temp) )
+					ARR_FIND( 0, C_MAX_SKILLUNITTEMP, i, skill_unit_temp[i] == 0 );
+					if( i < C_MAX_SKILLUNITTEMP)
 						skill_unit_temp[i] = skill_id;
 					else
 						ShowError("skill_unit_move_sub: Reached limit of unit objects per cell! (skill_id: %hu)\n", skill_id );
@@ -19034,16 +19034,16 @@ int skill_unit_move_sub(struct block_list* bl, va_list ap)
 			int result = skill_unit_onplace(unit,target,tick);
 
 			if( flag&2 && result ) { //Clear skill ids we have stored in onout.
-				ARR_FIND( 0, ARRAYLENGTH(skill_unit_temp), i, skill_unit_temp[i] == result );
-				if( i < ARRAYLENGTH(skill_unit_temp) )
+				ARR_FIND( 0, C_MAX_SKILLUNITTEMP, i, skill_unit_temp[i] == result );
+				if( i < C_MAX_SKILLUNITTEMP)
 					skill_unit_temp[i] = 0;
 			}
 		} else {
 			int result = skill_unit_onout(unit,target,tick);
 
 			if( flag&2 && result ) { //Store this unit id.
-				ARR_FIND( 0, ARRAYLENGTH(skill_unit_temp), i, skill_unit_temp[i] == 0 );
-				if( i < ARRAYLENGTH(skill_unit_temp) )
+				ARR_FIND( 0, C_MAX_SKILLUNITTEMP, i, skill_unit_temp[i] == 0 );
+				if( i < C_MAX_SKILLUNITTEMP)
 					skill_unit_temp[i] = skill_id;
 				else
 					ShowError("skill_unit_move_sub: Reached limit of unit objects per cell! (skill_id: %hu)\n", skill_id );
