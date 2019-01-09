@@ -13616,11 +13616,15 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd){
 	if( message[0] == '\0' ) // invalid input
 		return;
 
-	if (battle_config.extended_vending && battle_config.show_item_vending && sd->vend_loot) {
-		char out_msg[1024];
-		sprintf(out_msg, "[%s]%s", itemdb_jname(sd->vend_loot), message);
-		vending_openvending(sd, out_msg, data, len / 8, NULL);
-		return;
+	if (battle_config.extended_vending) {
+		if (!itemdb_exists(sd->vend_loot))
+			return;
+		if (battle_config.show_item_vending) {
+			char out_msg[1024];
+			sprintf(out_msg, "[%s]%s", itemdb_jname(sd->vend_loot), message);
+			vending_openvending(sd, out_msg, data, len / 8, NULL);
+			return;
+		}
 	}
 	vending_openvending(sd, message, data, len/8, NULL);
 }
@@ -13639,20 +13643,22 @@ int clif_vend(struct map_session_data *sd, int skill_lv) {
 	fd = sd->fd;
 	WFIFOHEAD(fd, 8 * 8 + 8);
 	WFIFOW(fd, 0) = 0x1ad;
-	if (battle_config.item_zeny) {
+	if (battle_config.item_zeny && itemdb_exists(battle_config.item_zeny)) {
 		WFIFOW(fd, d * 2 + 4) = battle_config.item_zeny;
 		d++;
 	}
-	if (battle_config.item_cash) {
+	if (battle_config.item_cash && itemdb_exists(battle_config.item_cash)) {
 		WFIFOW(fd, d * 2 + 4) = battle_config.item_cash;
 		d++;
 	}
 	for (c = d, i = 0; i < ARRAYLENGTH(vending_itemid); i++) {
-		if ((item = itemdb_exists(vending_itemid[i])) != NULL &&
-			item->nameid != battle_config.item_zeny && item->nameid != battle_config.item_cash) {
-			WFIFOW(fd, c * 2 + 4) = item->nameid;
-			c++;
-		}
+		if (vending_itemid[i] == 0 || (item = itemdb_exists(vending_itemid[i])) == NULL)
+			continue;
+		if (item->nameid == battle_config.item_zeny && item->nameid == battle_config.item_cash)
+			continue;
+		
+		WFIFOW(fd, c * 2 + 4) = item->nameid;
+		c++;
 	}
 	if (c > 0) {
 		sd->menuskill_id = MC_VENDING;

@@ -7647,35 +7647,23 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
 			else if (battle_config.extended_vending) {
 				struct item_data *item;
-				char output[1024];
 				int c = 0, i, d = 0;
 				sd->vend_lvl = skill_lv;
-				if (battle_config.item_zeny)
-					d++;
-				if (battle_config.item_cash)
-					d++;
-				for (c = d, i = 0; i < ARRAYLENGTH(vending_itemid); i++) {
-					if ((item = itemdb_exists(vending_itemid[i])) != NULL &&
-						item->nameid != battle_config.item_zeny && item->nameid != battle_config.item_cash)
-						c++;
+				for (i = 0; i < ARRAYLENGTH(vending_itemid); i++) {
+					if (vending_itemid[i] == 0 || (item = itemdb_exists(vending_itemid[i])) == NULL)
+						continue;
+					if (item->nameid == battle_config.item_zeny && item->nameid == battle_config.item_cash)
+						continue;
+					c++;
 				}
-
+				if (battle_config.item_zeny && itemdb_exists(battle_config.item_zeny))
+					c++;
+				if (battle_config.item_cash && itemdb_exists(battle_config.item_cash))
+					c++;
 				if (c > 1)
 					clif_vend(sd, sd->vend_lvl);
-				else {
-					sd->state.prevend = 1;
-					if (c) {
-						item = itemdb_exists(battle_config.item_zeny ? battle_config.item_zeny : battle_config.item_cash ? battle_config.item_cash : vending_itemid[0]);
-						sd->vend_loot = item->nameid;
-						sprintf(output, msg_txt(sd, 2356), itemdb_jname(sd->vend_loot));
-						clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
-						clif_openvendingreq(sd, 2 + sd->vend_lvl);
-					}
-					else {
-						sd->vend_loot = 0;
-						clif_openvendingreq(sd, 2 + sd->vend_lvl);
-					}
-				}
+				else
+					clif_skill_fail(sd, skill_id, USESKILL_FAIL_LEVEL, 0);
 			}else{
 				sd->state.prevend = 1;
 				sd->state.workinprogress = WIP_DISABLE_ALL;
@@ -20040,10 +20028,10 @@ int skill_vending(struct map_session_data *sd, int nameid) {
 	if (nameid > MAX_ITEMID)
 		return 0;
 
-	sd->vend_loot = nameid;
-	
 	if (!(item = itemdb_exists(nameid)))
 		return 0;
+
+	sd->vend_loot = nameid;
 
 	sprintf(output, msg_txt(sd, 2354), item->jname);
 	clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);

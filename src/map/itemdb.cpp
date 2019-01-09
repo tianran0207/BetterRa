@@ -31,7 +31,7 @@ struct item_data *dummy_item; /// This is the default dummy item used for non-ex
 
 struct s_roulette_db rd;
 
-int vending_itemid[MAX_INVENTORY];
+int vending_itemid[50];
 
 /**
 * Check if combo exists
@@ -594,15 +594,18 @@ static bool itemdb_read_vending(char* fields[], int columns, int current)
 
 	nameid = atoi(fields[0]);
 
-	if ((id = itemdb_exists(nameid)) == NULL)
-	{
+	if ((id = itemdb_exists(nameid)) == NULL) {
 		ShowWarning("itemdb_read_vending: Invalid item id %d.\n", nameid);
 		return false;
 	}
 
-	if (id->type == IT_ARMOR || id->type == IT_WEAPON)
-	{
+	if (id->type == IT_ARMOR || id->type == IT_WEAPON) {
 		ShowWarning("itemdb_read_vending: item id %d cannot be equipment or weapon.\n", nameid);
+		return false;
+	}
+
+	if (ARRAYLENGTH(vending_itemid) <= current) {
+		ShowWarning("itemdb_read_vending: Max vending currency is %d.\n", ARRAYLENGTH(vending_itemid));
 		return false;
 	}
 
