@@ -728,7 +728,14 @@ enum e_random_item_group {
 	IG_PRIVATE_AIRSHIP,
 };
 
-extern int vending_itemid[50];
+#define MAX_VENDINGITEM 50
+struct item_vending
+{
+	unsigned short id;
+	int tax;
+	int tax_min;
+};
+extern struct item_vending vending_itemid[MAX_VENDINGITEM];
 
 /// Enum for bound/sell restricted selling
 enum e_itemshop_restrictions {

@@ -93,8 +93,8 @@ bool vending_extended_vending_check(struct map_session_data *sd) {
 		else if (battle_config.item_cash == id->nameid || battle_config.item_zeny == id->nameid)
 			sd->vend_loot = id->nameid;
 		else{
-			ARR_FIND(0, ARRAYLENGTH(vending_itemid), j, vending_itemid[j] == id->nameid);
-			if (j < ARRAYLENGTH(vending_itemid))
+			ARR_FIND(0, MAX_VENDINGITEM, j, vending_itemid[j].id == id->nameid);
+			if (j < MAX_VENDINGITEM)
 				sd->vend_loot = id->nameid;
 			else {
 				vending_closevending(sd);
@@ -163,6 +163,28 @@ static double vending_calc_tax(struct map_session_data *sd, double zeny)
 	return zeny;
 }
 
+static double vending_calc_cash_tax(struct map_session_data *sd, double zeny)
+{
+	if (battle_config.vending_cash_tax && zeny >= battle_config.vending_cash_tax_min)
+		zeny -= zeny * (battle_config.vending_cash_tax / 10000.);
+
+	return zeny;
+}
+
+static double vending_calc_item_tax(struct map_session_data *sd, unsigned short nameid, double zeny)
+{
+	int i;
+	for (i = 0; i < MAX_VENDINGITEM; i++) {
+		if (vending_itemid[i].id == 0)
+			break;
+		if (vending_itemid[i].id != nameid)
+			continue;
+		if (vending_itemid[i].tax && zeny >= vending_itemid[i].tax_min)
+			zeny -= zeny * (vending_itemid[i].tax / 10000.);
+		break;
+	}
+	return zeny;
+}
 /**
  * Purchase item(s) from a shop
  * @param sd : buyer player session
@@ -318,11 +340,10 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		if (vsd->vend_loot == battle_config.item_zeny) {
 			pc_payzeny(sd, (int)z, LOG_TYPE_VENDING, vsd);
 			achievement_update_objective(sd, AG_SPEND_ZENY, 1, (int)z);
-			z = vending_calc_tax(sd, z);
-			pc_getzeny(vsd, (int)z, LOG_TYPE_VENDING, sd);
+			pc_getzeny(vsd, (int)vending_calc_tax(sd, z), LOG_TYPE_VENDING, sd);
 		} else if (vsd->vend_loot == battle_config.item_cash) {
 			pc_paycash(sd, (int)z, 0, LOG_TYPE_VENDING);
-			pc_getcash(vsd, (int)z, 0, LOG_TYPE_VENDING);
+			pc_getcash(vsd, (int)vending_calc_cash_tax(sd, z), 0, LOG_TYPE_VENDING);
 		} else {
 			for (i = 0; i < MAX_INVENTORY; i++) {
 				if (sd->inventory.u.items_inventory[i].nameid != vsd->vend_loot)
@@ -330,7 +351,7 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 				if (sd->inventory.u.items_inventory[i].amount < z)
 					continue;
 				struct item *item = &sd->inventory.u.items_inventory[i];
-				pc_additem(vsd, item, (int)z, LOG_TYPE_VENDING);
+				pc_additem(vsd, item, (int)vending_calc_item_tax(sd, vsd->vend_loot, z), LOG_TYPE_VENDING);
 				pc_delitem(sd, i, (int)z, 0, 6, LOG_TYPE_VENDING);
 			}
 		}

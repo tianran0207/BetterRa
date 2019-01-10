@@ -313,8 +313,8 @@ struct map_session_data {
 	/**
 	 * Extended Vending system [Lilith]
 	**/
-	int vend_loot;
-	int vend_lvl;
+	unsigned short vend_loot;
+	unsigned short vend_lvl;
 	//NOTE: When deciding to add a flag to state or special_state, take into consideration that state is preserved in
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct s_state {

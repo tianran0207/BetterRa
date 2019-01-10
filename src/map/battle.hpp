@@ -200,12 +200,15 @@ struct Battle_Config
 	int pvp_misc_damage_rate;
 	int pvp_short_damage_rate;
 	int pvp_long_damage_rate;
+	int same_mapwarp_castcancel;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int show_item_vending;
 	int ex_vending_info;
 	int item_zeny;
 	int item_cash;
+	int vending_cash_tax;
+	int vending_cash_tax_min;
 	//--------------------------------------
 	int warp_point_debug;
 	int enable_critical;

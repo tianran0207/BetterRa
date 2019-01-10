@@ -13652,8 +13652,8 @@ int clif_vend(struct map_session_data *sd, int skill_lv) {
 		WFIFOW(fd, d * 2 + 4) = battle_config.item_cash;
 		d++;
 	}
-	for (c = d, i = 0; i < ARRAYLENGTH(vending_itemid); i++) {
-		if (vending_itemid[i] == 0 || (item = itemdb_exists(vending_itemid[i])) == NULL)
+	for (c = d, i = 0; i < MAX_VENDINGITEM; i++) {
+		if (vending_itemid[i].id == 0 || (item = itemdb_exists(vending_itemid[i].id)) == NULL)
 			continue;
 		if (item->nameid == battle_config.item_zeny && item->nameid == battle_config.item_cash)
 			continue;

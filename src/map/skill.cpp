@@ -7645,8 +7645,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				struct item_data *item;
 				int c = 0, i, d = 0;
 				sd->vend_lvl = skill_lv;
-				for (i = 0; i < ARRAYLENGTH(vending_itemid); i++) {
-					if (vending_itemid[i] == 0 || (item = itemdb_exists(vending_itemid[i])) == NULL)
+				for (i = 0; i < MAX_VENDINGITEM; i++) {
+					if (vending_itemid[i].id == 0 || (item = itemdb_exists(vending_itemid[i].id)) == NULL)
 						continue;
 					if (item->nameid == battle_config.item_zeny && item->nameid == battle_config.item_cash)
 						continue;

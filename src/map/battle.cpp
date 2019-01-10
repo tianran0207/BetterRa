@@ -8187,12 +8187,15 @@ static const struct _battle_data {
 	{ "pvp_misc_attack_damage_rate",        &battle_config.pvp_misc_damage_rate,            100,    0,      INT_MAX,        },
 	{ "pvp_short_attack_damage_rate",       &battle_config.pvp_short_damage_rate,           100,    0,      INT_MAX,        },
 	{ "pvp_long_attack_damage_rate",        &battle_config.pvp_long_damage_rate,            100,    0,      INT_MAX,        },
+	{ "same_mapwarp_castcancel",            &battle_config.same_mapwarp_castcancel,         0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]---------------------------------------------		 
 	{ "extended_vending",					&battle_config.extended_vending,				1,		0,		1,				},
 	{ "show_item_vending",					&battle_config.show_item_vending,				1,		0,		1,				},
 	{ "ex_vending_info",					&battle_config.ex_vending_info,					1,		0,		1,				},
 	{ "item_zeny",							&battle_config.item_zeny,						0,		0,		MAX_ITEMID,		},
 	{ "item_cash",							&battle_config.item_cash,						0,		0,		MAX_ITEMID,		},
+	{ "vending_cash_tax",					&battle_config.vending_cash_tax,				0,		0,		10000,			},
+	{ "vending_cash_tax_min",				&battle_config.vending_cash_tax_min,			50,		0,		INT_MAX,		},
 	//------------------------------------------------------------------------------------------------------------------------
 
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },

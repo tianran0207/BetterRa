@@ -3176,6 +3176,11 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 	if (ud->walktimer != INVALID_TIMER)
 		unit_stop_walking(bl,0);
 
+	if (battle_config.same_mapwarp_castcancel && bl->type == BL_PC) {
+		struct map_session_data *sd = (struct map_session_data*)bl;
+		if (sd->state.changemap && ud->skilltimer != INVALID_TIMER)
+			unit_skillcastcancel(bl, 0);
+	}else
 	if (ud->skilltimer != INVALID_TIMER)
 		unit_skillcastcancel(bl,0);
 
