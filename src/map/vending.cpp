@@ -342,18 +342,16 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		pc_getzeny(vsd, (int)z, LOG_TYPE_VENDING, sd);
 	}
 
-
 	for( i = 0; i < count; i++ ) {
 		short amount = *(uint16*)(data + 4*i + 0);
 		short idx    = *(uint16*)(data + 4*i + 2);
 		idx -= 2;
 		z = 0.; // zeny counter
-		int itemid = vsd->cart.u.items_cart[idx].nameid;
-
+		
 		// vending item
 		pc_additem(sd, &vsd->cart.u.items_cart[idx], amount, LOG_TYPE_VENDING);
 		vsd->vending[vend_list[i]].amount -= amount;
-		z += ((double)vsd->vending[i].value * (double)amount);
+		z += ((double)vsd->vending[vend_list[i]].value * (double)amount);
 
 		if( vsd->vending[vend_list[i]].amount ) {
 			if( Sql_Query( mmysql_handle, "UPDATE `%s` SET `amount` = %d WHERE `vending_id` = %d and `cartinventory_id` = %d", vending_items_table, vsd->vending[vend_list[i]].amount, vsd->vender_id, vsd->cart.u.items_cart[idx].id ) != SQL_SUCCESS ) {
@@ -369,21 +367,6 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		z = vending_calc_tax(sd, z);
 		clif_vendingreport(vsd, idx, amount, sd->status.char_id, (int)z);
 
-		if (battle_config.extended_vending && battle_config.ex_vending_info && vending_extended_vending_check(vsd)) {
-			char output[256];
-			if (vsd->vend_loot == battle_config.item_zeny)
-				sprintf(output, msg_txt(sd, 2359), (int)z, itemdb_jname(vsd->vend_loot), sd->status.zeny);
-			else if (vsd->vend_loot == battle_config.item_cash)
-				sprintf(output, msg_txt(sd, 2359), (int)z, itemdb_jname(vsd->vend_loot), sd->cashPoints);
-			else {
-				int idx = pc_search_inventory(sd, vsd->vend_loot);
-				sprintf(output, msg_txt(sd, 2359), (int)z, itemdb_jname(vsd->vend_loot), idx == -1 ? 0 : sd->inventory.u.items_inventory[idx].amount);
-			}
-			clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
-
-			sprintf(output, msg_txt(vsd, 2357), sd->status.name, itemdb_jname(itemid), amount, vsd->vending[vend_list[i]].value * amount, vsd->vend_loot ? itemdb_jname(vsd->vend_loot) : "Zeny");
-			clif_broadcast_color(&vsd->bl, output, "0x00FFFF", SELF);
-		}else
 		//print buyer's name
 		if (battle_config.buyer_name) {
 			char temp[256];
@@ -391,6 +374,22 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 			clif_messagecolor(&vsd->bl, color_table[COLOR_LIGHT_GREEN], temp, false, SELF);
 		}
 		
+	}
+
+	if (battle_config.extended_vending && battle_config.ex_vending_info && vending_extended_vending_check(vsd)) {
+		char output[256];
+		int idx;
+		z = 0;
+		for (i = 0; i < count; i++)
+			z += ((double)vsd->vending[vend_list[i]].value * (double)(*(uint16*)(data + 4 * i + 0)));
+
+		sprintf(output, msg_txt(sd, 2359), (int)z, itemdb_jname(vsd->vend_loot),
+			vsd->vend_loot == battle_config.item_zeny ? sd->status.zeny :
+			vsd->vend_loot == battle_config.item_cash ? sd->cashPoints :
+			(idx = pc_search_inventory(sd, vsd->vend_loot)) == -1 ? 0 :
+			idx > -1 && idx < MAX_INVENTORY ? sd->inventory.u.items_inventory[idx].amount : 0);
+
+		clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
 	}
 
 	// compact the vending list
