@@ -4,10 +4,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 12.0.40629.0
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "login-server", "src\login\login-server.vcxproj", "{864805EA-FD39-453D-9248-C581951BA058}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559} = {F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "char-server", "src\char\char-server.vcxproj", "{FED3A941-0AF7-49FE-85CF-E1DFDC0EBB23}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559} = {F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "map-server", "src\map\map-server.vcxproj", "{B4114A9C-EEA4-433C-A830-56119A984F24}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559} = {F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "src\common\common.vcxproj", "{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +52,14 @@ Global
 		{B4114A9C-EEA4-433C-A830-56119A984F24}.Release|Win32.Build.0 = Release|Win32
 		{B4114A9C-EEA4-433C-A830-56119A984F24}.Release|x64.ActiveCfg = Release|x64
 		{B4114A9C-EEA4-433C-A830-56119A984F24}.Release|x64.Build.0 = Release|x64
+		{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}.Debug|Win32.Build.0 = Debug|Win32
+		{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}.Debug|x64.ActiveCfg = Debug|x64
+		{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}.Debug|x64.Build.0 = Debug|x64
+		{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}.Release|Win32.ActiveCfg = Release|Win32
+		{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}.Release|Win32.Build.0 = Release|Win32
+		{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}.Release|x64.ActiveCfg = Release|x64
+		{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
