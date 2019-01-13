@@ -545,6 +545,7 @@
 	export_constant2("bIgnoreMdefClassVal", SP_IGNORE_MDEF_CLASS_VAL);
 	export_constant2("bIgnoreDefRaceVal", SP_IGNORE_DEF_RACE_VAL);
 	export_constant2("bIgnoreDefClassVal", SP_IGNORE_DEF_CLASS_VAL);
+	export_constant2("bIgnoreWhiteImprison", SP_IGNORE_IMPRISON);
 
 	export_constant(MF_TRIBE);
 	export_constant(MF_HIDEGUILDINFO);

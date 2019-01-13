@@ -586,6 +586,25 @@ OnPCInChatroomFilter:
 	end;
 }
 
+prontera,122,125,4	script	根据玩家隐藏NPC	123,{
+	mes "[根据玩家隐藏NPC]";
+	mes "是否要针对某个玩家隐藏?";
+	mes "我可以使某个玩家看不到我";
+	mes "请输入玩家的玩家名";
+	next;
+	input .input$;
+	mes "[根据玩家隐藏NPC演示]";
+	mes "如果已经在视野范围内, 请离开后重新进入范围测试, BetterRa支持 unithide 针对该玩家临时隐藏NPC";
+	close;
+OnInit:
+	waitingroom "根据玩家隐藏NPC",1;
+	end;
+	
+OnDisplay:
+	if(.input$ == rid2name(getcharid(3)))
+		processhalt;
+}
+
 -	script	PC_CHANGE_TITLE	-1,{
 end;
 OnPCChangeTitleFilter:

@@ -4946,7 +4946,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 	case RG_BACKSTAP:
 		{
 			uint8 dir = map_calc_dir(src, bl->x, bl->y), t_dir = unit_getdir(bl);
-			if ((!check_distance_bl(src, bl, 0) && !map_check_dir(dir, t_dir)) || bl->type == BL_SKILL) {
+			if (check_distance_bl(src, bl, 0) || !map_check_dir(dir, t_dir) || bl->type == BL_SKILL) {
 				status_change_end(src, SC_HIDING, INVALID_TIMER);
 				skill_attack(BF_WEAPON, src, src, bl, skill_id, skill_lv, tick, flag);
 				dir = dir < 4 ? dir+4 : dir-4; // change direction [Celest]
@@ -9558,6 +9558,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		break;
 
 	case WL_WHITEIMPRISON:
+		if (dstsd && dstsd->c_bonus.ignore_imprison) {
+			if (sd)
+				clif_skill_fail(sd, skill_id, USESKILL_FAIL_TOTARGET, 0);
+		}else
 		if( (src == bl || battle_check_target(src, bl, BCT_ENEMY)>0) && status_get_class_(bl) != CLASS_BOSS && !status_isimmune(bl) ) // Should not work with Bosses.
 		{
 			int rate = ( sd? sd->status.job_level : 50 ) / 4;
@@ -11189,6 +11193,8 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 			break;
 		case RG_BACKSTAP:
 			{
+				if (battle_config.backstap_overlap && check_distance_bl(src, target, 0))
+					break;
 				uint8 dir = map_calc_dir(src,target->x,target->y),t_dir = unit_getdir(target);
 				if (check_distance_bl(src, target, 0) || map_check_dir(dir,t_dir))
 					return USESKILL_FAIL_MAX;

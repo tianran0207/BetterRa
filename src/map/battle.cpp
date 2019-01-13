@@ -7042,6 +7042,12 @@ int64 battle_calc_return_damage(struct block_list* bl, struct block_list *src, i
 		rdamage = damage * sc->data[SC_MAXPAIN]->val1 * 10 / 100;
 	}
 
+	if (sc && sc->data[SC_EXEEDBREAK] && rdamage) {
+		if (!is_infinite_defense(src, flag))
+			rdamage *= sc->data[SC_EXEEDBREAK]->val2 / 100;
+		status_change_end(bl, SC_EXEEDBREAK, INVALID_TIMER);
+	}
+
 	return cap_value(min(rdamage,max_damage),INT_MIN,INT_MAX);
 }
 
@@ -7414,6 +7420,9 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		vanish_damage = battle_vanish(sd, target, &wd);
 
 	if( sc && sc->count ) {
+		if (sc->data[SC_INSPIRATION] && battle_config.jro_formulas) {
+			skill_counter_additional_effect(target, src, 0, 0, BF_WEAPON|BF_SHORT|BF_NORMAL, tick);
+		}
 		if (sc->data[SC_EXEEDBREAK]) {
 			if (!is_infinite_defense(target, wd.flag) && !vanish_damage)
 				wd.damage *= sc->data[SC_EXEEDBREAK]->val2 / 100;
@@ -8188,6 +8197,7 @@ static const struct _battle_data {
 	{ "pvp_short_attack_damage_rate",       &battle_config.pvp_short_damage_rate,           100,    0,      INT_MAX,        },
 	{ "pvp_long_attack_damage_rate",        &battle_config.pvp_long_damage_rate,            100,    0,      INT_MAX,        },
 	{ "same_mapwarp_castcancel",            &battle_config.same_mapwarp_castcancel,         0,      0,      1,              },
+	{ "backstap_overlap",                   &battle_config.backstap_overlap,                0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]---------------------------------------------		 
 	{ "extended_vending",					&battle_config.extended_vending,				1,		0,		1,				},
 	{ "show_item_vending",					&battle_config.show_item_vending,				1,		0,		1,				},

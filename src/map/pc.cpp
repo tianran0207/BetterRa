@@ -2585,6 +2585,10 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 	status = &sd->base_status;
 
 	switch(type){
+		case SP_IGNORE_IMPRISON:  // bonus bIgnoreWhiteImprison,n;
+			if (sd->state.lr_flag != 2)
+				sd->c_bonus.ignore_imprison = 1;
+			break;
 		case SP_COOLDOWNRATE:  // bonus bCooldownrate,n;
 			if (sd->state.lr_flag != 2)
 				sd->c_bonus.cooldownrate += val;

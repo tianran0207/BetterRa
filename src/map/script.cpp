@@ -27093,6 +27093,21 @@ BUILDIN_FUNC(charid2rid)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(unithide)
+{
+	struct map_session_data *sd;
+	struct block_list *bl;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	clif_clearunit_single(bl->id, CLR_TELEPORT, sd->fd);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -27951,6 +27966,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mobskill, "iviiii??"),
 	BUILDIN_DEF(getmobdmglog, "iir?"),
 	BUILDIN_DEF(charid2rid, "i"),
+	BUILDIN_DEF(unithide, "ii"),
 
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL
