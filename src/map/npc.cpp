@@ -925,6 +925,29 @@ int npc_event_atonce(struct map_session_data* sd, const char* eventname)
 	return 0;
 }
 
+bool npc_ondisplay_event(struct map_session_data *sd, struct npc_data *nd)
+{
+	char name[EVENT_NAME_LENGTH];
+	struct event_data* ev;
+	sprintf(name, "%s::OnDisplay", nd->name);
+	ev = (struct event_data*)strdb_get(ev_db, name);
+
+	if(!sd) {
+		int i;
+		for (i = 0; i < nd->u.scr.label_list_num; i++) {
+			if (!strcmp(nd->u.scr.label_list[i].name, "OnDisplay"))
+				return false;
+		}
+	}else if(ev) {
+		sd->state.processhalt = 0;
+		npc_event_sub(sd, ev, name);
+		if (sd->state.processhalt)
+			return false;
+	}
+
+	return true;
+}
+
 /*==========================================
  * Sub chk then execute area event type
  *------------------------------------------*/

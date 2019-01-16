@@ -36,3 +36,6 @@ bonus2 bIgnoreMdefRaceVal,r,n;          无视 r 种族 n 点魔法防御力
 bonus2 bIgnoreMdefClassVal,c,n;         无视 c 类别魔物 n 点魔法防御力
 bonus2 bIgnoreDefRaceVal,r,n;           无视 r 种族 n 点魔法防御力
 bonus2 bIgnoreDefClassVal,c,n;          无视 c 类别魔物 n 点魔法防御力
+
+bonus bIgnoreWhiteImprison,n;           无视白色监狱, n无意义
+

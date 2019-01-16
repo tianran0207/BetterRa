@@ -74,6 +74,7 @@ BetterRa 在官方的基础上做了以下改进:
 参数说明:
 	killerrid 			此参数已于 v1.4.5 版本被废弃
 	killedrid 			为被杀死的MVP魔物的魔物编号(MobID)
+	@mob_dead_m			魔物死亡时地图ID
 	@mob_dead_x			魔物死亡时的X坐标
 	@mob_dead_y			魔物死亡时的Y坐标
 	@mob_lasthit_rid	给予MVP魔物最后一击的玩家RID(账号编号)

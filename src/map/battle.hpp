@@ -201,6 +201,7 @@ struct Battle_Config
 	int pvp_short_damage_rate;
 	int pvp_long_damage_rate;
 	int same_mapwarp_castcancel;
+	int backstap_overlap;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int show_item_vending;

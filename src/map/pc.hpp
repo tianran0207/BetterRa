@@ -599,6 +599,7 @@ struct map_session_data {
 			int d_idx;
 			int d_delay;
 		}skill_tree;
+		int ignore_imprison;
 		int max_aspd;
 		int cooldownrate;
 		int ignore_mdef_by_race[RC_MAX];

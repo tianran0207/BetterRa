@@ -1002,7 +1002,7 @@ int mob_linksearch(struct block_list *bl,va_list ap)
 	md=(struct mob_data *)bl;
 	mob_id = va_arg(ap, int);
 	target = va_arg(ap, struct block_list *);
-	tick=va_arg(ap, unsigned int);
+	tick=va_arg(ap, t_tick);
 
 	if (md->mob_id == mob_id && DIFF_TICK(md->last_linktime, tick) < MIN_MOBLINKTIME
 		&& !md->target_id)
@@ -3052,6 +3052,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 #ifdef EVENT_KILLMVP
 		if (mvp_sd && !md->state.npc_killmonster && status_has_mode(&md->status, MD_MVP) && (battle_config.always_mvp_kill_event || !md->npc_event[0]) && event_exist(NPCE_KILLMVP)) {
 			pc_setregstr(mvp_sd, add_str("@mob_event$"), md->npc_event);
+			pc_setreg(mvp_sd, add_str("@mob_dead_m"), md->bl.m);
 			pc_setreg(mvp_sd, add_str("@mob_dead_x"), md->bl.x);
 			pc_setreg(mvp_sd, add_str("@mob_dead_y"), md->bl.y);
 			pc_setreg(mvp_sd, add_str("@mob_lasthit_rid"), sd ? sd->status.account_id : 0);

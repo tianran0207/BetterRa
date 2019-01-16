@@ -2585,6 +2585,10 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 	status = &sd->base_status;
 
 	switch(type){
+		case SP_IGNORE_IMPRISON:  // bonus bIgnoreWhiteImprison,n;
+			if (sd->state.lr_flag != 2)
+				sd->c_bonus.ignore_imprison = 1;
+			break;
 		case SP_COOLDOWNRATE:  // bonus bCooldownrate,n;
 			if (sd->state.lr_flag != 2)
 				sd->c_bonus.cooldownrate += val;
@@ -3789,7 +3793,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->skillcastrate, type2, -val); // Send inversed value here
+		pc_bonus_itembonus(sd->skillfixcastrate, type2, -val); // Send inversed value here
 		break;
 #else
 	case SP_SKILL_FIXEDCAST: // bonus2 bSkillFixedCast,sk,t;
