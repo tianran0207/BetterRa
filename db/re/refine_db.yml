@@ -1,25 +1,24 @@
-# This file is a part of rAthena++.
-#   Copyright(C) 2017 rAthena Development Team
-#   https://rathena.org - https://github.com/rathena
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
 ###########################################################################
 # Renewal Refine Database
 ###########################################################################
+# StatsPerLevel 精炼每增加一级固定增加多少bonus奖励
+# RandomBonusStartLevel 当精炼等级大于该参数时，每大于一级增加 0~RandomBonusValue 倍固定伤害
+# RandomBonusValue 精炼增加的固定伤害值
+# Costs 消耗
+#    - Type 精炼类型
+#    - Price 相应精炼类型，每次精炼消耗的Zeny数量
+#    - Material 相应精炼类型，每次精炼消耗的精炼材料
+#    - Breakable 是否在精炼过程中损坏
+# Rates 概率
+#    - Level 精炼后的等级
+#    - Bonus 精炼后增加的攻击力（实际增加 Bonus / 100）、防御力（实际增加 (Bonus + 50)/ 100）
+#    - NormalChance 使用 铝/神金（混沌金属/魔力之石） 精炼时的成功率 （百分率）
+#    - EnrichedChance 使用 浓缩铝/浓缩神金（高密度混沌金属/高密度魔力之石） 精炼时的成功率 （百分率）
+#    - EventNormalChance 当 conf 配置中 event_refine_chance 打开时，使用 铝/神金（混沌金属/魔力之石） 精炼时的陈功率 （百分率）
+#    - EventEnrichedChance 当 conf 配置中 event_refine_chance 打开时，使用 浓缩铝/浓缩神金（高密度混沌金属/高密度魔力之石） 精炼时的陈功率 （百分率）
+
 Armor:
-  StatsPerLevel: 0
+  StatsPerLevel: 0 
   RandomBonusStartLevel: 0
   RandomBonusValue: 0
   Costs:
