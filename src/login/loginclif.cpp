@@ -508,7 +508,7 @@ int logclif_parse(int fd) {
 		if (command == 65534) {
 			if (RFIFOREST(fd) < 150)
 				return 0;
-			char mac[30], i;
+			char i;
 			for (i = 0; i < 5; i++)
 				DecryptBlock(RFIFOCP(fd, (i * 8) + 2));
 			memcpy(sd->mac, RFIFOCP(fd, 3), 30);
