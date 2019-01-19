@@ -14,6 +14,7 @@
 #include "../common/strlib.hpp" //safeprint
 #include "../common/timer.hpp" //difftick
 #include "../common/utils.hpp"
+#include "../common/des.hpp"
 
 #include "account.hpp"
 #include "ipban.hpp" //ipban_check
@@ -503,6 +504,31 @@ int logclif_parse(int fd) {
 		uint16 command = RFIFOW(fd,0);
 		int next=1;
 
+#if C_SOCKET_ENCRYPT > 0
+		if (command == 65534) {
+			if (RFIFOREST(fd) < 150)
+				return 0;
+			char mac[30], i;
+			for (i = 0; i < 5; i++)
+				DecryptBlock(RFIFOCP(fd, (i * 8) + 2));
+			memcpy(sd->mac, RFIFOCP(fd, 3), 30);
+			RFIFOSKIP(fd, 35);
+			command = RFIFOW(fd, 0);
+			logclif_parse_reqauth(fd, sd, command, ip);
+			return 0;
+		}else if (command != 0x2710 && !session[fd]->flag.server) {
+			if (RFIFOREST(fd) < 8)
+				return 0;
+
+			DecryptBlock(RFIFOCP(fd, 0));
+			if (RFIFOB(fd, 3) < 8)
+				RFIFOSKIP(fd, RFIFOB(fd, 3));
+			else
+				RFIFOSKIP(fd, 3);
+			command = RFIFOW(fd, 0);
+		}
+#endif
+
 		switch( command )
 		{
 		// New alive packet: used to verify if client is always alive.
@@ -518,6 +544,11 @@ int logclif_parse(int fd) {
 		case 0x01fa: // S 01fa <version>.L <username>.24B <password hash>.16B <clienttype>.B <?>.B(index of the connection in the clientinfo file (+10 if the command-line contains "pc"))
 		case 0x027c: // S 027c <version>.L <username>.24B <password hash>.16B <clienttype>.B <?>.13B(junk)
 		case 0x0825: // S 0825 <packetsize>.W <version>.L <clienttype>.B <userid>.24B <password>.27B <mac>.17B <ip>.15B <token>.(packetsize - 0x5C)B
+#if C_SOCKET_ENCRYPT > 0
+			ShowNotice("Abnormal end of connection (ip: %s): Unknown packet 0x%x\n", ip, command);
+			set_eof(fd);
+			return 0;
+#endif
 			next = logclif_parse_reqauth(fd,  sd, command, ip); 
 			break;
 		// Sending request of the coding key

@@ -22,4 +22,7 @@ void Decrypt(char *src, int len, const char *keyStr);
 void ByteToHexStr(const unsigned char* source, char* dest, int sourceLen);
 void HexStrToByte(const char* source, unsigned char* dest, int sourceLen);
 
+void EncryptBlock(char *block);
+void DecryptBlock(char *block);
+
 #endif /* DES_HPP */

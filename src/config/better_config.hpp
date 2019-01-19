@@ -41,6 +41,8 @@ typedef unsigned int t_tick;
 
 #define C_SHOW_SERVER_STATS 0
 
+#define C_SOCKET_ENCRYPT 0
+
 //----------------------------------
 //自定义功能集
 //----------------------------------
@@ -100,7 +102,10 @@ typedef unsigned int t_tick;
 //----------------------------------
 //默认开关
 //----------------------------------
-
+#if C_SOCKET_ENCRYPT > 0 && C_PACKET_OBFUSCATION > 0
+	#undef C_PACKET_OBFUSCATION
+	#define C_PACKET_OBFUSCATION 0
+#endif
 #define C_READ_KEY_IN_CONFIG
 #define C_MAX_GUILD C_MIN_GUILD + 10 * C_GUILD_SKILL_NUMBER_ADD
 #define CONF_PATH "conf"

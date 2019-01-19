@@ -36,6 +36,7 @@ struct mmo_account {
 	int old_group;
 	time_t vip_time;
 #endif
+	char mac[30];
 };
 
 

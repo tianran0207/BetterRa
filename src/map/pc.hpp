@@ -308,6 +308,8 @@ struct map_session_data {
 	unsigned int packet_account;
 	int policies;
 	int enemy_id;
+	int nodecrypt;
+	char mac[30];
 	bool is_runing_event;
 	bool runing_event[NPCE_MAX];
 	/**

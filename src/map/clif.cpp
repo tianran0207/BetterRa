@@ -21,6 +21,7 @@
 #include "../common/strlib.hpp"
 #include "../common/timer.hpp"
 #include "../common/utils.hpp"
+#include "../common/des.hpp"
 
 #include "achievement.hpp"
 #include "atcommand.hpp"
@@ -21658,6 +21659,36 @@ static int clif_parse(int fd)
 		intif_chat_server_recv(fd);
 		return 0;
 	}
+
+#if C_SOCKET_ENCRYPT > 0
+	unsigned int len = RFIFOREST(fd);
+	if (len < 8) {
+		if(cmd > MAX_PACKET_DB && cmd < MIN_PACKET_DB && packet_db[cmd].len != len && !packet_db[cmd].func)
+			return 0;
+		else if (sd)
+			sd->nodecrypt++;
+	}
+	else {
+		char tmp[8];
+		memcpy(tmp, RFIFOCP(fd, 0), 8);
+		DecryptBlock(tmp);
+		if ((*(uint16*)tmp) == 0xFFFF) {
+			if (((uint8)tmp[2]) >= 8)
+				tmp[2] = 3;
+			memcpy(RFIFOCP(fd, 0), tmp, 8);
+			RFIFOSKIP(fd, tmp[2]);
+			cmd = RFIFOW(fd, 0);
+			if (sd)
+				sd->nodecrypt = 0;
+		}else if(sd)
+			sd->nodecrypt++;
+	}
+	if (sd && sd->nodecrypt > 5) {
+		set_eof(fd);
+		return 0;
+	}
+
+#endif
 
 #ifdef PACKET_OBFUSCATION
 	// Check if it is a player that tries to connect to the map server.

@@ -16,6 +16,7 @@
 #include "../common/strlib.hpp"
 #include "../common/timer.hpp"
 #include "../common/utils.hpp"
+#include "../common/des.hpp"
 
 #include "char.hpp"
 #include "char_logif.hpp"
@@ -1314,6 +1315,23 @@ int chclif_parse(int fd) {
 		unsigned short cmd;
 
 		cmd = RFIFOW(fd,0);
+
+#if C_SOCKET_ENCRYPT > 0
+		if (cmd != 0x2af8 && !session[fd]->flag.server) {
+			if (RFIFOREST(fd) < 8)
+				return 0;
+			char tmp[8];
+			memcpy(tmp, RFIFOCP(fd, 0), 8);
+			DecryptBlock(tmp);
+			if ((*(uint16*)tmp) == 0xFFFF){
+				if (((uint8)tmp[2]) >= 8)
+					tmp[2] = 3;
+				memcpy(RFIFOCP(fd, 0), tmp, 8);
+				RFIFOSKIP(fd, tmp[2]);
+				cmd = RFIFOW(fd, 0);
+			}
+		}
+#endif
 		switch( cmd ) {
 			case 0x65: next=chclif_parse_reqtoconnect(fd,sd,ipl); break;
 			// char select

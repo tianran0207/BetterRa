@@ -675,3 +675,42 @@ void Decrypt(char *src, int len, const char *keyStr) {
 		memcpy(src + i, code, 8);
 	}
 }
+
+ElemType subKeys[16][48];
+bool haskey = false;
+
+void DecryptBlock(char *block) {
+	ElemType code[8];
+
+	if (!haskey) {
+		ElemType keyBlock[8];
+		ElemType bKey[64];
+		//设置密钥  
+		memcpy(keyBlock, "KoDAwcQx", 8);
+		//将密钥转换为二进制流  
+		Char8ToBit64(keyBlock, bKey);
+		//生成子密钥  
+		DES_MakeSubKeys(bKey, subKeys);
+		haskey = true;
+	}
+	DES_DecryptBlock((ElemType *)(block), subKeys, code);
+	memcpy(block, code, 8);
+}
+
+void EncryptBlock(char *block) {
+	ElemType code[8];
+
+	if (!haskey) {
+		ElemType keyBlock[8];
+		ElemType bKey[64];
+		//设置密钥  
+		memcpy(keyBlock, "KoDAwcQx", 8);
+		//将密钥转换为二进制流  
+		Char8ToBit64(keyBlock, bKey);
+		//生成子密钥  
+		DES_MakeSubKeys(bKey, subKeys);
+		haskey = true;
+	}
+	DES_EncryptBlock((ElemType *)(block), subKeys, code);
+	memcpy(block, code, 8);
+}

@@ -27108,6 +27108,35 @@ BUILDIN_FUNC(unithide)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(getlastip)
+{
+	struct map_session_data *sd;
+
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!sd->mac[0]) {
+		char* data = NULL;
+		if (SQL_ERROR == Sql_Query(qsmysql_handle, "SELECT `last_ip` FROM `%s` WHERE `account_id` = %d LIMIT 1", "login", sd->status.account_id)) {
+			Sql_ShowDebug(qsmysql_handle);
+			return SCRIPT_CMD_FAILURE;
+		}
+		else if (SQL_SUCCESS == Sql_NextRow(qsmysql_handle))
+			Sql_GetData(qsmysql_handle, 0, &data, NULL);
+
+		if (data)
+			safestrncpy(sd->mac, data, sizeof(sd->mac));
+		else
+			safestrncpy(sd->mac, "00-00-00-00-00-00", sizeof(sd->mac));
+
+		Sql_FreeResult(qsmysql_handle);
+	}
+
+	script_pushstrcopy(st, sd->mac);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -27967,6 +27996,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getmobdmglog, "iir?"),
 	BUILDIN_DEF(charid2rid, "i"),
 	BUILDIN_DEF(unithide, "ii"),
+	BUILDIN_DEF(getlastip, "?"),
 
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL
