@@ -21663,7 +21663,15 @@ static int clif_parse(int fd)
 #if C_SOCKET_ENCRYPT > 0
 	unsigned int len = RFIFOREST(fd);
 	if (len < 8) {
-		if(cmd > MAX_PACKET_DB && cmd < MIN_PACKET_DB && packet_db[cmd].len != len && !packet_db[cmd].func)
+		cmd2 = cmd;
+#ifdef PACKET_OBFUSCATION
+		if (sd)
+			cmd2 = (cmd ^ ((sd->cryptKey >> 16) & 0x7FFF));
+		else {
+			cmd2 = (cmd ^ ((((clif_cryptKey[0] * clif_cryptKey[1]) + clif_cryptKey[2]) >> 16) & 0x7FFF));
+		}
+#endif
+		if(cmd2 > MAX_PACKET_DB && cmd2 < MIN_PACKET_DB && packet_db[cmd2].len != len && !packet_db[cmd2].func)
 			return 0;
 		else if (sd)
 			sd->nodecrypt++;

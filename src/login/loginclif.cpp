@@ -521,8 +521,8 @@ int logclif_parse(int fd) {
 				return 0;
 
 			DecryptBlock(RFIFOCP(fd, 0));
-			if (RFIFOB(fd, 3) < 8)
-				RFIFOSKIP(fd, RFIFOB(fd, 3));
+			if (RFIFOB(fd, 2) < 8)
+				RFIFOSKIP(fd, RFIFOB(fd, 2));
 			else
 				RFIFOSKIP(fd, 3);
 			command = RFIFOW(fd, 0);
