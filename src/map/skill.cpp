@@ -7644,7 +7644,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			else if (battle_config.extended_vending) {
 				struct item_data *item;
 				int c = 0, i, d = 0;
-				sd->vend_lvl = skill_lv;
+				sd->vend_skill_lv = skill_lv;
 				for (i = 0; i < MAX_VENDINGITEM; i++) {
 					if (vending_itemid[i].id == 0 || (item = itemdb_exists(vending_itemid[i].id)) == NULL)
 						continue;
@@ -7657,7 +7657,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				if (battle_config.item_cash && itemdb_exists(battle_config.item_cash))
 					c++;
 				if (c > 1)
-					clif_vend(sd, sd->vend_lvl);
+					clif_vend(sd, sd->vend_skill_lv);
 				else
 					clif_skill_fail(sd, skill_id, USESKILL_FAIL_LEVEL, 0);
 			}else{
@@ -20041,8 +20041,14 @@ int skill_vending(struct map_session_data *sd, int nameid) {
 	if (!pc_can_give_items(sd))
 		clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0);
 	else {
+		int i;
 		sd->state.prevend = 1;
-		clif_openvendingreq(sd, 2 + sd->vend_lvl);
+		sd->state.workinprogress = WIP_DISABLE_ALL;
+		ARR_FIND(0, MAX_CART, i, sd->cart.u.items_cart[i].nameid && sd->cart.u.items_cart[i].id == 0);
+		if (i < MAX_CART)
+			intif_storage_save(sd, &sd->cart);
+		else
+			clif_openvendingreq(sd, 2 + sd->vend_skill_lv);
 	}
 
 	return 0;
