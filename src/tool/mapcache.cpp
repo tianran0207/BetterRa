@@ -19,7 +19,7 @@
 
 #define NO_WATER 1000000
 
-std::string grf_list_file = CONF_PATH "conf/grf-files.txt";
+std::string grf_list_file = CONF_PATH "/grf-files.txt";
 std::string map_list_file = "map_index.txt";
 std::string map_cache_file;
 int rebuild = 0;

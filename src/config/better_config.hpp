@@ -102,10 +102,10 @@ typedef unsigned int t_tick;
 //----------------------------------
 //Ä¬ÈÏ¿ª¹Ø
 //----------------------------------
-#if C_SOCKET_ENCRYPT > 0 && C_PACKET_OBFUSCATION > 0
-	#undef C_PACKET_OBFUSCATION
-	#define C_PACKET_OBFUSCATION 0
-#endif
+#define C_CUSTOMIZEDDATE "null"
+#define C_USEREMAIL "admin@mail.betterra.cn"
+#define C_VERIFYURL "http://betterra.cn/app/verification.php"
+#define C_VERIFYURLMD5 "0fa1bd9134f922b62a5f52a1d835248b"
 #define C_READ_KEY_IN_CONFIG
 #define C_MAX_GUILD C_MIN_GUILD + 10 * C_GUILD_SKILL_NUMBER_ADD
 #define CONF_PATH "conf"

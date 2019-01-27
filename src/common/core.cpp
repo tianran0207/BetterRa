@@ -386,6 +386,60 @@ LONG WINAPI ExceptionFilter(LPEXCEPTION_POINTERS lpExceptionInfo)
 }
 #endif
 
+#include "md5calc.hpp"
+char signature[24];
+void server_info(char *path) {
+	char md5[128];
+	ShowInfo("" CL_BOLD "BetterRA Customized Information: " CL_NORMAL "(date: %s)\n", C_CUSTOMIZEDDATE);
+	ShowMessage("          - packet ver: " CL_BOLD "%d" CL_NORMAL "\n", C_PACKETVER);
+	ShowMessage("          - packet encrypt: " CL_BOLD "%s" CL_NORMAL "\n", C_SOCKET_ENCRYPT ? "yes" : "no");
+	if (path && path[0] != '\0' &&strstr(path, "map-server.exe")) {
+		
+		int sign, s2, id, s4;
+		_asm
+		{
+			mov  eax, 0x00000001
+			cpuid
+			mov sign, eax
+			mov s2, ecx
+			mov id, edx
+			mov s4, ebx
+		}
+		sprintf(md5, "%02X%02X%02X%02X%02X%02X%02X%02X%s", (id >> 24) & 0xff, (id >> 16) & 0xff, (id >> 8) & 0xff, (id >> 0) & 0xff
+			, (sign >> 24) & 0xff, (sign >> 16) & 0xff, (sign >> 8) & 0xff, (sign >> 0) & 0xff, "OckHALdCLKAHCUZ");
+		MD5_String(md5, md5);
+		safestrncpy(signature, md5, 24);
+		ShowMessage("" CL_BOLD "        Map-server Customized: " CL_NORMAL "(code: %s)\n", signature);
+		if (strcmp(C_USEREMAIL, "admin@mail.betterra.cn"))
+			ShowMessage("          - Customized email: " CL_BOLD "%s" CL_NORMAL "\n", C_USEREMAIL);
+		if (C_PACKET_OBFUSCATION != 0)     ShowMessage("          - packet obfuscation: " CL_BOLD "%s" CL_NORMAL "\n", C_PACKET_OBFUSCATION ? "yes" : "no");
+		if (C_PRERE != 0)                  ShowMessage("          - pre-re ver: " CL_BOLD "%s" CL_NORMAL "\n", C_PRERE ? "yes" : "no");
+		if (C_VIP_ENABLE != 0)             ShowMessage("          - vip enable: " CL_BOLD "%s" CL_NORMAL "\n", C_VIP_ENABLE ? "yes" : "no");
+		if (C_SHOW_SERVER_STATS != 0)      ShowMessage("          - show server stats: " CL_BOLD "%s" CL_NORMAL "\n", C_SHOW_SERVER_STATS ? "yes" : "no");
+		if (C_MAX_CHARS != 9)              ShowMessage("          - max chars: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_CHARS);
+		if (C_MAX_ZENY != 1000000000)      ShowMessage("          - max zeny: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_ZENY);
+		if (C_MAX_INVENTORY != 100)        ShowMessage("          - max inventory: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_INVENTORY);
+		if (C_MIN_STORAGE != 300)          ShowMessage("          - min storage: " CL_BOLD "%d" CL_NORMAL "\n", C_MIN_STORAGE);
+		if (C_DEFAULT_WALK_SPEED != 150)   ShowMessage("          - default walk speed: " CL_BOLD "%d" CL_NORMAL "\n", C_DEFAULT_WALK_SPEED);
+		if (C_MAX_PARTY != 12)             ShowMessage("          - max party member: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_PARTY);
+		if (MAX_GUILD_STORAGE != 600)      ShowMessage("          - max guild storage: " CL_BOLD "%d" CL_NORMAL "\n", MAX_GUILD_STORAGE);
+		if (C_MIN_GUILD != 16)             ShowMessage("          - initial guild member: " CL_BOLD "%d" CL_NORMAL "\n", C_MIN_GUILD);
+		if (C_GUILD_SKILL_NUMBER_ADD != 6) ShowMessage("          - guild skill add member: " CL_BOLD "%d" CL_NORMAL "\n", C_GUILD_SKILL_NUMBER_ADD);
+		if (C_MAX_PETLOOT_SIZE != 30)      ShowMessage("          - max pet loot quantity: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_PETLOOT_SIZE);
+		if (C_MAX_PET_DB != 600)           ShowMessage("          - max pet db: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_PET_DB);
+		if (C_MAX_MOB_DB != 3999)          ShowMessage("          - max mob db: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_MOB_DB);
+		if (C_MAX_NPC_CLASS2_END != 0)     ShowMessage("          - max npc class: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_NPC_CLASS2_END);
+		if (C_MAX_MERCENARY_CLASS != 61)   ShowMessage("          - max mercenary class: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_MERCENARY_CLASS);
+		if (C_MAX_FAME_LIST != 10)         ShowMessage("          - max fame list: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_FAME_LIST);
+		if (C_MAX_REFINE != 0)             ShowMessage("          - max refine: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_REFINE);
+		if (C_MAX_EVENTQUEUE != 200)       ShowMessage("          - max event queue: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_EVENTQUEUE);
+		if (C_MAX_HATEFFECT != 0)          ShowMessage("          - max hateffect: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_HATEFFECT);
+		if (C_MAX_RC2 != 0)                ShowMessage("          - max race2: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_RC2);
+		if (C_MAX_SKILLUNITTEMP != 20)     ShowMessage("          - max skill unit temp: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_SKILLUNITTEMP);
+	}
+	ShowMessage("\n");
+}
+
 /*======================================
  *	CORE : MAINROUTINE
  *--------------------------------------*/
@@ -424,6 +478,7 @@ int main (int argc, char **argv)
 	malloc_init();// needed for Show* in display_title() [FlavioJS]
 	set_server_type();
 	display_title();
+	server_info(argv[0]);
 	usercheck();
 
 	Sql_Init();

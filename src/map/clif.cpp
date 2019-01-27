@@ -21646,7 +21646,7 @@ static int clif_parse(int fd)
 
 #ifdef PLAYER_LIMIT
 	if (!sd && map_usercount() > PLAYER_LIMIT - 1) {
-		ShowError("Limit the number of servers to '%d' player., Please contact the author to customize it.\n", PLAYER_LIMIT);
+		ShowError("Limit '%d' player join map-server. This server is only used for testing. Please go to the official website to customize..\n", PLAYER_LIMIT);
 		set_eof(fd);
 		return 0;
 	}
@@ -21662,35 +21662,23 @@ static int clif_parse(int fd)
 
 #if C_SOCKET_ENCRYPT > 0
 	unsigned int len = RFIFOREST(fd);
-	if (len < 8) {
-		cmd2 = cmd;
-#ifdef PACKET_OBFUSCATION
+	if (len < 8) 
+		return 0;
+
+	char tmp[8];
+	memcpy(tmp, RFIFOCP(fd, 0), 8);
+	DecryptBlock(tmp);
+	if ((*(uint16*)tmp) == 0xFFFF) {
+		if (((uint8)tmp[2]) >= 8)
+			tmp[2] = 3;
+		memcpy(RFIFOCP(fd, 0), tmp, 8);
+		RFIFOSKIP(fd, tmp[2]);
+		cmd = RFIFOW(fd, 0);
 		if (sd)
-			cmd2 = (cmd ^ ((sd->cryptKey >> 16) & 0x7FFF));
-		else {
-			cmd2 = (cmd ^ ((((clif_cryptKey[0] * clif_cryptKey[1]) + clif_cryptKey[2]) >> 16) & 0x7FFF));
-		}
-#endif
-		if(cmd2 > MAX_PACKET_DB && cmd2 < MIN_PACKET_DB && packet_db[cmd2].len != len && !packet_db[cmd2].func)
-			return 0;
-		else if (sd)
-			sd->nodecrypt++;
-	}
-	else {
-		char tmp[8];
-		memcpy(tmp, RFIFOCP(fd, 0), 8);
-		DecryptBlock(tmp);
-		if ((*(uint16*)tmp) == 0xFFFF) {
-			if (((uint8)tmp[2]) >= 8)
-				tmp[2] = 3;
-			memcpy(RFIFOCP(fd, 0), tmp, 8);
-			RFIFOSKIP(fd, tmp[2]);
-			cmd = RFIFOW(fd, 0);
-			if (sd)
-				sd->nodecrypt = 0;
-		}else if(sd)
-			sd->nodecrypt++;
-	}
+			sd->nodecrypt = 0;
+	}else if(sd)
+		sd->nodecrypt++;
+
 	if (sd && sd->nodecrypt > 5) {
 		set_eof(fd);
 		return 0;

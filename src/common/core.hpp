@@ -9,6 +9,8 @@
 	#include <signal.h>
 #endif
 
+extern char signature[24];
+
 extern int arg_c;
 extern char **arg_v;
 

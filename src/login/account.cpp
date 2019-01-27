@@ -524,7 +524,7 @@ static bool mmo_auth_fromsql(AccountDB_SQL* db, struct mmo_account* acc, uint32 
 	Sql_GetData(sql_handle,  9, &data, NULL); acc->logincount = (unsigned int) strtoul(data, NULL, 10);
 	Sql_GetData(sql_handle, 10, &data, NULL); safestrncpy(acc->lastlogin, data==NULL?"":data, sizeof(acc->lastlogin));
 #if C_SOCKET_ENCRYPT > 0
-	Sql_GetData(sql_handle, 11, &data, NULL); safestrncpy(acc->last_ip, "0.0.0.0", sizeof(acc->last_ip));
+	Sql_GetData(sql_handle, 11, &data, NULL); safestrncpy(acc->mac, data, sizeof(acc->mac)); safestrncpy(acc->last_ip, "0.0.0.0", sizeof(acc->last_ip));
 #else
 	Sql_GetData(sql_handle, 11, &data, NULL); safestrncpy(acc->last_ip, data, sizeof(acc->last_ip));
 #endif

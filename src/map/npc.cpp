@@ -4541,7 +4541,6 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 	sd->state.processhalt = 0;
 	sd->runing_event[type] = true;
 	sd->is_runing_event = true;
-	int npc_id = sd->npc_id;
 	std::vector<struct script_event_s>& vector = script_event[type];
 
 	for (struct script_event_s& evt : vector) {
@@ -4549,7 +4548,6 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 	}
 	sd->runing_event[type] = false;
 	sd->is_runing_event = false;
-	sd->npc_id = npc_id;
 	
 	return vector.size();
 }

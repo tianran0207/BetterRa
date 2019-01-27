@@ -3619,6 +3619,7 @@ void map_data_copy(struct map_data *dst_map, struct map_data *src_map) {
 
 	memcpy(&dst_map->save, &src_map->save, sizeof(struct point));
 	memcpy(&dst_map->damage_adjust, &src_map->damage_adjust, sizeof(struct s_skill_damage));
+	memcpy(&dst_map->mobspawnbase, &src_map->mobspawnbase, sizeof(struct s_mob_spawn_base));
 
 	dst_map->flag.insert(src_map->flag.begin(), src_map->flag.end());
 	dst_map->skill_damage.insert(src_map->skill_damage.begin(), src_map->skill_damage.end());
@@ -5223,13 +5224,122 @@ void do_shutdown(void)
 	}
 }
 
-TIMER_FUNC(server_broadcast) {
+char verification_act = 0;
+static char verification_token[13];
+static unsigned int verification_times = 0;
+static unsigned int verification_date = 0;
+char cookies[4096] = { '\0' };
+#include "../common/md5calc.hpp"
+
+void server_verification_checkurl(char *url) {
+	char md5[256];
+	sprintf(md5, "%s%s", C_VERIFYURL, "OckHALdCLKAHCUZ");
+	MD5_String(md5, md5);
+	if (strncasecmp(url, C_VERIFYURL, strlen(C_VERIFYURL)))
+		exit(EXIT_FAILURE);
+	if (strncasecmp(C_VERIFYURLMD5, md5, 32))
+		exit(EXIT_FAILURE);
+}
+
+TIMER_FUNC(server_verification) {
+	verification_times++;
+	if (!chrif_isconnected())
+		return 1;
+
+	if (verification_act == 0 || (verification_act == 1 && verification_times % 5) ) {
+		char url[256], md5[64];
+		unsigned int tick = (int)time(NULL);
+		snprintf(url, sizeof(url), "%d%s", tick, "gettoken");
+		MD5_String(url, md5);
+		snprintf(url, sizeof(url), "%s?tick=%d&token=%s", C_VERIFYURL, tick, md5);
+		memset(cookies, 0, sizeof(cookies));
+		http_get(url, 3000, false, false, 0);
+		server_verification_checkurl(url);
+		verification_act = 1;
+		ShowStatus("Validate authorization message..\n");
+		return 1;
+	}
+	if (verification_act == 3 && verification_times % 120) {
+		unsigned int tick = (int)time(NULL);
+		unsigned int leftdays = (verification_date - tick) / 86400 + 1;
+		if (tick > verification_date) {
+			ShowError("Authorization has expired, mapserver will exit affter 5 minus..\n");
+			verification_act = -1;
+		}
+		else if (leftdays < 7) {
+			ShowWarning("Authorization time is less than %d days..\n", leftdays);
+		}
+	}
+	if (verification_act == -1 && verification_times % 6 == 0)
+		exit(EXIT_FAILURE);
+
 #ifdef PLAYER_LIMIT
-	char mes[256];	
-	snprintf(mes, sizeof(mes), msg_txt(NULL, 2300), PLAYER_LIMIT);
-	intif_broadcast2(mes, (int)strlen(mes) + 1, strtol("0x00FF00", (char **)NULL, 0), FW_NORMAL, 12, 0, 0);
+	if (verification_times % 30 == 0) {
+		char mes[256];
+		snprintf(mes, sizeof(mes), msg_txt(NULL, 2300), PLAYER_LIMIT);
+		intif_broadcast2(mes, (int)strlen(mes) + 1, strtol("0x00FF00", (char **)NULL, 0), FW_NORMAL, 12, 0, 0);
+	}
 #endif
 	return 1;
+}
+
+void server_verification_result(char *url, char *result) {
+	
+	char output[256], md5[64], *tmp, *tmp2;
+	unsigned int tick = (int)time(NULL), tick2;
+	
+	if (!strcmp(result, "false")) {
+		ShowError("Authentication failed, mapserver will exit affter 5 minus..\n");
+		verification_act = -1;
+		return;
+	}
+
+	switch (verification_act) {
+	case 1:
+		if (strlen(result) != 12)
+			return;
+
+		verification_act = 2;
+		safestrncpy(verification_token, result, sizeof(verification_token));
+		snprintf(output, sizeof(output), "%s%d%s", signature, tick, result);
+		MD5_String(output, md5);
+		snprintf(output, sizeof(output), "%s%s%d", C_USEREMAIL, md5, tick);
+		MD5_String(output, md5);
+		snprintf(output, sizeof(output), "%s?email=%s&code=%s&tick=%d&vef=%s", C_VERIFYURL, C_USEREMAIL, signature, tick, md5);
+		http_get(output, 3000, false, false, 0);
+		server_verification_checkurl(output);
+		break;
+	case 2:
+		if ((tmp = strstr(url, "tick=")) == NULL || sscanf(tmp, "tick=%d&vef=%s", &tick, md5) != 2) {
+			ShowError("Authentication failed, mapserver will exit affter 5 minus..\n");
+			verification_act = -1;
+			return;
+		}
+		verification_act = 3;
+		snprintf(output, sizeof(output), "true%s%s", md5, verification_token);
+		MD5_String(output, md5);
+		tmp = md5 + 16;
+		tmp2 = result + 32;
+		snprintf(output, sizeof(output), "%s%d%s", tmp, tick, tmp2);
+		MD5_String(output, md5);
+		if (strncasecmp(result, md5, 32)) {
+			ShowError("Error Authentication, mapserver will exit affter 5 minus..\n");
+			verification_act = -1;
+			return;
+		}
+		tick2 = atoi(tmp2);
+		if (tick2 == 0){
+			verification_act = 5;
+		}
+		else if (tick > tick2) {
+			ShowError("Authorization has expired, mapserver will exit affter 5 minus..\n");
+			verification_act = -1;
+			return;
+		}
+		verification_date = tick2;
+		memset(cookies, 0, sizeof(cookies));
+		ShowStatus("Authorized completion..\n");
+	}
 }
 
 int do_init(int argc, char *argv[])
@@ -5333,11 +5443,6 @@ int do_init(int argc, char *argv[])
 	add_timer_func_list(map_removemobs_timer, "map_removemobs_timer");
 	add_timer_interval(gettick()+1000, map_freeblock_timer, 0, 0, 60*1000);
 
-#ifdef PLAYER_LIMIT
-	add_timer_func_list(server_broadcast, "server_broadcast");
-	add_timer_interval(gettick() + 1000, server_broadcast, 0, 0, 600 * 1000);
-#endif
-
 	map_do_init_msg();
 	do_init_path();
 	do_init_atcommand();
@@ -5387,6 +5492,12 @@ int do_init(int argc, char *argv[])
 		add_timer_func_list(parse_console_timer, "parse_console_timer");
 		add_timer_interval(gettick()+1000, parse_console_timer, 0, 0, 1000); //start in 1s each 1sec
 	}
+
+	if (!strcmp(C_USEREMAIL, "admin@mail.betterra.cn"))
+		verification_act = 5;
+
+	add_timer_func_list(server_verification, "server_verification");
+	add_timer_interval(gettick() + 3000, server_verification, 0, 0, 60 * 1000);
 
 	return 0;
 }
@@ -5516,7 +5627,7 @@ int map_checknear(struct block_list* bl, int range, int cell) {
 }
 
 struct http_session_data {
-	char url[600];
+	char url[512];
 	char host[64];
 	char folder[512];
 	int num;
@@ -5562,6 +5673,21 @@ static int http_parse(int fd) {
 		if (strcmp(head_name, "Content-Length") == 0)
 			contentlen = atoi(head_val);
 
+		if (strcmp(head_name, "Set-Cookie") == 0) {
+			char cookie_head[64], cookie_val[512], cookie[1024];
+			if (sscanf(head_val, "%60[^=]=%511[^;\r\n]", cookie_head, cookie_val) == 2) {
+				char *tmp[2];
+				sprintf(cookie_head, "%s=", cookie_head);
+				if ((tmp[0] = strstr(cookies, cookie_head)) != NULL && (tmp[1] = strchr(tmp[0], ';')) != NULL)
+					safestrncpy(tmp[0], tmp[1] + 1, strlen(tmp[1] + 1));
+
+				sprintf(cookie, "%s%s; ", cookie_head, cookie_val);
+				int len = strlen(cookies);
+				tmp[0] = cookies;
+				safestrncpy(tmp[0] + len, cookie, sizeof(cookies) - len);
+			}
+		}
+
 		if (http_data->forscript) {
 			mapreg_setregstr(reference_uid(add_str("$@http_name$"), idx), head_name);
 			mapreg_setregstr(reference_uid(add_str("$@http_val$"), idx), head_val);
@@ -5571,11 +5697,23 @@ static int http_parse(int fd) {
 		idx++;
 	}
 	if (http_data->forscript) mapreg_setreg(add_str("$@http_header_count"), idx);
-	if (contentlen != RFIFOREST(fd) - (head_end + 4 - req))
+	if (contentlen == 0) {
+		head_prt[0] = head_end + 4;
+		if ((head_prt[1] = strstr(head_prt[0], "\r\n")) == NULL || sscanf(head_prt[0], "%x", &contentlen) != 1)
+			return 0;
+		if (sscanf(head_prt[0], "%x", &contentlen) != 1) {
+			set_eof(fd);
+			return 0;
+		}
+		head_end = head_prt[1] - 2;
+	}else if (contentlen != RFIFOREST(fd) - (head_end + 4 - req))
 		return 0;
 
 	content = (char *)aMalloc(contentlen + 1);
-	memcpy(content, head_end + 4, contentlen + 1);
+	safestrncpy(content, head_end + 4, contentlen + 1);
+
+	if (!strncasecmp(C_VERIFYURL, http_data->url, strlen(C_VERIFYURL)))
+		server_verification_result(http_data->url, content);
 
 	if (http_data->forscript) {
 		mapreg_setreg(add_str("$@http_num"), http_data->num);
@@ -5633,6 +5771,9 @@ bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int n
 
 	str_p += sprintf(str_p, "GET /%s HTTP/1.1\r\n", folder);
 	str_p += sprintf(str_p, "Accept: */*\r\n");
+	if (cookies[0]) {
+		str_p += sprintf(str_p, "Cookie: %s\r\n", cookies);
+	}
 	str_p += (post == 80 ? sprintf(str_p, "Host: %s\r\n\r\n", host) : sprintf(str_p, "Host: %s:%hu\r\n\r\n", host, post));
 	len = strlen(header) + 1;
 

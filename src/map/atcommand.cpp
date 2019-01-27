@@ -10286,6 +10286,13 @@ ACMD_FUNC(homattack)
 	return 0;
 }
 
+ACMD_FUNC(verification)
+{
+	verification_act = 0;
+	clif_displaymessage(fd, "refresh in 1 minute.\n");
+	return 0;
+}
+
 /**
  * Fills the reference of available commands in atcommand DBMap
  **/
@@ -10589,6 +10596,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(homattack),
 		ACMD_DEF(killmonsterall),
 		ACMD_DEF(refineui),
+		ACMD_DEF(verification),
 		ACMD_DEFR(camerainfo, ATCMD_NOCONSOLE|ATCMD_NOAUTOTRADE),
 	};
 	AtCommandInfo* atcommand;

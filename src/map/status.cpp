@@ -2794,12 +2794,12 @@ int status_calc_mob_(struct mob_data* md, enum e_status_calc_opt opt)
 		if (map_getmapflag(md->bl.m, MF_MOBSPAWNBASE)) {
 			struct map_data *mapdata = map_getmapdata(md->bl.m);
 			memcpy(&md->status, &md->db->status, sizeof(struct status_data));
-			md->status.max_hp = cap_value((int)((double)md->status.max_hp / 100 * mapdata->mobspawnbase.hprate), 1, UINT_MAX);
-			md->status.rhw.atk = cap_value((int)((double)md->status.rhw.atk / 100 * mapdata->mobspawnbase.atkrate), 1, UINT_MAX);
-			md->status.rhw.atk2 = cap_value((int)((double)md->status.rhw.atk2 / 100 * mapdata->mobspawnbase.atkrate), 1, UINT_MAX);
-			md->status.matk_min = cap_value((int)((double)md->status.matk_min / 100 * mapdata->mobspawnbase.matkrate), 1, UINT_MAX);
-			md->status.matk_max = cap_value((int)((double)md->status.matk_max / 100 * mapdata->mobspawnbase.matkrate), 1, UINT_MAX);
-			md->status.hit = cap_value((int)md->status.hit * mapdata->mobspawnbase.hitrate / 100, 1, SHRT_MAX);
+			md->status.max_hp = cap_value((unsigned int)((double)md->status.max_hp / 100 * mapdata->mobspawnbase.hprate), 1, UINT_MAX);
+			md->status.rhw.atk = cap_value((unsigned int)((double)md->status.rhw.atk / 100 * mapdata->mobspawnbase.atkrate), 1, UINT_MAX);
+			md->status.rhw.atk2 = cap_value((unsigned int)((double)md->status.rhw.atk2 / 100 * mapdata->mobspawnbase.atkrate), 1, UINT_MAX);
+			md->status.matk_min = cap_value((unsigned int)((double)md->status.matk_min / 100 * mapdata->mobspawnbase.matkrate), 1, UINT_MAX);
+			md->status.matk_max = cap_value((unsigned int)((double)md->status.matk_max / 100 * mapdata->mobspawnbase.matkrate), 1, UINT_MAX);
+			md->status.hit = cap_value(md->status.hit * mapdata->mobspawnbase.hitrate / 100, 1, SHRT_MAX);
 			md->status.hp = md->status.max_hp;
 		}else
 		if (opt&SCO_FIRST)
