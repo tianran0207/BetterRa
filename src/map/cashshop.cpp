@@ -564,7 +564,7 @@ bool cashshop_buylist( struct map_session_data* sd, uint32 kafrapoints, int n, u
 		return false;
 	}
 
-	if (event_exist(NPCE_CASHSHOPBUYFILTER)) {
+	if (sd && !sd->runing_event[NPCE_CASHSHOPBUYFILTER] && event_exist(NPCE_CASHSHOPBUYFILTER)) {
 		int idkey = add_str("@cashshop_nameid");
 		int quantitykey = add_str("@cashshop_quantity");
 		int pricekey = add_str("@cashshop_price");
@@ -657,7 +657,30 @@ bool cashshop_buylist( struct map_session_data* sd, uint32 kafrapoints, int n, u
 			}
 		}
 	}
-
+	if (sd && !sd->runing_event[NPCE_CASHSHOPBUYEVENT] && event_exist(NPCE_CASHSHOPBUYEVENT)) {
+		int idkey = add_str("@cashshop_nameid");
+		int quantitykey = add_str("@cashshop_quantity");
+		int pricekey = add_str("@cashshop_price");
+		int count = 0, j;
+		for (i = 0; i < n; ++i) {
+			unsigned short nameid = *(item_list + i * 5);
+			uint32 quantity = *(item_list + i * 5 + 2);
+			uint8 tab = (uint8)*(item_list + i * 5 + 4);
+			if (tab >= CASHSHOP_TAB_MAX)
+				continue;
+			ARR_FIND(0, cash_shop_items[tab].count, j, nameid == cash_shop_items[tab].item[j]->nameid || nameid == itemdb_viewid(cash_shop_items[tab].item[j]->nameid));
+			if (j == cash_shop_items[tab].count)
+				continue;
+			if (!itemdb_exists(nameid))
+				continue;
+			pc_setreg(sd, reference_uid(idkey, i), nameid);
+			pc_setreg(sd, reference_uid(quantitykey, i), quantity);
+			pc_setreg(sd, reference_uid(pricekey, i), cash_shop_items[tab].item[j]->price);
+			count++;
+		}
+		pc_setreg(sd, add_str("@cashshop_count"), count);
+		npc_script_event(sd, NPCE_CASHSHOPBUYEVENT);
+	}
 	clif_cashshop_result( sd, 0, CASHSHOP_RESULT_SUCCESS ); //Doesn't show any message?
 	return true;
 }

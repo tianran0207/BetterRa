@@ -4674,6 +4674,8 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.cashshop_open_filter_name;
 	case NPCE_CASHSHOPBUYFILTER:
 		return script_config.cashshop_buy_filter_name;
+	case NPCE_CASHSHOPBUYEVENT:
+		return script_config.cashshop_buy_event_name;
 	case NPCE_CASHSHOPCLOSEEVENT:
 		return script_config.cashshop_close_event_name;
 	case NPCE_STYLISTCHANGEEVENT:

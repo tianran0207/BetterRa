@@ -349,6 +349,7 @@ struct Script_Config script_config = {
 	"OnPCRefineUIEvent", //refineui_event_name
 	"OnPCCashShopOpenFilter", //cashshop_open_filter_name
 	"OnPCCashShopBuyFilter", //cashshop_buy_filter_name
+	"OnPCCashShopBuyEvent", //cashshop_buy_event_name
 	"OnPCCashShopCloseEvent", //cashshop_close_event_name
 	"OnPCStylistChangeEvent" //stylist_change_event_name
 };
