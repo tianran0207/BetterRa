@@ -10904,7 +10904,7 @@ BUILDIN_FUNC(getnpctimer)
 	struct npc_data *nd;
 	TBL_PC *sd;
 	int type = script_getnum(st,2);
-	int val = 0;
+	t_tick val = 0;
 
 	if( script_hasdata(st,3) )
 		nd = npc_name2id(script_getstr(st,3));
@@ -11614,7 +11614,8 @@ BUILDIN_FUNC(sc_end_class)
 BUILDIN_FUNC(getscrate)
 {
 	struct block_list *bl;
-	int type,rate;
+	int type;
+	t_tick rate;
 
 	type=script_getnum(st,2);
 	rate=script_getnum(st,3);
@@ -15324,7 +15325,7 @@ BUILDIN_FUNC(summon)
 	const char *str,*event="";
 	TBL_PC *sd;
 	struct mob_data *md;
-	int tick = gettick();
+	t_tick tick = gettick();
 
 	if (!script_rid2sd(sd))
 		return SCRIPT_CMD_SUCCESS;
@@ -24810,7 +24811,7 @@ BUILDIN_FUNC(sc_check)
 	TBL_PC *sd;
 	struct status_change* sc;
 	const struct TimerData *timer;
-	unsigned int tick;
+	t_tick tick;
 	if (!script_accid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 	type = script_getnum(st, 2);
@@ -24827,7 +24828,7 @@ BUILDIN_FUNC(sc_check)
 			timer = get_timer(sc->data[type]->timer);
 			tick = gettick();
 			if (timer != NULL && DIFF_TICK(timer->tick, tick) > 0) 
-				pc_setreg(sd, add_str("@sc_tickleft"), DIFF_TICK(timer->tick, tick));
+				pc_setreg(sd, add_str("@sc_tickleft"), (int)DIFF_TICK(timer->tick, tick));
 			else 
 				pc_setreg(sd, add_str("@sc_tickleft"), -1);
 		}
@@ -25778,7 +25779,7 @@ struct skillwide {
 	struct view_data vd;
 };
 
-static int buildin_unitskillwide_sub(int tid, unsigned int tick, int id, intptr_t data)
+static int buildin_unitskillwide_sub(int tid, t_tick tick, int id, intptr_t data)
 {
 	struct skillwide *info;
 	struct mob_data *md;
@@ -26385,7 +26386,7 @@ BUILDIN_FUNC(bot_stop)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-static int buildin_bot_relogin_sub(int tid, unsigned int tick, int id, intptr_t data) {
+static int buildin_bot_relogin_sub(int tid, t_tick tick, int id, intptr_t data) {
 	TBL_PC *sd;
 	if ((sd = map_id2sd(id)) != NULL) {
 		clif_parse_LoadEndAck(0, sd);
@@ -26394,7 +26395,7 @@ static int buildin_bot_relogin_sub(int tid, unsigned int tick, int id, intptr_t 
 	return 1;
 }
 
-static int buildin_bot_login_sub(int tid, unsigned int tick, int id, intptr_t data){
+static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data){
 	TBL_PC *sd;
 	if (id == 0) {
 		sd = (struct map_session_data*)data;
@@ -26531,7 +26532,7 @@ BUILDIN_FUNC(unit_Astart_walkto)
 	struct block_list *bl;
 	struct step_path *sp;
 	struct autowalk_data *ad;
-	unsigned int tick = gettick();
+	t_tick tick = gettick();
 	
 
 	if (script_rid2bl(2, bl)) {

@@ -58,7 +58,7 @@ struct instance_data {
 	struct reg_db regs; ///< Instance variables for scripts
 	struct s_instance_map **map; ///< Dynamic array of maps in instance
 	uint8 cnt_map; ///< Number of maps in an instance
-	unsigned int create_tick;
+	t_tick create_tick;
 };
 
 /// Instance DB entry struct

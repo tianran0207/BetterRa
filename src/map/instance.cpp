@@ -813,7 +813,7 @@ void instance_left_point(struct map_session_data *sd, unsigned short instance_id
 	if (im->state != INSTANCE_BUSY)
 		return;
 
-	sprintf(output, "%hd:%hd:%hd:%u-%hu", sd->bl.m, sd->bl.x, sd->bl.y, im->create_tick, instance_id);
+	sprintf(output, "%hd:%hd:%hd:%" PRtf "-%hu", sd->bl.m, sd->bl.x, sd->bl.y, im->create_tick, instance_id);
 	pc_setregistry_str(sd, add_str("instance_record$"), output);
 }
 

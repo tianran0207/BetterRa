@@ -276,7 +276,7 @@ struct npc_data* npc_name2id(const char* name)
 TIMER_FUNC(npc_secure_timeout_timer){
 	struct map_session_data* sd = NULL;
 	unsigned int timeout = NPC_SECURE_TIMEOUT_NEXT;
-	int cur_tick = gettick(); //ensure we are on last tick
+	t_tick cur_tick = gettick(); //ensure we are on last tick
 
 	if ((sd = map_id2sd(id)) == NULL || !sd->npc_id || sd->state.ignoretimeout || battle_config.npc_timeout) {
 		if (sd)
@@ -581,8 +581,9 @@ struct timer_event_data {
  * triger 'OnTimerXXXX' events
  *------------------------------------------*/
 TIMER_FUNC(npc_timerevent){
-	int old_rid, old_timer;
-	unsigned int old_tick;
+	int old_rid;
+	t_tick old_timer;
+	t_tick old_tick;
 	struct npc_data* nd=(struct npc_data *)map_id2bl(id);
 	struct npc_timerevent_list *te;
 	struct timer_event_data *ted = (struct timer_event_data*)data;
@@ -654,7 +655,7 @@ TIMER_FUNC(npc_timerevent){
 int npc_timerevent_start(struct npc_data* nd, int rid)
 {
 	int j;
-	unsigned int tick = gettick();
+	t_tick tick = gettick();
 	struct map_session_data *sd = NULL; //Player to whom script is attached.
 
 	nullpo_ret(nd);
@@ -679,7 +680,7 @@ int npc_timerevent_start(struct npc_data* nd, int rid)
 
 	if (j < nd->u.scr.timeramount)
 	{
-		int next;
+		t_tick next;
 		struct timer_event_data *ted;
 		// Arrange for the next event
 		ted = ers_alloc(timer_event_ers, struct timer_event_data);
@@ -784,8 +785,9 @@ void npc_timerevent_quit(struct map_session_data* sd)
 		}
 		if( ev )
 		{
-			int old_rid,old_timer;
-			unsigned int old_tick;
+			int old_rid;
+			t_tick old_timer;
+			t_tick old_tick;
 
 			//Set timer related info.
 			old_rid = (nd->u.scr.rid == sd->bl.id ? 0 : nd->u.scr.rid); // Detach rid if the last attached player logged off.
@@ -812,9 +814,9 @@ void npc_timerevent_quit(struct map_session_data* sd)
  * Get the tick value of an NPC timer
  * If it's stopped, return stopped time
  *------------------------------------------*/
-int npc_gettimerevent_tick(struct npc_data* nd)
+t_tick npc_gettimerevent_tick(struct npc_data* nd)
 {
-	int tick;
+	t_tick tick;
 	nullpo_ret(nd);
 
 	// TODO: Get player attached timer's tick. Now we can just get it by using 'getnpctimer' inside OnTimer event.
@@ -1305,7 +1307,7 @@ void run_tomb(struct map_session_data* sd, struct npc_data* nd)
 	clif_scriptclose(sd, nd->bl.id);
 }
 
-static int npc_walkto_click_timer(int tid, unsigned int tick, int id, intptr_t data)
+static int npc_walkto_click_timer(int tid, t_tick tick, int id, intptr_t data)
 {
 	struct map_session_data* sd;
 	struct npc_data* nd;
@@ -1335,7 +1337,7 @@ static int npc_walkto_click(struct map_session_data* sd, struct npc_data* nd) {
 			else
 				c += sd->battle_status.speed;
 		}
-		add_timer(max(gettick(), sd->ud.canmove_tick) + c + 100, npc_walkto_click_timer, sd->bl.id, (intptr_t)nd->bl.id);
+		add_timer(i64max(gettick(), sd->ud.canmove_tick) + c + 100, npc_walkto_click_timer, sd->bl.id, (intptr_t)nd->bl.id);
 		return 0;
 	}
 	return 1;

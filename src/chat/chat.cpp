@@ -521,7 +521,7 @@ int chatclif_parse(int fd) {
 
 
 static int chat_mapif_parse(int fd);
-static int chat_check_connect_mapserver(int tid, unsigned int tick, int id, intptr_t data) {
+static int chat_check_connect_mapserver(int tid, t_tick tick, int id, intptr_t data) {
 
 	if (map_fd > 0 && session[map_fd] != NULL) {
 		WFIFOHEAD(map_fd, 6);// sends a ping packet to login server (will receive pong 0x2718)

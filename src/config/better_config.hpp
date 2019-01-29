@@ -4,8 +4,6 @@
 #ifndef	_BETTERRA_CONFIG_H_
 #define	_BETTERRA_CONFIG_H_
 
-typedef unsigned int t_tick;
-
 //----------------------------------
 //自定义宏定义
 //----------------------------------

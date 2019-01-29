@@ -37,11 +37,11 @@ struct chat_session_data {
 	uint32 guild_id;
 	char nickname[NAME_LENGTH];
 
-	unsigned int beattick;
-	unsigned int global_tick;
-	unsigned int public_tick;
-	unsigned int unban_time;
-	unsigned int ban_tick;
+	t_tick beattick;
+	t_tick global_tick;
+	t_tick public_tick;
+	t_tick unban_time;
+	t_tick ban_tick;
 
 	int fd;
 	uint64 skiplen;

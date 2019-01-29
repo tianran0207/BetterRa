@@ -153,7 +153,7 @@ void pc_set_reg_load( bool val ){
  **/
 DBMap* itemcd_db = NULL; // char_id -> struct item_cd
 struct item_cd {
-	unsigned int tick[MAX_ITEMDELAYS]; //tick
+	t_tick tick[MAX_ITEMDELAYS]; //tick
 	unsigned short nameid[MAX_ITEMDELAYS]; //item id
 };
 
@@ -500,7 +500,7 @@ void pc_inventory_rentals(struct map_session_data *sd)
  */
 void pc_inventory_rental_add(struct map_session_data *sd, unsigned int seconds)
 {
-	unsigned int tick = seconds * 1000;
+	t_tick tick = seconds * 1000;
 
 	if( sd == NULL )
 		return;
@@ -514,7 +514,7 @@ void pc_inventory_rental_add(struct map_session_data *sd, unsigned int seconds)
 			sd->rental_timer = add_timer(gettick() + tick, pc_inventory_rental_end, sd->bl.id, 0);
 		}
 	} else
-		sd->rental_timer = add_timer(gettick() + umin(tick,3600000), pc_inventory_rental_end, sd->bl.id, 0);
+		sd->rental_timer = add_timer(gettick() + i64min(tick,3600000), pc_inventory_rental_end, sd->bl.id, 0);
 }
 
 /**
@@ -648,7 +648,7 @@ void pc_makesavestatus(struct map_session_data *sd) {
 /*==========================================
  * Off init ? Connection?
  *------------------------------------------*/
-void pc_setnewpc(struct map_session_data *sd, uint32 account_id, uint32 char_id, int login_id1, unsigned int client_tick, int sex, int fd) {
+void pc_setnewpc(struct map_session_data *sd, uint32 account_id, uint32 char_id, int login_id1, t_tick client_tick, int sex, int fd) {
 	nullpo_retv(sd);
 
 	sd->bl.id = account_id;
@@ -1151,7 +1151,7 @@ uint8 pc_isequip(struct map_session_data *sd,int n)
 bool pc_authok(struct map_session_data *sd, uint32 login_id2, time_t expiration_time, int group_id, struct mmo_charstatus *st, bool changing_mapservers)
 {
 	int i;
-	unsigned long tick = gettick();
+	t_tick tick = gettick();
 	uint32 ip = session[sd->fd]->client_addr;
 
 	sd->login_id2 = login_id2;
@@ -5167,7 +5167,7 @@ bool pc_dropitem(struct map_session_data *sd,int n,int amount)
 bool pc_takeitem(struct map_session_data *sd,struct flooritem_data *fitem)
 {
 	int flag = 0;
-	unsigned int tick = gettick();
+	t_tick tick = gettick();
 	struct party_data *p = NULL;
 
 	nullpo_ret(sd);
@@ -5433,7 +5433,7 @@ bool pc_isUseitem(struct map_session_data *sd,int n)
  *------------------------------------------*/
 int pc_useitem(struct map_session_data *sd,int n)
 {
-	unsigned int tick = gettick();
+	t_tick tick = gettick();
 	int amount;
 	unsigned short nameid;
 	struct script_code *script;
@@ -8247,7 +8247,7 @@ void pc_close_npc(struct map_session_data *sd,int flag)
 int pc_dead(struct map_session_data *sd,struct block_list *src)
 {
 	int i=0,k=0;
-	unsigned int tick = gettick();
+	t_tick tick = gettick();
 	struct map_data *mapdata = map_getmapdata(sd->bl.m);
 
 	// Activate Steel body if a super novice dies at 99+% exp [celest]
@@ -10077,7 +10077,7 @@ void pc_addeventtimercount(struct map_session_data *sd,const char *name,int tick
 	for(i=0;i<MAX_EVENTTIMER;i++)
 		if( sd->eventtimer[i] != INVALID_TIMER && strcmp(
 			(char *)(get_timer(sd->eventtimer[i])->data), name)==0 ){
-				addtick_timer(sd->eventtimer[i],tick);
+				addt_tickimer(sd->eventtimer[i],tick);
 				break;
 		}
 }
@@ -11220,7 +11220,7 @@ struct map_session_data *pc_get_child (struct map_session_data *sd)
 /*==========================================
  * Set player sd to bleed. (losing hp and/or sp each diff_tick)
  *------------------------------------------*/
-void pc_bleeding (struct map_session_data *sd, unsigned int diff_tick)
+void pc_bleeding (struct map_session_data *sd, t_tick diff_tick)
 {
 	int hp = 0, sp = 0;
 
@@ -11252,7 +11252,7 @@ void pc_bleeding (struct map_session_data *sd, unsigned int diff_tick)
 //Character regen. Flag is used to know which types of regen can take place.
 //&1: HP regen
 //&2: SP regen
-void pc_regen (struct map_session_data *sd, unsigned int diff_tick)
+void pc_regen (struct map_session_data *sd, t_tick diff_tick)
 {
 	int hp = 0, sp = 0;
 
@@ -12380,7 +12380,7 @@ void pc_itemcd_do(struct map_session_data *sd, bool load) {
  * @return 0: No delay, can consume item.
  *         1: Has delay, cancel consumption.
  **/
-uint8 pc_itemcd_add(struct map_session_data *sd, struct item_data *id, unsigned int tick, unsigned short n) {
+uint8 pc_itemcd_add(struct map_session_data *sd, struct item_data *id, t_tick tick, unsigned short n) {
 	int i;
 	ARR_FIND(0, MAX_ITEMDELAYS, i, sd->item_delay[i].nameid == id->nameid );
 	if( i == MAX_ITEMDELAYS ) /* item not found. try first empty now */
@@ -12388,7 +12388,7 @@ uint8 pc_itemcd_add(struct map_session_data *sd, struct item_data *id, unsigned 
 	if( i < MAX_ITEMDELAYS ) {
 		if( sd->item_delay[i].nameid ) {// found
 			if( DIFF_TICK(sd->item_delay[i].tick, tick) > 0 ) {
-				int e_tick = DIFF_TICK(sd->item_delay[i].tick, tick)/1000;
+				t_tick e_tick = DIFF_TICK(sd->item_delay[i].tick, tick)/1000;
 				char e_msg[CHAT_SIZE_MAX];
 				if( e_tick > 99 )
 					sprintf(e_msg,msg_txt(sd,379), // Item Failed. [%s] is cooling down. Wait %.1f minutes.
@@ -12426,7 +12426,7 @@ uint8 pc_itemcd_add(struct map_session_data *sd, struct item_data *id, unsigned 
  * @return 0: No delay, can consume item.
  *         1: Has delay, cancel consumption.
  **/
-uint8 pc_itemcd_check(struct map_session_data *sd, struct item_data *id, unsigned int tick, unsigned short n) {
+uint8 pc_itemcd_check(struct map_session_data *sd, struct item_data *id, t_tick tick, unsigned short n) {
 	struct status_change *sc = NULL;
 
 	nullpo_retr(0, sd);
@@ -12439,7 +12439,7 @@ uint8 pc_itemcd_check(struct map_session_data *sd, struct item_data *id, unsigne
 	// Send reply of delay remains
 	if (sc->data[id->delay_sc]) {
 		const struct TimerData *timer = get_timer(sc->data[id->delay_sc]->timer);
-		clif_msg_value(sd, ITEM_REUSE_LIMIT, timer ? DIFF_TICK(timer->tick, tick) / 1000 : 99);
+		clif_msg_value(sd, ITEM_REUSE_LIMIT, (int)(timer ? DIFF_TICK(timer->tick, tick) / 1000 : 99));
 		return 1;
 	}
 
@@ -12734,7 +12734,7 @@ void pc_show_version(struct map_session_data *sd) {
  * @author [Cydh]
  **/
 void pc_bonus_script(struct map_session_data *sd) {
-	int now = gettick();
+	t_tick now = gettick();
 	struct linkdb_node *node = NULL, *next = NULL;
 
 	if (!sd || !(node = sd->bonus_script.head))
@@ -12775,7 +12775,7 @@ void pc_bonus_script(struct map_session_data *sd) {
  * @return New created entry pointer or NULL if failed or NULL if duplicate fail
  * @author [Cydh]
  **/
-struct s_bonus_script_entry *pc_bonus_script_add(struct map_session_data *sd, const char *script_str, uint32 dur, enum efst_types icon, uint16 flag, uint8 type) {
+struct s_bonus_script_entry *pc_bonus_script_add(struct map_session_data *sd, const char *script_str, t_tick dur, enum efst_types icon, uint16 flag, uint8 type) {
 	struct script_code *script = NULL;
 	struct linkdb_node *node = NULL;
 	struct s_bonus_script_entry *entry = NULL;
@@ -12793,9 +12793,9 @@ struct s_bonus_script_entry *pc_bonus_script_add(struct map_session_data *sd, co
 		while (node) {
 			entry = (struct s_bonus_script_entry *)node->data;
 			if (strcmpi(script_str, StringBuf_Value(entry->script_buf)) == 0) {
-				int newdur = gettick() + dur;
+				t_tick newdur = gettick() + dur;
 				if (flag&BSF_FORCE_REPLACE && entry->tick < newdur) { // Change duration
-					settick_timer(entry->tid, newdur);
+					sett_tickimer(entry->tid, newdur);
 					script_free_code(script);
 					return NULL;
 				}
@@ -13730,7 +13730,7 @@ static void pcbot_useitem(struct map_session_data *sd, int i) {
 	}
 }
 
-static int pcbot_fly_away(struct bot_data *bd, unsigned int tick) {
+static int pcbot_fly_away(struct bot_data *bd, t_tick tick) {
 	int i;
 	struct map_session_data *sd = bd->sd;
 
@@ -13746,7 +13746,7 @@ static int pcbot_fly_away(struct bot_data *bd, unsigned int tick) {
 	return 1;
 }
 
-static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, unsigned int tick) {
+static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, t_tick tick) {
 	int result, inf;
 	uint16 skill_id = bd->info.skill_id[bd->skill_idx];
 	uint16 skill_lv = bd->info.skill_lv[bd->skill_idx];
@@ -13772,7 +13772,7 @@ static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, unsigned in
 }
 
 static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
-	unsigned int tick;
+	t_tick tick;
 	int i, target_dead = 0;
 	struct map_session_data *sd;
 	struct block_list *tbl = NULL;
@@ -13783,7 +13783,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 	nullpo_ret(bd->sd);
 	sd = bd->sd;
 
-	tick = va_arg(args, unsigned int);
+	tick = va_arg(args, t_tick);
 
 
 	if (sd->bl.prev == NULL && sd->fd == 0)
@@ -14003,7 +14003,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 	return 0;
 }
 
-static int pcbot_ai_hard(int tid, unsigned int tick, int id, intptr_t data)
+static int pcbot_ai_hard(int tid, t_tick tick, int id, intptr_t data)
 {
 	map_foreachbot(pcbot_ai_lazy, tick);
 	return 0;

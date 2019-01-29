@@ -1712,7 +1712,7 @@ static int hombot_ai_lazy(struct map_session_data *sd, va_list args){
 	struct block_list *tbl = NULL;
 	int i, oldpar = 0, skill_id = 0, skill_lv = 0;
 	int result = 0, inf, can_move, min_chase;
-	unsigned int tick = va_arg(args, unsigned int);
+	t_tick tick = va_arg(args, t_tick);
 	nullpo_ret(sd);
 
 	if (sd->bl.prev == NULL || !sd->state.active)
@@ -1819,7 +1819,7 @@ static int hombot_ai_lazy(struct map_session_data *sd, va_list args){
 	return 0;
 }
 
-static int hombot_ai_hard(int tid, unsigned int tick, int id, intptr_t data){
+static int hombot_ai_hard(int tid, t_tick tick, int id, intptr_t data){
 	map_foreachhombot(hombot_ai_lazy, tick);
 	return 0;
 }

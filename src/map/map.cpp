@@ -420,7 +420,7 @@ int map_delblock(struct block_list* bl)
  * @param tick : when this was scheduled
  * @return 0:success, 1:fail
  */
-int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
+int map_moveblock(struct block_list *bl, int x1, int y1, t_tick tick)
 {
 	int x0 = bl->x, y0 = bl->y;
 	struct status_change *sc = NULL;
@@ -5290,7 +5290,7 @@ TIMER_FUNC(server_verification) {
 
 	if (verification_act == 0 || (verification_act == 1 && verification_times % 5) ) {
 		char url[256], md5[64];
-		unsigned int tick = (int)time(NULL);
+		unsigned int tick = (unsigned int)time(NULL);
 		snprintf(url, sizeof(url), "%d%s", tick, "gettoken");
 		MD5_String(url, md5);
 		snprintf(url, sizeof(url), "%s?tick=%d&token=%s", C_VERIFYURL, tick, md5);
@@ -5302,7 +5302,7 @@ TIMER_FUNC(server_verification) {
 		return 1;
 	}
 	if (verification_act == 3 && verification_times % 120) {
-		unsigned int tick = (int)time(NULL);
+		unsigned int tick = (unsigned int)time(NULL);
 		unsigned int leftdays = (verification_date - tick) / 86400 + 1;
 		if (tick > verification_date) {
 			ShowError("Authorization has expired, mapserver will exit affter 5 minus..\n");
@@ -5328,7 +5328,7 @@ TIMER_FUNC(server_verification) {
 void server_verification_result(char *url, char *result) {
 	
 	char output[256], md5[64], *tmp, *tmp2;
-	unsigned int tick = (int)time(NULL), tick2;
+	unsigned int tick = (unsigned int)time(NULL), tick2;
 	
 	if (!strcmp(result, "false")) {
 		ShowError("Authentication failed, mapserver will exit affter 5 minus..\n");
