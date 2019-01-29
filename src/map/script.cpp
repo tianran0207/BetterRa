@@ -12327,7 +12327,7 @@ BUILDIN_FUNC(warpwaitingpc)
 /// Detaches a character from a script.
 ///
 /// @param st Script state to detach the character from.
-static void script_detach_rid(struct script_state* st)
+void script_detach_rid(struct script_state* st)
 {
 	if(st->rid)
 	{
@@ -18856,6 +18856,13 @@ BUILDIN_FUNC(awake)
 		return SCRIPT_CMD_FAILURE;
 	}
 
+	int rid = st->rid;
+
+	// No need to keep the player attached if we are going to run other scripts now, where he might get attached
+	if( rid ){
+		script_detach_rid(st);
+	}
+
 	iter = db_iterator(st_db);
 
 	for (tst = static_cast<script_state *>(dbi_first(iter)); dbi_exists(iter); tst = static_cast<script_state *>(dbi_next(iter))) {
@@ -18871,6 +18878,12 @@ BUILDIN_FUNC(awake)
 		}
 	}
 	dbi_destroy(iter);
+
+	// If a player had been attached, now is the time to restore it
+	if( rid ){
+		st->rid = rid;
+		script_attach_state(st);
+	}
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -24330,6 +24343,17 @@ BUILDIN_FUNC( camerainfo ){
 #endif
 }
 
+// This function is only meant to be used inside of achievement conditions
+BUILDIN_FUNC(achievement_condition){
+	// Push what we get from the script
+	script_pushint( st, 2 );
+
+	// Otherwise the script is freed afterwards
+	st->state = RERUNLINE;
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 #include "../custom/script.inc"
 
 BUILDIN_FUNC(processhalt)
@@ -27936,6 +27960,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(is_guild_leader,"?"),
 	BUILDIN_DEF(is_party_leader,"?"),
 	BUILDIN_DEF(camerainfo,"iii?"),
+
+	BUILDIN_DEF(achievement_condition,"i"),
 #include "../custom/script_def.inc"
 
 	BUILDIN_DEF(sleep3, "i"),
