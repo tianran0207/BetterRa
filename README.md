@@ -2,6 +2,14 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20190129  [修复] 地图mapflag nightmaredrop在执行 @reloadscript 时不能重置的问题
+* 20190127  [添加] 脚本指令 OnPCCashShopBuyEvent 商城购买结束后触发的事件
+* 20190127  [修复] 地图mapflag mobspawnbase在副本中归零的问题
+* 20190127  [修复] 地图mapflag mobspawnbase血量不能突破21亿的问题
+* 20190127  [添加] get接口简单支持 cookie 操作
+* 20190127  [修复] 在脚本事件(Filter事件)中 不能使用close、close2、select、menu、next等指令的问题
+* 20190127  [修复] mapcache.exe 不能正确读取 conf/grf-files.txt 的问题
+* 20190127  [添加] 授权系统
 * 20190122  [修复] 使用商店拓展后，部分露天商店离线挂店后重启服务端后不能重读的问题
 * 20190121  [添加] 客户端 BetterRA.dll 使用进程锁 防止封包没有加密就发出的问题
 * 20190121  [添加] 封包加密支持官方三组KEY秘钥生成封包头加密机制（可防WPE）建议一起打开

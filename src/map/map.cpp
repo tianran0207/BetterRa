@@ -3595,6 +3595,8 @@ void map_flags_init(void){
 
 		// Clear adjustment data, will be reset after loading NPC
 		mapdata->damage_adjust = {};
+		mapdata->mobspawnbase = {};
+		mapdata->drop_list.clear();
 		mapdata->skill_damage.clear();
 		mapdata->skill_duration.clear();
 		map_free_questinfo(mapdata);
