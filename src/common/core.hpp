@@ -9,7 +9,7 @@
 	#include <signal.h>
 #endif
 
-extern char signature[24];
+void server_machine_code(char *code, int len);
 
 extern int arg_c;
 extern char **arg_v;

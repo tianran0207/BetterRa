@@ -5312,9 +5312,10 @@ TIMER_FUNC(server_verification) {
 			ShowWarning("Authorization time is less than %d days..\n", leftdays);
 		}
 	}
-	if (verification_act == -1 && verification_times % 6 == 0)
+	if (verification_act == -1 && verification_times % 6 == 0) {
+		do_abort();
 		exit(EXIT_FAILURE);
-
+	}
 #ifdef PLAYER_LIMIT
 	if (verification_times % 30 == 0) {
 		char mes[256];
@@ -5327,7 +5328,7 @@ TIMER_FUNC(server_verification) {
 
 void server_verification_result(char *url, char *result) {
 	
-	char output[256], md5[64], *tmp, *tmp2;
+	char output[256], md5[64], *tmp, *tmp2, signature[24];;
 	unsigned int tick = (unsigned int)time(NULL), tick2;
 	
 	if (!strcmp(result, "false")) {
@@ -5342,6 +5343,7 @@ void server_verification_result(char *url, char *result) {
 			return;
 
 		verification_act = 2;
+		server_machine_code(signature, 24);
 		safestrncpy(verification_token, result, sizeof(verification_token));
 		snprintf(output, sizeof(output), "%s%d%s", signature, tick, result);
 		MD5_String(output, md5);

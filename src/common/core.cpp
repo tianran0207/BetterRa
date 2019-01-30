@@ -387,28 +387,32 @@ LONG WINAPI ExceptionFilter(LPEXCEPTION_POINTERS lpExceptionInfo)
 #endif
 
 #include "md5calc.hpp"
-char signature[24];
-void server_info(char *path) {
+void server_machine_code(char *code, int len) {
 	char md5[128];
+	int sign, s2, id, s4;
+	_asm
+	{
+		mov  eax, 0x00000001
+		cpuid
+		mov sign, eax
+		mov s2, ecx
+		mov id, edx
+		mov s4, ebx
+	}
+	sprintf(md5, "%02X%02X%02X%02X%02X%02X%02X%02X%s", (id >> 24) & 0xff, (id >> 16) & 0xff, (id >> 8) & 0xff, (id >> 0) & 0xff
+		, (sign >> 24) & 0xff, (sign >> 16) & 0xff, (sign >> 8) & 0xff, (sign >> 0) & 0xff, "OckHALdCLKAHCUZ");
+	MD5_String(md5, md5);
+
+	safestrncpy(code, md5, len);
+}
+
+void server_info(char *path) {
+	char signature[24];
 	ShowInfo("" CL_BOLD "BetterRA Customized Information: " CL_NORMAL "(date: %s)\n", C_CUSTOMIZEDDATE);
 	ShowMessage("          - packet ver: " CL_BOLD "%d" CL_NORMAL "\n", C_PACKETVER);
 	ShowMessage("          - packet encrypt: " CL_BOLD "%s" CL_NORMAL "\n", C_SOCKET_ENCRYPT ? "yes" : "no");
 	if (path && path[0] != '\0' &&strstr(path, "map-server.exe")) {
-		
-		int sign, s2, id, s4;
-		_asm
-		{
-			mov  eax, 0x00000001
-			cpuid
-			mov sign, eax
-			mov s2, ecx
-			mov id, edx
-			mov s4, ebx
-		}
-		sprintf(md5, "%02X%02X%02X%02X%02X%02X%02X%02X%s", (id >> 24) & 0xff, (id >> 16) & 0xff, (id >> 8) & 0xff, (id >> 0) & 0xff
-			, (sign >> 24) & 0xff, (sign >> 16) & 0xff, (sign >> 8) & 0xff, (sign >> 0) & 0xff, "OckHALdCLKAHCUZ");
-		MD5_String(md5, md5);
-		safestrncpy(signature, md5, 24);
+		server_machine_code(signature, 24);
 		ShowMessage("" CL_BOLD "        Map-server Customized: " CL_NORMAL "(code: %s)\n", signature);
 		if (strcmp(C_USEREMAIL, "admin@mail.betterra.cn"))
 			ShowMessage("          - Customized email: " CL_BOLD "%s" CL_NORMAL "\n", C_USEREMAIL);
