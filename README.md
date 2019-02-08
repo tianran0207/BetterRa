@@ -2,6 +2,8 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20190205  [添加] 技能数据库 db/re(pre)/skill_castnodex_db.txt 添加掩码选项2048 取消技能后摇
+* 20190205  [修复] 魔物使用元素旋涡没有伤害的问题
 * 20190129  [修复] 地图mapflag nightmaredrop在执行 @reloadscript 时不能重置的问题
 * 20190127  [添加] 脚本指令 OnPCCashShopBuyEvent 商城购买结束后触发的事件
 * 20190127  [修复] 地图mapflag mobspawnbase在副本中归零的问题

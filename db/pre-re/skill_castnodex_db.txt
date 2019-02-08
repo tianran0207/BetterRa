@@ -9,6 +9,7 @@
 //        1 - skill's delay is not affected by dex
 //        2 - skill's delay is not affected by Magic Strings / Bragi
 //        4 - skill's delay is not affected by item bonuses (equip, cards)
+//     2048 - 取消技能后摇 (释放技能时玩家不做任何动作)
 //
 // Note: Values are bit fields, add them up to combine their effects.
 // Note: Delay setting '1' only makes sense when delay_dependon_dex is enabled.

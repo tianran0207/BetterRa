@@ -5652,6 +5652,19 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 				status_change_end(src, static_cast<sc_type>(spheres[i]), INVALID_TIMER);
 			}
 		}
+		else if(!sd) {
+			int i, k, subskill = 0;
+			for (i = 0; i < 4; i++) { // Loop should always be 4 for regular players, but unconditional_skill could be less
+				switch (i) {
+				case 0: subskill = WL_TETRAVORTEX_FIRE; k |= 1; break;
+				case 1: subskill = WL_TETRAVORTEX_WIND; k |= 4; break;
+				case 2: subskill = WL_TETRAVORTEX_WATER; k |= 2; break;
+				case 3: subskill = WL_TETRAVORTEX_GROUND; k |= 8; break;
+				}
+				skill_addtimerskill(src, tick + i * 200, bl->id, k, 0, subskill, skill_lv, i, flag);
+				clif_skill_nodamage(src, bl, subskill, skill_lv, 1);
+			}
+		}
 		break;
 
 	case WL_RELEASE:

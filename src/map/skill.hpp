@@ -195,8 +195,8 @@ struct s_skill_db {
 	int maxcount[MAX_SKILL_LEVEL];				 ///< Max number skill can be casted in same map
 
 	// skill_castnodex_db.txt
-	uint8 castnodex;							 ///< 1 - Not affected by dex, 2 - Not affected by SC, 4 - Not affected by item
-	uint8 delaynodex;							 ///< 1 - Not affected by dex, 2 - Not affected by SC, 4 - Not affected by item
+	uint16 castnodex;							 ///< 1 - Not affected by dex, 2 - Not affected by SC, 4 - Not affected by item
+	uint16 delaynodex;							 ///< 1 - Not affected by dex, 2 - Not affected by SC, 4 - Not affected by item
 
 	// skill_nocast_db.txt
 	uint32 nocast;								 ///< Skill cannot be casted at this zone
@@ -409,6 +409,7 @@ int skill_get_walkdelay( uint16 skill_id ,uint16 skill_lv );
 int skill_get_time( uint16 skill_id ,uint16 skill_lv );
 int skill_get_time2( uint16 skill_id ,uint16 skill_lv );
 int skill_get_castnodex( uint16 skill_id );
+int skill_get_delaynodex(uint16 skill_id);
 int skill_get_castdef( uint16 skill_id );
 int skill_get_nocast( uint16 skill_id );
 int skill_get_unit_id(uint16 skill_id,int flag);

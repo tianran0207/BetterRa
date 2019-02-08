@@ -5845,6 +5845,9 @@ void clif_skill_poseffect(struct block_list *src,uint16 skill_id,int val,int x,i
 
 	nullpo_retv(src);
 
+	if (skill_get_delaynodex(skill_id) & 2048)
+		return;
+
 	WBUFW(buf,0)=0x117;
 	WBUFW(buf,2)=skill_id;
 	WBUFL(buf,4)=src->id;
