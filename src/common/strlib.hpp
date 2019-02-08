@@ -7,6 +7,7 @@
 #include <stdarg.h>
 
 #include "cbasetypes.hpp"
+#include "utils.hpp"
 
 #if !defined(__USE_GNU)
 #define __USE_GNU  // required to enable strnlen on some platforms

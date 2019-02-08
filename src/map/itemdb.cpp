@@ -1109,7 +1109,7 @@ static void itemdb_read_combos(const char* basedir, bool silent) {
 		number = db_size(itemdb_combo);
 
 	// process rows one by one
-	while(fgets(line, sizeof(line), fp)) {
+	while(fgets_ex(line, sizeof(line), fp)) {
 		char *str[2], *p;
 
 		lines++;
@@ -1570,7 +1570,7 @@ static int itemdb_readdb(void){
 		}
 
 		// process rows one by one
-		while(fgets(line, sizeof(line), fp))
+		while(fgets_ex(line, sizeof(line), fp))
 		{
 			char *str[32], *p;
 			int i;
@@ -1787,7 +1787,7 @@ static bool itemdb_read_randomopt(const char* basedir, bool silent) {
 		return false;
 	}
 
-	while (fgets(line, sizeof(line), fp)) {
+	while (fgets_ex(line, sizeof(line), fp)) {
 		char *str[2], *p;
 
 		lines++;

@@ -606,7 +606,7 @@ int log_config_read(const char* cfgName)
 		return 1;
 	}
 
-	while( fgets(line, sizeof(line), fp) )
+	while( fgets_ex(line, sizeof(line), fp) )
 	{
 		if( line[0] == '/' && line[1] == '/' )
 			continue;

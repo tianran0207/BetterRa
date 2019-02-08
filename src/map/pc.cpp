@@ -12177,7 +12177,7 @@ static int pc_read_statsdb(const char *basedir, int last_s, bool silent){
 		return max(last_s,i);
 	} else {
 		int entries=0;
-		while(fgets(line, sizeof(line), fp))
+		while(fgets_ex(line, sizeof(line), fp))
 		{
 			int stat;
 			trim(line);
@@ -12323,7 +12323,7 @@ int pc_read_motd(void)
 		unsigned int entries = 0;
 		char buf[CHAT_SIZE_MAX];
 
-		while( entries < MOTD_LINE_SIZE && fgets(buf, CHAT_SIZE_MAX, fp) )
+		while( entries < MOTD_LINE_SIZE && fgets_ex(buf, CHAT_SIZE_MAX, fp) )
 		{
 			unsigned int lines = 0;
 			size_t len;

@@ -4,11 +4,12 @@
 #include "conf.hpp"
 
 #include "showmsg.hpp" // ShowError
+#include "utils.hpp" // config_read_file_ex
 
 int conf_read_file(config_t *config, const char *config_filename)
 {
 	config_init(config);
-	if (!config_read_file(config, config_filename)) {
+	if (!config_read_file_ex(config, config_filename)) {
 		ShowError("%s:%d - %s\n", config_error_file(config),
 		          config_error_line(config), config_error_text(config));
 		config_destroy(config);

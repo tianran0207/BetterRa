@@ -14815,7 +14815,7 @@ static bool status_readdb_attrfix(const char *basedir,bool silent)
 			ShowError("Can't read %s\n", path);
 		return 1;
 	}
-	while (fgets(line, sizeof(line), fp)) {
+	while (fgets_ex(line, sizeof(line), fp)) {
 		int lv, i, j;
 		if (line[0] == '/' && line[1] == '/')
 			continue;
@@ -14826,7 +14826,7 @@ static bool status_readdb_attrfix(const char *basedir,bool silent)
 
 		for (i = 0; i < ELE_ALL;) {
 			char *p;
-			if (!fgets(line, sizeof(line), fp))
+			if (!fgets_ex(line, sizeof(line), fp))
 				break;
 			if (line[0]=='/' && line[1]=='/')
 				continue;

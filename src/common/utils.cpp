@@ -167,6 +167,163 @@ int check_filepath(const char* filepath)
 	return 0;
 }
 
+bool utf8_check(char* str, size_t length)
+{
+	if (str[0] == -17 && str[1] == -69 && str[2] == -65)
+		return true;
+	size_t i = 0;
+	size_t nBytes = 0;
+	bool IsUTF8 = true;
+	size_t ascii = 0;
+	unsigned char* start = (unsigned char*)str;
+	unsigned char* end = (unsigned char*)str + length;
+	unsigned char chr;
+	while (start < end)
+	{
+		chr = *start;
+		if ((chr & 0x80) == 0) {
+			ascii++;
+			start++;
+		} else if (((chr << 2) & 0x80) == 0) {
+			if (start >= end - 1)
+				break;
+
+			if ((start[1] & (0xC0)) != 0x80)
+				return false;
+
+			ascii++;
+			start += 2;
+		} else if (((chr << 3) & 0x80) == 0) {
+			if (start >= end - 2)
+				break;
+
+			if ((start[1] & (0xC0)) != 0x80 || (start[2] & (0xC0)) != 0x80)
+				return false;
+				
+			start += 3;
+		} else {
+			chr = *(start);
+			while ((chr & 0x80) != 0) {
+				chr <<= 1;
+				nBytes++;
+			}
+			if (nBytes < 2 || nBytes > 6)
+				return false;
+			for (i = 1; i < nBytes; i++) {
+				chr = *(start + i);
+				if ((chr & 0xC0) != 0x80)
+					return false;
+			}
+			start += nBytes;
+		}
+	}
+
+	return (IsUTF8 && ascii != length);
+}
+
+size_t UTF8toGBK(char *u8str, size_t len)
+{
+	size_t slen, skip = 0;
+	wchar_t *unicode;
+
+	if (u8str[0] == -17 && u8str[1] == -69 && u8str[2] == -65)
+		skip = 3;
+
+	slen = MultiByteToWideChar(CP_UTF8, 0, u8str + skip, -1, NULL, 0);
+	unicode = (wchar_t *)aMalloc(slen * sizeof(wchar_t));
+	MultiByteToWideChar(CP_UTF8, 0, u8str + skip, -1, unicode, slen);
+	slen = WideCharToMultiByte(CP_ACP, 0, unicode, -1, NULL, 0, NULL, NULL);
+	if (slen < len) {
+		slen = WideCharToMultiByte(CP_ACP, 0, unicode, -1, u8str, slen, NULL, NULL);
+	}else
+		slen = len;
+	
+	aFree(unicode);
+	return slen;
+}
+
+size_t fread_ex(void *_Buffer, size_t _ElementSize, size_t _ElementCount, FILE *_Stream)
+{
+#ifdef BRA_UTF8_CODE
+	size_t len = fread(_Buffer, _ElementSize, _ElementCount, _Stream);
+	char *buffer = (char *)_Buffer;
+	buffer[len] = '\0';
+	if (utf8_check(buffer, len))
+		len = UTF8toGBK(buffer, len);
+	return len;
+#else //BRA_UTF8_CODE
+	return fread(_Buffer, _ElementSize, _ElementCount, _Stream);
+#endif
+}
+
+#include <string>
+char* fgets_ex(char *_Buffer, int _MaxCount, FILE *_Stream) {
+#ifdef BRA_UTF8_CODE
+	static size_t filesize = 0;
+	static bool is_utf8 = false;
+	struct stat buf;
+	fstat(fileno(_Stream), &buf);
+	if (filesize != buf.st_size && buf.st_size != 0) {
+		size_t len = 0, nseek = ftell(_Stream);
+		char *buffer = (char*)aMalloc(buf.st_size + 1);
+		len = fread(buffer, 1, buf.st_size, _Stream);
+		buffer[len] = '\0';
+		is_utf8 = utf8_check(buffer, len);
+		aFree(buffer);
+		fseek(_Stream, nseek, SEEK_SET);
+		filesize = buf.st_size;
+	}
+	if (is_utf8) {
+		memset(_Buffer, 0, _MaxCount);
+		if (fgets(_Buffer, _MaxCount, _Stream) == NULL)
+			return NULL;
+		UTF8toGBK(_Buffer, _MaxCount);
+	}else if (fgets(_Buffer, _MaxCount, _Stream) == NULL)
+		return NULL;
+
+	return _Buffer;
+#else //BRA_UTF8_CODE
+	return fgets(_Buffer, _MaxCount, _Stream);
+#endif
+}
+
+#ifndef MINICORE
+int config_read_file_ex(config_t *config, const char *filename)
+{
+#ifdef BRA_UTF8_CODE
+	size_t len;
+	FILE *fp;
+	char *buffer;
+	int ref = 0;
+	fp = fopen(filename, "rb");
+	if (fp == NULL)
+	{
+		ShowError("config_read_file_ex: File not found '%s'.\n", filename);
+		return CONFIG_FALSE;
+	}
+	fseek(fp, 0, SEEK_END);
+	len = ftell(fp);
+	buffer = (char*)aMalloc(len + 1);
+	fseek(fp, 0, SEEK_SET);
+	len = fread_ex(buffer, 1, len, fp);
+	buffer[len] = '\0';
+	if (ferror(fp))
+	{
+		ShowError("config_read_file_ex: Failed to read file '%s' - %s\n", filename, strerror(errno));
+		aFree(buffer);
+		fclose(fp);
+		return CONFIG_FALSE;
+	}
+	fclose(fp);
+	ref = config_read_string(config, buffer);
+	aFree(buffer);
+	return ref;
+#else //BRA_UTF8_CODE
+	return config_read_file(config, filename);
+#endif //BRA_UTF8_CODE
+}
+#endif //MINICORE
+
 #else
 
 #define MAX_DIR_PATH 2048
@@ -257,6 +414,22 @@ void findfile(const char *p, const char *pat, void (func)(const char*))
 
 	closedir(dir);
 }
+
+size_t fread_ex(void *_Buffer, size_t _ElementSize, size_t _ElementCount, FILE *_Stream)
+{
+	return fread(_Buffer, _ElementSize, _ElementCount, _Stream);
+}
+char* fgets_ex(char *_Buffer, int _MaxCount, FILE *_Stream) {
+	return fgets(_Buffer, _MaxCount, _Stream);
+}
+
+#ifndef MINICORE
+int config_read_file_ex(config_t *config, const char *filename)
+{
+	return config_read_file(config, filename);
+}
+#endif //MINICORE
+
 #endif
 
 bool exists(const char* filename)

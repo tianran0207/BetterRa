@@ -7,6 +7,7 @@
 #include <stdio.h> // FILE*
 
 #include "cbasetypes.hpp"
+#include "../../3rdparty/libconfig/libconfig.h"
 
 // generate a hex dump of the first 'length' bytes of 'buffer'
 void WriteDump(FILE* fp, const void* buffer, size_t length);
@@ -15,6 +16,10 @@ void ShowDump(const void* buffer, size_t length);
 int check_filepath(const char* filepath);
 void findfile(const char *p, const char *pat, void (func)(const char*));
 bool exists(const char* filename);
+
+char* fgets_ex(char *_Buffer, int _MaxCount, FILE *_Stream);
+size_t fread_ex(void *_Buffer, size_t _ElementSize, size_t _ElementCount, FILE *_Stream);
+int config_read_file_ex(config_t *config, const char *filename);
 
 /// Caps values to min/max
 #define cap_value(a, min, max) (((a) >= (max)) ? (max) : ((a) <= (min)) ? (min) : (a))

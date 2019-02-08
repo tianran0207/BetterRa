@@ -4378,7 +4378,7 @@ int npc_parsesrcfile(const char* filepath, bool runOnInit, char *other_buffer)
 		len = ftell(fp);
 		buffer = (char*)aMalloc(len+1);
 		fseek(fp, 0, SEEK_SET);
-		len = fread(buffer, 1, len, fp);
+		len = fread_ex(buffer, 1, len, fp);
 		buffer[len] = '\0';
 		if( ferror(fp) )
 		{

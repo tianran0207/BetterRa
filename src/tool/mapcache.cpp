@@ -249,7 +249,7 @@ int do_init(int argc, char** argv)
 		// Read and process the map list
 		char line[1024];
 
-		while (fgets(line, sizeof(line), list))
+		while (fgets_ex(line, sizeof(line), list))
 		{
 			if (line[0] == '/' && line[1] == '/')
 				continue;

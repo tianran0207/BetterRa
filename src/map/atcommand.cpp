@@ -7227,7 +7227,7 @@ ACMD_FUNC(gmotd)
 		char buf[CHAT_SIZE_MAX];
 		size_t len;
 
-		while( fgets(buf, sizeof(buf), fp) )
+		while(fgets_ex(buf, sizeof(buf), fp) )
 		{
 			if( buf[0] == '/' && buf[1] == '/' )
 			{

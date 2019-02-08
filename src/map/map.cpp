@@ -4034,7 +4034,7 @@ int map_config_read(const char *cfgName)
 		return 1;
 	}
 
-	while( fgets(line, sizeof(line), fp) )
+	while( fgets_ex(line, sizeof(line), fp) )
 	{
 		char* ptr;
 
@@ -4143,7 +4143,7 @@ void map_reloadnpc_sub(const char *cfgName)
 		return;
 	}
 
-	while( fgets(line, sizeof(line), fp) )
+	while( fgets_ex(line, sizeof(line), fp) )
 	{
 		char* ptr;
 
@@ -4201,7 +4201,7 @@ int inter_config_read(const char *cfgName)
 		ShowError("File not found: %s\n",cfgName);
 		return 1;
 	}
-	while(fgets(line, sizeof(line), fp))
+	while(fgets_ex(line, sizeof(line), fp))
 	{
 		if(line[0] == '/' && line[1] == '/')
 			continue;

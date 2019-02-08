@@ -779,7 +779,7 @@ void grfio_init(const char* fname)
 	if( data_conf != NULL )
 	{
 		char line[1024];
-		while( fgets(line, sizeof(line), data_conf) )
+		while( fgets_ex(line, sizeof(line), data_conf) )
 		{
 			char w1[1024], w2[1024];
 

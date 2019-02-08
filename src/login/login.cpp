@@ -520,7 +520,7 @@ int login_lan_config_read(const char *lancfgName) {
 		return 1;
 	}
 
-	while(fgets(line, sizeof(line), fp))
+	while(fgets_ex(line, sizeof(line), fp))
 	{
 		line_num++;
 		if ((line[0] == '/' && line[1] == '/') || line[0] == '\n' || line[1] == '\n')
@@ -571,7 +571,7 @@ bool login_config_read(const char* cfgName, bool normal) {
 		ShowError("Configuration file (%s) not found.\n", cfgName);
 		return false;
 	}
-	while(fgets(line, sizeof(line), fp)) {
+	while(fgets_ex(line, sizeof(line), fp)) {
 		if (line[0] == '/' && line[1] == '/')
 			continue;
 

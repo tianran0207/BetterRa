@@ -156,7 +156,7 @@ void mapindex_init(void) {
 			}
 		}
 
-		while(fgets(line, sizeof(line), fp)) {
+		while(fgets_ex(line, sizeof(line), fp)) {
 			if(line[0] == '/' && line[1] == '/')
 				continue;
 

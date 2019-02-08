@@ -36,7 +36,7 @@ bool chat_config_read(const char* cfgName, bool issql) {
 		return false;
 	}
 
-	while (fgets(line, sizeof(line), fp)) {
+	while (fgets_ex(line, sizeof(line), fp)) {
 		if (line[0] == '/' && line[1] == '/')
 			continue;
 

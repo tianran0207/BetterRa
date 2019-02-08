@@ -4469,7 +4469,7 @@ int script_config_read(const char *cfgName)
 		ShowError("File not found: %s\n", cfgName);
 		return 1;
 	}
-	while(fgets(line, sizeof(line), fp))
+	while(fgets_ex(line, sizeof(line), fp))
 	{
 		if(line[0] == '/' && line[1] == '/')
 			continue;

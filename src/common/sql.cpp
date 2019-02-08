@@ -1047,7 +1047,7 @@ void Sql_inter_server_read(const char* cfgName, bool first) {
 		return;
 	}
 
-	while(fgets(line, sizeof(line), fp)) {
+	while(fgets_ex(line, sizeof(line), fp)) {
 		int i = sscanf(line, "%1023[^:]: %1023[^\r\n]", w1, w2);
 		if(i != 2)
 			continue;

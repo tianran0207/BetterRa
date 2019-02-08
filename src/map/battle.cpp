@@ -8945,7 +8945,7 @@ int battle_config_read(const char* cfgName)
 	else {
 		char line[1024], w1[1024], w2[1024];
 
-		while(fgets(line, sizeof(line), fp)) {
+		while(fgets_ex(line, sizeof(line), fp)) {
 			if (line[0] == '/' && line[1] == '/')
 				continue;
 			if (sscanf(line, "%1023[^:]:%1023s", w1, w2) != 2)

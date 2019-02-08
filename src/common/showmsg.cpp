@@ -926,7 +926,7 @@ void msg_config_translation_read(const char* config_filename) {
 	char *realyval, *nkey;
 	int i, n;
 	config_init(&translation_config);
-	if (!config_read_file(&translation_config, config_filename))
+	if (!config_read_file_ex(&translation_config, config_filename))
 		return;
 	data = config_lookup(&translation_config, "data");
 	if (data != NULL) {

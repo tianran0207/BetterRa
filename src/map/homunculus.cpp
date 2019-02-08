@@ -1640,7 +1640,7 @@ void read_homunculus_expdb(void)
 			ShowError("Can't read %s\n",line);
 			return;
 		}
-		while (fgets(line, sizeof(line), fp) && j < MAX_LEVEL) {
+		while (fgets_ex(line, sizeof(line), fp) && j < MAX_LEVEL) {
 			if (line[0] == '/' && line[1] == '/')
 				continue;
 

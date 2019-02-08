@@ -793,7 +793,7 @@ int inter_config_read(const char* cfgName)
 		return 1;
 	}
 
-	while(fgets(line, sizeof(line), fp)) {
+	while(fgets_ex(line, sizeof(line), fp)) {
 		char w1[24], w2[1024];
 
 		if (line[0] == '/' && line[1] == '/')
