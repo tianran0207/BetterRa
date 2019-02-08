@@ -775,6 +775,7 @@
 	export_constant2("bRegenPercentHP", SP_REGEN_PERCENT_HP);
 	export_constant2("bRegenPercentSP", SP_REGEN_PERCENT_SP);
 	export_constant2("bSkillDelay",SP_SKILL_DELAY);
+	export_constant2("bNoWalkDelay",SP_NO_WALK_DELAY);
 
 	/* equip indices */
 	export_constant(EQI_COMPOUND_ON);
@@ -3977,13 +3978,14 @@
 	export_constant(SCSTART_NOICON);
 
 	/* unit control - types */
-	export_constant(UNITTYPE_PC);
-	export_constant(UNITTYPE_NPC);
-	export_constant(UNITTYPE_PET);
-	export_constant(UNITTYPE_MOB);
-	export_constant(UNITTYPE_HOM);
-	export_constant(UNITTYPE_MER);
-	export_constant(UNITTYPE_ELEM);
+	/* Send deprecation notice and temporarily replace with new constant value. */
+	export_deprecated_constant2("UNITTYPE_PC", BL_PC);
+	export_deprecated_constant2("UNITTYPE_NPC", BL_NPC);
+	export_deprecated_constant2("UNITTYPE_PET", BL_PET);
+	export_deprecated_constant2("UNITTYPE_MOB", BL_MOB);
+	export_deprecated_constant2("UNITTYPE_HOM", BL_HOM);
+	export_deprecated_constant2("UNITTYPE_MER", BL_MER);
+	export_deprecated_constant2("UNITTYPE_ELEM", BL_ELEM);
 
 	/* unit control - mob */
 	export_constant(UMOB_SIZE);
