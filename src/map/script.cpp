@@ -24810,10 +24810,10 @@ BUILDIN_FUNC(script4each)
 	const char *bonus_script;
 	struct map_session_data *pl_sd;
 	struct script_code *scriptcode = NULL;
-
+	struct script_state *previous_st = NULL;
 	struct party_data *p = NULL;
 	struct guild *g = NULL;
-	TBL_PC *sd = NULL;
+	TBL_PC *sd = NULL, *st_sd = NULL;
 
 	bonus_script = script_getstr(st, 2);
 	type = script_getnum(st, 3);
@@ -24824,6 +24824,10 @@ BUILDIN_FUNC(script4each)
 			return SCRIPT_CMD_FAILURE;
 	}
 
+	if ((st_sd = map_id2sd(st->rid)) != NULL) {
+		previous_st = st_sd->st;
+		script_detach_rid(previous_st);
+	}
 
 	switch (type)
 	{
@@ -25020,6 +25024,11 @@ BUILDIN_FUNC(script4each)
 
 	if (scriptcode)
 		script_free_code(scriptcode);
+
+	if (previous_st != NULL) {
+		previous_st->rid = st_sd->bl.id;
+		script_attach_state(previous_st);
+	}
 
 	return SCRIPT_CMD_SUCCESS;
 }
