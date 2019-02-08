@@ -21661,18 +21661,17 @@ static int clif_parse(int fd)
 
 	cmd = RFIFOW(fd, 0);
 
-	//chat-server interface 
-	if (cmd == 0x9F0F) {
-		intif_chat_server_recv(fd);
+#if C_SOCKET_ENCRYPT > 0
+	char tmp[8];
+	unsigned int len = RFIFOREST(fd);
+	if (cmd == 0xFFFE) {
+		if (len < 150)
+			return 0;
+		RFIFOSKIP(fd, 150);
 		return 0;
 	}
-
-#if C_SOCKET_ENCRYPT > 0
-	unsigned int len = RFIFOREST(fd);
-	if (len < 8) 
+	if (len < 8)
 		return 0;
-
-	char tmp[8];
 	memcpy(tmp, RFIFOCP(fd, 0), 8);
 	DecryptBlock(tmp);
 	if ((*(uint16*)tmp) == 0xFFFF) {
@@ -21683,15 +21682,31 @@ static int clif_parse(int fd)
 		cmd = RFIFOW(fd, 0);
 		if (sd)
 			sd->nodecrypt = 0;
-	}else if(sd)
-		sd->nodecrypt++;
-
-	if (sd && sd->nodecrypt > 5) {
-		set_eof(fd);
+	}
+	else if (sd) {
+		size_t i;
+		char hex[CHAT_SIZE_MAX * 3 + 20];
+		for (i = 0; i < len; i++)
+		{
+			char c = RBUFB(RFIFOP(fd, 0), i);
+			sprintf(hex + (i * 3), "%02X ", RBUFB(RFIFOP(fd, 0), i));
+		}
+		ShowInfo("HEAD: 0x%04X, LEN: %d, PACKET: %s\n", cmd, len, hex);
+		if (sd && ++sd->nodecrypt > 3) {
+			set_eof(fd);
+			return 0;
+		}
+		RFIFOSKIP(fd, len);
 		return 0;
 	}
-
 #endif
+
+	//chat-server interface 
+	if (cmd == 0x9F0F) {
+
+		intif_chat_server_recv(fd);
+		return 0;
+	}
 
 #ifdef PACKET_OBFUSCATION
 	// Check if it is a player that tries to connect to the map server.

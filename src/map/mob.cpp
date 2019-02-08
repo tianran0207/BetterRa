@@ -2053,6 +2053,9 @@ static int mob_ai_sub_lazy(struct mob_data *md, va_list args)
 
 	if( DIFF_TICK(md->next_walktime,tick) < 0 && status_has_mode(&md->status,MD_CANMOVE) && unit_can_move(&md->bl) )
 	{
+		if (md->ud.walktimer == INVALID_TIMER && md->autowalk.path && unit_check_step(&md->bl, &md->autowalk, tick))
+			return 0;
+
 		if( rnd()%1000 < MOB_LAZYMOVEPERC(md) )
 			mob_randomwalk(md, tick);
 	}
