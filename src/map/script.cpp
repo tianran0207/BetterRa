@@ -24732,7 +24732,7 @@ BUILDIN_FUNC(battleignore)
 BUILDIN_FUNC(getequipexpiretick)
 {
 	int pos;
-	short idx;
+	short idx = -1;
 	TBL_PC *sd;
 	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
