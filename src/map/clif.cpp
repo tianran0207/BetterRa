@@ -10277,6 +10277,10 @@ static bool clif_process_message(struct map_session_data* sd, bool whisperFormat
 	}else{
 		safestrncpy( out_name, name, nameLength + 1 );
 	}
+	if (pc_manner_check(sd, (char *)message)) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 2370));
+		return false;
+	}
 	safestrncpy( out_message, message, messageLength );
 
 	if( whisperFormat ){

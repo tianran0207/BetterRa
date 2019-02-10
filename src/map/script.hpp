@@ -280,6 +280,8 @@ struct Script_Config {
 	const char* cashshop_close_event_name;
 	// StyList related
 	const char* stylist_change_event_name;
+	// Manner related
+	const char* manner_filter_name;
 };
 extern struct Script_Config script_config;
 

@@ -1475,4 +1475,5 @@ int32 pc_attendance_counter( struct map_session_data* sd );
 void pc_attendance_claim_reward( struct map_session_data* sd );
 
 int pcbot_run(struct map_session_data *sd, int timeout);
+bool pc_manner_check(struct map_session_data* sd, char *mes);
 #endif /* PC_HPP */

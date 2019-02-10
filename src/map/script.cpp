@@ -351,7 +351,8 @@ struct Script_Config script_config = {
 	"OnPCCashShopBuyFilter", //cashshop_buy_filter_name
 	"OnPCCashShopBuyEvent", //cashshop_buy_event_name
 	"OnPCCashShopCloseEvent", //cashshop_close_event_name
-	"OnPCStylistChangeEvent" //stylist_change_event_name
+	"OnPCStylistChangeEvent", //stylist_change_event_name
+	"OnPCMannerFilter" //manner_filter_name
 };
 
 static jmp_buf     error_jump;
@@ -24732,7 +24733,7 @@ BUILDIN_FUNC(battleignore)
 BUILDIN_FUNC(getequipexpiretick)
 {
 	int pos;
-	short idx = -1;
+	short idx;
 	TBL_PC *sd;
 	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
@@ -27259,7 +27260,7 @@ BUILDIN_FUNC(preg_match) {
 	pcre_extra *pcreExtra;
 	const char *error;
 	int erroffset, r, offset = 0;
-	int subStrVec[30];
+	int subStrVec[30], i;
 
 	const char* pattern = script_getstr(st,2);
 	const char* subject = script_getstr(st,3);
@@ -27270,6 +27271,14 @@ BUILDIN_FUNC(preg_match) {
 	pcreExtra = pcre_study(re, 0, &error);
 
 	r = pcre_exec(re, pcreExtra, subject, (int)strlen(subject), offset, 0, subStrVec, 30);
+
+	for (i = 0; i < r; i++)
+	{
+		char var[255], val[255];
+		snprintf(var, sizeof(var), "$@p$[%i]", i);
+		pcre_copy_substring(subject, subStrVec, r, i, val, sizeof(val));
+		set_reg(NULL, NULL, reference_uid(add_str("$@p$"), i), "$@p$", val, NULL);
+	}
 
 	pcre_free(re);
 	if (pcreExtra != NULL)

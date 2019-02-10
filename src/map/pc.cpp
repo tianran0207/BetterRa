@@ -157,6 +157,18 @@ struct item_cd {
 	unsigned short nameid[MAX_ITEMDELAYS]; //item id
 };
 
+#ifdef PCRE_SUPPORT
+#include "../../3rdparty/pcre/include/pcre.h" // preg_match
+DBMap* manner_db = NULL;
+static bool pc_readdb_manner(char* fields[], int columns, int current);
+struct s_manner {
+	pcre *re;
+	pcre_extra *pcreExtra;
+	char str[1024];
+	char type;
+};
+#endif
+
 /**
 * Converts a class to its array index for CLASS_COUNT defined arrays.
 * Note that it does not do a validity check for speed purposes, where parsing
@@ -12252,7 +12264,7 @@ void pc_readdb(void) {
 			safesnprintf(dbsubpath1,n1,"%s%s",db_path,dbsubpath[i]);
 			safesnprintf(dbsubpath2,n1,"%s%s",db_path,dbsubpath[i]);
 		}
-
+		sv_readdb(dbsubpath1, "manner.txt", ',', 1, 2, -1, &pc_readdb_manner, i > 0);
 		s = pc_read_statsdb(dbsubpath2,s,i > 0);
 		if (i == 0)
 #ifdef RENEWAL_ASPD
@@ -14059,10 +14071,90 @@ int pcbot_run(struct map_session_data *sd, int timeout) {
 	return count;
 }
 
+static bool pc_readdb_manner(char* fields[], int columns, int current)
+{
+#ifdef PCRE_SUPPORT
+	struct s_manner *manner;
+	int erroffset;
+	const char *error;
+	int idx = (columns == 1 ? 0 : 1);
+	CREATE(manner, struct s_manner, 1);
+	if (fields[idx][0] == '/' && fields[idx][strlen(fields[idx]) - 1] == '/') {
+		fields[idx][strlen(fields[idx]) - 1] = '\0';
+		manner->re = pcre_compile(fields[idx] + 1, 0, &error, &erroffset, NULL);
+		manner->pcreExtra = pcre_study(manner->re, 0, &error);
+		manner->str[0] = '\0';
+	}
+	else {
+		manner->re = NULL;
+		manner->pcreExtra = NULL;
+		safestrncpy(manner->str, fields[idx], sizeof(manner->str));
+	}
+	manner->type = (columns == 1 ? 0 : atoi(fields[0]));
+	idb_put(manner_db, db_size(manner_db), manner);
+#endif
+	return true;
+}
+
+int pc_manner_db_final(DBKey key, DBData *data, va_list ap)
+{
+#ifdef PCRE_SUPPORT
+	struct s_manner *manner = (struct s_manner *)db_data2ptr(data);
+
+	if (manner->re) {
+		pcre_free(manner->re);
+		if (manner->pcreExtra != NULL)
+			pcre_free(manner->pcreExtra);
+	}
+	aFree(manner);
+#endif
+	return 0;
+}
+
+bool pc_manner_check(struct map_session_data* sd, char *mes)
+{
+	struct s_manner *manner;
+	char *rep;
+	int subMannerVec[30], i, j, r = 0;
+	DBIterator *iter = db_iterator(manner_db);
+	for (manner = (struct s_manner *)dbi_first(iter); dbi_exists(iter); manner = (struct s_manner *)dbi_next(iter)) { //Update online parties
+		if (manner->re) {
+			r = pcre_exec(manner->re, manner->pcreExtra, mes, (int)strlen(mes), 0, 0, subMannerVec, 30);
+			for (i = 0; i < r; i++) {
+				char val[255];
+				pcre_copy_substring(mes, subMannerVec, r, i, val, sizeof(val));
+				if ((rep = strstr(mes, val)) != NULL) {
+					for (j = 0; j < strlen(val); j++)
+						rep[j] = '*';
+				}
+			}
+		}
+		else if (manner->str[0]){
+			while ((rep = strstr(mes, manner->str)) != NULL) {
+				r = 1;
+				for (j = 0; j < strlen(manner->str); j++)
+					rep[j] = '*';
+			}
+		}
+	}
+	dbi_destroy(iter);
+	if (!sd->runing_event[NPCE_MANNERFILTER] && event_exist(NPCE_MANNERFILTER)) {
+		pc_setreg(sd, add_str("@manner_type"), manner->type);
+		pc_setregstr(sd, add_str("@manner_mes$"), mes);
+		npc_script_event_atonce(sd, NPCE_MANNERFILTER);
+		if (sd->state.processhalt)
+			return true;
+	}
+	return (r > 0 && manner->type == 1 ? true : false);
+}
+
 /*==========================================
  * pc Init/Terminate
  *------------------------------------------*/
 void do_final_pc(void) {
+
+	manner_db->destroy(manner_db, pc_manner_db_final);
+
 	db_destroy(itemcd_db);
 	do_final_pc_groups();
 
@@ -14075,6 +14167,7 @@ void do_final_pc(void) {
 
 void do_init_pc(void) {
 
+	manner_db = idb_alloc(DB_OPT_BASE);
 	itemcd_db = idb_alloc(DB_OPT_RELEASE_DATA);
 
 	pc_readdb();
