@@ -4655,8 +4655,6 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 			pc_setreg(sd, add_str("@insert_card_id"), nameid);
 			pc_setreg(sd, add_str("@insert_card_slot"), i);
 			npc_script_event_atonce(sd, NPCE_CARDINSERTEVENT);
-			if (sd->state.processhalt)
-				return false;
 		}
 	}
 
