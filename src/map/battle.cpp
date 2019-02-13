@@ -8198,6 +8198,9 @@ static const struct _battle_data {
 	{ "pvp_long_attack_damage_rate",        &battle_config.pvp_long_damage_rate,            100,    0,      INT_MAX,        },
 	{ "same_mapwarp_castcancel",            &battle_config.same_mapwarp_castcancel,         0,      0,      1,              },
 	{ "backstap_overlap",                   &battle_config.backstap_overlap,                0,      0,      1,              },
+	{ "disable_items_callfunc",             &battle_config.disable_items_callfunc,          1,      0,      1,              },
+	{ "disable_items_equip",                &battle_config.disable_items_equip,             0,      0,      1,              },
+	{ "disable_skill_delay",                &battle_config.disable_skill_delay,             0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]---------------------------------------------		 
 	{ "extended_vending",					&battle_config.extended_vending,				1,		0,		1,				},
 	{ "show_item_vending",					&battle_config.show_item_vending,				1,		0,		1,				},

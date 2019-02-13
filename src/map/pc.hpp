@@ -322,6 +322,7 @@ struct map_session_data {
 	struct s_state {
 		unsigned bot : 1;
 		unsigned hombot : 3;
+		unsigned disable_skill_delay : 1;
 		unsigned processhalt : 1;//processhalt
 		unsigned event_now : 1;
 		unsigned no_touch_warp : 1;

@@ -21199,7 +21199,7 @@ BUILDIN_FUNC(getrandgroupitem) {
 
 	memset(&item_tmp,0,sizeof(item_tmp));
 	item_tmp.nameid   = entry->nameid;
-	item_tmp.identify = identify ? 1 : itemdb_isidentified(entry->nameid, 1);
+	item_tmp.identify = identify ? 1 : itemdb_isidentified(entry->nameid, 64);
 
 	if (!qty)
 		qty = entry->amount;
@@ -27297,13 +27297,31 @@ BUILDIN_FUNC(preg_match) {
 #endif
 }
 
-const char* get_first_func_name(unsigned char *buf) {
-	int pos = 0, func;
-	if (get_com(buf, &pos) == C_NAME) {
-		func = GETVALUE(buf, pos);
-		return str_buf + str_data[func].str;
+bool has_func_name(struct script_code *script_code, char *func_name) {
+	int len = script_code->script_size;
+	unsigned char *buf = script_code->script_buf;
+	int i = 0, j;
+	while (i < len) {
+		c_op op = get_com(buf, &i);
+		j = i;
+		switch (op) {
+		case C_INT:
+			get_num(buf, &i);
+			break;
+		case C_NAME:
+			j = (*(int*)(buf + i) & 0xffffff);
+			if (j != 0xffffff && !strcmp(func_name, get_str(j)))
+				return true;
+		case C_POS:
+			i += 3;
+			break;
+		case C_STR:
+			j = strlen((char *)(buf + i));
+			i += j + 1;
+			break;
+		}
 	}
-	return NULL;
+	return false;
 }
 
 /// script command definitions

@@ -11722,6 +11722,9 @@ void clif_parse_EquipItem(int fd,struct map_session_data *sd)
 	if (index < 0 || index >= MAX_INVENTORY)
 		return; //Out of bounds check.
 
+	if(sd->npc_id && battle_config.disable_items_equip)
+		return;
+
 	if(sd->npc_id && !sd->npc_item_flag) {
 		return;
 	} else if (sd->state.storage_flag || sd->sc.opt1)
@@ -11771,6 +11774,9 @@ void clif_parse_UnequipItem(int fd,struct map_session_data *sd)
 		clif_clearunit_area(&sd->bl,CLR_DEAD);
 		return;
 	}
+
+	if (sd->npc_id && battle_config.disable_items_equip)
+		return;
 
 	if (sd->npc_id && !sd->npc_item_flag) {
 		return;

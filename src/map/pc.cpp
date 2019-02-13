@@ -5463,6 +5463,9 @@ int pc_useitem(struct map_session_data *sd,int n)
 			return 0; // First item use attempt cancels the progress bar
 		}
 
+		if (battle_config.disable_items_callfunc && has_func_name(sd->inventory_data[n]->script, "callfunc"))
+			return 0;
+
 		if( pc_hasprogress( sd, WIP_DISABLE_SKILLITEM ) || !sd->npc_item_flag ){
 #ifdef RENEWAL
 			clif_msg( sd, WORK_IN_PROGRESS );
@@ -5503,9 +5506,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 		return 0;
 
 	if (map_getmapflag(sd->bl.m, MF_NOPET) && sd->inventory_data[n]->type == 2 && sd->inventory_data[n]->script != NULL) {
-		const char *func_name;
-		func_name = get_first_func_name(sd->inventory_data[n]->script->script_buf);
-		if (func_name && !strnicmp(func_name, "pet", 3)) {
+		if (has_func_name(sd->inventory_data[n]->script, "pet")) {
 			clif_displaymessage(sd->fd, msg_txt(sd, 2336));
 			return 0;
 		}
@@ -6293,6 +6294,13 @@ int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 sk
 				break;
 			}
 		}
+	}
+
+	if (battle_config.disable_skill_delay) {
+		sd->state.disable_skill_delay = 1;
+		if (cooldown < skill_delayfix(&sd->bl, skill_id, skill_lv))
+			cooldown = skill_delayfix(&sd->bl, skill_id, skill_lv);
+		sd->state.disable_skill_delay = 0;
 	}
 
 	return cooldown;

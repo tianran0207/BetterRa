@@ -2062,7 +2062,7 @@ int script_reg_destroy(DBKey key, DBData *data, va_list ap);
 void script_generic_ui_array_expand(unsigned int plus);
 unsigned int *script_array_cpy_list(struct script_array *sa);
 
-const char* get_first_func_name(unsigned char *buf);
+bool has_func_name(struct script_code *script_code, char *func_name);
 void script_bonus_calc(struct map_session_data *sd);
 bool script_check_RegistryVariableLength(int pType, const char *val, size_t* vlen);
 
