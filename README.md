@@ -2,6 +2,10 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20190213  [修改] 战斗配置 get_identify_equip 增加 &64: 使用 getrandgroupitem 获得的装备
+* 20190213  [添加] 战斗配置 disable_items_callfunc NPC对话时禁止使用callfunc道具
+* 20190213  [添加] 战斗配置 disable_items_equip NPC对话时禁止穿戴脱下装备
+* 20190213  [添加] 战斗配置 disable_skill_delay 是否禁用技能公共延迟
 * 20190207  [修复] 脚本指令 getequipexpiretick 当传入参数部位装备位置时会宕机的问题
 * 20190207  [修复] 新版成就系统宕机BUG
 * 20190207  [修复] script4each在三层堆栈时的宕机BUG
