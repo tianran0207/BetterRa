@@ -8140,7 +8140,7 @@ static const struct _battle_data {
 	{ "extremityfist_castend_status_check", &battle_config.extremityfist_castend_status_check, 0,   0,      1,              },
 	{ "extremityfist_nocast_sp",            &battle_config.extremityfist_nocast_sp,         0,      0,      1,              },
 	{ "loadevent_for_eachmap",              &battle_config.loadevent_for_eachmap,           0,      0,      1,              },
-	{ "get_identify_equip",                 &battle_config.get_identify_equip,              0,      0,      1|2|4|8|16|32,  },
+	{ "get_identify_equip",                 &battle_config.get_identify_equip,              0,      0,      1|2|4|8|16|32|64,},
 	{ "mounting_cant_use",                  &battle_config.mounting_cant_use,               0,      0,      1|2|4|8|16|32|64|128|256, },
 	{ "hide_cmd",                           &battle_config.hide_cmd,                        0,      0,      1,              },
 	{ "combo_mode",                         &battle_config.combo_mode,                      0,      0,      2,              },
