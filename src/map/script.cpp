@@ -27220,7 +27220,7 @@ BUILDIN_FUNC(sendmail)
 	else
 		len_items = 12;
 
-	if ((script_lastdata(st) - 6) % len_items != 0) {
+	if (script_lastdata(st) > 6 && (script_lastdata(st) - 6) % len_items != 0){
 		ShowError("buildin_%s: The number of parameters error\n", command);
 		return SCRIPT_CMD_FAILURE;
 	}
