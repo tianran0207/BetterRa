@@ -290,6 +290,12 @@ void buyingstore_open(struct map_session_data* sd, uint32 account_id)
 
 	nullpo_retv(sd);
 
+	struct npc_data* nd;
+	if ((nd = map_id2nd(account_id)) != NULL && nd->vend.type == 2) {
+		npc_click(sd, nd);
+		return;
+	}
+
 	if( !battle_config.feature_buying_store || pc_istrading(sd) )
 	{// not allowed to sell
 		return;

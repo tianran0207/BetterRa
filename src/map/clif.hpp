@@ -998,6 +998,8 @@ void clif_buyingstore_trade_failed_buyer(struct map_session_data* sd, short resu
 void clif_buyingstore_update_item(struct map_session_data* sd, unsigned short nameid, unsigned short amount, uint32 char_id, int zeny);
 void clif_buyingstore_delete_item(struct map_session_data* sd, short index, unsigned short amount, int price);
 void clif_buyingstore_trade_failed_seller(struct map_session_data* sd, short result, unsigned short nameid);
+void clif_showbuyingboard(struct block_list* bl, const char* message, int fd);
+void clif_closebuyingboard(struct block_list* bl, int fd);
 
 /// Search Store System
 void clif_search_store_info_ack(struct map_session_data* sd);

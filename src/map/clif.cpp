@@ -4777,6 +4777,10 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 	case BL_NPC:
 		{
 			TBL_NPC* nd = (TBL_NPC*)bl;
+			if (nd->vend.type == 1)
+				clif_showvendingboard(bl, nd->vend.message, sd->fd);
+			if (nd->vend.type == 2)
+				clif_showbuyingboard(bl, nd->vend.message, sd->fd);
 			if( nd->chat_id )
 				clif_dispchat((struct chat_data*)map_id2bl(nd->chat_id),sd->fd);
 			if( nd->size == SZ_BIG )
@@ -18236,6 +18240,43 @@ void clif_buyingstore_disappear_entry_single(struct map_session_data* sd, struct
 	WFIFOSET(fd,packet_len(0x816));
 }
 
+void clif_showbuyingboard(struct block_list* bl, const char* message, int fd)
+{
+	unsigned char buf[128];
+
+	nullpo_retv(bl);
+
+	WBUFW(buf, 0) = 0x814;
+	WBUFL(buf, 2) = bl->id;
+	safestrncpy(WBUFCP(buf, 6), message, 80);
+
+	if (fd) {
+		WFIFOHEAD(fd, packet_len(0x814));
+		memcpy(WFIFOP(fd, 0), buf, packet_len(0x814));
+		WFIFOSET(fd, packet_len(0x814));
+	}
+	else {
+		clif_send(buf, packet_len(0x814), bl, AREA_WOS);
+	}
+}
+
+void clif_closebuyingboard(struct block_list* bl, int fd)
+{
+	unsigned char buf[16];
+
+	nullpo_retv(bl);
+
+	WBUFW(buf, 0) = 0x132;
+	WBUFL(buf, 2) = bl->id;
+	if (fd) {
+		WFIFOHEAD(fd, packet_len(0x816));
+		memcpy(WFIFOP(fd, 0), buf, packet_len(0x816));
+		WFIFOSET(fd, packet_len(0x816));
+	}
+	else {
+		clif_send(buf, packet_len(0x816), bl, AREA_WOS);
+	}
+}
 
 /// Request to open someone else's buying store (CZ_REQ_CLICK_TO_BUYING_STORE).
 /// 0817 <account id>.L

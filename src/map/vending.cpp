@@ -116,6 +116,12 @@ void vending_vendinglistreq(struct map_session_data* sd, int id)
 	struct map_session_data* vsd;
 	nullpo_retv(sd);
 
+	struct npc_data* nd;
+	if ((nd = map_id2nd(id)) != NULL && nd->vend.type == 1) {
+		npc_click(sd, nd);
+		return;
+	}
+
 	if( (vsd = map_id2sd(id)) == NULL )
 		return;
 	if( !vsd->state.vending )

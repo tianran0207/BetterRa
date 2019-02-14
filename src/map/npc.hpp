@@ -105,6 +105,10 @@ struct npc_data {
 		unsigned long color;
 	} progressbar;
 
+	struct {
+		char type;
+		char message[80];
+	} vend;
 	struct autowalk_data autowalk;
 };
 

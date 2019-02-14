@@ -27118,6 +27118,56 @@ BUILDIN_FUNC(getlastip)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(showvending)
+{
+	struct npc_data *nd;
+	if ((nd = npc_name2id(script_getstr(st, 2))) == NULL){
+		ShowError("buildin_showvend: No such NPC '%s'.\n", script_getstr(st, 3));
+		return SCRIPT_CMD_FAILURE;
+	}
+	if ((nd->vend.type && nd->vend.type != 1) || nd->chat_id) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	nd->vend.type = script_getnum(st, 3);
+	if (script_hasdata(st, 4))
+		safestrncpy(nd->vend.message, script_getstr(st, 4), sizeof(nd->vend.message));
+
+	if (nd->vend.type)
+		clif_showvendingboard(&nd->bl, nd->vend.message, 0);
+	else
+		clif_closevendingboard(&nd->bl, 0);
+
+	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(showbuying)
+{
+	struct npc_data *nd;
+	if ((nd = npc_name2id(script_getstr(st, 2))) == NULL) {
+		ShowError("buildin_showvend: No such NPC '%s'.\n", script_getstr(st, 3));
+		return SCRIPT_CMD_FAILURE;
+	}
+	if ((nd->vend.type && nd->vend.type != 2) || nd->chat_id) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	
+	nd->vend.type = (script_getnum(st, 3) == 1 ? 2 : 0);
+	if (script_hasdata(st, 4))
+		safestrncpy(nd->vend.message, script_getstr(st, 4), sizeof(nd->vend.message));
+
+	if (nd->vend.type)
+		clif_showbuyingboard(&nd->bl, nd->vend.message, 0);
+	else
+		clif_closebuyingboard(&nd->bl, 0);
+
+	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(sendmail)
 {
 	const char *sender, *title, *body;
@@ -28111,6 +28161,10 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(sendmail, "isss???????????"),
 	BUILDIN_DEF2(sendmail, "sendmail2", "isss??????????????????????????????????????????????"),
 	BUILDIN_DEF2(sendmail, "sendmail3", "isss?????????????????????????????????????????????????????????????"),
+	BUILDIN_DEF(showvending, "si?"),
+	BUILDIN_DEF(showbuying, "si?"),
+	BUILDIN_DEF2(showvending, "showvend", "si?"),
+
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL
 	BUILDIN_DEF(mail_create, "sss?"),
@@ -28163,7 +28217,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(http_get, "sii?"),
 	BUILDIN_DEF(bot_login, "iii"),
 	BUILDIN_DEF2(isequippedcnt, "isequippedcnt2", "i*"),
+	BUILDIN_DEF2(isequippedcnt, "isequippedcnt_enchant", "i*"),
 	BUILDIN_DEF2(isequipped, "isequipped2", "i*"),
+	BUILDIN_DEF2(isequipped, "isequipped_enchant", "i*"),
 
 	BUILDIN_DEF(unit_Astart_walkto, "iii?"),
 	BUILDIN_DEF(instance_name, "?"),
