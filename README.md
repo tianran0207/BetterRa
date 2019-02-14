@@ -2,6 +2,9 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20190214  [添加] 脚本指令 sendmail 发送邮件和只带有物品ID和数量的邮件
+* 20190214  [添加] 脚本指令 sendmail2 在sendmail基础上支持精炼、卡片等
+* 20190214  [添加] 脚本指令 sendmail3 在sendmail2基础上支持(随机属性)
 * 20190213  [修改] 战斗配置 get_identify_equip 增加 &64: 使用 getrandgroupitem 获得的装备
 * 20190213  [添加] 战斗配置 disable_items_callfunc NPC对话时禁止使用callfunc道具
 * 20190213  [添加] 战斗配置 disable_items_equip NPC对话时禁止穿戴脱下装备

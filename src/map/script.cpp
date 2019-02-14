@@ -27118,6 +27118,108 @@ BUILDIN_FUNC(getlastip)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(sendmail)
+{
+	const char *sender, *title, *body;
+	struct mail_message msg;
+	struct map_session_data *sd = NULL;
+	unsigned int i, num_items;
+	const char *command = script_getfuncname(st);
+
+	memset(&msg, 0, sizeof(struct mail_message));
+	msg.dest_id = script_getnum(st, 2);
+	sender = script_getstr(st, 3);
+	if (strlen(sender) > NAME_LENGTH) {
+		ShowError("buildin_%s: sender name can not be longer than %d characters.\n", command, NAME_LENGTH);
+		return SCRIPT_CMD_FAILURE;
+	}
+	safestrncpy(msg.send_name, sender, NAME_LENGTH);
+
+	title = script_getstr(st, 4);
+	if (strlen(title) > MAIL_TITLE_LENGTH) {
+		ShowError("buildin_%s: title can not be longer than %d characters.\n", command, MAIL_TITLE_LENGTH);
+		return SCRIPT_CMD_FAILURE;
+	}
+	safestrncpy(msg.title, title, MAIL_TITLE_LENGTH);
+
+	body = script_getstr(st, 5);
+	if (strlen(body) > MAIL_BODY_LENGTH) {
+		ShowError("buildin_%s: body can not be longer than %d characters.\n", command, MAIL_BODY_LENGTH);
+		return SCRIPT_CMD_FAILURE;
+	}
+	safestrncpy(msg.body, body, MAIL_BODY_LENGTH);
+
+	if (script_hasdata(st, 6)) {
+		int zeny = script_getnum(st, 6);
+		if (zeny < 0) {
+			ShowError("buildin_%s: a negative amount of zeny can not be sent.\n", command);
+			return SCRIPT_CMD_FAILURE;
+		}
+		else if (zeny > MAX_ZENY) {
+			ShowError("buildin_%s: amount of zeny %u is exceeding maximum of %u. Capping...\n", command, zeny, MAX_ZENY);
+			zeny = MAX_ZENY;
+		}
+		msg.zeny = zeny;
+	}
+
+	int len_items = 0;
+	if (!strcmp(command, "sendmail"))
+		len_items = 2;
+	else if(!strcmp(command, "sendmail2"))
+		len_items = 9;
+	else
+		len_items = 12;
+
+	if ((script_lastdata(st) - 6) % len_items != 0) {
+		ShowError("buildin_%s: The number of parameters error\n", command);
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	num_items = (script_lastdata(st) - 6) / len_items;
+
+	for (i = 0; i < num_items; i++) {
+		msg.item[i].nameid = script_getnum(st, 6 + (i*len_items) + 1);
+		msg.item[i].amount = script_getnum(st, 6 + (i*len_items) + 2);
+		struct item_data *item = itemdb_exists(msg.item[i].nameid);
+		if (msg.item[i].amount <= 0) {
+			ShowError("buildin_sendmail: amount %d for item %hu is invalid.\n", msg.item[i].amount, msg.item[i].nameid);
+			return SCRIPT_CMD_FAILURE;
+		}
+		else if (itemdb_isstackable2(item)) {
+			uint16 max = item->stack.amount > 0 ? item->stack.amount : MAX_AMOUNT;
+
+			if (msg.item[i].amount > max) {
+				ShowWarning("buildin_sendmail: amount %d for item %hu is exceeding the maximum of %d. Capping...\n", msg.item[i].amount, msg.item[i].nameid, max);
+				msg.item[i].amount = max;
+			}
+		}
+		msg.item[i].identify = 1;
+		if (len_items == 2)
+			continue;
+		msg.item[i].identify = script_getnum(st, 6 + (i*len_items) + 3);
+		msg.item[i].refine = script_getnum(st, 6 + (i*len_items) + 4);
+		msg.item[i].attribute = script_getnum(st, 6 + (i*len_items) + 5);
+		msg.item[i].card[0] = script_getnum(st, 6 + (i*len_items) + 6);
+		msg.item[i].card[1] = script_getnum(st, 6 + (i*len_items) + 7);
+		msg.item[i].card[2] = script_getnum(st, 6 + (i*len_items) + 8);
+		msg.item[i].card[3] = script_getnum(st, 6 + (i*len_items) + 9);
+		if (len_items == 9)
+			continue;
+		int res = script_getitem_randomoption(st, sd, &msg.item[i], command, 6 + (i*len_items) + 10);
+		if (res == SCRIPT_CMD_FAILURE)
+			return SCRIPT_CMD_FAILURE;
+	}
+
+	msg.status = MAIL_NEW;
+	msg.type = MAIL_INBOX_NORMAL;
+	msg.timestamp = time(NULL);
+
+	intif_Mail_send(0, &msg);
+
+	return SCRIPT_CMD_SUCCESS;
+
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -28006,7 +28108,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(charid2rid, "i"),
 	BUILDIN_DEF(unithide, "ii"),
 	BUILDIN_DEF(getlastip, "?"),
-
+	BUILDIN_DEF(sendmail, "isss???????????"),
+	BUILDIN_DEF2(sendmail, "sendmail2", "isss??????????????????????????????????????????????"),
+	BUILDIN_DEF2(sendmail, "sendmail3", "isss?????????????????????????????????????????????????????????????"),
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL
 	BUILDIN_DEF(mail_create, "sss?"),
