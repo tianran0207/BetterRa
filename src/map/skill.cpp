@@ -16954,7 +16954,7 @@ int skill_delayfix(struct block_list *bl, uint16 skill_id, uint16 skill_lv)
 	nullpo_ret(bl);
 	sd = BL_CAST(BL_PC, bl);
 
-	if (sd && !sd->state.disable_skill_delay)
+	if (battle_config.disable_skill_delay && sd && !sd->state.disable_skill_delay)
 		return 0;
 
 	if (skill_id == SA_ABRACADABRA || skill_id == WM_RANDOMIZESPELL)
