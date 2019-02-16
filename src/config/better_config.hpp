@@ -12,7 +12,6 @@
 #define C_VIP_ENABLE 0               //是否开启VIP系统
 #define C_PACKET_OBFUSCATION 0       //是否禁用封包加密
 
-#define C_MAX_CHARS 9                //最大创建角色数量
 #define C_MAX_ZENY 1000000000        //最大随身携带的金币
 #define C_MAX_INVENTORY 100          //最大背包容量
 #define C_MIN_STORAGE 300            //最大玩家仓库容量
