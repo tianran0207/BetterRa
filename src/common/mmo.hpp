@@ -38,9 +38,7 @@
 /** Max number of characters per account. Note that changing this setting alone is not enough if the client is not hexed to support more characters as well.
 * Max value tested was 265 */
 #ifndef MAX_CHARS
-	#if C_MAX_CHARS > 0
-		#define MAX_CHARS C_MAX_CHARS
-	#elif PACKETVER >= 20180124
+	#if PACKETVER >= 20180124
 		#define MAX_CHARS 15
 	#elif PACKETVER >= 20100413
 		#define MAX_CHARS 12

@@ -420,7 +420,6 @@ void server_info(char *path) {
 		if (C_PRERE != 0)                  ShowMessage("          - pre-re ver: " CL_BOLD "%s" CL_NORMAL "\n", C_PRERE ? "yes" : "no");
 		if (C_VIP_ENABLE != 0)             ShowMessage("          - vip enable: " CL_BOLD "%s" CL_NORMAL "\n", C_VIP_ENABLE ? "yes" : "no");
 		if (C_SHOW_SERVER_STATS != 0)      ShowMessage("          - show server stats: " CL_BOLD "%s" CL_NORMAL "\n", C_SHOW_SERVER_STATS ? "yes" : "no");
-		if (C_MAX_CHARS != 9)              ShowMessage("          - max chars: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_CHARS);
 		if (C_MAX_ZENY != 1000000000)      ShowMessage("          - max zeny: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_ZENY);
 		if (C_MAX_INVENTORY != 100)        ShowMessage("          - max inventory: " CL_BOLD "%d" CL_NORMAL "\n", C_MAX_INVENTORY);
 		if (C_MIN_STORAGE != 300)          ShowMessage("          - min storage: " CL_BOLD "%d" CL_NORMAL "\n", C_MIN_STORAGE);

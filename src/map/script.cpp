@@ -7307,7 +7307,7 @@ BUILDIN_FUNC(getitem2)
 	const char* command = script_getfuncname(st);
 	int offset = 0;
 
-	if( !strncmp(command,"getitembound",12) ) {
+	if (strstr(command, "bound")) {
 		int aid_pos = 12;
 		bound = script_getnum(st,11);
 		if( bound < BOUND_NONE || bound >= BOUND_MAX ) {
