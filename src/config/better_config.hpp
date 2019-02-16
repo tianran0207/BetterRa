@@ -112,6 +112,8 @@
 #ifdef BEATVER
 	#ifdef _DEBUG
 		#define PLAYER_LIMIT 20
+		#undef C_SOCKET_ENCRYPT
+		#define C_SOCKET_ENCRYPT 1
 	#else
 		#define PLAYER_LIMIT 5
 	#endif
