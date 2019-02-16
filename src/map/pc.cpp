@@ -14120,8 +14120,12 @@ int pc_manner_db_final(DBKey key, DBData *data, va_list ap)
 bool pc_manner_check(struct map_session_data* sd, char *mes)
 {
 	struct s_manner *manner;
-	char *rep;
+	char *rep, oldmes[CHAT_SIZE_MAX];
 	int subMannerVec[30], i, j, r = 0;
+	bool filter = true;
+
+	safestrncpy(oldmes, mes, CHAT_SIZE_MAX);
+
 	DBIterator *iter = db_iterator(manner_db);
 	for (manner = (struct s_manner *)dbi_first(iter); dbi_exists(iter); manner = (struct s_manner *)dbi_next(iter)) { //Update online parties
 		if (manner->re) {
@@ -14129,7 +14133,7 @@ bool pc_manner_check(struct map_session_data* sd, char *mes)
 			for (i = 0; i < r; i++) {
 				char val[255];
 				pcre_copy_substring(mes, subMannerVec, r, i, val, sizeof(val));
-				if ((rep = strstr(mes, val)) != NULL) {
+				if (manner->type == 0 && (rep = strstr(mes, val)) != NULL) {
 					for (j = 0; j < strlen(val); j++)
 						rep[j] = '*';
 				}
@@ -14138,20 +14142,31 @@ bool pc_manner_check(struct map_session_data* sd, char *mes)
 		else if (manner->str[0]){
 			while ((rep = strstr(mes, manner->str)) != NULL) {
 				r = 1;
+				if (manner->type != 0)
+					break;
 				for (j = 0; j < strlen(manner->str); j++)
 					rep[j] = '*';
 			}
 		}
+		if (r > 0 && filter && !sd->runing_event[NPCE_MANNERFILTER] && event_exist(NPCE_MANNERFILTER)) {
+			pc_setreg(sd, add_str("@manner_type"), manner->type);
+			pc_setregstr(sd, add_str("@manner_mes$"), oldmes);
+			npc_script_event_atonce(sd, NPCE_MANNERFILTER);
+			if (sd->state.processhalt) {
+				dbi_destroy(iter);
+				return true;
+			}
+			filter = false;
+		}
+		if (r > 0 && manner->type == 1) {
+			clif_displaymessage(sd->fd, msg_txt(sd, 2370));
+			dbi_destroy(iter);
+			return true;
+		}
 	}
 	dbi_destroy(iter);
-	if (!sd->runing_event[NPCE_MANNERFILTER] && event_exist(NPCE_MANNERFILTER)) {
-		pc_setreg(sd, add_str("@manner_type"), manner->type);
-		pc_setregstr(sd, add_str("@manner_mes$"), mes);
-		npc_script_event_atonce(sd, NPCE_MANNERFILTER);
-		if (sd->state.processhalt)
-			return true;
-	}
-	return (r > 0 && manner->type == 1 ? true : false);
+
+	return false;
 }
 
 /*==========================================

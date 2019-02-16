@@ -21,7 +21,10 @@
 //     2: 不处理
 // 事件：
 //     OnPCMannerFilter: 
-//     当检测到玩家说脏话时触发(type为几都会触发), 打断时玩家该句话被屏蔽, 返回 @manner_type @manner_mes$
+//     当检测到玩家说敏感词时触发(type为几都会触发), 打断时玩家说话将被屏蔽且没有任何提示
+// 返回:
+//     @manner_type 标识
+//     @manner_mes$ 说话内容
 
 0,傻逼GM
 0,垃圾服

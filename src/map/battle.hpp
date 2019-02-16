@@ -205,6 +205,7 @@ struct Battle_Config
 	int disable_items_callfunc;
 	int disable_items_equip;
 	int disable_skill_delay;
+	int enable_manner;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int show_item_vending;
