@@ -244,21 +244,21 @@ size_t UTF8toGBK(char *u8str, size_t len)
 
 size_t fread_ex(void *_Buffer, size_t _ElementSize, size_t _ElementCount, FILE *_Stream)
 {
-#ifdef BRA_UTF8_CODE
+#ifdef C_UTF8_CODE
 	size_t len = fread(_Buffer, _ElementSize, _ElementCount, _Stream);
 	char *buffer = (char *)_Buffer;
 	buffer[len] = '\0';
 	if (utf8_check(buffer, len))
 		len = UTF8toGBK(buffer, len);
 	return len;
-#else //BRA_UTF8_CODE
+#else //C_UTF8_CODE
 	return fread(_Buffer, _ElementSize, _ElementCount, _Stream);
 #endif
 }
 
 #include <string>
 char* fgets_ex(char *_Buffer, int _MaxCount, FILE *_Stream) {
-#ifdef BRA_UTF8_CODE
+#ifdef C_UTF8_CODE
 	static size_t filesize = 0;
 	static bool is_utf8 = false;
 	struct stat buf;
@@ -282,7 +282,7 @@ char* fgets_ex(char *_Buffer, int _MaxCount, FILE *_Stream) {
 		return NULL;
 
 	return _Buffer;
-#else //BRA_UTF8_CODE
+#else //C_UTF8_CODE
 	return fgets(_Buffer, _MaxCount, _Stream);
 #endif
 }
@@ -290,7 +290,7 @@ char* fgets_ex(char *_Buffer, int _MaxCount, FILE *_Stream) {
 #ifndef MINICORE
 int config_read_file_ex(config_t *config, const char *filename)
 {
-#ifdef BRA_UTF8_CODE
+#ifdef C_UTF8_CODE
 	size_t len;
 	FILE *fp;
 	char *buffer;
@@ -318,9 +318,9 @@ int config_read_file_ex(config_t *config, const char *filename)
 	ref = config_read_string(config, buffer);
 	aFree(buffer);
 	return ref;
-#else //BRA_UTF8_CODE
+#else //C_UTF8_CODE
 	return config_read_file(config, filename);
-#endif //BRA_UTF8_CODE
+#endif //C_UTF8_CODE
 }
 #endif //MINICORE
 
