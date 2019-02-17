@@ -409,7 +409,7 @@ void server_machine_code(char *code, int len) {
 void server_info(char *path) {
 	char signature[24];
 	ShowInfo("" CL_BOLD "BetterRA Customized Information: " CL_NORMAL "(date: %s)\n", C_CUSTOMIZEDDATE);
-	ShowMessage("          - development version: " CL_BOLD "%s" CL_NORMAL "\n", C_PACKET_OBFUSCATION ? "yes" : "no");
+	ShowMessage("          - development version: " CL_BOLD "%s" CL_NORMAL "\n", C_BETTERRA_BETA ? "yes" : "no");
 	ShowMessage("          - packet ver: " CL_BOLD "%d" CL_NORMAL "\n", C_PACKETVER);
 	ShowMessage("          - packet encrypt: " CL_BOLD "%s" CL_NORMAL "\n", C_SOCKET_ENCRYPT ? "yes" : "no");
 	if (path && path[0] != '\0' &&strstr(path, "map-server.exe")) {
