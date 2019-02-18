@@ -625,6 +625,8 @@ enum e_mapflag : int16 {
 	MF_NOMAIL,
 	MF_MOBSPAWNBASE,
 	MF_PARTYLOCK2,
+	MF_NOPCSC,
+	MF_NOMOBSC,
 	MF_MAX
 };
 

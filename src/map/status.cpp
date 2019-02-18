@@ -8597,6 +8597,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	if (status_change_isDisabledOnMap(type, map_getmapdata(bl->m)))
 		return 0;
 
+	if (bl->type == BL_PC && map_getmapdata(bl->m)->flag[MF_NOPCSC] || bl->type == BL_MOB && map_getmapdata(bl->m)->flag[MF_NOMOBSC])
+		return 0;
+
 	// Uncomment to prevent status adding hp to gvg mob (like bloodylust=hp*3 etc...
 //	if (bl->type == BL_MOB)
 //		if (status_get_race2(bl) == RC2_GVG && status_sc2scb_flag(type)&SCB_MAXHP) return 0;
@@ -14620,6 +14623,13 @@ void status_change_clear_onChangeMap(struct block_list *bl, struct status_change
 
 			if (status_change_isDisabledOnMap_((sc_type)i, mapIsVS, mapIsPVP, mapIsGVG, mapIsBG, mapZone, mapIsTE))
 				status_change_end(bl, (sc_type)i, INVALID_TIMER);
+		}
+
+		if (bl->type == BL_PC && mapdata->flag[MF_NOPCSC] || bl->type == BL_MOB && mapdata->flag[MF_NOMOBSC]) {
+			for (i = 0; i < SC_MAX; i++) {
+				if (!sc->data[i])
+					status_change_end(bl, (sc_type)i, INVALID_TIMER);
+			}
 		}
 	}
 }

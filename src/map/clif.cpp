@@ -10595,6 +10595,15 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	// must use foreachinarea (CIRCULAR_AREA interferes with foreachinrange)
 	map_foreachinallarea(clif_getareachar, sd->bl.m, sd->bl.x-AREA_SIZE, sd->bl.y-AREA_SIZE, sd->bl.x+AREA_SIZE, sd->bl.y+AREA_SIZE, BL_ALL, sd);
 
+	if (sd->pd && mapdata->flag[MF_NOPET])
+		pet_menu(sd, 3);
+
+	if (sd->hd && mapdata->flag[MF_NOHOMUNCULUS])
+		hom_menu(sd, 2);
+
+	if (sd->md && mapdata->flag[MF_NOMERCENARY])
+		mercenary_delete(sd->md, 1);
+
 	// pet
 	if( sd->pd ) {
 		if( battle_config.pet_no_gvg && mapdata_flag_gvg(mapdata) ) { //Return the pet to egg. [Skotlex]
@@ -10824,15 +10833,6 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	// Don't trigger NPC event or opening vending/buyingstore will be failed
 	if(!sd->state.autotrade && (mapdata->flag[MF_LOADEVENT] || battle_config.loadevent_for_eachmap)) // Lance
 		npc_script_event(sd, NPCE_LOADMAP);
-
-	if (sd->hd && mapdata->flag[MF_NOHOMUNCULUS])
-		hom_menu(sd, 2);
-
-	if (sd->pd && mapdata->flag[MF_NOPET])
-		pet_menu(sd, 3);
-
-	if (sd->md && mapdata->flag[MF_NOMERCENARY])
-		mercenary_delete(sd->md, 1);
 
 	if (pc_checkskill(sd, SG_DEVIL) && pc_is_maxjoblv(sd))
 		clif_status_load(&sd->bl, EFST_DEVIL1, 1);  //blindness [Komurka]
