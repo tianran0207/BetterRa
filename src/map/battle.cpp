@@ -8202,6 +8202,7 @@ static const struct _battle_data {
 	{ "disable_items_equip",                &battle_config.disable_items_equip,             0,      0,      1,              },
 	{ "disable_skill_delay",                &battle_config.disable_skill_delay,             0,      0,      1,              },
 	{ "enable_manner",                      &battle_config.enable_manner,                   0,      0,      1,              },
+	{ "multiple_autobonus",                 &battle_config.multiple_autobonus,              0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]---------------------------------------------		 
 	{ "extended_vending",					&battle_config.extended_vending,				1,		0,		1,				},
 	{ "show_item_vending",					&battle_config.show_item_vending,				1,		0,		1,				},

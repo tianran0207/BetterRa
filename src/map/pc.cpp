@@ -2430,6 +2430,19 @@ void pc_exeautobonus(struct map_session_data *sd, std::vector<s_autobonus> *bonu
 	if (!sd || !autobonus)
 		return;
 
+	if (battle_config.multiple_autobonus) {
+		if (autobonus->other_script)
+			script_run_autobonus(autobonus->other_script, sd, autobonus->pos);
+
+		struct s_bonus_script_entry *entry = NULL;
+		if (autobonus->bonus_script && (entry = pc_bonus_script_add(sd, autobonus->bonus_script, autobonus->duration, EFST_BLANK, 
+			BSF_REM_ON_DEAD | BSF_REM_ON_DISPELL | BSF_REM_ON_CLEARANCE | BSF_REM_ON_LOGOUT | BSF_FORCE_REPLACE, 0))) {
+			linkdb_insert(&sd->bonus_script.head, (void *)((intptr_t)entry), entry);
+			status_calc_pc(sd, SCO_FORCE);
+		}
+		return;
+	}
+
 	if (autobonus->active != INVALID_TIMER)
 		delete_timer(autobonus->active, pc_endautobonus);
 
