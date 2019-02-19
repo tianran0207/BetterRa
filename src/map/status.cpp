@@ -14627,7 +14627,7 @@ void status_change_clear_onChangeMap(struct block_list *bl, struct status_change
 
 		if (bl->type == BL_PC && mapdata->flag[MF_NOPCSC] || bl->type == BL_MOB && mapdata->flag[MF_NOMOBSC]) {
 			for (i = 0; i < SC_MAX; i++) {
-				if (!sc->data[i])
+				if (sc->data[i])
 					status_change_end(bl, (sc_type)i, INVALID_TIMER);
 			}
 		}

@@ -498,11 +498,11 @@ bool itemdb_isdropable_sub(struct item_data *item, int gmlv, int unused) {
 }
 
 bool itemdb_cantrade_sub(struct item_data* item, int gmlv, int gmlv2) {
-	return (item && (!(item->flag.trade_restriction&2) || gmlv >= item->gm_lv_trade_override || gmlv2 >= item->gm_lv_trade_override));
+	return (item && (!(item->flag.trade_restriction&2) || gmlv >= item->gm_lv_trade_override));
 }
 
 bool itemdb_canpartnertrade_sub(struct item_data* item, int gmlv, int gmlv2) {
-	return (item && (item->flag.trade_restriction&4 || gmlv >= item->gm_lv_trade_override || gmlv2 >= item->gm_lv_trade_override));
+	return (item && (item->flag.trade_restriction&4 || gmlv >= item->gm_lv_trade_override));
 }
 
 bool itemdb_cansell_sub(struct item_data* item, int gmlv, int unused) {
