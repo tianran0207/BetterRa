@@ -374,6 +374,11 @@ int instance_create(int owner_id, const char *name, enum instance_mode mode) {
 	struct clan* cd = NULL;
 	unsigned short i;
 
+	if (!db) {
+		ShowError("instance_create: Unknown instance \"%s\".\n", name);
+		return -1;
+	}
+
 	nullpo_retr(-1, db);
 
 	switch(mode) {

@@ -3,6 +3,10 @@
 // Structure of Database:
 // ID,Name,Name,Type,Price,Sell,Weight,ATK[:MATK],DEF,Range,Slot,Job,Class,Gender,Loc,wLV,eLV[:maxLevel],Refineable,View,{ Script },{ OnEquip_Script },{ OnUnequip_Script }
 //
+// Vend Coin Items (这两个物品用于支援 BetterRA.conf 中 item_zeny 和 item_cash, 请在客户端 iteminfo 中添加对应物品)
+//=============================================================
+30000,zeny,zeny,3,0,,10,,,,,,,,,,,,,{},{},{}
+30001,cash,cash,3,0,,10,,,,,,,,,,,,,{},{},{}
 // THQ Quest Items
 //=============================================================
 //7950,THG_Membership,THG Membership,3,,10,10,,,,,,,,,,,,,{},{},{}
