@@ -2,6 +2,11 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20190220  [修复] 冰墙的表现形式为韩服官方的表现形式 (需更新 skill_cast_db.txt)
+* 20190220  [修复] 跆拳道跑步固定施法时间的问题 (需更新 skill_cast_db.txt)
+* 20190220  [修复] 修复NPC进度条报错 npc_scriptcont: unexpected state '2' for continue call 的问题
+* 20190219  [添加] 战斗配置 sleep2_ignore_attach 当sleep2未关联玩家时, 是否执行和sleep同样的操作
+* 20190219  [添加] 战斗配置 multiple_autobonus 同装备是否可以触发多个autobonus
 * 20190219  [修复] item_trade.txt 交易限制中将不再检查获得物品玩家的group等级
 * 20190218  [添加] 地图标记 nopcsc 玩家不允许在该地图上获得sc, 传入地图的玩家所有的sc将被清空
 * 20190218  [添加] 地图标记 nomobsc 魔物不允许在该地图上获得sc

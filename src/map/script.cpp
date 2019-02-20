@@ -18760,7 +18760,7 @@ BUILDIN_FUNC(sleep2)
 			return SCRIPT_CMD_FAILURE;
 		}
 
-		if (map_id2bl(st->rid) == NULL) {
+		if (!battle_config.sleep2_ignore_attach && map_id2bl(st->rid) == NULL) {
 			ShowError( "buildin_sleep2: no unit is attached\n" );
 			return SCRIPT_CMD_FAILURE;
 		}
@@ -18772,7 +18772,7 @@ BUILDIN_FUNC(sleep2)
 	} else {		
 		// Check if the unit is still attached
 		// NOTE: This should never happen, since run_script_timer already checks this
-		if (map_id2bl(st->rid) == NULL) {
+		if (!battle_config.sleep2_ignore_attach && map_id2bl(st->rid) == NULL) {
 			// The unit is not attached anymore - terminate the script
 			st->rid = 0;
 			st->state = END;
