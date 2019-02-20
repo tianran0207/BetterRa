@@ -2,6 +2,7 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20190220  [添加] 战斗配置 disable_event_queue 禁用事件队列机制
 * 20190220  [修复] 冰墙的表现形式为韩服官方的表现形式 (需更新 skill_cast_db.txt)
 * 20190220  [修复] 跆拳道跑步固定施法时间的问题 (需更新 skill_cast_db.txt)
 * 20190220  [修复] 修复NPC进度条报错 npc_scriptcont: unexpected state '2' for continue call 的问题

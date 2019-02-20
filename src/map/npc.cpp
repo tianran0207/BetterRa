@@ -4553,6 +4553,10 @@ int npc_parsesrcfile(const char* filepath, bool runOnInit, char *other_buffer)
 }
 
 int npc_script_event(struct map_session_data* sd, enum npce_event type){
+
+	if (battle_config.disable_event_queue)
+		return npc_script_event_atonce(sd, type);
+
 	if (type == NPCE_MAX)
 		return 0;
 	if (!sd) {
