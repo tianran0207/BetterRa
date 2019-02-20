@@ -8374,6 +8374,14 @@ BUILDIN_FUNC(getpartymember)
 				ShowError("buildin_getpartymember: The array %s is not string type.\n", varname);
 				return SCRIPT_CMD_FAILURE;
 			}
+			if (not_server_variable(*varname)) {
+				struct map_session_data *sd;
+
+				if (!script_rid2sd(sd)) {
+					ShowError("buildin_getpartymember: Cannot use a player variable '%s' if no player is attached.\n", varname);
+					return SCRIPT_CMD_FAILURE;
+				}
+			}
 		}
 
 		for (i = 0; i < MAX_PARTY; i++) {
@@ -11296,6 +11304,11 @@ BUILDIN_FUNC(getunits)
 		id = reference_getid(data);
 		idx = reference_getindex(data);
 		name = reference_getname(data);
+
+		if (not_server_variable(*name) && !script_rid2sd(sd)) {
+			ShowError("buildin_%s: Cannot use a player variable '%s' if no player is attached.\n", command, name);
+			return SCRIPT_CMD_FAILURE;
+		}
 	}
 
 	for (bl = (struct block_list*)mapit_first(iter); mapit_exists(iter); bl = (struct block_list*)mapit_next(iter))
@@ -11443,7 +11456,7 @@ BUILDIN_FUNC(sc_start)
 		tick = skill_get_time(status_sc2skill(type), val1);
 	}
 
-	if(potion_flag == 1 && potion_target) { //skill.c set the flags before running the script, this is a potion-pitched effect.
+	if(potion_flag == 1 && potion_target) { //skill.cpp set the flags before running the script, this is a potion-pitched effect.
 		bl = map_id2bl(potion_target);
 		tick /= 2;// Thrown potions only last half.
 		val4 = 1;// Mark that this was a thrown sc_effect
@@ -15497,7 +15510,7 @@ BUILDIN_FUNC(cardscnt)
 		if (id <= 0)
 			continue;
 
-		index = current_equip_item_index; //we get CURRENT WEAPON inventory index from status.c [Lupus]
+		index = current_equip_item_index; //we get CURRENT WEAPON inventory index from status.cpp [Lupus]
 		if(index < 0) continue;
 
 		if(!sd->inventory_data[index])
@@ -17499,6 +17512,11 @@ BUILDIN_FUNC(getunitdata)
 
 	name = reference_getname(data);
 
+	if (not_server_variable(*name) && !script_rid2sd(sd)) {
+		ShowError("buildin_getunitdata: Cannot use a player variable '%s' if no player is attached.\n", name);
+		return SCRIPT_CMD_FAILURE;
+	}
+
 #define getunitdata_sub(idx__,var__) setd_sub(st,sd,name,(idx__),(void *)__64BPRTSIZE((int)(var__)),data->ref)
 
 	switch(bl->type) {
@@ -18550,7 +18568,7 @@ BUILDIN_FUNC(unittalk)
 ///
 /// unitemote <unit_id>,<emotion>;
 ///
-/// @see ET_* in script_constants.h
+/// @see ET_* in script_constants.hpp
 BUILDIN_FUNC(unitemote)
 {
 	int emotion;
@@ -21946,6 +21964,14 @@ BUILDIN_FUNC(getguildmember)
 				ShowError("buildin_getguildmember: The array %s is not string type.\n", varname);
 				return SCRIPT_CMD_FAILURE;
 			}
+			if (not_server_variable(*varname)) {
+				struct map_session_data *sd;
+
+				if (!script_rid2sd(sd)) {
+					ShowError("buildin_getguildmember: Cannot use a player variable '%s' if no player is attached.\n", varname);
+					return SCRIPT_CMD_FAILURE;
+				}
+			}
 		}
 
 		for (i = 0; i < MAX_GUILD; i++) {
@@ -22677,6 +22703,11 @@ BUILDIN_FUNC(minmax){
 			// Get the session data, if a player is attached
 			sd = st->rid ? map_id2sd(st->rid) : NULL;
 
+			if (not_server_variable(*name) && !script_rid2sd(sd)) {
+				ShowError("buildin_%s: Cannot use a player variable '%s' if no player is attached.\n", functionname, name);
+				return SCRIPT_CMD_FAILURE;
+			}
+
 			// Try to find the array's source pointer
 			if( !script_array_src( st, sd, name, reference_getref( data ) ) ){
 				ShowError( "buildin_%s: not a array!\n", functionname );
@@ -23253,6 +23284,15 @@ BUILDIN_FUNC(channel_setgroup) {
 			ShowError("buildin_channel_setgroup: The array %s is not numeric type.\n", varname);
 			script_pushint(st,0);
 			return SCRIPT_CMD_FAILURE;
+		}
+
+		if (not_server_variable(*varname)) {
+			struct map_session_data *sd;
+
+			if (!script_rid2sd(sd)) {
+				ShowError("buildin_%s: Cannot use a player variable '%s' if no player is attached.\n", funcname, varname);
+				return SCRIPT_CMD_FAILURE;
+			}
 		}
 
 		n = script_array_highest_key(st, NULL, reference_getname(data), reference_getref(data));
@@ -27395,7 +27435,7 @@ BUILDIN_FUNC(roulette_generate)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-// declarations that were supposed to be exported from npc_chat.c
+// declarations that were supposed to be exported from npc_chat.cpp
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
 BUILDIN_FUNC(activatepset);
