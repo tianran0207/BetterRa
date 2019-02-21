@@ -20626,7 +20626,7 @@ BUILDIN_FUNC(progressbar)
  * progressbar_npc "<color>",<seconds>{,<"NPC Name">};
  */
 BUILDIN_FUNC(progressbar_npc){
-	struct map_session_data *sd = NULL;
+	struct map_session_data *sd = map_id2sd(st->rid);
 	struct npc_data* nd = NULL;
 
 	if( script_hasdata(st, 4) ){
@@ -20654,7 +20654,7 @@ BUILDIN_FUNC(progressbar_npc){
 			return SCRIPT_CMD_FAILURE;
 		}
 
-		if (script_rid2sd(sd)) // Player attached - keep them from doing other things
+		if (sd) // Player attached - keep them from doing other things
 			sd->state.workinprogress = WIP_DISABLE_ALL;
 
 		// Sleep for the target amount of time
@@ -20665,7 +20665,7 @@ BUILDIN_FUNC(progressbar_npc){
 
 		clif_progressbar_npc_area(nd);
 	} else { // Second call (by timer after sleep time is over)
-		if (script_rid2sd(sd)) // Player attached - remove restrictions
+		if (sd) // Player attached - remove restrictions
 			sd->state.workinprogress = WIP_DISABLE_NONE;
 
 		st->state = RUN; // Continue the script
