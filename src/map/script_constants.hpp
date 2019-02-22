@@ -562,8 +562,9 @@
 	export_constant(MF_PARTYLOCK2);
 	export_constant(MF_NOMAIL);
 	export_constant(MF_MOBSPAWNBASE);
-	export_constant(MF_NOPCSC);
-	export_constant(MF_NOMOBSC);
+	export_constant(MF_NOSC);
+	export_constant(MF_NOSKILL2);
+	export_constant(MF_NOUSEITEM);
 	export_constant(PH_WALKBACK);
 	export_constant(PH_WARPBACK);
 	export_constant(PH_IGNOREWALK);

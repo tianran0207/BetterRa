@@ -1783,6 +1783,9 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 
 	nullpo_ret(src);
 
+	if (src->type & map_getmapflag(src->m, MF_NOSKILL2))
+		return 0;
+
 	if(status_isdead(src))
 		return 0; // Do not continue source is dead
 
@@ -2271,6 +2274,9 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 
 	if (!src->prev)
 		return 0; // Not on the map
+
+	if (src->type & map_getmapflag(src->m, MF_NOSKILL2))
+		return 0;
 
 	if(status_isdead(src))
 		return 0;

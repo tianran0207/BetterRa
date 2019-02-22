@@ -4314,6 +4314,12 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " MobSpawnBase |");
 	if (map_getmapflag(m_id, MF_PARTYLOCK2))
 		strcat(atcmd_output, " PartyLock2 |");
+	if (map_getmapflag(m_id, MF_NOSC))
+		strcat(atcmd_output, " NoSC |");
+	if (map_getmapflag(m_id, MF_NOSKILL2))
+		strcat(atcmd_output, " NoSkill2 |");
+	if (map_getmapflag(m_id, MF_NOUSEITEM))
+		strcat(atcmd_output, " NoUseItem |");
 	//-------------------------------------
 
 	clif_displaymessage(fd, atcmd_output);

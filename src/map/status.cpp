@@ -8597,7 +8597,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	if (status_change_isDisabledOnMap(type, map_getmapdata(bl->m)))
 		return 0;
 
-	if (bl->type == BL_PC && map_getmapdata(bl->m)->flag[MF_NOPCSC] || bl->type == BL_MOB && map_getmapdata(bl->m)->flag[MF_NOMOBSC])
+	if (bl->type & map_getmapflag(bl->m, MF_NOSC))
 		return 0;
 
 	// Uncomment to prevent status adding hp to gvg mob (like bloodylust=hp*3 etc...
@@ -14625,7 +14625,7 @@ void status_change_clear_onChangeMap(struct block_list *bl, struct status_change
 				status_change_end(bl, (sc_type)i, INVALID_TIMER);
 		}
 
-		if (bl->type == BL_PC && mapdata->flag[MF_NOPCSC] || bl->type == BL_MOB && mapdata->flag[MF_NOMOBSC]) {
+		if (bl->type & map_getmapflag(bl->m, MF_NOSC)) {
 			for (i = 0; i < SC_MAX; i++) {
 				if (sc->data[i])
 					status_change_end(bl, (sc_type)i, INVALID_TIMER);

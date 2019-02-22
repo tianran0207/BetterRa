@@ -11710,6 +11710,9 @@ void clif_parse_UseItem(int fd, struct map_session_data *sd)
 		return;
 	}
 
+	if (map_getmapflag(sd->bl.m, MF_NOUSEITEM))
+		return;
+
 	if ( (!sd->npc_id && pc_istrading(sd)) || sd->chatID )
 		return;
 

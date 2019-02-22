@@ -4749,6 +4749,8 @@ bool map_setmapflag_sub(int16 m, enum e_mapflag mapflag, bool status, union u_ma
 			}
 			mapdata->flag[mapflag] = status;
 			break;
+		case MF_NOSC:
+		case MF_NOSKILL2:
 		case MF_MOBINFO:
 		case MF_MOBDROPRATE:
 		case MF_MVPDROPRATE:
