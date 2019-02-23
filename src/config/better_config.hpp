@@ -40,6 +40,7 @@
 
 #define C_SOCKET_ENCRYPT 0
 #define C_BETTERRA_BETA 0
+#define C_NULLPO_CHECK 0
 
 //----------------------------------
 //自定义功能集

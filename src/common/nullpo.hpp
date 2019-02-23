@@ -8,6 +8,10 @@
 
 #define NLP_MARK __FILE__, __LINE__, __func__
 
+#if !defined(NULLPO_CHECK) && C_NULLPO_CHECK > 0
+#define NULLPO_CHECK
+#endif
+
 // enabled by default on debug builds
 #if defined(DEBUG) && !defined(NULLPO_CHECK)
 #define NULLPO_CHECK
