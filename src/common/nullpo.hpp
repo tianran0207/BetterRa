@@ -5,6 +5,7 @@
 #define NULLPO_HPP
 
 #include "cbasetypes.hpp"
+#include "../config/better_config.hpp" //C_NULLPO_CHECK
 
 #define NLP_MARK __FILE__, __LINE__, __func__
 
