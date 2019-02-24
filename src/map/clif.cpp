@@ -15695,10 +15695,6 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 /// 0ac0 <mail id>.Q <unknown>.16B (CZ_OPEN_MAILBOX2)
 /// 0ac1 <mail id>.Q <unknown>.16B (CZ_REQ_REFRESH_MAIL_LIST2)
 void clif_parse_Mail_refreshinbox(int fd, struct map_session_data *sd){
-	if (map_getmapflag(sd->bl.m, MF_NOMAIL)) {
-		clif_displaymessage(sd->fd, msg_txt(sd, 2344));
-		return;
-	}
 #if PACKETVER < 20150513
 	struct mail_data* md = &sd->mail.inbox;
 
@@ -15906,6 +15902,9 @@ void clif_send_Mail_beginwrite_ack( struct map_session_data *sd, char* name, boo
 /// 0a08 <receiver>.24B (CZ_REQ_OPEN_WRITE_MAIL)
 void clif_parse_Mail_beginwrite( int fd, struct map_session_data *sd ){
 	char name[NAME_LENGTH];
+
+	if (mail_invalid_operation(sd))
+		return;
 
 	safestrncpy(name, RFIFOCP(fd, 2), NAME_LENGTH);
 

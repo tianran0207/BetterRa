@@ -336,6 +336,10 @@ bool mail_invalid_operation(struct map_session_data *sd)
 		return true;
 	}
 #endif
+	if (map_getmapflag(sd->bl.m, MF_NOMAIL)) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 2344));
+		return true;
+	}
 
 	return false;
 }
