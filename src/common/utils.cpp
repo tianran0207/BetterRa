@@ -257,21 +257,41 @@ size_t fread_ex(void *_Buffer, size_t _ElementSize, size_t _ElementCount, FILE *
 }
 
 #include <string>
+#define FILETMP 10
+struct s_file_info {
+	long filesize;
+	char utf8;
+}files[FILETMP];
+int ptridx = 0;
 char* fgets_ex(char *_Buffer, int _MaxCount, FILE *_Stream) {
 #ifdef C_UTF8_CODE
-	static size_t filesize = 0;
-	static bool is_utf8 = false;
+	static char is_utf8 = 0;
+	static long filesize = 0;
+	int i;
 	struct stat buf;
 	fstat(fileno(_Stream), &buf);
 	if (filesize != buf.st_size && buf.st_size != 0) {
-		size_t len = 0, nseek = ftell(_Stream);
-		char *buffer = (char*)aMalloc(buf.st_size + 1);
-		len = fread(buffer, 1, buf.st_size, _Stream);
-		buffer[len] = '\0';
-		is_utf8 = utf8_check(buffer, len);
-		aFree(buffer);
-		fseek(_Stream, nseek, SEEK_SET);
+		if (ftell(_Stream)) {
+			ARR_FIND(0, FILETMP, i, files[i].filesize == buf.st_size);
+			if (i < FILETMP)
+				is_utf8 = files[i].utf8;
+			else
+				ShowError("fgets_ex: Not detected file encoding, this document possible gibberish.\n");
+		} else {
+			size_t len;
+			char *buffer;
+			buffer = (char*)aMalloc(buf.st_size + 1);
+			len = fread(buffer, 1, buf.st_size, _Stream);
+			buffer[len] = '\0';
+			is_utf8 = (utf8_check(buffer, len) == true ? 1 : 0);
+			aFree(buffer);
+			fseek(_Stream, 0, SEEK_SET);
+		}
 		filesize = buf.st_size;
+		files[ptridx].filesize = buf.st_size;
+		files[ptridx].utf8 = is_utf8;
+		if (++ptridx >= FILETMP)
+			ptridx = 0;
 	}
 	if (is_utf8) {
 		memset(_Buffer, 0, _MaxCount);
