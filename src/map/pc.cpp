@@ -2430,6 +2430,9 @@ void pc_exeautobonus(struct map_session_data *sd, std::vector<s_autobonus> *bonu
 	if (!sd || !autobonus)
 		return;
 
+	if (battle_config.autobonus_in_order && autobonus->active != INVALID_TIMER)
+		return;
+	
 	if (battle_config.multiple_autobonus) {
 		if (autobonus->other_script)
 			script_run_autobonus(autobonus->other_script, sd, autobonus->pos);
