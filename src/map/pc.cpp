@@ -2430,7 +2430,7 @@ void pc_exeautobonus(struct map_session_data *sd, std::vector<s_autobonus> *bonu
 	if (!sd || !autobonus)
 		return;
 
-	if (battle_config.autobonus_in_order && autobonus->active != INVALID_TIMER)
+	if (battle_config.autobonus_in_order && (sd->state.autobonus & autobonus->pos) == autobonus->pos)
 		return;
 	
 	if (battle_config.multiple_autobonus) {

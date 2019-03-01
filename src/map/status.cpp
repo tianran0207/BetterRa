@@ -8378,7 +8378,7 @@ t_tick status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_
 		}
 
 		// Item resistance (only applies to rate%)
-		if (sd) {
+		if (sd && rate > 0) {
 			for (const auto &it : sd->reseff) {
 				if (it.id == type)
 					rate -= rate * it.val / 10000;

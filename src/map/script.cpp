@@ -26449,6 +26449,16 @@ BUILDIN_FUNC(instance_enter_left) {
 	return SCRIPT_CMD_SUCCESS;
 }
 
+static int buildin_instance_record_sub(struct script_state* st, struct map_session_data *sd) {
+	pc_setregistry_str(sd, add_str("instance_record$"), "");
+	if (script_hasdata(st, 2) && script_getnum(st, 2) == 1)
+		script_pushconststr(st, "");
+	else
+		script_pushint(st, 0);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(instance_record) {
 	struct map_session_data *sd = NULL;
 	struct instance_data *im = NULL;
@@ -26459,7 +26469,7 @@ BUILDIN_FUNC(instance_record) {
 	char *str;
 	int i;
 	if (!battle_config.instance_leave_record) {
-		ShowError("buildin_instance_enter_last: Please set battle config of 'instance_leavepoint'\n");
+		ShowError("instance_record: Please set battle config of 'instance_leavepoint'\n");
 		return SCRIPT_CMD_FAILURE;
 	}
 
@@ -26467,26 +26477,17 @@ BUILDIN_FUNC(instance_record) {
 		return SCRIPT_CMD_FAILURE;
 
 	str = pc_readregistry_str(sd, add_str("instance_record$"));
-	if (str == NULL || sscanf(str, "%hd:%hd:%hd:%u-%hu", &m, &x, &y, &instance_create_tick, &instance_id) != 5) {
-		pc_setregistry_str(sd, add_str("instance_record$"), "");
-		script_pushint(st, 0);
-		return SCRIPT_CMD_SUCCESS;
-	}
+	if (str == NULL || sscanf(str, "%hd:%hd:%hd:%u-%hu", &m, &x, &y, &instance_create_tick, &instance_id) != 5)
+		return buildin_instance_record_sub(st, sd);
 
-	if (instance_id == 0 || instance_id > MAX_INSTANCE_DATA) {
-		pc_setregistry_str(sd, add_str("instance_record$"), "");
-		script_pushint(st, 0);
-		return SCRIPT_CMD_SUCCESS;
-	}
+	if (instance_id == 0 || instance_id > MAX_INSTANCE_DATA)
+		return buildin_instance_record_sub(st, sd);
 
 	im = &instance_data[instance_id];
 	ARR_FIND(0, im->cnt_map, i, im->map[i]->m == m);
 
-	if (!instance_create_tick || instance_create_tick != im->create_tick || im->state != INSTANCE_BUSY || i == im->cnt_map) {
-		pc_setregistry_str(sd, add_str("instance_record$"), "");
-		script_pushint(st, 0);
-		return SCRIPT_CMD_SUCCESS;
-	}
+	if (!instance_create_tick || instance_create_tick != im->create_tick || im->state != INSTANCE_BUSY || i == im->cnt_map)
+		return buildin_instance_record_sub(st, sd);
 
 	if (!script_hasdata(st, 2)) {
 		script_pushint(st, 1);
@@ -26497,7 +26498,7 @@ BUILDIN_FUNC(instance_record) {
 
 	switch (script_getnum(st, 2)) {
 	case 1:
-		script_pushstr(st, mapdata->name);
+		script_pushstrcopy(st, mapdata->name);
 		break;
 	case 2:
 		script_pushint(st, x);
@@ -26506,8 +26507,8 @@ BUILDIN_FUNC(instance_record) {
 		script_pushint(st, y);
 		break;
 	default:
-		script_pushint(st, 0);
-		break;
+		ShowError("instance_record: Invalid type '%d'\n", script_getnum(st, 2));
+		return SCRIPT_CMD_FAILURE;
 	}
 
 	return SCRIPT_CMD_SUCCESS;
