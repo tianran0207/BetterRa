@@ -1342,6 +1342,11 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_EDP] |= SCB_WATK;
 #endif
 
+	if (battle_config.official_cro) {
+		StatusChangeFlagTable[SC_BEYONDOFWARCRY] = SCB_WATK|SCB_MATK;
+		StatusChangeFlagTable[SC_MELODYOFSINK] = SCB_WATK|SCB_MATK;
+	}
+
 	/* StatusDisplayType Table [Ind] */
 	StatusDisplayType[SC_ALL_RIDING]	  = BL_PC;
 	StatusDisplayType[SC_PUSH_CART]		  = BL_PC;
@@ -3157,7 +3162,7 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 			//Decreasing
 			if(sc->data[SC_VENOMBLEED])
 				bonus -= 15;
-			if(sc->data[SC_BEYONDOFWARCRY])
+			if(sc->data[SC_BEYONDOFWARCRY] && !battle_config.official_cro)
 				bonus -= sc->data[SC_BEYONDOFWARCRY]->val4;
 			if(sc->data[SC__WEAKNESS])
 				bonus -= sc->data[SC__WEAKNESS]->val2;
@@ -5637,7 +5642,7 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 		str += ((sc->data[SC_SPIRIT]->val3)>>16)&0xFF;
 	if(sc->data[SC_GIANTGROWTH])
 		str += 30;
-	if(sc->data[SC_BEYONDOFWARCRY])
+	if(sc->data[SC_BEYONDOFWARCRY] && !battle_config.official_cro)
 		str -= sc->data[SC_BEYONDOFWARCRY]->val3;
 	if(sc->data[SC_SAVAGE_STEAK])
 		str += sc->data[SC_SAVAGE_STEAK]->val1;
@@ -5853,7 +5858,7 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 		int_ += ((sc->data[SC_SPIRIT]->val4)>>16)&0xFF;
 	if(sc->data[SC_INSPIRATION])
 		int_ += sc->data[SC_INSPIRATION]->val3;
-	if(sc->data[SC_MELODYOFSINK])
+	if(sc->data[SC_MELODYOFSINK] && !battle_config.official_cro)
 		int_ -= sc->data[SC_MELODYOFSINK]->val3;
 	if(sc->data[SC_MANDRAGORA])
 		int_ -= 4 * sc->data[SC_MANDRAGORA]->val1;
@@ -6196,6 +6201,13 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 	if (sc->data[SC_CHATTERING])
 		watk += sc->data[SC_CHATTERING]->val2;
 
+	if (battle_config.official_cro) {
+		if(sc->data[SC_BEYONDOFWARCRY])
+			watk += watk * sc->data[SC_BEYONDOFWARCRY]->val2 / 100;
+		if (sc->data[SC_MELODYOFSINK])
+			watk -= watk * sc->data[SC_MELODYOFSINK]->val2 / 100;
+	}
+
 	return (unsigned short)cap_value(watk,0,USHRT_MAX);
 }
 
@@ -6314,6 +6326,13 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 	if (sc->data[SC_SHRIMP])
 		matk += matk * sc->data[SC_SHRIMP]->val2 / 100;
 
+	if (battle_config.official_cro) {
+		if (sc->data[SC_BEYONDOFWARCRY])
+			matk -= matk * sc->data[SC_BEYONDOFWARCRY]->val2 / 100;
+		if (sc->data[SC_MELODYOFSINK])
+			matk += matk * sc->data[SC_MELODYOFSINK]->val2 / 100;
+	}
+
 	return (unsigned short)cap_value(matk,0,USHRT_MAX);
 }
 
@@ -6351,7 +6370,7 @@ static signed short status_calc_critical(struct block_list *bl, struct status_ch
 		critical += sc->data[SC__INVISIBILITY]->val3 * 10;
 	if (sc->data[SC__UNLUCKY])
 		critical -= sc->data[SC__UNLUCKY]->val2;
-	if(sc->data[SC_BEYONDOFWARCRY])
+	if(sc->data[SC_BEYONDOFWARCRY] && !battle_config.official_cro)
 		critical += sc->data[SC_BEYONDOFWARCRY]->val3;
 
 	return (short)cap_value(critical,10,SHRT_MAX);
@@ -10762,11 +10781,19 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val3 = 200 * val1 + min(300 * val2, 2500); // MaxHP Increase
 			break;
 		case SC_MELODYOFSINK:
+			if (battle_config.official_cro) {
+				val2 = val1 * 5 + val3 * 2;
+				break;
+			}
 			val3 = val1 * val2; // INT Reduction.
 			val4 = tick/1000;
 			t_tickime = 1000;
 			break;
 		case SC_BEYONDOFWARCRY:
+			if (battle_config.official_cro) {
+				val2 = val1 * 5 + val3 * 2;
+				break;
+			}
 			val3 = val1 * val2; // STR and CRIT Reduction
 			val4 = 4 * val1 + min(4 * (val2 - 2), 40); // MaxHP Reduction
 			break;

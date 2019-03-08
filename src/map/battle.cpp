@@ -8206,6 +8206,7 @@ static const struct _battle_data {
 	{ "sleep2_ignore_attach",               &battle_config.sleep2_ignore_attach,            0,      0,      1,              },
 	{ "disable_event_queue",                &battle_config.disable_event_queue,             0,      0,      1,              },
 	{ "autobonus_in_order",                 &battle_config.autobonus_in_order,              0,      0,      1,              },
+	{ "official_cro",		                &battle_config.official_cro,                    0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]---------------------------------------------		 
 	{ "extended_vending",					&battle_config.extended_vending,				1,		0,		1,				},
 	{ "show_item_vending",					&battle_config.show_item_vending,				1,		0,		1,				},

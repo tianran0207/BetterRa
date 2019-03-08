@@ -10263,6 +10263,11 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		if( flag&1 ) {
 			sc_start2(src,bl,type,100,skill_lv,battle_calc_chorusbonus(sd),skill_get_time(skill_id,skill_lv));
 		} else {	// These affect to all targets arround the caster.
+			if (battle_config.official_cro) {
+				map_foreachinallrange(skill_area_sub, src, skill_get_splash(skill_id, skill_lv), BL_PC|BL_MOB, src, skill_id, skill_lv, tick, flag|BCT_ALL|1, skill_castend_nodamage_id);
+				clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
+				break;
+			}
 			if( rnd()%100 < 15 + 5 * skill_lv * 5 * battle_calc_chorusbonus(sd) ) {
 				map_foreachinallrange(skill_area_sub, src, skill_get_splash(skill_id,skill_lv),BL_PC, src, skill_id, skill_lv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);

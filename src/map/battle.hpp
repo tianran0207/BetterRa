@@ -210,6 +210,7 @@ struct Battle_Config
 	int sleep2_ignore_attach;
 	int disable_event_queue;
 	int autobonus_in_order;
+	int official_cro;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int show_item_vending;
