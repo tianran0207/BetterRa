@@ -747,36 +747,29 @@ void path_free(struct step_path *sp) {
 
 // flag?
 struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid) {
-	struct step_path *sp;
+	struct step_path *sp = NULL;
 	char pathname[NAME_LENGTH];
-	bool hasdata = true;
+
 	if (x0 == x1 && y0 == y1)
 		return NULL;
 
-	if(uid > 0)
+	if (uid > 0)
 		snprintf(pathname, NAME_LENGTH, "%d", uid);
 	else
 		snprintf(pathname, NAME_LENGTH, "%d_%d_%d_%d_%d", m, x0, y0, x1, y1);
-	
-	if (!(sp = get_step(pathname))){
-		hasdata = false;
+
+	if (!(sp = get_step(pathname))) {
 		CREATE(sp, struct step_path, 1);
-	}
-		
-
-	memset(sp, 0, sizeof(struct step_path));
-	
-	if (!astart_path(sp, m, x0, y0, x1, y1, CELL_CHKNOPASS)) {
-		aFree(sp);
-		return NULL;
-	}
-	sp->uid = uid > 0 ? uid : 0;
-
-	strncpy(sp->pathname, pathname, NAME_LENGTH);
-
-	if (!hasdata)
+		sp->uid = uid;
+		strncpy(sp->pathname, pathname, NAME_LENGTH);
 		strdb_put(step_db, sp->pathname, sp);
-	return sp;
+	}
+
+	if (astart_path(sp, m, x0, y0, x1, y1, CELL_CHKNOPASS))
+		return sp;
+
+	aFree(sp);
+	return NULL;
 }
 
 #include "../common/strlib.hpp"

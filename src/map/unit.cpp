@@ -657,7 +657,7 @@ int unit_walktoxy( struct block_list *bl, short x, short y, unsigned char flag)
 			return 0;
 #endif
 
-	if ((wpd.path_len > battle_config.max_walk_path) && (bl->type != BL_NPC))
+	if (unit_check_around(bl) && (wpd.path_len > battle_config.max_walk_path) && (bl->type != BL_NPC))
 		return 0;
 
 	if (flag&4) {
@@ -904,20 +904,28 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 			}
 			return true;
 		}
+		else if (unit_backto_step(bl, ad)) {
+			return true;
+		}
 		else if (ad->step_ai == PH_ASTARTWALKBACK) {
-			int i, minlen, newstep = ad->step;
-			struct step_path *sp;
-			minlen = distance_blxy(bl, ad->path->x[ad->step], ad->path->y[ad->step]);
-			for (i = ad->step; i < ad->path->number; i++) {
-				if (check_distance_blxy(bl, ad->path->x[i], ad->path->y[i], minlen)) {
-					minlen = distance_blxy(bl, ad->path->x[i], ad->path->y[i]);
+			int i, len, newstep = ad->step;
+			struct step_path *sp, tempsp;
+			len = distance_blxy(bl, path->x[newstep], path->y[newstep]);
+			for (i = newstep; i < path->number; i++) {
+				if (distance_blxy(bl, path->x[i], path->y[i]) <= len) {
+					len = distance_blxy(bl, path->x[i], path->y[i]);
 					newstep = i;
 				}
 			}
-			if ((sp = path_Astart_steppath(bl->m, bl->x, bl->y, ad->path->x[newstep], ad->path->y[newstep], bl->id))) {
-				for (i = newstep; i < ad->path->number && sp->number < MAX_PATHSTEP; i++) {
-					sp->x[sp->number] = ad->path->x[i];
-					sp->y[sp->number] = ad->path->y[i];
+			for (i = 0; newstep < path->number; i++, newstep++) {
+				tempsp.x[i] = path->x[newstep];
+				tempsp.y[i] = path->y[newstep];
+			}
+			tempsp.number = i;
+			if ((sp = path_Astart_steppath(bl->m, bl->x, bl->y, tempsp.x[0], tempsp.y[0], bl->id))) {
+				for (i = 1; i < tempsp.number && sp->number < MAX_PATHSTEP; i++) {
+					sp->x[sp->number] = tempsp.x[i];
+					sp->y[sp->number] = tempsp.y[i];
 					sp->number++;
 				}
 				ad->path = sp;
@@ -932,9 +940,6 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 				ad->step = 0;
 				return true;
 			}
-		}
-		else if (unit_backto_step(bl, ad)) {
-			return true;
 		}
 	}
 
