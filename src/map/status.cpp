@@ -3771,9 +3771,6 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 		npc_script_event_atonce(sd, NPCE_STATCALC);
 	running_npc_stat_calc_event = false;
 
-	if (battle_config.bonus_ratefix)
-		pc_bonus_limit(sd, 0, battle_config.bonus_ratefix);
-
 	// Store equipment script bonuses
 	memcpy(sd->param_equip,sd->param_bonus,sizeof(sd->param_equip));
 	memset(sd->param_bonus, 0, sizeof(sd->param_bonus));
@@ -4360,6 +4357,10 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	status_cpy(&sd->battle_status, base_status);
 
 // ----- CLIENT-SIDE REFRESH -----
+
+	if (battle_config.bonus_ratefix)
+		pc_bonus_limit(sd, 0, battle_config.bonus_ratefix);
+
 	if(!sd->bl.prev) {
 		// Will update on LoadEndAck
 		calculating = 0;
