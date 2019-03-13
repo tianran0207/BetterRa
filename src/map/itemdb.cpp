@@ -1073,17 +1073,6 @@ static bool itemdb_combos_contrast(struct item_data * id, const int *item, int r
 		}
 		if (count == retcount) {
 			*(idx) = i;
-			/*for (i = 0; i < id->combos_count; i++) {
-				for (m = 0; m < id->combos[i]->count; m++) {
-					printf("%d:", id->combos[i]->nameid[m]);
-				}
-				printf(" | ");
-			}
-			printf(" :: ");
-			for (n = 0; n < retcount; n++) {
-				printf("%d:", *(item + n));
-			}
-			printf("\n");*/
 			return true;
 		}
 			
@@ -1171,7 +1160,6 @@ static void itemdb_read_combos(const char* basedir, bool silent) {
 				continue;
 			id = itemdb_exists(items[0]);
 			if (battle_config.combo_mode == 2 && itemdb_combos_contrast(id, items, retcount, &idx)) {
-				// ´ýÑéÖ¤
 				script_free_code(id->combos[idx]->script);
 				id->combos[idx]->script = parse_script(str[1], path, lines, 0);
 				for (v = 1; v < retcount; v++) {

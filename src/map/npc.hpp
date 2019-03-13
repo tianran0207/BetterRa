@@ -1237,6 +1237,7 @@ enum npce_event : uint8 {
 	NPCE_CASHSHOPCLOSEEVENT,
 	NPCE_STYLISTCHANGEEVENT,
 	NPCE_MANNERFILTER,
+	NPCE_MOVEFILTER,
 	NPCE_MAX
 };
 struct view_data* npc_get_viewdata(int class_);

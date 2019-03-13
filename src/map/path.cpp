@@ -525,6 +525,8 @@ bool direction_diagonal( enum directions direction ){
 /// Adds new node to heap and updates/re-adds old ones if necessary.
 #define STEPL 4
 #define astart_index(x,y) (((x)/STEPL+(y)*MAX_ASTARTPATH/STEPL) & (MAX_ASTARTPATH*MAX_ASTARTPATH-1))
+#define ASTART_COST 40
+#define ASTART_DIAGONAL_COST 48
 
 static int astart_add_path(struct node_heap *heap, struct path_node *tp, int16 x, int16 y, int g_cost, struct path_node *parent, int h_cost)
 {
@@ -565,49 +567,57 @@ static int astart_check_pass(struct map_data *md, int x, int y, int dir, cell_ch
 	int i;
 	switch (dir) {
 	case PATH_DIR_NORTH:
-		for (i = 1; i <= STEPL; i++) {
+		if (y + STEPL > md->ys) return 0;
+		for (i = STEPL; i > 0; i--) {
 			if (map_getcellp(md, x, y + i, cell))
 				return 0;
 		}
 		break;
 	case PATH_DIR_SOUTH:
-		for (i = 1; i <= STEPL; i++) {
+		if (y - STEPL < 0) return 0;
+		for (i = STEPL; i > 0; i--) {
 			if (map_getcellp(md, x, y - i, cell))
 				return 0;
 		}
 		break;
 	case PATH_DIR_EAST:
-		for (i = 1; i <= STEPL; i++) {
+		if (x + STEPL > md->xs) return 0;
+		for (i = STEPL; i > 0; i--) {
 			if (map_getcellp(md, x + i, y, cell))
 				return 0;
 		}
 		break;
 	case PATH_DIR_WEST:
-		for (i = 1; i <= STEPL; i++) {
+		if (x - STEPL < 0) return 0;
+		for (i = STEPL; i > 0; i--) {
 			if (map_getcellp(md, x - i, y, cell))
 				return 0;
 		}
 		break;
 	case (PATH_DIR_SOUTH | PATH_DIR_EAST):
-		for (i = 1; i <= STEPL; i++) {
+		if (y - STEPL < 0 && x + STEPL > md->xs) return 0;
+		for (i = STEPL; i > 1; i--) {
 			if (map_getcellp(md, x + i, y - i, cell))
 				return 0;
 		}
 		break;
 	case (PATH_DIR_NORTH | PATH_DIR_EAST):
-		for (i = 1; i <= STEPL; i++) {
+		if (y + STEPL > md->ys && x + STEPL > md->xs) return 0;
+		for (i = STEPL; i > 1; i--) {
 			if (map_getcellp(md, x + i, y + i, cell))
 				return 0;
 		}
 		break;
 	case (PATH_DIR_NORTH | PATH_DIR_WEST):
-		for (i = 1; i <= STEPL; i++) {
+		if (y + STEPL > md->ys && x - STEPL < 0) return 0;
+		for (i = STEPL; i > 1; i--) {
 			if (map_getcellp(md, x - i, y + i, cell))
 				return 0;
 		}
 		break;
 	case (PATH_DIR_SOUTH | PATH_DIR_WEST):
-		for (i = 1; i <= STEPL; i++) {
+		if (y - STEPL < 0 && x - STEPL < 0) return 0;
+		for (i = STEPL; i > 1; i--) {
 			if (map_getcellp(md, x - i, y - i, cell))
 				return 0;
 		}
@@ -691,30 +701,25 @@ bool astart_path(struct step_path *sp, int16 m, int16 x0, int16 y0, int16 x1, in
 			break;
 		}
 		
-		if (y < ys && astart_check_pass(md, x, y, PATH_DIR_NORTH, cell)) allowed_dirs |= PATH_DIR_NORTH;
-		if (y >  0 && astart_check_pass(md, x, y, PATH_DIR_SOUTH, cell)) allowed_dirs |= PATH_DIR_SOUTH;
-		if (x < xs && astart_check_pass(md, x, y, PATH_DIR_EAST, cell)) allowed_dirs |= PATH_DIR_EAST;
-		if (x >  0 && astart_check_pass(md, x, y, PATH_DIR_WEST, cell)) allowed_dirs |= PATH_DIR_WEST;
-
-#define chk_dir(d) ((allowed_dirs & (d)) == (d))
 		// Process neighbors of current node
-		if (chk_dir(PATH_DIR_SOUTH | PATH_DIR_EAST) && astart_check_pass(md, x, y, PATH_DIR_SOUTH | PATH_DIR_EAST, cell))
-			e += astart_add_path(&g_open_set, tp, x + STEPL, y - STEPL, g_cost + MOVE_DIAGONAL_COST, current, heuristic(x + STEPL, y - STEPL, x1, y1)); // (x+1, y-1) 5
-		if (chk_dir(PATH_DIR_EAST))
-			e += astart_add_path(&g_open_set, tp, x + STEPL, y, g_cost + MOVE_COST, current, heuristic(x + STEPL, y, x1, y1)); // (x+1, y) 6
-		if (chk_dir(PATH_DIR_NORTH | PATH_DIR_EAST) && astart_check_pass(md, x, y, PATH_DIR_NORTH | PATH_DIR_EAST, cell))
-			e += astart_add_path(&g_open_set, tp, x + STEPL, y + STEPL, g_cost + MOVE_DIAGONAL_COST, current, heuristic(x + STEPL, y + STEPL, x1, y1)); // (x+1, y+1) 7
-		if (chk_dir(PATH_DIR_NORTH))
-			e += astart_add_path(&g_open_set, tp, x, y + STEPL, g_cost + MOVE_COST, current, heuristic(x, y + STEPL, x1, y1)); // (x, y+1) 0
-		if (chk_dir(PATH_DIR_NORTH | PATH_DIR_WEST) && astart_check_pass(md, x, y, PATH_DIR_NORTH | PATH_DIR_WEST, cell))
-			e += astart_add_path(&g_open_set, tp, x - STEPL, y + STEPL, g_cost + MOVE_DIAGONAL_COST, current, heuristic(x - STEPL, y + STEPL, x1, y1)); // (x-1, y+1) 1
-		if (chk_dir(PATH_DIR_WEST))
-			e += astart_add_path(&g_open_set, tp, x - STEPL, y, g_cost + MOVE_COST, current, heuristic(x - STEPL, y, x1, y1)); // (x-1, y) 2
-		if (chk_dir(PATH_DIR_SOUTH | PATH_DIR_WEST) && astart_check_pass(md, x, y, PATH_DIR_SOUTH | PATH_DIR_WEST, cell))
-			e += astart_add_path(&g_open_set, tp, x - STEPL, y - STEPL, g_cost + MOVE_DIAGONAL_COST, current, heuristic(x - STEPL, y - STEPL, x1, y1)); // (x-1, y-1) 3
-		if (chk_dir(PATH_DIR_SOUTH))
-			e += astart_add_path(&g_open_set, tp, x, y - STEPL, g_cost + MOVE_COST, current, heuristic(x, y - STEPL, x1, y1)); // (x, y-1) 4
-#undef chk_dir
+		if (astart_check_pass(md, x, y, PATH_DIR_NORTH, cell))
+			e += astart_add_path(&g_open_set, tp, x, y + STEPL, g_cost + ASTART_COST, current, heuristic(x, y + STEPL, x1, y1)); // (x, y+1) 0
+		if (astart_check_pass(md, x, y, PATH_DIR_SOUTH, cell))
+			e += astart_add_path(&g_open_set, tp, x, y - STEPL, g_cost + ASTART_COST, current, heuristic(x, y - STEPL, x1, y1)); // (x, y-1) 4
+		if (astart_check_pass(md, x, y, PATH_DIR_WEST, cell))
+			e += astart_add_path(&g_open_set, tp, x - STEPL, y, g_cost + ASTART_COST, current, heuristic(x - STEPL, y, x1, y1)); // (x-1, y) 2
+		if (astart_check_pass(md, x, y, PATH_DIR_EAST, cell))
+			e += astart_add_path(&g_open_set, tp, x + STEPL, y, g_cost + ASTART_COST, current, heuristic(x + STEPL, y, x1, y1)); // (x+1, y) 6
+
+		if (astart_check_pass(md, x, y, PATH_DIR_SOUTH | PATH_DIR_EAST, cell))
+			e += astart_add_path(&g_open_set, tp, x + STEPL, y - STEPL, g_cost + ASTART_DIAGONAL_COST, current, heuristic(x + STEPL, y - STEPL, x1, y1)); // (x+1, y-1) 5
+		if (astart_check_pass(md, x, y, PATH_DIR_NORTH | PATH_DIR_EAST, cell))
+			e += astart_add_path(&g_open_set, tp, x + STEPL, y + STEPL, g_cost + ASTART_DIAGONAL_COST, current, heuristic(x + STEPL, y + STEPL, x1, y1)); // (x+1, y+1) 7
+		if (astart_check_pass(md, x, y, PATH_DIR_NORTH | PATH_DIR_WEST, cell))
+			e += astart_add_path(&g_open_set, tp, x - STEPL, y + STEPL, g_cost + ASTART_DIAGONAL_COST, current, heuristic(x - STEPL, y + STEPL, x1, y1)); // (x-1, y+1) 1
+		if (astart_check_pass(md, x, y, PATH_DIR_SOUTH | PATH_DIR_WEST, cell))
+			e += astart_add_path(&g_open_set, tp, x - STEPL, y - STEPL, g_cost + ASTART_DIAGONAL_COST, current, heuristic(x - STEPL, y - STEPL, x1, y1)); // (x-1, y-1) 3
+
 		if (e) {
 			return false;
 		}

@@ -352,7 +352,8 @@ struct Script_Config script_config = {
 	"OnPCCashShopBuyEvent", //cashshop_buy_event_name
 	"OnPCCashShopCloseEvent", //cashshop_close_event_name
 	"OnPCStylistChangeEvent", //stylist_change_event_name
-	"OnPCMannerFilter" //manner_filter_name
+	"OnPCMannerFilter", //manner_filter_name
+	"OnPCMoveFilter" //move_filter_name
 };
 
 static jmp_buf     error_jump;
@@ -27311,6 +27312,17 @@ BUILDIN_FUNC(sendmail)
 
 }
 
+BUILDIN_FUNC(when_pcmove_doevent)
+{
+	TBL_PC *sd;
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	sd->state.move_event = 1;
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -28205,6 +28217,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(showvending, "si?"),
 	BUILDIN_DEF(showbuying, "si?"),
 	BUILDIN_DEF2(showvending, "showvend", "si?"),
+	BUILDIN_DEF(when_pcmove_doevent, "?"),
 
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL
