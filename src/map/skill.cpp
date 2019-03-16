@@ -11208,6 +11208,7 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 				if (!sc || !sc->data[SC_EXPLOSIONSPIRITS])
 					return USESKILL_FAIL_EXPLOSIONSPIRITS;
 			}
+			break;
 		case AL_HEAL:
 		case AL_INCAGI:
 		case AL_DECAGI:

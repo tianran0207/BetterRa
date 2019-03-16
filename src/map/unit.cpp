@@ -660,6 +660,14 @@ int unit_walktoxy( struct block_list *bl, short x, short y, unsigned char flag)
 	if (unit_check_around(bl) && (wpd.path_len > battle_config.max_walk_path) && (bl->type != BL_NPC))
 		return 0;
 
+	if (sd && !sd->runing_event[NPCE_MOVEFILTER] && event_exist(NPCE_MOVEFILTER) &&
+		(battle_config.player_move_event_type == 2 || (battle_config.player_move_event_type == 1 && sd->state.move_event))) {
+		sd->state.move_event = 0;
+		npc_script_event_atonce(sd, NPCE_MOVEFILTER);
+		if (sd->state.processhalt)
+			return 0;
+	}
+
 	if (flag&4) {
 		unit_unattackable(bl);
 		unit_stop_attack(bl);

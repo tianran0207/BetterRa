@@ -282,6 +282,8 @@ struct Script_Config {
 	const char* stylist_change_event_name;
 	// Manner related
 	const char* manner_filter_name;
+	// Move related
+	const char* move_filter_name;
 };
 extern struct Script_Config script_config;
 

@@ -4734,6 +4734,8 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.stylist_change_event_name;
 	case NPCE_MANNERFILTER:
 		return script_config.manner_filter_name;
+	case NPCE_MOVEFILTER:
+		return script_config.move_filter_name;
 	default:
 		ShowError("npc_get_script_event_name: npce_index is outside the array limits: %d (max: %d).\n", npce_index, NPCE_MAX);
 		return NULL;
