@@ -717,7 +717,7 @@
 487,0,6,4,0,0x1,0,5,1,no,0,0,0,none,0,0x8,		CG_LONGINGFREEDOM,不要拘束我
 488,0,6,4,0,0x1,1,5,1,no,0,0x20,0,misc,0,0x1,	CG_HERMODE,海罗默德的手杖
 489,9,6,1,0,0x41,0,5,1,no,0,0,0,misc,0,0x0,		CG_TAROTCARD,命运的塔罗牌
-490,9,8,1,-1,0x60,0,10,1:2:3:4:5:6:7:8:9:10,yes,0,0,0,misc,0,0x0,	CR_ACIDDEMONSTRATION,强酸火烟瓶投掷
+490,9,8,1,0,0x60,0,10,1:2:3:4:5:6:7:8:9:10,yes,0,0,0,misc,0,0x0,	CR_ACIDDEMONSTRATION,强酸火烟瓶投掷
 491,1,6,2,0,0x1,0,2,1,no,0,0,0,none,0,0x0,		CR_CULTIVATION,植物栽培
 492,0,6,4,0:1:2:3:4:5:6:7:8:9,0x1,0,10,1,no,0,0x2,0,none,0,0x0,	ITEM_ENCHANTARMS,Weapon Enchantment
 493,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,0x0,		TK_MISSION,太拳任务
