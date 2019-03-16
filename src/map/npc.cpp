@@ -4584,6 +4584,8 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 		ShowError("npc_script_event: NULL sd. Event Type %d\n", type);
 		return 0;
 	}
+	bool runing_bk = sd->is_runing_event;
+
 	sd->state.processhalt = 0;
 	sd->runing_event[type] = true;
 	sd->is_runing_event = true;
@@ -4593,7 +4595,7 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 		run_script(evt.event->nd->u.scr.script, evt.event->pos, sd->bl.id, evt.event->nd->bl.id);
 	}
 	sd->runing_event[type] = false;
-	sd->is_runing_event = false;
+	sd->is_runing_event = runing_bk;
 	
 	return vector.size();
 }

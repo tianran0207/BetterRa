@@ -9630,6 +9630,9 @@ BUILDIN_FUNC(end)
 
 	st->state = END;
 
+	if (sd && sd->is_runing_event)
+		return SCRIPT_CMD_SUCCESS;
+
 	if (st->stack->defsp >= 1 && st->stack->stack_data[st->stack->defsp-1].type == C_RETINFO) {
 		int i;
 
@@ -9646,9 +9649,6 @@ BUILDIN_FUNC(end)
 		st->mes_active = 0;
 
 	if (sd){
-		if (sd->is_runing_event)
-			return SCRIPT_CMD_SUCCESS;
-
 		if (sd->state.callshop == 0)
 			clif_scriptclose(sd, st->oid); // If a menu/select/prompt is active, close it.
 		else 
