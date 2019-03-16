@@ -4644,7 +4644,7 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 	// remember the card id to insert
 	nameid = sd->inventory.u.items_inventory[idx_card].nameid;
 
-	if (sd && !sd->runing_event[NPCE_CARDINSERTFILTER] && event_exist(NPCE_CARDINSERTFILTER)) {
+	if (npc_script_event_check(sd, NPCE_CARDINSERTFILTER)) {
 		pc_setreg(sd, add_str("@insert_equip_idx"), idx_equip);
 		pc_setreg(sd, add_str("@insert_card_idx"), idx_card);
 		pc_setreg(sd, add_str("@insert_card_id"), nameid);
@@ -4665,7 +4665,7 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 		log_pick_pc(sd, LOG_TYPE_OTHER,  1, &sd->inventory.u.items_inventory[idx_equip]);
 		clif_insert_card(sd,idx_equip,idx_card,0);
 
-		if (sd && !sd->runing_event[NPCE_CARDINSERTEVENT] && event_exist(NPCE_CARDINSERTEVENT)) {
+		if (npc_script_event_check(sd, NPCE_CARDINSERTEVENT)) {
 			pc_setreg(sd, add_str("@insert_equip_idx"), idx_equip);
 			pc_setreg(sd, add_str("@insert_card_idx"), idx_card);
 			pc_setreg(sd, add_str("@insert_card_id"), nameid);
@@ -5529,7 +5529,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 	}
 
 #ifdef EVENT_USEITEMFILTER
-	if (sd && !sd->runing_event[NPCE_USEITEMFILTER] && event_exist(NPCE_USEITEMFILTER)) {
+	if (npc_script_event_check(sd, NPCE_USEITEMFILTER)) {
 		pc_setreg(sd, add_str("@useitem_nameid"), item.nameid);
 		pc_setreg(sd, add_str("@useitem_idx"), n);
 		pc_setreg(sd, add_str("@useitem_pos"), n);
@@ -5581,7 +5581,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 	potion_flag = 0;
 
 #ifdef EVENT_USEITEMEVENT
-	if (event_exist(NPCE_USEITEMEVENT)) {
+	if (npc_script_event_check(sd, NPCE_USEITEMEVENT)) {
 		pc_setreg(sd, add_str("@useitem_nameid"), item.nameid);
 		amount = amount == 1 ? -1 : n;
 		pc_setreg(sd, add_str("@useitem_idx"), amount);
@@ -5964,7 +5964,7 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 
 	int16 m = map_mapindex2mapid(mapindex);
 #ifdef EVENT_WILLLOADMAPEVENT
-	if (sd && !sd->runing_event[NPCE_WILLLOADMAPEVENT] && sd->state.active && event_exist(NPCE_WILLLOADMAPEVENT)) {
+	if (sd->state.active && npc_script_event_check(sd, NPCE_WILLLOADMAPEVENT)) {
 		pc_setreg(sd, add_str("@loadmap_oldmap_id"), sd->bl.m);
 		pc_setregstr(sd, add_str("@loadmap_oldmap_name$"), map_mapid2mapname(sd->bl.m));
 		pc_setreg(sd, add_str("@loadmap_oldmap_x"), sd->bl.x);
@@ -10431,7 +10431,7 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 	}
 
 #ifdef EVENT_EQUIPFILTER
-	if (sd && !sd->runing_event[NPCE_EQUIPFILTER] && event_exist(NPCE_EQUIPFILTER)) {
+	if (npc_script_event_check(sd, NPCE_EQUIPFILTER)) {
 		pc_setreg(sd, add_str("@equip_idx"), n);
 		pc_setreg(sd, add_str("@equip_pos"), n);
 		npc_script_event_atonce(sd, NPCE_EQUIPFILTER);
@@ -10632,7 +10632,7 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 	sd->npc_item_flag = iflag;
 
 #ifdef EVENT_EQUIPEVENT
-	if (event_exist(NPCE_EQUIPEVENT)) {
+	if (npc_script_event_check(sd, NPCE_EQUIPEVENT)) {
 		pc_setreg(sd, add_str("@equip_idx"), n);
 		pc_setreg(sd, add_str("@equip_pos"), n);
 		npc_script_event(sd, NPCE_EQUIPEVENT);
@@ -10758,7 +10758,7 @@ bool pc_unequipitem(struct map_session_data *sd, int n, int flag) {
 
 
 #ifdef EVENT_UNEQUIPFILTER
-	if (sd && !sd->runing_event[NPCE_UNEQUIPFILTER] && event_exist(NPCE_UNEQUIPFILTER)) {
+	if (npc_script_event_check(sd, NPCE_UNEQUIPFILTER)) {
 		pc_setreg(sd, add_str("@unequip_idx"), n);
 		pc_setreg(sd, add_str("@unequip_pos"), n);
 		npc_script_event_atonce(sd, NPCE_UNEQUIPFILTER);
@@ -10847,7 +10847,7 @@ bool pc_unequipitem(struct map_session_data *sd, int n, int flag) {
 	pc_unequipitem_sub(sd, n, flag);
 
 #ifdef EVENT_UNEQUIPEVENT
-	if (event_exist(NPCE_UNEQUIPEVENT)) {
+	if (npc_script_event_check(sd, NPCE_UNEQUIPEVENT)) {
 		pc_setreg(sd, add_str("@unequip_idx"), n);
 		pc_setreg(sd, add_str("@unequip_pos"), n);
 		npc_script_event(sd, NPCE_UNEQUIPEVENT);
@@ -14164,7 +14164,7 @@ bool pc_manner_check(struct map_session_data* sd, char *mes)
 					rep[j] = '*';
 			}
 		}
-		if (r > 0 && filter && !sd->runing_event[NPCE_MANNERFILTER] && event_exist(NPCE_MANNERFILTER)) {
+		if (r > 0 && filter && npc_script_event_check(sd, NPCE_MANNERFILTER)) {
 			pc_setreg(sd, add_str("@manner_type"), manner->type);
 			pc_setregstr(sd, add_str("@manner_mes$"), oldmes);
 			npc_script_event_atonce(sd, NPCE_MANNERFILTER);

@@ -1326,7 +1326,7 @@ int npc_do_atcmd_event(struct map_session_data* sd, const char* command, const c
 
 bool npc_unloadfile( const char* path );
 
-bool event_exist(enum npce_event type);
+bool npc_script_event_check(struct map_session_data* sd, enum npce_event type);
 bool npc_file_decrypt(char *src, size_t *ptr_len);
 bool npc_ondisplay_event(struct map_session_data *sd, struct npc_data *nd);
 

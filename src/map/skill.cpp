@@ -11611,7 +11611,7 @@ TIMER_FUNC(skill_castend_id){
 			sd->skillitem = sd->skillitemlv = sd->skillitem_keep_requirement = 0;
 
 #ifdef EVENT_USESKILLEVENT
-		if (sd && event_exist(NPCE_USESKILLEVENT)) {
+		if (npc_script_event_check(sd, NPCE_USESKILLEVENT)) {
 			pc_setreg(sd, add_str("@useskill_id"), ud->skill_id);
 			pc_setreg(sd, add_str("@useskill_lv"), ud->skill_lv);
 			pc_setreg(sd, add_str("@useskill_target"), target->id);
@@ -12701,7 +12701,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
 	}
 
 #ifdef EVENT_USESKILLEVENT
-	if (sd && event_exist(NPCE_USESKILLEVENT)) {
+	if (npc_script_event_check(sd, NPCE_USESKILLEVENT)) {
 		pc_setreg(sd, add_str("@useskill_id"), skill_id);
 		pc_setreg(sd, add_str("@useskill_lv"), skill_lv);
 		pc_setreg(sd, add_str("@useskill_target"), 0);
@@ -17126,7 +17126,7 @@ void skill_identify(struct map_session_data *sd, int idx)
 	}
 
 #ifdef EVENT_IDENTIFY
-	if (sd && !sd->runing_event[NPCE_IDENTIFY] && event_exist(NPCE_IDENTIFY)) {
+	if (npc_script_event_check(sd, NPCE_IDENTIFY)) {
 		pc_setreg(sd, add_str("@identify_idx"), idx);
 		npc_script_event_atonce(sd, NPCE_IDENTIFY);
 	}

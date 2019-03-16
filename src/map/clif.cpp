@@ -12913,7 +12913,7 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd) {
 	}
 
 #ifdef EVENT_IDENTIFYFILTER
-	if (sd && !sd->runing_event[NPCE_IDENTIFYFILTER] && event_exist(NPCE_IDENTIFYFILTER)) {
+	if (npc_script_event_check(sd, NPCE_IDENTIFYFILTER)) {
 		pc_setreg(sd, add_str("@identify_idx"), idx);
 		npc_script_event_atonce(sd, NPCE_IDENTIFYFILTER);
 		if (sd->state.processhalt) {
@@ -16621,7 +16621,7 @@ void clif_cashshop_open( struct map_session_data* sd ){
 void clif_parse_cashshop_list_request(int fd, struct map_session_data* sd);
 void clif_parse_cashshop_open_request( int fd, struct map_session_data* sd ){
 	clif_parse_cashshop_list_request(fd, sd);
-	if (event_exist(NPCE_CASHSHOPOPENFILTER)) {
+	if (npc_script_event_check(sd, NPCE_CASHSHOPOPENFILTER)) {
 		npc_script_event_atonce(sd, NPCE_CASHSHOPOPENFILTER);
 		if (sd->state.processhalt)
 			return;
@@ -16980,7 +16980,7 @@ void clif_parse_ViewPlayerEquip(int fd, struct map_session_data* sd)
 	if( tsd->status.show_equip || pc_has_permission(sd, PC_PERM_VIEW_EQUIPMENT) ) {
 	
 #ifdef EVENT_VIEWEQUIPFILTER
-		if (sd && !sd->runing_event[NPCE_VIEWEQUIPFILTER] && event_exist(NPCE_VIEWEQUIPFILTER)) {
+		if (npc_script_event_check(sd, NPCE_VIEWEQUIPFILTER)) {
 			pc_setregstr(sd, add_str("@view_equip_target_name$"), tsd->status.name);
 			pc_setreg(sd, add_str("@view_equip_target_aid"), tsd->status.account_id);
 			pc_setreg(sd, add_str("@view_equip_target_cid"), tsd->status.char_id);
@@ -19691,7 +19691,7 @@ void clif_parse_change_title(int fd, struct map_session_data *sd)
 	title_id = RFIFOL(fd, 2);
 
 #ifdef EVENT_TITLECHANGEFILTER
-	if (sd && !sd->runing_event[NPCE_TITLECHANGEFILTER] && event_exist(NPCE_TITLECHANGEFILTER)) {
+	if (npc_script_event_check(sd, NPCE_TITLECHANGEFILTER)) {
 		pc_setreg(sd, add_str("@trigger_mode"), 0);
 		pc_setreg(sd, add_str("@pre_title_id"), sd->status.title_id);
 		pc_setreg(sd, add_str("@now_title_id"), title_id);
@@ -19786,7 +19786,7 @@ void clif_parse_roulette_open( int fd, struct map_session_data* sd ){
 	nullpo_retv(sd);
 
 #ifdef EVENT_ROULETTEOPENFILTER
-	if (sd && !sd->runing_event[NPCE_ROULETTEOPENFILTER] && event_exist(NPCE_ROULETTEOPENFILTER)){
+	if (npc_script_event_check(sd, NPCE_ROULETTEOPENFILTER)){
 		npc_script_event_atonce(sd, NPCE_ROULETTEOPENFILTER);
 		if (sd->state.processhalt)
 			return;
@@ -19954,7 +19954,7 @@ void clif_parse_roulette_generate( int fd, struct map_session_data* sd ){
 	}
 	
 #ifdef EVENT_ROULETTESTARTFILTER
-	if (sd && !sd->runing_event[NPCE_ROULETTESTARTFILTER] && event_exist(NPCE_ROULETTESTARTFILTER)) {
+	if (npc_script_event_check(sd, NPCE_ROULETTESTARTFILTER)) {
 		npc_script_event_atonce(sd, NPCE_ROULETTESTARTFILTER);
 		if (sd->state.processhalt)
 			return;
@@ -20019,7 +20019,7 @@ void clif_parse_roulette_item( int fd, struct map_session_data* sd ){
 	}
 
 #ifdef EVENT_ROULETTEGETFILTER
-	if (sd && !sd->runing_event[NPCE_ROULETTEGETFILTER] && event_exist(NPCE_ROULETTEGETFILTER)) {
+	if (npc_script_event_check(sd, NPCE_ROULETTEGETFILTER)) {
 		pc_setreg(sd, add_str("@PrizeStage"), sd->roulette.prizeStage + 1);
 		pc_setreg(sd, add_str("@PrizeIdx"), sd->roulette.prizeIdx + 1);
 		npc_script_event_atonce(sd, NPCE_ROULETTEGETFILTER);
@@ -20872,7 +20872,7 @@ void clif_parse_style_change(int fd, struct map_session_data *sd) {
 	int16 head_mid = RFIFOW(fd, info->pos[4]);
 	int16 head_bottom = RFIFOW(fd, info->pos[5]);
 
-	if (sd && !sd->runing_event[NPCE_STYLISTCHANGEEVENT] && event_exist(NPCE_STYLISTCHANGEEVENT)) {
+	if (npc_script_event_check(sd, NPCE_STYLISTCHANGEEVENT)) {
 		pc_setreg(sd, add_str("@stylist_hair_color"), hair_color);
 		pc_setreg(sd, add_str("@stylist_hair_style"), hair_style);
 		pc_setreg(sd, add_str("@stylist_cloth_color"), cloth_color);
@@ -21382,7 +21382,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 	if (use_blacksmith_blessing && (k = pc_search_inventory(sd, 6635)) < 0 && sd->inventory.u.items_inventory[k].amount < status_get_refine_blessing(id->wlv, item->refine))
 		return;
 
-	if (sd && !sd->runing_event[NPCE_REFINEUIFILTER] && event_exist(NPCE_REFINEUIFILTER)) {
+	if (npc_script_event_check(sd, NPCE_REFINEUIFILTER)) {
 		pc_setreg(sd, add_str("@refine_idx"), index);
 		pc_setreg(sd, add_str("@refine_nameid"), id->nameid);
 		pc_setreg(sd, add_str("@refine_rate"), materials[i].chance);
@@ -21436,7 +21436,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		clif_misceffect( &sd->bl, 2 );
 		achievement_update_objective( sd, AG_REFINE_FAIL, 1, 1 );
 	}
-	if (event_exist(NPCE_REFINEUIEVENT)) {
+	if (npc_script_event_check(sd, NPCE_REFINEUIEVENT)) {
 		pc_setreg(sd, add_str("@refine_idx"), index);
 		pc_setreg(sd, add_str("@refine_nameid"), id->nameid);
 		npc_script_event(sd, NPCE_REFINEUIEVENT);

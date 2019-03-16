@@ -2024,7 +2024,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	}
 
 #ifdef EVENT_USESKILLFILTER
-	if (sd && !sd->runing_event[NPCE_USESKILLFILTER] && event_exist(NPCE_USESKILLFILTER)) {
+	if (npc_script_event_check(sd, NPCE_USESKILLFILTER)) {
 		pc_setreg(sd, add_str("@useskill_id"), skill_id);
 		pc_setreg(sd, add_str("@useskill_lv"), skill_lv);
 		pc_setreg(sd, add_str("@useskill_target"), target_id);
@@ -2325,7 +2325,7 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 	}
 
 #ifdef EVENT_USESKILLFILTER
-	if (sd && !sd->runing_event[NPCE_USESKILLFILTER] && event_exist(NPCE_USESKILLFILTER)) {
+	if (npc_script_event_check(sd, NPCE_USESKILLFILTER)) {
 		pc_setreg(sd, add_str("@useskill_id"), skill_id);
 		pc_setreg(sd, add_str("@useskill_lv"), skill_lv);
 		pc_setreg(sd, add_str("@useskill_target"), 0);

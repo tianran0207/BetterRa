@@ -3431,7 +3431,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	if (++calculating > 10) // Too many recursive calls!
 		return -1;
 
-	if (sd && !sd->runing_event[NPCE_STATCALCFILTER] && event_exist(NPCE_STATCALCFILTER)) {
+	if (npc_script_event_check(sd, NPCE_STATCALCFILTER)) {
 		npc_script_event_atonce(sd, NPCE_STATCALCFILTER);
 		if (sd->state.processhalt)
 			return 0;
@@ -3767,7 +3767,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	}
 
 	running_npc_stat_calc_event = true;
-	if (sd && !sd->runing_event[NPCE_STATCALC] && event_exist(NPCE_STATCALC))
+	if (npc_script_event_check(sd, NPCE_STATCALC))
 		npc_script_event_atonce(sd, NPCE_STATCALC);
 	running_npc_stat_calc_event = false;
 
@@ -11953,7 +11953,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		npc_touchnext_areanpc(sd,false); // Run OnTouch_ on next char in range
 	
 #ifdef EVENT_BUFFSTART
-	if (sd && event_exist(NPCE_BUFFSTART)) {
+	if (npc_script_event_check(sd, NPCE_BUFFSTART)) {
 		pc_setreg(sd, add_str("@started_sc_id"), type);
 		pc_setreg(sd, add_str("@started_sc_rate"), rate);
 		pc_setreg(sd, add_str("@started_sc_tick"), tick);
@@ -12968,7 +12968,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 	ers_free(sc_data_ers, sce);
 
 #ifdef EVENT_BUFFEND
-	if (sd && event_exist(NPCE_BUFFEND)) {
+	if (npc_script_event_check(sd, NPCE_BUFFEND)) {
 		pc_setreg(sd, add_str("@ended_sc_id"), type);
 		pc_setreg(sd, add_str("@endedsc"), type);
 		npc_script_event(sd, NPCE_BUFFEND);

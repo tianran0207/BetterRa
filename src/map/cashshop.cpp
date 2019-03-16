@@ -564,7 +564,7 @@ bool cashshop_buylist( struct map_session_data* sd, uint32 kafrapoints, int n, u
 		return false;
 	}
 
-	if (sd && !sd->runing_event[NPCE_CASHSHOPBUYFILTER] && event_exist(NPCE_CASHSHOPBUYFILTER)) {
+	if (npc_script_event_check(sd, NPCE_CASHSHOPBUYFILTER)) {
 		int idkey = add_str("@cashshop_nameid");
 		int quantitykey = add_str("@cashshop_quantity");
 		int pricekey = add_str("@cashshop_price");
@@ -657,7 +657,7 @@ bool cashshop_buylist( struct map_session_data* sd, uint32 kafrapoints, int n, u
 			}
 		}
 	}
-	if (sd && !sd->runing_event[NPCE_CASHSHOPBUYEVENT] && event_exist(NPCE_CASHSHOPBUYEVENT)) {
+	if (npc_script_event_check(sd, NPCE_CASHSHOPBUYEVENT)) {
 		int idkey = add_str("@cashshop_nameid");
 		int quantitykey = add_str("@cashshop_quantity");
 		int pricekey = add_str("@cashshop_price");

@@ -146,7 +146,7 @@ int pet_attackskill(struct pet_data *pd, int target_id)
 			return 0;
 
 #ifdef EVENT_PETSKILLFILTER
-		if (pd->master && !pd->master->runing_event[NPCE_PETSKILLFILTER] && event_exist(NPCE_PETSKILLFILTER)) {
+		if (pd->master && npc_script_event_check(pd->master, NPCE_PETSKILLFILTER)) {
 			pc_setreg(pd->master, add_str("@pet_id"), pd->pet.class_);
 			pc_setreg(pd->master, add_str("@pet_gid"), pd->bl.id);
 			pc_setreg(pd->master, add_str("@pet_skillid"), pd->a_skill->id);
@@ -1057,7 +1057,7 @@ static int pet_food(struct map_session_data *sd, struct pet_data *pd)
 	clif_pet_food(sd, pet_db_ptr->FoodID,1);
 
 #ifdef  EVENT_PETFEEDEVENT
-	if (event_exist(NPCE_PETFEEDEVENT) || event_exist(NPCE_PETFOODEVENT)) {
+	if (npc_script_event_check(sd, NPCE_PETFEEDEVENT) || npc_script_event_check(sd, NPCE_PETFOODEVENT)) {
 		npc_script_event(sd, NPCE_PETFEEDEVENT);
 		npc_script_event(sd, NPCE_PETFOODEVENT);
 	}
@@ -1241,7 +1241,7 @@ static int pet_ai_sub_hard(struct pet_data *pd, struct map_session_data *sd, t_t
 			struct flooritem_data *fitem = (struct flooritem_data *)target;
 
 #ifdef  EVENT_PETLOOTEVENT
-			if (event_exist(NPCE_PETLOOTEVENT)) {
+			if (npc_script_event_check(sd, NPCE_PETLOOTEVENT)) {
 				pc_setreg(sd, add_str("@petloot_item_id"), fitem->item.nameid);
 				pc_setreg(sd, add_str("@petloot_item_amount"), fitem->item.amount);
 				pc_setreg(sd, add_str("@petloot_game_id"), fitem->item.id);

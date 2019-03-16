@@ -4598,8 +4598,14 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 	return vector.size();
 }
 
-bool event_exist(enum npce_event type)
+bool npc_script_event_check(struct map_session_data* sd, enum npce_event type)
 {
+	if (sd == NULL)
+		return false;
+
+	if (sd->runing_event[type])
+		return false;
+
 	return script_event[type].size() > 0;
 }
 

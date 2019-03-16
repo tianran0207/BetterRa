@@ -3052,7 +3052,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 		}
 #ifdef EVENT_KILLMVP
-		if (mvp_sd && !md->state.npc_killmonster && status_has_mode(&md->status, MD_MVP) && (battle_config.always_mvp_kill_event || !md->npc_event[0]) && event_exist(NPCE_KILLMVP)) {
+		if (mvp_sd && !md->state.npc_killmonster && status_has_mode(&md->status, MD_MVP) && (battle_config.always_mvp_kill_event || !md->npc_event[0]) && npc_script_event_check(mvp_sd, NPCE_KILLMVP)) {
 			pc_setregstr(mvp_sd, add_str("@mob_event$"), md->npc_event);
 			pc_setreg(mvp_sd, add_str("@mob_dead_m"), md->bl.m);
 			pc_setreg(mvp_sd, add_str("@mob_dead_x"), md->bl.x);
