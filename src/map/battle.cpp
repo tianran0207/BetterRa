@@ -8134,7 +8134,7 @@ static const struct _battle_data {
 	int min;
 	int max;
 } battle_data[] = {
-	{ "max_pvp_aspd",                       &battle_config.max_pvp_aspd,                    0,      0,      199,			},
+	{ "max_pvp_aspd",                       &battle_config.max_pvp_aspd,                    0,      0,      199,            },
 	{ "max_gvg_aspd",                       &battle_config.max_gvg_aspd,                    0,      0,      199,            },
 	{ "extremityfist_castend_ball_check",   &battle_config.extremityfist_castend_ball_check,0,      0,      1,              },
 	{ "extremityfist_castend_status_check", &battle_config.extremityfist_castend_status_check, 0,   0,      1,              },
@@ -8148,7 +8148,7 @@ static const struct _battle_data {
 	{ "buff_for_guild_member",              &battle_config.buff_for_guild_member,           0,      0,      1,              },
 	{ "buff_for_tribe_member",              &battle_config.buff_for_tribe_member,           0,      0,      1|2,            },
 	{ "enable_amulet",                      &battle_config.enable_amulet,                   0,      0,      1,              },
-	{ "amulet_type",					    &battle_config.amulet_type,                     5,      IT_USABLE,IT_ARMOR,     },
+	{ "amulet_type",                        &battle_config.amulet_type,                     5,      IT_USABLE,IT_ARMOR,     },
 	{ "enable_coply",                       &battle_config.enable_coply,                    0,      0,      1,              },
 	{ "display_skill_name",                 &battle_config.display_skill_name,              0,      0,      1,              },
 	{ "pet_catch_rate_mode",                &battle_config.pet_catch_rate_mode,             0,      0,      2,              },
@@ -8180,7 +8180,7 @@ static const struct _battle_data {
 	{ "atcommand_info",                     &battle_config.atcommand_info,                  0,      0,      1|2,            },
 	{ "mvpdrop_last_hit_loot",              &battle_config.mvpdrop_last_hit_loot,           0,      0,      1,              },
 	{ "jro_formulas",                       &battle_config.jro_formulas,                    0,      0,      1,              },
-	{ "shadowgear_refine_ui",				&battle_config.shadowgear_refine_ui,            1,		0,		1,              },
+	{ "shadowgear_refine_ui",               &battle_config.shadowgear_refine_ui,            1,      0,      1,              },
 	{ "homunculus_max_aspd",                &battle_config.homunculus_max_aspd,             180,    0,      199,            },
 	{ "dropeffect_weapon",                  &battle_config.dropeffect_weapon,               0,      0,      6,              },
 	{ "dropeffect_armor",                   &battle_config.dropeffect_armor,                0,      0,      6,              },
@@ -8206,16 +8206,17 @@ static const struct _battle_data {
 	{ "sleep2_ignore_attach",               &battle_config.sleep2_ignore_attach,            0,      0,      1,              },
 	{ "disable_event_queue",                &battle_config.disable_event_queue,             0,      0,      1,              },
 	{ "autobonus_in_order",                 &battle_config.autobonus_in_order,              0,      0,      1,              },
-	{ "official_cro",		                &battle_config.official_cro,                    0,      0,      1,              },
-	{ "player_move_event_type",		        &battle_config.player_move_event_type,          0,      0,      1,              },
-	//--------------------------------------------Extended Vending system [Lilith]---------------------------------------------		 
-	{ "extended_vending",					&battle_config.extended_vending,				1,		0,		1,				},
-	{ "show_item_vending",					&battle_config.show_item_vending,				1,		0,		1,				},
-	{ "ex_vending_info",					&battle_config.ex_vending_info,					1,		0,		1,				},
-	{ "item_zeny",							&battle_config.item_zeny,						0,		0,		MAX_ITEMID,		},
-	{ "item_cash",							&battle_config.item_cash,						0,		0,		MAX_ITEMID,		},
-	{ "vending_cash_tax",					&battle_config.vending_cash_tax,				0,		0,		10000,			},
-	{ "vending_cash_tax_min",				&battle_config.vending_cash_tax_min,			50,		0,		INT_MAX,		},
+	{ "official_cro",                       &battle_config.official_cro,                    0,      0,      1,              },
+	{ "player_move_event_type",             &battle_config.player_move_event_type,          0,      0,      1,              },
+	{ "player_aspd_type",                   &battle_config.player_aspd_type,                0,      0,      1,              },
+	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
+	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
+	{ "show_item_vending",                  &battle_config.show_item_vending,               1,      0,      1,              },
+	{ "ex_vending_info",                    &battle_config.ex_vending_info,                 1,      0,      1,              },
+	{ "item_zeny",                          &battle_config.item_zeny,                       0,      0,      MAX_ITEMID,     },
+	{ "item_cash",                          &battle_config.item_cash,                       0,      0,      MAX_ITEMID,     },
+	{ "vending_cash_tax",                   &battle_config.vending_cash_tax,                0,      0,      10000,          },
+	{ "vending_cash_tax_min",               &battle_config.vending_cash_tax_min,            50,     0,      INT_MAX,        },
 	//------------------------------------------------------------------------------------------------------------------------
 
 	{ "warp_point_debug",                   &battle_config.warp_point_debug,                0,      0,      1,              },

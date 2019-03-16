@@ -212,6 +212,7 @@ struct Battle_Config
 	int autobonus_in_order;
 	int official_cro;
 	int player_move_event_type;
+	int player_aspd_type;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int show_item_vending;

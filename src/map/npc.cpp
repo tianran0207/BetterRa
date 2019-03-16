@@ -4584,18 +4584,18 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 		ShowError("npc_script_event: NULL sd. Event Type %d\n", type);
 		return 0;
 	}
-	bool runing_bk = sd->is_runing_event;
+	int type_bk = sd->runing_event_type;
 
 	sd->state.processhalt = 0;
 	sd->runing_event[type] = true;
-	sd->is_runing_event = true;
+	sd->runing_event_type = type;
 	std::vector<struct script_event_s>& vector = script_event[type];
 
 	for (struct script_event_s& evt : vector) {
 		run_script(evt.event->nd->u.scr.script, evt.event->pos, sd->bl.id, evt.event->nd->bl.id);
 	}
 	sd->runing_event[type] = false;
-	sd->is_runing_event = runing_bk;
+	sd->runing_event_type = sd->runing_event[type_bk] ? type_bk : 0;
 	
 	return vector.size();
 }

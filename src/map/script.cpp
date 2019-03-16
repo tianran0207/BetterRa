@@ -9630,7 +9630,7 @@ BUILDIN_FUNC(end)
 
 	st->state = END;
 
-	if (sd && sd->is_runing_event)
+	if (sd && sd->runing_event_type)
 		return SCRIPT_CMD_SUCCESS;
 
 	if (st->stack->defsp >= 1 && st->stack->stack_data[st->stack->defsp-1].type == C_RETINFO) {

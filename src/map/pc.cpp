@@ -13042,7 +13042,7 @@ short pc_maxaspd(struct map_session_data *sd) {
 
 	if (map_getmapflag(sd->bl.m, MF_PVP) && !battle_config.max_pvp_aspd)
 		return battle_config.max_pvp_aspd;
-	if (map_getmapflag(sd->bl.m, MF_GVG) && !battle_config.max_gvg_aspd)
+	if (map_flag_gvg2(sd->bl.m) && !battle_config.max_gvg_aspd)
 		return battle_config.max_gvg_aspd;
 
 	if(sd->c_bonus.max_aspd)
