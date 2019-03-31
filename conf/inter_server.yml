@@ -12,7 +12,15 @@
 #	  Table: "<storage_table>"  // (字符串类型) 此仓库对应的数据库表名称. 附加数据表的格式与自带的 storage 表一样.
 #	  Max: <max_amount>         // (数值类型) *可选* 用来设置仓库能存放的物品种类上限. 若未设置的话, 则会采用源代码中 MAX_STORAGE 宏定义的值.
 
-Storages:
-    - ID: 0
-      Name: "个人仓库"
-      Table: "storage"
+Header:
+  Type: INTER_SERVER_DB
+  Version: 1
+
+Body:
+  - ID: 0
+    Name: "个人仓库"
+    Table: "storage"
+
+Footer:
+  Imports:
+    - Path: conf/import/inter_server.yml

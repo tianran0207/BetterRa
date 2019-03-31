@@ -118,10 +118,10 @@ comodo,322,178,4	script	克魔岛 解说员#01comodo::GuideComodo	700,{
 					break;
 				case 4:
 					mes "[克魔岛 解说员]";
-					mes F_Navi("吟游诗人 巴德","comodo,211,155","^DB7093");
+					mes F_Navi("吟游诗人 巴德","comodo,226,123","^DB7093");
 					mes "负责^DB7093吟游诗人^000000的转职业务，";
 					mes "还需要其它服务吗?";
-					viewpoint 1,211,155,14,0xDB7093;
+					viewpoint 1,226,123,14,0xDB7093;
 					next;
 					break;
 				case 5:
@@ -148,7 +148,7 @@ comodo,322,178,4	script	克魔岛 解说员#01comodo::GuideComodo	700,{
 			viewpoint 2,114,294,11,0xFFFFFF;
 			viewpoint 2,193,151,12,0xFFFFFF;
 			viewpoint 2,195,149,13,0xFFFFFF;
-			viewpoint 2,211,155,14,0xFFFFFF;
+			viewpoint 2,226,123,14,0xFFFFFF;
 			next;
 			break;
 		case 4:
