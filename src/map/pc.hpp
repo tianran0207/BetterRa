@@ -313,6 +313,7 @@ struct map_session_data {
 	char mac[30];
 	int runing_event_type;
 	bool runing_event[NPCE_MAX];
+	int menulist_data;
 	/**
 	 * Extended Vending system [Lilith]
 	**/

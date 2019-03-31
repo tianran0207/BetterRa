@@ -6076,7 +6076,7 @@ ACMD_FUNC(autotrade) {
 		return -1;
 	}
 
-	if (battle_config.extended_vending && !battle_config.show_item_vending && sd->vend_loot != battle_config.item_zeny) {
+	if ((battle_config.extended_vending || battle_config.extended_buying) && !battle_config.show_item_vending && sd->vend_loot != battle_config.item_zeny) {
 		clif_displaymessage(fd, msg_txt(sd, 2360));
 		return -1;
 	}

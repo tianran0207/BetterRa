@@ -6,7 +6,7 @@
 // prontera,156,108,6	script	test2	56,{
 // 	monster "this",60,100,"Poring",1002,5;
 // 	for(.@i = 0;.@i < getarraysize($@mobid);.@i++){
-// 		unitsteppath $@mobid[.@i],"test",PH_ASTARTWALKBACK;
+// 		unitsteppath $@mobid[.@i],"test",PH_WALKBACK;
 // 	}
 // }
 

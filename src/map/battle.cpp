@@ -8211,6 +8211,7 @@ static const struct _battle_data {
 	{ "player_aspd_type",                   &battle_config.player_aspd_type,                0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
+	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },
 	{ "show_item_vending",                  &battle_config.show_item_vending,               1,      0,      1,              },
 	{ "ex_vending_info",                    &battle_config.ex_vending_info,                 1,      0,      1,              },
 	{ "item_zeny",                          &battle_config.item_zeny,                       0,      0,      MAX_ITEMID,     },

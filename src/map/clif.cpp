@@ -12958,6 +12958,13 @@ void clif_parse_SelectArrow(int fd,struct map_session_data *sd) {
 		case NC_MAGICDECOY:
 			skill_magicdecoy(sd,nameid);
 			break;
+		default:
+			switch (sd->menulist_data) {
+			case 12548: //item id
+				buyingstore_currency(sd, nameid);
+				break;
+			}
+			sd->menulist_data = 0;
 	}
 
 	clif_menuskill_clear(sd);
@@ -13721,6 +13728,35 @@ int clif_vend(struct map_session_data *sd, int skill_lv) {
 		clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0);
 		return 0;
 	}
+
+	return 1;
+}
+
+int clif_itemlist(struct map_session_data *sd, unsigned short itemid[], unsigned short count) {
+
+	struct item_data *item;
+	int c, i, d = 0;
+	int fd;
+
+	nullpo_ret(sd);
+
+	if (!count)
+		return 0;
+
+	sd->menuskill_id = sd->menuskill_val = 0;
+
+	fd = sd->fd;
+	WFIFOHEAD(fd, count * 2 + 4);
+	WFIFOW(fd, 0) = 0x1ad;
+	for (i = 0, c = 0; i < count; i++) {
+		if (!itemdb_exists(itemid[i]))
+			continue;
+
+		WFIFOW(fd, c * 2 + 4) = itemid[i];
+		c++;
+	}
+	WFIFOW(fd, 2) = c * 2 + 4;
+	WFIFOSET(fd, WFIFOW(fd, 2));
 
 	return 1;
 }
@@ -18154,6 +18190,17 @@ static void clif_parse_ReqOpenBuyingStore(int fd, struct map_session_data* sd)
 		return;
 	}
 	count = packet_len/blocksize;
+
+	if (battle_config.extended_buying) {
+		if (!itemdb_exists(sd->vend_loot))
+			return;
+		if (battle_config.show_item_vending) {
+			char out_msg[1024];
+			sprintf(out_msg, "[%s]%s", itemdb_jname(sd->vend_loot), storename);
+			buyingstore_create(sd, zenylimit, result, out_msg, itemlist, count, NULL);
+			return;
+		}
+	}
 
 	buyingstore_create(sd, zenylimit, result, storename, itemlist, count, NULL);
 }

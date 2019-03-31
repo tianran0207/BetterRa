@@ -756,6 +756,7 @@ void clif_buyvending(struct map_session_data* sd, int index, int amount, int fai
 void clif_openvending(struct map_session_data* sd, int id, struct s_vending* vending);
 void clif_vendingreport(struct map_session_data* sd, int index, int amount, uint32 char_id, int zeny);
 int clif_vend(struct map_session_data *sd, int skill_lv);
+int clif_itemlist(struct map_session_data *sd, unsigned short itemid[], unsigned short count);
 
 void clif_movetoattack(struct map_session_data *sd,struct block_list *bl);
 

@@ -55,6 +55,8 @@ struct s_autotrader {
 	struct map_session_data *sd;
 };
 
+int buyingstore_currency(struct map_session_data *sd, int nameid);
+
 int8 buyingstore_setup(struct map_session_data* sd, unsigned char slots);
 int8 buyingstore_create(struct map_session_data* sd, int zenylimit, unsigned char result, const char* storename, const uint8* itemlist, unsigned int count, struct s_autotrader *at);
 void buyingstore_close(struct map_session_data* sd);

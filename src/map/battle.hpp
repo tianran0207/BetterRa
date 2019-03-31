@@ -215,6 +215,7 @@ struct Battle_Config
 	int player_aspd_type;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
+	int extended_buying;
 	int show_item_vending;
 	int ex_vending_info;
 	int item_zeny;

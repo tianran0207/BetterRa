@@ -60,6 +60,52 @@ static unsigned int buyingstore_getuid(void)
 	return ++buyingstore_nextid;
 }
 
+bool buying_extended_vending_check(struct map_session_data *sd) {
+
+	nullpo_retr(false, sd);
+
+	char buy_loot_str[MESSAGE_SIZE];
+	struct item_data* id = NULL;
+
+	if (!battle_config.show_item_vending && itemdb_exists(sd->vend_loot) == NULL) {
+		buyingstore_close(sd);
+		map_quit(sd);
+		return false;
+	}
+	else if (itemdb_exists(sd->vend_loot) == NULL) {
+		if (sd->message[0] == '0')
+			return false;
+		else if (sscanf(sd->message, "[%100[^]]]", buy_loot_str) < 1)
+			sd->vend_loot = battle_config.item_zeny;
+		else if ((id = itemdb_searchname(buy_loot_str)) == NULL)
+			return false;
+		else if (battle_config.item_cash == id->nameid || battle_config.item_zeny == id->nameid)
+			sd->vend_loot = id->nameid;
+		else
+			return false;
+	}
+	return true;
+}
+
+int buyingstore_currency(struct map_session_data *sd, int nameid) {
+
+	struct item_data *item;
+	char output[1024];
+
+	nullpo_ret(sd);
+
+	if (!(item = itemdb_exists(nameid)))
+		return 0;
+
+	sd->vend_loot = nameid;
+
+	sprintf(output, msg_txt(sd, 2354), item->jname);
+	clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
+
+	clif_buyingstore_open(sd);
+	return 0;
+}
+
 /**
 * Attempt to setup buying store fast check before create new one
 * @param sd
@@ -97,6 +143,16 @@ int8 buyingstore_setup(struct map_session_data* sd, unsigned char slots){
 	}
 
 	sd->buyingstore.slots = slots;
+
+	if (battle_config.extended_buying) {
+		unsigned short itemid[2];
+		itemid[0] = battle_config.item_zeny;
+		itemid[1] = battle_config.item_cash;
+		clif_itemlist(sd, itemid, ARRAYSIZE(itemid));
+		sd->menulist_data = 12548;
+		return 0;
+	}
+
 	clif_buyingstore_open(sd);
 
 	return 0;
@@ -221,6 +277,14 @@ int8 buyingstore_create(struct map_session_data* sd, int zenylimit, unsigned cha
 		return 7;
 	}
 
+	if (battle_config.extended_buying) {
+		safestrncpy(sd->message, storename, sizeof(sd->message));
+		if (!buying_extended_vending_check(sd)) {
+			sd->buyingstore.slots = 0;
+			return 5;
+		}
+	}
+
 	// success
 	sd->state.buyingstore = true;
 	sd->buyer_id = buyingstore_getuid();
@@ -317,6 +381,21 @@ void buyingstore_open(struct map_session_data* sd, uint32 account_id)
 		return;
 	}
 
+	if (battle_config.extended_buying && battle_config.ex_vending_info) {
+		char output[1024];
+		if (!buying_extended_vending_check(pl_sd))
+			return;
+		else if (pl_sd->vend_loot == battle_config.item_zeny)
+			sprintf(output, msg_txt(sd, 2355), pl_sd->status.name, itemdb_jname(pl_sd->vend_loot), sd->status.zeny);
+		else if (pl_sd->vend_loot == battle_config.item_cash)
+			sprintf(output, msg_txt(sd, 2355), pl_sd->status.name, itemdb_jname(pl_sd->vend_loot), sd->cashPoints);
+		else {
+			int idx = pc_search_inventory(sd, pl_sd->vend_loot);
+			sprintf(output, msg_txt(sd, 2355), pl_sd->status.name, itemdb_jname(pl_sd->vend_loot), idx == -1 ? 0 : sd->inventory.u.items_inventory[idx].amount);
+		}
+		clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
+	}
+
 	// success
 	clif_buyingstore_itemlist(sd, pl_sd);
 }
@@ -367,6 +446,10 @@ void buyingstore_trade(struct map_session_data* sd, uint32 account_id, unsigned 
 	}
 
 	searchstore_clearremote(sd);
+
+	if (battle_config.extended_buying && battle_config.item_cash == pl_sd->vend_loot && pl_sd->cashPoints < pl_sd->buyingstore.zenylimit)
+		pl_sd->buyingstore.zenylimit = pl_sd->cashPoints;
+	else
 
 	if( pl_sd->status.zeny < pl_sd->buyingstore.zenylimit )
 	{// buyer lost zeny in the mean time? fix the limit
@@ -472,8 +555,13 @@ void buyingstore_trade(struct map_session_data* sd, uint32 account_id, unsigned 
 		}
 
 		// pay up
-		pc_payzeny(pl_sd, zeny, LOG_TYPE_BUYING_STORE, sd);
-		pc_getzeny(sd, zeny, LOG_TYPE_BUYING_STORE, pl_sd);
+		if (battle_config.extended_buying && battle_config.item_cash == pl_sd->vend_loot) {
+			pc_paycash(pl_sd, zeny, 0, LOG_TYPE_BUYING_STORE);
+			pc_getcash(sd, zeny, 0, LOG_TYPE_BUYING_STORE);
+		} else {
+			pc_payzeny(pl_sd, zeny, LOG_TYPE_BUYING_STORE, sd);
+			pc_getzeny(sd, zeny, LOG_TYPE_BUYING_STORE, pl_sd);
+		}
 		pl_sd->buyingstore.zenylimit-= zeny;
 
 		// notify clients
