@@ -582,6 +582,7 @@ void clif_charselectok(int id, uint8 ok);
 void clif_dropflooritem(struct flooritem_data* fitem, bool canShowEffect);
 void clif_clearflooritem(struct flooritem_data *fitem, int fd);
 
+void clif_getareachar_unit(struct map_session_data* sd, struct block_list *bl);
 void clif_clearunit_single(int id, clr_type type, int fd);
 void clif_clearunit_area(struct block_list* bl, clr_type type);
 void clif_clearunit_delayed(struct block_list* bl, clr_type type, t_tick tick);

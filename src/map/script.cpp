@@ -27142,6 +27142,21 @@ BUILDIN_FUNC(unithide)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(unitshow)
+{
+	struct map_session_data *sd;
+	struct block_list *bl;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	clif_getareachar_unit(sd, bl);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(getlastip)
 {
 	struct map_session_data *sd;
@@ -28221,6 +28236,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getmobdmglog, "iir?"),
 	BUILDIN_DEF(charid2rid, "i"),
 	BUILDIN_DEF(unithide, "ii"),
+	BUILDIN_DEF(unitshow, "ii"),
 	BUILDIN_DEF(getlastip, "?"),
 	BUILDIN_DEF(sendmail, "isss???????????"),
 	BUILDIN_DEF2(sendmail, "sendmail2", "isss??????????????????????????????????????????????"),
