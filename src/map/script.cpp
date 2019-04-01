@@ -15163,6 +15163,21 @@ BUILDIN_FUNC(getmapxy)
 	if (script_hasdata(st, 5))
 		type = script_getnum(st, 5);
 
+	if (battle_config.enable_unittype_type) {
+		switch (type) {
+		case 0: type = BL_PC; break;
+		case 1: type = BL_NPC; break;
+		case 2: type = BL_PET; break;
+		case 3: type = BL_HOM; break;
+		case 4: type = BL_MER; break;
+		case 5: type = BL_ELEM; break;
+		default:
+			ShowWarning("script: buildin_getmapxy: Invalid type %d.\n", type);
+			script_pushint(st, -1);
+			return SCRIPT_CMD_FAILURE;
+		}
+	}
+
 	switch (type) {
 		case BL_PC:	//Get Character Position
 			if ((script_isstring(st, 6) && script_nick2sd(6, sd)) || script_mapid2sd(6, sd))

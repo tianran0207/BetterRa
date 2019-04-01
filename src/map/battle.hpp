@@ -212,6 +212,9 @@ struct Battle_Config
 	int official_cro;
 	int player_move_event_type;
 	int player_aspd_type;
+	int item_trade_enchant;
+	int enable_unittype_type;
+	int contrary_buyingstore_db;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

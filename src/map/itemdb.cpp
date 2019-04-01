@@ -541,10 +541,10 @@ bool itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, bool (*func)(st
 	if (!func(item_data, gmlv, gmlv2))
 		return false;
 
-	if(item_data->slot == 0 || itemdb_isspecial(item->card[0]))
+	if(!battle_config.item_trade_enchant && item_data->slot == 0 || itemdb_isspecial(item->card[0]))
 		return true;
 
-	for(i = 0; i < item_data->slot; i++) {
+	for(i = 0; i < battle_config.item_trade_enchant ? MAX_SLOTS : item_data->slot; i++) {
 		if (!item->card[i]) continue;
 		if (!func(itemdb_search(item->card[i]), gmlv, gmlv2))
 			return false;

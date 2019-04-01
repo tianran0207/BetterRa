@@ -237,6 +237,10 @@ int8 buyingstore_create(struct map_session_data* sd, int zenylimit, unsigned cha
 			break;
 		}
 
+		if (battle_config.contrary_buyingstore_db && id->flag.buyingstore || !itemdb_cantrade_sub(id, pc_get_group_level(sd), pc_get_group_level(sd)) || (idx = pc_search_inventory(sd, nameid)) == -1) {
+			break;
+		}else
+
 		if( !id->flag.buyingstore || !itemdb_cantrade_sub(id, pc_get_group_level(sd), pc_get_group_level(sd)) || ( idx = pc_search_inventory(sd, nameid) ) == -1 )
 		{// restrictions: allowed, no character-bound items and at least one must be owned
 			break;
