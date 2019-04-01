@@ -3877,7 +3877,10 @@ ACMD_FUNC(reload) {
 		return -1;
 	}
 
-	if (strstr(command, "itemdb") || strncmp(message, "itemdb", 4) == 0) {
+	if (strstr(command, "pathdb") || strncmp(message, "pathdb", 4) == 0) {
+		path_step_load();
+		clif_displaymessage(fd, msg_txt(sd, 2375)); // Step_path database has been reloaded.
+	} else if (strstr(command, "itemdb") || strncmp(message, "itemdb", 4) == 0) {
 		itemdb_reload();
 		clif_displaymessage(fd, msg_txt(sd,97)); // Item database has been reloaded.
 	} else if (strstr(command, "mobdb") || strncmp(message, "mobdb", 3) == 0) {
@@ -10420,6 +10423,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(localbroadcast), // + /lb and /nlb
 		ACMD_DEF(recallall),
 		ACMD_DEFR(reload,ATCMD_NOSCRIPT),
+		ACMD_DEF2("reloadpathdb", reload),
 		ACMD_DEF2("reloaditemdb", reload),
 		ACMD_DEF2("reloadmobdb", reload),
 		ACMD_DEF2("reloadskilldb", reload),
