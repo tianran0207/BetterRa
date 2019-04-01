@@ -13737,7 +13737,6 @@ int clif_vend(struct map_session_data *sd, int skill_lv) {
 
 int clif_itemlist(struct map_session_data *sd, unsigned short itemid[], unsigned short count) {
 
-	struct item_data *item;
 	int c, i, d = 0;
 	int fd;
 

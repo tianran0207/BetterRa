@@ -1164,7 +1164,8 @@ static void itemdb_read_combos(const char* basedir, bool silent) {
 				continue;
 			id = itemdb_exists(items[0]);
 			if (battle_config.combo_mode == 2 && itemdb_combos_contrast(id, items, retcount, &idx)) {
-				script_free_code(id->combos[idx]->script);
+				if (id->combos[idx]->script)
+					script_free_code(id->combos[idx]->script);
 				id->combos[idx]->script = parse_script(str[1], path, lines, 0);
 				for (v = 1; v < retcount; v++) {
 					struct item_data * it;
