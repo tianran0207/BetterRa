@@ -21814,41 +21814,37 @@ static int clif_parse(int fd)
 	cmd = RFIFOW(fd, 0);
 
 #if C_SOCKET_ENCRYPT > 0
-	char tmp[8];
-	unsigned int len = RFIFOREST(fd);
-	if (cmd == 0xFFFE) {
-		if (len < 150)
+	if (cmd == 0xFFFF && !session[fd]->flag.server) {
+		if (RFIFOREST(fd) < 4)
 			return 0;
-		RFIFOSKIP(fd, 150);
-		return 0;
-	}
-	if (len < 8)
-		return 0;
-	memcpy(tmp, RFIFOCP(fd, 0), 8);
-	DecryptBlock(tmp);
-	if ((*(uint16*)tmp) == 0xFFFF) {
-		if (((uint8)tmp[2]) >= 8)
-			tmp[2] = 3;
-		memcpy(RFIFOCP(fd, 0), tmp, 8);
-		RFIFOSKIP(fd, tmp[2]);
+		uint16 len = RFIFOW(fd, 2);
+		if (RFIFOREST(fd) > 1024) {
+			ShowError("parse_char: Received packet too long. packet size %d", RFIFOREST(fd));
+			set_eof(fd);
+			return 0;
+		}
+		else if (RFIFOREST(fd) < len)
+			return 0;
+
+		rc4_crypt2((unsigned char *)RFIFOP(fd, 4), len - 4);
+
+		RFIFOSKIP(fd, 8);
 		cmd = RFIFOW(fd, 0);
-		if (sd)
-			sd->nodecrypt = 0;
 	}
-	else if (sd) {
-		size_t i;
+	else if (cmd != 0x9F0F && sd) {
+		size_t i, len = RFIFOREST(fd);
 		char hex[CHAT_SIZE_MAX * 3 + 20];
-		for (i = 0; i < len; i++)
+		for (i = 0; i < len && i < CHAT_SIZE_MAX; i++)
 		{
 			char c = RBUFB(RFIFOP(fd, 0), i);
 			sprintf(hex + (i * 3), "%02X ", RBUFB(RFIFOP(fd, 0), i));
 		}
-		ShowInfo("HEAD: 0x%04X, LEN: %d, PACKET: %s\n", cmd, len, hex);
-		if (sd && ++sd->nodecrypt > 3) {
-			set_eof(fd);
+		ShowWarning("HEAD: 0x%04X, LEN: %d, PACKET: %s\n", cmd, len, hex);
+		if (sd && ++sd->nodecrypt < 5) {
+			RFIFOSKIP(fd, len);
 			return 0;
 		}
-		RFIFOSKIP(fd, len);
+		set_eof(fd);
 		return 0;
 	}
 #endif

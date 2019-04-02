@@ -46,7 +46,7 @@ struct login_session_data {
 
 	int fd;				///socket of client
 
-	char mac[30];
+	char mac[32];
 };
 
 #define MAX_SERVERS 30 //max number of mapserv that could be attach

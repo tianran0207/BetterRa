@@ -505,27 +505,33 @@ int logclif_parse(int fd) {
 		int next=1;
 
 #if C_SOCKET_ENCRYPT > 0
-		if (command == 65534) {
-			if (RFIFOREST(fd) < 150)
-				return 0;
-			char i;
-			for (i = 0; i < 5; i++)
-				DecryptBlock(RFIFOCP(fd, (i * 8) + 2));
-			memcpy(sd->mac, RFIFOCP(fd, 3), 30);
-			RFIFOSKIP(fd, 35);
-			command = RFIFOW(fd, 0);
-			logclif_parse_reqauth(fd, sd, command, ip);
-			return 0;
-		}else if (command != 0x2710 && !session[fd]->flag.server) {
-			if (RFIFOREST(fd) < 8)
+		if (command == 0xFFFF && !session[fd]->flag.server) {
+			if (RFIFOREST(fd) < 4)
 				return 0;
 
-			DecryptBlock(RFIFOCP(fd, 0));
-			if (RFIFOB(fd, 2) < 8)
-				RFIFOSKIP(fd, RFIFOB(fd, 2));
-			else
-				RFIFOSKIP(fd, 3);
+			uint16 len = RFIFOW(fd, 2);
+			if (RFIFOREST(fd) > 256) {
+				ShowWarning("Abnormal end of connection (ip: %s): Unknown packet 0x%x\n", ip, command);
+				set_eof(fd);
+				return 0;
+			}else if (RFIFOREST(fd) < len)
+				return 0;
+
+			rc4_crypt2((unsigned char *)RFIFOP(fd, 4), len - 4);
+
+			RFIFOSKIP(fd, 8);
 			command = RFIFOW(fd, 0);
+			if (command == 0xFFFE) {
+				memcpy(sd->mac, RFIFOCP(fd, 2), 32);
+				RFIFOSKIP(fd, 34);
+				logclif_parse_reqauth(fd, sd, RFIFOW(fd, 0), ip);
+				return 0;
+			}
+		}
+		else if (command != 0x2710){
+			ShowWarning("Abnormal end of connection (ip: %s): Unknown packet 0x%x\n", ip, command);
+			set_eof(fd);
+			return 0;
 		}
 #endif
 

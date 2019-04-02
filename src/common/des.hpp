@@ -25,4 +25,9 @@ void HexStrToByte(const char* source, unsigned char* dest, int sourceLen);
 void EncryptBlock(char *block);
 void DecryptBlock(char *block);
 
+void rc4_init(unsigned char *s, unsigned char *key, unsigned long Len);
+void rc4_crypt(unsigned char *s, unsigned char *Data, unsigned long Len);
+void rc4_init2();
+void rc4_crypt2(unsigned char *Data, unsigned long Len);
+
 #endif /* DES_HPP */

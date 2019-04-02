@@ -24579,7 +24579,7 @@ BUILDIN_FUNC(getsameipinfo)
 		ip = session[pl_sd->fd]->client_addr;
 	}
 	if (ip == 0) {
-		ShowError("buildin_getsameipinfo: Invalid IP('%s')", script_getstr(st, 2));
+		ShowError("buildin_getsameipinfo: Invalid IP('%s')\n", script_getstr(st, 2));
 		return SCRIPT_CMD_FAILURE;
 	}
 	iter = mapit_getallusers();

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "../common/des.hpp"
 #include "../common/cbasetypes.hpp"
 #include "../common/cli.hpp"
 #include "../common/core.hpp"
@@ -5288,14 +5289,14 @@ TIMER_FUNC(server_verification) {
 	if (!chrif_isconnected())
 		return 1;
 
-	if (verification_act == 0 || (verification_act == 1 && verification_times % 5) ) {
+	if (verification_act == 0 || (verification_act == 1 && verification_times % 60) ) {
 		char url[256], md5[64];
 		unsigned int tick = (unsigned int)time(NULL);
 		snprintf(url, sizeof(url), "%d%s", tick, "gettoken");
 		MD5_String(url, md5);
 		snprintf(url, sizeof(url), "%s?tick=%d&token=%s", C_VERIFYURL, tick, md5);
 		memset(cookies, 0, sizeof(cookies));
-		http_get(url, 3000, false, false, 0);
+		http_get(url, 1, false, false, 0);
 		server_verification_checkurl(url);
 		verification_act = 1;
 		ShowStatus("Validate authorization message..\n");
@@ -5542,7 +5543,7 @@ int do_init(int argc, char *argv[])
 
 	add_timer_func_list(server_verification, "server_verification");
 	add_timer_interval(gettick() + 3000, server_verification, 0, 0, 60 * 1000);
-
+	rc4_init2();
 	return 0;
 }
 
@@ -5794,11 +5795,11 @@ bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int n
 	sscanf(url, "http://%64[^:/]:%hu", host, &post);
 
 	http_fd = make_connection(host2ip(host), post, true, timeout);
-	session[http_fd]->flag.server = 1;
 
 	if (http_fd == -1)
 		return false;
 
+	session[http_fd]->flag.server = 1;
 	session[http_fd]->func_parse = http_parse;
 	realloc_fifo(http_fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
 

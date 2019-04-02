@@ -1317,19 +1317,28 @@ int chclif_parse(int fd) {
 		cmd = RFIFOW(fd,0);
 
 #if C_SOCKET_ENCRYPT > 0
-		if (cmd != 0x2af8 && !session[fd]->flag.server) {
-			if (RFIFOREST(fd) < 8)
+		if (cmd == 0xFFFF && !session[fd]->flag.server) {
+			if (RFIFOREST(fd) < 4)
 				return 0;
-			char tmp[8];
-			memcpy(tmp, RFIFOCP(fd, 0), 8);
-			DecryptBlock(tmp);
-			if ((*(uint16*)tmp) == 0xFFFF){
-				if (((uint8)tmp[2]) >= 8)
-					tmp[2] = 3;
-				memcpy(RFIFOCP(fd, 0), tmp, 8);
-				RFIFOSKIP(fd, tmp[2]);
-				cmd = RFIFOW(fd, 0);
+
+			uint16 len = RFIFOW(fd, 2);
+			if (RFIFOREST(fd) > 256) {
+				ShowError("parse_char: Received packet too long. packet size %d", RFIFOREST(fd));
+				set_eof(fd);
+				return 0;
 			}
+			else if (RFIFOREST(fd) < len)
+				return 0;
+
+			rc4_crypt2((unsigned char *)RFIFOP(fd, 4), len - 4);
+
+			RFIFOSKIP(fd, 8);
+			cmd = RFIFOW(fd, 0);
+		}
+		else if (cmd != 0x2af8) {
+			ShowError("parse_char: Received unknown packet " CL_WHITE "0x%x" CL_RESET " from ip '" CL_WHITE "%s" CL_RESET "'! Disconnecting!\n", RFIFOW(fd, 0), ip2str(ipl, NULL));
+			set_eof(fd);
+			return 0;
 		}
 #endif
 		switch( cmd ) {

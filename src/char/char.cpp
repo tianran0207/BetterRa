@@ -10,6 +10,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "../common/des.hpp"
 #include "../common/cbasetypes.hpp"
 #include "../common/cli.hpp"
 #include "../common/core.hpp"
@@ -3296,6 +3297,6 @@ int do_init(int argc, char **argv)
 	ShowInfo("Default map: '" CL_WHITE "%s %d,%d" CL_RESET "'\n", charserv_config.default_map, charserv_config.default_map_x, charserv_config.default_map_y);
 
 	ShowStatus("The char-server is " CL_GREEN "ready" CL_RESET " (Server is listening on the port %d).\n\n", charserv_config.char_port);
-
+	rc4_init2();
 	return 0;
 }
