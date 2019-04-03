@@ -76,6 +76,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "chat-server", "src\chat\chat.vcxproj", "{4B1E1F3E-2484-4F05-AEC1-25BAF7C59AB5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559} = {F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "csv2yaml", "src\tool\csv2yaml.vcxproj", "{5A9059F2-4933-49A2-BEE6-CC67F66FA070}"
 	ProjectSection(ProjectDependencies) = postProject
 		{61D6A599-6BED-4154-A9FC-40553BD972E0} = {61D6A599-6BED-4154-A9FC-40553BD972E0}
