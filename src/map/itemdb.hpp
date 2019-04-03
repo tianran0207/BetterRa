@@ -852,7 +852,6 @@ struct item_data
 		unsigned group : 1; // As item group container [Cydh]
 		unsigned guid : 1; // This item always be attached with GUID and make it as bound item! [Cydh]
 		unsigned broadcast : 1; ///< Will be broadcasted if someone obtain the item [Cydh]
-		unsigned use_no_consumed : 1;
 		unsigned skill_no_consumed : 1;
 		bool bindOnEquip; ///< Set item as bound when equipped
 		uint8 dropEffect; ///< Drop Effect Mode

@@ -5752,7 +5752,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 	/* on restricted maps the item is consumed but the effect is not used */
 	if (!pc_has_permission(sd,PC_PERM_ITEM_UNCONDITIONAL) && itemdb_isNoEquip(id,sd->bl.m)) {
 		clif_msg(sd,ITEM_CANT_USE_AREA); // This item cannot be used within this area
-		if( battle_config.allow_consume_restricted_item && !id->flag.delay_consume && !id->flag.use_no_consumed) { //need confirmation for delayed consumption items
+		if( battle_config.allow_consume_restricted_item && !id->flag.delay_consume) { //need confirmation for delayed consumption items
 			clif_useitemack(sd,n,item.amount-1,true);
 			pc_delitem(sd,n,1,1,0,LOG_TYPE_CONSUME);
 		}
@@ -5767,7 +5767,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 	amount = item.amount;
 	script = id->script;
 	//Check if the item is to be consumed immediately [Skotlex]
-	if (id->flag.delay_consume || id->flag.use_no_consumed)
+	if (id->flag.delay_consume)
 		clif_useitemack(sd, n, amount, true);
 	else
 	{

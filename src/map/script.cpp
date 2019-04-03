@@ -24566,17 +24566,19 @@ BUILDIN_FUNC(mobremove)
 
 BUILDIN_FUNC(getsameipinfo)
 {
-	TBL_PC* pl_sd;
+	TBL_PC *sd = NULL, *pl_sd;
 	struct s_mapiterator* iter;
 	uint32 ip;
 	int i = 0;
+
 	if (script_hasdata(st, 2)) {
+		sd = map_id2sd(st->rid);
 		ip = host2ip(script_getstr(st, 2));
 	}
 	else {
-		if (!script_rid2sd(pl_sd))
+		if (!script_rid2sd(sd))
 			return SCRIPT_CMD_SUCCESS;
-		ip = session[pl_sd->fd]->client_addr;
+		ip = session[sd->fd]->client_addr;
 	}
 	if (ip == 0) {
 		ShowError("buildin_getsameipinfo: Invalid IP('%s')\n", script_getstr(st, 2));
@@ -24588,10 +24590,17 @@ BUILDIN_FUNC(getsameipinfo)
 			mapreg_setreg(reference_uid(add_str("$@sameip_aid"), i), pl_sd->status.account_id);
 			mapreg_setreg(reference_uid(add_str("$@sameip_cid"), i), pl_sd->status.char_id);
 			mapreg_setregstr(reference_uid(add_str("$@sameip_name$"), i), pl_sd->status.name);
+			if (sd) {
+				pc_setreg(sd, reference_uid(add_str("@sameip_aid"), i), pl_sd->status.account_id);
+				pc_setreg(sd, reference_uid(add_str("@sameip_cid"), i), pl_sd->status.char_id);
+				pc_setregstr(sd, reference_uid(add_str("@sameip_name$"), i), pl_sd->status.name);
+			}
 			i++;
 		}
 	}
 	mapreg_setreg(add_str("$@sameip_amount"), i);
+	if (sd)
+		pc_setreg(sd, add_str("@sameip_amount"), i);
 	mapit_free(iter);
 	return SCRIPT_CMD_SUCCESS;
 }
