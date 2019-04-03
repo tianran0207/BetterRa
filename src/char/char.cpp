@@ -1114,7 +1114,7 @@ int char_mmo_char_fromsql(uint32 char_id, struct mmo_charstatus* p, bool load_ev
 		SqlStmt_Free(stmt);
 		return 0;
 	}
-	if( SQL_ERROR == SqlStmt_NextRow(stmt) )
+	if( SqlStmt_NextRow(stmt) != SQL_SUCCESS )
 	{
 		ShowError("Requested non-existant character id: %d!\n", char_id);
 		SqlStmt_Free(stmt);
