@@ -1415,7 +1415,14 @@ bonus_ratefix <类型>,<最大值>{,<角色ID>};
 *unithide <GID>,<角色ID>;
 
 临时隐藏某个GID，隐藏只针对<角色ID>，当玩家离开再回来时还可以看到这个目标。
-可通过NPC事件 OnDisplay 配合长期对某个玩家隐藏指定NPC，OnDisplay使用方法参见 npc\BetterRa\BetterRa_event_demo.txt
+可通过NPC事件 OnDisplay 配合长期对某个玩家隐藏/显示指定NPC，OnDisplay使用方法参见 npc\BetterRa\BetterRa_event_demo.txt
+
+---------------------------------------
+
+*unitshow <GID>,<角色ID>;
+
+临时显示某个GID，显示只针对<角色ID>，当玩家离开再回来时还是看不到这个目标。
+可通过NPC事件 OnDisplay 配合长期对某个玩家隐藏/显示指定NPC，OnDisplay使用方法参见 npc\BetterRa\BetterRa_event_demo.txt
 
 ---------------------------------------
 

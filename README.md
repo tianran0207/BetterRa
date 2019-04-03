@@ -2,6 +2,11 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20190403  [添加] 战斗配置 enable_unittype_type getmapxy和getunittype 使用旧版参数
+* 20190403  [添加] step_path.txt 重读指令，@reloadpathdb
+* 20190403  [添加] 脚本指令 unitshow 临时显示某个单位，与unithide对应
+* 20190402  [修复] item_combo_db 在特殊情况下读入时的宕机BUG
+* 20190402  [修复] 登陆数据库中没有的账号时，char-server不报错的问题(针对bot_login脚本指令)
 * 20190402  [修复] 尝试修复封包加密算法导致的掉线问题(需更新客户端BetterRA.dll)
 * 20190331  [优化] 路点算法
 * 20190331  [添加] 采购商店扩展货币支持，目前只支持cash点数采购
