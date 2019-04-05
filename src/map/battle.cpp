@@ -1340,22 +1340,6 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 				status_change_end(bl,SC_VOICEOFSIREN,INVALID_TIMER);
 		}
 
-		if( sc->data[SC_DEVOTION] ) {
-			struct status_change_entry *sce_d = sc->data[SC_DEVOTION];
-			struct block_list *d_bl = map_id2bl(sce_d->val1);
-
-			if( d_bl &&
-				((d_bl->type == BL_MER && ((TBL_MER*)d_bl)->master && ((TBL_MER*)d_bl)->master->bl.id == bl->id) ||
-				(d_bl->type == BL_PC && ((TBL_PC*)d_bl)->devotion[sce_d->val2] == bl->id)) &&
-				check_distance_bl(bl,d_bl,sce_d->val3) )
-			{
-				struct status_change *d_sc = status_get_sc(d_bl);
-
-				if( d_sc && d_sc->data[SC_DEFENDER] && (flag&(BF_LONG|BF_MAGIC)) == BF_LONG && skill_id != ASC_BREAKER && skill_id != CR_ACIDDEMONSTRATION && skill_id != NJ_ZENYNAGE && skill_id != GN_FIRE_EXPANSION_ACID && skill_id != KO_MUCHANAGE )
-					damage -= damage * d_sc->data[SC_DEFENDER]->val2 / 100;
-			}
-		}
-
 		// Damage reductions
 		// Assumptio doubles the def & mdef on RE mode, otherwise gives a reduction on the final damage. [Igniz]
 #ifndef RENEWAL
@@ -6922,17 +6906,30 @@ void battle_vanish_damage(struct map_session_data *sd, struct block_list *target
 	nullpo_retv(target);
 
 	// bHPVanishRate
-	int16 vanish_rate_hp = cap_value(sd->bonus.hp_vanish_rate, 0, INT16_MAX);
-	int8 vanish_hp = cap_value(sd->bonus.hp_vanish_per, INT8_MIN, INT8_MAX);
+	int16 vanish_hp = 0;
+	if (!sd->hp_vanish.empty()) {
+		for (auto &it : sd->hp_vanish) {
+			if (!(((it.flag)&flag)&BF_WEAPONMASK &&
+				((it.flag)&flag)&BF_RANGEMASK &&
+				((it.flag)&flag)&BF_SKILLMASK))
+				continue;
+			if (it.rate && (it.rate >= 1000 || rnd() % 1000 < it.rate))
+				vanish_hp += it.per;
+		}
+	}
+
 	// bSPVanishRate
-	int16 vanish_rate_sp = cap_value(sd->bonus.sp_vanish_rate, 0, INT16_MAX);
-	int8 vanish_sp = cap_value(sd->bonus.sp_vanish_per, INT8_MIN, INT8_MAX);
-
-	if (vanish_hp && !(vanish_rate_hp && sd->bonus.hp_vanish_flag & flag && (vanish_rate_hp >= 1000 || rnd() % 1000 < vanish_rate_hp)))
-		vanish_hp = 0;
-
-	if (vanish_sp && !(vanish_rate_sp && sd->bonus.sp_vanish_flag & flag && (vanish_rate_sp >= 1000 || rnd() % 1000 < vanish_rate_sp)))
-		vanish_sp = 0;
+	int16 vanish_sp = 0;
+	if (!sd->sp_vanish.empty()) {
+		for (auto &it : sd->sp_vanish) {
+			if (!(((it.flag)&flag)&BF_WEAPONMASK &&
+				((it.flag)&flag)&BF_RANGEMASK &&
+				((it.flag)&flag)&BF_SKILLMASK))
+				continue;
+			if (it.rate && (it.rate >= 1000 || rnd() % 1000 < it.rate))
+				vanish_sp += it.per;
+		}
+	}
 
 	if (vanish_hp > 0 || vanish_sp > 0)
 		status_percent_damage(&sd->bl, target, -vanish_hp, -vanish_sp, false); // Damage HP/SP applied once
@@ -7892,7 +7889,7 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 			sd = BL_CAST(BL_PC, t_bl);
 			sc = status_get_sc(t_bl);
 
-			if( (sd->state.monster_ignore || (sc->data[SC_KINGS_GRACE] && s_bl->type != BL_PC)) && flag&BCT_ENEMY )
+			if( ((sd->state.block_action & PCBLOCK_IMMUNE) || (sc->data[SC_KINGS_GRACE] && s_bl->type != BL_PC)) && flag&BCT_ENEMY )
 				return 0; // Global immunity only to Attacks
 			if( sd->status.karma && s_bl->type == BL_PC && ((TBL_PC*)s_bl)->status.karma )
 				state |= BCT_ENEMY; // Characters with bad karma may fight amongst them

@@ -554,7 +554,7 @@ dali02,93,146,6	script	助理教授#a1	4_M_REPAIR,{
 	end;
 OnTouch:
 	disablenpc instance_npcname("#glast_event_1");
-	mes "空";
+	setpcblock PCBLOCK_NPC, true;
 	specialeffect2 EF_HIT2;
 	unittalk getcharid(3), "" + strcharinfo(0) + " : 你好~！你也是冒险者吗？";
 	sleep2 3000;
@@ -579,6 +579,7 @@ OnTouch:
 	npctalk "芬里尔：请你为我的法术争取一点时间！", 'fenrir_1$;
 	donpcevent instance_npcname("#glast_event_1") + "::OnBar";
 	donpcevent instance_npcname("#glast_event_1") + "::OnEvent";
+	setpcblock PCBLOCK_NPC, false;
 	end;
 OnBar:
 	progressbar_npc "000000",10, 'fenrir_1$;
@@ -617,7 +618,7 @@ OnMobDead:
 	end;
 OnTouch:
 	disablenpc instance_npcname("#glast_event_3");
-	mes "空";
+	setpcblock PCBLOCK_NPC, true;
 	cutin "fenrir_a.bmp",2;
 	npctalk "芬里尔：虽然很突然，但谢谢你帮助我。", 'fenrir_1$;
 	sleep2 2000;
@@ -645,6 +646,7 @@ OnTouch:
 	enablenpc instance_npcname("#glast_move_01");
 	enablenpc instance_npcname("#glast_event_5");
 	enablenpc 'fenrir_2$;
+	setpcblock PCBLOCK_NPC, false;
 	end;
 }
 
@@ -757,7 +759,7 @@ OnTouch:
 	end;
 OnTouch:
 	disablenpc instance_npcname("#glast_event_5");
-	mes "空";
+	setpcblock PCBLOCK_NPC, true;
 	cutin "fenrir_a.bmp",2;
 	npctalk "芬里尔：你还在这里徘徊？很危险的，你还有什么事吗？", 'fenrir_2$;
 	sleep2 2000;
@@ -793,6 +795,7 @@ OnTouch:
 	enablenpc 'fenrir_3$;
 	enablenpc instance_npcname("#glast_event_7");
 	disablenpc instance_npcname("#glast_move_01");	// officially player can be stucked in entrance
+	setpcblock PCBLOCK_NPC, false;
 	end;
 }
 
@@ -805,12 +808,13 @@ OnTouch:
 	if (is_party_leader() == false)
 		npctalk "芬里尔：来了么？谢谢你们。", 'fenrir_3$;
 	else {
-		mes "空";
+		setpcblock PCBLOCK_NPC, true;
 		disablenpc instance_npcname("#glast_event_7");
 		npctalk "芬里尔：你来了！我等你很久了！", 'fenrir_3$;
 		sleep2 2000;
 		npctalk "芬里尔：时间不多了，这边走。", 'fenrir_3$;
 		sleep2 2000;
+		setpcblock PCBLOCK_NPC, false;
 		if ('skip_left_part == 0) {// 5 mins have passed?
 			donpcevent instance_npcname("#fenrir_left_final_2") + "::OnStop";
 			disablenpc 'fenrir_3$;
@@ -829,7 +833,7 @@ OnTouch:
 	end;
 OnTouch:
 	disablenpc instance_npcname("#glast_event_9");
-	mes "空";
+	setpcblock PCBLOCK_NPC, true;
 	cutin "fenrir_a.bmp",2;
 	npctalk "芬里尔：神剑巴尔姆...近千年过去了，还是完好无损的在这里...", 'fenrir_4$;
 	sleep2 3000;
@@ -872,6 +876,7 @@ OnTouch:
 	monster 'map_glast$,49,363, "巨人#semi1", 3191,1, instance_npcname("#fenrir_left_final_1") + "::OnMobDead";// MM_M_GIGAN1
 	monster 'map_glast$,41,363, "巨人#semi2", 3192,1, instance_npcname("#fenrir_left_final_1") + "::OnMobDead";// MM_M_GIGAN2
 	donpcevent instance_npcname("#glast_event_9") + "::OnEvent";
+	setpcblock PCBLOCK_NPC, false;
 	end;
 OnEvent:
 	sleep 15000;
@@ -1080,7 +1085,7 @@ OnTouch:
 	disablenpc instance_npcname("#glast_event_13");
 	//for ( .@i = 1; .@i < 8; .@i++ )
 	//	disablenpc instance_npcname("#glast_event_warp_" + .@i);
-	mes "空";
+	setpcblock PCBLOCK_NPC, true;
 	cutin "fenrir_a.bmp",2;
 	sleep2 1000;
 	npctalk "芬里尔：我需要去检索GLAST海姆城堡博德之剑。", 'fenrir_5$;
@@ -1097,6 +1102,7 @@ OnTouch:
 	npctalk "芬里尔：然后我会走在前面！弯曲!", 'fenrir_5$;
 	cutin "",255;
 	donpcevent instance_npcname("#glast_event_13") + "::OnBar";
+	setpcblock PCBLOCK_NPC, false;
 	end;
 OnBar:
 	progressbar_npc "000000",3, 'fenrir_5$;
@@ -1169,7 +1175,7 @@ OnTouch:
 	disablenpc instance_npcname("#glast_move_03");
 	disablenpc instance_npcname("#glast_event_15");
 	donpcevent instance_npcname("#fenrir_boss_final_2") + "::OnStop";
-	mes "空";
+	setpcblock PCBLOCK_NPC, true;
 	sleep2 1000;
 	npctalk "芬里尔：我在等待。谢谢你没有迟到。", 'fenrir_6$;
 	sleep2 3000;
@@ -1180,6 +1186,7 @@ OnTouch:
 	enablenpc instance_npcname("#glast_event_18");
 	enablenpc instance_npcname("莎拉艾琳#glast_17");
 	enablenpc 'fenrir_7$;
+	setpcblock PCBLOCK_NPC, false;
 	end;
 }
 
@@ -1190,7 +1197,7 @@ OnTouch:
 	end;
 OnTouch:
 	disablenpc instance_npcname("#glast_event_18");
-	mes "空";
+	setpcblock PCBLOCK_NPC, true;
 	cutin "sarah_hero3.bmp",0;
 	sleep2 1000;
 	npctalk "莎拉艾琳：好像永远等你~芬里尔。", 'sarah_17$;
@@ -1231,6 +1238,7 @@ OnTouch:
 	donpcevent instance_npcname("#glast_event_19") + "::OnEvent";
 	monster 'map_glast$,200,336, "莎拉艾琳#1",3190,1, instance_npcname("#fenrir_boss_final_1") + "::OnBossDead";	// MM_SARAH
 	'boss_id = $@mobid[0];
+	setpcblock PCBLOCK_NPC, false;
 	end;
 OnBar:
 	progressbar_npc "000000",3, 'fenrir_7$;
@@ -1680,7 +1688,7 @@ OnMobDead:
 	end;
 OnTouch:
 	disablenpc instance_npcname("#glast_event_24");
-	mes "空";
+	setpcblock PCBLOCK_NPC, true;
 	sleep2 1500;
 	cutin "fenrir_b.bmp",2;
 	npctalk "芬里尔：呵呵..你确实很有技巧，但我认为你低估了我。, Valkyrie.", 'fenrir_10$;
@@ -1700,6 +1708,7 @@ OnTouch:
 	cutin "",255;
 	disablenpc 'fenrir_10$;
 	donpcevent instance_npcname("#sarah_wrath") + "::OnStart";
+	setpcblock PCBLOCK_NPC, false;
 	end;
 }
 
