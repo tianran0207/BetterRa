@@ -2,6 +2,10 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20190405  [修复] Ontouch不能同时出发多个脚本的问题
+* 20190405  [修复] 宠物饱食度下降过快的问题
+* 20190405  [修复] 更正火墙术检查机制
+* 20190405  [修复] 成就系统的一些问题(需更新achievement_db.yml)
 * 20190403  [添加] 战斗配置 enable_unittype_type getmapxy和getunittype 使用旧版参数
 * 20190403  [添加] step_path.txt 重读指令，@reloadpathdb
 * 20190403  [添加] 脚本指令 unitshow 临时显示某个单位，与unithide对应
