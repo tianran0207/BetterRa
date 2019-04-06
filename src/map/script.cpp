@@ -24824,15 +24824,10 @@ BUILDIN_FUNC(battleignore)
 		return SCRIPT_CMD_FAILURE;
 	flag = script_getnum(st, 2);
 
-	if (pc_isinvisible(sd)) {
-		if (!flag)
-			sd->sc.option &= ~OPTION_INVISIBLE;
-	}
-	else {
-		if (flag)
-			sd->sc.option |= OPTION_INVISIBLE;
-	}
-
+	if (flag)
+		sd->state.block_action |= PCBLOCK_IMMUNE;
+	else 
+		sd->state.block_action &= ~PCBLOCK_IMMUNE;
 
 	return SCRIPT_CMD_SUCCESS;
 }

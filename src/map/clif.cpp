@@ -21840,7 +21840,7 @@ static int clif_parse(int fd)
 
 	cmd = RFIFOW(fd, 0);
 
-#if C_SOCKET_ENCRYPT > 0
+#ifdef C_SOCKET_ENCRYPT_TEST
 	if (cmd == 0xFFFF && !session[fd]->flag.server) {
 		if (RFIFOREST(fd) < 4)
 			return 0;
