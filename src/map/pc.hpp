@@ -1457,6 +1457,7 @@ void pc_bonus_script(struct map_session_data *sd);
 struct s_bonus_script_entry *pc_bonus_script_add(struct map_session_data *sd, const char *script_str, t_tick dur, enum efst_types icon, uint16 flag, uint8 type);
 void pc_bonus_script_clear(struct map_session_data *sd, uint16 flag);
 void pc_bonus_script_free_entry(struct map_session_data *sd, struct s_bonus_script_entry *entry);
+void pc_bonus_script_remove(struct map_session_data *sd, const char *script_str);
 
 void pc_cell_basilica(struct map_session_data *sd);
 

@@ -13226,6 +13226,29 @@ void pc_bonus_script_clear(struct map_session_data *sd, uint16 flag) {
 		status_calc_pc(sd,SCO_NONE);
 }
 
+void pc_bonus_script_remove(struct map_session_data *sd, const char *script_str) {
+	struct linkdb_node *node = NULL;
+	uint16 count = 0;
+
+	if (!sd || !(node = sd->bonus_script.head))
+		return;
+
+	while (node) {
+		struct s_bonus_script_entry *entry = (struct s_bonus_script_entry *)node->data;
+		if (entry && (strcmpi(script_str, StringBuf_Value(entry->script_buf)) == 0)) {
+			linkdb_erase(&sd->bonus_script.head, (void *)((intptr_t)entry));
+			pc_bonus_script_free_entry(sd, entry);
+			count++;
+		}
+		node = node->next;
+	}
+
+	pc_bonus_script_check_final(sd);
+
+	if (count)
+		status_calc_pc(sd, SCO_NONE);
+}
+
 /** [Cydh]
  * Gives/removes SC_BASILICA when player steps in/out the cell with 'cell_basilica'
  * @param sd: Target player

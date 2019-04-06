@@ -148,8 +148,8 @@ int8 buyingstore_setup(struct map_session_data* sd, unsigned char slots){
 		unsigned short itemid[2];
 		itemid[0] = battle_config.item_zeny;
 		itemid[1] = battle_config.item_cash;
-		clif_itemlist(sd, itemid, ARRAYSIZE(itemid));
 		sd->menulist_data = 12548;
+		clif_itemlist(sd, itemid, ARRAYSIZE(itemid));
 		return 0;
 	}
 
