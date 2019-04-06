@@ -12946,7 +12946,7 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd) {
 	if (npc_script_event_check(sd, NPCE_IDENTIFYFILTER)) {
 		pc_setreg(sd, add_str("@identify_idx"), idx);
 		npc_script_event_atonce(sd, NPCE_IDENTIFYFILTER);
-		if (sd->state.halt[NPCE_IDENTIFYFILTER]) {
+		if (sd->state.processhalt) {
 			sd->state.workinprogress = WIP_DISABLE_NONE;
 			clif_menuskill_clear(sd);
 			return;
@@ -16688,7 +16688,7 @@ void clif_parse_cashshop_open_request( int fd, struct map_session_data* sd ){
 	clif_parse_cashshop_list_request(fd, sd);
 	if (npc_script_event_check(sd, NPCE_CASHSHOPOPENFILTER)) {
 		npc_script_event_atonce(sd, NPCE_CASHSHOPOPENFILTER);
-		if (sd->state.halt[NPCE_CASHSHOPOPENFILTER])
+		if (sd->state.processhalt)
 			return;
 	}
 	sd->state.cashshop_open = true;
@@ -17054,7 +17054,7 @@ void clif_parse_ViewPlayerEquip(int fd, struct map_session_data* sd)
 			pc_setreg(sd, add_str("@vieweq_cid"), tsd->status.char_id);
 			pc_setreg(sd, add_str("@eqview_cid"), tsd->status.char_id);
 			npc_script_event_atonce(sd, NPCE_VIEWEQUIPFILTER);
-			if (sd->state.halt[NPCE_VIEWEQUIPFILTER])
+			if (sd->state.processhalt)
 				return;
 		}
 #endif // EVENT_VIEWEQUIPFILTER
@@ -19777,7 +19777,7 @@ void clif_parse_change_title(int fd, struct map_session_data *sd)
 		pc_setreg(sd, add_str("@pre_title_id"), sd->status.title_id);
 		pc_setreg(sd, add_str("@now_title_id"), title_id);
 		npc_script_event_atonce(sd, NPCE_TITLECHANGEFILTER);
-		if (sd->state.halt[NPCE_TITLECHANGEFILTER])
+		if (sd->state.processhalt)
 			return;
 	}
 #endif
@@ -19869,7 +19869,7 @@ void clif_parse_roulette_open( int fd, struct map_session_data* sd ){
 #ifdef EVENT_ROULETTEOPENFILTER
 	if (npc_script_event_check(sd, NPCE_ROULETTEOPENFILTER)){
 		npc_script_event_atonce(sd, NPCE_ROULETTEOPENFILTER);
-		if (sd->state.halt[NPCE_ROULETTEOPENFILTER])
+		if (sd->state.processhalt)
 			return;
 	}
 #endif
@@ -20037,7 +20037,7 @@ void clif_parse_roulette_generate( int fd, struct map_session_data* sd ){
 #ifdef EVENT_ROULETTESTARTFILTER
 	if (npc_script_event_check(sd, NPCE_ROULETTESTARTFILTER)) {
 		npc_script_event_atonce(sd, NPCE_ROULETTESTARTFILTER);
-		if (sd->state.halt[NPCE_ROULETTESTARTFILTER])
+		if (sd->state.processhalt)
 			return;
 	}
 #endif
@@ -20104,7 +20104,7 @@ void clif_parse_roulette_item( int fd, struct map_session_data* sd ){
 		pc_setreg(sd, add_str("@PrizeStage"), sd->roulette.prizeStage + 1);
 		pc_setreg(sd, add_str("@PrizeIdx"), sd->roulette.prizeIdx + 1);
 		npc_script_event_atonce(sd, NPCE_ROULETTEGETFILTER);
-		if (sd->state.halt[NPCE_ROULETTEGETFILTER]) {
+		if (sd->state.processhalt) {
 			clif_roulette_recvitem_ack(sd, RECV_ITEM_SUCCESS);
 			return;
 		}
@@ -21498,7 +21498,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		pc_setreg(sd, add_str("@refine_cost"), materials[i].cost.nameid);
 		pc_setreg(sd, add_str("@refine_blessing"), (use_blacksmith_blessing ? 1 : 0));
 		npc_script_event_atonce(sd, NPCE_REFINEUIFILTER);
-		if (sd->state.halt[NPCE_REFINEUIFILTER])
+		if (sd->state.processhalt)
 			return;
 		materials[i].chance = pc_readreg(sd, add_str("@refine_rate"));
 	}
