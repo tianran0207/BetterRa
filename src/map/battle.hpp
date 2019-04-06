@@ -214,6 +214,8 @@ struct Battle_Config
 	int player_aspd_type;
 	int item_trade_enchant;
 	int enable_unittype_type;
+	int skill_chorus_check;
+	int skill_partner_check;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

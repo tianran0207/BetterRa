@@ -14921,6 +14921,12 @@ int skill_check_pc_partner(struct map_session_data *sd, uint16 skill_id, uint16 
 	if (!sd)
 		return 0;
 
+	if (battle_config.skill_chorus_check && is_chorus)
+		return MAX_PARTY;
+
+	if (battle_config.skill_partner_check)
+		return 99;
+
 	if (!battle_config.player_skill_partner_check || pc_has_permission(sd, PC_PERM_SKILL_UNCONDITIONAL))
 		return is_chorus ? MAX_PARTY : 99; //As if there were infinite partners.
 

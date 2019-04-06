@@ -536,15 +536,17 @@ bool itemdb_canauction_sub(struct item_data* item, int gmlv, int unused) {
 bool itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, bool (*func)(struct item_data*, int, int))
 {
 	struct item_data* item_data = itemdb_search(item->nameid);
-	int i;
+	int i, slot;
 
 	if (!func(item_data, gmlv, gmlv2))
 		return false;
 
-	if(!battle_config.item_trade_enchant && item_data->slot == 0 || itemdb_isspecial(item->card[0]))
+	slot = battle_config.item_trade_enchant ? MAX_SLOTS : item_data->slot;
+
+	if(slot == 0 || itemdb_isspecial(item->card[0]))
 		return true;
 
-	for(i = 0; i < battle_config.item_trade_enchant ? MAX_SLOTS : item_data->slot; i++) {
+	for(i = 0; i < slot; i++) {
 		if (!item->card[i]) continue;
 		if (!func(itemdb_search(item->card[i]), gmlv, gmlv2))
 			return false;

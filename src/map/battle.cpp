@@ -8202,6 +8202,8 @@ static const struct _battle_data {
 	{ "player_aspd_type",                   &battle_config.player_aspd_type,                0,      0,      1,              },
 	{ "item_trade_enchant",                 &battle_config.item_trade_enchant,              0,      0,      1,              },
 	{ "enable_unittype_type",               &battle_config.enable_unittype_type,            0,      0,      1,              },
+	{ "skill_chorus_check",                 &battle_config.skill_chorus_check,              0,      0,      1,              },
+	{ "skill_partner_check",                &battle_config.skill_partner_check,             0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },
