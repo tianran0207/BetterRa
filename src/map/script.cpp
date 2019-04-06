@@ -24405,7 +24405,12 @@ BUILDIN_FUNC(processhalt)
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	sd->state.processhalt = 1;
+	if (sd->runing_event_type == 0 || sd->runing_event_type < 0 && sd->runing_event_type > NPCE_MAX) {
+		ShowError("buildin_processhalt: require workin in  Filter event script\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	sd->state.halt[sd->runing_event_type] = 1;
 	script_pushint(st, 1);
 	return SCRIPT_CMD_SUCCESS;
 }

@@ -327,10 +327,11 @@ struct map_session_data {
 	//NOTE: When deciding to add a flag to state or special_state, take into consideration that state is preserved in
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct s_state {
+		unsigned char halt[NPCE_MAX];//processhalt
+		unsigned char processhalt;
 		unsigned bot : 1;
 		unsigned hombot : 3;
 		unsigned disable_skill_delay : 1;
-		unsigned processhalt : 1;//processhalt
 		unsigned event_now : 1;
 		unsigned no_touch_warp : 1;
 		unsigned no_touch_script : 1;

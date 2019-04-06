@@ -4621,7 +4621,7 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 	}
 	int type_bk = sd->runing_event_type;
 
-	sd->state.processhalt = 0;
+	sd->state.halt[type] = 0;
 	sd->runing_event[type] = true;
 	sd->runing_event_type = type;
 	std::vector<struct script_event_s>& vector = script_event[type];
@@ -4631,6 +4631,7 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 	}
 	sd->runing_event[type] = false;
 	sd->runing_event_type = sd->runing_event[type_bk] ? type_bk : 0;
+	sd->state.processhalt = sd->state.halt[type];
 	
 	return vector.size();
 }
