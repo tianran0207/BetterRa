@@ -960,8 +960,7 @@ bool npc_ondisplay_event(struct map_session_data *sd, struct npc_data *nd)
 				return false;
 		}
 	}else if(ev) {
-		sd->state.processhalt = 0;
-		npc_event_sub(sd, ev, name);
+		npc_script_event_atonce(sd, NPCE_ONDISPLAY, ev);
 		if (sd->state.processhalt)
 			return false;
 	}
@@ -4610,11 +4609,12 @@ int npc_script_event(struct map_session_data* sd, enum npce_event type){
 	return vector.size();
 }
 
-int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
+int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type, struct event_data* ev)
 {
 
-	if (type == NPCE_MAX)
+	if (type < 0 || type >= NPCE_MAX)
 		return 0;
+
 	if (!sd) {
 		ShowError("npc_script_event: NULL sd. Event Type %d\n", type);
 		return 0;
@@ -4624,11 +4624,15 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type)
 	sd->state.halt[type] = 0;
 	sd->runing_event[type] = true;
 	sd->runing_event_type = type;
+
 	std::vector<struct script_event_s>& vector = script_event[type];
 
-	for (struct script_event_s& evt : vector) {
-		run_script(evt.event->nd->u.scr.script, evt.event->pos, sd->bl.id, evt.event->nd->bl.id);
-	}
+	if (ev == NULL) {
+		for (struct script_event_s& evt : vector)
+			run_script(evt.event->nd->u.scr.script, evt.event->pos, sd->bl.id, evt.event->nd->bl.id);
+	}else
+		run_script(ev->nd->u.scr.script, ev->pos, sd->bl.id, ev->nd->bl.id);
+
 	sd->runing_event[type] = false;
 	sd->runing_event_type = sd->runing_event[type_bk] ? type_bk : 0;
 	sd->state.processhalt = sd->state.halt[type];
@@ -4776,6 +4780,8 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.move_filter_name;
 	default:
 		ShowError("npc_get_script_event_name: npce_index is outside the array limits: %d (max: %d).\n", npce_index, NPCE_MAX);
+
+	case NPCE_ONDISPLAY:
 		return NULL;
 	}
 }

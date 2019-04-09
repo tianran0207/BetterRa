@@ -24556,11 +24556,6 @@ BUILDIN_FUNC(instance_users)
 	else
 		instance_id = script_instancegetid(st);
 
-	if (instance_id == 0) {
-		ShowError("buildin_instance_users: Trying to destroy invalid instance %hu.\n", instance_id);
-		return SCRIPT_CMD_FAILURE;
-	}
-
 	im = &instance_data[instance_id];
 	if (im->state == INSTANCE_FREE) {
 		script_pushint(st, 0);
@@ -24730,10 +24725,8 @@ BUILDIN_FUNC(equipinventory)
 BUILDIN_FUNC(viewequip)
 {
 	TBL_PC *sd, *tsd;
-	int force;
 	if (!script_rid2sd(sd))
 		return SCRIPT_CMD_FAILURE;
-
 
 	if ((tsd = map_id2sd(script_getnum(st, 2))) == NULL) {
 		script_pushint(st, -1);
@@ -26466,9 +26459,8 @@ static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data){
 		add_timer(gettick() + 3000, buildin_bot_login_sub, sd->bl.id, 0);
 	}
 	else if ((sd = map_id2sd(id)) != NULL) {
-		clif_parse_LoadEndAck(0, sd);
-		chrif_save(sd, SC_AUTOTRADE);
 		sd->state.bot = 1;
+		clif_parse_LoadEndAck(0, sd);
 	}
 	return 1;
 }

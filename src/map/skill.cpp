@@ -14921,14 +14921,18 @@ int skill_check_pc_partner(struct map_session_data *sd, uint16 skill_id, uint16 
 	if (!sd)
 		return 0;
 
-	if (battle_config.skill_chorus_check && is_chorus)
-		return MAX_PARTY;
-
-	if (battle_config.skill_partner_check)
-		return 99;
-
 	if (!battle_config.player_skill_partner_check || pc_has_permission(sd, PC_PERM_SKILL_UNCONDITIONAL))
 		return is_chorus ? MAX_PARTY : 99; //As if there were infinite partners.
+
+	int inf2 = skill_get_inf2(skill_id);
+	if ((inf2&INF2_CHORUS_SKILL) || (inf2&INF2_ENSEMBLE_SKILL)) {
+		if (battle_config.skill_chorus_check)
+			return MAX_PARTY;
+	}
+	else {
+		if (battle_config.skill_partner_check)
+			return MAX_PARTY;
+	}
 
 	if (cast_flag) {	//Execute the skill on the partners.
 		struct map_session_data* tsd;

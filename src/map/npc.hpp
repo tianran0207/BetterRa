@@ -1240,6 +1240,7 @@ enum npce_event : uint8 {
 	NPCE_STYLISTCHANGEEVENT,
 	NPCE_MANNERFILTER,
 	NPCE_MOVEFILTER,
+	NPCE_ONDISPLAY,
 	NPCE_MAX
 };
 struct view_data* npc_get_viewdata(int class_);
@@ -1301,7 +1302,7 @@ int npc_unload(struct npc_data* nd, bool single);
 int npc_reload(void);
 void npc_read_event_script(void);
 int npc_script_event(struct map_session_data* sd, enum npce_event type);
-int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type);
+int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type, struct event_data* ev = NULL);
 
 int npc_duplicate4instance(struct npc_data *snd, int16 m);
 int npc_instanceinit(struct npc_data* nd);
