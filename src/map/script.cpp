@@ -27283,6 +27283,31 @@ BUILDIN_FUNC(showbuying)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+int buildin_killaroundmonster_sub(struct block_list *bl, va_list ap)
+{
+	struct mob_data *md = BL_CAST(BL_MOB, bl);
+	struct block_list *src = va_arg(ap, struct block_list *);
+	e_mode mode = va_arg(ap, e_mode);
+
+	if (md->status.mode & mode)
+		return 0;
+
+	status_damage(src, bl, md->status.hp, 0, 0, 1);
+	return 0;
+}
+
+BUILDIN_FUNC(killaroundmonster)
+{
+	struct block_list *bl;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	map_foreachinrange(buildin_killaroundmonster_sub, bl, script_getnum(st, 3), BL_MOB, bl,script_getnum(st, 4));
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(sendmail)
 {
 	const char *sender, *title, *body;
@@ -28294,6 +28319,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(showbuying, "si?"),
 	BUILDIN_DEF2(showvending, "showvend", "si?"),
 	BUILDIN_DEF(when_pcmove_doevent, "?"),
+	BUILDIN_DEF(killaroundmonster, "iii"),
 
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL
