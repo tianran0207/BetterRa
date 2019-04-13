@@ -25851,6 +25851,11 @@ static int buildin_unitskillwide_sub(int tid, t_tick tick, int id, intptr_t data
 	int i;
 	info = (struct skillwide*)data;
 
+	if (map_id2bl(id) == NULL) {
+		aFree(info);
+		return 0;
+	}
+
 	md = &info->md;
 	vd = &info->vd;
 	md->bl.id = INT_MAX;

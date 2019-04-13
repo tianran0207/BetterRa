@@ -824,7 +824,7 @@ bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
 	if (tbl) {
 		struct walkpath_data wpd;
 		if (path_search(&wpd, tbl->m, tbl->x, tbl->y, x, y, 1, CELL_CHKNOREACH)
-			&& wpd.path_len < 25) {
+			&& wpd.path_len < md->staypos.range) {
 			return false;
 		}
 	}
@@ -832,8 +832,6 @@ bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
 		md->next_walktime = gettick() + rnd() % 1000 + MIN_RANDOMWALKTIME;
 		return false;
 	}
-
-
 
 	if (unit_walktoxy(bl, x, y, 0)) {
 		speed = status_get_speed(bl);
