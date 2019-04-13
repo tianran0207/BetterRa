@@ -813,28 +813,27 @@ bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
 	int x, y, i, c, speed;
 
 	if ((md = BL_CAST(BL_MOB, bl)) == NULL)
-		return true;
+		return false;
+
+	if (!md->staypos.range)
+		return false;
 
 	x = md->staypos.x;
 	y = md->staypos.y;
 
-	if (!x || !y)
-		return true;
-
-	if (md->staypos.range) {
-		x = md->staypos.x;
-		y = md->staypos.y;
+	if (tbl) {
+		struct walkpath_data wpd;
+		if (path_search(&wpd, tbl->m, tbl->x, tbl->y, x, y, 1, CELL_CHKNOREACH)
+			&& wpd.path_len < 25) {
+			return false;
+		}
 	}
-	else if (!tbl && bl->x == x && bl->y == y) {
+	else if (bl->x == x && bl->y == y) {
 		md->next_walktime = gettick() + rnd() % 1000 + MIN_RANDOMWALKTIME;
 		return false;
 	}
 
-	struct walkpath_data wpd;
-	if (tbl && path_search(&wpd, tbl->m, tbl->x, tbl->y, x, y, 1, CELL_CHKNOREACH)
-		&& wpd.path_len < 25) {
-		return true;
-	}
+
 
 	if (unit_walktoxy(bl, x, y, 0)) {
 		speed = status_get_speed(bl);
@@ -851,7 +850,7 @@ bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
 	else
 		unit_warp(bl, bl->m, x, y, CLR_OUTSIGHT);
 
-	return false;
+	return true;
 }
 
 /**
