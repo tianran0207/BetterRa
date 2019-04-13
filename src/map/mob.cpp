@@ -1698,17 +1698,17 @@ static bool mob_ai_sub_hard(struct mob_data *md, t_tick tick)
 
 	if(md->bl.prev == nullptr || md->status.hp == 0)
 		return false;
-
-	if (md->autowalk.path && md->autowalk.step_ai == PH_IGNOREALL) {
-		if (md->ud.walktimer == INVALID_TIMER)
-			unit_check_step(&md->bl, &md->autowalk, tick);
-		return true;
-	}
 	
 	if (DIFF_TICK(tick, md->last_thinktime) < MIN_MOBTHINKTIME)
 		return false;
 
 	md->last_thinktime = tick;
+
+	if (md->autowalk.path && md->autowalk.step_ai == PH_IGNOREALL) {
+		if (md->ud.walktimer == INVALID_TIMER && DIFF_TICK(tick, md->ud.canmove_tick) > 0)
+			unit_check_step(&md->bl, &md->autowalk, tick);
+		return false;
+	}
 
 	if (md->ud.skilltimer != INVALID_TIMER)
 		return false;

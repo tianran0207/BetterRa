@@ -753,6 +753,10 @@ bool unit_check_around(struct block_list *bl)
 	if (ad && ad->path)
 		return false;
 
+	struct mob_data *md = BL_CAST(BL_MOB, bl);
+	if (md && md->staypos.range)
+		return false;
+
 	struct map_session_data *sd = BL_CAST(BL_PC, bl);
 	if (sd && sd->state.bot)
 		return false;
@@ -806,7 +810,6 @@ int unit_backto_step(struct block_list *bl, struct autowalk_data *ad) {
 
 bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
 	struct mob_data* md;
-	struct walkpath_data wpd;
 	int x, y, i, c, speed;
 
 	if ((md = BL_CAST(BL_MOB, bl)) == NULL)
@@ -827,12 +830,13 @@ bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
 		return false;
 	}
 
+	struct walkpath_data wpd;
 	if (tbl && path_search(&wpd, tbl->m, tbl->x, tbl->y, x, y, 1, CELL_CHKNOREACH)
-		&& wpd.path_len < 30) {
+		&& wpd.path_len < 25) {
 		return true;
 	}
 
-	if (unit_walktoxy(bl, x, y, 1)) {
+	if (unit_walktoxy(bl, x, y, 0)) {
 		speed = status_get_speed(bl);
 		for (i = c = 0; i < md->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
 			if (md->ud.walkpath.path[i] & 1)
@@ -856,18 +860,18 @@ bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
 bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tick) {
 	struct step_path *path = ad->path;
 	int x, y, i, c, speed;
-	struct mob_data* md;
+	struct mob_data* md = BL_CAST(BL_MOB, bl);
 	struct map_session_data *sd;
 	struct npc_data *nd;
 
 	nullpo_retr(false, bl);
 	nullpo_retr(false, ad);
 
-	if (bl->type == BL_MOB && !path && !unit_check_staypos(bl, NULL))
-		return true;
+	if (!path)
+		return (md && unit_check_staypos(bl, NULL)) ? true : false;
 
-	if (path == NULL)
-		return false;
+	if (!unit_can_move(bl))
+		return true;
 
 	if (ad->step < path->number) {
 		if (distance_blxy(bl, path->x[ad->step], path->y[ad->step]) < 2)
@@ -970,29 +974,28 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 */
 bool unit_can_reach_steppath(struct block_list *bl, struct block_list *tbl)
 {
-	struct walkpath_data wpd;
 	struct autowalk_data *ad;
+	struct mob_data* md = BL_CAST(BL_MOB, bl);
 	int i, minlen, newstep;
 
 	if ((ad = unit_autowalk(bl)) == NULL)
 		return true;
 
-	if (bl->type == BL_MOB && !ad->path && !unit_check_staypos(bl, tbl))
-		return false;
-
-	if (ad->path == NULL)
-		return true;
+	if (!ad->path)
+		return (md && unit_check_staypos(bl, tbl)) ? false : true;
 
 	switch (ad->step_ai) {
 	case PH_IGNOREWALK:
 	case PH_IGNOREALL:
 		return false;
+	case PH_NONE:
 	case PH_WARPBACK:
 	case PH_ASTARTWALK:
 	case PH_ASTARTWALKBACK:
 		return true;
 	}
 
+	struct walkpath_data wpd;
 	if (path_search(&wpd, tbl->m, tbl->x, tbl->y, ad->path->x[ad->step], ad->path->y[ad->step], 1, CELL_CHKNOREACH)
 		&& wpd.path_len < ad->step_range){
 		return true;

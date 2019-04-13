@@ -26233,7 +26233,7 @@ BUILDIN_FUNC(unitsteppath)
 		ad->path = steppath;
 		ad->step = 0;
 		ad->step_ai = step_ai;
-		ad->step_range = script_hasdata(st, 5) ? (script_getnum(st, 5) < 25 ? script_getnum(st, 5) : 25) : 25;
+		ad->step_range = script_hasdata(st, 5) ? (script_getnum(st, 5) > 25 ? 25 : script_getnum(st, 5)) : 25;
 		safestrncpy(ad->eventname, eventname, EVENT_NAME_LENGTH);
 		unit_check_step(bl, ad, gettick());
 		return SCRIPT_CMD_SUCCESS;
@@ -26587,23 +26587,34 @@ BUILDIN_FUNC(unit_Astart_walkto)
 	struct block_list *bl;
 	struct step_path *sp;
 	struct autowalk_data *ad;
-	t_tick tick = gettick();
-	
+	int step_ai;
+	const char *eventname;
 
-	if (script_rid2bl(2, bl)) {
-		unsigned int uid = (script_getnum(st, 5) ? bl->id : 0);
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
 
-		if((ad = unit_autowalk(bl)) == NULL)
-			return SCRIPT_CMD_SUCCESS;
+	unsigned int uid = (script_getnum(st, 5) ? bl->id : 0);
 
-		if((sp = path_Astart_steppath(bl->m, bl->x, bl->y, script_getnum(st, 3), script_getnum(st, 4), uid)) == NULL)
-			return SCRIPT_CMD_SUCCESS;
+	if((ad = unit_autowalk(bl)) == NULL)
+		return SCRIPT_CMD_SUCCESS;
 
-		ad->path = sp;
-		ad->step = 0;
-		unit_check_step(bl, ad, tick);
+	if((sp = path_Astart_steppath(bl->m, bl->x, bl->y, script_getnum(st, 3), script_getnum(st, 4), uid)) == NULL)
+		return SCRIPT_CMD_SUCCESS;
+
+	step_ai = script_hasdata(st, 6) ? script_getnum(st, 6) : PH_WALKBACK;
+
+	if (step_ai < PH_NONE || step_ai >= PH_MAX) {
+		ShowWarning("buildin_unitsteppath: The third parameter is invalid.\n", step_ai);
+		return SCRIPT_CMD_FAILURE;
 	}
-
+	eventname = script_hasdata(st, 8) ? script_getstr(st, 8) : "";
+	check_event(st, eventname);
+	ad->path = sp;
+	ad->step = 0;
+	ad->step_ai = step_ai;
+	ad->step_range = script_hasdata(st, 7) ? (script_getnum(st, 7) > 25 ? 25 : script_getnum(st, 7)) : 25;
+	safestrncpy(ad->eventname, eventname, EVENT_NAME_LENGTH);
+	unit_check_step(bl, ad, gettick());
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -26863,18 +26874,25 @@ BUILDIN_FUNC(mobstaypos)
 	x = script_getnum(st, 3);
 	y = script_getnum(st, 4);
 
-	if ((md = map_id2md(mobid)) == NULL)
+	if ((md = map_id2md(mobid)) == NULL) {
+		script_pushint(st, 0);
 		return SCRIPT_CMD_SUCCESS;
+	}
+		
 
-	if(map_getcell(md->bl.m, x, y, CELL_CHKNOPASS))
+	if (map_getcell(md->bl.m, x, y, CELL_CHKNOPASS)) {
+		script_pushint(st, -1);
 		return SCRIPT_CMD_SUCCESS;
-
+	}
+	
 	mob_stop_attack(md);
 	mob_stop_walking(md, 0);
 
 	md->staypos.m = md->bl.m;
 	md->staypos.x = x;
 	md->staypos.y = y;
+	md->staypos.range = script_hasdata(st, 5) ? (script_getnum(st, 5) > 25 ? 25 : script_getnum(st, 5)) : 25;
+	script_pushint(st, 1);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -27304,6 +27322,26 @@ BUILDIN_FUNC(killaroundmonster)
 		return SCRIPT_CMD_FAILURE;
 
 	map_foreachinrange(buildin_killaroundmonster_sub, bl, script_getnum(st, 3), BL_MOB, bl,script_getnum(st, 4));
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(unitspecialeffect)
+{
+	int type;
+	struct block_list *bl;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	type = script_getnum(st, 3);
+
+	if (type <= EF_NONE || type >= EF_MAX) {
+		ShowError("buildin_misceffect: unsupported effect id %d\n", type);
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	clif_specialeffect(bl, type, AREA);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -28320,6 +28358,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(showvending, "showvend", "si?"),
 	BUILDIN_DEF(when_pcmove_doevent, "?"),
 	BUILDIN_DEF(killaroundmonster, "iii"),
+	BUILDIN_DEF(unitspecialeffect, "ii"),
 
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL
@@ -28377,7 +28416,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(isequipped, "isequipped2", "i*"),
 	BUILDIN_DEF2(isequipped, "isequipped_enchant", "i*"),
 
-	BUILDIN_DEF(unit_Astart_walkto, "iii?"),
+	BUILDIN_DEF(unit_Astart_walkto, "iii????"),
 	BUILDIN_DEF(instance_name, "?"),
 	BUILDIN_DEF(readstatus, "i?"),
 	BUILDIN_DEF(getareamember, "i??"),
