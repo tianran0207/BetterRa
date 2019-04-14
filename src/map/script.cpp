@@ -25845,36 +25845,54 @@ struct skillwide {
 
 static int buildin_unitskillwide_sub(int tid, t_tick tick, int id, intptr_t data)
 {
+	struct mob_data *md = NULL, *src = NULL;
+	struct spawn_data sdata;
 	struct skillwide *info;
-	struct mob_data *md;
-	struct view_data *vd;
+
 	int i;
 	info = (struct skillwide*)data;
+	src = map_id2md(id);
 
-	if (map_id2bl(id) == NULL) {
+	if (!info && !src) {
+		return 0;
+	}
+	else if (info && !src) {
 		aFree(info);
 		return 0;
 	}
-
-	md = &info->md;
-	vd = &info->vd;
-	md->bl.id = INT_MAX;
-	md->bl.m = info->src->m;
-	md->bl.type = BL_MOB;
-	md->vd = vd;
-	md->db = mob_db(1627);
+	else if (!info && src) {
+		unit_free(&src->bl, CLR_TRICKDEAD);
+		return 0;
+	}
 
 	for (i = 0; i < 8; i++) {
 		if (info->x[i] == 0 || info->y[i] == 0)
 			continue;
 		if (map_getcell(info->src->m, info->x[i], info->y[i], CELL_CHKNOREACH))
 			continue;
-		md->bl.x = info->x[i];
-		md->bl.y = info->y[i];
-		clif_spawn(&md->bl);
-		clif_skill_poseffect(&md->bl, info->id, info->lv, md->bl.x, md->bl.y, gettick());
-		clif_clearunit_area(&md->bl, CLR_TRICKDEAD);
-		skill_unitsetting(info->src, info->id, info->lv, md->bl.x, md->bl.y, 0);
+
+		memset(&sdata, 0, sizeof(struct spawn_data));
+		sdata.m = info->src->m;
+		sdata.num = 1;
+		sdata.id = 2343;
+		sdata.x = info->x[i];
+		sdata.y = info->y[i];
+		md = mob_spawn_dataset(&sdata);
+		mob_spawn(md);
+		md->sc.option |= OPTION_CLOAK;
+		clif_changeoption(&md->bl);
+		memcpy(&md->status, &src->status, sizeof(struct status_data));
+		md->status.mode = (enum e_mode)69926976;
+		
+		if (skill_get_inf(info->id)&(INF_GROUND_SKILL))
+			unit_skilluse_pos2(&md->bl, info->x[i], info->y[i], info->id, info->lv , 0, 0);
+		else 
+			unit_skilluse_id2(&md->bl, md->bl.id, info->id, info->lv, 0, 0);
+
+		if (md->ud.canact_tick - tick == 0)
+			buildin_unitskillwide_sub(0, tick, md->bl.id, NULL);
+		else
+			add_timer(md->ud.canact_tick + 1000, buildin_unitskillwide_sub, md->bl.id, NULL);
 	}
 	aFree(info);
 	return 1;
@@ -25903,9 +25921,6 @@ BUILDIN_FUNC(unitskilltowide)
 	step = script_getnum(st, 6);
 	range = script_getnum(st, 7);
 	delay = script_getnum(st, 8);
-
-	if ((skill_get_inf(skill_id)&INF_GROUND_SKILL) != INF_GROUND_SKILL)
-		return SCRIPT_CMD_SUCCESS;
 
 	if (bl->type == BL_NPC) {
 		if (!((TBL_NPC*)bl)->status.hp)
@@ -25940,10 +25955,10 @@ BUILDIN_FUNC(unitskilltowide)
 			info->x[6] = x - reallen; info->y[6] = y + reallen;
 			info->x[7] = x + reallen; info->y[7] = y - reallen;
 		}
-		if (delay == 0)
-			buildin_unitskillwide_sub(0, 0, bl->id, (intptr_t)info);
+		if (delay == 0 || steplen == step)
+			buildin_unitskillwide_sub(0, gettick(), bl->id, (intptr_t)info);
 		else
-			add_timer(gettick() + delay * steplen / step, buildin_unitskillwide_sub, bl->id, (intptr_t)info);
+			add_timer(gettick() + delay * (steplen / step - 1), buildin_unitskillwide_sub, bl->id, (intptr_t)info);
 	}
 	return SCRIPT_CMD_SUCCESS;
 }
