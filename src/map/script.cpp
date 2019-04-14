@@ -25838,30 +25838,24 @@ struct skillwide {
 	struct block_list *src;
 	uint16 id, lv;
 	int16 x[8], y[8];
-	int type;
-	struct mob_data md;
-	struct view_data vd;
 };
 
 static int buildin_unitskillwide_sub(int tid, t_tick tick, int id, intptr_t data)
 {
 	struct mob_data *md = NULL, *src = NULL;
-	struct spawn_data sdata;
 	struct skillwide *info;
 
 	int i;
 	info = (struct skillwide*)data;
 	src = map_id2md(id);
 
-	if (!info && !src) {
+	if (!info) {
+		if (src)
+			unit_free(&src->bl, CLR_TRICKDEAD);
 		return 0;
 	}
-	else if (info && !src) {
+	else if (!src) {
 		aFree(info);
-		return 0;
-	}
-	else if (!info && src) {
-		unit_free(&src->bl, CLR_TRICKDEAD);
 		return 0;
 	}
 
@@ -25871,13 +25865,7 @@ static int buildin_unitskillwide_sub(int tid, t_tick tick, int id, intptr_t data
 		if (map_getcell(info->src->m, info->x[i], info->y[i], CELL_CHKNOREACH))
 			continue;
 
-		memset(&sdata, 0, sizeof(struct spawn_data));
-		sdata.m = info->src->m;
-		sdata.num = 1;
-		sdata.id = 2343;
-		sdata.x = info->x[i];
-		sdata.y = info->y[i];
-		md = mob_spawn_dataset(&sdata);
+		md = mob_once_spawn_sub(NULL, src->bl.m, info->x[i], info->y[i], "", 2343, "", 0, AI_NONE);
 		mob_spawn(md);
 		md->sc.option |= OPTION_CLOAK;
 		clif_changeoption(&md->bl);
@@ -25894,6 +25882,31 @@ static int buildin_unitskillwide_sub(int tid, t_tick tick, int id, intptr_t data
 		else
 			add_timer(md->ud.canact_tick + 1000, buildin_unitskillwide_sub, md->bl.id, NULL);
 	}
+
+	aFree(info);
+	return 1;
+}
+
+static int buildin_unitskillwide_sub2(int tid, t_tick tick, int id, intptr_t data)
+{
+	struct skillwide *info;
+	int i;
+	info = (struct skillwide*)data;
+	
+	if (map_id2bl(id) == NULL) {
+		aFree(info);
+		return 0;
+	}
+
+	for (i = 0; i < 8; i++) {
+		if (info->x[i] == 0 || info->y[i] == 0)
+			continue;
+		if (map_getcell(info->src->m, info->x[i], info->y[i], CELL_CHKNOREACH))
+			continue;
+
+		clif_skill_poseffect(info->src, info->id, info->lv, info->x[i], info->y[i], tick);
+		skill_unitsetting(info->src, info->id, info->lv, info->x[i], info->y[i], 0);
+	}
 	aFree(info);
 	return 1;
 }
@@ -25904,11 +25917,13 @@ BUILDIN_FUNC(unitskilltowide)
 	not_free(script_getfuncname(st));
 	return SCRIPT_CMD_FAILURE;
 #endif 
-	int x, y, step, range, delay, steplen = 0, type, reallen, i = 0;
+	int x, y, step, range, delay, steplen = 0, type, reallen;
 	uint16 skill_id, skill_lv;
 	struct block_list* bl;
 	struct script_data *data;
 	struct skillwide *info;
+	TimerFunc func;
+	char *command = (char *)script_getfuncname(st);
 
 	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_FAILURE;
@@ -25930,6 +25945,16 @@ BUILDIN_FUNC(unitskilltowide)
 	}
 	x = bl->x;
 	y = bl->y;
+
+	if (command[strlen(command) - 1] == '2'){
+		if (!(skill_get_inf(skill_id)&INF_GROUND_SKILL)) {
+			ShowError("bulidin_unitskilltowide2: must be ground skill('%d').\n", skill_id);
+			return SCRIPT_CMD_FAILURE;
+		}
+		func = buildin_unitskillwide_sub2;
+	}
+	else
+		func = buildin_unitskillwide_sub;
 
 	while (steplen < range) {
 		steplen += step;
@@ -25956,9 +25981,9 @@ BUILDIN_FUNC(unitskilltowide)
 			info->x[7] = x + reallen; info->y[7] = y - reallen;
 		}
 		if (delay == 0 || steplen == step)
-			buildin_unitskillwide_sub(0, gettick(), bl->id, (intptr_t)info);
+			func(0, gettick(), bl->id, (intptr_t)info);
 		else
-			add_timer(gettick() + delay * (steplen / step - 1), buildin_unitskillwide_sub, bl->id, (intptr_t)info);
+			add_timer(gettick() + delay * (steplen / step - 1), func, bl->id, (intptr_t)info);
 	}
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -28355,6 +28380,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(unloadduplicate, "unloadcopynpc", "s"),
 	BUILDIN_DEF(is_attach, "?"),
 	BUILDIN_DEF(unitskilltowide, "iviiiii"),
+	BUILDIN_DEF2(unitskilltowide, "unitskilltowide2", "iviiiii"),
 	BUILDIN_DEF(addatkevent, "iiisi?"),
 	BUILDIN_DEF(delatkevent, "i?"),
 	BUILDIN_DEF(getatkevent, "ii?"),
