@@ -320,6 +320,7 @@ struct map_session_data {
 	int runing_event_type;
 	bool runing_event[NPCE_MAX];
 	int menulist_data;
+	int sleep_mes_active;
 	/**
 	 * Extended Vending system [Lilith]
 	**/

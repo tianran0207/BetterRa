@@ -65,6 +65,10 @@ int mail_removeitem(struct map_session_data *sd, short flag, int idx, int amount
 		pc_delitem(sd, idx, amount, 0, 0, LOG_TYPE_MAIL);
 #endif
 	}else{
+		sd->mail.item[i].amount -= amount;
+		if (sd->mail.item[i].amount <= 0)
+			i = MAIL_MAX_ITEM;
+
 		for( ; i < MAIL_MAX_ITEM-1; i++ ){
 			if (sd->mail.item[i + 1].nameid == 0)
 				break;

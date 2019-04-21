@@ -4172,7 +4172,8 @@ TIMER_FUNC(run_script_timer){
 			script_reportsrc(st);
 			st->rid = 0;
 			st->state = END;
-		}
+		}else if(st->mes_active)
+			sd->sleep_mes_active = 0;
 	}
 
 	while (node && st->sleep.timer != INVALID_TIMER) {
@@ -4421,6 +4422,7 @@ void run_script_main(struct script_state *st)
 		script_detach_state(st, false);
 		//Delay execution
 		sd = map_id2sd(st->rid); // Get sd since script might have attached someone while running. [Inkfish]
+		sd->sleep_mes_active = st->mes_active ? 1 : sd->sleep_mes_active;
 		st->sleep.charid = sd?sd->status.char_id:0;
 		st->sleep.timer = add_timer(gettick() + st->sleep.tick, run_script_timer, st->sleep.charid, (intptr_t)st);
 		linkdb_insert(&sleep_db, (void *)__64BPRTSIZE(st->oid), st);
@@ -23209,8 +23211,10 @@ BUILDIN_FUNC(channel_create) {
 		tmp_chan.msg_delay = script_getnum(st,6);
 	else
 		tmp_chan.msg_delay = i ? channel_config.private_channel.delay : 1000;
-	if (script_hasdata(st,7))
-		tmp_chan.color = script_getnum(st,7);
+	if (script_hasdata(st, 7)) {
+		tmp_chan.color = script_getnum(st, 7);
+		tmp_chan.color = (tmp_chan.color & 0x0000FF) << 16 | (tmp_chan.color & 0x00FF00) | (tmp_chan.color & 0xFF0000) >> 16; // RGB to BGR
+	}
 	else
 		tmp_chan.color = i ? channel_config.private_channel.color : channel_getColor("Default");
 
@@ -23455,6 +23459,9 @@ BUILDIN_FUNC(channel_chat) {
 	color = ch->color;
 	FETCH(4, color);
 
+	if (color != ch->color)
+		color = (color & 0x0000FF) << 16 | (color & 0x00FF00) | (color & 0xFF0000) >> 16; // RGB to BGR
+
 	safesnprintf(output, CHAT_SIZE_MAX, "%s %s", ch->alias, msg);
 	clif_channel_msg(ch,output,color);
 	script_pushint(st,1);
@@ -23595,7 +23602,7 @@ BUILDIN_FUNC(channel_kick) {
 	
 	if (res == 0) {
 		char output[CHAT_SIZE_MAX+1];
-		safesnprintf(output, CHAT_SIZE_MAX, msg_txt(tsd,889), ch->alias, tsd->status.name); // "%s %s is kicked"
+		safesnprintf(output, CHAT_SIZE_MAX, msg_txt(tsd,768), ch->alias, tsd->status.name); // "%s %s is kicked"
 		clif_channel_msg(ch,output,ch->color);
 	}
 

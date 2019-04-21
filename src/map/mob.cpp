@@ -2022,8 +2022,9 @@ static int mob_ai_sub_lazy(struct mob_data *md, va_list args)
 		return 0;
 
 	t_tick tick = va_arg(args,t_tick);
+	struct map_data *mapdata = map_getmapdata(md->bl.m);
 
-	if (battle_config.mob_ai&0x20 && map_getmapdata(md->bl.m)->users>0)
+	if (battle_config.mob_ai&0x20 && mapdata->users>0 || mapdata->flag[MF_TRIBE])
 		return (int)mob_ai_sub_hard(md, tick);
 
 	if (md->bl.prev==NULL || md->status.hp == 0)

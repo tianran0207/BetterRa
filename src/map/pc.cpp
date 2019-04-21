@@ -5716,9 +5716,6 @@ int pc_useitem(struct map_session_data *sd,int n)
 			return 0; // First item use attempt cancels the progress bar
 		}
 
-		if (battle_config.disable_items_callfunc && has_func_name(sd->inventory_data[n]->script, "callfunc"))
-			return 0;
-
 		if( pc_hasprogress( sd, WIP_DISABLE_SKILLITEM ) || !sd->npc_item_flag ){
 #ifdef RENEWAL
 			clif_msg( sd, WORK_IN_PROGRESS );
@@ -5726,6 +5723,12 @@ int pc_useitem(struct map_session_data *sd,int n)
 			return 0;
 		}
 	}
+
+	if (battle_config.disable_items_callfunc) {
+		if ((sd->npc_id || sd->sleep_mes_active) && has_func_name(sd->inventory_data[n]->script, "callfunc"))
+			return 0;
+	}
+
 	item = sd->inventory.u.items_inventory[n];
 	id = sd->inventory_data[n];
 
@@ -8004,6 +8007,8 @@ int pc_allskillup(struct map_session_data *sd)
 				sd->status.skill[i].id = 0;
 		}
 	}
+	sd->change_level_2nd = 0;
+	sd->change_level_3rd = 0;
 
 	if (!pc_grant_allskills(sd, true)) {
 		uint16 sk_id;
@@ -8692,7 +8697,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		item_tmp.card[1]=0;
 		item_tmp.card[2]=GetWord(sd->status.char_id,0); // CharId
 		item_tmp.card[3]=GetWord(sd->status.char_id,1);
-		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,4,0);
 	}
 
 	//Remove bonus_script when dead

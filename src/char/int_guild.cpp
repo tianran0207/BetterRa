@@ -533,6 +533,8 @@ struct guild * inter_guild_fromsql(int guild_id)
  */
 uint16 inter_guild_storagemax(int guild_id)
 {
+	return MAX_GUILD_STORAGE;
+
 #ifdef OFFICIAL_GUILD_STORAGE
 	struct guild *g = inter_guild_fromsql(guild_id);
 	uint16 max = 0;

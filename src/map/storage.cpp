@@ -605,12 +605,18 @@ char storage_guild_storageopen(struct map_session_data* sd)
 
 	if((gstor = guild2storage2(sd->status.guild_id)) == nullptr
 #ifdef OFFICIAL_GUILD_STORAGE
-		|| (gstor->max_amount != guild_checkskill(sd->guild, GD_GUILD_STORAGE) * 100)
+		//|| (gstor->max_amount != guild_checkskill(sd->guild, GD_GUILD_STORAGE) * 100)
 #endif
 	) {
 		intif_request_guild_storage(sd->status.account_id,sd->status.guild_id);
 		return GSTORAGE_OPEN;
 	}
+
+#ifdef OFFICIAL_GUILD_STORAGE
+	gstor->max_amount = guild_checkskill(sd->guild, GD_GUILD_STORAGE) * battle_config.guild_storage_per_lvup;
+	if (gstor->max_amount > MAX_GUILD_STORAGE)
+		gstor->max_amount = MAX_GUILD_STORAGE;
+#endif
 
 	if(gstor->status)
 		return GSTORAGE_ALREADY_OPEN;

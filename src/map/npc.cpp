@@ -2351,7 +2351,7 @@ int npc_unload(struct npc_data* nd, bool single) {
 	if( single && nd->bl.m != -1 )
 		map_remove_questinfo(nd->bl.m, nd);
 
-	if( (nd->subtype == NPCTYPE_SHOP || nd->subtype == NPCTYPE_CASHSHOP || nd->subtype == NPCTYPE_ITEMSHOP || nd->subtype == NPCTYPE_POINTSHOP || nd->subtype == NPCTYPE_MARKETSHOP) && nd->src_id == 0) //src check for duplicate shops [Orcao]
+	if( (nd->subtype == NPCTYPE_SHOP || nd->subtype == NPCTYPE_CASHSHOP || nd->subtype == NPCTYPE_ITEMSHOP || nd->subtype == NPCTYPE_POINTSHOP || nd->subtype == NPCTYPE_MARKETSHOP)) //src check for duplicate shops [Orcao]
 		aFree(nd->u.shop.shop_item);
 	else if( nd->subtype == NPCTYPE_SCRIPT ) {
 		struct s_mapiterator* iter;
@@ -3402,7 +3402,8 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 		case NPCTYPE_POINTSHOP:
 		case NPCTYPE_MARKETSHOP:
 			++npc_shop;
-			nd->u.shop.shop_item = dnd->u.shop.shop_item;
+			CREATE(nd->u.shop.shop_item, struct npc_item_list, dnd->u.shop.count);
+			memcpy(nd->u.shop.shop_item, dnd->u.shop.shop_item, sizeof(struct npc_item_list) * dnd->u.shop.count);
 			nd->u.shop.count = dnd->u.shop.count;
 			break;
 
@@ -4600,11 +4601,19 @@ int npc_script_event(struct map_session_data* sd, enum npce_event type){
 		return 0;
 	}
 
+	int type_bk = sd->runing_event_type;
+	sd->state.halt[type] = 0;
+	sd->runing_event[type] = true;
+	sd->runing_event_type = type;
+
 	std::vector<struct script_event_s>& vector = script_event[type];
 
 	for( struct script_event_s& evt : vector ){
 		npc_event_sub( sd, evt.event, evt.event_name );
 	}
+
+	sd->runing_event[type] = false;
+	sd->runing_event_type = sd->runing_event[type_bk] ? type_bk : 0;
 
 	return vector.size();
 }

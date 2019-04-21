@@ -7862,22 +7862,6 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 			return 0;
 	} //end switch actual target
 
-	if (mapdata->flag[MF_TRIBE]) {
-		int sbg_id = 0, tbg_id = 0;
-		sbg_id = tribe_team_get_id(s_bl);
-		tbg_id = tribe_team_get_id(t_bl);
-		if (sbg_id != tbg_id) {
-			state |= BCT_ENEMY;
-		}
-		if (sbg_id == tbg_id) {
-			state |= BCT_PARTY;
-		}
-		if (s_bl == t_bl) {
-			state |= BCT_SELF | BCT_PARTY | BCT_GUILD;
-		}
-		return (flag&state) ? 1 : -1;
-	}
-
 	switch( t_bl->type ) { //Checks on target master
 		case BL_PC: {
 			struct map_session_data *sd;
@@ -8014,6 +7998,19 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 		if( state&BCT_ENEMY && strip_enemy )
 			state&=~BCT_ENEMY;
 		return (flag&state)?1:-1;
+	}
+
+	if (mapdata->flag[MF_TRIBE]) {
+		int sbg_id = 0, tbg_id = 0;
+		state = 0;
+		sbg_id = tribe_team_get_id(s_bl);
+		tbg_id = tribe_team_get_id(t_bl);
+		if (sbg_id != tbg_id)
+			state |= BCT_ENEMY;
+		else
+			state |= BCT_PARTY;
+
+		return (flag&state) ? 1 : -1;
 	}
 
 	if( mapdata_flag_vs(mapdata) )
@@ -8204,6 +8201,7 @@ static const struct _battle_data {
 	{ "enable_unittype_type",               &battle_config.enable_unittype_type,            0,      0,      1,              },
 	{ "skill_chorus_check",                 &battle_config.skill_chorus_check,              0,      0,      1,              },
 	{ "skill_partner_check",                &battle_config.skill_partner_check,             0,      0,      1,              },
+	{ "guild_storage_per_lvup",             &battle_config.guild_storage_per_lvup,        100,      0,      MAX_GUILD_STORAGE,},
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

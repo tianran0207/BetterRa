@@ -229,6 +229,7 @@ int chat_leavechat(struct map_session_data* sd, bool kicked)
 		struct skill_unit* unit;
 		struct skill_unit_group* group;
 
+		clif_dispchat(cd, 0);
 		clif_clearchat(cd, 0);
 		db_destroy(cd->kick_list);
 		map_deliddb(&cd->bl);

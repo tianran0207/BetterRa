@@ -7611,7 +7611,7 @@ void status_calc_slave_mode(struct mob_data *md, struct mob_data *mmd)
 			sc_start4(NULL, &md->bl, SC_MODECHANGE, 100, 1, MD_CANMOVE|MD_NORANDOM_WALK|MD_CANATTACK, 0, 0, 0);
 			break;
 		default: //Copy master
-			if (status_has_mode(&mmd->status,MD_AGGRESSIVE))
+			if (mmd && status_has_mode(&mmd->status,MD_AGGRESSIVE))
 				sc_start4(NULL, &md->bl, SC_MODECHANGE, 100, 1, 0, MD_AGGRESSIVE, 0, 0);
 			else
 				sc_start4(NULL, &md->bl, SC_MODECHANGE, 100, 1, 0, 0, MD_AGGRESSIVE, 0);
@@ -12765,7 +12765,8 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			break;
 		case SC_FULL_THROTTLE: {
 				int sec = skill_get_time2(status_sc2skill(type), sce->val1);
-
+				if (status_isdead(bl))
+					break;
 				clif_status_change(bl, EFST_DEC_AGI, 1, sec, 0, 0, 0);
 				sc_start(bl, bl, SC_REBOUND, 100, sce->val1, sec);
 			}
