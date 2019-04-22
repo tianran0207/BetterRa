@@ -8487,6 +8487,9 @@ void pc_close_npc(struct map_session_data *sd,int flag)
 {
 	nullpo_retv(sd);
 
+	if (sd->sleep_mes_active)
+		sd->sleep_mes_active = 0;
+
 	if (sd->npc_id || sd->npc_shopid) {
 		if (sd->state.using_fake_npc) {
 			clif_clearunit_single(sd->npc_id, CLR_OUTSIGHT, sd->fd);

@@ -10536,6 +10536,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(mapflag),
 		ACMD_DEF(me),
 		ACMD_DEF(monsterignore),
+		ACMD_DEF2("battleignore", monsterignore),
 		ACMD_DEF(fakename),
 		ACMD_DEF(size),
 		ACMD_DEF(showexp),

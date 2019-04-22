@@ -889,7 +889,7 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 				}
 				md->state.skillstate = MSS_WALK;
 				md->move_fail_count = 0;
-				md->next_walktime = tick + c;
+				md->next_walktime = tick + c + 1;
 				break;
 			case BL_PC:
 				sd = (struct map_session_data *)bl;
