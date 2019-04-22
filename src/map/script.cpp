@@ -26641,12 +26641,13 @@ BUILDIN_FUNC(unit_Astart_walkto)
 	struct step_path *sp;
 	struct autowalk_data *ad;
 	int step_ai;
+	unsigned int uid;
 	const char *eventname;
 
 	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_FAILURE;
 
-	unsigned int uid = (script_getnum(st, 5) ? bl->id : 0);
+	uid = script_hasdata(st, 5) ? (script_getnum(st, 5) ? bl->id : 0) : bl->id;
 
 	if((ad = unit_autowalk(bl)) == NULL)
 		return SCRIPT_CMD_SUCCESS;

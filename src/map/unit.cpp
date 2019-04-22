@@ -870,11 +870,13 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 	if (!unit_can_move(bl))
 		return true;
 
+	if (distance_blxy(bl, path->x[ad->step], path->y[ad->step]) < 2)
+		ad->step++;
+
 	if (ad->step < path->number) {
-		if (distance_blxy(bl, path->x[ad->step], path->y[ad->step]) < 2)
-			ad->step++;
 		x = path->x[ad->step];
 		y = path->y[ad->step];
+		unit_stop_walking(bl, 1);
 		if (unit_walktoxy(bl, x, y, 1) || unit_walktoxy(bl, x, y, 0))
 		{
 			speed = status_get_speed(bl);

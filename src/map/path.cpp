@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../common/strlib.hpp"
 #include "../common/cbasetypes.hpp"
 #include "../common/db.hpp"
 #include "../common/malloc.hpp"
@@ -752,7 +753,7 @@ void path_free(struct step_path *sp) {
 
 // flag?
 struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid) {
-	struct step_path *sp = NULL;
+	struct step_path *sptmp;
 	char pathname[NAME_LENGTH];
 
 	if (x0 == x1 && y0 == y1)
@@ -763,21 +764,24 @@ struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, in
 	else
 		snprintf(pathname, NAME_LENGTH, "%d_%d_%d_%d_%d", m, x0, y0, x1, y1);
 
-	if (!(sp = get_step(pathname))) {
-		CREATE(sp, struct step_path, 1);
-		sp->uid = uid;
-		strncpy(sp->pathname, pathname, NAME_LENGTH);
-		strdb_put(step_db, sp->pathname, sp);
+	sptmp = get_step(pathname);
+	if (sptmp && (uid == 0 || (sptmp->x[0] == x0 && sptmp->y[0] == y0 && sptmp->x[sptmp->number - 1] == x1 && sptmp->y[sptmp->number - 1] == y1)))
+		return sptmp;
+
+	if (!sptmp) {
+		CREATE(sptmp, struct step_path, 1);
+		safestrncpy(sptmp->pathname, pathname, NAME_LENGTH);
+		strdb_put(step_db, sptmp->pathname, sptmp);
 	}
-
-	if (astart_path(sp, m, x0, y0, x1, y1, CELL_CHKNOPASS))
-		return sp;
-
-	aFree(sp);
-	return NULL;
+	if (!astart_path(sptmp, m, x0, y0, x1, y1, CELL_CHKNOPASS)) {
+		strdb_remove(step_db, pathname);
+		return NULL;
+	}
+	
+	sptmp->uid = uid;
+	return sptmp;
 }
 
-#include "../common/strlib.hpp"
 static bool path_readdb_steppath(char* str[], int columns, int current) {
 
 	struct step_path *steppath;
