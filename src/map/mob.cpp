@@ -1543,7 +1543,7 @@ int mob_unlocktarget(struct mob_data *md, t_tick tick)
 		md->state.skillstate = MSS_IDLE;
 		
 		if(md->autowalk.path)
-			mob_randomwalk(md, tick);
+			md->next_walktime = tick+rnd()%1000;
 		else if(battle_config.mob_ai&0x8) //Walk instantly after dropping target
 			md->next_walktime = tick+rnd()%1000;
 		else
