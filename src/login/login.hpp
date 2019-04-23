@@ -49,7 +49,7 @@ struct login_session_data {
 	char mac[32];
 };
 
-#define MAX_SERVERS 30 //max number of mapserv that could be attach
+#define MAX_SERVERS 5 //max number of mapserv that could be attach
 ///Struct describing 1 char-serv attach to us
 struct mmo_char_server {
 	char name[20];	///char-serv name

@@ -445,6 +445,9 @@ function	script	F_KafEnd	{
 		percentheal 0,-25;
 		mes "^666666我们...卡普拉...公司...";
 		mes "会一直...陪伴在...您的...身边...";
+	} else if (.@type == 2) {// RockRidge Save
+		mes "Saved.";
+		mes "Thank you for your patronage.";
 	}
 	close3;
 }
