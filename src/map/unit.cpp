@@ -857,6 +857,7 @@ bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
 bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tick) {
 	struct step_path *path = ad->path;
 	int x, y, i, c, speed;
+	bool walkfail = true;
 	struct mob_data* md = BL_CAST(BL_MOB, bl);
 	struct map_session_data *sd;
 	struct npc_data *nd;
@@ -876,7 +877,6 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 	if (ad->step < path->number) {
 		x = path->x[ad->step];
 		y = path->y[ad->step];
-		unit_stop_walking(bl, 1);
 		if (unit_walktoxy(bl, x, y, 1) || unit_walktoxy(bl, x, y, 0))
 		{
 			speed = status_get_speed(bl);
@@ -953,18 +953,26 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 				return true;
 			}
 		}
-	}
-
-	if (ad->eventname[0]) {
-		mapreg_setreg(add_str("$@gid"), bl->id);
-		if (!npc_event_do(ad->eventname))
-			ShowError("unit_check_step: NPCEvent '%s' not found!\n", ad->eventname);
+		else
+			walkfail = true;
 	}
 
 	if (ad->path->uid == bl->id)
 		path_free(ad->path);
 
+	char eventname[EVENT_NAME_LENGTH];
+	safestrncpy(eventname, ad->eventname, EVENT_NAME_LENGTH);
 	memset(ad, 0, sizeof(struct autowalk_data));
+	if (eventname[0]) {
+		mapreg_setreg(add_str("$@steppath_gid"), bl->id);
+		mapreg_setreg(add_str("$@steppath_fail"), walkfail ? 1 : 0);
+		if (!npc_event_do(eventname))
+			ShowError("npc_event: event not found [%s]\n", eventname);
+	}
+
+	if (ad->path)
+		return true;
+
 	return false;
 }
 

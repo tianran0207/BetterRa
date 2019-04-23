@@ -749,6 +749,7 @@ struct step_path* get_step(const char *key) {
 
 void path_free(struct step_path *sp) {
 	strdb_remove(step_db, sp->pathname);
+	sp = NULL;
 }
 
 // flag?

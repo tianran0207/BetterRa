@@ -26277,22 +26277,27 @@ BUILDIN_FUNC(unitsteppath)
 	eventname = script_hasdata(st, 6) ? script_getstr(st, 6) : "";
 	check_event(st, eventname);
 
-	if (step_ai > PH_NONE &&  step_ai < PH_MAX) {
-		struct walkpath_data wpd;
-		if (step_ai != PH_WARPBACK && !path_search(&wpd, bl->m, bl->x, bl->y, steppath->x[0], steppath->y[0], 1, CELL_CHKNOPASS) && wpd.path_len > 14) {
-			ShowWarning("buildin_unitsteppath: The mob with GID '%d' can not reach the beginning of step path.\n", bl->id);
-			return SCRIPT_CMD_FAILURE;
-		}
-		ad->path = steppath;
-		ad->step = 0;
-		ad->step_ai = step_ai;
-		ad->step_range = script_hasdata(st, 5) ? (script_getnum(st, 5) > 25 ? 25 : script_getnum(st, 5)) : 25;
-		safestrncpy(ad->eventname, eventname, EVENT_NAME_LENGTH);
-		unit_check_step(bl, ad, gettick());
-		return SCRIPT_CMD_SUCCESS;
+	if (step_ai < PH_NONE || step_ai >= PH_MAX) {
+		ShowWarning("buildin_unitsteppath: The third parameter is invalid.\n", step_ai);
+		return SCRIPT_CMD_FAILURE;
 	}
-	ShowWarning("buildin_unitsteppath: The third parameter is invalid.\n", step_ai);
-	return SCRIPT_CMD_FAILURE;
+
+	struct walkpath_data wpd;
+	if (step_ai != PH_WARPBACK && !path_search(&wpd, bl->m, bl->x, bl->y, steppath->x[0], steppath->y[0], 1, CELL_CHKNOPASS) && wpd.path_len > 14) {
+		ShowWarning("buildin_unitsteppath: The mob with GID '%d' can not reach the beginning of step path.\n", bl->id);
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	if(ad->path && ad->path->uid == bl->id)
+		path_free(ad->path);
+
+	ad->path = steppath;
+	ad->step = 0;
+	ad->step_ai = step_ai;
+	ad->step_range = script_hasdata(st, 5) ? (script_getnum(st, 5) > 25 ? 25 : script_getnum(st, 5)) : 25;
+	safestrncpy(ad->eventname, eventname, EVENT_NAME_LENGTH);
+	unit_check_step(bl, ad, gettick());
+	return SCRIPT_CMD_SUCCESS;
 }
 
 BUILDIN_FUNC(tribe_mobteam) {
@@ -26658,7 +26663,7 @@ BUILDIN_FUNC(unit_Astart_walkto)
 	step_ai = script_hasdata(st, 6) ? script_getnum(st, 6) : PH_WALKBACK;
 
 	if (step_ai < PH_NONE || step_ai >= PH_MAX) {
-		ShowWarning("buildin_unitsteppath: The third parameter is invalid.\n", step_ai);
+		ShowWarning("buildin_unit_Astart_walkto: The third parameter is invalid.\n", step_ai);
 		return SCRIPT_CMD_FAILURE;
 	}
 	eventname = script_hasdata(st, 8) ? script_getstr(st, 8) : "";
