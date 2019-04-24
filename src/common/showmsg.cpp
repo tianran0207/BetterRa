@@ -920,40 +920,39 @@ void get_real_str(char *string);
 #define MAX_TRANSLETION_MSG 1024
 
 void msg_config_translation_read(const char* config_filename) {
-	config_setting_t *data = NULL;
-	config_setting_t *command;
-	const char *val;
-	char *realyval, *nkey;
+	char *val;
 	int i, n;
-	config_init(&translation_config);
-	if (!config_read_file_ex(&translation_config, config_filename))
+	char line[MAX_TRANSLETION_MSG + 3], w1[MAX_TRANSLETION_MSG], w2[MAX_TRANSLETION_MSG];
+	FILE *fp;
+
+	msg_translation = stridb_alloc(static_cast<DBOptions>(DB_OPT_DUP_KEY | DB_OPT_RELEASE_DATA), MAX_TRANSLETION_MSG);
+
+	fp = fopen(config_filename, "r");
+	if (fp == NULL) {
+		ShowError("File not found: %s\n", config_filename);
 		return;
-	data = config_lookup(&translation_config, "data");
-	if (data != NULL) {
-		msg_translation = stridb_alloc(static_cast<DBOptions>(DB_OPT_DUP_KEY | DB_OPT_RELEASE_DATA), MAX_TRANSLETION_MSG);
-		int count = config_setting_length(data);
-		for (i = 0; i < count; ++i) {
-			command = config_setting_get_elem(data, i);
-			if (config_setting_length(command) == 2) {
-				val = config_setting_get_string_elem(command, 1);
-				if (val && val[0] != '\0') {
-					nkey = (char *)config_setting_get_string_elem(command, 0);
-					get_real_str(nkey);
-					CREATE(realyval, char, MAX_TRANSLETION_MSG);
-					safestrncpy(realyval, val, MAX_TRANSLETION_MSG);
-					get_real_str(realyval);
-					strdb_put(msg_translation, nkey, realyval);
-				}
-			}
-			else
-				ShowError("msg_config_translation_read: Format error in the '%d' elem.", i);
+	}
+
+	while (fgets_ex(line, MAX_TRANSLETION_MSG + 3, fp))
+	{
+		if (line[0] == 'S' && line[1] == ':'  && line[2] == ' ') {
+			safestrncpy(w1, line + 3, MAX_TRANSLETION_MSG);
+			continue;
 		}
+		if (line[0] == 'T' && line[1] == ':'  && line[2] == ' ') {
+			safestrncpy(w2, line + 3, MAX_TRANSLETION_MSG);
+			get_real_str(w1);
+			get_real_str(w2);
+			CREATE(val, char, MAX_TRANSLETION_MSG);
+			safestrncpy(val, w2, MAX_TRANSLETION_MSG);
+			strdb_put(msg_translation, w1, val);
+		}
+
 	}
 	n = ARRAYLENGTH(prefixlist);
 	for (i = 0; i < n; i++) {
 		prefixlist[i].rename = (char *)strdb_get(msg_translation, prefixlist[i].name);
 	}
-	config_destroy(&translation_config);
 }
 
 static const struct {
@@ -1011,7 +1010,23 @@ void get_real_str(char *string) {
 
 	char *point[50], *p = string;
 	int i, n, k, l;
-	size_t m;
+	size_t m, len = strlen(string);
+	for (m = 0, n = 0; m < len; m++) {
+		if (string[m] == '\\') {
+			m++;
+			switch (string[m]) {
+			case 'r': string[n] = '\r';	break;
+			case 'n': string[n] = '\n';	break;
+			case '"': string[n] = '\"';	break;
+			case 't': string[n] = '\t';	break;
+			default:  string[n] = string[m];	break;
+			}
+		}else
+			string[n] = string[m];
+		n++;
+	}
+	string[n - 1] = '\0';
+
 	for (i = 0; i < 50; i++)
 	{
 		point[i] = p;
@@ -1027,7 +1042,8 @@ void get_real_str(char *string) {
 			else
 				ShowError("msg_config_translation_read: Format error: '%s'", string);
 		}
-		for (m = 0; m < strlen(point[n]); m++) {
+		len = strlen(point[n]);
+		for (m = 0; m < len; m++) {
 			string[l] = point[n][m];
 			l++;
 		}
@@ -1035,11 +1051,10 @@ void get_real_str(char *string) {
 	string[l] = '\0';
 }
 const char* _vReplaceMessage(const char *String, char *val) {
-	if (msg_translation != NULL && strdb_exists(msg_translation, String)) {
-		val = (char *)strdb_get(msg_translation, String);
-		return val;
-	}
-	return String;
+	if (!msg_translation)
+		return String;
+	val = (char *)strdb_get(msg_translation, String);
+	return val ? val : String;
 }
 #endif 
 
