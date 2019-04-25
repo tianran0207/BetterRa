@@ -13346,9 +13346,9 @@ short pc_maxparameter(struct map_session_data *sd, enum e_params param) {
 short pc_maxaspd(struct map_session_data *sd) {
 	nullpo_ret(sd);
 
-	if (map_getmapflag(sd->bl.m, MF_PVP) && battle_config.max_pvp_aspd)
+	if (map_getmapflag(sd->bl.m, MF_PVP) && battle_config.max_pvp_aspd != 2000)
 		return battle_config.max_pvp_aspd;
-	if (map_flag_gvg2(sd->bl.m) && battle_config.max_gvg_aspd)
+	if (map_flag_gvg2(sd->bl.m) && battle_config.max_gvg_aspd != 2000)
 		return battle_config.max_gvg_aspd;
 
 	if(sd->c_bonus.max_aspd)
