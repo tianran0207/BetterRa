@@ -7636,7 +7636,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 					c++;
 				if (battle_config.item_cash && itemdb_exists(battle_config.item_cash))
 					c++;
-				if (c > 1)
+				if (c > 0)
 					clif_vend(sd, sd->vend_skill_lv);
 				else
 					clif_skill_fail(sd, skill_id, USESKILL_FAIL_LEVEL, 0);
