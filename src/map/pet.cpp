@@ -615,6 +615,13 @@ void pet_set_intimate(struct pet_data *pd, int value)
 
 	if( sd && ((intimate >= battle_config.pet_equip_min_friendly && pd->pet.intimate < battle_config.pet_equip_min_friendly) || (intimate < battle_config.pet_equip_min_friendly && pd->pet.intimate >= battle_config.pet_equip_min_friendly)) )
 		status_calc_pc(sd,SCO_NONE);
+
+	if (sd && pd->pet.intimate <= PET_INTIMATE_NONE) {
+		pet_lootitem_drop(pd, sd);
+		int i = pet_egg_search(sd, pd->pet.pet_id);
+		if (i != -1)
+			pc_delitem(sd, i, 1, 0, 0, LOG_TYPE_OTHER);
+	}
 }
 
 /**
