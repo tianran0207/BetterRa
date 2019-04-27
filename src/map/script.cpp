@@ -20219,6 +20219,24 @@ unsigned short script_instancegetid(struct script_state* st, enum instance_mode 
 		}
 	}
 
+	if (battle_config.instance_activation && !instance_id) {
+		struct map_session_data *sd = NULL;
+		struct party_data *pd = NULL;
+		struct guild *gd = NULL;
+		struct clan *cd = NULL;
+
+		if ((sd = map_id2sd(st->rid))) {
+			if (sd->instance_id)
+				instance_id = sd->instance_id;
+			if (instance_id == 0 && sd->status.party_id && (pd = party_search(sd->status.party_id)) != NULL && pd->instance_id)
+				instance_id = pd->instance_id;
+			if (instance_id == 0 && sd->status.guild_id && (gd = guild_search(sd->status.guild_id)) != NULL && gd->instance_id)
+				instance_id = gd->instance_id;
+			if (instance_id == 0 && sd->status.clan_id && (cd = clan_search(sd->status.clan_id)) != NULL && cd->instance_id)
+				instance_id = cd->instance_id;
+		}
+	}
+
 	return instance_id;
 }
 

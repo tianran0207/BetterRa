@@ -217,6 +217,7 @@ struct Battle_Config
 	int skill_chorus_check;
 	int skill_partner_check;
 	int guild_storage_per_lvup;
+	int instance_activation;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;
