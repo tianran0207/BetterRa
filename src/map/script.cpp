@@ -14132,6 +14132,7 @@ BUILDIN_FUNC(getinventorylist)
 			pc_setreg(sd,reference_uid(add_str("@inventorylist_expire"), j),sd->inventory.u.items_inventory[i].expire_time);
 			pc_setreg(sd,reference_uid(add_str("@inventorylist_bound"), j),sd->inventory.u.items_inventory[i].bound);
 			pc_setreg(sd,reference_uid(add_str("@inventorylist_idx"), j), i);
+			pc_setreg(sd, reference_uid(add_str("@inventorylist_favorite"), j), sd->inventory.u.items_inventory[i].favorite);
 			_ui64toa(sd->inventory.u.items_inventory[i].unique_id, uid, 10);
 			pc_setregstr(sd,reference_uid(add_str("@inventorylist_uid$"), j), uid);
 			for (k = 0; k < MAX_ITEM_RDM_OPT; k++)
@@ -20218,6 +20219,24 @@ unsigned short script_instancegetid(struct script_state* st, enum instance_mode 
 		}
 	}
 
+	if (battle_config.instance_activation && !instance_id) {
+		struct map_session_data *sd = NULL;
+		struct party_data *pd = NULL;
+		struct guild *gd = NULL;
+		struct clan *cd = NULL;
+
+		if ((sd = map_id2sd(st->rid))) {
+			if (sd->instance_id)
+				instance_id = sd->instance_id;
+			if (instance_id == 0 && sd->status.party_id && (pd = party_search(sd->status.party_id)) != NULL && pd->instance_id)
+				instance_id = pd->instance_id;
+			if (instance_id == 0 && sd->status.guild_id && (gd = guild_search(sd->status.guild_id)) != NULL && gd->instance_id)
+				instance_id = gd->instance_id;
+			if (instance_id == 0 && sd->status.clan_id && (cd = clan_search(sd->status.clan_id)) != NULL && cd->instance_id)
+				instance_id = cd->instance_id;
+		}
+	}
+
 	return instance_id;
 }
 
@@ -24727,9 +24746,10 @@ BUILDIN_FUNC(getinventoryinfo)
 		case 7:			script_pushint(st, sd->inventory.u.items_inventory[idx].card[1]);			break;
 		case 8:			script_pushint(st, sd->inventory.u.items_inventory[idx].card[2]);			break;
 		case 9:			script_pushint(st, sd->inventory.u.items_inventory[idx].card[3]);			break;
-		case 10:		script_pushint(st, sd->inventory.u.items_inventory[idx].expire_time);			break;
+		case 10:		script_pushint(st, sd->inventory.u.items_inventory[idx].expire_time);		break;
 		case 11:		script_pushint(st, sd->inventory.u.items_inventory[idx].bound);				break;
 		case 12:		script_pushint(st, sd->inventory.u.items_inventory[idx].unique_id);			break;
+		case 16:		script_pushint(st, sd->inventory.u.items_inventory[idx].favorite);			break;
 		default:
 			ShowError("buildin_getinventoryinfo: Invalid type %d\n", script_getnum(st, 3));
 			return SCRIPT_CMD_FAILURE;
