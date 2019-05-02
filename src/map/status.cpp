@@ -13709,11 +13709,17 @@ TIMER_FUNC(status_change_timer){
 		if (--(sce->val1) >= 0) { // Cooling
 			int16 limit[] = { 150, 200, 280, 360, 450 };
 			uint16 skill_lv = (sd ? pc_checkskill(sd, NC_MAINFRAME) : 0);
-
+			/*
 			if (sc && sc->data[SC_OVERHEAT])
 				status_change_end(bl,SC_OVERHEAT,INVALID_TIMER);
 			if (sce->val1 > limit[skill_lv])
 				sc_start(bl, bl, SC_OVERHEAT, 100, sce->val1, 1000);
+			*/
+			if (sce->val1 > limit[skill_lv])
+				clif_status_change(bl, EFST_OVERHEAT, 1, 0, sce->val1, 0, 0);
+			else if (sc && sc->data[SC_OVERHEAT])
+				status_change_end(bl, SC_OVERHEAT, INVALID_TIMER);
+			
 			sc_timer_next(1000 + tick);
 			return 0;
 		}

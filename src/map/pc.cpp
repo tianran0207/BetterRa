@@ -11743,9 +11743,13 @@ void pc_overheat(struct map_session_data *sd, int16 heat) {
 	if ((sce = sd->sc.data[SC_OVERHEAT_LIMITPOINT])) {
 		sce->val1 += heat;
 		sce->val1 = cap_value(sce->val1, 0, 1000);
+		/*
 		if (sd->sc.data[SC_OVERHEAT])
 			status_change_end(&sd->bl, SC_OVERHEAT, INVALID_TIMER);
 		if (sce->val1 > limit[skill_lv])
+			sc_start(&sd->bl, &sd->bl, SC_OVERHEAT, 100, sce->val1, 1000);
+		 */
+		if (sce->val1 > limit[skill_lv] && !sd->sc.data[SC_OVERHEAT])
 			sc_start(&sd->bl, &sd->bl, SC_OVERHEAT, 100, sce->val1, 1000);
 	} else if (heat > 0)
 		sc_start(&sd->bl, &sd->bl, SC_OVERHEAT_LIMITPOINT, 100, heat, 1000);
