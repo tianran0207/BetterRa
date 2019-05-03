@@ -510,11 +510,12 @@ int logclif_parse(int fd) {
 				return 0;
 
 			uint16 len = RFIFOW(fd, 2);
-			if (RFIFOREST(fd) > 256) {
-				ShowWarning("Abnormal end of connection (ip: %s): Unknown packet 0x%x\n", ip, command);
+			if (len > 2048) {
+				ShowWarning("Received packet too long (ip: %s). len: %d(%u)\n", ip, len, RFIFOREST(fd));
 				set_eof(fd);
 				return 0;
-			}else if (RFIFOREST(fd) < len)
+			}
+			if (RFIFOREST(fd) < len)
 				return 0;
 
 			rc4_crypt2((unsigned char *)RFIFOP(fd, 4), len - 4);
@@ -522,16 +523,32 @@ int logclif_parse(int fd) {
 			RFIFOSKIP(fd, 8);
 			command = RFIFOW(fd, 0);
 			if (command == 0xFFFE) {
-				memcpy(sd->mac, RFIFOCP(fd, 2), 32);
+				safestrncpy(sd->mac, RFIFOCP(fd, 2), 33);
 				RFIFOSKIP(fd, 34);
 				logclif_parse_reqauth(fd, sd, RFIFOW(fd, 0), ip);
 				return 0;
 			}
 		}
-		else if (command != 0x2710){
-			ShowWarning("Abnormal end of connection (ip: %s): Unknown packet 0x%x\n", ip, command);
-			set_eof(fd);
-			return 0;
+		else {
+			char hex[256 * 2 + 64];
+			size_t i, len = RFIFOREST(fd);
+
+			switch (command) {
+			case 0x0200:	case 0x0204:	case 0x0064:	case 0x0277:	case 0x02b0:
+			case 0x01dd:	case 0x01fa:	case 0x027c:	case 0x0825:	case 0x01db:
+				ShowWarning("Possibly not encrypted (ip: %s), head: 0x%04X, len: %u\n", ip, command, len);
+				set_eof(fd);
+				return 0;
+			case 0x2710:
+				break;
+			default:
+				for (i = 0; i < len && i < 256; i++)
+					sprintf(hex + (i * 2), "%02X", RBUFB(RFIFOP(fd, 0), i));
+
+				ShowWarning("Unknown packet (ip: %s): len: %u. Packet: %s\n", ip, len, hex);
+				set_eof(fd);
+				return 0;
+			}
 		}
 #endif
 
@@ -550,11 +567,6 @@ int logclif_parse(int fd) {
 		case 0x01fa: // S 01fa <version>.L <username>.24B <password hash>.16B <clienttype>.B <?>.B(index of the connection in the clientinfo file (+10 if the command-line contains "pc"))
 		case 0x027c: // S 027c <version>.L <username>.24B <password hash>.16B <clienttype>.B <?>.13B(junk)
 		case 0x0825: // S 0825 <packetsize>.W <version>.L <clienttype>.B <userid>.24B <password>.27B <mac>.17B <ip>.15B <token>.(packetsize - 0x5C)B
-#if C_SOCKET_ENCRYPT > 0
-			ShowNotice("Abnormal end of connection (ip: %s): Unknown packet 0x%x\n", ip, command);
-			set_eof(fd);
-			return 0;
-#endif
 			next = logclif_parse_reqauth(fd,  sd, command, ip); 
 			break;
 		// Sending request of the coding key

@@ -407,7 +407,7 @@ int login_mmo_auth(struct login_session_data* sd, bool isServer) {
 	if (sd->mac[0])
 		safestrncpy(acc.mac, sd->mac, sizeof(acc.mac));
 	else
-		safestrncpy(acc.mac, "00-00-00-00-00-00", sizeof(acc.mac));
+		safestrncpy(acc.mac, "none", sizeof(acc.mac));
 #endif
 	acc.unban_time = 0;
 	acc.logincount++;

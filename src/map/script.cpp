@@ -9830,7 +9830,7 @@ BUILDIN_FUNC(end)
 
 	st->state = END;
 
-	if (sd && sd->runing_event_type)
+	if ((sd && sd->runing_event_type) || (!st->oid && !st->mes_active))
 		return SCRIPT_CMD_SUCCESS;
 
 	if (st->stack->defsp >= 1 && st->stack->stack_data[st->stack->defsp-1].type == C_RETINFO) {
@@ -27601,10 +27601,8 @@ BUILDIN_FUNC(getlastip)
 		else if (SQL_SUCCESS == Sql_NextRow(qsmysql_handle))
 			Sql_GetData(qsmysql_handle, 0, &data, NULL);
 
-		if (data)
+		if (sscanf(data, "%*[^:]:%33s", sd->mac) != 1)
 			safestrncpy(sd->mac, data, sizeof(sd->mac));
-		else
-			safestrncpy(sd->mac, "00-00-00-00-00-00", sizeof(sd->mac));
 
 		Sql_FreeResult(qsmysql_handle);
 	}

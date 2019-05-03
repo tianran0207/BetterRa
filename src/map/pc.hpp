@@ -316,7 +316,7 @@ struct map_session_data {
 	int policies;
 	int enemy_id;
 	int nodecrypt;
-	char mac[30];
+	char mac[33];
 	int runing_event_type;
 	bool runing_event[NPCE_MAX];
 	int menulist_data;

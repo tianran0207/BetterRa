@@ -3847,11 +3847,6 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 		}
 	}
 
-	running_npc_stat_calc_event = true;
-	if (npc_script_event_check(sd, NPCE_STATCALC))
-		npc_script_event_atonce(sd, NPCE_STATCALC);
-	running_npc_stat_calc_event = false;
-
 	// Store equipment script bonuses
 	memcpy(sd->param_equip,sd->param_bonus,sizeof(sd->param_equip));
 	memset(sd->param_bonus, 0, sizeof(sd->param_bonus));
@@ -3963,6 +3958,11 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 		if( pet_db_ptr != nullptr && pd->pet.intimate > 0 && (!battle_config.pet_equip_required || pd->pet.equip > 0) && pd->state.skillbonus == 1 && pd->bonus )
 			pc_bonus(sd,pd->bonus->type, pd->bonus->val);
 	}
+
+	running_npc_stat_calc_event = true;
+	if (npc_script_event_check(sd, NPCE_STATCALC))
+		npc_script_event_atonce(sd, NPCE_STATCALC);
+	running_npc_stat_calc_event = false;
 
 	// param_bonus now holds card bonuses.
 	if(base_status->rhw.range < 1) base_status->rhw.range = 1;
@@ -11474,6 +11474,10 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			}
 	} else // Special considerations when loading SC data.
 		switch( type ) {
+			case SC_WEAPONBLOCKING:
+				t_tickime = tick;
+				tick = t_tickime + max(val4 * 5000, 0);
+				break;
 			case SC_WEDDING:
 			case SC_XMAS:
 			case SC_SUMMER:

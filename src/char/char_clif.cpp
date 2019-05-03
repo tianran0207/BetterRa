@@ -1322,12 +1322,12 @@ int chclif_parse(int fd) {
 				return 0;
 
 			uint16 len = RFIFOW(fd, 2);
-			if (RFIFOREST(fd) > 256) {
-				ShowError("parse_char: Received packet too long. packet size %d", RFIFOREST(fd));
+			if (len > 2048) {
+				ShowError("Received packet too long (ip: %s). len: %d(%u)\n", ip2str(ipl, NULL), len, RFIFOREST(fd));
 				set_eof(fd);
 				return 0;
 			}
-			else if (RFIFOREST(fd) < len)
+			if (RFIFOREST(fd) < len)
 				return 0;
 
 			rc4_crypt2((unsigned char *)RFIFOP(fd, 4), len - 4);
@@ -1336,7 +1336,13 @@ int chclif_parse(int fd) {
 			cmd = RFIFOW(fd, 0);
 		}
 		else if (cmd != 0x2af8) {
-			ShowError("parse_char: Received unknown packet " CL_WHITE "0x%x" CL_RESET " from ip '" CL_WHITE "%s" CL_RESET "'! Disconnecting!\n", RFIFOW(fd, 0), ip2str(ipl, NULL));
+			char hex[256 * 2 + 64];
+			size_t i, len = RFIFOREST(fd);
+
+			for (i = 0; i < len && i < 256; i++)
+				sprintf(hex + (i * 2), "%02X", RBUFB(RFIFOP(fd, 0), i));
+
+			ShowError("Unknown packet (ip: %s): len: %u. Packet: %s\n", ip2str(ipl, NULL), len, hex);
 			set_eof(fd);
 			return 0;
 		}
