@@ -4304,6 +4304,18 @@ static bool mob_parse_dbrow(char** str)
 	memcpy(&data.status, status, sizeof(struct status_data));
 	status_calc_misc(&data.bl, status, entry.lv);
 
+	if (battle_config.support_old_mob_db) {
+		status->batk = 0;
+		status->rhw.atk = atoi(str[10]);
+		status->rhw.atk2 = atoi(str[11]);
+#ifdef RENEWAL
+		status->matk_min = status->matk_max = status->int_ + (status->int_ / 2) + (status->dex / 5) + (status->luk / 3) + (entry.lv / 4);
+#else
+		status->matk_min = status->int_ + (status->int_ / 7) * (status->int_ / 7);
+		status->matk_max = status->int_ + (status->int_ / 5) * (status->int_ / 5);
+#endif
+	}
+
 	// MVP EXP Bonus: MEXP
 	// Some new MVP's MEXP multipled by high exp-rate cause overflow. [LuzZza]
 	exp = (double)atoi(str[30]) * (double)battle_config.mvp_exp_rate / 100.;

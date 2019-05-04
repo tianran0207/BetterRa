@@ -8206,6 +8206,7 @@ static const struct _battle_data {
 	{ "skill_partner_check",                &battle_config.skill_partner_check,             0,      0,      1,              },
 	{ "guild_storage_per_lvup",             &battle_config.guild_storage_per_lvup,        100,      0,      MAX_GUILD_STORAGE,},
 	{ "instance_activation",                &battle_config.instance_activation,             1,      0,      1,              },
+	{ "support_old_mob_db",                 &battle_config.support_old_mob_db,              0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },
