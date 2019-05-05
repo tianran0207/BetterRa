@@ -6004,6 +6004,11 @@ void pc_getitemfromcart(struct map_session_data *sd,int idx,int amount)
 		return;
 	}
 
+	if (itemdb_weight(item_data->nameid) * amount + sd->weight > sd->max_weight) {
+		clif_additem(sd, 0, 0, ADDITEM_OVERWEIGHT);
+		return;
+	}
+
 	item item_copy = *item_data;
 
 	pc_cart_delitem(sd, idx, amount, 0, LOG_TYPE_NONE);
