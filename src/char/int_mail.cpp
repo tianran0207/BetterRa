@@ -273,7 +273,7 @@ int mail_timer_sub( int limit, enum mail_inbox_type type ){
 		}
 
 		// Check for online players
-		if( ( character = (struct online_char_data*)idb_get(char_get_onlinedb(), mails[i].account_id) ) != NULL && character->server >= 0 ){
+		if( ( character = (struct online_char_data*)idb_get(char_get_onlinedb(), mails[i].account_id) ) != NULL && character->char_id == mails[i].char_id  && character->server >= 0 ){
 			map_fd = map_server[character->server].fd;
 		}else{
 			map_fd = 0;

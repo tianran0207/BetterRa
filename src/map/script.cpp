@@ -354,7 +354,8 @@ struct Script_Config script_config = {
 	"OnPCCashShopCloseEvent", //cashshop_close_event_name
 	"OnPCStylistChangeEvent", //stylist_change_event_name
 	"OnPCMannerFilter", //manner_filter_name
-	"OnPCMoveFilter" //move_filter_name
+	"OnPCMoveFilter", //move_filter_name
+	"OnMOBDropItemFilter" //mob_drop_item_filter_name
 };
 
 static jmp_buf     error_jump;

@@ -4199,9 +4199,9 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 		if (sd->state.lr_flag != 2) {
 			bool hasentry = false;
 			for (auto &it : sd->skilldamage) {
-				if (it.val1 != type2 || it.val2 != type3)
+				if (it.sk != type2 || it.lv != type3)
 					continue;
-				it.val3 += val;
+				it.damage += val;
 				hasentry = true;
 				break;
 			}
@@ -4210,10 +4210,10 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 				ShowError("pc_bonus2: SP_SKILL_DAMAGE: Reached max (%d) number of skills per character, (skillid: %d itemid: %d amount: %d).\n", MAX_PC_BONUS, type2, type3, val);
 				return;
 			}
-			struct s_bonus_multi entry;
-			entry.val1 = type2;
-			entry.val2 = type3;
-			entry.val3 = val;
+			struct s_bonus_skilldamage entry;
+			entry.sk = type2;
+			entry.lv = type3;
+			entry.damage = val;
 			sd->skilldamage.push_back(entry);
 		}
 		break;
@@ -4359,11 +4359,11 @@ void pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type
 		if (sd->state.lr_flag != 2) {
 			bool hasentry = false;
 			for (auto &it : sd->skillforaoe) {
-				if (it.val1 != type2) 
+				if (it.sk != type2)
 					continue;
-				it.val2 = type3;
-				it.val3 = type4;
-				it.val4 = val;
+				it.range = type3;
+				it.quantity = type4;
+				it.rate = val;
 				hasentry = true;
 				break;
 			}
@@ -4372,11 +4372,11 @@ void pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type
 				ShowError("pc_bonus2: SP_SKILL_AOE: Reached max (%d) number of skills per character, (skillid: %d).\n", MAX_PC_BONUS, type2);
 				return;
 			}
-			struct s_bonus_multi entry;
-			entry.val1 = type2;
-			entry.val2 = type3;
-			entry.val3 = type4;
-			entry.val4 = val;
+			struct s_bonus_skillforaoe entry;
+			entry.sk = type2;
+			entry.range = type3;
+			entry.quantity = type4;
+			entry.rate = val;
 			sd->skillforaoe.push_back(entry);
 		}
 		break;

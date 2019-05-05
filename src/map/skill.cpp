@@ -3277,18 +3277,18 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	if (src->type == BL_PC) {
 		for (auto &it : sd->skilldamage) {
-			if (it.val1 != skill_id)
+			if (it.sk != skill_id)
 				continue;
-			switch (it.val2) {
+			switch (it.lv) {
 			case -1:
-				dmg.damage += (it.val3 * skill_lv);
+				dmg.damage += (it.damage * skill_lv);
 				break;
 			case 0:
-				dmg.damage += it.val3;
+				dmg.damage += it.damage;
 				break;
 			default:
-				if (skill_lv == it.val2)
-					dmg.damage += it.val3;
+				if (skill_lv == it.lv)
+					dmg.damage += it.damage;
 			}
 			break;
 		}
@@ -11573,11 +11573,10 @@ TIMER_FUNC(skill_castend_id){
 		if (sd) {
 			int count = 0;
 			for (const auto &it : sd->skillforaoe) {
-				if (it.val1 == ud->skill_id && rnd() % 1000 < it.val4) {
-					map_foreachinrange(skill_castend_for_AOE, target, it.val2, target->type, ud, &count, it.val3);
-					break;
-				}
-			}	
+				if (it.sk != ud->skill_id || rnd() % 1000 > it.rate)
+					continue;
+				map_foreachinrange(skill_castend_for_AOE, target, it.range, target->type, ud, &count, it.quantity);
+			}
 		}
 
 		sc = status_get_sc(src);

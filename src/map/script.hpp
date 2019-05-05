@@ -284,6 +284,8 @@ struct Script_Config {
 	const char* manner_filter_name;
 	// Move related
 	const char* move_filter_name;
+	// Mob related
+	const char* mob_drop_item_filter_name;
 };
 extern struct Script_Config script_config;
 

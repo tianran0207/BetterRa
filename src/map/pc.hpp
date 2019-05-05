@@ -239,9 +239,14 @@ struct s_multidamagerate {
 	short rate, atk_type, n;
 };
 
-struct s_bonus_multi {
-	unsigned short val1;
-	short val2, val3, val4, val5;
+struct s_bonus_skillforaoe {
+	uint16 sk;
+	short range, quantity, rate;
+};
+
+struct s_bonus_skilldamage {
+	uint16 sk, lv;
+	int damage;
 };
 
 struct policies {
@@ -623,7 +628,8 @@ struct map_session_data {
 	}c_bonus;
 	std::vector<s_skill_noconsume> skillitemfix;
 	std::vector<s_multidamagerate> multidamage;
-	std::vector<s_bonus_multi> skillforaoe, skilldamage; //custom;
+	std::vector<s_bonus_skillforaoe> skillforaoe; //custom;
+	std::vector<s_bonus_skilldamage> skilldamage;
 
 	struct autowalk_data autowalk;
 

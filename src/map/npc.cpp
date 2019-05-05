@@ -4787,6 +4787,8 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.manner_filter_name;
 	case NPCE_MOVEFILTER:
 		return script_config.move_filter_name;
+	case NPCE_MOBDROPITEMFILTER:
+		return script_config.mob_drop_item_filter_name;
 	case NPCE_ONDISPLAY:
 		return "NOEVENTNAME";
 	default:
