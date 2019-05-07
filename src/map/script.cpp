@@ -2806,6 +2806,8 @@ struct script_data *get_val_(struct script_state* st, struct script_data* data, 
 					}
 					if (n)
 						data->u.str = (char*)i64db_get(n,reference_getuid(data));
+					else if (battle_config.instance_activation)
+						data->u.str = NULL;
 					else {
 						ShowWarning("script:get_val: cannot access instance variable '%s', defaulting to \"\"\n", name);
 						data->u.str = NULL;
@@ -2871,6 +2873,8 @@ struct script_data *get_val_(struct script_state* st, struct script_data* data, 
 						}
 						if (n)
 							data->u.num = (int)i64db_iget(n,reference_getuid(data));
+						else if (battle_config.instance_activation)
+							data->u.num = 0;
 						else {
 							ShowWarning("script:get_val: cannot access instance variable '%s', defaulting to 0\n", name);
 							data->u.num = 0;
@@ -20182,7 +20186,7 @@ unsigned short script_instancegetid(struct script_state* st, enum instance_mode 
 	if (mode == IM_NONE) {
 		struct npc_data *nd = map_id2nd(st->oid);
 
-		if (nd->instance_id > 0)
+		if (nd && nd->instance_id > 0)
 			instance_id = nd->instance_id;
 	} else {
 		struct map_session_data *sd = map_id2sd(st->rid);
@@ -25190,12 +25194,13 @@ static int buildin_script4each_sub(struct block_list *bl, va_list ap)
 
 	struct script_code *scriptcode = va_arg(ap, struct script_code *);
 	const char *event = va_arg(ap, const char *);
+	int npcid = va_arg(ap, int);
 	if (scriptcode == NULL) {
 		TBL_PC *sd = map_id2sd(bl->id);
 		npc_event_atonce(sd, event);
 	}
 	else
-		run_script(scriptcode, 0, bl->id, 0);
+		run_script(scriptcode, 0, bl->id, npcid);
 
 	return 0;
 }
@@ -25250,7 +25255,7 @@ BUILDIN_FUNC(script4each)
 			return SCRIPT_CMD_FAILURE;
 		}
 
-		map_foreachinmap(buildin_script4each_sub, map_mapname2mapid(script_getstr(st, 4)), BL_PC, scriptcode, bonus_script);
+		map_foreachinmap(buildin_script4each_sub, map_mapname2mapid(script_getstr(st, 4)), BL_PC, scriptcode, bonus_script, st->oid);
 
 		break;
 
@@ -25277,7 +25282,7 @@ BUILDIN_FUNC(script4each)
 		center.x = x;
 		center.y = y;
 
-		map_foreachinrange(buildin_script4each_sub, &center, range, BL_PC, scriptcode, bonus_script);
+		map_foreachinrange(buildin_script4each_sub, &center, range, BL_PC, scriptcode, bonus_script, st->oid);
 	}
 	break;
 
@@ -25357,7 +25362,7 @@ BUILDIN_FUNC(script4each)
 			y1 = script_getnum(st, 8);
 		}
 		map_index = map_mapname2mapid(script_getstr(st, 4));
-		map_foreachinarea(buildin_script4each_sub, map_index, x0, y0, x1, y1, BL_PC, scriptcode, bonus_script);
+		map_foreachinarea(buildin_script4each_sub, map_index, x0, y0, x1, y1, BL_PC, scriptcode, bonus_script, st->oid);
 	}
 	break;
 

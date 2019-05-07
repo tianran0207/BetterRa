@@ -245,7 +245,8 @@ struct s_bonus_skillforaoe {
 };
 
 struct s_bonus_skilldamage {
-	uint16 sk, lv;
+	uint16 sk;
+	short lv;
 	int damage;
 };
 
