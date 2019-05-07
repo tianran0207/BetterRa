@@ -5528,7 +5528,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 #endif
 
 		if (wd.damage + wd.damage2) { //Check if attack ignores DEF
-			if(!attack_ignores_def(&wd, src, target, skill_id, skill_lv, EQI_HAND_L) || !attack_ignores_def(&wd, src, target, skill_id, skill_lv, EQI_HAND_R))
+			if(!attack_ignores_def(&wd, src, target, skill_id, skill_lv, EQI_HAND_L) && !attack_ignores_def(&wd, src, target, skill_id, skill_lv, EQI_HAND_R))
 				battle_calc_defense_reduction(&wd, src, target, skill_id, skill_lv);
 
 			battle_calc_attack_post_defense(&wd, src, target, skill_id, skill_lv);
