@@ -153,13 +153,14 @@ int mapif_pet_info(int fd, uint32 account_id, struct s_pet *p){
 	return 0;
 }
 
-int mapif_pet_noinfo(int fd, uint32 account_id){
+int mapif_pet_noinfo(int fd, uint32 account_id, int pet_id){
 	WFIFOHEAD(fd, sizeof(struct s_pet) + 9);
 	WFIFOW(fd, 0) =0x3881;
 	WFIFOW(fd, 2) =sizeof(struct s_pet) + 9;
 	WFIFOL(fd, 4) =account_id;
 	WFIFOB(fd, 8)=1;
 	memset(WFIFOP(fd, 9), 0, sizeof(struct s_pet));
+	WFIFOL(fd, 17) = pet_id;
 	WFIFOSET(fd, WFIFOW(fd, 2));
 
 	return 0;
@@ -239,10 +240,10 @@ int mapif_load_pet(int fd, uint32 account_id, uint32 char_id, int pet_id){
 		else if(account_id == pet_pt->account_id && char_id == pet_pt->char_id)
 			mapif_pet_info(fd, account_id, pet_pt);
 		else
-			mapif_pet_noinfo(fd, account_id);
+			mapif_pet_noinfo(fd, account_id, pet_id);
 	}
 	else
-		mapif_pet_noinfo(fd, account_id);
+		mapif_pet_noinfo(fd, account_id, pet_id);
 
 	return 0;
 }

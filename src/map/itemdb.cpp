@@ -1040,7 +1040,7 @@ static bool itemdb_read_flag(char* fields[], int columns, int current) {
 	if (flag&32) id->flag.delay_consume = 2;
 	if (flag&256) id->flag.delay_consume = 3;
 	if (flag&512) id->flag.skill_no_consumed = 1;
-	if (flag&1024) id->flag.item_homkill_nodrop = 1;
+	if (flag&1024) id->flag.item_pckill_drop = 1;
 	if (flag&2048) id->flag.item_drop_event = 1;
 /*	if( flag & 64 ){
 		id->flag.dropEffect = 1;

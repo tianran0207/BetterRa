@@ -1115,6 +1115,13 @@ int pet_recv_petdata(uint32 account_id,struct s_pet *p,int flag)
 		return 1;
 
 	if(flag == 1) {
+		int i = pet_egg_search(sd, p->pet_id);
+		if (i != -1 && battle_config.remove_noinfo_pet) {
+			char output[1024];
+			sprintf(output, msg_txt(sd, 2400), itemdb_jname(sd->inventory.u.items_inventory[i].nameid)); // Jumped to %d %d
+			clif_displaymessage(sd->fd, output);
+			pc_delitem(sd, i, 1, 0, 0, LOG_TYPE_OTHER);
+		}
 		sd->status.pet_id = 0;
 
 		return 1;

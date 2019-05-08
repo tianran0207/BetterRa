@@ -2197,22 +2197,6 @@ static void mob_item_drop(struct mob_data *md, struct item_drop_list *dlist, str
 	sd = map_charid2sd(dlist->first_charid);
 	if( sd == NULL ) sd = map_charid2sd(dlist->second_charid);
 	if( sd == NULL ) sd = map_charid2sd(dlist->third_charid);
-
-	struct item_data *item_data = itemdb_search(ditem->item_data.nameid);
-	if (flag == 1 && (item_data->flag.item_homkill_nodrop || !battle_config.homunculus_killed_drop)) {
-		ers_free(item_drop_ers, ditem);
-		return;
-	}
-	if (npc_script_event_check(sd, NPCE_MOBDROPITEMFILTER) && item_data->flag.item_drop_event) {
-		pc_setreg(sd, add_str("@drop_mobid"), ditem->mob_id);
-		pc_setreg(sd, add_str("@drop_itemid"), ditem->item_data.nameid);
-		npc_script_event_atonce(sd, NPCE_MOBDROPITEMFILTER);
-		if (sd->state.processhalt) {
-			ers_free(item_drop_ers, ditem);
-			return;
-		}
-	}
-
 	test_autoloot = sd 
 		&& (drop_rate <= sd->state.autoloot || pc_isautolooting(sd, ditem->item_data.nameid))
 		&& (battle_config.idle_no_autoloot == 0 || DIFF_TICK(last_tick, sd->idletime) < battle_config.idle_no_autoloot)
@@ -2798,6 +2782,17 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			// attempt to drop the item
 			if (rnd() % 10000 >= drop_rate)
 				continue;
+
+			if ((it->flag.item_pckill_drop && !(dmgbltypes&BL_PC)) || (homkillonly && !battle_config.homunculus_killed_drop))
+				continue;
+
+			if (npc_script_event_check(mvp_sd, NPCE_MOBDROPITEMFILTER) && it->flag.item_drop_event) {
+				pc_setreg(mvp_sd, add_str("@drop_mobid"), md->mob_id);
+				pc_setreg(mvp_sd, add_str("@drop_itemid"), md->db->dropitem[i].nameid);
+				npc_script_event_atonce(mvp_sd, NPCE_MOBDROPITEMFILTER);
+				if (mvp_sd->state.processhalt)
+					continue;
+			}
 
 			if( mvp_sd && it->type == IT_PETEGG ) {
 				pet_create_egg(mvp_sd, md->db->dropitem[i].nameid);
