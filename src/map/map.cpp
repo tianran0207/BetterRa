@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "../common/des.hpp"
 #include "../common/cbasetypes.hpp"
 #include "../common/cli.hpp"
 #include "../common/core.hpp"
@@ -5584,7 +5583,6 @@ int do_init(int argc, char *argv[])
 
 	add_timer_func_list(server_verification, "server_verification");
 	add_timer_interval(gettick() + 3000, server_verification, 0, 0, 60 * 1000);
-	rc4_init2();
 	return 0;
 }
 

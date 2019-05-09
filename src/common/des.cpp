@@ -752,12 +752,13 @@ unsigned char sbox[256] = { 0 };
 
 void rc4_init2() {
 	char key[256] = { "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" };
-	rc4_init(sbox, (unsigned char *)key, strlen(key));
+	rc4_init(sbox, (unsigned char *)key, 52);
 }
 
 void rc4_crypt2(unsigned char *Data, unsigned long Len) //º”Ω‚√‹
 {
 	unsigned char s[256];
-	memcpy(s, sbox, 256);
+	for (int i = 0; i < 256; i++)
+		s[i] = sbox[i];
 	rc4_crypt(s, Data, Len);
 }

@@ -23,6 +23,7 @@
 #include "mmo.hpp"
 #include "showmsg.hpp"
 #include "strlib.hpp"
+#include "des.hpp"
 
 /// Called when a terminate signal is received.
 void (*shutdown_callback)(void) = NULL;
@@ -496,6 +497,7 @@ int main (int argc, char **argv)
 	timer_init();
 	socket_init();
 
+	rc4_init2();
 	do_init(argc,argv);
 
 	// Main runtime cycle

@@ -9,7 +9,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "../common/des.hpp"
 #include "../common/cli.hpp"
 #include "../common/core.hpp"
 #include "../common/malloc.hpp"
@@ -912,6 +911,5 @@ int do_init(int argc, char** argv) {
 
 	ShowStatus("The login-server is " CL_GREEN "ready" CL_RESET " (Server is listening on the port %u).\n\n", login_config.login_port);
 	login_log(0, "login server", 100, "login server started");
-	rc4_init2();
 	return 0;
 }
