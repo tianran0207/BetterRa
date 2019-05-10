@@ -229,6 +229,11 @@ struct s_regen {
 	int tick;
 };
 
+struct s_bonus_limit {
+	uint16 type;
+	short limit;
+};
+
 struct s_skill_noconsume {
 	uint16 sk;
 	unsigned short iid;
@@ -627,6 +632,8 @@ struct map_session_data {
 		int ignore_def_by_race[RC_MAX];
 		int ignore_def_by_class[CLASS_MAX];
 	}c_bonus;
+
+	std::vector<s_bonus_limit> bonus_limit;
 	std::vector<s_skill_noconsume> skillitemfix;
 	std::vector<s_multidamagerate> multidamage;
 	std::vector<s_bonus_skillforaoe> skillforaoe; //custom;
@@ -1238,7 +1245,7 @@ void pc_bonus3(struct map_session_data *sd, int type, int type2, int type3, int 
 void pc_bonus4(struct map_session_data *sd, int type, int type2, int type3, int type4, int val);
 void pc_bonus5(struct map_session_data *sd, int type, int type2, int type3, int type4, int type5, int val);
 bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2ptr, int *val3ptr, int *val4ptr, int *val5ptr);
-void pc_bonus_limit(struct map_session_data *sd, int type, int limit);
+void pc_bonus_limit(struct map_session_data *sd);
 
 enum e_addskill_type {
 	ADDSKILL_PERMANENT			= 0,	///< Permanent skill. Remove the skill if level is 0

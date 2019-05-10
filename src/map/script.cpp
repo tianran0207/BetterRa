@@ -27424,11 +27424,28 @@ BUILDIN_FUNC(sortarray)
 BUILDIN_FUNC(bonus_ratefix)
 {
 	TBL_PC *sd;
+	
+	int type = script_getnum(st, 2);
+	int limit = script_getnum(st, 3);
+	bool hasentry = false;
 
 	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	pc_bonus_limit(sd, script_getnum(st, 2), script_getnum(st, 3));
+	for (auto &it : sd->bonus_limit) {
+		if (it.type != type)
+			continue;
+		it.limit = limit;
+		return SCRIPT_CMD_SUCCESS;
+	}
+	struct s_bonus_limit entry;
+	entry.type = type;
+	entry.limit = limit;
+	sd->bonus_limit.push_back(entry);
+
+	if (!running_npc_stat_calc_event)
+		pc_bonus_limit(sd);
+
 	return SCRIPT_CMD_SUCCESS;
 }
 

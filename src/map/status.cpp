@@ -3959,6 +3959,16 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 			pc_bonus(sd,pd->bonus->type, pd->bonus->val);
 	}
 
+	if (battle_config.bonus_ratefix) {
+		static const uint16 bonus_type[] = { SP_SUBELE , SP_SUBDEF_ELE ,SP_SUBRACE ,SP_SUBCLASS,SP_SUBSIZE,SP_ADD_DEF_MONSTER ,
+											 SP_ADD_MDEF_MONSTER ,SP_SUBRACE2 ,SP_SUB_SKILL };
+		for (i = 0; i < ARRAYLENGTH(bonus_type); i++) {
+			struct s_bonus_limit entry;
+			entry.type = bonus_type[i];
+			entry.limit = battle_config.bonus_ratefix;
+			sd->bonus_limit.push_back(entry);
+		}
+	}
 	running_npc_stat_calc_event = true;
 	if (npc_script_event_check(sd, NPCE_STATCALC))
 		npc_script_event_atonce(sd, NPCE_STATCALC);
@@ -4437,9 +4447,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	status_cpy(&sd->battle_status, base_status);
 
 // ----- CLIENT-SIDE REFRESH -----
-
-	if (battle_config.bonus_ratefix)
-		pc_bonus_limit(sd, 0, battle_config.bonus_ratefix);
+	pc_bonus_limit(sd);
 
 	if(!sd->bl.prev) {
 		// Will update on LoadEndAck

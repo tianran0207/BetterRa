@@ -4665,100 +4665,103 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 	return true;
 }
 
-void pc_bonus_limit(struct map_session_data *sd, int type, int limit) {
+void pc_bonus_limit(struct map_session_data *sd) {
 
 	nullpo_retv(sd);
 	int i;
 
-	for (i = 0; i < ELE_MAX; i++) {
-		if (type == SP_ADDELE) {
-			sd->right_weapon.addele[i] > limit ? sd->right_weapon.addele[i] = limit : 0;
-			sd->left_weapon.addele[i] > limit ? sd->left_weapon.addele[i] = limit : 0;
-			sd->arrow_addele[i] > limit ? sd->arrow_addele[i] = limit : 0;
+#define BONUS_LIMIT(__var) if ((__var) > limit) ((__var) = limit)
+#define BONUS_LOOP(__start, __end, __var, __func) \
+	for( (__var) = (__start); (__var) < (__end); ++(__var) ) \
+		__func
+
+	for (auto &it : sd->bonus_limit) {
+		int type = it.type, limit = it.limit;
+		switch (type) {
+		case SP_ADDELE: // ELE_MAX
+			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->right_weapon.addele[i]); BONUS_LIMIT(sd->left_weapon.addele[i]); BONUS_LIMIT(sd->arrow_addele[i]););
 			for (auto &it : (sd->state.lr_flag ? sd->left_weapon.addele2 : sd->right_weapon.addele2))
-				it.rate > limit ? it.rate = limit : 0;
-		}
-		if (type == SP_MAGIC_ADDELE)
-			sd->magic_addele_script[i] > limit ? sd->magic_addele_script[i] = limit : 0;
-
-		if (!type || type == SP_SUBELE) { // bSubEle
-			sd->subele_script[i] > limit ? sd->subele_script[i] = limit : 0;
+				BONUS_LIMIT(it.rate);
+			break;
+		case SP_MAGIC_ADDELE:
+			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->magic_addele_script[i]););
+			break;
+		case SP_SUBELE:
+			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->subele_script[i]););
 			for (auto &it : sd->subele2)
-				it.rate > limit ? it.rate = limit : 0;
+				BONUS_LIMIT(it.rate);
+			break;
+		case SP_SUBDEF_ELE:
+			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->subdefele[i]););
+			break;
+		case SP_ADDRACE: // RC_MAX
+			BONUS_LOOP(0, RC_MAX, i, BONUS_LIMIT(sd->right_weapon.addrace[i]); BONUS_LIMIT(sd->left_weapon.addrace[i]); BONUS_LIMIT(sd->arrow_addrace[i]););
+			break;
+		case SP_SUBRACE:
+			BONUS_LOOP(0, RC_MAX, i, BONUS_LIMIT(sd->subrace[i]););
+			break;
+		case SP_MAGIC_ADDRACE:
+			BONUS_LOOP(0, RC_MAX, i, BONUS_LIMIT(sd->magic_addrace[i]););
+			break;
+		case SP_ADDCLASS: // CLASS_MAX
+			BONUS_LOOP(0, CLASS_MAX, i, BONUS_LIMIT(sd->right_weapon.addclass[i]); BONUS_LIMIT(sd->left_weapon.addclass[i]); BONUS_LIMIT(sd->arrow_addclass[i]););
+			break;
+		case SP_MAGIC_ADDCLASS:
+			BONUS_LOOP(0, CLASS_MAX, i, BONUS_LIMIT(sd->magic_addclass[i]););
+			break;
+		case SP_SUBCLASS:
+			BONUS_LOOP(0, CLASS_MAX, i, BONUS_LIMIT(sd->subclass[i]););
+			break;
+		case SP_ADDSIZE: // SZ_SIZE
+			BONUS_LOOP(0, SZ_MAX, i, BONUS_LIMIT(sd->right_weapon.addsize[i]); BONUS_LIMIT(sd->left_weapon.addsize[i]); BONUS_LIMIT(sd->arrow_addsize[i]););
+			break;
+		case SP_MAGIC_ADDSIZE:
+			BONUS_LOOP(0, SZ_MAX, i, BONUS_LIMIT(sd->magic_addsize[i]););
+			break;
+		case SP_SUBSIZE:
+			BONUS_LOOP(0, SZ_MAX, i, BONUS_LIMIT(sd->subsize[i]););
+			break;
+		case SP_ADDRACE2: // RC2_MAX
+			BONUS_LOOP(0, RC2_MAX, i, BONUS_LIMIT(sd->right_weapon.addrace2[i]); BONUS_LIMIT(sd->left_weapon.addrace2[i]););
+			break;
+		case SP_SUBRACE2:
+			BONUS_LOOP(0, RC2_MAX, i, BONUS_LIMIT(sd->subrace2[i]););
+			break;
+		case SP_MAGIC_ADDRACE2:
+			BONUS_LOOP(0, RC2_MAX, i, BONUS_LIMIT(sd->magic_addrace2[i]););
+			break;
+		case SP_ADD_DAMAGE_CLASS: // OTHER
+			for (auto &it : (sd->state.lr_flag ? sd->left_weapon.add_dmg : sd->right_weapon.add_dmg))
+				BONUS_LIMIT(it.val);
+			break;
+		case SP_ADD_MAGIC_DAMAGE_CLASS:
+			for (auto &it : sd->add_mdmg)
+				BONUS_LIMIT(it.val);
+			break;
+		case SP_ADD_DEF_MONSTER:
+			for (auto &it : sd->add_def)
+				BONUS_LIMIT(it.val);
+			break;
+		case SP_ADD_MDEF_MONSTER:
+			for (auto &it : sd->add_mdef)
+				BONUS_LIMIT(it.val);
+			break;
+		case SP_SUB_SKILL:
+			for (auto &it : sd->subskill)
+				BONUS_LIMIT(it.val);
+			break;
+		case SP_DELAYRATE:
+			BONUS_LIMIT(sd->delayrate);
+			break;
+		default:
+			ShowWarning("pc_bonus_limit: Invalid type '%d' limit for player AID: '%u', CID: '%u'\n", type, sd->status.account_id, sd->status.char_id);
+			break;
 		}
-		if (!type || type == SP_SUBDEF_ELE) // bSubDefEle
-			sd->subdefele[i] > limit ? sd->subdefele[i] = limit : 0;
 	}
-	for (i = 0; i < RC_MAX; i++) {
-		if (type == SP_ADDRACE) {
-			sd->right_weapon.addrace[i] > limit ? sd->right_weapon.addrace[i] = limit : 0;
-			sd->left_weapon.addrace[i] > limit ? sd->left_weapon.addrace[i] = limit : 0;
-			sd->arrow_addrace[i] > limit ? sd->arrow_addrace[i] = limit : 0;
-		}
-		if (!type || type == SP_SUBRACE)
-			sd->subrace[i] > limit ? sd->subrace[i] = limit : 0;
-			
-		if (type == SP_MAGIC_ADDRACE) // bSubRace
-			sd->magic_addrace[i] > limit ? sd->magic_addrace[i] = limit : 0;
+	sd->bonus_limit.clear();
 
-	}
-	for (i = 0; i < CLASS_MAX; i++) {
-		if (type == SP_ADDCLASS) {
-			sd->right_weapon.addclass[i] > limit ? sd->right_weapon.addclass[i] = limit : 0;
-			sd->left_weapon.addclass[i] > limit ? sd->left_weapon.addclass[i] = limit : 0;
-			sd->arrow_addclass[i] > limit ? sd->arrow_addclass[i] = limit : 0;
-		}
-		if (type == SP_MAGIC_ADDCLASS)
-			sd->magic_addclass[i] > limit ? sd->magic_addclass[i] = limit : 0;
-
-		if (!type || type == SP_SUBCLASS) // bSubClass
-			sd->subclass[i] > limit ? sd->subclass[i] = limit : 0;
-	}
-	for (i = 0; i < SZ_MAX; i++) {
-		if (type == SP_ADDSIZE) {
-			sd->right_weapon.addsize[i] > limit ? sd->right_weapon.addsize[i] = limit : 0;
-			sd->left_weapon.addsize[i] > limit ? sd->left_weapon.addsize[i] = limit : 0;
-			sd->arrow_addsize[i] > limit ? sd->arrow_addsize[i] = limit : 0;
-		}
-		if (type == SP_MAGIC_ADDSIZE)
-			sd->magic_addsize[i] > limit ? sd->magic_addsize[i] = limit : 0;
-
-		if (!type || type == SP_SUBSIZE)
-			sd->subsize[i] > limit ? sd->subsize[i] = limit : 0;
-	}
-	if (type == SP_ADD_DAMAGE_CLASS) {
-		for (auto &it : (sd->state.lr_flag ? sd->left_weapon.add_dmg : sd->right_weapon.add_dmg))
-			it.val > limit ? it.val = limit : 0;
-	}
-	if (type == SP_ADD_MAGIC_DAMAGE_CLASS) {
-		for (auto &it : sd->add_mdmg)
-			it.val > limit ? it.val = limit : 0;
-	}
-	if (!type || type == SP_ADD_DEF_MONSTER) { // bAddDefMonster
-		for (auto &it : sd->add_def)
-			it.val > limit ? it.val = limit : 0;
-	}
-	if (!type || type == SP_ADD_MDEF_MONSTER) { // bAddMDefMonster
-		for (auto &it : sd->add_mdef)
-			it.val > limit ? it.val = limit : 0;
-	}
-	for (i = 1; i < RC2_MAX; i++) {
-		if (type == SP_ADDRACE2) {
-			sd->right_weapon.addrace2[i] > limit ? sd->right_weapon.addrace2[i] = limit : 0;
-			sd->left_weapon.addrace2[i] > limit ? sd->left_weapon.addrace2[i] = limit : 0;
-		}
-		if (!type || type == SP_SUBRACE2) // bSubRace2
-			sd->subrace2[i] > limit ? sd->subrace2[i] = limit : 0;
-
-		if (type == SP_MAGIC_ADDRACE2)
-			sd->magic_addrace2[i] > limit ? sd->magic_addrace2[i] = limit : 0;
-	}
-	if (!type || type == SP_SUB_SKILL) {
-		for (auto &it : sd->subskill)
-			it.val > limit ? it.val = limit : 0;
-	}
-	if (type == SP_DELAYRATE)
-		sd->delayrate > limit ? sd->delayrate = limit : 0;
+#undef BONUS_LIMIT
+#undef BONUS_LOOP
 }
 
 /*==========================================
