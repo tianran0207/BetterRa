@@ -28023,9 +28023,15 @@ BUILDIN_FUNC(preg_match) {
 }
 
 bool has_func_name(struct script_code *script_code, char *func_name) {
-	int len = script_code->script_size;
-	unsigned char *buf = script_code->script_buf;
-	int i = 0, j;
+
+	int len, i = 0, j;
+	unsigned char *buf;
+
+	if (!script_code)
+		return false;
+
+	len = script_code->script_size;
+	buf = script_code->script_buf;
 	while (i < len) {
 		c_op op = get_com(buf, &i);
 		j = i;
