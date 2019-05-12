@@ -15277,6 +15277,15 @@ void clif_parse_AutoRevive(int fd, struct map_session_data *sd)
 		clif_displaymessage(fd, msg_txt(sd, 2335));
 		return;
 	}
+	if (sd->sc.data[SC_BLOCKING_TOKEN]) {
+		const struct TimerData *timer = get_timer(sd->sc.data[SC_BLOCKING_TOKEN]->timer);
+		if (timer)
+			clif_msg_value(sd, ITEM_REUSE_LIMIT, (int)(DIFF_TICK(timer->tick, gettick()) / 1000));
+		else 
+			clif_messagecolor(&sd->bl, color_table[COLOR_YELLOW], msg_txt(sd, 2401), false, SELF);
+
+		return;
+	}
 	if (item_position < 0) {
 		if (sd->sc.data[SC_LIGHT_OF_REGENE]) {
 			hp = sd->sc.data[SC_LIGHT_OF_REGENE]->val2;

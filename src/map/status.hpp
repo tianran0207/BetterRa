@@ -878,6 +878,11 @@ enum sc_type : int16 {
 	SC_EXTREMITYFIST2, //! NOTE: This SC should be right before SC_MAX, so it doesn't disturb if RENEWAL is disabled
 #endif
 	SC_BOT,
+	SC_BLOCKING_TOKEN,
+	SC_BLOCKING_WEAPON,
+	SC_BLOCKING_ARMOR,
+	SC_BLOCKING_SHADOWGEAR,
+	SC_IGNORE_RETURN,
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 };
 

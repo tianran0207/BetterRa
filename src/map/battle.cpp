@@ -6995,6 +6995,9 @@ int64 battle_calc_return_damage(struct block_list* bl, struct block_list *src, i
 	sc = status_get_sc(bl);
 	ssc = status_get_sc(src);
 
+	if (ssc && ssc->data[SC_IGNORE_RETURN])
+		return 0;
+
 	if (sc && sc->data[SC_WHITEIMPRISON])
 		return 0; // White Imprison does not reflect any damage
 

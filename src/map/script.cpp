@@ -27694,8 +27694,18 @@ int buildin_killaroundmonster_sub(struct block_list *bl, va_list ap)
 	if (md->status.mode & mode)
 		return 0;
 
+	if (md->ud.immune_attack)
+		return 0;
+
+	switch (md->mob_id) {
+	case MOBID_EMPERIUM:
+	case MOBID_GUARDIAN_STONE1:
+	case MOBID_GUARDIAN_STONE2:
+		return 0;
+	}
+
 	status_damage(src, bl, md->status.hp, 0, 0, 1);
-	return 0;
+	return 1;
 }
 
 BUILDIN_FUNC(killaroundmonster)

@@ -529,7 +529,7 @@ int8 vending_openvending(struct map_session_data* sd, const char* message, const
 	if (battle_config.extended_vending) {
 		safestrncpy(sd->message, message, MESSAGE_SIZE);
 		if (!vending_extended_vending_check(sd))
-			return 5;
+			return 6;
 	}
 
 	sd->state.prevend = 0;

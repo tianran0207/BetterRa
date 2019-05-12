@@ -6085,9 +6085,15 @@ ACMD_FUNC(autotrade) {
 		return -1;
 	}
 
-	if ((battle_config.extended_vending || battle_config.extended_buying) && !battle_config.show_item_vending && sd->vend_loot != battle_config.item_zeny) {
-		clif_displaymessage(fd, msg_txt(sd, 2360));
-		return -1;
+	if (battle_config.extended_vending || battle_config.extended_buying) {
+		struct item_data* item_data = itemdb_searchname(itemdb_jname(sd->vend_loot));
+		if (item_data->nameid != sd->vend_loot)
+			ShowError("autotrade: Repetition of currency names with itemID '%d' and '%d'\n", item_data->nameid, sd->vend_loot);
+
+		if (item_data->nameid != sd->vend_loot || !battle_config.show_item_vending && sd->vend_loot != battle_config.item_zeny) {
+			clif_displaymessage(fd, msg_txt(sd, 2360));
+			return -1;
+		}
 	}
 
 	sd->state.autotrade = 1;

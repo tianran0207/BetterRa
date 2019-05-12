@@ -10690,6 +10690,18 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 		return false;
 	}
 
+	if (sd->sc.count && (
+		sd->sc.data[SC_BLOCKING_WEAPON] && sd->inventory_data[n]->type == IT_WEAPON ||
+		sd->sc.data[SC_BLOCKING_ARMOR] && sd->inventory_data[n]->type == IT_ARMOR ||
+		sd->sc.data[SC_BLOCKING_SHADOWGEAR] && sd->inventory_data[n]->type == IT_SHADOWGEAR)) {
+		if( equipswitch ){
+			clif_equipswitch_add( sd, n, req_pos, true );
+		}else{
+			clif_equipitemack(sd,n,0,ITEM_EQUIP_ACK_FAIL); //Fail
+		}
+		return false;
+	}
+
 #ifdef EVENT_EQUIPFILTER
 	if (npc_script_event_check(sd, NPCE_EQUIPFILTER)) {
 		pc_setreg(sd, add_str("@equip_idx"), n);
@@ -11010,6 +11022,14 @@ bool pc_unequipitem(struct map_session_data *sd, int n, int flag) {
 		sd->inventory_data[n]->type == IT_WEAPON)))	// can't switch weapon
 	{
 		clif_unequipitemack(sd,n,0,0);
+		return false;
+	}
+
+	if (!(flag & 2) && sd->sc.count && (
+		sd->sc.data[SC_BLOCKING_WEAPON] && sd->inventory_data[n]->type == IT_WEAPON ||
+		sd->sc.data[SC_BLOCKING_ARMOR] && sd->inventory_data[n]->type == IT_ARMOR ||
+		sd->sc.data[SC_BLOCKING_SHADOWGEAR] && sd->inventory_data[n]->type == IT_SHADOWGEAR)) {
+		clif_unequipitemack(sd, n, 0, 0);
 		return false;
 	}
 

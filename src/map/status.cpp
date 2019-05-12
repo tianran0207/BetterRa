@@ -12137,7 +12137,6 @@ int status_change_clear(struct block_list* bl, int type)
 			case SC_HELLPOWER:
 			case SC_JEXPBOOST:
 			case SC_AUTOTRADE:
-			case SC_BOT:
 			case SC_WHISTLE:
 			case SC_ASSNCROS:
 			case SC_POEMBRAGI:
@@ -12225,6 +12224,12 @@ int status_change_clear(struct block_list* bl, int type)
 			case SC_CROSSBOWCLAN:
 			case SC_JUMPINGCLAN:
 			case SC_DAILYSENDMAILCNT:
+			// Custom
+			case SC_BOT:
+			case SC_BLOCKING_TOKEN:
+			case SC_BLOCKING_WEAPON:
+			case SC_BLOCKING_ARMOR:
+			case SC_BLOCKING_SHADOWGEAR:
 				continue;
 			}
 		}
@@ -12259,6 +12264,12 @@ int status_change_clear(struct block_list* bl, int type)
 			case SC_CROSSBOWCLAN:
 			case SC_JUMPINGCLAN:
 			case SC_DAILYSENDMAILCNT:
+			// Custom
+			case SC_BOT:
+			case SC_BLOCKING_TOKEN:
+			case SC_BLOCKING_WEAPON:
+			case SC_BLOCKING_ARMOR:
+			case SC_BLOCKING_SHADOWGEAR:
 				continue;
 			}
 		}
@@ -14267,6 +14278,12 @@ void status_change_clear_buffs(struct block_list* bl, uint8 type)
 			case SC_GOLDENMACECLAN:
 			case SC_CROSSBOWCLAN:
 			case SC_JUMPINGCLAN:
+			// Custom
+			case SC_BOT:
+			case SC_BLOCKING_TOKEN:
+			case SC_BLOCKING_WEAPON:
+			case SC_BLOCKING_ARMOR:
+			case SC_BLOCKING_SHADOWGEAR:
 			// RODEX
 			case SC_DAILYSENDMAILCNT:
 			// Costumes

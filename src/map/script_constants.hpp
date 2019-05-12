@@ -566,12 +566,20 @@
 	export_constant(MF_NOSC);
 	export_constant(MF_NOSKILL2);
 	export_constant(MF_NOUSEITEM);
+
 	export_constant(PH_WALKBACK);
 	export_constant(PH_WARPBACK);
 	export_constant(PH_IGNOREWALK);
 	export_constant(PH_IGNOREALL);
 	export_constant(PH_ASTARTWALK);
 	export_constant(PH_ASTARTWALKBACK);
+
+	export_constant(SC_BOT);
+	export_constant(SC_BLOCKING_TOKEN);
+	export_constant(SC_BLOCKING_WEAPON);
+	export_constant(SC_BLOCKING_ARMOR);
+	export_constant(SC_BLOCKING_SHADOWGEAR);
+	export_constant(SC_IGNORE_RETURN);
 	//-----------------------------------------------------------------------
 	export_constant2("bMaxHP",SP_MAXHP);
 	export_constant2("bMaxSP",SP_MAXSP);

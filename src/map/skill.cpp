@@ -1906,6 +1906,10 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 				if (!tsc->data[i])
 					continue;
 				switch (i) {
+					// Custom
+					case SC_BOT:			case SC_BLOCKING_TOKEN:	case SC_BLOCKING_WEAPON:
+					case SC_BLOCKING_ARMOR:	case SC_BLOCKING_SHADOWGEAR:
+
 					case SC_WEIGHT50:		case SC_WEIGHT90:		case SC_HALLUCINATION:
 					case SC_STRIPWEAPON:	case SC_STRIPSHIELD:	case SC_STRIPARMOR:
 					case SC_STRIPHELM:		case SC_CP_WEAPON:		case SC_CP_SHIELD:
@@ -7963,6 +7967,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				if (!tsc->data[i])
 					continue;
 				switch (i) {
+					// Custom
+					case SC_BOT:			case SC_BLOCKING_TOKEN:	case SC_BLOCKING_WEAPON:
+					case SC_BLOCKING_ARMOR:	case SC_BLOCKING_SHADOWGEAR:
+
 					case SC_WEIGHT50:		case SC_WEIGHT90:		case SC_HALLUCINATION:
 					case SC_STRIPWEAPON:	case SC_STRIPSHIELD:	case SC_STRIPARMOR:
 					case SC_STRIPHELM:		case SC_CP_WEAPON:		case SC_CP_SHIELD:
@@ -9430,7 +9438,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				if (!tsc->data[i])
 					continue;
 				switch (i) {
-					case SC_BOT:
+					// Custom
+					case SC_BOT:			case SC_BLOCKING_TOKEN:	case SC_BLOCKING_WEAPON:
+					case SC_BLOCKING_ARMOR:	case SC_BLOCKING_SHADOWGEAR:
+
 					case SC_WEIGHT50:		case SC_WEIGHT90:		case SC_HALLUCINATION:
 					case SC_STRIPWEAPON:		case SC_STRIPSHIELD:		case SC_STRIPARMOR:
 					case SC_STRIPHELM:		case SC_CP_WEAPON:		case SC_CP_SHIELD:
