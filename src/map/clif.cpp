@@ -21432,7 +21432,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 #if PACKETVER >= 20161012
 	uint16 index = RFIFOW( fd, 2 ) - 2;
 	uint16 material = RFIFOW( fd, 4 );
-	bool use_blacksmith_blessing = RFIFOB( fd, 6 ) != 0; // TODO: add logic
+	bool use_blacksmith_blessing = RFIFOB( fd, 6 ) != 0, success = false; // TODO: add logic
 	struct refine_materials materials[REFINEUI_MAT_CNT];
 	uint8 i, material_count;
 	short j, k;
@@ -21547,6 +21547,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		clif_refine( fd, 0, index, item->refine );
 		achievement_update_objective( sd, AG_REFINE_SUCCESS, 2, id->wlv, item->refine );
 		clif_refineui_info( sd, index );
+		success = true;
 	}
 	else {
 		// Failure
@@ -21571,7 +21572,8 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 	if (npc_script_event_check(sd, NPCE_REFINEUIEVENT)) {
 		pc_setreg(sd, add_str("@refine_idx"), index);
 		pc_setreg(sd, add_str("@refine_nameid"), id->nameid);
-		npc_script_event(sd, NPCE_REFINEUIEVENT);
+		pc_setreg(sd, add_str("@refine_success"), success ? 1 : 0);
+		npc_script_event_atonce(sd, NPCE_REFINEUIEVENT);
 	}
 #endif
 }
