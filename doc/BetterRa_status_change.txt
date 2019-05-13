@@ -1,0 +1,21 @@
+
+
+SC_IGNORE_RETURN	()
+	说明: 无视反射伤害
+	val1:
+
+SC_BLOCKING_TOKEN	()
+	说明: 不能使用复活之证, 使用时会提示倒计时, 如果tick为-1时则会显示 BetterRa_map_msg.conf 中 2401 (无法被驱散、强制驱逐、魔法效果解除等所解除)
+	val1:
+	
+SC_BLOCKING_WEAPON	()
+	说明: 不能穿戴或卸下武器 (无法被驱散、强制驱逐、魔法效果解除等所解除)
+	val1:
+	
+SC_BLOCKING_ARMOR	()
+	说明: 不能穿戴或卸下防具 (无法被驱散、强制驱逐、魔法效果解除等所解除)
+	val1:
+	
+SC_BLOCKING_SHADOWGEAR	()
+	说明: 不能穿戴或卸下影装 (无法被驱散、强制驱逐、魔法效果解除等所解除)
+	val1:
