@@ -670,6 +670,8 @@ BetterRa 在官方的基础上做了以下改进:
 参数说明:
     @drop_mobid 掉落该物品的魔物的ID
     @drop_itemid 掉落物品的ID
+	@drop_rate 掉落概率
+	@drop_ratefix 修正后的掉落概率
 	
 中断说明: 
 	中断后本次击杀不掉落该物品

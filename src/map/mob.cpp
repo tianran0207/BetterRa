@@ -2789,6 +2789,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			if (npc_script_event_check(mvp_sd, NPCE_MOBDROPITEMFILTER) && it->flag.item_drop_event) {
 				pc_setreg(mvp_sd, add_str("@drop_mobid"), md->mob_id);
 				pc_setreg(mvp_sd, add_str("@drop_itemid"), md->db->dropitem[i].nameid);
+				pc_setreg(mvp_sd, add_str("@drop_rate"), md->db->dropitem[i].p);
+				pc_setreg(mvp_sd, add_str("@drop_ratefix"), drop_rate);
 				npc_script_event_atonce(mvp_sd, NPCE_MOBDROPITEMFILTER);
 				if (mvp_sd->state.processhalt)
 					continue;
