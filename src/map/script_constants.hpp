@@ -575,11 +575,17 @@
 	export_constant(PH_ASTARTWALKBACK);
 
 	export_constant(SC_BOT);
-	export_constant(SC_BLOCKING_TOKEN);
+	export_constant(SC_BLOCKING_ALIVE);
 	export_constant(SC_BLOCKING_WEAPON);
 	export_constant(SC_BLOCKING_ARMOR);
 	export_constant(SC_BLOCKING_SHADOWGEAR);
 	export_constant(SC_IGNORE_RETURN);
+
+	export_constant(EFST_BLOCKING_TOKEN);
+	export_constant(EFST_BLOCKING_WEAPON);
+	export_constant(EFST_BLOCKING_ARMOR);
+	export_constant(EFST_BLOCKING_SHADOWGEAR);
+	export_constant(EFST_IGNORE_RETURN);
 	//-----------------------------------------------------------------------
 	export_constant2("bMaxHP",SP_MAXHP);
 	export_constant2("bMaxSP",SP_MAXSP);

@@ -1481,6 +1481,13 @@ void initChangeTables(void)
 	StatusChangeStateTable[SC_SATURDAYNIGHTFEVER]	|= SCS_NOCHAT;
 	StatusChangeStateTable[SC_DEEPSLEEP]			|= SCS_NOCHAT;
 	StatusChangeStateTable[SC_NOCHAT]				|= SCS_NOCHAT|SCS_NOCHATCOND;
+
+	// coustm
+	StatusIconChangeTable[SC_BLOCKING_ALIVE] = EFST_BLOCKING_TOKEN;
+	StatusIconChangeTable[SC_BLOCKING_WEAPON] = EFST_BLOCKING_WEAPON;
+	StatusIconChangeTable[SC_BLOCKING_ARMOR] = EFST_BLOCKING_ARMOR;
+	StatusIconChangeTable[SC_BLOCKING_SHADOWGEAR] = EFST_BLOCKING_SHADOWGEAR;
+	StatusIconChangeTable[SC_IGNORE_RETURN] = EFST_IGNORE_RETURN;
 }
 
 static void initDummyData(void)
@@ -12226,7 +12233,7 @@ int status_change_clear(struct block_list* bl, int type)
 			case SC_DAILYSENDMAILCNT:
 			// Custom
 			case SC_BOT:
-			case SC_BLOCKING_TOKEN:
+			case SC_BLOCKING_ALIVE:
 			case SC_BLOCKING_WEAPON:
 			case SC_BLOCKING_ARMOR:
 			case SC_BLOCKING_SHADOWGEAR:
@@ -12266,7 +12273,7 @@ int status_change_clear(struct block_list* bl, int type)
 			case SC_DAILYSENDMAILCNT:
 			// Custom
 			case SC_BOT:
-			case SC_BLOCKING_TOKEN:
+			case SC_BLOCKING_ALIVE:
 			case SC_BLOCKING_WEAPON:
 			case SC_BLOCKING_ARMOR:
 			case SC_BLOCKING_SHADOWGEAR:
@@ -14280,7 +14287,7 @@ void status_change_clear_buffs(struct block_list* bl, uint8 type)
 			case SC_JUMPINGCLAN:
 			// Custom
 			case SC_BOT:
-			case SC_BLOCKING_TOKEN:
+			case SC_BLOCKING_ALIVE:
 			case SC_BLOCKING_WEAPON:
 			case SC_BLOCKING_ARMOR:
 			case SC_BLOCKING_SHADOWGEAR:

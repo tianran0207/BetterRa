@@ -1907,7 +1907,7 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 					continue;
 				switch (i) {
 					// Custom
-					case SC_BOT:			case SC_BLOCKING_TOKEN:	case SC_BLOCKING_WEAPON:
+					case SC_BOT:			case SC_BLOCKING_ALIVE:	case SC_BLOCKING_WEAPON:
 					case SC_BLOCKING_ARMOR:	case SC_BLOCKING_SHADOWGEAR:
 
 					case SC_WEIGHT50:		case SC_WEIGHT90:		case SC_HALLUCINATION:
@@ -2833,7 +2833,12 @@ short skill_blown(struct block_list* src, struct block_list* target, char count,
 static int skill_magic_reflect(struct block_list* src, struct block_list* bl, int type)
 {
 	struct status_change *sc = status_get_sc(bl);
+	struct status_change *ssc = status_get_sc(src);
+
 	struct map_session_data* sd = BL_CAST(BL_PC, bl);
+
+	if (ssc && ssc->data[SC_IGNORE_RETURN] && (ssc->data[SC_IGNORE_RETURN]->val1 & 2))
+		return 0;
 
 	if (!sc || !sc->data[SC_KYOMU]) { // Kyomu doesn't reflect
 		// Item-based reflection - Bypasses Boss check
@@ -6209,10 +6214,24 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 
 	if( src != bl && status_isdead(bl) ) {
 		switch( skill_id ) { // Skills that may be cast on dead targets
-			case NPC_WIDESOULDRAIN:
 			case PR_REDEMPTIO:
 			case ALL_RESURRECTION:
 			case WM_DEADHILLHERE:
+				if (dstsd && dstsd->sc.data[SC_BLOCKING_ALIVE] && (dstsd->sc.data[SC_BLOCKING_ALIVE]->val1 & 2)) {
+					const struct TimerData *timer = get_timer(dstsd->sc.data[SC_BLOCKING_ALIVE]->timer);
+					if (sd) {
+						char output[CHAT_SIZE_MAX];
+						if (timer)
+							sprintf(output, msg_txt(sd, 2402), dstsd->status.name, (int)(DIFF_TICK(timer->tick, tick) / 1000));
+						else
+							sprintf(output, msg_txt(sd, 2403), dstsd->status.name);
+
+						clif_messagecolor(&sd->bl, color_table[COLOR_YELLOW], output, false, SELF);
+					}
+					return 1;
+				}
+				break;
+			case NPC_WIDESOULDRAIN:
 			case WE_ONEFOREVER:
 				break;
 			default:
@@ -7968,7 +7987,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 					continue;
 				switch (i) {
 					// Custom
-					case SC_BOT:			case SC_BLOCKING_TOKEN:	case SC_BLOCKING_WEAPON:
+					case SC_BOT:			case SC_BLOCKING_ALIVE:	case SC_BLOCKING_WEAPON:
 					case SC_BLOCKING_ARMOR:	case SC_BLOCKING_SHADOWGEAR:
 
 					case SC_WEIGHT50:		case SC_WEIGHT90:		case SC_HALLUCINATION:
@@ -9439,7 +9458,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 					continue;
 				switch (i) {
 					// Custom
-					case SC_BOT:			case SC_BLOCKING_TOKEN:	case SC_BLOCKING_WEAPON:
+					case SC_BOT:			case SC_BLOCKING_ALIVE:	case SC_BLOCKING_WEAPON:
 					case SC_BLOCKING_ARMOR:	case SC_BLOCKING_SHADOWGEAR:
 
 					case SC_WEIGHT50:		case SC_WEIGHT90:		case SC_HALLUCINATION:

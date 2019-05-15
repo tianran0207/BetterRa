@@ -15277,8 +15277,8 @@ void clif_parse_AutoRevive(int fd, struct map_session_data *sd)
 		clif_displaymessage(fd, msg_txt(sd, 2335));
 		return;
 	}
-	if (sd->sc.data[SC_BLOCKING_TOKEN]) {
-		const struct TimerData *timer = get_timer(sd->sc.data[SC_BLOCKING_TOKEN]->timer);
+	if (sd->sc.data[SC_BLOCKING_ALIVE] && (sd->sc.data[SC_BLOCKING_ALIVE]->val1 & 1)) {
+		const struct TimerData *timer = get_timer(sd->sc.data[SC_BLOCKING_ALIVE]->timer);
 		if (timer)
 			clif_msg_value(sd, ITEM_REUSE_LIMIT, (int)(DIFF_TICK(timer->tick, gettick()) / 1000));
 		else 
