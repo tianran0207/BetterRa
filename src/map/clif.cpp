@@ -21570,9 +21570,12 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		achievement_update_objective( sd, AG_REFINE_FAIL, 1, 1 );
 	}
 	if (npc_script_event_check(sd, NPCE_REFINEUIEVENT)) {
-		pc_setreg(sd, add_str("@refine_idx"), index);
-		pc_setreg(sd, add_str("@refine_nameid"), id->nameid);
-		pc_setreg(sd, add_str("@refine_success"), success ? 1 : 0);
+		bool isboom = sd->inventory.u.items_inventory[index].amount <= 0;
+		pc_setreg(sd, add_str("@refine_idx"), isboom ? -1 : index);
+		pc_setreg(sd, add_str("@refine_nameid"), isboom ? -1 : id->nameid);
+		pc_setreg(sd, add_str("@refine_success"), isboom ? -1 : success ? 1 : 0);
+		pc_setreg(sd, add_str("@refine_blessing"), isboom ? -1 : use_blacksmith_blessing ? 1 : 0);
+		pc_setreg(sd, add_str("@refine_refine"), isboom ? -1 : sd->inventory.u.items_inventory[index].refine);
 		npc_script_event_atonce(sd, NPCE_REFINEUIEVENT);
 	}
 #endif
