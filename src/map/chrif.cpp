@@ -40,7 +40,7 @@ static DBMap* auth_db; // int id -> struct auth_node*
 static bool char_init_done = false; //server already initialized? Used for InterInitOnce and vending loadings
 
 static const int packet_len_table[0x3d] = { // U - used, F - free
-	60, 3,-1,-1,10,-1, 6,-1,	// 2af8-2aff: U->2af8, U->2af9, U->2afa, U->2afb, U->2afc, U->2afd, U->2afe, U->2aff
+	-1, 3,-1,-1,10,-1, 6,-1,	// 2af8-2aff: U->2af8, U->2af9, U->2afa, U->2afb, U->2afc, U->2afd, U->2afe, U->2aff
 	 6,-1,18, 7,-1,39,30, 10,	// 2b00-2b07: U->2b00, U->2b01, U->2b02, U->2b03, U->2b04, U->2b05, U->2b06, U->2b07
 	 6,30, 10, -1,86, 7,44,34,	// 2b08-2b0f: U->2b08, U->2b09, U->2b0a, U->2b0b, U->2b0c, U->2b0d, U->2b0e, U->2b0f
 	11,10,10, 0,11, -1,266,10,	// 2b10-2b17: U->2b10, U->2b11, U->2b12, F->2b13, U->2b14, U->2b15, U->2b16, U->2b17
@@ -384,15 +384,18 @@ int chrif_save(struct map_session_data *sd, int flag) {
  * @return 0:request sent
  */
 int chrif_connect(int fd) {
+	int len = 60 + sizeof(uint32) * C_MAX_MULTI_IP;
 	ShowStatus("Logging in to char server...\n", char_fd);
-	WFIFOHEAD(fd,60);
+	WFIFOHEAD(fd, len);
 	WFIFOW(fd,0) = 0x2af8;
-	memcpy(WFIFOP(fd,2), userid, NAME_LENGTH);
-	memcpy(WFIFOP(fd,26), passwd, NAME_LENGTH);
-	WFIFOL(fd,50) = 0;
-	WFIFOL(fd,54) = htonl(clif_getip());
-	WFIFOW(fd,58) = htons(clif_getport());
-	WFIFOSET(fd,60);
+	WFIFOW(fd, 2) = len;
+	memcpy(WFIFOP(fd,4), userid, NAME_LENGTH);
+	memcpy(WFIFOP(fd,28), passwd, NAME_LENGTH);
+	WFIFOL(fd,52) = 0;
+	WFIFOL(fd,56) = htonl(clif_getip());
+	WFIFOW(fd,60) = htons(clif_getport());
+	memcpy(WFIFOP(fd, 62), map_multi_ip, sizeof(uint32) * C_MAX_MULTI_IP);
+	WFIFOSET(fd,len);
 
 	return 0;
 }

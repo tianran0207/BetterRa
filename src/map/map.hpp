@@ -18,6 +18,8 @@
 #include "../common/timer.hpp"
 #include "../config/core.hpp"
 
+extern uint32 map_multi_ip[C_MAX_MULTI_IP];
+
 struct npc_data;
 struct item_data;
 struct Channel;

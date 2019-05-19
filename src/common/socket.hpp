@@ -92,6 +92,7 @@ struct socket_data
 	} flag;
 
 	uint32 client_addr; // remote client address
+	uint32 server_addr;
 
 	uint8 *rdata, *wdata;
 	size_t max_rdata, max_wdata;

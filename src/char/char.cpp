@@ -2923,7 +2923,28 @@ bool char_config_read(const char* cfgName, bool normal){
 			} else if (strcmpi(w1, "login_port") == 0) {
 				charserv_config.login_port = atoi(w2);
 			} else if (strcmpi(w1, "char_ip") == 0) {
-				charserv_config.char_ip = host2ip(w2);
+				char *p[2], idx = 0;
+				p[0] = w2;
+				do {
+					uint32 ip = 0;
+					if ((p[1] = strchr(p[0], ',')) == NULL) {
+						ip = host2ip(p[0]);
+					}
+					else {
+						*p[1] = '\0';
+						ip = host2ip(p[0]);
+					}
+					if (ip != 0)
+						charserv_config.multi_ip[idx++] = ip;
+					else
+						ShowError("Invalid IP address '%s' in file 'char_athena.conf'\n", p[0]);
+
+					if (p[1] == NULL) break;
+
+					p[0] = p[1] + 1;
+				} while (idx < C_MAX_MULTI_IP);
+
+				charserv_config.char_ip = charserv_config.multi_ip[0];
 				if (charserv_config.char_ip) {
 					char ip_str[16];
 					safestrncpy(charserv_config.char_ip_str, w2, sizeof(charserv_config.char_ip_str));

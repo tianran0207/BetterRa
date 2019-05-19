@@ -775,7 +775,7 @@ TIMER_FUNC(chlogif_check_connect_logserver){
 	session[login_fd]->flag.server = 1;
 	realloc_fifo(login_fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
 
-	WFIFOHEAD(login_fd,86);
+	WFIFOHEAD(login_fd, 86 + (sizeof(uint32) * C_MAX_MULTI_IP));
 	WFIFOW(login_fd,0) = 0x2710;
 	memcpy(WFIFOP(login_fd,2), charserv_config.userid, 24);
 	memcpy(WFIFOP(login_fd,26), charserv_config.passwd, 24);
@@ -786,7 +786,8 @@ TIMER_FUNC(chlogif_check_connect_logserver){
 	WFIFOW(login_fd,80) = 0;
 	WFIFOW(login_fd,82) = charserv_config.char_maintenance;
 	WFIFOW(login_fd,84) = charserv_config.char_new_display; //only display (New) if they want to [Kevin]
-	WFIFOSET(login_fd,86);
+	memcpy(WFIFOP(login_fd,86), &charserv_config.multi_ip, (sizeof(uint32) * C_MAX_MULTI_IP));
+	WFIFOSET(login_fd, 86 + (sizeof(uint32) * C_MAX_MULTI_IP));
 
 	return 1;
 }

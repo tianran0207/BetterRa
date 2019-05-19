@@ -520,6 +520,13 @@ int connect_client(int listen_fd)
 	create_session(fd, recv_to_fifo, send_from_fifo, default_func_parse);
 	session[fd]->client_addr = ntohl(client_address.sin_addr.s_addr);
 
+#ifdef WIN32
+	getsockname(fd2sock(fd), (struct sockaddr*)&client_address, &len);
+#else
+	getsockname(fd, (struct sockaddr*)&client_address, &len);
+#endif // WIN32
+	session[fd]->server_addr = ntohl(client_address.sin_addr.s_addr);
+
 	return fd;
 }
 

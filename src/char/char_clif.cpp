@@ -666,12 +666,16 @@ int chclif_parse_char_delete2_cancel(int fd, struct char_session_data* sd) {
  * charserv can handle a MAX_SERVERS mapservs
  */
 int chclif_parse_maplogin(int fd){
-	if (RFIFOREST(fd) < 60)
+	if (RFIFOREST(fd) < 4)
 		return 0;
+
+	if (RFIFOREST(fd) < RFIFOW(fd, 2))
+		return 0;
+
 	else {
 		int i;
-		char* l_user = RFIFOCP(fd,2);
-		char* l_pass = RFIFOCP(fd,26);
+		char* l_user = RFIFOCP(fd,4);
+		char* l_pass = RFIFOCP(fd,28);
 		l_user[23] = '\0';
 		l_pass[23] = '\0';
 		ARR_FIND( 0, ARRAYLENGTH(map_server), i, map_server[i].fd <= 0 );
@@ -685,16 +689,17 @@ int chclif_parse_maplogin(int fd){
 			chmapif_connectack(fd, 0); //success
 
 			map_server[i].fd = fd;
-			map_server[i].ip = ntohl(RFIFOL(fd,54));
-			map_server[i].port = ntohs(RFIFOW(fd,58));
+			map_server[i].ip = ntohl(RFIFOL(fd,56));
+			map_server[i].port = ntohs(RFIFOW(fd,60));
 			map_server[i].users = 0;
 			map_server[i].map = {};
+			memcpy(&map_server[i].multi_ip, RFIFOP(fd, 62), sizeof(uint32) * C_MAX_MULTI_IP);
 			session[fd]->func_parse = chmapif_parse;
 			session[fd]->flag.server = 1;
 			realloc_fifo(fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
 			chmapif_init(fd);
 		}
-		RFIFOSKIP(fd,60);
+		RFIFOSKIP(fd, RFIFOW(fd, 2));
 	}
 	return 0;
 }
@@ -797,6 +802,11 @@ void chclif_send_map_data( int fd, struct mmo_charstatus *cd, uint32 ipl, int ma
 	mapindex_getmapname_ext(mapindex_id2name(cd->last_point.map), WFIFOCP(fd,6));
 	uint32 subnet_map_ip = char_lan_subnetcheck(ipl); // Advanced subnet check [LuzZza]
 	WFIFOL(fd,22) = htonl((subnet_map_ip) ? subnet_map_ip : map_server[map_server_index].ip);
+	for (int j = 0; j < C_MAX_MULTI_IP; j++) {
+		if (map_server[map_server_index].multi_ip[j] != session[fd]->server_addr)
+			continue;
+		WFIFOL(fd, 22) = map_server[map_server_index].multi_ip[j];
+	}
 	WFIFOW(fd,26) = ntows(htons(map_server[map_server_index].port)); // [!] LE byte order here [!]
 #if PACKETVER >= 20170315
 	memset(WFIFOP(fd, 28), 0, 128); // Unknown

@@ -3962,6 +3962,7 @@ int map_readallmaps (void)
 }
 
 ////////////////////////////////////////////////////////////////////////
+uint32 map_multi_ip[C_MAX_MULTI_IP] = { 0 };
 static int map_ip_set = 0;
 static int char_ip_set = 0;
 
@@ -4109,8 +4110,30 @@ int map_config_read(const char *cfgName)
 			char_ip_set = chrif_setip(w2);
 		else if (strcmpi(w1, "char_port") == 0)
 			chrif_setport(atoi(w2));
-		else if (strcmpi(w1, "map_ip") == 0)
+		else if (strcmpi(w1, "map_ip") == 0) {
+			char *p[2], idx = 0;
+			p[0] = w2;
+			do {
+				uint32 ip = 0;
+				if ((p[1] = strchr(p[0], ',')) == NULL) {
+					ip = host2ip(p[0]);
+				}
+				else {
+					*p[1] = '\0';
+					ip = host2ip(p[0]);
+				}
+				if (ip != 0)
+					map_multi_ip[idx++] = ip;
+				else
+					ShowError("Invalid IP address '%s' in file 'char_athena.conf'\n", p[0]);
+
+				if (p[1] == NULL) break;
+
+				p[0] = p[1] + 1;
+			} while (idx < C_MAX_MULTI_IP);
+
 			map_ip_set = clif_setip(w2);
+		}
 		else if (strcmpi(w1, "bind_ip") == 0)
 			clif_setbindip(w2);
 		else if (strcmpi(w1, "map_port") == 0) {

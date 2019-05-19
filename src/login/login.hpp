@@ -59,6 +59,7 @@ struct mmo_char_server {
 	uint16 users;	/// user count on this server
 	uint16 type;	/// 0=normal, 1=maintenance, 2=over 18, 3=paying, 4=P2P
 	uint16 new_;	/// should display as 'new'?
+	uint32 multi_ip[C_MAX_MULTI_IP];
 };
 extern struct mmo_char_server ch_server[MAX_SERVERS];
 

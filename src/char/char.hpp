@@ -160,6 +160,8 @@ struct CharServ_Config {
 	bool char_new;
 	int char_new_display;
 
+	uint32 multi_ip[C_MAX_MULTI_IP];
+
 	struct CharMove_Config charmove_config;
 	struct Char_Config char_config;
 #if PACKETVER_SUPPORTS_PINCODE
@@ -200,6 +202,7 @@ struct mmo_map_server {
 	uint16 port;
 	int users;
 	std::vector<uint16> map;
+	uint32 multi_ip[C_MAX_MULTI_IP];
 };
 extern struct mmo_map_server map_server[MAX_MAP_SERVERS];
 

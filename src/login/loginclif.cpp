@@ -138,6 +138,11 @@ static void logclif_auth_ok(struct login_session_data* sd) {
 			continue;
 		subnet_char_ip = lan_subnetcheck(ip); // Advanced subnet check [LuzZza]
 		WFIFOL(fd,header+n*size) = htonl((subnet_char_ip) ? subnet_char_ip : ch_server[i].ip);
+		for (int j = 0; j < C_MAX_MULTI_IP; j++) {
+			if (ch_server[i].multi_ip[j] != session[fd]->server_addr)
+				continue;
+			WFIFOL(fd,header+n*size) = ch_server[i].multi_ip[j];
+		}
 		WFIFOW(fd,header+n*size+4) = ntows(htons(ch_server[i].port)); // [!] LE byte order here [!]
 		memcpy(WFIFOP(fd,header+n*size+6), ch_server[i].name, 20);
 		WFIFOW(fd,header+n*size+26) = login_get_usercount( ch_server[i].users );
@@ -393,7 +398,7 @@ static int logclif_parse_reqkey(int fd, struct login_session_data *sd){
  * @return 0 packet received too shirt, 1 success
  */
 static int logclif_parse_reqcharconnec(int fd, struct login_session_data *sd, char* ip){
-	if (RFIFOREST(fd) < 86)
+	if (RFIFOREST(fd) < 86 + sizeof(uint32) * C_MAX_MULTI_IP)
 		return 0;
 	else {
 		int result;
@@ -403,6 +408,7 @@ static int logclif_parse_reqcharconnec(int fd, struct login_session_data *sd, ch
 		uint16 server_port;
 		uint16 type;
 		uint16 new_;
+		uint32 multi_ip[C_MAX_MULTI_IP];
 
 		safestrncpy(sd->userid, RFIFOCP(fd,2), NAME_LENGTH);
 		safestrncpy(sd->passwd, RFIFOCP(fd,26), NAME_LENGTH);
@@ -414,7 +420,8 @@ static int logclif_parse_reqcharconnec(int fd, struct login_session_data *sd, ch
 		safestrncpy(server_name, RFIFOCP(fd,60), 20);
 		type = RFIFOW(fd,82);
 		new_ = RFIFOW(fd,84);
-		RFIFOSKIP(fd,86);
+		memcpy(&multi_ip, RFIFOP(fd, 86), sizeof(uint32) * C_MAX_MULTI_IP);
+		RFIFOSKIP(fd, 86 + sizeof(uint32) * C_MAX_MULTI_IP);
 
 		ShowInfo("Connection request of the char-server '%s' @ %u.%u.%u.%u:%u (account: '%s', ip: '%s')\n", server_name, CONVIP(server_ip), server_port, sd->userid, ip);
 		sprintf(message, "charserver - %s@%u.%u.%u.%u:%u", server_name, CONVIP(server_ip), server_port);
@@ -435,6 +442,7 @@ static int logclif_parse_reqcharconnec(int fd, struct login_session_data *sd, ch
 			ch_server[sd->account_id].users = 0;
 			ch_server[sd->account_id].type = type;
 			ch_server[sd->account_id].new_ = new_;
+			memcpy(&ch_server[sd->account_id].multi_ip, &multi_ip, sizeof(uint32) * C_MAX_MULTI_IP);
 
 			session[fd]->func_parse = logchrif_parse;
 			session[fd]->flag.server = 1;
