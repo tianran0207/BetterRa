@@ -284,6 +284,10 @@ struct Script_Config {
 	const char* manner_filter_name;
 	// Move related
 	const char* move_filter_name;
+	// Trade_add_related
+	const char* trade_add_filter_name;
+	const char* mail_add_filter_name;
+	const char* drop_item_filter_name;
 	// Mob related
 	const char* mob_drop_item_filter_name;
 };

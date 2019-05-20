@@ -12165,6 +12165,20 @@ void clif_parse_TradeAddItem(int fd,struct map_session_data *sd)
 	short index = RFIFOW(fd,info->pos[0]);
 	int amount = RFIFOL(fd,info->pos[1]);
 
+	if (npc_script_event_check(sd, NPCE_TRADEADDFILTER)) {
+		int idx = index - 2, itemid = 0;
+		if (idx >= 0 && idx < MAX_INVENTORY && sd->inventory_data[idx] != nullptr)
+			itemid = sd->inventory_data[idx]->nameid;
+		pc_setreg(sd, add_str("@trade_itemid"), itemid);
+		pc_setreg(sd, add_str("@trade_amount"), amount);
+		pc_setreg(sd, add_str("@trade_idx"), idx < 0 ? -1 : idx);
+		npc_script_event_atonce(sd, NPCE_TRADEADDFILTER);
+		if (sd->state.processhalt) {
+			clif_tradeitemok(sd, index, 2);
+			return;
+		}
+	}
+
 	if( index == 0 )
 		trade_tradeaddzeny(sd, amount);
 	else
@@ -16211,6 +16225,18 @@ void clif_parse_Mail_setattach(int fd, struct map_session_data *sd){
 		return;
 	if (idx < 0 || amount < 0 || idx >= MAX_INVENTORY)
 		return;
+
+	if (npc_script_event_check(sd, NPCE_MAILADDFILTER)) {
+		int index = idx - 2, itemid = 0;
+		if (index >= 0 && index < MAX_INVENTORY && sd->inventory_data[index] != nullptr)
+			itemid = sd->inventory_data[index]->nameid;
+		pc_setreg(sd, add_str("@mail_itemid"), itemid);
+		pc_setreg(sd, add_str("@mail_amount"), amount);
+		pc_setreg(sd, add_str("@mail_idx"), index < 0 ? -1 : index);
+		npc_script_event_atonce(sd, NPCE_MAILADDFILTER);
+		if (sd->state.processhalt)
+			return;
+	}
 
 	flag = mail_setitem(sd, idx, amount);
 
