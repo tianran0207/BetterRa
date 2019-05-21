@@ -44,7 +44,7 @@ static void logclif_sent_auth_result(int fd,char result){
  */
 static void logclif_auth_ok(struct login_session_data* sd) {
 	int fd = sd->fd;
-	uint32 ip = session[fd]->client_addr;
+	uint32 ip = session[fd]->client_addr, ip2 = 0;
 
 	uint8 server_num, n;
 	uint32 subnet_char_ip;
@@ -137,12 +137,15 @@ static void logclif_auth_ok(struct login_session_data* sd) {
 		if( !session_isValid(ch_server[i].fd) )
 			continue;
 		subnet_char_ip = lan_subnetcheck(ip); // Advanced subnet check [LuzZza]
-		WFIFOL(fd,header+n*size) = htonl((subnet_char_ip) ? subnet_char_ip : ch_server[i].ip);
+		ip2 = subnet_char_ip ? subnet_char_ip : ch_server[i].ip;
 		for (int j = 0; j < C_MAX_MULTI_IP; j++) {
 			if (ch_server[i].multi_ip[j] != session[fd]->server_addr)
 				continue;
-			WFIFOL(fd,header+n*size) = ch_server[i].multi_ip[j];
+			ip2 = ch_server[i].multi_ip[j];
 		}
+		if (ch_server[i].ip != ip2)
+			ShowStatus("Char-server ip address broadcast %d.%d.%d.%d:%d for %s\n", CONVIP(ip2), ch_server[i].port, sd->userid);
+		WFIFOL(fd, header + n*size) = htonl(ip2);
 		WFIFOW(fd,header+n*size+4) = ntows(htons(ch_server[i].port)); // [!] LE byte order here [!]
 		memcpy(WFIFOP(fd,header+n*size+6), ch_server[i].name, 20);
 		WFIFOW(fd,header+n*size+26) = login_get_usercount( ch_server[i].users );

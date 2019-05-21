@@ -801,12 +801,15 @@ void chclif_send_map_data( int fd, struct mmo_charstatus *cd, uint32 ipl, int ma
 	WFIFOL(fd,2) = cd->char_id;
 	mapindex_getmapname_ext(mapindex_id2name(cd->last_point.map), WFIFOCP(fd,6));
 	uint32 subnet_map_ip = char_lan_subnetcheck(ipl); // Advanced subnet check [LuzZza]
-	WFIFOL(fd,22) = htonl((subnet_map_ip) ? subnet_map_ip : map_server[map_server_index].ip);
+	uint32 ip2 = subnet_map_ip ? subnet_map_ip : map_server[map_server_index].ip;
 	for (int j = 0; j < C_MAX_MULTI_IP; j++) {
 		if (map_server[map_server_index].multi_ip[j] != session[fd]->server_addr)
 			continue;
-		WFIFOL(fd, 22) = map_server[map_server_index].multi_ip[j];
+		ip2 = map_server[map_server_index].multi_ip[j];
 	}
+	if (map_server[map_server_index].ip != ip2)
+		ShowStatus("Map-server ip address broadcast %d.%d.%d.%d:%d for %s\n", CONVIP(ip2), map_server[map_server_index].port, cd->name);
+	WFIFOL(fd,22) = htonl(ip2);
 	WFIFOW(fd,26) = ntows(htons(map_server[map_server_index].port)); // [!] LE byte order here [!]
 #if PACKETVER >= 20170315
 	memset(WFIFOP(fd, 28), 0, 128); // Unknown
