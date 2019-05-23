@@ -8211,6 +8211,7 @@ static const struct _battle_data {
 	{ "instance_activation",                &battle_config.instance_activation,             1,      0,      1,              },
 	{ "support_old_mob_db",                 &battle_config.support_old_mob_db,              0,      0,      1,              },
 	{ "homunculus_killed_drop",             &battle_config.homunculus_killed_drop,          1,      0,      1,              },
+	{ "homunculus_share_exp",				&battle_config.homunculus_share_exp,            0,      0,      100,            },
 	{ "remove_noinfo_pet",                  &battle_config.remove_noinfo_pet,               1,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },

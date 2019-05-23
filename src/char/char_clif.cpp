@@ -585,22 +585,33 @@ int chclif_parse_char_delete2_accept(int fd, struct char_session_data* sd) {
 
 		ShowInfo(CL_RED "Request Char Deletion: " CL_GREEN "%d (%d)" CL_RESET "\n", sd->account_id, char_id);
 
-		// construct "YY-MM-DD"
-		birthdate[0] = RFIFOB(fd,6);
-		birthdate[1] = RFIFOB(fd,7);
-		birthdate[2] = '-';
-		birthdate[3] = RFIFOB(fd,8);
-		birthdate[4] = RFIFOB(fd,9);
-		birthdate[5] = '-';
-		birthdate[6] = RFIFOB(fd,10);
-		birthdate[7] = RFIFOB(fd,11);
-		birthdate[8] = 0;
-		RFIFOSKIP(fd,12);
+		if (charserv_config.char_config.char_del_option == CHAR_DEL_BIRTHDATE) {
+			// construct "YY-MM-DD"
+			birthdate[0] = RFIFOB(fd, 6);
+			birthdate[1] = RFIFOB(fd, 7);
+			birthdate[2] = '-';
+			birthdate[3] = RFIFOB(fd, 8);
+			birthdate[4] = RFIFOB(fd, 9);
+			birthdate[5] = '-';
+			birthdate[6] = RFIFOB(fd, 10);
+			birthdate[7] = RFIFOB(fd, 11);
+			birthdate[8] = 0;
+			RFIFOSKIP(fd, 12);
 
-		// Only check for birthdate
-		if (!chclif_delchar_check(sd, birthdate, CHAR_DEL_BIRTHDATE)) {
-			chclif_char_delete2_accept_ack(fd, char_id, 5);
-			return 1;
+			// Only check for birthdate
+			if (!chclif_delchar_check(sd, birthdate, CHAR_DEL_BIRTHDATE)) {
+				chclif_char_delete2_accept_ack(fd, char_id, 5);
+				return 1;
+			}
+		}
+
+		if (charserv_config.char_config.char_del_option == CHAR_DEL_EMAIL) {
+			if (strncmp(RFIFOCP(fd, 6), sd->email, 6)) {
+				RFIFOSKIP(fd, 12);
+				chclif_char_delete2_accept_ack(fd, char_id, 5);
+				return 1;
+			}
+			RFIFOSKIP(fd, 12);
 		}
 
 		switch( char_delete(sd,char_id) ){

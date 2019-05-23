@@ -220,6 +220,7 @@ struct Battle_Config
 	int instance_activation;
 	int support_old_mob_db;
 	int homunculus_killed_drop;
+	int homunculus_share_exp;
 	int remove_noinfo_pet;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
