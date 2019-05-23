@@ -12166,9 +12166,12 @@ void clif_parse_TradeAddItem(int fd,struct map_session_data *sd)
 	int amount = RFIFOL(fd,info->pos[1]);
 
 	if (npc_script_event_check(sd, NPCE_TRADEADDFILTER)) {
+		map_session_data *tsd = map_id2sd(sd->trade_partner);
 		int idx = index - 2, itemid = 0;
 		if (idx >= 0 && idx < MAX_INVENTORY && sd->inventory_data[idx] != nullptr)
 			itemid = sd->inventory_data[idx]->nameid;
+		pc_setreg(sd, add_str("@trade_partner_aid"), sd->trade_partner);		
+		pc_setreg(sd, add_str("@trade_partner_cid"), tsd ? tsd->status.char_id : 0);
 		pc_setreg(sd, add_str("@trade_itemid"), itemid);
 		pc_setreg(sd, add_str("@trade_amount"), amount);
 		pc_setreg(sd, add_str("@trade_idx"), idx < 0 ? -1 : idx);
