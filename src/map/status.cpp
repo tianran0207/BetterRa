@@ -2884,15 +2884,17 @@ int status_calc_mob_(struct mob_data* md, enum e_status_calc_opt opt)
 		}
 		if (map_getmapflag(md->bl.m, MF_MOBSPAWNBASE)) {
 			struct map_data *mapdata = map_getmapdata(md->bl.m);
-			memcpy(&md->status, &md->db->status, sizeof(struct status_data));
-			md->status.max_hp = cap_value((unsigned int)((double)md->status.max_hp / 100 * mapdata->mobspawnbase.hprate), 1, UINT_MAX);
-			md->status.rhw.atk = cap_value((unsigned int)((double)md->status.rhw.atk / 100 * mapdata->mobspawnbase.atkrate), 1, UINT_MAX);
-			md->status.rhw.atk2 = cap_value((unsigned int)((double)md->status.rhw.atk2 / 100 * mapdata->mobspawnbase.atkrate), 1, UINT_MAX);
-			md->status.matk_min = cap_value((unsigned int)((double)md->status.matk_min / 100 * mapdata->mobspawnbase.matkrate), 1, UINT_MAX);
-			md->status.matk_max = cap_value((unsigned int)((double)md->status.matk_max / 100 * mapdata->mobspawnbase.matkrate), 1, UINT_MAX);
-			md->status.hit = cap_value(md->status.hit * mapdata->mobspawnbase.hitrate / 100, 1, SHRT_MAX);
-			md->status.hp = md->status.max_hp;
-		}else
+			status = &md->status;
+			memcpy(status, &md->db->status, sizeof(struct status_data));
+			status->max_hp = cap_value(apply_rate((uint64)status->max_hp, mapdata->mobspawnbase.hprate), 1, UINT_MAX);
+			status->rhw.atk = cap_value(apply_rate((uint64)status->rhw.atk, mapdata->mobspawnbase.atkrate), 1, UINT_MAX);
+			status->rhw.atk2 = cap_value(apply_rate((uint64)status->rhw.atk2, mapdata->mobspawnbase.atkrate), 1, UINT_MAX);
+			status->matk_min = cap_value(apply_rate((uint64)status->matk_min, mapdata->mobspawnbase.matkrate), 1, UINT_MAX);
+			status->matk_max = cap_value(apply_rate((uint64)status->matk_max, mapdata->mobspawnbase.matkrate), 1, UINT_MAX);
+			status->hit = cap_value(status->hit * mapdata->mobspawnbase.hitrate / 100, 1, SHRT_MAX);
+			status->hp = status->max_hp;
+			return 0;
+		}
 		if (opt&SCO_FIRST)
 			memcpy(&md->status, &md->db->status, sizeof(struct status_data));
 		return 0;
@@ -2903,8 +2905,11 @@ int status_calc_mob_(struct mob_data* md, enum e_status_calc_opt opt)
 	status = md->base_status;
 	memcpy(status, &md->db->status, sizeof(struct status_data));
 
-	if (flag&(8|16))
+	if (flag&(8|16)){
 		mbl = map_id2bl(md->master_id);
+		if(mbl && mbl->type == BL_MOB)
+			status_calc_bl_(mbl, SCB_ALL, SCO_NONE);
+	}
 
 	if (flag&8 && mbl) {
 		struct status_data *mstatus = status_get_base_status(mbl);
@@ -3050,6 +3055,17 @@ int status_calc_mob_(struct mob_data* md, enum e_status_calc_opt opt)
 			}
 			status->hp = status->max_hp;
 		}
+	}
+
+	if (map_getmapflag(md->bl.m, MF_MOBSPAWNBASE)) {
+		struct map_data *mapdata = map_getmapdata(md->bl.m);
+		status->max_hp = cap_value(apply_rate((uint64)status->max_hp, mapdata->mobspawnbase.hprate), 1, UINT_MAX);
+		status->rhw.atk = cap_value(apply_rate((uint64)status->rhw.atk, mapdata->mobspawnbase.atkrate), 1, UINT_MAX);
+		status->rhw.atk2 = cap_value(apply_rate((uint64)status->rhw.atk2, mapdata->mobspawnbase.atkrate), 1, UINT_MAX);
+		status->matk_min = cap_value(apply_rate((uint64)status->matk_min, mapdata->mobspawnbase.matkrate), 1, UINT_MAX);
+		status->matk_max = cap_value(apply_rate((uint64)status->matk_max, mapdata->mobspawnbase.matkrate), 1, UINT_MAX);
+		status->hit = cap_value(status->hit * mapdata->mobspawnbase.hitrate / 100, 1, SHRT_MAX);
+		status->hp = status->max_hp;
 	}
 
 	if (opt&SCO_FIRST) // Initial battle status

@@ -20232,8 +20232,11 @@ unsigned short script_instancegetid(struct script_state* st, enum instance_mode 
 		struct party_data *pd = NULL;
 		struct guild *gd = NULL;
 		struct clan *cd = NULL;
+		struct npc_data *nd = map_id2nd(st->oid);
 
-		if ((sd = map_id2sd(st->rid))) {
+		if (nd && nd->instance_id > 0)
+			instance_id = nd->instance_id;
+		else if ((sd = map_id2sd(st->rid))) {
 			if (sd->instance_id)
 				instance_id = sd->instance_id;
 			if (instance_id == 0 && sd->status.party_id && (pd = party_search(sd->status.party_id)) != NULL && pd->instance_id)
@@ -24951,6 +24954,40 @@ BUILDIN_FUNC(getsameipinfo)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(getsameuidinfo)
+{
+#if C_SOCKET_ENCRYPT > 0
+	TBL_PC *sd = NULL, *pl_sd;
+	struct s_mapiterator* iter;
+	int i = 0;
+	const char *uid;
+	if (script_hasdata(st, 2)) {
+		sd = map_id2sd(st->rid);
+		uid = script_getstr(st, 2);
+	}
+	else {
+		if (!script_rid2sd(sd))
+			return SCRIPT_CMD_SUCCESS;
+		uid = sd->mac;
+	}
+	iter = mapit_getallusers();
+	for (pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter)) {
+		if (!strcmp(uid, pl_sd->mac)) {
+			pc_setreg(sd, reference_uid(add_str("@sameuid_aid"), i), pl_sd->status.account_id);
+			pc_setreg(sd, reference_uid(add_str("@sameuid_cid"), i), pl_sd->status.char_id);
+			pc_setregstr(sd, reference_uid(add_str("@sameuid_name$"), i), pl_sd->status.name);
+			i++;
+		}
+	}
+	pc_setreg(sd, add_str("@sameuid_amount"), i);
+	mapit_free(iter);
+	return SCRIPT_CMD_SUCCESS;
+#else
+	ShowError("buildin_getlastip: Packet Encryption is disable, You can't get computer UID. return NULL\n");
+	return SCRIPT_CMD_SUCCESS;
+#endif
+}
+
 BUILDIN_FUNC(logout)
 {
 	TBL_PC* sd;
@@ -27613,28 +27650,17 @@ BUILDIN_FUNC(unitshow)
 
 BUILDIN_FUNC(getlastip)
 {
+#if C_SOCKET_ENCRYPT > 0
 	struct map_session_data *sd;
 
 	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	if (!sd->mac[0]) {
-		char* data = NULL;
-		if (SQL_ERROR == Sql_Query(qsmysql_handle, "SELECT `last_ip` FROM `%s` WHERE `account_id` = %d LIMIT 1", "login", sd->status.account_id)) {
-			Sql_ShowDebug(qsmysql_handle);
-			return SCRIPT_CMD_FAILURE;
-		}
-		else if (SQL_SUCCESS == Sql_NextRow(qsmysql_handle))
-			Sql_GetData(qsmysql_handle, 0, &data, NULL);
-
-		if (sscanf(data, "%*[^:]:%33s", sd->mac) != 1)
-			safestrncpy(sd->mac, data, sizeof(sd->mac));
-
-		Sql_FreeResult(qsmysql_handle);
-	}
-
 	script_pushstrcopy(st, sd->mac);
-
+#else
+	script_pushconststr(st, "");
+	ShowError("buildin_getlastip: Packet Encryption is disable, You can't get computer UID. return NULL\n");
+#endif
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -28709,6 +28735,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(cap_value, "iii"),
 	BUILDIN_DEF(mobremove, "i"),
 	BUILDIN_DEF(getsameipinfo,"?"),
+	BUILDIN_DEF(getsameuidinfo, "?"),
 	BUILDIN_DEF(logout,"i?"),
 	BUILDIN_DEF2(inarray, "searcharray", "rv"),
 	BUILDIN_DEF(countinventory,"i"),
@@ -28755,6 +28782,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unithide, "ii"),
 	BUILDIN_DEF(unitshow, "ii"),
 	BUILDIN_DEF(getlastip, "?"),
+	BUILDIN_DEF2(getlastip,"getcomputeruid", "?"),
 	BUILDIN_DEF(sendmail, "isss???????????"),
 	BUILDIN_DEF2(sendmail, "sendmail2", "isss??????????????????????????????????????????????"),
 	BUILDIN_DEF2(sendmail, "sendmail3", "isss?????????????????????????????????????????????????????????????"),
