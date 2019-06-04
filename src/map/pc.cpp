@@ -2769,17 +2769,26 @@ static void pc_bonus_subele(struct map_session_data* sd, unsigned char ele, shor
  * @param bonus: Bonus array
  * @param id: Key
  * @param val: Value
+ * @param cap_rate: If Value is a rate value that needs to be capped
  */
-static void pc_bonus_itembonus(std::vector<s_item_bonus> &bonus, uint16 id, int val)
+static void pc_bonus_itembonus(std::vector<s_item_bonus> &bonus, uint16 id, int val, bool cap_rate)
 {
 	for (auto &it : bonus) {
 		if (it.id == id) {
-			it.val += val;
+			if (cap_rate)
+				it.val = cap_value(it.val + val, -10000, 10000);
+			else
+				it.val += val;
 			return;
 		}
 	}
 
 	struct s_item_bonus entry = {};
+
+	if (cap_rate && (val < -10000 || val > 10000)) {
+		ShowWarning("pc_bonus_itembonus: Item bonus val %d exceeds -10000~10000 range, capping.\n", val);
+		val = cap_value(val, -10000, 10000);
+	}
 
 	entry.id = id;
 	entry.val = val;
@@ -3628,8 +3637,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		val = cap_value(val, -10000, 10000);
-		pc_bonus_itembonus(sd->reseff, type2, val);
+		pc_bonus_itembonus(sd->reseff, type2, val, true);
 		break;
 	case SP_MAGIC_ADDELE: // bonus2 bMagicAddEle,e,x;
 		PC_BONUS_CHK_ELEMENT(type2,SP_MAGIC_ADDELE);
@@ -3664,7 +3672,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 				break;
 			}
 
-			pc_bonus_itembonus(wd->add_dmg, type2, val);
+			pc_bonus_itembonus(wd->add_dmg, type2, val, false);
 		}
 		break;
 	case SP_ADD_MAGIC_DAMAGE_CLASS: // bonus2 bAddMagicDamageClass,mid,x;
@@ -3675,7 +3683,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->add_mdmg, type2, val);
+		pc_bonus_itembonus(sd->add_mdmg, type2, val, false);
 		break;
 	case SP_ADD_DEF_MONSTER: // bonus2 bAddDefMonster,mid,x;
 		if(sd->state.lr_flag == 2)
@@ -3685,7 +3693,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->add_def, type2, val);
+		pc_bonus_itembonus(sd->add_def, type2, val, false);
 		break;
 	case SP_ADD_MDEF_MONSTER: // bonus2 bAddMDefMonster,mid,x;
 		if(sd->state.lr_flag == 2)
@@ -3695,7 +3703,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->add_mdef, type2, val);
+		pc_bonus_itembonus(sd->add_mdef, type2, val, false);
 		break;
 	case SP_HP_DRAIN_RATE: // bonus2 bHPDrainRate,x,n;
 		if(!sd->state.lr_flag) {
@@ -3786,7 +3794,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->skillatk, type2, val);
+		pc_bonus_itembonus(sd->skillatk, type2, val, false);
 		break;
 	case SP_SKILL_HEAL: // bonus2 bSkillHeal,sk,n;
 		if(sd->state.lr_flag == 2)
@@ -3796,7 +3804,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 		
-		pc_bonus_itembonus(sd->skillheal, type2, val);
+		pc_bonus_itembonus(sd->skillheal, type2, val, false);
 		break;
 	case SP_SKILL_HEAL2: // bonus2 bSkillHeal2,sk,n;
 		if(sd->state.lr_flag == 2)
@@ -3806,7 +3814,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 		
-		pc_bonus_itembonus(sd->skillheal2, type2, val);
+		pc_bonus_itembonus(sd->skillheal2, type2, val, false);
 		break;
 	case SP_ADD_SKILL_BLOW: // bonus2 bAddSkillBlow,sk,n;
 		if(sd->state.lr_flag == 2)
@@ -3816,7 +3824,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 		
-		pc_bonus_itembonus(sd->skillblown, type2, val);
+		pc_bonus_itembonus(sd->skillblown, type2, val, false);
 		break;
 	case SP_HP_LOSS_RATE: // bonus2 bHPLossRate,n,t;
 		if(sd->state.lr_flag != 2) {
@@ -3871,7 +3879,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->itemhealrate, type2, val);
+		pc_bonus_itembonus(sd->itemhealrate, type2, val, false);
 		break;
 	case SP_ADD_ITEMGROUP_HEAL_RATE: // bonus2 bAddItemGroupHealRate,ig,n;
 		if (sd->state.lr_flag == 2)
@@ -3885,7 +3893,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->itemgrouphealrate, type2, val);
+		pc_bonus_itembonus(sd->itemgrouphealrate, type2, val, false);
 		break;
 	case SP_EXP_ADDRACE: // bonus2 bExpAddRace,r,x;
 		PC_BONUS_CHK_RACE(type2,SP_EXP_ADDRACE);
@@ -3986,7 +3994,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 		
-		pc_bonus_itembonus(sd->skillusesprate, type2, val);
+		pc_bonus_itembonus(sd->skillusesprate, type2, val, true);
 		break;
 	case SP_SKILL_DELAY:
 		if(sd->state.lr_flag == 2)
@@ -3996,7 +4004,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->skilldelay, type2, val);
+		pc_bonus_itembonus(sd->skilldelay, type2, val, false);
 		break;
 	case SP_SKILL_COOLDOWN: // bonus2 bSkillCooldown,sk,t;
 		if(sd->state.lr_flag == 2)
@@ -4006,7 +4014,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->skillcooldown, type2, val);
+		pc_bonus_itembonus(sd->skillcooldown, type2, val, false);
 		break;
 #ifdef RENEWAL_CAST
 	case SP_SKILL_FIXEDCAST: // bonus2 bSkillFixedCast,sk,t;
@@ -4017,7 +4025,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->skillfixcast, type2, val);
+		pc_bonus_itembonus(sd->skillfixcast, type2, val, false);
 		break;
 	case SP_SKILL_VARIABLECAST: // bonus2 bSkillVariableCast,sk,t;
 		if(sd->state.lr_flag == 2)
@@ -4027,7 +4035,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->skillvarcast, type2, val);
+		pc_bonus_itembonus(sd->skillvarcast, type2, val, false);
 		break;
 	case SP_CASTRATE: // bonus2 bCastrate,sk,n;
 	case SP_VARCASTRATE: // bonus2 bVariableCastrate,sk,n;
@@ -4038,7 +4046,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->skillcastrate, type2, -val); // Send inversed value here
+		pc_bonus_itembonus(sd->skillcastrate, type2, -val, true); // Send inversed value here
 		break;
 	case SP_FIXCASTRATE: // bonus2 bFixedCastrate,sk,n;
 		if(sd->state.lr_flag == 2)
@@ -4048,7 +4056,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->skillfixcastrate, type2, -val); // Send inversed value here
+		pc_bonus_itembonus(sd->skillfixcastrate, type2, -val, true); // Send inversed value here
 		break;
 #else
 	case SP_SKILL_FIXEDCAST: // bonus2 bSkillFixedCast,sk,t;
@@ -4065,7 +4073,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->skillcastrate, type2, val);
+		pc_bonus_itembonus(sd->skillcastrate, type2, val, true);
 		break;
 #endif
 	case SP_SKILL_USE_SP: // bonus2 bSkillUseSP,sk,n;
@@ -4076,7 +4084,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->skillusesp, type2, val);
+		pc_bonus_itembonus(sd->skillusesp, type2, val, false);
 		break;
 	case SP_SUB_SKILL: // bonus2 bSubSkill,sk,n;
 		if (sd->subskill.size() == MAX_PC_BONUS) {
@@ -4084,7 +4092,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			break;
 		}
 
-		pc_bonus_itembonus(sd->subskill, type2, val);
+		pc_bonus_itembonus(sd->subskill, type2, val, false);
 		break;
 	case SP_SUBDEF_ELE: // bonus2 bSubDefEle,e,x;
 		PC_BONUS_CHK_ELEMENT(type2,SP_SUBDEF_ELE);
@@ -5243,13 +5251,13 @@ short pc_search_inventory(struct map_session_data *sd, unsigned short nameid) {
  *   6 = ?
  *   7 = stack limitation
  */
-char pc_additem(struct map_session_data *sd,struct item *item,int amount,e_log_pick_type log_type) {
+enum e_additem_result pc_additem(struct map_session_data *sd,struct item *item,int amount,e_log_pick_type log_type) {
 	struct item_data *id;
 	int16 i;
 	unsigned int w;
 
-	nullpo_retr(1, sd);
-	nullpo_retr(1, item);
+	nullpo_retr(ADDITEM_INVALID, sd);
+	nullpo_retr(ADDITEM_INVALID, item);
 
 	if( item->nameid == 0 || amount <= 0 )
 		return ADDITEM_INVALID;
@@ -5851,33 +5859,33 @@ int pc_useitem(struct map_session_data *sd,int n)
  * @param item
  * @param amount
  * @param log_type
- * @return 0 = success; 1 = fail; 2 = no slot
+ * @return See pc.hpp::e_additem_result
  */
-unsigned char pc_cart_additem(struct map_session_data *sd,struct item *item,int amount,e_log_pick_type log_type)
+enum e_additem_result pc_cart_additem(struct map_session_data *sd,struct item *item,int amount,e_log_pick_type log_type)
 {
 	struct item_data *data;
 	int i,w;
 
-	nullpo_retr(1, sd);
-	nullpo_retr(1, item);
+	nullpo_retr(ADDITEM_INVALID, sd);
+	nullpo_retr(ADDITEM_INVALID, item);
 
 	if(item->nameid == 0 || amount <= 0)
-		return 1;
+		return ADDITEM_INVALID;
 	data = itemdb_search(item->nameid);
 
 	if( data->stack.cart && amount > data->stack.amount )
 	{// item stack limitation
-		return 1;
+		return ADDITEM_STACKLIMIT;
 	}
 
 	if( !itemdb_cancartstore(item, pc_get_group_level(sd)) || (item->bound > BOUND_ACCOUNT && !pc_can_give_bounded_items(sd)))
 	{ // Check item trade restrictions	[Skotlex]
 		clif_displaymessage (sd->fd, msg_txt(sd,264));
-		return 1;
+		return ADDITEM_INVALID;
 	}
 
 	if( (w = data->weight*amount) + sd->cart_weight > sd->cart_weight_max )
-		return 1;
+		return ADDITEM_OVERWEIGHT;
 
 	i = MAX_CART;
 	if( itemdb_isstackable2(data) && !item->expire_time )
@@ -5895,7 +5903,7 @@ unsigned char pc_cart_additem(struct map_session_data *sd,struct item *item,int 
 	if( i < MAX_CART )
 	{// item already in cart, stack it
 		if( amount > MAX_AMOUNT - sd->cart.u.items_cart[i].amount || ( data->stack.cart && amount > data->stack.amount - sd->cart.u.items_cart[i].amount ) )
-			return 2; // no slot
+			return ADDITEM_OVERAMOUNT; // no slot
 
 		sd->cart.u.items_cart[i].amount += amount;
 		clif_cart_additem(sd,i,amount,0);
@@ -5904,7 +5912,7 @@ unsigned char pc_cart_additem(struct map_session_data *sd,struct item *item,int 
 	{// item not stackable or not present, add it
 		ARR_FIND( 0, MAX_CART, i, sd->cart.u.items_cart[i].nameid == 0 );
 		if( i == MAX_CART )
-			return 2; // no slot
+			return ADDITEM_OVERAMOUNT; // no slot
 
 		memcpy(&sd->cart.u.items_cart[i],item,sizeof(sd->cart.u.items_cart[0]));
 		sd->cart.u.items_cart[i].id = 0;
@@ -5919,7 +5927,7 @@ unsigned char pc_cart_additem(struct map_session_data *sd,struct item *item,int 
 	sd->cart_weight += w;
 	clif_updatestatus(sd,SP_CARTINFO);
 
-	return 0;
+	return ADDITEM_SUCCESS;
 }
 
 /*==========================================
@@ -5952,15 +5960,12 @@ void pc_cart_delitem(struct map_session_data *sd,int n,int amount,int type,e_log
  *------------------------------------------*/
 void pc_putitemtocart(struct map_session_data *sd,int idx,int amount)
 {
-	struct item *item_data;
-	char flag;
-
 	nullpo_retv(sd);
 
 	if (idx < 0 || idx >= MAX_INVENTORY) //Invalid index check [Skotlex]
 		return;
 
-	item_data = &sd->inventory.u.items_inventory[idx];
+	struct item *item_data = &sd->inventory.u.items_inventory[idx];
 
 	if( item_data->nameid == 0 || amount < 1 || item_data->amount < amount || sd->state.vending || sd->state.prevend )
 		return;
@@ -5970,11 +5975,14 @@ void pc_putitemtocart(struct map_session_data *sd,int idx,int amount)
 		return;
 	}
 
-	if( (flag = pc_cart_additem(sd,item_data,amount,LOG_TYPE_NONE)) == 0 )
+	enum e_additem_result flag = pc_cart_additem(sd,item_data,amount,LOG_TYPE_NONE);
+
+	if (flag == ADDITEM_SUCCESS)
 		pc_delitem(sd,idx,amount,0,5,LOG_TYPE_NONE);
 	else {
-		clif_dropitem(sd,idx,0);
-		clif_cart_additem_ack(sd,(flag==1)?ADDITEM_TO_CART_FAIL_WEIGHT:ADDITEM_TO_CART_FAIL_COUNT);
+		clif_cart_additem_ack(sd, (flag == ADDITEM_OVERAMOUNT) ? ADDITEM_TO_CART_FAIL_COUNT : ADDITEM_TO_CART_FAIL_WEIGHT);
+		clif_additem(sd, idx, amount, 0);
+		clif_delitem(sd, idx, amount, 0);
 	}
 }
 
@@ -6007,27 +6015,19 @@ void pc_getitemfromcart(struct map_session_data *sd,int idx,int amount)
 	if (idx < 0 || idx >= MAX_CART) //Invalid index check [Skotlex]
 		return;
 
-	item* item_data=&sd->cart.u.items_cart[idx];
+	struct item *item_data=&sd->cart.u.items_cart[idx];
 
 	if (item_data->nameid == 0 || amount < 1 || item_data->amount < amount || sd->state.vending || sd->state.prevend)
 		return;
 
-	if (pc_checkadditem(sd, item_data->nameid, amount) == CHKADDITEM_OVERAMOUNT) {
-		return;
-	}
+	enum e_additem_result flag = pc_additem(sd, item_data, amount, LOG_TYPE_NONE);
 
-	if (itemdb_weight(item_data->nameid) * amount + sd->weight > sd->max_weight) {
-		clif_additem(sd, 0, 0, ADDITEM_OVERWEIGHT);
-		return;
-	}
-
-	item item_copy = *item_data;
-
-	pc_cart_delitem(sd, idx, amount, 0, LOG_TYPE_NONE);
-	char flag = pc_additem(sd, &item_copy, amount, LOG_TYPE_NONE);
-	if(flag != ADDITEM_SUCCESS) {
-		clif_dropitem(sd,idx,0);
-		clif_additem(sd,0,0,flag);
+	if (flag == ADDITEM_SUCCESS)
+		pc_cart_delitem(sd, idx, amount, 0, LOG_TYPE_NONE);
+	else {
+		clif_cart_delitem(sd, idx, amount);
+		clif_additem(sd, idx, amount, flag);
+		clif_cart_additem(sd, idx, amount, 0);
 	}
 }
 
@@ -13641,7 +13641,7 @@ bool pc_job_can_entermap(enum e_job jobid, int m, int group_lv) {
 		(job_info[idx].noenter_map.zone&4 && mapdata_flag_gvg2_no_te(mapdata)) || // GVG
 		(job_info[idx].noenter_map.zone&8 && mapdata->flag[MF_BATTLEGROUND]) || // Battleground
 		(job_info[idx].noenter_map.zone&16 && mapdata_flag_gvg2_te(mapdata)) || // WOE:TE
-		(job_info[idx].noenter_map.zone&(8*mapdata->zone) && mapdata->flag[MF_RESTRICTED]) // Zone restriction
+		(job_info[idx].noenter_map.zone&(mapdata->zone) && mapdata->flag[MF_RESTRICTED]) // Zone restriction
 		)
 		return false;
 
