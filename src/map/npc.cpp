@@ -4395,7 +4395,7 @@ int npc_parsesrcfile(const char* filepath, bool runOnInit, char *other_buffer)
 
 	if (other_buffer == NULL) {
 		if (strncasecmp(filepath, "http://", 7) == 0) {
-			http_get(filepath, 3000, false, true, 0);
+			http_get(filepath, 3, false, true, 0);
 			return 0;
 		}
 
