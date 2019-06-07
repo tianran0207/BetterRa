@@ -2905,11 +2905,8 @@ int status_calc_mob_(struct mob_data* md, enum e_status_calc_opt opt)
 	status = md->base_status;
 	memcpy(status, &md->db->status, sizeof(struct status_data));
 
-	if (flag&(8|16)){
+	if (flag&(8|16))
 		mbl = map_id2bl(md->master_id);
-		if(mbl && mbl->type == BL_MOB)
-			status_calc_bl_(mbl, SCB_ALL, SCO_NONE);
-	}
 
 	if (flag&8 && mbl) {
 		struct status_data *mstatus = status_get_base_status(mbl);
