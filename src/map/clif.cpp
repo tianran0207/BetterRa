@@ -4906,7 +4906,7 @@ int clif_damage(struct block_list* src, struct block_list* dst, t_tick tick, int
 	nullpo_ret(dst);
 
 	if (type != DMG_MULTI_HIT_CRITICAL)
-		type = clif_calc_delay(type, div, damage + damage2, ddelay);
+		type = clif_calc_delay(type,div,damage+damage2,ddelay);
 	sc = status_get_sc(dst);
 	if(sc && sc->count) {
 		if(sc->data[SC_HALLUCINATION]) {

@@ -2468,7 +2468,7 @@ static bool is_attack_critical(struct Damage* wd, struct block_list *src, struct
 	if (skill_id == NPC_CRITICALSLASH || skill_id == LG_PINPOINTATTACK) //Always critical skills
 		return true;
 
-	if (sstatus->cri && (!skill_id || skill_get_nk(skill_id)&NK_CRITICAL))
+	if( sstatus->cri && ( !skill_id || skill_get_nk(skill_id)&NK_CRITICAL ) )
 	{
 		short cri = sstatus->cri;
 
@@ -5459,10 +5459,14 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 
 	// crit check is next since crits always hit on official [helvetica]
 	if (is_attack_critical(&wd, src, target, skill_id, skill_lv, true)) {
+#if PACKETVER >= 20161207
 		if (wd.type&DMG_MULTI_HIT)
 			wd.type = DMG_MULTI_HIT_CRITICAL;
 		else
 			wd.type = DMG_CRITICAL;
+#else
+		wd.type = DMG_CRITICAL;
+#endif
 	}
 
 	// check if we're landing a hit
@@ -5544,7 +5548,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 		return wd; //Enough, rest is not needed.
 
 #ifdef RENEWAL
-	if (!skill_id && is_attack_critical(&wd, src, target, skill_id, skill_lv, false)) {
+	if (is_attack_critical(&wd, src, target, skill_id, skill_lv, false)) {
 		if (sd) { //Check for player so we don't crash out, monsters don't have bonus crit rates [helvetica]
 			wd.damage = (int64)floor((float)((wd.damage * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
 			if (is_attack_left_handed(src, skill_id))
