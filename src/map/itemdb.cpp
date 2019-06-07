@@ -1534,6 +1534,12 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 	id->flag.no_refine = atoi(str[17]) ? 0 : 1; //FIXME: verify this
 	id->look = atoi(str[18]);
 
+	if (id->type == IT_WEAPON && (id->look < W_FIST || id->look > W_2HSTAFF))
+	{
+		ShowError("itemdb_parse_dbrow: Item %hu (%s) weapon type is not exist, Making it an etc item.\n", nameid, id->jname);
+		id->type = IT_ETC;
+	}
+
 	id->flag.available = 1;
 	id->view_id = 0;
 	id->sex = itemdb_gendercheck(id); //Apply gender filtering.
