@@ -586,7 +586,7 @@ ACMD_FUNC(jumpto)
 		return -1;
 	}
 
-	if((pl_sd=map_nick2sd(atcmd_player_name,true)) == NULL && (pl_sd=map_charid2sd(atoi(atcmd_player_name))) == NULL)
+	if((pl_sd=map_nick2sd(atcmd_player_name,true)) == NULL && (pl_sd=map_charid2sd(atoi(atcmd_player_name))) == NULL && (pl_sd = map_id2sd(atoi(atcmd_player_name))) == NULL)
 	{
 		clif_displaymessage(fd, msg_txt(sd,3)); // Character not found.
 		return -1;
@@ -5590,7 +5590,7 @@ ACMD_FUNC(follow)
 		return 0;
 	}
 
-	if ( (pl_sd = map_nick2sd(atcmd_player_name,true)) == NULL )
+	if ( (pl_sd = map_nick2sd(atcmd_player_name,true)) == NULL && (pl_sd = map_charid2sd(atoi(atcmd_player_name))) == NULL && (pl_sd = map_id2sd(atoi(atcmd_player_name))) == NULL)
 	{
 		clif_displaymessage(fd, msg_txt(sd,3)); // Character not found.
 		return -1;

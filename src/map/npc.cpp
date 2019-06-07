@@ -214,7 +214,7 @@ int npc_enable_sub(struct block_list *bl, va_list ap)
 	{
 		TBL_PC *sd = (TBL_PC*)bl;
 
-		if (nd->sc.option&OPTION_INVISIBLE)
+		if (nd->sc.option&(OPTION_HIDE|OPTION_INVISIBLE))
 			return 1;
 
 		// note : disablenpc doesn't reset the previous trigger status on official
@@ -1063,7 +1063,7 @@ int npc_touch_areanpc(struct map_session_data* sd, int16 m, int16 x, int16 y)
 	struct map_data *mapdata = map_getmapdata(m);
 
 	for (i = 0; i < mapdata->npc_num_area; i++) {
-		if (mapdata->npc[i]->sc.option&OPTION_INVISIBLE) {
+		if (mapdata->npc[i]->sc.option&(OPTION_HIDE|OPTION_INVISIBLE)) {
 			f = 0; // a npc was found, but it is disabled; don't print warning
 			continue;
 		}
@@ -1134,7 +1134,7 @@ int npc_touch_areanpc2(struct mob_data *md)
 
 	for( i = 0; i < mapdata->npc_num_area; i++ )
 	{
-		if( mapdata->npc[i]->sc.option&OPTION_INVISIBLE )
+		if( mapdata->npc[i]->sc.option&(OPTION_HIDE|OPTION_INVISIBLE) )
 			continue;
 
 		switch( mapdata->npc[i]->subtype )
@@ -1223,7 +1223,7 @@ int npc_check_areanpc(int flag, int16 m, int16 x, int16 y, int16 range)
 	//Now check for the actual NPC on said range.
 	for (i = 0; i < mapdata->npc_num_area; i++)
 	{
-		if (mapdata->npc[i]->sc.option&OPTION_INVISIBLE)
+		if (mapdata->npc[i]->sc.option&(OPTION_HIDE|OPTION_INVISIBLE))
 			continue;
 
 		switch(mapdata->npc[i]->subtype)
