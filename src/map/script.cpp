@@ -12702,6 +12702,12 @@ BUILDIN_FUNC(isloggedin)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(isloggedin2)
+{
+	TBL_PC* sd = map_charid2sd(script_getnum(st,2));
+	script_pushint(st, sd ? 1 : 0);
+	return SCRIPT_CMD_SUCCESS;
+}
 
 /*==========================================
  *
@@ -28794,6 +28800,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(when_pcmove_doevent, "?"),
 	BUILDIN_DEF(killaroundmonster, "iii"),
 	BUILDIN_DEF(unitspecialeffect, "ii"),
+	BUILDIN_DEF(isloggedin2, "i"),
 
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL
