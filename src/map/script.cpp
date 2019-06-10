@@ -12705,7 +12705,7 @@ BUILDIN_FUNC(isloggedin)
 BUILDIN_FUNC(isloggedin2)
 {
 	TBL_PC* sd = map_charid2sd(script_getnum(st,2));
-	script_pushint(st, sd ? 1 : 0);
+	script_pushint(st, sd ? sd->status.account_id : 0);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -25997,10 +25997,10 @@ BUILDIN_FUNC(getareagid)
 	//如果7个参数(方法1)
 	if (script_hasdata(st, 8)) {
 		int x0, y0, x1, y1;
-		x0 = script_getnum(st, 4);
-		y0 = script_getnum(st, 5);
-		x1 = script_getnum(st, 6);
-		y1 = script_getnum(st, 7);
+		x0 = min(script_getnum(st, 4), script_getnum(st, 6));
+		y0 = min(script_getnum(st, 5), script_getnum(st, 7));
+		x1 = max(script_getnum(st, 4), script_getnum(st, 6));
+		y1 = max(script_getnum(st, 5), script_getnum(st, 7));
 		map_foreachinarea(buildin_getareagid_sub, map_id, x0, y0, x1, y1, type, st, sd, id, varname, ref, &count);
 	}
 	//如果6个参数(方法2)
