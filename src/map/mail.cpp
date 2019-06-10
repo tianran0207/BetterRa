@@ -66,7 +66,7 @@ int mail_removeitem(struct map_session_data *sd, short flag, int idx, int amount
 #endif
 	}else{
 		sd->mail.item[i].amount -= amount;
-		if (sd->mail.item[i].amount <= 0)
+		if (sd->mail.item[i].amount != 0)
 			i = MAIL_MAX_ITEM;
 
 		for( ; i < MAIL_MAX_ITEM-1; i++ ){
