@@ -586,6 +586,9 @@
 	export_constant(EFST_BLOCKING_ARMOR);
 	export_constant(EFST_BLOCKING_SHADOWGEAR);
 	export_constant(EFST_IGNORE_RETURN);
+
+	export_constant(CELL_SAFEZONE);
+	export_constant(CELL_CHKSAFEZONE);
 	//-----------------------------------------------------------------------
 	export_constant2("bMaxHP",SP_MAXHP);
 	export_constant2("bMaxSP",SP_MAXSP);

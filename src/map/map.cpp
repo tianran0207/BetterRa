@@ -3237,6 +3237,8 @@ int map_getcellp(struct map_data* m,int16 x,int16 y,cell_chk cellchk)
 
 
 		// base cell type checks
+		case CELL_CHKSAFEZONE:
+			return (cell.safezone);
 		case CELL_CHKNPC:
 			return (cell.npc);
 		case CELL_CHKBASILICA:
@@ -3299,6 +3301,7 @@ void map_setcell(int16 m, int16 x, int16 y, cell_t cell, bool flag)
 		case CELL_SHOOTABLE:     mapdata->cell[j].shootable = flag;     break;
 		case CELL_WATER:         mapdata->cell[j].water = flag;         break;
 
+		case CELL_SAFEZONE:      mapdata->cell[j].safezone = flag;      break;
 		case CELL_NPC:           mapdata->cell[j].npc = flag;           break;
 		case CELL_BASILICA:      mapdata->cell[j].basilica = flag;      break;
 		case CELL_LANDPROTECTOR: mapdata->cell[j].landprotector = flag; break;

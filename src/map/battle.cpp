@@ -7753,6 +7753,9 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 	nullpo_ret(src);
 	nullpo_ret(target);
 
+	if (target->type == BL_PC && map_getcell(target->m, target->x, target->y, CELL_CHKSAFEZONE))
+		return 0;
+
 	ud = unit_bl2ud(target);
 	m = target->m;
 

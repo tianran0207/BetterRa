@@ -701,6 +701,7 @@ enum cell_t{
 	CELL_MAELSTROM,
 	CELL_ICEWALL,
 
+	CELL_SAFEZONE = 30,
 };
 
 // used by map_getcell()
@@ -725,6 +726,8 @@ enum cell_chk : uint8 {
 	CELL_CHKMAELSTROM,		// Whether the cell has Maelstrom
 	CELL_CHKICEWALL,		// Whether the cell has Ice Wall
 
+	CELL_CHKSAFEZONE = 30,
+
 };
 
 struct mapcell
@@ -737,6 +740,7 @@ struct mapcell
 
 	// dynamic flags
 	unsigned char
+		safezone : 1,
 		npc : 1,
 		basilica : 1,
 		landprotector : 1,

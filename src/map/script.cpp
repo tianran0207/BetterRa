@@ -6907,7 +6907,7 @@ static int script_getitem_randomoption(struct script_state *st, struct map_sessi
  * @param sd: Player data (required for random options)
  * @return Total count of item being searched
  */
-int script_countitem_sub(struct item *items, struct item_data *id, int size, bool expanded, bool random_option, struct script_state *st, struct map_session_data *sd) {
+int script_countitem_sub(struct item *items, struct item_data *id, int size, bool expanded, bool random_option, bool rent, struct script_state *st, struct map_session_data *sd) {
 	nullpo_retr(-1, items);
 	nullpo_retr(-1, st);
 
@@ -6917,6 +6917,8 @@ int script_countitem_sub(struct item *items, struct item_data *id, int size, boo
 		unsigned short nameid = id->nameid;
 
 		for (int i = 0; i < size; i++) {
+			if (&items[i] && rent && !items[i].expire_time)
+				continue;
 			if (&items[i] && items[i].nameid == nameid)
 				count += items[i].amount;
 		}
@@ -7018,7 +7020,7 @@ BUILDIN_FUNC(countitem)
 		return SCRIPT_CMD_FAILURE;
 	}
 
-	int count = script_countitem_sub(sd->inventory.u.items_inventory, id, MAX_INVENTORY, (aid > 3) ? true : false, random_option, st, sd);
+	int count = script_countitem_sub(sd->inventory.u.items_inventory, id, MAX_INVENTORY, (aid > 3) ? true : false, random_option, strstr(command, "rent") ? true : false, st, sd);
 	if (count < 0) {
 		st->state = END;
 		return SCRIPT_CMD_FAILURE;
@@ -7071,7 +7073,7 @@ BUILDIN_FUNC(cartcountitem)
 		return SCRIPT_CMD_FAILURE;
 	}
 
-	int count = script_countitem_sub(sd->cart.u.items_cart, id, MAX_CART, (aid > 3) ? true : false, false, st, nullptr);
+	int count = script_countitem_sub(sd->cart.u.items_cart, id, MAX_CART, (aid > 3) ? true : false, false, false, st, nullptr);
 	if (count < 0) {
 		st->state = END;
 		return SCRIPT_CMD_FAILURE;
@@ -7123,7 +7125,7 @@ BUILDIN_FUNC(storagecountitem)
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	int count = script_countitem_sub(sd->storage.u.items_storage, id, MAX_STORAGE, (aid > 3) ? true : false, false, st, nullptr);
+	int count = script_countitem_sub(sd->storage.u.items_storage, id, MAX_STORAGE, (aid > 3) ? true : false, false, false, st, nullptr);
 	if (count < 0) {
 		st->state = END;
 		return SCRIPT_CMD_FAILURE;
@@ -7179,7 +7181,7 @@ BUILDIN_FUNC(guildstoragecountitem)
 
 	gstor->lock = true;
 
-	int count = script_countitem_sub(gstor->u.items_guild, id, MAX_GUILD_STORAGE, (aid > 3) ? true : false, false, st, nullptr);
+	int count = script_countitem_sub(gstor->u.items_guild, id, MAX_GUILD_STORAGE, (aid > 3) ? true : false, false, false, st, nullptr);
 
 	storage_guild_storageclose(sd);
 	gstor->lock = false;
@@ -28801,6 +28803,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(killaroundmonster, "iii"),
 	BUILDIN_DEF(unitspecialeffect, "ii"),
 	BUILDIN_DEF(isloggedin2, "i"),
+	BUILDIN_DEF2(countitem, "countrentitem", "v?"),
+	BUILDIN_DEF2(countitem, "countrentitem2", "viiiiiii?"),
+	BUILDIN_DEF2(countitem, "countrentitem3", "viiiiiiirrr?"),
 
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL
