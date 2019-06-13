@@ -2416,6 +2416,36 @@ int npc_unload(struct npc_data* nd, bool single) {
 	return 0;
 }
 
+int npc_func_unload(char *func_name) {
+	DBMap* func_db = script_get_userfunc_db();
+	struct script_code *oldscript = (struct script_code *)strdb_get(func_db, func_name);
+	
+	if (!oldscript)
+		return 0;
+
+	script_stop_scriptinstances(oldscript);
+	script_free_vars(oldscript->local.vars);
+	aFree(oldscript->script_buf);
+	aFree(oldscript);
+	strdb_remove(func_db, func_name);
+	return 1;
+}
+
+int npc_func_reload(void) {
+	struct script_code *oldscript;
+	DBMap* func_db = script_get_userfunc_db();
+	DBIterator * iter = db_iterator(func_db);
+	for (oldscript = (struct script_code *)dbi_first(iter); dbi_exists(iter); oldscript = (struct script_code *)dbi_next(iter)) {
+		script_stop_scriptinstances(oldscript);
+		script_free_vars(oldscript->local.vars);
+		aFree(oldscript->script_buf);
+		aFree(oldscript);
+	}
+	dbi_destroy(iter);
+	db_clear(func_db);
+	return 0;
+}
+
 //
 // NPC Source Files
 //
@@ -3948,9 +3978,15 @@ static const char* npc_parse_function(char* w1, char* w2, char* w3, char* w4, co
 	if( end == NULL )
 		return NULL;// (simple) parse error, don't continue
 
+	if (npc_func_unload(w3))
+		ShowInfo("npc_parse_function: Overwriting user function [%s] (%s:%d)\n", w3, filepath, strline(buffer, start - buffer));
+
 	script = parse_script(script_start, filepath, strline(buffer,start-buffer), SCRIPT_RETURN_EMPTY_SCRIPT);
 	if( script == NULL )// parse error, continue
 		return end;
+
+	strdb_put(script_get_userfunc_db(), w3, script);
+	return end;
 
 	func_db = script_get_userfunc_db();
 	if (func_db->put(func_db, db_str2key(w3), db_ptr2data(script), &old_data)) {

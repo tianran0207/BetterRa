@@ -4831,7 +4831,8 @@ void script_reload(void) {
 	DBIterator *iter;
 	struct script_state *st;
 
-	userfunc_db->clear(userfunc_db, db_script_free_code_sub);
+	//userfunc_db->clear(userfunc_db, db_script_free_code_sub);
+	npc_func_reload();
 	db_clear(scriptlabel_db);
 
 	// @commands (script based)
