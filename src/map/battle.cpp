@@ -4972,7 +4972,7 @@ static void battle_calc_attack_plant(struct Damage* wd, struct block_list *src,s
 	if( attack_hits || wd->damage > 0 )
 		wd->damage = 1; //In some cases, right hand no need to have a weapon to deal a damage
 	if( is_attack_left_handed(src, skill_id) && (attack_hits || wd->damage2 > 0) ) {
-		if(sd->status.weapon == W_KATAR)
+		if(sd && sd->status.weapon == W_KATAR)
 			wd->damage2 = 0; //No backhand damage against plants
 		else {
 			wd->damage2 = 1; //Deal 1 HP damage as long as there is a weapon in the left hand
