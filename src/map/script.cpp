@@ -13966,10 +13966,19 @@ BUILDIN_FUNC(getiteminfo)
 		int *item_arr = (int*)&i_data->value_buy;
 #ifndef RENEWAL
 		if (n == 16)
-			script_pushint(st,0);
+			script_pushint(st, 0);
 		else
 #endif
-		script_pushint(st,item_arr[n]);
+			script_pushint(st, item_arr[n]);
+	}
+	else if (i_data && n > 16) {
+		switch (n) {
+		case 17:	script_pushint(st, i_data->flag.no_refine ? 0 : 1); break;
+		case 18:	script_pushint(st, i_data->flag.trade_restriction); break;
+		case 21:	script_pushint(st, has_func_name(i_data->script, "pet") ? 1 : 0); break;
+		case 22:	script_pushint(st, has_func_name(i_data->script, "callfunc") ? 1 : 0); break;
+		default:	script_pushint(st, -1); break;
+		}
 	} else
 		script_pushint(st,-1);
 	return SCRIPT_CMD_SUCCESS;

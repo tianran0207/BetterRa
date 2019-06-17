@@ -5520,7 +5520,7 @@ static int mob_reload_sub( struct mob_data *md, va_list args ){
 	md->db = mob_db(md->mob_id);
 
 	// Recalculate the monster status based on the new data
-	status_calc_mob(md, SCO_NONE);
+	//status_calc_mob(md, SCO_NONE);
 
 	// If the view data was not overwritten manually
 	if( !md->vd_changed ){
