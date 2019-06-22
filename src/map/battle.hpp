@@ -222,6 +222,7 @@ struct Battle_Config
 	int homunculus_killed_drop;
 	int homunculus_share_exp;
 	int remove_noinfo_pet;
+	int multiple_script_state;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

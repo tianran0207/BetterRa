@@ -3655,6 +3655,20 @@ struct script_state* script_alloc_state(struct script_code* rootscript, int pos,
 	return st;
 }
 
+static void script_bkst_set_state(struct script_state* st, bool setnull = true) {
+	if (!battle_config.multiple_script_state) {
+		if (st->bk_st) // backup was not restored
+			ShowDebug("script_free_state: Previous script state lost (rid=%d, oid=%d, state=%d, bk_npcid=%d).\n", st->rid, st->oid, st->state, st->bk_npcid);
+		if (setnull)
+			st->bk_st = NULL;
+	} else {
+		if (st->bk_st && st->bk_st->bk_st)
+			st->bk_st = st->bk_st->bk_st;
+		else
+			st->bk_st = NULL;
+	}
+}
+
 /// Frees a script state.
 ///
 /// @param st Script state
@@ -3663,8 +3677,13 @@ void script_free_state(struct script_state* st)
 	if (idb_exists(st_db, st->id)) {
 		struct map_session_data *sd = st->rid ? map_id2sd(st->rid) : NULL;
 
+#ifndef BRA_STATE_FIX
 		if (st->bk_st) // backup was not restored
 			ShowDebug("script_free_state: Previous script state lost (rid=%d, oid=%d, state=%d, bk_npcid=%d).\n", st->bk_st->rid, st->bk_st->oid, st->bk_st->state, st->bk_npcid);
+#else
+		if (st->bk_st)
+			script_bkst_set_state(st, false);
+#endif
 
 		if (sd && sd->st == st) { // Current script is aborted.
 			if(sd->state.using_fake_npc) {
@@ -4293,11 +4312,12 @@ static void script_detach_state(struct script_state* st, bool dequeue_event)
 		sd->state.disable_atcommand_on_npc = 0;
 		if(st->bk_st) {
 			//Remove tag for removal.
+#ifndef BRA_STATE_FIX
 			st->bk_st = NULL;
+#else
+			script_bkst_set_state(st);
+#endif
 			st->bk_npcid = 0;
-			st->bk_using_fake_npc = 0;
-			st->bk_menu_or_input = 0;
-			st->bk_npc_menu = 0;
 		} else if(dequeue_event) {
 
 #ifdef SECURE_NPCTIMEOUT
@@ -4318,7 +4338,11 @@ static void script_detach_state(struct script_state* st, bool dequeue_event)
 		script_reportsrc(st->bk_st);
 
 		script_free_state(st->bk_st);
+#ifndef BRA_STATE_FIX
 		st->bk_st = NULL;
+#else
+		script_bkst_set_state(st);
+#endif
 	}
 }
 
@@ -4332,10 +4356,14 @@ void script_attach_state(struct script_state* st){
 	{
 		if(st!=sd->st)
 		{
+#ifndef BRA_STATE_FIX
 			if(st->bk_st)
 			{// there is already a backup
 				ShowDebug("script_attach_state: Previous script state lost (rid=%d, oid=%d, state=%d, bk_npcid=%d).\n", st->bk_st->rid, st->bk_st->oid, st->bk_st->state, st->bk_npcid);
 			}
+#else
+			struct script_state* previous_st = st->bk_st;
+#endif
 			st->bk_st = sd->st;
 			st->bk_npcid = sd->npc_id;
 			st->bk_using_fake_npc = sd->state.using_fake_npc;
@@ -4344,6 +4372,10 @@ void script_attach_state(struct script_state* st){
 			sd->state.using_fake_npc = 0;
 			sd->state.menu_or_input = 0;
 			sd->npc_menu = 0;
+#ifdef BRA_STATE_FIX
+			if (previous_st)
+				st->bk_st ? st->bk_st->bk_st = previous_st : st->bk_st = previous_st;
+#endif
 		}
 		sd->st = st;
 		sd->npc_id = st->oid;
@@ -4475,6 +4507,10 @@ void run_script_main(struct script_state *st)
 		linkdb_insert(&sleep_db, (void *)__64BPRTSIZE(st->oid), st);
 	} else if(st->state != END && st->rid) {
 		//Resume later (st is already attached to player).
+#ifdef BRA_STATE_FIX
+		if (battle_config.multiple_script_state)
+			return;
+#endif
 		if(st->bk_st) {
 			if (battle_config.overlay_back_stack) {
 				script_free_state(st->bk_st);

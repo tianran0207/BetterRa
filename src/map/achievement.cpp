@@ -751,8 +751,8 @@ static bool achievement_check_condition( struct script_code* condition, struct m
 	// Only if there was an old script
 	if( previous_st != nullptr ){
 
-		if (previous_st->bk_st) {
-			ShowWarning("achievement_check_condition: st->bk_st is busy now. Unable to call script\n");
+		if (previous_st->bk_st && !battle_config.multiple_script_state) {
+			ShowWarning("achievement_check_condition: Stopped because double scripts runing, plese set battleconf 'multiple_script_state' to repair.\n");
 			return false;
 		}
 
