@@ -14351,6 +14351,7 @@ bool pc_manner_check(struct map_session_data* sd, char *mes)
 			dbi_destroy(iter);
 			return true;
 		}
+		r = 0;
 	}
 	dbi_destroy(iter);
 
