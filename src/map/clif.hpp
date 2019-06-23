@@ -726,6 +726,7 @@ void clif_wis_end(int fd, int result);
 
 void clif_solved_charname(int fd, int charid, const char* name);
 void clif_name( struct block_list* src, struct block_list *bl, send_target target );
+void clif_read_mobinfo(void);
 #define clif_name_self(bl) clif_name( (bl), (bl), SELF )
 #define clif_name_area(bl) clif_name( (bl), (bl), AREA )
 

@@ -9618,6 +9618,24 @@ void clif_refresh(struct map_session_data *sd)
 	clif_refresh_storagewindow(sd);
 }
 
+struct s_clif_mobinfo {
+	char info[3][128] = { "[size:%s%]","[race:%s%]","[element:%s%]" };
+	char size[SZ_ALL][32] = { "Small", "Medium", "Large" };
+	char race[RC_ALL][32] = { "Formless", "Undead", "Beast", "Plant", "Insect", "Fish", "Demon", "Demi-Human", "Angel", "Dragon", "Player" };
+	char element[ELE_ALL][32] = { "Neutral", "Water", "Earth", "Fire", "Wind", "Poison", "Holy", "Dark", "Ghost", "Undead" };
+}clif_mobinfo;
+
+void clif_read_mobinfo(void) {
+	safestrncpy(clif_mobinfo.info[0], msg_txt(NULL, 2301), sizeof(clif_mobinfo.info[0]));
+	safestrncpy(clif_mobinfo.info[1], msg_txt(NULL, 2305), sizeof(clif_mobinfo.info[1]));
+	safestrncpy(clif_mobinfo.info[2], msg_txt(NULL, 2320), sizeof(clif_mobinfo.info[2]));
+	for (int i = 0; i < SZ_ALL; i++)
+		safestrncpy(clif_mobinfo.size[i], msg_txt(NULL, 2302 + i), sizeof(clif_mobinfo.size[i]));
+	for (int i = 0; i < RC_ALL; i++)
+		safestrncpy(clif_mobinfo.race[i], msg_txt(NULL, 2306 + i), sizeof(clif_mobinfo.race[i]));
+	for (int i = 0; i < ELE_ALL; i++)
+		safestrncpy(clif_mobinfo.element[i], msg_txt(NULL, 2321 + i), sizeof(clif_mobinfo.element[i]));
+}
 
 /// Updates the object's (bl) name on client.
 /// Used to update when a char leaves a party/guild. [Skotlex]
@@ -9731,29 +9749,28 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 				char mobhp[50], *str_p = mobhp;
 				char mobinfo1[50], *str_info1 = mobinfo1;
 				char mobinfo2[50], *str_info2 = mobinfo2;
+				int flag;
 #if PACKETVER >= 20150513
 				WBUFW(buf, 0) = cmd = 0xa30;
 #else
 				WBUFW(buf, 0) = cmd = 0x195;
 #endif
-				if (map_getmapflag(md->bl.m, MF_MOBINFO) == -1) {
-					;
-				}else if (map_getmapflag(md->bl.m, MF_MOBINFO)) {
-					if (map_getmapflag(md->bl.m, MF_MOBINFO) & 4)
+				if ((flag = map_getmapflag(md->bl.m, MF_MOBINFO)) > 0) {
+					if (flag & 4)
 						str_p += sprintf(str_p, "Lv. %d | ", md->level);
-					if (map_getmapflag(md->bl.m, MF_MOBINFO) & 1)
+					if (flag & 1)
 						str_p += sprintf(str_p, "HP: %u/%u | ", md->status.hp, md->status.max_hp);
-					if (map_getmapflag(md->bl.m, MF_MOBINFO) & 2)
+					if (flag & 2)
 						str_p += sprintf(str_p, "HP: %u%% | ", get_percentage(md->status.hp, md->status.max_hp));
-					if (map_getmapflag(md->bl.m, MF_MOBINFO) & 16)//体型
-						str_info1 += sprintf(str_info1, msg_txt(sd, 2301), msg_txt(sd, 2302 + md->status.size));
-					if (map_getmapflag(md->bl.m, MF_MOBINFO) & 32) {
+					if (flag & 16)//体型
+						str_info1 += sprintf(str_info1, clif_mobinfo.info[0], clif_mobinfo.size[md->status.size]);
+					if (flag & 32) {
 						str_info1 += str_info1 != mobinfo1 ? sprintf(str_info1, " ") : 0;
-						str_info1 += sprintf(str_info1, msg_txt(sd, 2305), msg_txt(sd, 2306 + md->status.race));
+						str_info1 += sprintf(str_info1, clif_mobinfo.info[1], clif_mobinfo.race[md->status.race]);
 					}
-					if (map_getmapflag(md->bl.m, MF_MOBINFO) & 64)
-						str_info2 += sprintf(str_info2, msg_txt(sd, 2320), msg_txt(sd, 2321 + md->status.def_ele), md->status.ele_lv);
-					if (map_getmapflag(md->bl.m, MF_MOBINFO) & 8)
+					if (flag & 64)
+						str_info2 += sprintf(str_info2, clif_mobinfo.info[2], clif_mobinfo.element[sd, md->status.def_ele], md->status.ele_lv);
+					if (flag & 8)
 						str_info2 += sprintf(str_info2, str_info2 != mobinfo2 ? " | ID:%d" : "ID:%d", md->mob_id);
 				}
 				else {
@@ -9764,13 +9781,13 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 					if (battle_config.show_mob_info & 2)
 						str_p += sprintf(str_p, "HP: %u%% | ", get_percentage(md->status.hp, md->status.max_hp));
 					if (battle_config.show_mob_info & 16)//体型
-						str_info1 += sprintf(str_info1, msg_txt(sd, 2301), msg_txt(sd, 2302 + md->status.size));
+						str_info1 += sprintf(str_info1, clif_mobinfo.info[0], clif_mobinfo.size[md->status.size]);
 					if (battle_config.show_mob_info & 32) {
 						str_info1 += sprintf(str_info1, " ");
-						str_info1 += sprintf(str_info1, msg_txt(sd, 2305), msg_txt(sd, 2306 + md->status.race));
+						str_info1 += sprintf(str_info1, clif_mobinfo.info[1], clif_mobinfo.race[md->status.race]);
 					}
 					if (battle_config.show_mob_info & 64)
-						str_info2 += sprintf(str_info2, msg_txt(sd, 2320), msg_txt(sd, 2321 + md->status.def_ele), md->status.ele_lv);
+						str_info2 += sprintf(str_info2, clif_mobinfo.info[2], clif_mobinfo.element[md->status.def_ele], md->status.ele_lv);
 					if (battle_config.show_mob_info & 8)
 						str_info2 += sprintf(str_info2, str_info2 != mobinfo2 ? " | ID:%d" : "ID:%d", md->mob_id);
 				}

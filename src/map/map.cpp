@@ -5272,6 +5272,7 @@ void map_do_init_msg(void){
 		if(test == 1) msg_config_read(listelang[i],i); //if enabled read it and assign i to langtype
 		i++;
 	}
+	clif_read_mobinfo();
 }
 void map_do_final_msg(void){
 	DBIterator *iter = db_iterator(map_msg_db);
