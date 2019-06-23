@@ -139,7 +139,16 @@ static void logclif_auth_ok(struct login_session_data* sd) {
 		subnet_char_ip = lan_subnetcheck(ip); // Advanced subnet check [LuzZza]
 		ip2 = subnet_char_ip ? subnet_char_ip : ch_server[i].ip;
 		for (int j = 0; j < C_MAX_MULTI_IP; j++) {
+#if C_SOCKET_ENCRYPT > 0
+			if (!sd->login_id1) {
+				sd->login_id1 = rnd() + 1;
+				WFIFOL(fd, 4) = sd->login_id1;
+				break;
+			}
+			if (ch_server[i].multi_ip[j] != sd->login_id1)
+#else
 			if (ch_server[i].multi_ip[j] != session[fd]->server_addr)
+#endif
 				continue;
 			ip2 = ch_server[i].multi_ip[j];
 		}
@@ -263,8 +272,10 @@ static int logclif_parse_keepalive(int fd){
 static int logclif_parse_updclhash(int fd, struct login_session_data *sd){
 	if (RFIFOREST(fd) < 18)
 		return 0;
+#if C_SOCKET_ENCRYPT == 0
 	sd->has_client_hash = 1;
 	memcpy(sd->client_hash, RFIFOP(fd, 2), 16);
+#endif
 	RFIFOSKIP(fd,18);
 	return 1;
 }
@@ -529,18 +540,22 @@ int logclif_parse(int fd) {
 			if (RFIFOREST(fd) < len)
 				return 0;
 
+			session[fd]->cryptlen = len;
+
 			rc4_crypt2((unsigned char *)RFIFOP(fd, 4), len - 4);
 
 			RFIFOSKIP(fd, 8);
 			command = RFIFOW(fd, 0);
 			if (command == 0xFFFE) {
-				safestrncpy(sd->mac, RFIFOCP(fd, 2), 33);
-				RFIFOSKIP(fd, 34);
-				logclif_parse_reqauth(fd, sd, RFIFOW(fd, 0), ip);
+				sd->login_id1 = RFIFOL(fd, 2);
+				safestrncpy(sd->mac, RFIFOCP(fd, 6), 33);
+				sd->has_client_hash = 1;
+				memcpy(sd->client_hash, RFIFOP(fd, 38), 16);
+				RFIFOSKIP(fd, 54);
 				return 0;
 			}
 		}
-		else {
+		else if (session[fd]->cryptlen <= 0) {
 			char hex[256 * 2 + 64];
 			size_t i, len = RFIFOREST(fd);
 

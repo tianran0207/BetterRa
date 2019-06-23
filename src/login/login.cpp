@@ -393,7 +393,9 @@ int login_mmo_auth(struct login_session_data* sd, bool isServer) {
 
 	// update session data
 	sd->account_id = acc.account_id;
+#if C_SOCKET_ENCRYPT != 1
 	sd->login_id1 = rnd() + 1;
+#endif
 	sd->login_id2 = rnd() + 1;
 	safestrncpy(sd->lastlogin, acc.lastlogin, sizeof(sd->lastlogin));
 	sd->sex = acc.sex;

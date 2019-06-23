@@ -816,6 +816,10 @@ int RFIFOSKIP(int fd, size_t len)
 #ifdef SHOW_SERVER_STATS
 	socket_data_qi -= len;
 #endif
+
+#if C_SOCKET_ENCRYPT > 0
+	s->cryptlen = s->cryptlen > len ? s->cryptlen - len : 0;
+#endif
 	return 0;
 }
 
