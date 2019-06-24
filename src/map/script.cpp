@@ -3655,11 +3655,11 @@ struct script_state* script_alloc_state(struct script_code* rootscript, int pos,
 	return st;
 }
 
-static void script_bkst_set_state(struct script_state* st, bool setnull = true) {
+static void script_bkst_set_state(struct script_state* st, bool alwaysdrop = true) {
 	if (!battle_config.multiple_script_state) {
-		if (st->bk_st) // backup was not restored
-			ShowDebug("script_free_state: Previous script state lost (rid=%d, oid=%d, state=%d, bk_npcid=%d).\n", st->rid, st->oid, st->state, st->bk_npcid);
-		if (setnull)
+		if (st->bk_st && !alwaysdrop) // backup was not restored
+			ShowDebug("script_bkst_set_state: Previous script state lost (rid=%d, oid=%d, state=%d, bk_npcid=%d).\n", st->rid, st->oid, st->state, st->bk_npcid);
+		if (alwaysdrop)
 			st->bk_st = NULL;
 	} else {
 		if (st->bk_st && st->bk_st->bk_st)
