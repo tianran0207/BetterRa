@@ -349,6 +349,10 @@ struct map_session_data {
 	bool runing_event[NPCE_MAX];
 	int menulist_data;
 	int sleep_mes_active;
+	struct s_damage_event {
+		short dmg_type, dmg_skillid, dmg_skilllv, dmg_targettype, dmg_gid, dmg_rid, dmg_mark;
+		int dmg_damage;
+	}eventparam;
 	/**
 	 * Extended Vending system [Lilith]
 	**/

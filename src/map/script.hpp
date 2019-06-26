@@ -290,6 +290,8 @@ struct Script_Config {
 	const char* drop_item_filter_name;
 	// Mob related
 	const char* mob_drop_item_filter_name;
+	// ATK related
+	const char* attack_filter_name;
 };
 extern struct Script_Config script_config;
 

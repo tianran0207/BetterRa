@@ -358,7 +358,8 @@ struct Script_Config script_config = {
 	"OnPCTradeAddFilter", //trade_add_filter_name
 	"OnPCMailAddFilter", //mail_add_filter_name
 	"OnPCDropItemFilter", //drop_item_filter_name
-	"OnMOBDropItemFilter" //mob_drop_item_filter_name
+	"OnMOBDropItemFilter", //mob_drop_item_filter_name
+	"OnPCAttackFilter" //attack_filter_name
 };
 
 static jmp_buf     error_jump;
@@ -27825,6 +27826,23 @@ BUILDIN_FUNC(unitspecialeffect)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(unitatkeventmark)
+{
+	struct block_list *bl;
+	struct unit_data *ud;
+	int num = script_getnum(st, 3);
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!(ud = unit_bl2ud(bl))) {
+		ShowError("buildin_unitatkeventmark: unsupported the type '%d'\n", bl->type);
+		return SCRIPT_CMD_FAILURE;
+	}
+	ud->attackevent_mark = num;
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(sendmail)
 {
 	const char *sender, *title, *body;
@@ -28852,6 +28870,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(countitem, "countrentitem", "v?"),
 	BUILDIN_DEF2(countitem, "countrentitem2", "viiiiiii?"),
 	BUILDIN_DEF2(countitem, "countrentitem3", "viiiiiiirrr?"),
+	BUILDIN_DEF(unitatkeventmark,"ii"),
 
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL

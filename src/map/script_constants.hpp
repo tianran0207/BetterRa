@@ -589,6 +589,15 @@
 
 	export_constant(CELL_SAFEZONE);
 	export_constant(CELL_CHKSAFEZONE);
+
+	export_parameter("dmg_type", SP_DMG_TYPE);
+	export_parameter("dmg_damage", SP_DMG_DAMAGE);
+	export_parameter("dmg_skillid", SP_DMG_SKILLID);
+	export_parameter("dmg_skilllv", SP_DMG_SKILLLV);
+	export_parameter("dmg_targettype", SP_DMG_TARGETTYPE);
+	export_parameter("dmg_gid", SP_DMG_TARGETTYPE);
+	export_parameter("dmg_mobid", SP_DMG_MOBID);
+	export_parameter("dmg_mark", SP_DMG_MARK);
 	//-----------------------------------------------------------------------
 	export_constant2("bMaxHP",SP_MAXHP);
 	export_constant2("bMaxSP",SP_MAXSP);

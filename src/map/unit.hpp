@@ -31,6 +31,7 @@ struct unit_data {
 		short casttime;
 		unsigned type : 2;
 	}skill_fixed;
+	short attackevent_mark;
 	short attacktarget_lv;
 	short to_x, to_y;
 	short skillx, skilly;

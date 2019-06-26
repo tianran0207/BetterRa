@@ -8894,6 +8894,14 @@ int pc_readparam(struct map_session_data* sd,int type)
 	nullpo_ret(sd);
 
 	switch(type) {
+		case SP_DMG_TYPE:        val = sd->eventparam.dmg_type; break;
+		case SP_DMG_DAMAGE:      val = sd->eventparam.dmg_damage; break;
+		case SP_DMG_SKILLID:     val = sd->eventparam.dmg_skillid; break;
+		case SP_DMG_SKILLLV:     val = sd->eventparam.dmg_skilllv; break;
+		case SP_DMG_TARGETTYPE:  val = sd->eventparam.dmg_targettype; break;
+		case SP_DMG_TARGETGID:   val = sd->eventparam.dmg_gid; break;
+		case SP_DMG_MOBID:       val = sd->eventparam.dmg_rid; break;
+		case SP_DMG_MARK:        val = sd->eventparam.dmg_mark; break;
 		case SP_SKILLPOINT:      val = sd->status.skill_point; break;
 		case SP_STATUSPOINT:     val = sd->status.status_point; break;
 		case SP_ZENY:            val = sd->status.zeny; break;
@@ -9062,6 +9070,30 @@ bool pc_setparam(struct map_session_data *sd,int type,int val)
 	nullpo_retr(false,sd);
 
 	switch(type){
+	case SP_DMG_TYPE:
+		sd->eventparam.dmg_type = val;
+		break;
+	case SP_DMG_DAMAGE:
+		sd->eventparam.dmg_damage = val;
+		break;
+	case SP_DMG_SKILLID:
+		sd->eventparam.dmg_skillid = val;
+		break;
+	case SP_DMG_SKILLLV:
+		sd->eventparam.dmg_skilllv = val;
+		break;
+	case SP_DMG_TARGETTYPE:
+		sd->eventparam.dmg_targettype = val;
+		break;
+	case SP_DMG_TARGETGID:
+		sd->eventparam.dmg_gid = val;
+		break;
+	case SP_DMG_MOBID:
+		sd->eventparam.dmg_rid = val;
+		break;
+	case SP_DMG_MARK:
+		sd->eventparam.dmg_mark = val;
+		break;
 	case SP_BASELEVEL:
 		if ((unsigned int)val > pc_maxbaselv(sd)) //Capping to max
 			val = pc_maxbaselv(sd);

@@ -362,6 +362,25 @@ int battle_delay_damage(t_tick tick, int amotion, struct block_list *src, struct
 		damage > 0 && skill_id != PA_PRESSURE && skill_id != CR_REFLECTSHIELD )
 		damage = 0;
 
+
+	if (src->type == BL_PC && !isspdamage && npc_script_event_check((TBL_PC*)src, NPCE_ATKFILTER)) {
+		struct unit_data *ud;
+		if ((battle_config.attack_filter_target&(target->type)) || (ud = unit_bl2ud(target)) && ud->attackevent_mark) {
+			struct map_session_data* sd = (TBL_PC*)src;
+			pc_setparam(sd, SP_DMG_TYPE, attack_type);
+			pc_setparam(sd, SP_DMG_DAMAGE, (int)cap_value(damage, 0, INT_MAX));
+			pc_setparam(sd, SP_DMG_SKILLID, skill_id);
+			pc_setparam(sd, SP_DMG_SKILLLV, skill_lv);
+			pc_setparam(sd, SP_DMG_TARGETTYPE, target->type);
+			pc_setparam(sd, SP_DMG_TARGETGID, target->id);
+			pc_setparam(sd, SP_DMG_MOBID, target->type == BL_MOB ? ((TBL_MOB*)target)->mob_id : 0);
+			pc_setparam(sd, SP_DMG_MARK, ud ? ud->attackevent_mark : 0);
+			npc_script_event_atonce(sd, NPCE_ATKFILTER);
+			if (sd->state.processhalt)
+				damage = pc_readparam(sd, SP_DMG_DAMAGE);
+		}
+	}
+
 	if ( !battle_config.delay_battle_damage || amotion <= 1 ) {
 		//Deal damage
 		battle_damage(src, target, damage, ddelay, skill_lv, skill_id, dmg_lv, attack_type, additional_effects, gettick(), isspdamage);
@@ -8221,6 +8240,7 @@ static const struct _battle_data {
 	{ "homunculus_share_exp",				&battle_config.homunculus_share_exp,            0,      0,      100,            },
 	{ "remove_noinfo_pet",                  &battle_config.remove_noinfo_pet,               1,      0,      1,              },
 	{ "multiple_script_state",              &battle_config.multiple_script_state,           0,      0,      1,              },
+	{ "attack_filter_target",               &battle_config.attack_filter_target,            0,      0,      BL_ALL,         },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },
