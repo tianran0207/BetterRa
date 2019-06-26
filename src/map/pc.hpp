@@ -350,8 +350,8 @@ struct map_session_data {
 	int menulist_data;
 	int sleep_mes_active;
 	struct s_damage_event {
-		short dmg_type, dmg_skillid, dmg_skilllv, dmg_targettype, dmg_gid, dmg_rid, dmg_mark;
-		int dmg_damage;
+		short dmg_type, dmg_skillid, dmg_skilllv, dmg_targettype, dmg_rid, dmg_mark;
+		int dmg_damage, dmg_gid;
 	}eventparam;
 	/**
 	 * Extended Vending system [Lilith]

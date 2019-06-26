@@ -364,8 +364,8 @@ int battle_delay_damage(t_tick tick, int amotion, struct block_list *src, struct
 
 
 	if (src->type == BL_PC && !isspdamage && npc_script_event_check((TBL_PC*)src, NPCE_ATKFILTER)) {
-		struct unit_data *ud;
-		if ((battle_config.attack_filter_target&(target->type)) || (ud = unit_bl2ud(target)) && ud->attackevent_mark) {
+		struct unit_data *ud = unit_bl2ud(target);
+		if ((battle_config.attack_filter_target&(target->type)) || ud && ud->attackevent_mark) {
 			struct map_session_data* sd = (TBL_PC*)src;
 			pc_setparam(sd, SP_DMG_TYPE, attack_type);
 			pc_setparam(sd, SP_DMG_DAMAGE, (int)cap_value(damage, 0, INT_MAX));

@@ -9072,28 +9072,28 @@ bool pc_setparam(struct map_session_data *sd,int type,int val)
 	switch(type){
 	case SP_DMG_TYPE:
 		sd->eventparam.dmg_type = val;
-		break;
+		return true;
 	case SP_DMG_DAMAGE:
 		sd->eventparam.dmg_damage = val;
-		break;
+		return true;
 	case SP_DMG_SKILLID:
 		sd->eventparam.dmg_skillid = val;
-		break;
+		return true;
 	case SP_DMG_SKILLLV:
 		sd->eventparam.dmg_skilllv = val;
-		break;
+		return true;
 	case SP_DMG_TARGETTYPE:
 		sd->eventparam.dmg_targettype = val;
-		break;
+		return true;
 	case SP_DMG_TARGETGID:
 		sd->eventparam.dmg_gid = val;
-		break;
+		return true;
 	case SP_DMG_MOBID:
 		sd->eventparam.dmg_rid = val;
-		break;
+		return true;
 	case SP_DMG_MARK:
 		sd->eventparam.dmg_mark = val;
-		break;
+		return true;
 	case SP_BASELEVEL:
 		if ((unsigned int)val > pc_maxbaselv(sd)) //Capping to max
 			val = pc_maxbaselv(sd);
