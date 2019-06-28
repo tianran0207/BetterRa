@@ -21924,39 +21924,55 @@ static int clif_parse(int fd)
 
 	cmd = RFIFOW(fd, 0);
 
-#ifdef C_SOCKET_ENCRYPT_TEST
-	if (cmd == 0xFFFF && !session[fd]->flag.server) {
+#if C_SOCKET_ENCRYPT > 0
+	if (cmd == 0xFFFF) {
 		if (RFIFOREST(fd) < 4)
 			return 0;
+
 		uint16 len = RFIFOW(fd, 2);
-		if (RFIFOREST(fd) > 1024) {
-			ShowError("parse_char: Received packet too long. packet size %d", RFIFOREST(fd));
+		if (len > 2048) {
+			ShowWarning("Received packet too long (ip: %s). len: %d(%u)\n", ip2str(session[fd]->client_addr, NULL), len, RFIFOREST(fd));
 			set_eof(fd);
 			return 0;
 		}
-		else if (RFIFOREST(fd) < len)
+		if (RFIFOREST(fd) < len)
 			return 0;
+
+		session[fd]->cryptlen = len;
 
 		rc4_crypt2((unsigned char *)RFIFOP(fd, 4), len - 4);
 
 		RFIFOSKIP(fd, 8);
 		cmd = RFIFOW(fd, 0);
-	}
-	else if (cmd != 0x9F0F && sd) {
-		size_t i, len = RFIFOREST(fd);
-		char hex[CHAT_SIZE_MAX * 3 + 64];
-		for (i = 0; i < len && i < CHAT_SIZE_MAX; i++)
-		{
-			char c = RBUFB(RFIFOP(fd, 0), i);
-			sprintf(hex + (i * 3), "%02X ", RBUFB(RFIFOP(fd, 0), i));
-		}
-		ShowWarning("HEAD: 0x%04X, LEN: %d, PACKET: %s\n", cmd, len, hex);
-		if (sd && ++sd->nodecrypt < 5) {
-			RFIFOSKIP(fd, len);
+		if (cmd == 0xFFFD) {
+#if C_SOCKET_HOOKDLL > 0
+			FILE *log = NULL;
+			if ((log = fopen("./log/DLL_remote.log", "a+"))) {
+				char timestring[255], md5[33] = { 0 }, output[2048];
+				time_t curtime;
+				time(&curtime);
+				uint16 outputlen = len - 2 - 32 - 8;
+				memcpy(md5, RFIFOP(fd, 2), 32);
+				memcpy(output, RFIFOP(fd, 34), outputlen);
+				rc4_crypt2((unsigned char *)output, outputlen);
+				output[outputlen] = '\0';
+				strftime(timestring, 254, "%m/%d/%Y %H:%M:%S", localtime(&curtime));
+				if (npc_script_event_check(sd, NPCE_HOOKDLLEVENT)) {
+					pc_setregstr(sd, add_str("@hook_dll$"), output);
+					pc_setreg(sd, add_str("@hook_time"), atol(timestring));
+					pc_setreg(sd, add_str("@hook_aid"), sd->status.account_id);
+					npc_script_event(sd, NPCE_HOOKDLLEVENT);
+				}
+				if (sd)
+					fprintf(log, "(%s) [ %s(%d) ][ %s ] : %s\n", timestring, sd->status.name, sd->status.char_id, md5, output);
+				else
+					fprintf(log, "(%s) [ %s ] : %s\n", timestring, md5, output);
+				fclose(log);
+			}
+#endif
+			RFIFOSKIP(fd, len - 8);
 			return 0;
 		}
-		set_eof(fd);
-		return 0;
 	}
 #endif
 

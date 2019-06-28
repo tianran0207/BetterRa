@@ -359,7 +359,8 @@ struct Script_Config script_config = {
 	"OnPCMailAddFilter", //mail_add_filter_name
 	"OnPCDropItemFilter", //drop_item_filter_name
 	"OnMOBDropItemFilter", //mob_drop_item_filter_name
-	"OnPCAttackFilter" //attack_filter_name
+	"OnPCAttackFilter", //attack_filter_name
+	"OnPCHookDllEvent" //hook_dll_event_name
 };
 
 static jmp_buf     error_jump;
