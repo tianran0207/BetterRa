@@ -5370,7 +5370,7 @@ TIMER_FUNC(server_verification) {
 		MD5_String(url, md5);
 		snprintf(url, sizeof(url), "%s?tick=%d&token=%s", C_VERIFYURL, tick, md5);
 		memset(cookies, 0, sizeof(cookies));
-		http_get(url, 1, false, false, 0);
+		http_get(url, 3, false, false, 0);
 		server_verification_checkurl(url);
 		verification_act = 1;
 		ShowStatus("Validate authorization message..\n");
@@ -5425,7 +5425,7 @@ void server_verification_result(char *url, char *result) {
 		snprintf(output, sizeof(output), "%s%s%d", C_USEREMAIL, md5, tick);
 		MD5_String(output, md5);
 		snprintf(output, sizeof(output), "%s?email=%s&code=%s&tick=%d&vef=%s", C_VERIFYURL, C_USEREMAIL, signature, tick, md5);
-		http_get(output, 1, false, false, 0);
+		http_get(output, 3, false, false, 0);
 		server_verification_checkurl(output);
 		break;
 	case 2:
@@ -5747,10 +5747,13 @@ int map_checknear(struct block_list* bl, int range, int cell) {
 struct http_session_data {
 	char url[512];
 	char host[64];
+	uint16 post;
+	int timeout;
 	char folder[512];
 	int num;
 	bool forscript;
 	bool load_file;
+	HANDLE Thread;
 };
 
 static int http_parse(int fd) {
@@ -5785,7 +5788,7 @@ static int http_parse(int fd) {
 
 	while (head_prt[0]) {
 
-		if (((head_prt[1] = strstr(head_prt[0], "\r\n")) == NULL && head_prt[1] < head_end)|| sscanf(head_prt[0], "%63[^:]: %511[^\r\n]", head_name, head_val) < 2)
+		if (((head_prt[1] = strstr(head_prt[0], "\r\n")) == NULL && head_prt[1] < head_end) || sscanf(head_prt[0], "%63[^:]: %511[^\r\n]", head_name, head_val) < 2)
 			break;
 
 		if (strcmp(head_name, "Content-Length") == 0)
@@ -5824,7 +5827,8 @@ static int http_parse(int fd) {
 			return 0;
 		}
 		head_end = head_prt[1] - 2;
-	}else if (contentlen != RFIFOREST(fd) - (head_end + 4 - req))
+	}
+	else if (contentlen != RFIFOREST(fd) - (head_end + 4 - req))
 		return 0;
 
 	content = (char *)aMalloc(contentlen + 1);
@@ -5838,7 +5842,7 @@ static int http_parse(int fd) {
 		mapreg_setregstr(add_str("$@http_url$"), http_data->url);
 		mapreg_setregstr(add_str("$@http_host$"), http_data->host);
 		mapreg_setregstr(add_str("$@http_folder$"), http_data->folder);
-		mapreg_setregstr(add_str("$@http_str$"), http_data->load_file ? "" : content);
+		mapreg_setregstr(add_str("$@http_str$"), content);
 		npc_event_doall(script_config.http_received_event_name);
 	}
 
@@ -5853,51 +5857,63 @@ static int http_parse(int fd) {
 	return 0;
 }
 
+DWORD WINAPI http_connect(LPVOID lpParameter) {
+
+	struct http_session_data* http_data = (struct http_session_data*)lpParameter;
+	char header[2048], *str_p = header;
+	int len;
+
+	int http_fd = make_connection(host2ip(http_data->host), http_data->post, true, http_data->timeout);
+	if (http_fd == -1) {
+		aFree(http_data);
+		ShowError("http_connect: url '%s%s' no response.\n", http_data->host, http_data->folder);
+		CloseHandle(http_data->Thread);
+		return false;
+	}
+	
+	session[http_fd]->session_data = http_data;
+	session[http_fd]->flag.server = 1;
+	session[http_fd]->func_parse = http_parse;
+	realloc_fifo(http_fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
+
+	str_p += sprintf(str_p, "GET /%s HTTP/1.1\r\n", http_data->folder);
+	str_p += sprintf(str_p, "Accept: */*\r\n");
+	if (cookies[0]) {
+		str_p += sprintf(str_p, "Cookie: %s\r\n", cookies);
+	}
+	str_p += (http_data->post == 80 ? sprintf(str_p, "Host: %s\r\n\r\n", http_data->host) : sprintf(str_p, "Host: %s:%hu\r\n\r\n", http_data->host, http_data->post));
+	len = strlen(header) + 1;
+
+	WFIFOHEAD(http_fd, len);
+	safestrncpy(WFIFOCP(http_fd, 0), header, len);
+	WFIFOSET(http_fd, len - 1);
+	CloseHandle(http_data->Thread);
+	return 0;
+}
+
 bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int num)
 {
 	struct http_session_data* http_data;
+	char host[64], folder[512] = {};
 	uint16 post = 80;
-	int http_fd, len;
-	char host[64], folder[512], header[2048], *str_p = header;
-
-	folder[0] = '\0';
 
 	if (sscanf(url, "http://%64[^/]/%512s", host, folder) == 0)
 		return false;
 
 	sscanf(url, "http://%64[^:/]:%hu", host, &post);
 
-	http_fd = make_connection(host2ip(host), post, true, timeout);
-
-	if (http_fd == -1)
-		return false;
-
-	session[http_fd]->flag.server = 1;
-	session[http_fd]->func_parse = http_parse;
-	realloc_fifo(http_fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
-
-	CREATE(session[http_fd]->session_data, struct http_session_data, 1);
-	http_data = (struct http_session_data*)session[http_fd]->session_data;
+	CREATE(http_data, struct http_session_data, 1);
 	memset(http_data, 0, sizeof(http_data));
-
 	safestrncpy(http_data->url, url, sizeof(http_data->url));
 	safestrncpy(http_data->host, host, sizeof(host));
 	safestrncpy(http_data->folder, folder, sizeof(folder));
+	http_data->post = post;
+	http_data->timeout = timeout;
 	http_data->num = num;
 	http_data->forscript = loadfile ? false : forscript;
 	http_data->load_file = loadfile;
 
-	str_p += sprintf(str_p, "GET /%s HTTP/1.1\r\n", folder);
-	str_p += sprintf(str_p, "Accept: */*\r\n");
-	if (cookies[0]) {
-		str_p += sprintf(str_p, "Cookie: %s\r\n", cookies);
-	}
-	str_p += (post == 80 ? sprintf(str_p, "Host: %s\r\n\r\n", host) : sprintf(str_p, "Host: %s:%hu\r\n\r\n", host, post));
-	len = strlen(header) + 1;
-
-	WFIFOHEAD(http_fd, len);
-	safestrncpy(WFIFOCP(http_fd, 0), header, len);
-	WFIFOSET(http_fd, len - 1);
+	http_data->Thread = CreateThread(NULL, 0, http_connect, http_data, 0, NULL);
 
 	return true;
 }
