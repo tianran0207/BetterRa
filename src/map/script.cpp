@@ -24802,33 +24802,56 @@ BUILDIN_FUNC(processhalt)
 BUILDIN_FUNC(getinventoryinfo)
 {
 	TBL_PC *sd;
-	int idx;
+	struct item *storitem = NULL;
+	int idx, max;
+	const char *command = script_getfuncname(st);
+
 	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
+
+	if (strstr(command, "inventory")) {
+		storitem = sd->inventory.u.items_inventory;
+		max = MAX_INVENTORY;
+	}
+	else if (strstr(command, "guild")) {
+		struct s_storage *stor = NULL;
+		stor = guild2storage(sd->status.guild_id);
+		if (!stor || stor->lock) {
+			script_pushint(st, -1);
+			return SCRIPT_CMD_SUCCESS;
+		}
+		storitem = sd->storage.u.items_guild;
+		max = MAX_GUILD_STORAGE;
+	}
+	else{
+		storitem = sd->storage.u.items_storage;
+		max = MAX_STORAGE;
+	}
+
 	idx = script_getnum(st, 2);
-	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+	if (idx > -1 && idx < max && storitem[idx].nameid > 0 && storitem[idx].amount > 0) {
 		switch (script_getnum(st, 3)) {
-		case 0:			script_pushint(st, sd->inventory.u.items_inventory[idx].nameid);			break;
-		case 1:			script_pushint(st, sd->inventory.u.items_inventory[idx].amount);			break;
-		case 2:			script_pushint(st, sd->inventory.u.items_inventory[idx].equip);				break;
-		case 3:			script_pushint(st, sd->inventory.u.items_inventory[idx].refine);			break;
-		case 4:			script_pushint(st, sd->inventory.u.items_inventory[idx].identify);			break;
-		case 5:			script_pushint(st, sd->inventory.u.items_inventory[idx].attribute);			break;
-		case 6:			script_pushint(st, sd->inventory.u.items_inventory[idx].card[0]);			break;
-		case 7:			script_pushint(st, sd->inventory.u.items_inventory[idx].card[1]);			break;
-		case 8:			script_pushint(st, sd->inventory.u.items_inventory[idx].card[2]);			break;
-		case 9:			script_pushint(st, sd->inventory.u.items_inventory[idx].card[3]);			break;
-		case 10:		script_pushint(st, sd->inventory.u.items_inventory[idx].expire_time);		break;
-		case 11:		script_pushint(st, sd->inventory.u.items_inventory[idx].bound);				break;
-		case 12:		script_pushint(st, sd->inventory.u.items_inventory[idx].unique_id);			break;
-		case 16:		script_pushint(st, sd->inventory.u.items_inventory[idx].favorite);			break;
+		case 0:			script_pushint(st, storitem[idx].nameid);			break;
+		case 1:			script_pushint(st, storitem[idx].amount);			break;
+		case 2:			script_pushint(st, storitem[idx].equip);			break;
+		case 3:			script_pushint(st, storitem[idx].refine);			break;
+		case 4:			script_pushint(st, storitem[idx].identify);			break;
+		case 5:			script_pushint(st, storitem[idx].attribute);		break;
+		case 6:			script_pushint(st, storitem[idx].card[0]);			break;
+		case 7:			script_pushint(st, storitem[idx].card[1]);			break;
+		case 8:			script_pushint(st, storitem[idx].card[2]);			break;
+		case 9:			script_pushint(st, storitem[idx].card[3]);			break;
+		case 10:		script_pushint(st, storitem[idx].expire_time);		break;
+		case 11:		script_pushint(st, storitem[idx].bound);			break;
+		case 12:		script_pushint(st, storitem[idx].unique_id);		break;
+		case 16:		script_pushint(st, storitem[idx].favorite);			break;
 		default:
 			ShowError("buildin_getinventoryinfo: Invalid type %d\n", script_getnum(st, 3));
 			return SCRIPT_CMD_FAILURE;
 		}
-		return SCRIPT_CMD_SUCCESS;
-	}
-	script_pushint(st, -1);
+	}else
+		script_pushint(st, -1);
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -28801,6 +28824,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(processhalt, ""),
 	BUILDIN_DEF2(processhalt, "halt", ""),
 	BUILDIN_DEF(getinventoryinfo, "ii?"),
+	BUILDIN_DEF2(getinventoryinfo, "getstorageinfo", "ii?"),
+	BUILDIN_DEF2(getinventoryinfo, "getguildstorageinfo", "ii?"),
 	BUILDIN_DEF(delinventory, "ii?"),
 	BUILDIN_DEF(setchartitle, "i?"),
 	BUILDIN_DEF2(warpparty, "warpparty2", "siii???"),
