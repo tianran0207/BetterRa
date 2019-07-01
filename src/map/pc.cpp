@@ -5236,6 +5236,79 @@ short pc_search_inventory(struct map_session_data *sd, unsigned short nameid) {
 	return ( i < MAX_INVENTORY ) ? i : -1;
 }
 
+static int pc_additem_event(struct map_session_data *sd, enum npce_event ent, struct item *item, int amount, e_log_pick_type log_type) {
+	int idx = -1, source = 0, storid = -1, max;
+	struct item *storitem = NULL;
+
+	if (!npc_script_event_check(sd, ent))
+		return 1;
+
+	switch (log_type) {
+		case LOG_TYPE_NONE:
+			if (ent != NPCE_INVENTORYADDFILTER) {
+				storitem = sd->inventory.u.items_inventory;
+				max = MAX_INVENTORY;
+				source = 1;
+			}
+			else if (ent != NPCE_CARTADDFILTER) {
+				storitem = sd->cart.u.items_cart;
+				max = MAX_CART;
+				source = 2;
+			}
+		case LOG_TYPE_STORAGE:
+		case LOG_TYPE_GSTORAGE:
+			if (log_type == LOG_TYPE_NONE)
+				;
+			else if (sd->state.storage_flag == 1) {
+				storitem = sd->storage.u.items_storage;
+				storid = sd->storage.stor_id;
+				max = MAX_STORAGE;
+				source = 3;
+			}
+			else if (sd->state.storage_flag == 3) {
+				storitem = sd->premiumStorage.u.items_storage;
+				storid = sd->premiumStorage.stor_id;
+				max = MAX_STORAGE;
+				source = 3;
+			}
+			else if (sd->state.storage_flag == 2) {
+				struct s_storage *stor = guild2storage(sd->status.guild_id);
+				if (stor)
+					storitem = stor->u.items_storage;
+				max = MAX_GUILD_STORAGE;
+				source = 4;
+			}
+			if (storitem)
+				ARR_FIND(0, max, idx, storitem[idx].nameid == item->nameid && &storitem[idx] == item);
+			if (idx == max)
+				idx = -1;
+			break;
+		case LOG_TYPE_PICKDROP_PLAYER:	source = 5;		break;
+		case LOG_TYPE_NPC:				source = 6;		break;
+		case LOG_TYPE_SCRIPT:			source = 7;		break;
+		case LOG_TYPE_MAIL:				source = 8;		break;
+		case LOG_TYPE_TRADE:			source = 9;		break;
+		case LOG_TYPE_VENDING:			source = 10;		break;
+		case LOG_TYPE_BUYING_STORE:		source = 11;		break;
+		case LOG_TYPE_CONSUME: 			source = 12;		break;
+		case LOG_TYPE_PRODUCE: 			source = 13;		break;
+		case LOG_TYPE_QUEST: 			source = 14;		break;
+		case LOG_TYPE_CASH: 			source = 15;		break;
+		case LOG_TYPE_COMMAND:			source = 16;		break;
+		case LOG_TYPE_ROULETTE:			source = 17;		break;
+		case LOG_TYPE_AUCTION:			source = 18;		break;
+		case LOG_TYPE_OTHER: 			source = 19;		break;
+	}
+	pc_setreg(sd, add_str("@recv_itemid"), item->nameid);
+	pc_setreg(sd, add_str("@recv_amount"), amount);
+	pc_setreg(sd, add_str("@recv_source"), source);
+	pc_setreg(sd, add_str("@recv_storid"), storid);
+	pc_setreg(sd, add_str("@recv_idx"), idx);
+	npc_script_event_atonce(sd, NPCE_INVENTORYADDFILTER);
+
+	return sd->state.processhalt ? 0 : 1;
+}
+
 /** Attempt to add a new item to player inventory
  * @param sd
  * @param item_data
@@ -5290,6 +5363,10 @@ enum e_additem_result pc_additem(struct map_session_data *sd,struct item *item,i
 				memcmp(&sd->inventory.u.items_inventory[i].card, &item->card, sizeof(item->card)) == 0 ) {
 				if( amount > MAX_AMOUNT - sd->inventory.u.items_inventory[i].amount || ( id->stack.inventory && amount > id->stack.amount - sd->inventory.u.items_inventory[i].amount ) )
 					return ADDITEM_OVERAMOUNT;
+
+				if (!pc_additem_event(sd, NPCE_INVENTORYADDFILTER, item, amount, log_type))
+					return ADDITEM_INVALID;
+
 				sd->inventory.u.items_inventory[i].amount += amount;
 				clif_additem(sd,i,amount,0);
 				break;
@@ -5301,6 +5378,9 @@ enum e_additem_result pc_additem(struct map_session_data *sd,struct item *item,i
 		i = pc_search_inventory(sd,0);
 		if( i < 0 )
 			return ADDITEM_OVERITEM;
+
+		if (!pc_additem_event(sd, NPCE_INVENTORYADDFILTER, item, amount, log_type))
+			return ADDITEM_INVALID;
 
 		memcpy(&sd->inventory.u.items_inventory[i], item, sizeof(sd->inventory.u.items_inventory[0]));
 		// clear equip and favorite fields first, just in case
@@ -5905,6 +5985,9 @@ enum e_additem_result pc_cart_additem(struct map_session_data *sd,struct item *i
 		if( amount > MAX_AMOUNT - sd->cart.u.items_cart[i].amount || ( data->stack.cart && amount > data->stack.amount - sd->cart.u.items_cart[i].amount ) )
 			return ADDITEM_OVERAMOUNT; // no slot
 
+		if (!pc_additem_event(sd, NPCE_CARTADDFILTER, item, amount, log_type))
+			return ADDITEM_INVALID;
+
 		sd->cart.u.items_cart[i].amount += amount;
 		clif_cart_additem(sd,i,amount,0);
 	}
@@ -5913,6 +5996,9 @@ enum e_additem_result pc_cart_additem(struct map_session_data *sd,struct item *i
 		ARR_FIND( 0, MAX_CART, i, sd->cart.u.items_cart[i].nameid == 0 );
 		if( i == MAX_CART )
 			return ADDITEM_OVERAMOUNT; // no slot
+
+		if (!pc_additem_event(sd, NPCE_CARTADDFILTER, item, amount, log_type))
+			return ADDITEM_INVALID;
 
 		memcpy(&sd->cart.u.items_cart[i],item,sizeof(sd->cart.u.items_cart[0]));
 		sd->cart.u.items_cart[i].id = 0;

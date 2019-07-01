@@ -287,6 +287,9 @@ struct Script_Config {
 	// Trade_add_related
 	const char* trade_add_filter_name;
 	const char* mail_add_filter_name;
+	const char* storage_add_filter_name;
+	const char* cart_add_filter_name;
+	const char* inventory_add_filter_name;
 	const char* drop_item_filter_name;
 	// Mob related
 	const char* mob_drop_item_filter_name;

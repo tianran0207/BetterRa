@@ -4827,6 +4827,12 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.trade_add_filter_name;
 	case NPCE_MAILADDFILTER:
 		return script_config.mail_add_filter_name;
+	case NPCE_STORAGEADDFILTER:
+		return script_config.storage_add_filter_name;
+	case NPCE_CARTADDFILTER:
+		return script_config.cart_add_filter_name;
+	case NPCE_INVENTORYADDFILTER:
+		return script_config.inventory_add_filter_name;
 	case NPCE_DROPITEMFILTER:
 		return script_config.drop_item_filter_name;
 	case NPCE_MOBDROPITEMFILTER:
