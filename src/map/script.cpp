@@ -24878,7 +24878,15 @@ BUILDIN_FUNC(getinventoryinfo)
 		max = MAX_GUILD_STORAGE;
 	}
 	else{
-		storitem = sd->storage.u.items_storage;
+		int storid = script_hasdata(st,4) ? script_getnum(st, 4) : sd->storage.stor_id;
+		if (storid == sd->storage.stor_id)
+			storitem = sd->storage.u.items_storage;
+		else if (storid == sd->premiumStorage.stor_id)
+			storitem = sd->premiumStorage.u.items_storage;
+		else {
+			script_pushint(st, -1);
+			return SCRIPT_CMD_SUCCESS;
+		}
 		max = MAX_STORAGE;
 	}
 
@@ -28879,7 +28887,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(processhalt, ""),
 	BUILDIN_DEF2(processhalt, "halt", ""),
 	BUILDIN_DEF(getinventoryinfo, "ii?"),
-	BUILDIN_DEF2(getinventoryinfo, "getstorageinfo", "ii?"),
+	BUILDIN_DEF2(getinventoryinfo, "getstorageinfo", "ii??"),
 	BUILDIN_DEF2(getinventoryinfo, "getguildstorageinfo", "ii?"),
 	BUILDIN_DEF(delinventory, "ii?"),
 	BUILDIN_DEF(setchartitle, "i?"),
