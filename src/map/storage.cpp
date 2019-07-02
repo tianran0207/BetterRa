@@ -243,6 +243,30 @@ static enum e_storage_add storage_canGetItem(struct s_storage *stor, int idx, in
 	return STORAGE_ADD_OK;
 }
 
+static int storage_addevent(struct map_session_data* sd, struct s_storage *stor, struct item *it, int amount) {
+	int i = 0, source;
+
+	if (!npc_script_event_check(sd, NPCE_STORAGEADDFILTER))
+		return 1;
+
+	ARR_FIND(0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].nameid == it->nameid && &sd->inventory.u.items_inventory[i] == it);
+	if (i < MAX_INVENTORY) {
+		source = TABLE_INVENTORY;
+	} else {
+		ARR_FIND(0, MAX_CART, i, sd->cart.u.items_cart[i].nameid == it->nameid && &sd->cart.u.items_cart[i] == it);
+		source = TABLE_CART;
+	}
+
+	pc_setreg(sd, add_str("@recv_itemid"), it->nameid);
+	pc_setreg(sd, add_str("@recv_amount"), amount);
+	pc_setreg(sd, add_str("@recv_source"), source);
+	pc_setreg(sd, add_str("@recv_storid"), stor->type != TABLE_STORAGE ? -1 : stor->stor_id);
+	pc_setreg(sd, add_str("@recv_idx"), i);
+	npc_script_event_atonce(sd, NPCE_STORAGEADDFILTER);
+
+	return sd->state.processhalt ? 0 : 1;
+}
+
 /**
  * Make a player add an item to his storage
  * @param sd : player
@@ -280,6 +304,9 @@ static int storage_additem(struct map_session_data* sd, struct s_storage *stor, 
 				if( amount > MAX_AMOUNT - stor->u.items_storage[i].amount || ( data->stack.storage && amount > data->stack.amount - stor->u.items_storage[i].amount ) )
 					return 2;
 
+				if (!storage_addevent(sd, stor, it, amount))
+					return 1;
+
 				stor->u.items_storage[i].amount += amount;
 				stor->dirty = true;
 				clif_storageitemadded(sd,&stor->u.items_storage[i],i,amount);
@@ -296,6 +323,9 @@ static int storage_additem(struct map_session_data* sd, struct s_storage *stor, 
 	ARR_FIND( 0, stor->max_amount, i, stor->u.items_storage[i].nameid == 0 );
 	if( i >= stor->max_amount )
 		return 2;
+
+	if (!storage_addevent(sd, stor, it, amount))
+		return 1;
 
 	// add item to slot
 	memcpy(&stor->u.items_storage[i],it,sizeof(stor->u.items_storage[0]));

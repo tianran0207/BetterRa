@@ -357,6 +357,9 @@ struct Script_Config script_config = {
 	"OnPCMoveFilter", //move_filter_name
 	"OnPCTradeAddFilter", //trade_add_filter_name
 	"OnPCMailAddFilter", //mail_add_filter_name
+	"OnPCStorageAddFilter", //storage_add_filter_name
+	"OnPCCartAddFilter", //cart_add_filter_name
+	"OnPCInventoryAddFilter", //inventory_add_filter_name
 	"OnPCDropItemFilter", //drop_item_filter_name
 	"OnMOBDropItemFilter", //mob_drop_item_filter_name
 	"OnPCAttackFilter", //attack_filter_name

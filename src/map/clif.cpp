@@ -16251,9 +16251,16 @@ void clif_parse_Mail_setattach(int fd, struct map_session_data *sd){
 		return;
 
 	if (npc_script_event_check(sd, NPCE_MAILADDFILTER)) {
-		int index = idx - 2, itemid = 0;
+		int index = idx - 2, itemid = 0, i;
 		if (index >= 0 && index < MAX_INVENTORY && sd->inventory_data[index] != nullptr)
 			itemid = sd->inventory_data[index]->nameid;
+
+		ARR_FIND(0, MAIL_MAX_ITEM, i, sd->mail.item[i].index == index && sd->mail.item[i].nameid > 0);
+		if (i < MAIL_MAX_ITEM) {
+			if (!itemdb_isstackable(sd->mail.item[i].nameid) || (amount + sd->mail.item[i].amount) > sd->inventory.u.items_inventory[index].amount ||
+				sd->inventory.u.items_inventory[idx].equipSwitch)
+				return;
+		}
 		pc_setreg(sd, add_str("@mail_itemid"), itemid);
 		pc_setreg(sd, add_str("@mail_amount"), amount);
 		pc_setreg(sd, add_str("@mail_idx"), index < 0 ? -1 : index);
