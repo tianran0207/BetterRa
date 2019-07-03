@@ -9957,6 +9957,11 @@ void pc_setoption(struct map_session_data *sd,int type)
 		new_look = JOB_STAR_GLADIATOR2;
 	else if (!(type&OPTION_FLYING) && p_type&OPTION_FLYING)
 		new_look = -1;
+	
+	if (type&OPTION_WEDDING && !(p_type&OPTION_WEDDING))
+		new_look = JOB_WEDDING;
+	else if (!(type&OPTION_WEDDING) && p_type&OPTION_WEDDING)
+		new_look = -1;
 
 	if (sd->disguise || !new_look)
 		return; //Disguises break sprite changes
