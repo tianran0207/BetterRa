@@ -20868,6 +20868,60 @@ BUILDIN_FUNC(instance_info)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+/*------------------------------------------
+*instance_live_info( <info type>{, <instance id>} );
+- ILI_NAME : Instance Name
+- ILI_MODE : Instance Mode
+- ILI_OWNER : owner id
+*------------------------------------------*/
+BUILDIN_FUNC(instance_live_info)
+{
+	int type = script_getnum(st, 2);
+	int id = 0;
+
+	if (type < ILI_NAME || type > ILI_OWNER) {
+		ShowError("buildin_instance_live_info: Unknown instance information type \"%d\".\n", type);
+		script_pushint(st, -1);
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	if (!script_hasdata(st, 3))
+		id = script_instancegetid(st);
+	else
+		id = script_getnum(st, 3);
+
+	struct instance_db *db = nullptr;
+	struct instance_data *im = nullptr;
+
+	if (id > 0 && id < MAX_INSTANCE_DATA) {
+		im = &instance_data[id];
+
+		if (im)
+			db = instance_searchtype_db(im->type);
+	}
+
+	if (!im || !db) {
+		if (type == ILI_NAME)
+			script_pushconststr(st, "");
+		else
+			script_pushint(st, -1);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	switch( type ) {
+	case ILI_NAME:
+		script_pushstrcopy(st, StringBuf_Value(db->name));
+		break;
+	case ILI_MODE:
+		script_pushint(st, im->mode);
+		break;
+	case ILI_OWNER:
+		script_pushint(st, im->owner_id);
+		break;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
 /*==========================================
  * Custom Fonts
  *------------------------------------------*/
@@ -24824,7 +24878,15 @@ BUILDIN_FUNC(getinventoryinfo)
 		max = MAX_GUILD_STORAGE;
 	}
 	else{
-		storitem = sd->storage.u.items_storage;
+		int storid = script_hasdata(st,4) ? script_getnum(st, 4) : sd->storage.stor_id;
+		if (storid == sd->storage.stor_id)
+			storitem = sd->storage.u.items_storage;
+		else if (storid == sd->premiumStorage.stor_id)
+			storitem = sd->premiumStorage.u.items_storage;
+		else {
+			script_pushint(st, -1);
+			return SCRIPT_CMD_SUCCESS;
+		}
 		max = MAX_STORAGE;
 	}
 
@@ -28666,6 +28728,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(instance_check_guild,"i???"),
 	BUILDIN_DEF(instance_check_clan,"i???"),
 	BUILDIN_DEF(instance_info,"si?"),
+	BUILDIN_DEF(instance_live_info,"i?"),
 	/**
 	 * 3rd-related
 	 **/
@@ -28824,7 +28887,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(processhalt, ""),
 	BUILDIN_DEF2(processhalt, "halt", ""),
 	BUILDIN_DEF(getinventoryinfo, "ii?"),
-	BUILDIN_DEF2(getinventoryinfo, "getstorageinfo", "ii?"),
+	BUILDIN_DEF2(getinventoryinfo, "getstorageinfo", "ii??"),
 	BUILDIN_DEF2(getinventoryinfo, "getguildstorageinfo", "ii?"),
 	BUILDIN_DEF(delinventory, "ii?"),
 	BUILDIN_DEF(setchartitle, "i?"),

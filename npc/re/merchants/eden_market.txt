@@ -1,12 +1,12 @@
-//===== rAthena Script ======================================= 
+//===== rAthena Script =======================================
 //= Paradise Group Market
-//===== By: ================================================== 
+//===== By: ==================================================
 //= Anity99
-//===== Current Version: ===================================== 
+//===== Current Version: =====================================
 //= 1.0.2
-//===== Compatible With: ===================================== 
+//===== Compatible With: =====================================
 //= rAthena Project
-//===== Description: ========================================= 
+//===== Description: =========================================
 //= The Para Market is an NPC vending system in which certain monster-drop
 //= items are available from NPCs at a high price. Items are only available
 //= from designated Para Market NPCs. The Para Market is open all day and
@@ -14,7 +14,7 @@
 //= the weekends. Items sold in the Para Market are sold in limited
 //= quantities for the entire server. It is unknown how often they restock
 //= their wares.
-//===== Additional Comments: ================================= 
+//===== Additional Comments: =================================
 //= 1.0 First Version. [Nyalin]
 //= 1.0.1 Convert to Hercules [Ridley8819]
 //= 1.0.2 Convert to rAthena [Anity99]
@@ -28,102 +28,198 @@
 // $event_paramk, 4 // Late Saturday, Sunday
 
 function	script	F_CoolDown	{
-	if (@cd + getarg(0) > gettimetick(2))
+	if (@cd_marketshop + getarg(0) > gettimetick(2))
 		end;
-	@cd = gettimetick(2);
+	@cd_marketshop = gettimetick(2);
 	return;
 }
 
-//Shop NPC
-//Limited
--	marketshop	para_coin10	FAKE_NPC,6304:500000:10,6080:100000:10,6081:300000:10,6380:1000000:1000
+// Shop NPC
+// Limited
+-	marketshop	para_coin10	FAKE_NPC,6304:500000:10,6080:100000:10,6081:300000:10,6380:1000000:1000,6004:100000:1
 
--	marketshop	para_hei10	FAKE_NPC,6608:50000:1,6607:50000:1
+-	marketshop	para_hei10	FAKE_NPC,6608:150000:1,6607:20000:1,6755:200000:1,7642:10000:1,22687:200000:1,23016:1000000:1
 
--	marketshop	para_key10	FAKE_NPC,7026:100000:10,7027:100000:10
+-	marketshop	para_key10	FAKE_NPC,7026:100000:10,7027:100000:10 // todo
 
--	marketshop	para_wp00	FAKE_NPC,1484:10000000:1,1191:10000000:1,1261:10000000:1,1269:10000000:1
+-	marketshop	para_wp00	FAKE_NPC,1181:10000000:1
 
--	marketshop	para_arm10	FAKE_NPC,5492:2000000:1,2258:2000000:1
+-	marketshop	para_arm10	FAKE_NPC,5007:2000000:1
 
--	marketshop	para_ptn00	FAKE_NPC,678:300000:500,12016:300000:1000,525:100000:1000,12422:40000:100,12423:40000:100,12425:40000:100,12426:40000:100
+-	marketshop	para_ptn00	FAKE_NPC,678:80000:999,12016:50000:9999,525:100000:1000,12422:40000:100,12423:50000:100,12425:40000:100,12426:50000:100
 
--	marketshop	para_ptn10	FAKE_NPC,505:40000:100
+-	marketshop	para_ptn10	FAKE_NPC,505:40000:100,12679:100000:500,12676:30000:500,12680:50000:100
 
 -	marketshop	para_itm00	FAKE_NPC,12106:1500000:100,12107:500000:100,616:2500000:100,12194:200000:100
 
--	marketshop	para_itm10	FAKE_NPC,12008:5000:99999,12009:5000:99999,12012:100000:99999,12010:100000:99999,12011:100000:99999,12013:100000:99999,12014:100000:99999,7931:5000:99999
+-	marketshop	para_itm10	FAKE_NPC,12008:5000:99999,12009:5000:99999,12012:5000:100,12010:5000:100,12011:5000:100,12013:20000:100,12014:80000:100,7931:5000:100
 
--	marketshop	para_seed10	FAKE_NPC,12290:59800:100,12376:59800:100,12291:59800:100,12377:59800:100,576:16500:100,587:19800:100,526:50000:100,607:200000:20,608:200000:20
+-	marketshop	para_seed10	FAKE_NPC,12290:5000:100,12376:5000:100,12291:10000:100,12377:10000:100,576:2000:100,587:2000:100,526:10000:100,607:70000:20,608:50000:20
 
--	marketshop	para_mora10	FAKE_NPC,11526:80000:100,11525:5000:1000,11520:72600:100,12574:200000:100
+-	marketshop	para_mora10	FAKE_NPC,11526:5000:100,11525:5000:1000,11520:50000:100,12574:20000:100
 
 -	marketshop	para_ref10	FAKE_NPC,998:10000:500,1003:10000:500,1002:10000:500,999:10000:500
 
 -	marketshop	para_ref20	FAKE_NPC,984:200000:10,985:200000:100,987:240000:1,988:600000:1,989:1200000:1
 
--	marketshop	para_jew10	FAKE_NPC,969:1000000:20,7289:500000:20,7290:500000:20,7291:500000:20,7292:500000:20,7293:500000:20,7294:500000:20,7295:500000:20,7290:500000:20,7291:500000:20,7292:500000:20,7293:500000:20,7294:500000:20,7295:500000:20,7296:500000:20,7297:500000:20
+-	marketshop	para_jew10	FAKE_NPC,969:100000:20,7289:50000:20,7290:50000:20,7291:50000:20,7292:50000:20,7293:50000:20,7294:50000:20,7295:50000:20,7296:50000:20,7297:50000:20
 
--	marketshop	para_alc10	FAKE_NPC,971:100000:20,972:100000:20,970:100000:20
+-	marketshop	para_alc10	FAKE_NPC,971:20000:20,972:12000:20,970:12000:20:7136:7000:20,7135:18000:20
 
--	marketshop	para_alc20	FAKE_NPC,1061:20000:1000,905:10000:1000,1059:10000:1000,7033:10000:1000,7033:10000:1000,929:10000:1000
+-	marketshop	para_alc20	FAKE_NPC,1061:3000:1000,905:1000:1000,1059:1000:1000,7033:1000:1000,929:4000:1000
 
--	marketshop	para_alc30	FAKE_NPC,1000:20000:1000,1001:10000:1000,990:10000:1000,991:10000:1000,992:10000:1000,993:10000:1000
+-	marketshop	para_alc30	FAKE_NPC,1000:10000:100,1001:10000:100,990:10000:100,991:10000:100,992:10000:100,993:10000:100
 
--	marketshop	para_fod10	FAKE_NPC,6252:150000:100,6253:150000:100,6254:150000:100,6256:150000:100,6257:150000:100,6259:150000:100,6260:150000:100
+-	marketshop	para_fod10	FAKE_NPC,6252:40000:100,6253:8000:100,6254:30000:100,6256:15000:100,6257:15000:100,6259:15000:100,6260:10000:100,22658:80000:50,22569:100000:50
 
--	marketshop	para_mag10	FAKE_NPC,717:1500:99999,715:4500:99999,716:4500:99999,12108:20000:99999,14512:200000:100,14513:200000:100,14514:200000:100,12734:2500:99999,12737:1000:99999,6360:200:99999,6363:200:99999,6361:200:99999,6362:200:99999
+-	marketshop	para_mag10	FAKE_NPC,12108:20000:99999,717:1500:99999,715:4500:99999,716:4500:99999,14512:100000:100,14513:100000:100,14514:100000:100,12737:500:99999,12734:1500:99999,12738:2000:100,12735:3000:50,12736:10000:10,6360:200:99999,6363:200:99999,6361:200:99999,6362:200:99999
 
--	marketshop	para_mag11	FAKE_NPC,717:1500:99999,715:4500:99999,716:4500:99999,12734:2500:99999,12737:1000:99999,6360:200:99999,6363:200:99999,6361:200:99999,6362:200:99999
+-	marketshop	para_mag11	FAKE_NPC,717:1500:99999,12737:500:99999,12734:1500:99999,6360:200:99999,6363:200:99999,6361:200:99999,6362:200:99999
 
--	marketshop	para_mag20	FAKE_NPC,12119:1500:100,12121:4500:100,12120:4500:100,12118:20000:100
+-	marketshop	para_mag20	FAKE_NPC,12119:8000:100,12121:8000:100,12120:5000:100,12118:15000:100
 
--	marketshop	para_plt01	FAKE_NPC,709:100000:500,7932:4000:99999,7933:4000:99999,7934:4000:99999,7935:4000:99999,7936:4000:99999,7937:4000:99999
+-	marketshop	para_plt01	FAKE_NPC,709:10000:50,7932:4000:99999,7933:4000:99999,7934:4000:99999,7935:4000:99999,7936:4000:99999,7937:4000:99999
 
 // Update Market Shop
 -	script	Update_Shop	-1,{
-	OnInit:
-	OnClock0000:
-		npcshopupdate "para_hei10",6608,0,1;
-		npcshopupdate "para_hei10",6607,0,1;
-		npcshopupdate "para_hei10",6755,0,1;
-		npcshopupdate "para_wp00",1484,0,1;
-		npcshopupdate "para_wp00",1191,0,1;
-		npcshopupdate "para_wp00",1261,0,1;
-		npcshopupdate "para_wp00",1269,0,1;
-		npcshopupdate "para_arm10",5016,0,1;
-		npcshopupdate "para_arm10",2258,0,1;
-		npcshopupdate "para_ptn10",505,0,100;
-		npcshopupdate "para_seed10",12290,0,50;
-		npcshopupdate "para_seed10",12376,0,50;
-		npcshopupdate "para_seed10",12291,0,50;
-		npcshopupdate "para_seed10",12377,0,50;
-		npcshopupdate "para_seed10",576,0,100;
-		npcshopupdate "para_seed10",587,0,100;
-		npcshopupdate "para_seed10",526,0,100;
-		npcshopupdate "para_seed10",607,0,20;
-		npcshopupdate "para_seed10",608,0,20;
-		npcshopupdate "para_mora10",11526,0,100;
-		npcshopupdate "para_mora10",11525,0,1000;
-		npcshopupdate "para_mora10",11520,0,100;
-		npcshopupdate "para_mora10",12574,0,100;
-		npcshopupdate "para_ref10",998,0,200;
-		npcshopupdate "para_ref10",1003,0,200;
-		npcshopupdate "para_ref10",1002,0,200;
-		npcshopupdate "para_ref10",999,0,200;
-		npcshopupdate "para_alc10",971,0,20;
-		npcshopupdate "para_alc10",972,0,20;
-		npcshopupdate "para_alc10",970,0,20;
-		npcshopupdate "para_mag20",12119,0,30;
-		npcshopupdate "para_mag20",12121,0,30;
-		npcshopupdate "para_mag20",12120,0,30;
-		npcshopupdate "para_mag20",12118,0,30;
+OnInit:
+OnClock0000:
+	npcshopupdate "para_coin10",6304,0,1;
+	npcshopupdate "para_coin10",6080,0,1;
+	npcshopupdate "para_coin10",6081,0,1;
+	npcshopupdate "para_coin10",6380,0,1;
+	npcshopupdate "para_coin10",6004,0,1;
+	npcshopupdate "para_hei10",6608,0,1;
+	npcshopupdate "para_hei10",6607,0,1;
+	npcshopupdate "para_hei10",6755,0,1;
+	npcshopupdate "para_hei10",7642,0,1;
+	npcshopupdate "para_hei10",22687,0,1;
+	npcshopupdate "para_hei10",23016,0,1;
+	npcshopupdate "para_key10",7026,10;
+	npcshopupdate "para_key10",7027,10;
+	npcshopupdate "para_wp00",1181,0,1;
+	npcshopupdate "para_arm10",5007,0,1;
+	npcshopupdate "para_ptn00",678,0,999;
+	npcshopupdate "para_ptn00",12016,0,9999;
+	npcshopupdate "para_ptn00",525,0,1000;
+	npcshopupdate "para_ptn00",12422,0,100;
+	npcshopupdate "para_ptn00",12423,0,100;
+	npcshopupdate "para_ptn00",12425,0,100;
+	npcshopupdate "para_ptn00",12426,0,100;
+	npcshopupdate "para_ptn10",505,0,100;
+	npcshopupdate "para_ptn10",12679,0,500;
+	npcshopupdate "para_ptn10",12676,0,500;
+	npcshopupdate "para_ptn10",12680,0,100;
+	npcshopupdate "para_itm00",12106,0,100;
+	npcshopupdate "para_itm00",12107,0,100;
+	npcshopupdate "para_itm00",616,0,100;
+	npcshopupdate "para_itm00",12194,0,100;
+	npcshopupdate "para_itm10",12008,0,99999;
+	npcshopupdate "para_itm10",12009,0,99999;
+	npcshopupdate "para_itm10",12012,0,100;
+	npcshopupdate "para_itm10",12010,0,100;
+	npcshopupdate "para_itm10",12011,0,100;
+	npcshopupdate "para_itm10",12013,0,100;
+	npcshopupdate "para_itm10",12014,0,100;
+	npcshopupdate "para_itm10",7931,0,100;
+	npcshopupdate "para_seed10",12290,0,100;
+	npcshopupdate "para_seed10",12376,0,100;
+	npcshopupdate "para_seed10",12291,0,100;
+	npcshopupdate "para_seed10",12377,0,100;
+	npcshopupdate "para_seed10",576,0,100;
+	npcshopupdate "para_seed10",587,0,100;
+	npcshopupdate "para_seed10",526,0,100;
+	npcshopupdate "para_seed10",607,0,20;
+	npcshopupdate "para_seed10",608,0,20;
+	npcshopupdate "para_mora10",11526,0,100;
+	npcshopupdate "para_mora10",11525,0,1000;
+	npcshopupdate "para_mora10",11520,0,100;
+	npcshopupdate "para_mora10",12574,0,100;
+	npcshopupdate "para_ref10",998,0,500;
+	npcshopupdate "para_ref10",1003,0,500;
+	npcshopupdate "para_ref10",1002,0,500;
+	npcshopupdate "para_ref10",999,0,500;
+	npcshopupdate "para_ref20",984,0,10;
+	npcshopupdate "para_ref20",985,0,100;
+	npcshopupdate "para_ref20",987,0,1;
+	npcshopupdate "para_ref20",988,0,1;
+	npcshopupdate "para_ref20",989,0,1;
+	npcshopupdate "para_jew10",969,0,20;
+	npcshopupdate "para_jew10",7289,0,20;
+	npcshopupdate "para_jew10",7290,0,20;
+	npcshopupdate "para_jew10",7291,0,20;
+	npcshopupdate "para_jew10",7292,0,20;
+	npcshopupdate "para_jew10",7293,0,20;
+	npcshopupdate "para_jew10",7294,0,20;
+	npcshopupdate "para_jew10",7295,0,20;
+	npcshopupdate "para_jew10",7296,0,20;
+	npcshopupdate "para_jew10",7297,0,20;
+	npcshopupdate "para_alc10",971,0,20;
+	npcshopupdate "para_alc10",972,0,20;
+	npcshopupdate "para_alc10",970,0,20;
+	npcshopupdate "para_alc10",7136,0,20;
+	npcshopupdate "para_alc10",7135,0,20;
+	npcshopupdate "para_alc20",1061,0,1000;
+	npcshopupdate "para_alc20",905,0,1000;
+	npcshopupdate "para_alc20",1059,0,1000;
+	npcshopupdate "para_alc20",7033,0,1000;
+	npcshopupdate "para_alc20",929,0,1000;
+	npcshopupdate "para_alc30",1000,0,100;
+	npcshopupdate "para_alc30",1001,0,100;
+	npcshopupdate "para_alc30",990,0,100;
+	npcshopupdate "para_alc30",991,0,100;
+	npcshopupdate "para_alc30",992,0,100;
+	npcshopupdate "para_alc30",993,0,100;
+	npcshopupdate "para_fod10",6252,0,100;
+	npcshopupdate "para_fod10",6253,0,100;
+	npcshopupdate "para_fod10",6254,0,100;
+	npcshopupdate "para_fod10",6256,0,100;
+	npcshopupdate "para_fod10",6257,0,100;
+	npcshopupdate "para_fod10",6259,0,100;
+	npcshopupdate "para_fod10",6260,0,100;
+	npcshopupdate "para_fod10",22658,0,50;
+	npcshopupdate "para_fod10",22659,0,50;
+	npcshopupdate "para_mag10",12108,0,99999;
+	npcshopupdate "para_mag10",717,0,99999;
+	npcshopupdate "para_mag10",715,0,99999;
+	npcshopupdate "para_mag10",716,0,99999;
+	npcshopupdate "para_mag10",14512,0,100;
+	npcshopupdate "para_mag10",14513,0,100;
+	npcshopupdate "para_mag10",14514,0,100;
+	npcshopupdate "para_mag10",12737,0,99999;
+	npcshopupdate "para_mag10",12734,0,99999;
+	npcshopupdate "para_mag10",12738,0,100;
+	npcshopupdate "para_mag10",12735,0,50;
+	npcshopupdate "para_mag10",12736,0,10;
+	npcshopupdate "para_mag10",6360,0,99999;
+	npcshopupdate "para_mag10",6363,0,99999;
+	npcshopupdate "para_mag10",6361,0,99999;
+	npcshopupdate "para_mag10",6362,0,99999;
+	npcshopupdate "para_mag11",717,0,99999;
+	npcshopupdate "para_mag11",12737,0,99999;
+	npcshopupdate "para_mag11",12734,0,99999;
+	npcshopupdate "para_mag11",6360,0,99999;
+	npcshopupdate "para_mag11",6363,0,99999;
+	npcshopupdate "para_mag11",6361,0,99999;
+	npcshopupdate "para_mag11",6362,0,99999;
+	npcshopupdate "para_mag20",12119,0,100;
+	npcshopupdate "para_mag20",12121,0,100;
+	npcshopupdate "para_mag20",12120,0,100;
+	npcshopupdate "para_mag20",12118,0,100;
+	npcshopupdate "para_plt01",709,0,50;
+	npcshopupdate "para_plt01",7932,0,99999;
+	npcshopupdate "para_plt01",7933,0,99999;
+	npcshopupdate "para_plt01",7934,0,99999;
+	npcshopupdate "para_plt01",7935,0,99999;
+	npcshopupdate "para_plt01",7936,0,99999;
+	npcshopupdate "para_plt01",7937,0,99999;
+	end;
 }
 
-//General Sales
+// General Sales
 -	shop	para_wp01	FAKE_NPC,1501:-1,1504:-1,1507:-1,1510:-1,1513:-1,1519:-1,1516:-1,1522:-1,1601:-1,1604:-1,1607:-1,1610:-1,1617:-1,1619:-1,1801:-1,1803:-1,1805:-1,1807:-1,1811:-1,1809:-1
 
--	shop	para_wp02	FAKE_NPC,1101:-1,1104:-1,1107:-1,1110:-1,1113:-1,1122:-1,1119:-1,1123:-1,1129:-1,1116:-1,1151:-1,1157:-1,1154:-1,1146:-1,1160:-1
+-	shop	para_wp02	FAKE_NPC,1101:-1,1104:-1,1107:-1,1110:-1,1113:-1,1122:-1,1119:-1,1123:-1,1129:-1,1116:-1,1151:-1,1154:-1,1157:-1,1160:-1,1146:-1
 
 -	shop	para_wp03	FAKE_NPC,1701:-1,1704:-1,1707:-1,1710:-1,1713:-1,1714:-1,1718:-1,1721:-1,1901:-1,1903:-1,1905:-1,1950:-1,1952:-1,1954:-1
 
@@ -141,25 +237,22 @@ function	script	F_CoolDown	{
 
 -	shop	para_ptn01	FAKE_NPC,501:-1,502:-1,503:-1,504:-1,645:-1,656:-1,657:-1
 
--	shop	para_itm01	FAKE_NPC,12341:-1,7940:-1
+-	shop	para_itm01	FAKE_NPC,7940:-1,1065:-1
 
 -	shop	para_seed01	FAKE_NPC,522:-1
 
 -	shop	para_mora01	FAKE_NPC,11522:-1,11523:-1,11524:-1,11519:-1
 
--	shop	para_fod01	FAKE_NPC,7482:-1,577:-1,580:-1,7457:-1,581:-1,7453:-1,7455:-1,7454:-1,7456:-1,579:-1
+-	shop	para_fod01	FAKE_NPC,7482:-1,577:-1,580:-1,7457:-1,581:-1,7453:-1,7455:-1,7454:-1,7456:-1,7452:-1,579:-1
 
--	shop	para_unm01	FAKE_NPC,537:-1,643:-1,10013:-1,10014:-1,6110:-1,6113:-1,6114:-1,6115:-1,6100:-1,6098:-1,6112:-1,6104:-1,6108:-1,6111:-1,6095:-1,7824:-1,6097:-1,6107:-1,6105:-1
-
-//System
-
--	shop	para_sel	FAKE_NPC,501:-1
+-	shop	para_unm01	FAKE_NPC,537:-1,643:-1,10013:-1,10014:-1,6113:-1,6114:-1,6115:-1,6110:-1,6100:-1,6098:-1,6112:-1,6104:-1,6108:-1,6111:-1,6095:-1,7824:-1,6097:-1,6107:-1,6105:-1,6099:-1,25231:1000,25232:1000,25233:1000
 
 
-//setting map-variable
+// setting map-variable
 -	script	MV_Eden Market Group	FAKE_NPC,{
 OnInit:
-	switch(gettime(DT_DAYOFWEEK)) {
+OnClock0000:
+	switch( gettime(DT_DAYOFWEEK) ) {
 	case WEDNESDAY:
 		$event_paramk = 0;
 		break;
@@ -167,11 +260,10 @@ OnInit:
 		$event_paramk = 2;
 		break;
 	case SATURDAY:
-		if (gettime(DT_HOUR) > 21) {
+		if (gettime(DT_HOUR) > 21)
 			$event_paramk = 4;
-		} else {
+		else
 			$event_paramk = 3;
-		}
 		break;
 	case THURSDAY:
 	default:
@@ -179,9 +271,13 @@ OnInit:
 		break;
 	}
 	end;
+
+OnSat2200:
+	$event_paramk = 4;
+	end;
 }
 
-//Eden Market Group Hustler
+// Eden Market Group Hustler
 moc_para01,106,38,4	script	Market Group Hustler#ent	4_M_YOYOROGUE,{
 	mes "[Hustler]";
 	mes "Hey, adventurer.";
@@ -239,7 +335,7 @@ moc_para01,106,38,4	script	Market Group Hustler#ent	4_M_YOYOROGUE,{
 	}
 }
 
-//Eden Market Group Guide
+// Eden Market Group Guide
 paramk,101,22,3	script	Market Group Guide#info	4_F_ZONDAGIRL,{
 	mes "[Guide]";
 	mes "Hello. Welcome to Eden Market Group, the official marketplace run by the continental merchant coalition, supported by the Eden Group.";
@@ -303,7 +399,7 @@ OnInit:
 	end;
 }
 
-//Guards
+// Guards
 paramk,103,17,3	script	Market Guard#1	4_M_YOUNGKNIGHT,{
 	callfunc("F_CoolDown", 5);
 	switch (atoi(strnpcinfo(2))) {
@@ -326,15 +422,16 @@ paramk,103,17,3	script	Market Guard#1	4_M_YOUNGKNIGHT,{
 	end;
 }
 
-//Guard Duplicates
+// Guard Duplicates
 paramk,92,17,6	duplicate(Market Guard#1)	Market Guard#2	4_M_YOUNGKNIGHT
 paramk,53,47,3	duplicate(Market Guard#1)	Market Guard#3	4_M_YOUNGKNIGHT
 paramk,142,48,3	duplicate(Market Guard#1)	Market Guard#4	4_M_YOUNGKNIGHT
 paramk,142,67,3	duplicate(Market Guard#1)	Market Guard#5	4_M_YOUNGKNIGHT
 paramk,53,67,3	duplicate(Market Guard#1)	Market Guard#6	4_M_YOUNGKNIGHT
 
-//Center-North ConversationNPC
-//A wise customer
+
+// Center-North ConversationNPC
+// A wise customer
 paramk,78,44,3	script	A wise customer#gst01	4_TOWER_14,6,6,{
 OnTouch:
 	callfunc("F_CoolDown", 4);
@@ -342,7 +439,7 @@ OnTouch:
 	end;
 }
 
-//A dining customer
+// A dining customer
 paramk,119,80,3	script	A dining customer#gst02	4_M_CHN8GUEK,6,6,{
 OnTouch:
 	callfunc("F_CoolDown", 4);
@@ -350,7 +447,7 @@ OnTouch:
 	end;
 }
 
-//Customer
+// Customer
 paramk,106,61,3	script	Customer#gst03	4_TOWER_04,6,6,{
 OnTouch:
 	callfunc("F_CoolDown", 4);
@@ -358,7 +455,7 @@ OnTouch:
 	end;
 }
 
-//Window-shopper
+// Window-shopper
 paramk,77,60,3	script	Window-shopper#gst04	4_TOWER_02,6,6,{
 OnTouch:
 	callfunc("F_CoolDown", 4);
@@ -366,39 +463,34 @@ OnTouch:
 	end;
 }
 
-//Cassie
+// Cassie
 paramk,113,56,3	script	Cassie#gst05	1_F_PUBGIRL,6,6,{
 	npctalk "Welcome to the Eden Market Group~ You want a fancy drink?";
 	mes "[Cassie]";
 	mes "Do you wish to buy a drink?";
 	next;
-	.@menu = select("Tropical Sograt.:Vermilion on the Beach.:No.");
-	switch (.@menu) {
+	switch (select("Tropical Sograt.:Vermilion on the Beach.:No.")) {
 	case 1:
 		.@item = 12112;
+		break;
 	case 2:
-		if (.@menu == 1)
-			.@item = 12112;
-		else
-			.@item = 12113;
-		if (Zeny < 800) {
-			mes "[Cassie]";
-			mes "A drink costs 800z.";
-			close;
-		} else {
-			mes "[Cassie]";
-			mes "Enjoy it";
-			Zeny -= 800;
-			getitem(.@item, 1);
-			close;
-		}
+		.@item = 12113;
 		break;
 	case 3:
 		mes "[Cassie]";
 		mes "Have a good time.";
 		close;
 	}
-	end;
+	if (Zeny < 800) {
+		mes "[Cassie]";
+		mes "A drink costs 800z.";
+		close;
+	}
+	mes "[Cassie]";
+	mes "Enjoy it";
+	Zeny -= 800;
+	getitem(.@item, 1);
+	close;
 
 OnTouch:
 	callfunc("F_CoolDown", 4);
@@ -406,7 +498,7 @@ OnTouch:
 	end;
 }
 
-//Leria
+// Leria
 paramk,74,15,0	script	Leria#coin	4_M_BIBI,{
 	if ($event_paramk > 0) {
 		mes "[Leria]";
@@ -418,7 +510,7 @@ paramk,74,15,0	script	Leria#coin	4_M_BIBI,{
 			mes "[Leria]";
 			mes "I may not have any stock left since I sell only a handful of items.";
 			close2;
-			callshop "para_coin10";
+			callshop "para_coin10",1;
 			end;
 		}
 		mes "[Leria]";
@@ -428,7 +520,7 @@ paramk,74,15,0	script	Leria#coin	4_M_BIBI,{
 		mes "[Leria]";
 		mes "Well, those who need them must pay the price. Isn't that so?";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Leria]";
 		mes "Ah... Today is the marketplace holiday.";
 		mes "Come back tomorrow if you need coins.";
@@ -436,7 +528,7 @@ paramk,74,15,0	script	Leria#coin	4_M_BIBI,{
 	}
 }
 
-//Heimhunter
+// Heimhunter
 paramk,71,15,3	script	Heimhunter#hei	4_GEFFEN_11,{
 	if ($event_paramk > 0) {
 		mes "[Heimhunter]";
@@ -449,13 +541,13 @@ paramk,71,15,3	script	Heimhunter#hei	4_GEFFEN_11,{
 			mes "It might have been bought by someone else already.";
 			mes "Please understand.";
 			close2;
-			callshop "para_hei10";
+			callshop "para_hei10",1;
 			end;
 		}
 		mes "[Heimhunter]";
 		mes "As you wish.";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Heimhunter]";
 		mes "Today is the official market holiday.";
 		mes "I will take a break, too.";
@@ -463,7 +555,7 @@ paramk,71,15,3	script	Heimhunter#hei	4_GEFFEN_11,{
 	}
 }
 
-//Zephet
+// Zephet
 paramk,68,15,0	script	Zephet#key	4_M_HUMERCHANT,{
 	if ($event_paramk > 3) {
 		mes "[Zephet]";
@@ -476,7 +568,7 @@ paramk,68,15,0	script	Zephet#key	4_M_HUMERCHANT,{
 			mes "Even though I scavenge for them all week, there's not a lot available.";
 			mes "They may be sold out already.";
 			close2;
-			callshop "para_key10";
+			callshop "para_key10",1;
 			end;
 		}
 		mes "[Zephet]";
@@ -484,7 +576,7 @@ paramk,68,15,0	script	Zephet#key	4_M_HUMERCHANT,{
 		mes "Remember that I sell keys here only on weekends.";
 		mes "Just for your information.";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Zephet]";
 		mes "I don't have enough keys yet.";
 		mes "Come back after Saturday afternoon.";
@@ -492,8 +584,9 @@ paramk,68,15,0	script	Zephet#key	4_M_HUMERCHANT,{
 	}
 }
 
-//Strong Friends - Weapon shop
-//Sign
+
+// Strong Friends - Weapon shop
+// Sign
 paramk,72,33,0	script	[Strong Friends]#wp00	HIDDEN_NPC,{
 	mes " == Strong Friends == ";
 	mes "From common weapons to priceless jewel-encrusted swords!";
@@ -501,7 +594,7 @@ paramk,72,33,0	script	[Strong Friends]#wp00	HIDDEN_NPC,{
 	close;
 }
 
-//Miffy
+// Miffy
 paramk,65,30,3	script	Miffy#wp01	4_F_LGTGIRL,{
 	if ($event_paramk > 1) {
 		mes "[Miffy]";
@@ -515,14 +608,14 @@ paramk,65,30,3	script	Miffy#wp01	4_F_LGTGIRL,{
 			mes "That means the weapon has already been sold.";
 			mes "The spoils go toward people with quick reflexes.";
 			close2;
-			callshop "para_wp00";
+			callshop "para_wp00",1;
 			end;
 		}
 		mes "[Miffy]";
 		mes "Special weapons sold on weekends!";
 		mes "Come see us anytime!";
 		close;
-	} else { //Wednesday Holiday
+	} else { // Wednesday Holiday
 		mes "[Miffy]";
 		mes "Hello. This is the weapon shop 'Strong Friends'.";
 		mes "We sell weapons that adventurers retrieve from dungeons and in battle, ";
@@ -535,7 +628,7 @@ paramk,65,30,3	script	Miffy#wp01	4_F_LGTGIRL,{
 	}
 }
 
-//Nelsha
+// Nelsha
 paramk,70,31,3	script	Nelsha#wp02	4_M_SITDOWN,{
 	mes "[Nelsha]";
 	mes "Hello.";
@@ -543,27 +636,22 @@ paramk,70,31,3	script	Nelsha#wp02	4_M_SITDOWN,{
 	next;
 	setarray .@shopname$[0], "para_wp01", "para_wp02", "para_wp03", "para_wp04", "para_wp05";
 	setarray .@shopdesc$[0], "Maces, Rods and Knuckles", "One-Handed Swords and Two-Handed Sword", "Bows, Innstruments and Whips", "Daggers and Katars", "Axes and Spears";
-	.@select = select("Cancel:Maces, Rods, Knuckles:One-Handed Swords, Two-Handed Sword:Bows, Innstruments, Whips:Daggers, Katars:Axes, Spears");
-	switch (.@select) {
-	case 1:
+	.@s = select("Maces, Rods, Knuckles:One-Handed Swords, Two-Handed Sword:Bows, Innstruments, Whips:Daggers, Katars:Axes, Spears:Cancel") - 1;
+	if (.@s == 5) {
 		mes "[Nelsha]";
 		mes "Thank you for shopping.";
 		close;
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-		mes "[Nelsha]";
-		mes "I will show you " + .@shopdesc$[.@select-2];
-		close2;
-		callshop(.@shopname$[.@select-2], 1);
-		end;
 	}
+	mes "[Nelsha]";
+	mes "I will show you " + .@shopdesc$[.@s];
+	close2;
+	callshop(.@shopname$[.@s], 1);
+	end;
 }
 
-//Reliable Friends
-//Sign
+
+// Reliable Friends
+// Sign
 paramk,72,33,3	script	[Reliable Friends]#arm00	HIDDEN_NPC,{
 	mes " == Reliable Friends == ";
 	mes "Do you need shields, armor, and sturdy helmets?";
@@ -571,7 +659,7 @@ paramk,72,33,3	script	[Reliable Friends]#arm00	HIDDEN_NPC,{
 	close;
 }
 
-//Coco
+// Coco
 paramk,78,31,3	script	Coco#arm01	4_F_SITDOWN,{
 	mes "[Coco]";
 	mes "Do you need sturdy armors to protect your frail body?";
@@ -597,15 +685,16 @@ paramk,78,31,3	script	Coco#arm01	4_F_SITDOWN,{
 	}
 }
 
-//Handsome Friends
-//Sign
+
+// Handsome Friends
+// Sign
 paramk,84,33,3	script	[Handsome Friends]#cst00	HIDDEN_NPC,{
 	mes " == Handsome Friends == ";
 	mes "A clothier for someone who loves to dress up!";
 	close;
 }
 
-//Minho Doh
+// Minho Doh
 paramk,90,31,3	script	Minho Doh#cst01	4W_M_01,{
 	if ($event_paramk > 2) {
 		mes "[Minho Doh]";
@@ -617,14 +706,14 @@ paramk,90,31,3	script	Minho Doh#cst01	4W_M_01,{
 			mes "Here is our special collection!";
 			mes "If all the chests are empty, that means you are too late!";
 			close2;
-			callshop "para_arm10";
+			callshop "para_arm10",1;
 			end;
 		}
 		mes "[Minho Doh]";
 		mes "See you again!";
 		mes "Hahahahaha!";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Minho Doh]";
 		mes "Do you want to peruse our special collection of items?";
 		mes "But the collection wouldn't be special if you can see them every day, right?";
@@ -639,7 +728,7 @@ paramk,90,31,3	script	Minho Doh#cst01	4W_M_01,{
 	}
 }
 
-//Lapelt
+// Lapelt
 paramk,94,32,3	script	Lapelt#hat01	4_M_LGTMAN,{
 	mes "[Lapelt]";
 	mes "Welcome! This is 'Handsome Friends', a clothier that will make you fashionable!";
@@ -667,8 +756,9 @@ paramk,94,32,3	script	Lapelt#hat01	4_M_LGTMAN,{
 	}
 }
 
-//Meds for Pharmacists
-//Sign
+
+// Meds for Pharmacists
+// Sign
 paramk,96,33,3	script	[Meds for Pharma]#ptn00	HIDDEN_NPC,{
 	mes " == Meds for Pharmacists == ";
 	mes "We sell assorted potions.";
@@ -679,7 +769,7 @@ paramk,96,33,3	script	[Meds for Pharma]#ptn00	HIDDEN_NPC,{
 	close;
 }
 
-//Head Pharmacist
+// Head Pharmacist
 paramk,100,30,3	script	Head Pharmacist#ptn01	4_F_SCIENCE,{
 	if ($event_paramk > 0) {
 		mes "[Head Pharmacist]";
@@ -693,13 +783,13 @@ paramk,100,30,3	script	Head Pharmacist#ptn01	4_F_SCIENCE,{
 			mes "If there's nothing, it means that we are sold out.";
 			mes "We do not brew potions in large batches. Please understand.";
 			close2;
-			callshop "para_ptn00";
+			callshop "para_ptn00",1;
 			end;
 		}
 		mes "[Head Pharmacist]";
 		mes "Come back if you have questions about the meds.";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Head Pharmacist]";
 		mes "Oh, you need potions?";
 		mes "We do not sell common meds. We stick to special potions.";
@@ -712,7 +802,7 @@ paramk,100,30,3	script	Head Pharmacist#ptn01	4_F_SCIENCE,{
 	}
 }
 
-//Johanna
+// Johanna
 paramk,106,32,3	script	Johanna#ptn02	4_M_BRZ_JACI,{
 	mes "[Johanna]";
 	mes "Welcome to 'Meds for Pharmacists'.";
@@ -731,7 +821,7 @@ paramk,106,32,3	script	Johanna#ptn02	4_M_BRZ_JACI,{
 		mes "I will take them off your hands and pay you a hefty price.";
 		mes "Don't tell other people I paid so much.";
 		close2;
-		callshop "para_sel",2;
+		callshop "para_ptn01",2;
 		end;
 	case 3:
 		mes "[Johanna]";
@@ -749,7 +839,7 @@ paramk,106,32,3	script	Johanna#ptn02	4_M_BRZ_JACI,{
 	}
 }
 
-//Wyn, independent contractor || Name is too long
+// Wyn, independent contractor || Name is too long
 paramk,106,27,3	script	Brewer Wyn#ptn03	4_M_ALCHE_A,{
 	if ($event_paramk > 0) {
 		mes "[Wyn]";
@@ -766,13 +856,13 @@ paramk,106,27,3	script	Brewer Wyn#ptn03	4_M_ALCHE_A,{
 			mes "Aaa... The stench of herbs";
 			mes "Feel like throwing up... Aaa..";
 			close2;
-			callshop "para_ptn10";
+			callshop "para_ptn10",1;
 			end;
 		}
 		mes "[Wyn]";
 		mes "Thank you.. Come again.";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Wyn]";
 		mes "Uhhh... Headache..";
 		mes "I started working to pay off my college tuition...";
@@ -782,8 +872,9 @@ paramk,106,27,3	script	Brewer Wyn#ptn03	4_M_ALCHE_A,{
 	}
 }
 
-//We-Have-Everything
-//sign
+
+// We-Have-Everything
+// sign
 paramk,108,33,3	script	[WeHaveEverything]#itm00	HIDDEN_NPC,{
 	mes " == We-Have-Everything == ";
 	mes "Elemental quivers, Traps, A DIY kit for poisons.";
@@ -795,7 +886,7 @@ paramk,108,33,3	script	[WeHaveEverything]#itm00	HIDDEN_NPC,{
 	close;
 }
 
-//Is-this-your-lucky-day Napeed#itm01
+// Is-this-your-lucky-day Napeed#itm01
 paramk,114,30,3	script	Lucky Day Napeed#itm01	4_F_03,{
 	if ($event_paramk > 0) {
 		mes "[Napeed]";
@@ -808,13 +899,13 @@ paramk,114,30,3	script	Lucky Day Napeed#itm01	4_F_03,{
 			mes "The popular choices are, 'Box of accessories', 'Gift-wrapped Mask', 'Worn Album', 'Presents to take to your Hometown'...";
 			mes "If you do not see anything, it means we are sold out. Come back on next weekend~";
 			close2;
-			callshop "para_itm00";
+			callshop "para_itm00",1;
 			end;
 		}
 		mes "[Napeed]";
 		mes "Thank you for frequenting 'We-Have-Everything'!";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Napeed]";
 		mes "Welcome, welcome~! This store is 'We-Have-Everything'. Everything we do have, we have, and everything we don't have, we don't!";
 		mes "We are currently not open.";
@@ -823,7 +914,7 @@ paramk,114,30,3	script	Lucky Day Napeed#itm01	4_F_03,{
 	}
 }
 
-//Parayo
+// Parayo
 paramk,118,31,3	script	Manager Parayo#itm02	4_F_KHELLISIA,{
 	if ($event_paramk > 0) {
 		mes "[Parayo]";
@@ -837,7 +928,7 @@ paramk,118,31,3	script	Manager Parayo#itm02	4_F_KHELLISIA,{
 			mes "We try to be stocked up in order to serve as many customers as possible";
 			mes "But sometimes we are sold out, unfortunately.";
 			close2;
-			callshop "para_itm10";
+			callshop "para_itm10",1;
 			end;
 		case 2:
 			mes "[Parayo]";
@@ -852,7 +943,7 @@ paramk,118,31,3	script	Manager Parayo#itm02	4_F_KHELLISIA,{
 			mes "Come again.";
 			close;
 		}
-	} else { //holiday
+	} else { // holiday
 		mes "[Parayo]";
 		mes "Hello, this is 'We-Have-Everything'.";
 		mes "Wednesdays are Eden Market Group official holidays, so we are not open during this time.";
@@ -862,8 +953,8 @@ paramk,118,31,3	script	Manager Parayo#itm02	4_F_KHELLISIA,{
 }
 
 
-//Malangdonya
-//sign
+// Malangdonya
+// sign
 paramk,122,33,3	script	[Malangdonya]#seed00	HIDDEN_NPC,{
 	mes " == Malangdonya == ";
 	mes "Special items from Malangdo.";
@@ -875,13 +966,13 @@ paramk,122,33,3	script	[Malangdonya]#seed00	HIDDEN_NPC,{
 	close;
 }
 
-//Whiteberry
+// Whiteberry
 paramk,126,34,3	script	Whiteberry#seed01	4_CAT_SAILOR1,{
 	if ($event_paramk > 0) {
 		mes "[Whiteberry]";
 		mes "Purr~ Welcome.";
 		mes "The Catpaw merchant group is pleased to welcome you. We sell special products from Malangdo, purr~";
-	} else { //holiday
+	} else { // holiday
 		mes "[Whiteberry]";
 		mes "We sell Mastela Fruit~";
 		mes "We sell certain items even on holidays~";
@@ -901,7 +992,7 @@ paramk,126,34,3	script	Whiteberry#seed01	4_CAT_SAILOR1,{
 		mes "Purr~ Will buy at a reasonable price.";
 		mes "Please sell items that are useful.";
 		close2;
-		callshop "para_sel",2;
+		callshop "para_seed01",2;
 		end;
 	case 3:
 		mes "[Whiteberry]";
@@ -910,7 +1001,7 @@ paramk,126,34,3	script	Whiteberry#seed01	4_CAT_SAILOR1,{
 	}
 }
 
-//Blackphone
+// Blackphone
 paramk,129,33,3	script	Blackphone#seed02	4_M_MERCAT2,{
 	if ($event_paramk > 0) {
 		mes "[Blackphone]";
@@ -923,13 +1014,13 @@ paramk,129,33,3	script	Blackphone#seed02	4_M_MERCAT2,{
 			mes "Meow~ Here are Doram cans and bottles, yggdrasil, and thorn berries.";
 			mes "Meow~ If you see nothing, that means we are sold out. Come back tomorrow.";
 			close2;
-			callshop "para_seed10";
+			callshop "para_seed10",1;
 			end;
 		}
 		mes "[Blackphone]";
 		mes "Meow~ Come back soon. We offer interesting items.";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Blackphone]";
 		mes "Meow~ We do not open on holidays.";
 		mes "Meow~ Today is the day we have our products shipped from Malangdo.";
@@ -939,9 +1030,9 @@ paramk,129,33,3	script	Blackphone#seed02	4_M_MERCAT2,{
 }
 
 
-//These comments are spoken continuously when in a specific region
-//Restraurant
-//Jeffrey
+// These comments are spoken continuously when in a specific region
+// Restraurant
+// Jeffrey
 paramk,144,13,3	script	Jeffrey#food00	1_M_MERCHANT,{
 	mes "[Jeffrey]";
 	mes "Everyone assumes that I am the cook here. I'm not! I'm just here to collect on the debt that the restaurant owner owes me!";
@@ -959,7 +1050,8 @@ OnInit:
 	initnpctimer;
 	end;
 }
-//Vincent
+
+// Vincent
 paramk,140,18,3	script	Vincent#food01	4_TOWER_15,{
 	mes "[Vincent]";
 	mes "... The new cook makes amazing food, but apparently he's pretty lazy.";
@@ -974,7 +1066,8 @@ OnInit:
 	initnpctimer;
 	end;
 }
-//Panel
+
+// Panel
 paramk,138,19,3	script	Panel#food02	4_TOWER_14,{
 	mes "[Panel]";
 	mes "This restaurant opened only recently, but it became really popular after they hired a new cook.";
@@ -989,7 +1082,8 @@ OnInit:
 	initnpctimer;
 	end;
 }
-//Matina
+
+// Matina
 paramk,136,20,3	script	Matina#food03	4_TOWER_05,{
 	mes "[Matina]";
 	mes "What is it? Are you going to order? Forget it. Look at the line-up.";
@@ -1004,7 +1098,8 @@ OnInit:
 	initnpctimer;
 	end;
 }
-//Lucy
+
+// Lucy
 paramk,134,21,3	script	Lucy#food04	4_TOWER_10,{
 	mes "[Lucy]";
 	mes "Ah. I am going to wait a little more, but if I am still not served, I will leave.";
@@ -1019,7 +1114,8 @@ OnInit:
 	initnpctimer;
 	end;
 }
-//Mara
+
+// Mara
 paramk,136,16,3	script	Mara#food05	4_TOWER_02,{
 	mes "[Mara]";
 	mes "I heard that the owner of this restaurant went on a trip to a faraway land, and the new cook is running this place. I heard that his cooking skill is amazing.";
@@ -1034,7 +1130,8 @@ OnInit:
 	initnpctimer;
 	end;
 }
-//Lana
+
+// Lana
 paramk,133,16,3	script	Lana#food06	4_TOWER_04,{
 	mes "[Lana]";
 	mes "I came two days ago, yesterday, and today too. The pasta they serve here is amazing. The only problem is that it's so hard to order here.";
@@ -1049,7 +1146,8 @@ OnInit:
 	initnpctimer;
 	end;
 }
-//Rahoul
+
+// Rahoul
 paramk,127,16,3	script	Rahoul#food07	4_TOWER_12,{
 	mes "[Rahoul]";
 	mes "I have been waiting for hours already and the cook is still not taking orders. Ah, I am so hungry that I might drop dead.";
@@ -1064,7 +1162,8 @@ OnInit:
 	initnpctimer;
 	end;
 }
-//Nameless Drunk
+
+// Nameless Drunk
 paramk,124,20,3	script	Drunk#food08	4_TOWER_06,{
 	mes "[Drunk]";
 	mes "Hey, bring more wine...";
@@ -1080,7 +1179,7 @@ OnInit:
 	end;
 }
 
-//Annoyed Customer
+// Annoyed Customer
 paramk,127,10,3	script	Annoyed Customer#food09	4_TOWER_07,{
 	mes "[Annoyed Customer]";
 	mes "I am going to talk to the owner once he comes back from his trip. Tell him to fire his employees there at the back.";
@@ -1096,13 +1195,15 @@ OnInit:
 	initnpctimer;
 	end;
 }
-//Kalin
+
+// Kalin
 paramk,124,11,3	script	Kalin#food10	4_F_01,{
 	mes "[Kalin]";
 	mes "I am Thrann's colleague and I like being a cleaner at this store. I can be as lazy as I want and still get paid.";
 	close;
 }
-//Thrann
+
+// Thrann
 paramk,121,11,3	script	Thrann#food11	4_F_02,{
 	mes "[Thrann]";
 	mes "I spend hours here drinking coffee in peace, though I am technically at work, pretending to clean. They don't even kick me out.";
@@ -1118,15 +1219,13 @@ OnInit:
 	end;
 }
 
-
-//Sobok the Cook
+// Sobok the Cook
 paramk,127,88,3	script	Sobok the Cook#fd01	4_M_CHNCOOK,{
 	mes "[Sobok]";
 	mes "I am called Sobok, of the Sobokru, Eden Market Group's leading restaurant.";
 	mes "Do you wish to order? The dishes cost 3000 Zeny each - The weekend special is 5000 Zeny.";
 	next;
-	.@menu = select("Goose Soup.:Maccaroni Noodles.:Weekend Special.:Cancel.");
-	switch (.@menu) {
+	switch( select("Goose Soup.:Maccaroni Noodles.:Weekend Special.:Cancel.") ) {
 	case 1:
 		.@hp = 100;
 		.@sp = 0;
@@ -1145,7 +1244,7 @@ paramk,127,88,3	script	Sobok the Cook#fd01	4_M_CHNCOOK,{
 		.@zeny = 5000;
 		.@talk$ = "Ultimate combination for body and mind.";
 		break;
-	default: //	case 4:
+	case 4:
 		mes "[Sobok]";
 		mes "Come by when you may.";
 		close;
@@ -1167,8 +1266,9 @@ paramk,127,88,3	script	Sobok the Cook#fd01	4_M_CHNCOOK,{
 	close;
 }
 
-//Cafe Mora
-//Pomegranate
+
+// Cafe Mora
+// Pomegranate
 paramk,75,86,3	script	Pomegranate#mora01	4_F_RAFLE_PK,{
 	mes "[Pomegranate]";
 	mes "Come forth, hasten!";
@@ -1199,7 +1299,8 @@ paramk,75,86,3	script	Pomegranate#mora01	4_F_RAFLE_PK,{
 		close;
 	}
 }
-//Cocktail Master
+
+// Cocktail Master
 paramk,65,86,3	script	Cocktail Master#mora01	4_M_RAFLE_VI,{
 	if ($event_paramk > 1) {
 		mes "[Cocktail Master]";
@@ -1211,13 +1312,13 @@ paramk,65,86,3	script	Cocktail Master#mora01	4_M_RAFLE_VI,{
 			mes "[Cocktail Master]";
 			mes "If there is nothing, that means we are sold out. Come back tomorrow.";
 			close2;
-			callshop "para_mora10";
+			callshop "para_mora10",1;
 			end;
 		}
 		mes "[Cocktail Master]";
 		mes "We are thankful that you came to visit us.";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Cocktail Master]";
 		mes "Do you wish to purchase special Mora Drinks?";
 		mes "We are saddened to inform you that we only make drinks on weekends. Come back on ^4d4dffFri, Sat, Sun^000000.";
@@ -1226,8 +1327,9 @@ paramk,65,86,3	script	Cocktail Master#mora01	4_M_RAFLE_VI,{
 	}
 }
 
-//Forge
-//Hans of the miner coalition
+
+// Forge
+// Hans of the miner coalition
 paramk,49,103,3	script	Hans #ref01	1_M_SIGNMCNT,{
 	if ($event_paramk > 3) {
 		mes "[Hans]";
@@ -1239,14 +1341,14 @@ paramk,49,103,3	script	Hans #ref01	1_M_SIGNMCNT,{
 			mes "We are sold out, if there is nothing here.";
 			mes "We mine iron, steel, coal, and iron ores every day, so come back tomorrow.";
 			close2;
-			callshop "para_ref10";
+			callshop "para_ref10",1;
 			end;
 		}
 		mes "[Hans]";
 		mes "Our stock of basic metal like iron, steel, coal, etc, are replenished every day.";
 		mes "Keep that in mind.";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Hans]";
 		mes "We're closed today.";
 		mes "I am just about to visit the mines.";
@@ -1254,7 +1356,8 @@ paramk,49,103,3	script	Hans #ref01	1_M_SIGNMCNT,{
 		close;
 	}
 }
-//Dus the Smith
+
+// Dus the Smith
 paramk,53,104,3	script	Dus the Smith#ref02	2_M_OLDBLSMITH,{
 	if ($event_paramk > 3) {
 		mes "[Dus the Smith]";
@@ -1266,14 +1369,14 @@ paramk,53,104,3	script	Dus the Smith#ref02	2_M_OLDBLSMITH,{
 			mes "Not sure if we have any left.";
 			mes "Please buy if we do.";
 			close2;
-			callshop "para_ref20";
+			callshop "para_ref20",1;
 			end;
 		}
 		mes "[Dus the Smith]";
 		mes "Rare ores are hard to come by, and hard to refine.";
 		mes "That's why our stock is limited.";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Dus the Smith]";
 		mes "Ah, a customer?";
 		mes "Sorry, we are not selling ores today.";
@@ -1290,8 +1393,9 @@ paramk,53,104,3	script	Dus the Smith#ref02	2_M_OLDBLSMITH,{
 	}
 }
 
-//Rain-of-Gems
-//sign
+
+// Rain-of-Gems
+// sign
 paramk,63,98,3	script	[Rain-of-Gems]#jw	HIDDEN_NPC,{
 	mes "? Rain of Gems ?";
 	mes "We deal in gold and gemstones!";
@@ -1301,7 +1405,7 @@ paramk,63,98,3	script	[Rain-of-Gems]#jw	HIDDEN_NPC,{
 	close;
 }
 
-//Aurora
+// Aurora
 paramk,69,102,3	script	Aurora#jew01	4_F_02,{
 	if ($event_paramk > 0) {
 		mes "[Aurora]";
@@ -1316,13 +1420,13 @@ paramk,69,102,3	script	Aurora#jew01	4_F_02,{
 			mes "If you don't see anything, that means everything is sold out!";
 			mes "Thank you for visiting~!";
 			close2;
-			callshop "para_jew10";
+			callshop "para_jew10",1;
 			end;
 		case 2:
 			mes "[Aurora]";
 			mes "We will buy at a reasonable price.";
 			close2;
-			callshop "para_sel",2;
+			callshop "para_jew10",2;
 			end;
 		case 3:
 			mes "[Aurora]";
@@ -1334,7 +1438,7 @@ paramk,69,102,3	script	Aurora#jew01	4_F_02,{
 			mes "Our stock is replenished every week, so if you time it just right.. maybe? Haha.";
 			close;
 		}
-	} else { //holiday
+	} else { // holiday
 		mes "[Aurora]";
 		mes "Aw, sorry that you came by today.";
 		mes "Our Market Group is not open on Wednesdays.";
@@ -1346,8 +1450,9 @@ paramk,69,102,3	script	Aurora#jew01	4_F_02,{
 	}
 }
 
-//The Alchemical Cat
-//sign
+
+// The Alchemical Cat
+// sign
 paramk,73,98,3	script	[Alchemical Cat]#alc00	HIDDEN_NPC,{
 	mes " == The Alchemical Cat == ";
 	mes "Reagents for alchemy and";
@@ -1359,7 +1464,7 @@ paramk,73,98,3	script	[Alchemical Cat]#alc00	HIDDEN_NPC,{
 	close;
 }
 
-//Dye the Alchemist
+// Dye the Alchemist
 paramk,75,102,3	script	Dye the Alchemist#alc01	4_M_ALCHE_C,{
 	if ($event_paramk > 0) {
 		mes "[Dye the Alchemist]";
@@ -1373,20 +1478,21 @@ paramk,75,102,3	script	Dye the Alchemist#alc01	4_M_ALCHE_C,{
 			mes "If not, everything is sold out!";
 			mes "They may be a bit expensive, but easy consumption... well, you know what I am talking about. Yeah?";
 			close2;
-			callshop "para_alc10";
+			callshop "para_alc10",1;
 			end;
 		}
 		mes "[Dye the Alchemist]";
 		mes "Come by tomorrow, we brew reagents every day!";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Dye the Alchemist]";
 		mes "We are closed on Wednesdays~";
 		mes "Come back tomorrow!";
 		close;
 	}
 }
-//Earl the Alchemist
+
+// Earl the Alchemist
 paramk,80,104,3	script	Earl the Alchemist#alc02	4_TOWER_16,{
 	if ($event_paramk > 0) {
 		mes "[Earl the Alchemist]";
@@ -1406,14 +1512,14 @@ paramk,80,104,3	script	Earl the Alchemist#alc02	4_TOWER_16,{
 			mes "[Earl the Alchemist]";
 			mes "If you don't see anything, that means everything is sold out.";
 			close2;
-			callshop "para_alc20";
+			callshop "para_alc20",1;
 			end;
 		case 2:
 			mes "[Earl the Alchemist]";
 			mes "Stardust, and Star Crumb here.";
 			mes "Not sure if we have any left.";
 			close2;
-			callshop "para_alc30";
+			callshop "para_alc30",1;
 			end;
 		case 3:
 			mes "[Earl the Alchemist]";
@@ -1421,7 +1527,7 @@ paramk,80,104,3	script	Earl the Alchemist#alc02	4_TOWER_16,{
 			mes "Keep in mind that we don't open on Wednesdays, because that's when we have items shipped in!";
 			close;
 		}
-	} else { //holiday
+	} else { // holiday
 		mes "[Earl the Alchemist]";
 		mes "Wednesday is a holiday.";
 		mes "Come back tomorrow if there's anything you want to buy.";
@@ -1429,8 +1535,9 @@ paramk,80,104,3	script	Earl the Alchemist#alc02	4_TOWER_16,{
 	}
 }
 
-//Manbok Groceries
-//sign
+
+// Manbok Groceries
+// sign
 paramk,83,98,3	script	[Manbok Groceries]#fod00	HIDDEN_NPC,{
 	mes " == Manbok Groceries == ";
 	mes "We offer amazing cooking ingredients!";
@@ -1441,7 +1548,7 @@ paramk,83,98,3	script	[Manbok Groceries]#fod00	HIDDEN_NPC,{
 	close;
 }
 
-//Manbok
+// Manbok
 paramk,87,101,3	script	Manbok#fod01	1_M_03,{
 	if ($event_paramk > 0) {
 		mes "[Manbok]";
@@ -1455,7 +1562,7 @@ paramk,87,101,3	script	Manbok#fod01	1_M_03,{
 			mes "Well,^4d4dffif you see nothing, that means everything is sold out^000000.";
 			mes "Peruse at your pleasure.";
 			close2;
-			callshop "para_fod10";
+			callshop "para_fod10",1;
 			end;
 		case 2:
 			mes "[Manbok]";
@@ -1468,7 +1575,7 @@ paramk,87,101,3	script	Manbok#fod01	1_M_03,{
 			mes "[Manbok]";
 			mes "If it's a product I deal in, I will purchase them from you at a reasonable price.";
 			close2;
-			callshop "para_sel",2;
+			callshop "para_fod01",2;
 			end;
 		case 4:
 			mes "[Manbok]";
@@ -1479,7 +1586,7 @@ paramk,87,101,3	script	Manbok#fod01	1_M_03,{
 			mes "Just saying.";
 			close;
 		}
-	} else { //holiday
+	} else { // holiday
 		mes "[Manbok]";
 		mes "Not open on Wednesdays.";
 		mes "We restock today. Come back tomorrow.";
@@ -1487,8 +1594,9 @@ paramk,87,101,3	script	Manbok#fod01	1_M_03,{
 	}
 }
 
-//Magical Store, Ma-Ma-Ma-Ma
-//sign
+
+// Magical Store, Ma-Ma-Ma-Ma
+// sign
 paramk,93,98,3	script	Ma-Ma-Ma-Ma#mag	HIDDEN_NPC,{
 	mes " == Ma-Ma-Ma-Ma == ";
 	mes " == Magical Store == ";
@@ -1501,7 +1609,7 @@ paramk,93,98,3	script	Ma-Ma-Ma-Ma#mag	HIDDEN_NPC,{
 	close;
 }
 
-//Madoha
+// Madoha
 paramk,95,102,3	script	Madoha#mag01	4_M_SAGE_A,{
 	if ($event_paramk > 0) {
 		mes "[Madoha]";
@@ -1517,7 +1625,7 @@ paramk,95,102,3	script	Madoha#mag01	4_M_SAGE_A,{
 			mes "Blue, red, yellow gems. Magic scrolls like Meteor Storm, Stormgust, Lord of Vermillion...";
 			mes "^4d4dffIf there is nothing, it means everything is sold out^000000, please be aware.";
 			close2;
-			callshop "para_mag10";
+			callshop "para_mag10",1;
 			end;
 		}
 		mes "[Madoha]";
@@ -1527,7 +1635,7 @@ paramk,95,102,3	script	Madoha#mag01	4_M_SAGE_A,{
 		mes "[Madoha]";
 		mes "But there's a limit to how many scrolls I can scribe per week, so they sometimes run out.";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Madoha]";
 		mes "Oh, a customer?";
 		mes "Today is a holiday. We only sell basic magical ingredients today. No scrolls. Is that okay?";
@@ -1538,7 +1646,7 @@ paramk,95,102,3	script	Madoha#mag01	4_M_SAGE_A,{
 			mes "We try to be stocked up as much as possible but we may have run out.";
 			mes "If you see nothing, that means everything is sold out.";
 			close2;
-			callshop "para_mag11";
+			callshop "para_mag11",1;
 			end;
 		}
 		mes "[Madoha]";
@@ -1548,7 +1656,7 @@ paramk,95,102,3	script	Madoha#mag01	4_M_SAGE_A,{
 	}
 }
 
-//Magiha
+// Magiha
 paramk,100,102,3	script	Magiha#mag02	4_M_SAGE_C,{
 	if ($event_paramk > 0) {
 		mes "[Magiha]";
@@ -1561,13 +1669,13 @@ paramk,100,102,3	script	Magiha#mag02	4_M_SAGE_C,{
 			mes "We brew and sell four types of resistance potions that ward against water, wind, earth, or fire.";
 			mes "If you see nothing, that means all the potions are sold out.";
 			close2;
-			callshop "para_mag20";
+			callshop "para_mag20",1;
 			end;
 		}
 		mes "[Magiha]";
 		mes "Come again!";
 		close;
-	} else { //holiday
+	} else { // holiday
 		mes "[Magiha]";
 		mes "Today is a holiday! I did not brew any potions today...";
 		mes "Come back tomorrow.";
@@ -1575,8 +1683,8 @@ paramk,100,102,3	script	Magiha#mag02	4_M_SAGE_C,{
 	}
 }
 
-//Blessings of Yggdrasil
-//sign
+// Blessings of Yggdrasil
+// sign
 paramk,103,98,3	script	[Yggdrasil Blessing]#00	HIDDEN_NPC,{
 	mes " == Blessings of Yggdrasil == ";
 	mes "Moving in soon";
@@ -1584,8 +1692,8 @@ paramk,103,98,3	script	[Yggdrasil Blessing]#00	HIDDEN_NPC,{
 }
 
 
-//Exotic Plants
-//sign
+// Exotic Plants
+// sign
 paramk,113,98,3	script	[Exotic Plants]#plt	HIDDEN_NPC,{
 	mes " == Exotic Plants == ";
 	mes "Poisonous plants sold.";
@@ -1593,7 +1701,7 @@ paramk,113,98,3	script	[Exotic Plants]#plt	HIDDEN_NPC,{
 	close;
 }
 
-//Hwaran
+// Hwaran
 paramk,116,100,3	script	Hwaran#plt01	4_F_RUSGREEN,{
 	mes "[Hwaran]";
 	mes "Welcome to Exotic Plants.";
@@ -1605,7 +1713,7 @@ paramk,116,100,3	script	Hwaran#plt01	4_F_RUSGREEN,{
 		mes "Please shower them with affection, though they are poisonous plants.";
 		mes "I selected these babies from the farm myself. Very potent when made into meds.";
 		close2;
-		callshop "para_plt01";
+		callshop "para_plt01",1;
 		end;
 	}
 	mes "[Hwaran]";
@@ -1614,8 +1722,8 @@ paramk,116,100,3	script	Hwaran#plt01	4_F_RUSGREEN,{
 	close;
 }
 
-//You and Me
-//sign
+// You and Me
+// sign
 paramk,133,98,3	script	[You and Me]#unm00	HIDDEN_NPC,{
 	mes " == You and Me == ";
 	mes "Specializing in items for Cute Pets";
@@ -1625,69 +1733,72 @@ paramk,133,98,3	script	[You and Me]#unm00	HIDDEN_NPC,{
 	close;
 }
 
-//Gecko the Trainer
+// Gecko the Trainer
 paramk,124,97,3	script	Gecko the Trainer#unm01	4_M_DESERT,{
 	mes "[Gecko the Trainer]";
-	if (Class == Job_Rune_Knight || Class == Job_Rune_Knight_T || Class == Job_Baby_Rune) {
+	switch( Class ) {
+	case Job_Rune_Knight:
+	case Job_Rune_Knight_T:
+	case Job_Baby_Rune:
 		mes "Welcome. Would you like to rent a Dragon?";
 		next;
-		switch (select("Yes:No")) {
-		case 1:
-			//if (!getskilllv(RK_DRAGONTRAINING)) {
-			if (!getskilllv("KN_RIDING")) {
-				mes "[Gecko the Trainer]";
-				mes "Please learn how to ride a Dragon first.";
-				close;
-			} else if (checkriding() || checkdragon()) {
-				mes "[Gecko the Trainer]";
-				mes "You already have a Dragon.";
-				close;
-			} else if (ismounting()) {
-				mes "[Gecko the Trainer]";
-				mes "Please remove your cash mount.";
-				close;
-			}
-			setdragon;
-			close;
-		case 2:
+		if (select("Yes:No") == 2) {
 			mes "[Gecko the Trainer]";
 			mes "I see. Then have a great day.";
 			close;
 		}
-	}
-	if (Class == Job_Royal_Guard || Class == Job_Royal_Guard_T || Class == Job_Baby_Guard) {
+		// if (!getskilllv("RK_DRAGONTRAINING")) {
+		if (!getskilllv("KN_RIDING")) {
+			mes "[Gecko the Trainer]";
+			mes "Please learn how to ride a Dragon first.";
+			close;
+		} else if (checkriding() || checkdragon()) {
+			mes "[Gecko the Trainer]";
+			mes "You already have a Dragon.";
+			close;
+		} else if (ismounting()) {
+			mes "[Gecko the Trainer]";
+			mes "Please remove your cash mount.";
+			close;
+		}
+		setdragon;
+		close;
+
+	case Job_Royal_Guard:
+	case Job_Royal_Guard_T:
+	case Job_Baby_Guard:
 		mes "Welcome. Would you like to rent a Gryphon?";
 		next;
-		switch (select("Yes:No")) {
-		case 1:
-			if (!getskilllv("KN_RIDING")) {
-				mes "[Gecko the Trainer]";
-				mes "Please learn how to ride a Gryphon first.";
-				close;
-			}
-			if (checkriding()) {
-				mes "[Gecko the Trainer]";
-				mes "You already have a Gryphon.";
-				close;
-			}
-			if (ismounting()) {
-				mes "[Gecko the Trainer]";
-				mes "Please remove your cash mount.";
-				close;
-			}
-			setriding;
-			close;
-		case 2:
+		if (select("Yes:No") == 2) {
 			mes "[Gecko the Trainer]";
 			mes "I see. Then have a great day.";
 			close;
 		}
+		if (!getskilllv("KN_RIDING")) {
+			mes "[Gecko the Trainer]";
+			mes "Please learn how to ride a Gryphon first.";
+			close;
+		}
+		if (checkriding()) {
+			mes "[Gecko the Trainer]";
+			mes "You already have a Gryphon.";
+			close;
+		}
+		if (ismounting()) {
+			mes "[Gecko the Trainer]";
+			mes "Please remove your cash mount.";
+			close;
+		}
+		setriding;
+		close;
+
+	default:
+		mes "I'm here to provide Rune Knights and Royal Guards with riding creatures.";
+		close;
 	}
-	mes "I'm here to provide Rune Knights and Royal Guards with riding creatures.";
-	close;
 }
 
-//Tete
+// Tete
 paramk,126,100,3	script	Tamer Tete#unm02	4_M_DST_CHILD,{
 	mes "[Tete]";
 	mes "'You and Me', we love animals!";
@@ -1707,11 +1818,11 @@ paramk,126,100,3	script	Tamer Tete#unm02	4_M_DST_CHILD,{
 	close;
 }
 
-//Mist the Hunter
+// Mist the Hunter
 paramk,130,98,3	script	Mist the Hunter#unm03	4_M_JOB_HUNTER,{
-	if (Upper == 0) .@price = 2500; //Normal Falcon - default price
-	if (Upper == 1) .@price = 2500; //Scarf Falcon
-	if (Upper == 2) .@price = 2500; //Baby Falcon
+	if (Upper == 0) .@price = 2500; // Normal Falcon - default price
+	if (Upper == 1) .@price = 2500; // Scarf Falcon
+	if (Upper == 2) .@price = 2500; // Baby Falcon
 	mes "[Mist, the Hunter]";
 	if (BaseJob == Job_Hunter) {
 		if (checkoption(Option_Wug) || checkoption(Option_Wugrider)) {
