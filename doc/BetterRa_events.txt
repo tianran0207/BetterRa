@@ -189,6 +189,26 @@ BetterRa 在官方的基础上做了以下改进:
 
 ---------------------------------------
 
+*OnPCBuffFixFilter:
+
+	当玩家获得状态时触发  (关联获得状态的玩家)
+	
+参数说明:
+	@started_sc_id		为这个新增状态的编号
+	@started_sc_rate	为这个新增状态的触发概率(10000 = 100%)
+	@started_sc_tick	为这个新增状态的持续时长(单位为毫秒)
+						时长根据内部实现方式的不同, 有可能是指多长时间后剩余秒数减一
+	@started_sc_val1	为这个新增状态的第1个参数的值
+	@started_sc_val2	为这个新增状态的第2个参数的值
+	@started_sc_val3	为这个新增状态的第3个参数的值
+	@started_sc_val4	为这个新增状态的第4个参数的值
+	
+中断说明: 
+	中断后可对 @started_sc_tick、@started_sc_val1、@started_sc_val2、@started_sc_val3、@started_sc_val4 参数进行修改
+	如果 @started_sc_tick 修改为 0 则不会获得状态
+
+---------------------------------------
+
 *OnPCBuffEndEvent:
 
 
@@ -203,6 +223,7 @@ BetterRa 在官方的基础上做了以下改进:
 *OnPCPartyCreateFilter:
 
 当玩家创建了一个队伍后, 此事件会被触发 (关联队长)
+
 中断说明: 中断后服务端会无视玩家本次创建队伍的请求
 
 ---------------------------------------

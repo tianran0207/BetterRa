@@ -4753,6 +4753,8 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.unequip_event_name;
 	case NPCE_BUFFSTART:
 		return script_config.buff_start_event_name;
+	case NPCE_BUFFFIXFILTER:
+		return script_config.buff_fix_filter_name;
 	case NPCE_BUFFEND:
 		return script_config.buff_end_event_name;
 	case NPCE_PARTYCREATEFILTER:
