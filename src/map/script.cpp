@@ -319,6 +319,7 @@ struct Script_Config script_config = {
 	"OnPCUnequipFilter", //unequip_filter_event_name
 	"OnPCUnequipEvent", //unequip_event_name
 	"OnPCBuffStartEvent", //buff_start_event_name
+	"OnPCBuffFixFilter", //buff_fix_filter_name
 	"OnPCBuffEndEvent", //buff_end_event_name
 	"OnPCPartyCreateFilter", //party_create_gilter_name
 	"OnPCPartyJoinFilter", //party_join_gilter_name

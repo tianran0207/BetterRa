@@ -230,6 +230,7 @@ struct Script_Config {
 	const char*	unequip_event_name;
 	// Buff related
 	const char*	buff_start_event_name;
+	const char*	buff_fix_filter_name;
 	const char*	buff_end_event_name;
 	// Party related
 	const char*	party_create_gilter_name;
