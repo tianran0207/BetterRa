@@ -2324,9 +2324,11 @@ static void pc_bonus_autospell(std::vector<s_autospell> &spell, short id, short 
 
 	struct s_autospell entry = {};
 
+	if (rate < -10000 || rate > 10000)
+		ShowWarning("pc_bonus_autospell: Item bonus rate %d exceeds -10000~10000 range, capping.\n", rate);
 	entry.id = id;
 	entry.lv = lv;
-	entry.rate = rate;
+	entry.rate = cap_value(rate, -10000, 10000);
 	entry.flag = flag;
 	entry.card_id = card_id;
 
@@ -2354,10 +2356,12 @@ static void pc_bonus_autospell_onskill(std::vector<s_autospell> &spell, short sr
 
 	struct s_autospell entry = {};
 
+	if (rate < -10000 || rate > 10000)
+		ShowWarning("pc_bonus_onskill: Item bonus rate %d exceeds -10000~10000 range, capping.\n", rate);
 	entry.flag = src_skill;
 	entry.id = id;
 	entry.lv = lv;
-	entry.rate = rate;
+	entry.rate = cap_value(rate, -10000, 10000);
 	entry.card_id = card_id;
 
 	spell.push_back(entry);
@@ -2391,7 +2395,7 @@ static void pc_bonus_addeff(std::vector<s_addeffect> &effect, enum sc_type sc, s
 
 	for (auto &it : effect) {
 		if (it.sc == sc && it.flag == flag) {
-			it.rate += rate;
+			it.rate = cap_value(it.rate + rate, -10000, 10000);
 			it.arrow_rate += arrow_rate;
 			it.duration = umax(it.duration, duration);
 			return;
@@ -2400,8 +2404,10 @@ static void pc_bonus_addeff(std::vector<s_addeffect> &effect, enum sc_type sc, s
 
 	struct s_addeffect entry = {};
 
+	if (rate < -10000 || rate > 10000)
+		ShowWarning("pc_bonus_addeff: Item bonus rate %d exceeds -10000~10000 range, capping.\n", rate);
 	entry.sc = sc;
-	entry.rate = rate;
+	entry.rate = cap_value(rate, -10000, 10000);
 	entry.arrow_rate = arrow_rate;
 	entry.flag = flag;
 	entry.duration = duration;
@@ -2430,7 +2436,7 @@ static void pc_bonus_addeff_onskill(std::vector<s_addeffectonskill> &effect, enu
 
 	for (auto &it : effect) {
 		if (it.sc == sc && it.skill_id == skill_id && it.target == target) {
-			it.rate += rate;
+			it.rate = cap_value(it.rate + rate, -10000, 10000);
 			it.duration = umax(it.duration, duration);
 			return;
 		}
@@ -2438,8 +2444,10 @@ static void pc_bonus_addeff_onskill(std::vector<s_addeffectonskill> &effect, enu
 
 	struct s_addeffectonskill entry = {};
 
+	if (rate < -10000 || rate > 10000)
+		ShowWarning("pc_bonus_addeff_onskill: Item bonus rate %d exceeds -10000~10000 range, capping.\n", rate);
 	entry.sc = sc;
-	entry.rate = rate;
+	entry.rate = cap_value(rate, -10000, 10000);
 	entry.skill_id = skill_id;
 	entry.target = target;
 	entry.duration = duration;
@@ -2494,18 +2502,20 @@ static void pc_bonus_item_drop(std::vector<s_add_drop> &drop, unsigned short nam
 	for (auto &it : drop) {
 		if (it.nameid == nameid && it.group == group && it.race == race && it.class_ == class_) {
 			if ((rate < 0 && it.rate < 0) || (rate > 0 && it.rate > 0)) //Adjust the rate if it has same classification
-				it.rate += rate;
+				it.rate = cap_value(it.rate + rate, -10000, 10000);
 			return;
 		}
 	}
 
 	struct s_add_drop entry = {};
 
+	if (rate < -10000 || rate > 10000)
+		ShowWarning("pc_bonus_item_drop: Item bonus rate %d exceeds -10000~10000 range, capping.\n", rate);
 	entry.nameid = nameid;
 	entry.group = group;
 	entry.race = race;
 	entry.class_ = class_;
-	entry.rate = rate;
+	entry.rate = cap_value(rate, -10000, 10000);
 
 	drop.push_back(entry);
 }
@@ -2544,7 +2554,10 @@ bool pc_addautobonus(std::vector<s_autobonus> &bonus, const char *script, short 
 
 	struct s_autobonus entry = {};
 
-	entry.rate = rate;
+	if (rate < -10000 || rate > 10000)
+		ShowWarning("pc_addautobonus: Item bonus rate %d exceeds -10000~10000 range, capping.\n", rate);
+
+	entry.rate = cap_value(rate, -10000, 10000);
 	entry.duration = dur;
 	entry.active = INVALID_TIMER;
 	entry.atk_type = flag;
@@ -2705,15 +2718,18 @@ static void pc_bonus_addele(struct map_session_data* sd, unsigned char ele, shor
 
 	for (auto &it : wd->addele2) {
 		if (it.ele == ele && it.flag == flag) {
-			it.rate += rate;
+			it.rate = cap_value(it.rate + rate, -10000, 10000);
 			return;
 		}
 	}
 
 	struct s_addele2 entry = {};
 
+	if (rate < -10000 || rate > 10000)
+		ShowWarning("pc_bonus_addele: Item bonus rate %d exceeds -10000~10000 range, capping.\n", rate);
+
 	entry.ele = ele;
-	entry.rate = rate;
+	entry.rate = cap_value(rate, -10000, 10000);
 	entry.flag = flag;
 
 	wd->addele2.push_back(entry);
@@ -2748,15 +2764,17 @@ static void pc_bonus_subele(struct map_session_data* sd, unsigned char ele, shor
 
 	for (auto &it : sd->subele2) {
 		if (it.ele == ele && it.flag == flag) {
-			it.rate += rate;
+			it.rate = cap_value(it.rate + rate, -10000, 10000);
 			return;
 		}
 	}
 
 	struct s_addele2 entry = {};
 
+	if (rate < -10000 || rate > 10000)
+		ShowWarning("pc_bonus_subele: Item bonus rate %d exceeds -10000~10000 range, capping.\n", rate);
 	entry.ele = ele;
-	entry.rate = rate;
+	entry.rate = cap_value(rate, -10000, 10000);
 	entry.flag = flag;
 
 	sd->subele2.push_back(entry);
@@ -2801,6 +2819,11 @@ static void pc_bonus_itembonus(std::vector<s_item_bonus> &bonus, uint16 id, int 
  * @param flag: Battle flag
  */
 static void pc_bonus_addvanish(std::vector<s_vanish_bonus> &bonus, int16 rate, int16 per, int flag) {
+	if (bonus.size() == MAX_PC_BONUS) {
+		ShowWarning("pc_bonus_addvanish: Reached max (%d) number of vanish damage bonuses per character!\n", MAX_PC_BONUS);
+		return;
+	}
+
 	if (!(flag&BF_RANGEMASK))
 		flag |= BF_SHORT | BF_LONG;
 	if (!(flag&BF_WEAPONMASK))
@@ -2814,7 +2837,7 @@ static void pc_bonus_addvanish(std::vector<s_vanish_bonus> &bonus, int16 rate, i
 
 	for (auto &it : bonus) {
 		if (it.flag == flag) {
-			it.rate += rate;
+			it.rate = cap_value(it.rate + rate, -10000, 10000);
 			it.per += per;
 			return;
 		}
@@ -2822,7 +2845,10 @@ static void pc_bonus_addvanish(std::vector<s_vanish_bonus> &bonus, int16 rate, i
 
 	struct s_vanish_bonus entry = {};
 
-	entry.rate = rate;
+	if (rate < -10000 || rate > 10000)
+		ShowWarning("pc_bonus_addvanish: Item bonus rate %d exceeds -10000~10000 range, capping.\n", rate);
+
+	entry.rate = cap_value(rate, -10000, 10000);
 	entry.per = per;
 	entry.flag = flag;
 
@@ -6310,7 +6336,7 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 		ShowDebug("pc_setpos: Passed mapindex(%d) is invalid!\n", mapindex);
 		return SETPOS_MAPINDEX;
 	}
-	// ´ý²âÊÔ
+	// å¾…æµ‹è¯•
 	if ( sd->state.autotrade && (sd->vender_id || sd->buyer_id) && clrtype != 255 && (clrtype = CLR_RESPAWN)) // Player with autotrade just causes clif glitch! @ FIXME
 		return SETPOS_AUTOTRADE;
 
@@ -6347,7 +6373,7 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 		unsigned short curr_map_instance_id = map_getmapdata(sd->bl.m)->instance_id, new_map_instance_id = (mapdata ? mapdata->instance_id : 0);
 
 		if (curr_map_instance_id != new_map_instance_id) {
-			if (curr_map_instance_id && (battle_config.instance_leave_record & 2)) //Íæ¼ÒÔÚ¸±±¾ÖÐÏÂÏßºó¼ÇÂ¼ÏÂÏßÎ»ÖÃ
+			if (curr_map_instance_id && (battle_config.instance_leave_record & 2)) //çŽ©å®¶åœ¨å‰¯æœ¬ä¸­ä¸‹çº¿åŽè®°å½•ä¸‹çº¿ä½ç½®
 				instance_left_point(sd, curr_map_instance_id);
 
 			if (curr_map_instance_id) // Update instance timer for the map on leave
@@ -13995,7 +14021,7 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap) {
 	struct map_session_data *sd = bd->sd;
 	int dist, i;
 
-	//¼ì²éÁÐ±íÖÐµÄÄ§Îï
+	//æ£€æŸ¥åˆ—è¡¨ä¸­çš„é­”ç‰©
 	if (bd->info.mob_id[0] > 0 && bl->type == BL_MOB) {
 		struct mob_data *md = (struct mob_data *)bl;
 		for (i = 0; i < MAX_BOT_MOB_COUNT; i++) {
@@ -14008,22 +14034,22 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap) {
 			return 0;
 	}
 
-	//¼ì²éÊÇ²»ÊÇµÐÈË
+	//æ£€æŸ¥æ˜¯ä¸æ˜¯æ•Œäºº
 	if (battle_check_target(&sd->bl, bl, BCT_ENEMY) <= 0) {
 		return 0;
 	}
 
-	//¼ì²éÊÇ·ñÓÐÖ÷ÈË
+	//æ£€æŸ¥æ˜¯å¦æœ‰ä¸»äºº
 	if (bd->info.always_attack_master && (bl = battle_get_master(bl)) == NULL) {
 		return 0;
 	}
 
-	//¼ì²éÊôÐÔÐÞÕýÊÇ·ñÐ¡ÓÚ50
+	//æ£€æŸ¥å±žæ€§ä¿®æ­£æ˜¯å¦å°äºŽ50
 	if (bd->info.ignore_same_ele && !pcbot_check_ele(sd, bl, bd)) {
 		return 0;
 	}
 		
-	//ÕÒµ½ÀëµÃ×î½üµÄÄ§Îï
+	//æ‰¾åˆ°ç¦»å¾—æœ€è¿‘çš„é­”ç‰©
 	dist = distance_bl(&sd->bl, bl);
 	if (((*target) == NULL || !check_distance_bl(&sd->bl, *target, dist)) &&
 		battle_check_range(&sd->bl, bl, 12)
@@ -14052,7 +14078,7 @@ static int pcbot_ai_sub_hard_lootsearch(struct block_list *bl, va_list ap) {
 	struct block_list **target = va_arg(ap, struct block_list **);
 	struct map_session_data *sd = bd->sd;
 
-	//¼ì²éÁÐ±íÖÐµÄÎïÆ·
+	//æ£€æŸ¥åˆ—è¡¨ä¸­çš„ç‰©å“
 	if (bd->info.loot_item_id[0] > 0) {
 		for (i = 0; i < MAX_BOT_ITEM_COUNT; i++) {
 			if (bd->info.loot_item_id[i] == 0)
@@ -14105,7 +14131,7 @@ static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, t_tick tick
 	uint16 skill_id = bd->info.skill_id[bd->skill_idx];
 	uint16 skill_lv = bd->info.skill_lv[bd->skill_idx];
 	struct block_list *src = &bd->sd->bl;
-	//ÅÐ¶ÏµØÃæ¼¼ÄÜ»¹ÊÇµ¥Ìå¼¼ÄÜ
+	//åˆ¤æ–­åœ°é¢æŠ€èƒ½è¿˜æ˜¯å•ä½“æŠ€èƒ½
 	inf = skill_get_inf(skill_id);
 	if (inf&INF_SUPPORT_SKILL) {
 		tbl = src;
@@ -14116,7 +14142,7 @@ static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, t_tick tick
 		result = unit_skilluse_id2(src, tbl->id, skill_id, skill_lv, skill_castfix(src, skill_id, skill_lv), skill_get_castcancel(skill_id));
 
 	if (result) {
-		//¼ÆËãÏÂÒ»´ÎÊ¹ÓÃÕâ¸ö¼¼ÄÜµÄÑÓÊ±
+		//è®¡ç®—ä¸‹ä¸€æ¬¡ä½¿ç”¨è¿™ä¸ªæŠ€èƒ½çš„å»¶æ—¶
 		int cooldown = pc_get_skillcooldown(bd->sd, skill_id, skill_lv);
 		bd->info.skill_cooldown[bd->skill_idx] = (cooldown > bd->info.skill_delay[bd->skill_idx] ? cooldown : bd->info.skill_delay[bd->skill_idx]) + tick + 100;
 		bd->skill_idx = -1;
@@ -14146,7 +14172,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 	if (pc_isdead(sd))
 		return 0;
 
-	//³ÔµÀ¾ß¼ì²é
+	//åƒé“å…·æ£€æŸ¥
 	if (bd->state.next_heal_delay < tick) {
 		if (bd->info.item_hp_id && sd->battle_status.hp < sd->battle_status.max_hp * 8 / 10) {
 			if ((i = pc_search_inventory(sd, bd->info.item_hp_id)) != -1) {
@@ -14166,28 +14192,28 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 		}
 	}
 
-	//²»ÔÊÐí×öÈÎºÎÊÂ
+	//ä¸å…è®¸åšä»»ä½•äº‹
 	if (bd->state.next_acttime > tick)
 		return 0;
 
-	//Èç¹ûÕýÔÚÒ÷³ª
+	//å¦‚æžœæ­£åœ¨åŸå”±
 	if (sd->ud.skilltimer != INVALID_TIMER)
 		return 0;
 
-	//Èç¹ûÕýÔÚ¹¥»÷
+	//å¦‚æžœæ­£åœ¨æ”»å‡»
 	if (sd->ud.attacktimer != INVALID_TIMER)
 		return 0;
 
-	//Èç¹ûÓÐÄ§Îï¹¥»÷, ·´»÷
+	//å¦‚æžœæœ‰é­”ç‰©æ”»å‡», åå‡»
 	if (sd->ud.walktimer != INVALID_TIMER) {
 		if (bd->info.counterattack && sd->enemy_id) {
 			sd->enemy_id = 0;
-			//¼ì²éÊôÐÔÐÞÕýÊÇ·ñÐ¡ÓÚ50
+			//æ£€æŸ¥å±žæ€§ä¿®æ­£æ˜¯å¦å°äºŽ50
 			tbl = map_id2bl(sd->enemy_id);
 			if (tbl && bd->info.ignore_same_ele && pcbot_check_ele(sd, tbl, bd)) {
 				return 0;
 			}
-			//·´»÷Ä¿±ê
+			//åå‡»ç›®æ ‡
 			bd->target_id = sd->enemy_id;
 			unit_attack(&sd->bl, sd->enemy_id, 1);
 			return 1;
@@ -14195,28 +14221,28 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 		return 0;
 	}
 
-	//Èç¹ûÕýÔÚ¹¥»÷, ¼ì²éÄ¿±êµÄÓÐÐ§ÐÔ
+	//å¦‚æžœæ­£åœ¨æ”»å‡», æ£€æŸ¥ç›®æ ‡çš„æœ‰æ•ˆæ€§
 	if (bd->target_id) {
 		tbl = map_id2bl(bd->target_id);
 		if (tbl && tbl->m == sd->bl.m) {
-			if (tbl->type != BL_ITEM  && !status_isdead(tbl)) {	//ÓÐÐ§¹¥»÷Ä¿±ê
-				//Âú×ãÌõ¼þÔò¼¼ÄÜ¹¥»÷Ä¿±ê
+			if (tbl->type != BL_ITEM  && !status_isdead(tbl)) {	//æœ‰æ•ˆæ”»å‡»ç›®æ ‡
+				//æ»¡è¶³æ¡ä»¶åˆ™æŠ€èƒ½æ”»å‡»ç›®æ ‡
 				if ((bd->info.atktype & BF_MAGIC) && bd->skill_idx > 0 && sd->ud.skilltimer == INVALID_TIMER && check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
 					if (pcbot_skill(bd, tbl, tick)) {
 						return 1;
 					}
 				}
-				//Âú×ãÌõ¼þÔòÆÕÍ¨¹¥»÷Ä¿±ê
+				//æ»¡è¶³æ¡ä»¶åˆ™æ™®é€šæ”»å‡»ç›®æ ‡
 				else if ((bd->info.atktype & BF_WEAPON) && sd->ud.attacktimer == INVALID_TIMER && check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
 					if (!unit_attack(&sd->bl, tbl->id, 1))
 						return 1;
 				}
-				//¹¥»÷»òÊÍ·Å¼¼ÄÜÊ§°Ü, Ôò×ßµÄ¸ü½üÒ»Ð©.
+				//æ”»å‡»æˆ–é‡Šæ”¾æŠ€èƒ½å¤±è´¥, åˆ™èµ°çš„æ›´è¿‘ä¸€äº›.
 				bd->min_chase /= 2;
-				//ÊÍ·Å¼¼ÄÜ»òÕßÆÕÍ¨¹¥»÷Ê§Ð§
+				//é‡Šæ”¾æŠ€èƒ½æˆ–è€…æ™®é€šæ”»å‡»å¤±æ•ˆ
 				if (bd->skill_idx > 0 || (bd->info.atktype & BF_WEAPON)){
 					if (check_distance_bl(&sd->bl, tbl, 12)) {
-						//×ßµ½Ä¿±ê, ÓÉÓÚÉÏ´Î×ßÂ·Ê§°Ü, ËùÒÔÖ±½ÓÓÃA* ×ß. Èç¹û»¹ÊÇÊ§°ÜÔò·ÅÆúÕâ¸öÄ¿±ê.
+						//èµ°åˆ°ç›®æ ‡, ç”±äºŽä¸Šæ¬¡èµ°è·¯å¤±è´¥, æ‰€ä»¥ç›´æŽ¥ç”¨A* èµ°. å¦‚æžœè¿˜æ˜¯å¤±è´¥åˆ™æ”¾å¼ƒè¿™ä¸ªç›®æ ‡.
 						if (unit_walktobl(&sd->bl, tbl, bd->min_chase, 0)) { // Count walk path cells
 							return 1;
 						}
@@ -14226,7 +14252,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 					bd->state.next_acttime = tick + 500;
 				}
 
-			}else if (tbl->type == BL_ITEM){   //ÓÐÐ§ÎïÆ·Ä¿±ê
+			}else if (tbl->type == BL_ITEM){   //æœ‰æ•ˆç‰©å“ç›®æ ‡
 				if (check_distance_bl(&sd->bl, tbl, 1)) {
 					struct flooritem_data *fitem = (struct flooritem_data*)tbl;
 					pc_takeitem(sd, fitem);
@@ -14241,7 +14267,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 		target_dead = 1;
 	}
 
-	//¼ì²éÊ°È¡ÎïÆ·²Ëµ¥
+	//æ£€æŸ¥æ‹¾å–ç‰©å“èœå•
 	if (bd->info.loot_item_id[0] > 0) {
 		map_foreachinallrange(pcbot_ai_sub_hard_lootsearch, &sd->bl, 13, BL_ITEM, bd, &tbl);
 		if (tbl) {
@@ -14267,18 +14293,18 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 
 	if (tbl && pc_can_attack(sd, tbl->id)) {
 		if ((bd->info.atktype & BF_MAGIC) && bd->info.skill_id[0]) {
-			//Ñ°ÕÒÀäÈ´Íê³ÉµÄ¼¼ÄÜ
+			//å¯»æ‰¾å†·å´å®Œæˆçš„æŠ€èƒ½
 			ARR_FIND(0, MAX_BOT_SKILL_COUNT, i, bd->info.skill_id[i] && bd->info.skill_lv[i] && bd->info.skill_cooldown[i] < tick && sd->battle_status.sp > skill_get_sp(bd->info.skill_id[i], bd->info.skill_lv[i]));
 			if (i < MAX_BOT_SKILL_COUNT) {
 				
-				//¼ÆËã¹¥»÷¾àÀë
+				//è®¡ç®—æ”»å‡»è·ç¦»
 				bd->min_chase = skill_get_range2(&sd->bl, bd->info.skill_id[i], bd->info.skill_lv[i], true);
-				//Èç¹û¹»²»µ½Ôò×ß½üÄ§Îï
+				//å¦‚æžœå¤Ÿä¸åˆ°åˆ™èµ°è¿‘é­”ç‰©
 				bd->skill_idx = i;
 				if (unit_can_move(&sd->bl) && !check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
 					unit_walktobl(&sd->bl, tbl, bd->min_chase, sd->ud.state.walk_easy | 2);
 				}
-				//¹»µÃµ½ÊÍ·ÅÄ§·¨
+				//å¤Ÿå¾—åˆ°é‡Šæ”¾é­”æ³•
 				else{
 					pcbot_skill(bd, tbl, tick);
 				}
@@ -14287,13 +14313,13 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 			}
 		}
 		if ((bd->info.atktype & BF_WEAPON)) {
-			//¼ÆËã¹¥»÷¾àÀë
+			//è®¡ç®—æ”»å‡»è·ç¦»
 			bd->min_chase = status_get_status_data(&sd->bl)->rhw.range;
-			//Èç¹û¹»²»µ½Ôò×ß½üÄ§Îï
+			//å¦‚æžœå¤Ÿä¸åˆ°åˆ™èµ°è¿‘é­”ç‰©
 			if (unit_can_move(&sd->bl) && !check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
 				unit_walktobl(&sd->bl, tbl, bd->min_chase, sd->ud.state.walk_easy | 2);
 			}
-			//¹»µÃµ½Ö±½Ó¹¥»÷
+			//å¤Ÿå¾—åˆ°ç›´æŽ¥æ”»å‡»
 			else {
 				unit_attack(&sd->bl, tbl->id, 1);
 			}
@@ -14304,7 +14330,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 	if (unit_can_move(&sd->bl)){
 		INT16 x = 0, y = 0, rx = 10, ry = 10;
 
-		//Ñ°Â·´ïµ½×î´óÊ§°Ü´ÎÊý
+		//å¯»è·¯è¾¾åˆ°æœ€å¤§å¤±è´¥æ¬¡æ•°
 		if (bd->state.next_fly_delay < tick && ((bd->info.timeout_fly && bd->state.next_flytime < tick) || (bd->info.find_fail_fly &&  bd->state.move_count > bd->info.find_fail_fly))) {
 			if (pcbot_fly_away(bd , tick)) {
 				return 1;
@@ -14312,22 +14338,22 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 		}
 
 		switch (bd->state.dir) {
-		case 0: //ÏòÉÏ×ß
+		case 0: //å‘ä¸Šèµ°
 			x = sd->bl.x;
 			y = sd->bl.y + 9;
 			rx = 9; ry = 3;
 			break;
-		case 1: //ÏòÓÒ×ß
+		case 1: //å‘å³èµ°
 			x = sd->bl.x + 9;
 			y = sd->bl.y;
 			rx = 3; ry = 9;
 			break;
-		case 2: //ÏòÏÂ×ß
+		case 2: //å‘ä¸‹èµ°
 			x = sd->bl.x;
 			y = sd->bl.y - 9;
 			rx = 9; ry = 3;
 			break;
-		case 3: //Ïò×ó×ß
+		case 3: //å‘å·¦èµ°
 			x = sd->bl.x - 9;
 			y = sd->bl.y;
 			rx = 3; ry = 9;
