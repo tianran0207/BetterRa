@@ -11566,7 +11566,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		pc_setreg(sd, add_str("@started_sc_val4"), val4);
 		npc_script_event_atonce(sd, NPCE_BUFFFIXFILTER);
 		if (sd->state.processhalt) {
-			if ((tick <= pc_readreg(sd, add_str("@started_sc_tick"))) == 0)
+			if ((tick = pc_readreg(sd, add_str("@started_sc_tick"))) == 0)
 				return 0;
 			val1 = pc_readreg(sd, add_str("@started_sc_val1"));
 			val2 = pc_readreg(sd, add_str("@started_sc_val2"));
