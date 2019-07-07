@@ -27842,7 +27842,7 @@ BUILDIN_FUNC(unithide)
 			type = CLR_TELEPORT;
 	}
 
-	clif_clearunit_single(bl->id, CLR_TELEPORT, sd->fd);
+	clif_clearunit_single(bl->id, type, sd->fd);
 	return SCRIPT_CMD_SUCCESS;
 }
 
