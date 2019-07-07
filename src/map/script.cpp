@@ -20857,6 +20857,12 @@ BUILDIN_FUNC(instance_info)
 				return SCRIPT_CMD_FAILURE;
 			}
 
+			if (index >= db->maplist_count) {
+				ShowError("buildin_instance_info: Type IIT_MAP does only support less than %hu index with '%s' .\n", db->maplist_count, name);
+				script_pushconststr(st, "");
+				return SCRIPT_CMD_FAILURE;
+			}
+
 			script_pushstrcopy(st, StringBuf_Value(db->maplist[index]));
 			break;
 
@@ -27822,12 +27828,19 @@ BUILDIN_FUNC(unithide)
 {
 	struct map_session_data *sd;
 	struct block_list *bl;
+	clr_type type = CLR_TELEPORT;
 
 	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_FAILURE;
 
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
+
+	if (script_hasdata(st, 4)) {
+		type = (clr_type)script_getnum(st, 4);
+		if (type < CLR_OUTSIGHT || type > CLR_TRICKDEAD)
+			type = CLR_TELEPORT;
+	}
 
 	clif_clearunit_single(bl->id, CLR_TELEPORT, sd->fd);
 	return SCRIPT_CMD_SUCCESS;
@@ -27844,7 +27857,9 @@ BUILDIN_FUNC(unitshow)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
+	sd->runing_event[NPCE_ONDISPLAY] = true;
 	clif_getareachar_unit(sd, bl);
+	sd->runing_event[NPCE_ONDISPLAY] = false;
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -29000,7 +29015,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mobskill, "iviiii??"),
 	BUILDIN_DEF(getmobdmglog, "iir?"),
 	BUILDIN_DEF(charid2rid, "i"),
-	BUILDIN_DEF(unithide, "ii"),
+	BUILDIN_DEF(unithide, "ii?"),
 	BUILDIN_DEF(unitshow, "ii"),
 	BUILDIN_DEF(getlastip, "?"),
 	BUILDIN_DEF2(getlastip,"getcomputeruid", "?"),
