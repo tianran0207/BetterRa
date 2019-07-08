@@ -345,6 +345,12 @@ int map_addblock(struct block_list* bl)
 		ShowError("map_addblock: out-of-bounds coordinates (\"%s\",%d,%d), map is %dx%d\n", mapdata->name, x, y, mapdata->xs, mapdata->ys);
 		return 1;
 	}
+	
+	if (mapdata->instance_src_map && mapdata->name[0] == '\0')
+	{
+		ShowError("map_addblock: Try to warp to a freed instance map (src map: \"%s\")\n", map_getmapdata(mapdata->instance_src_map)->name);
+		return 1;
+	}
 
 	pos = x/BLOCK_SIZE+(y/BLOCK_SIZE)*mapdata->bxs;
 
