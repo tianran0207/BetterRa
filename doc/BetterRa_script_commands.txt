@@ -873,7 +873,7 @@ tribe_monster <阵营编号>,"<地图名字>",<x坐标>,<y坐标>,"<魔物名字>",<魔物ID>,"<事
 	tribe_monster .@tribe_id,"prontera",100,100,"Food Depot",1910,"Feed Depot#1::OnMyMobDead";
 	end;
 
-	set .@monster_gid, bg_monster(.@tribe_id,"prontera",100,104,"Guardian",1949,"NPCNAME::OnMyMobDead");
+	set .@monster_gid, tribe_monster(.@tribe_id,"prontera",100,104,"Guardian",1949,"NPCNAME::OnMyMobDead");
 	end;
 
 ---------------------------------------
