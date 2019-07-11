@@ -367,7 +367,7 @@ int GenerateMiniDump(HANDLE hFile, PEXCEPTION_POINTERS pExceptionPointers, PWCHA
 			ExpParam.ExceptionPointers = pExceptionPointers;
 			ExpParam.ClientPointers = FALSE;
 			pfnMiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),
-				hDumpFile, MiniDumpWithDataSegs, (pExceptionPointers ? &ExpParam : NULL), NULL, NULL);
+				hDumpFile, MiniDumpNormal, (pExceptionPointers ? &ExpParam : NULL), NULL, NULL);
 			if (bOwnDumpFile)
 				CloseHandle(hDumpFile);
 		}

@@ -20857,6 +20857,12 @@ BUILDIN_FUNC(instance_info)
 				return SCRIPT_CMD_FAILURE;
 			}
 
+			if (index >= db->maplist_count) {
+				ShowError("buildin_instance_info: Type IIT_MAP does only support less than %hu index with '%s' .\n", db->maplist_count, name);
+				script_pushconststr(st, "");
+				return SCRIPT_CMD_FAILURE;
+			}
+
 			script_pushstrcopy(st, StringBuf_Value(db->maplist[index]));
 			break;
 
@@ -24832,6 +24838,59 @@ BUILDIN_FUNC(getvariableofinstance)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+/*
+  convertpcinfo(<char_id>,<type>)
+  convertpcinfo(<account_id>,<type>)
+  convertpcinfo(<player_name>,<type>)
+*/
+BUILDIN_FUNC(convertpcinfo) {
+	TBL_PC *sd;
+
+	if (script_isstring(st, 2))
+		sd = map_nick2sd(script_getstr(st, 2),false);
+	else {
+		int id = script_getnum(st, 2);
+		sd = map_id2sd(id);
+		if (!sd)
+			sd = map_charid2sd(id);
+	}
+
+	int type = script_getnum(st, 3);
+
+	switch (type) {
+	case CPC_NAME:
+	case CPC_CHAR:
+	case CPC_ACCOUNT:
+		break;
+	default:
+		ShowError("buildin_convertpcinfo: Unknown type %d.\n", type);
+		script_pushnil(st);
+		st->state = END;
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	if (!sd) {
+		if (type == CPC_NAME)
+			script_pushstrcopy(st, "");
+		else
+			script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	switch (type) {
+	case CPC_NAME:
+		script_pushstrcopy(st, sd->status.name);
+		break;
+	case CPC_CHAR:
+		script_pushint(st, sd->status.char_id);
+		break;
+	case CPC_ACCOUNT:
+		script_pushint(st, sd->status.account_id);
+		break;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
 #include "../custom/script.inc"
 
 BUILDIN_FUNC(processhalt)
@@ -27769,6 +27828,7 @@ BUILDIN_FUNC(unithide)
 {
 	struct map_session_data *sd;
 	struct block_list *bl;
+	clr_type type = CLR_TELEPORT;
 
 	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_FAILURE;
@@ -27776,7 +27836,13 @@ BUILDIN_FUNC(unithide)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	clif_clearunit_single(bl->id, CLR_TELEPORT, sd->fd);
+	if (script_hasdata(st, 4)) {
+		type = (clr_type)script_getnum(st, 4);
+		if (type < CLR_OUTSIGHT || type > CLR_TRICKDEAD)
+			type = CLR_TELEPORT;
+	}
+
+	clif_clearunit_single(bl->id, type, sd->fd);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -27791,7 +27857,9 @@ BUILDIN_FUNC(unitshow)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
+	sd->runing_event[NPCE_ONDISPLAY] = true;
 	clif_getareachar_unit(sd, bl);
+	sd->runing_event[NPCE_ONDISPLAY] = false;
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -28882,6 +28950,7 @@ struct script_function buildin_func[] = {
 
 	BUILDIN_DEF(achievement_condition,"i"),
 	BUILDIN_DEF(getvariableofinstance,"ri"),
+	BUILDIN_DEF(convertpcinfo,"vi"),
 #include "../custom/script_def.inc"
 
 	BUILDIN_DEF(sleep3, "i"),
@@ -28946,7 +29015,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mobskill, "iviiii??"),
 	BUILDIN_DEF(getmobdmglog, "iir?"),
 	BUILDIN_DEF(charid2rid, "i"),
-	BUILDIN_DEF(unithide, "ii"),
+	BUILDIN_DEF(unithide, "ii?"),
 	BUILDIN_DEF(unitshow, "ii"),
 	BUILDIN_DEF(getlastip, "?"),
 	BUILDIN_DEF2(getlastip,"getcomputeruid", "?"),

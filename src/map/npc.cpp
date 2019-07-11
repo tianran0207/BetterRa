@@ -950,6 +950,7 @@ bool npc_ondisplay_event(struct map_session_data *sd, struct npc_data *nd)
 {
 	char name[EVENT_NAME_LENGTH];
 	struct event_data* ev;
+
 	sprintf(name, "%s::OnDisplay", nd->name);
 	ev = (struct event_data*)strdb_get(ev_db, name);
 
@@ -960,6 +961,9 @@ bool npc_ondisplay_event(struct map_session_data *sd, struct npc_data *nd)
 				return false;
 		}
 	}else if(ev) {
+		if (sd->runing_event[NPCE_ONDISPLAY])
+			return true;
+
 		npc_script_event_atonce(sd, NPCE_ONDISPLAY, ev);
 		if (sd->state.processhalt)
 			return false;

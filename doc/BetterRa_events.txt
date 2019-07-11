@@ -191,8 +191,9 @@ BetterRa 在官方的基础上做了以下改进:
 
 *OnPCBuffFixFilter:
 
-	当玩家获得状态时触发  (关联获得状态的玩家)
-	
+
+	当玩家获得状态(Buff)时触发 (关联获得状态的玩家)
+
 参数说明:
 	@started_sc_id		为这个新增状态的编号
 	@started_sc_rate	为这个新增状态的触发概率(10000 = 100%)
@@ -204,8 +205,7 @@ BetterRa 在官方的基础上做了以下改进:
 	@started_sc_val4	为这个新增状态的第4个参数的值
 	
 中断说明: 
-	中断后可对 @started_sc_tick、@started_sc_val1、@started_sc_val2、@started_sc_val3、@started_sc_val4 参数进行修改
-	如果 @started_sc_tick 修改为 0 则不会获得状态
+	中断后可通过修改返回的参数达到修改实际生效结果, 当 @started_sc_tick 修改为 0 时, 当前SC不生效
 
 ---------------------------------------
 
