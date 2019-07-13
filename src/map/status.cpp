@@ -1570,7 +1570,7 @@ int status_set_maxhp(struct block_list *bl, unsigned int maxhp, int flag)
 	if (maxhp == status->max_hp)
 		return 0;
 
-	heal = maxhp - status->max_hp;
+	heal = (int64)maxhp - status->max_hp;
 	status->max_hp = maxhp;
 
 	if (heal > 0)
