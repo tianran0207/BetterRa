@@ -25437,30 +25437,44 @@ BUILDIN_FUNC(sc_check)
 
 static int buildin_script4each_sub(struct block_list *bl, va_list ap)
 {
-
 	struct script_code *scriptcode = va_arg(ap, struct script_code *);
 	const char *event = va_arg(ap, const char *);
 	int npcid = va_arg(ap, int);
-	if (scriptcode == NULL) {
-		TBL_PC *sd = map_id2sd(bl->id);
-		npc_event_atonce(sd, event);
-	}
-	else
-		run_script(scriptcode, 0, bl->id, npcid);
+	int tribe = va_arg(ap, int);
 
-	return 0;
+	if (tribe != -1 && tribe_team_get_id(bl) != tribe)
+		return 0;
+
+	mapreg_setreg(add_str("$@gid"), bl->id);
+
+	if (bl->type == BL_PC) {
+		if (scriptcode == NULL) {
+			TBL_PC *sd = map_id2sd(bl->id);
+			npc_event_atonce(sd, event);
+		}
+		else
+			run_script(scriptcode, 0, bl->id, npcid);
+	}
+	else {
+		if (scriptcode == NULL)
+			npc_event_do(event);
+		else
+			run_script(scriptcode, 0, 0, npcid);
+	}
+	return 1;
 }
 
 BUILDIN_FUNC(script4each)
 {
-	int type, i;
+	int type, i, map_index, bltype, group_id = -1;
 	const char *bonus_script;
-	struct map_session_data *pl_sd;
 	struct script_code *scriptcode = NULL;
 	struct script_state *previous_st = NULL;
 	struct party_data *p = NULL;
 	struct guild *g = NULL;
 	TBL_PC *sd = NULL, *st_sd = NULL;
+	const char* command = script_getfuncname(st);
+	char error[256] = { };
 
 	bonus_script = script_getstr(st, 2);
 	type = script_getnum(st, 3);
@@ -25471,201 +25485,153 @@ BUILDIN_FUNC(script4each)
 			return SCRIPT_CMD_FAILURE;
 	}
 
+	bltype = (strstr(command, "npc") ? BL_NPC : (strstr(command, "mob") ? BL_MOB : BL_PC));
+
 	if ((st_sd = map_id2sd(st->rid)) != NULL) {
 		previous_st = st_sd->st;
 		script_detach_rid(previous_st);
 	}
 
-	switch (type)
-	{
+	switch (type) {
+	case 9:
+		if (!script_hasdata(st, 4)) {
+			safestrncpy(error, "buildin_script4each: Missing parameter (type: %d).\n", sizeof(error));
+			break;
+		}
+		group_id = script_getnum(st, 4);
 	case 0:
-	{
-		struct s_mapiterator *iter = mapit_getallusers();
-		for (pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter)) {
-			if (scriptcode == NULL)
-				npc_event_atonce(pl_sd, bonus_script);
-			else
-				run_script(scriptcode, 0, pl_sd->bl.id, 0);
+		if (bltype == BL_PC) {
+			struct map_session_data *pl_sd;
+			struct s_mapiterator *iter = mapit_getallusers();
+			for (pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter)) {
+				if (group_id != -1 && pl_sd->tribe_id != group_id)
+					continue;
+				mapreg_setreg(add_str("$@gid"), pl_sd->bl.id);
+				if (scriptcode == NULL)
+					npc_event_atonce(pl_sd, bonus_script);
+				else
+					run_script(scriptcode, 0, pl_sd->bl.id, st->oid);
+			}
+			mapit_free(iter);
+		} else {
+			struct block_list *bl = NULL;
+			struct s_mapiterator *iter = (bltype == BL_MOB ? mapit_geteachmob() : mapit_geteachnpc());
+			for (bl = (struct block_list*)mapit_first(iter); mapit_exists(iter); bl = (struct block_list*)mapit_next(iter)) {
+				if (group_id != -1 && tribe_team_get_id(bl) != group_id)
+					continue;
+				mapreg_setreg(add_str("$@gid"), bl->id);
+				if (scriptcode == NULL)
+					npc_event_do(bonus_script);
+				else
+					run_script(scriptcode, 0, 0, st->oid);
+			}
+			mapit_free(iter);
 		}
-		mapit_free(iter);
-	}
-	break;
+		break;
 	case 1:
-
-		if (script_getstr(st, 4) == NULL) {
-			script_pushint(st, 0);
-			return SCRIPT_CMD_FAILURE;
+		if (!script_hasdata(st, 4) || (map_index = map_mapname2mapid(script_getstr(st, 4))) < 0) {
+			safestrncpy(error, "buildin_script4each: Missing parameter or Invalid mapname (type: %d).\n", sizeof(error));
+			break;
 		}
-		if (map_mapname2mapid(script_getstr(st, 4)) < 0) {
-			script_pushint(st, 0);
-			return SCRIPT_CMD_FAILURE;
-		}
-
-		map_foreachinmap(buildin_script4each_sub, map_mapname2mapid(script_getstr(st, 4)), BL_PC, scriptcode, bonus_script, st->oid);
-
+		map_foreachinmap(buildin_script4each_sub, map_index, bltype, scriptcode, bonus_script, st->oid, group_id);
 		break;
-
-	case 2:
-	{
-		int map_index, x, y, range;
-		struct block_list center;
-
-		if (!script_hasdata(st, 7))
+	case 2:	
+		if (!script_hasdata(st, 7) || (map_index = map_mapname2mapid(script_getstr(st, 4))) < 0) {
+			safestrncpy(error, "buildin_script4each: Missing parameter or Invalid mapname (type: %d).\n", sizeof(error));
 			break;
-		else
-		{
-			if (map_mapname2mapid(script_getstr(st, 4)) < 0)
-				break;
-
-			x = script_getnum(st, 5);
-			y = script_getnum(st, 6);
-			range = script_getnum(st, 7);
-		}
-
-		map_index = map_mapname2mapid(script_getstr(st, 4));
-
-		center.m = map_index;
-		center.x = x;
-		center.y = y;
-
-		map_foreachinrange(buildin_script4each_sub, &center, range, BL_PC, scriptcode, bonus_script, st->oid);
-	}
-	break;
-
-	case 3:
-
-		if (!script_hasdata(st, 4))
-			break;
-		else
-			sd = map_charid2sd(script_getnum(st, 4));
-
-		if (!sd) break;
-		p = party_search(sd->status.party_id);
-
-		if (p == NULL)
-			break;
-
-		for (i = 0; i < MAX_PARTY; i++) {
-			TBL_PC *tsd;
-			if (!p->party.member[i].account_id)
-				continue;
-
-			tsd = map_id2sd(p->party.member[i].account_id);
-
-			if (!tsd || tsd->status.char_id != p->party.member[i].char_id)
-				continue;
-
-			if (scriptcode == NULL)
-				npc_event_atonce(tsd, bonus_script);
-			else
-				run_script(scriptcode, 0, tsd->bl.id, 0);
+		} else {
+			struct block_list center;
+			center.m = map_index;
+			center.x = script_getnum(st, 5);
+			center.y = script_getnum(st, 6);
+			map_foreachinrange(buildin_script4each_sub, &center, script_getnum(st, 7), bltype, scriptcode, bonus_script, st->oid, group_id);
 		}
 		break;
-
-	case 4:
-
-		if (!script_hasdata(st, 4))
+	case 5:	
+		if (!script_hasdata(st, 8) || (map_index = map_mapname2mapid(script_getstr(st, 4))) < 0) {
+			safestrncpy(error, "buildin_script4each: Missing parameter or Invalid mapname (type: %d).\n", sizeof(error));
 			break;
-		else
-			sd = map_charid2sd(script_getnum(st, 4));
-
-		if (!sd) break;
-		g = guild_search(sd->status.guild_id);
-
-		if (g == NULL)
-			break;
-
-		for (i = 0; i < MAX_GUILD; i++) {
-			TBL_PC *tsd;
-			if (!g->member[i].account_id)
-				continue;
-
-			tsd = map_id2sd(g->member[i].account_id);
-			if (!tsd || tsd->status.char_id != g->member[i].char_id)
-				continue;
-
-			if (scriptcode == NULL)
-				npc_event_atonce(tsd, bonus_script);
-			else
-				run_script(scriptcode, 0, tsd->bl.id, 0);
-		}
-		break;
-
-	case 5:
-	{
-		int map_index, x0, y0, x1, y1;
-
-		if (!script_hasdata(st, 8))
-			break;
-		else
-		{
-			if (map_mapname2mapid(script_getstr(st, 4)) < 0)
-				break;
-
+		} else {
+			int x0, y0, x1, y1;
 			x0 = script_getnum(st, 5);
 			y0 = script_getnum(st, 6);
 			x1 = script_getnum(st, 7);
 			y1 = script_getnum(st, 8);
+			map_foreachinarea(buildin_script4each_sub, map_index, x0, y0, x1, y1, bltype, scriptcode, bonus_script, st->oid, group_id);
 		}
-		map_index = map_mapname2mapid(script_getstr(st, 4));
-		map_foreachinarea(buildin_script4each_sub, map_index, x0, y0, x1, y1, BL_PC, scriptcode, bonus_script, st->oid);
-	}
-	break;
-
+		break;
+	case 3:
 	case 6:
-
-		if (!script_hasdata(st, 4))
-			break;
-		else
-			p = party_search(script_getnum(st, 4));
-
-		if (p == NULL)
-			break;
-
+		if (type == 3) {
+			if (!script_hasdata(st, 5) || !(p = party_search(script_getnum(st, 5))) || (map_index = map_mapname2mapid(script_getstr(st, 4))) < 0) {
+				safestrncpy(error, "buildin_script4each: Missing parameter or Invalid mapname or Invalid party id (type: %d).\n", sizeof(error));
+				break;
+			}
+		}
+		if (type == 6) {
+			map_index = -1;
+			if (!script_hasdata(st, 4) || !(p = party_search(script_getnum(st, 4)))) {
+				safestrncpy(error, "buildin_script4each: Missing parameter or Invalid party id (type: %d).\n", sizeof(error));
+				break;
+			}
+		}
 		for (i = 0; i < MAX_PARTY; i++) {
 			TBL_PC *tsd;
 			if (!p->party.member[i].account_id)
 				continue;
-
 			tsd = map_id2sd(p->party.member[i].account_id);
-
 			if (!tsd || tsd->status.char_id != p->party.member[i].char_id)
 				continue;
-
+			if (map_index != -1 && tsd->bl.m != map_index)
+				continue;
+			mapreg_setreg(add_str("$@gid"), tsd->bl.id);
 			if (scriptcode == NULL)
 				npc_event_atonce(tsd, bonus_script);
 			else
-				run_script(scriptcode, 0, tsd->bl.id, 0);
+				run_script(scriptcode, 0, tsd->bl.id, st->oid);
 		}
 		break;
-
+	case 4:
 	case 7:
-		if (!script_hasdata(st, 4))
-			break;
-		else
-			g = guild_search(script_getnum(st, 4));
-
-		if (g == NULL)
-			break;
-
+		if (type == 4) {
+			if (!script_hasdata(st, 5) || !(g = guild_search(script_getnum(st, 5))) || (map_index = map_mapname2mapid(script_getstr(st, 4))) < 0) {
+				safestrncpy(error, "buildin_script4each: Missing parameter or Invalid mapname or Invalid guild id (type: %d).\n", sizeof(error));
+				break;
+			}
+		}
+		if (type == 7) {
+			map_index = -1;
+			if (!script_hasdata(st, 4) || !(g = guild_search(script_getnum(st, 4)))) {
+				safestrncpy(error, "buildin_script4each: Missing parameter or Invalid guild id (type: %d).\n", sizeof(error));
+				break;
+			}
+		}
 		for (i = 0; i < MAX_GUILD; i++) {
 			TBL_PC *tsd;
 			if (!g->member[i].account_id)
 				continue;
-
 			tsd = map_id2sd(g->member[i].account_id);
 			if (!tsd || tsd->status.char_id != g->member[i].char_id)
 				continue;
-
+			if (map_index != -1 && tsd->bl.m != map_index)
+				continue;
+			mapreg_setreg(add_str("$@gid"), tsd->bl.id);
 			if (scriptcode == NULL)
 				npc_event_atonce(tsd, bonus_script);
 			else
-				run_script(scriptcode, 0, tsd->bl.id, 0);
+				run_script(scriptcode, 0, tsd->bl.id, st->oid);
 		}
 		break;
-
+	case 8:
+		if (!script_hasdata(st, 5) || (map_index = map_mapname2mapid(script_getstr(st, 4))) < 0) {
+			safestrncpy(error, "buildin_script4each: Missing parameter or Invalid mapname (type: %d).\n", sizeof(error));
+			break;
+		}
+		group_id = script_getnum(st, 5);
+		map_foreachinmap(buildin_script4each_sub, map_index, bltype, scriptcode, bonus_script, st->oid, group_id);
+		break;
 	default:
-		ShowError("script4each : unknow type: %d\n", type);
+		safestrncpy(error, "buildin_script4each: Invalid type (type: %d).\n", sizeof(error));
 		break;
 	}
 
@@ -25676,7 +25642,10 @@ BUILDIN_FUNC(script4each)
 		previous_st->rid = st_sd->bl.id;
 		script_attach_state(previous_st);
 	}
-
+	if (error[0]) {
+		ShowError(error, type);
+		return SCRIPT_CMD_FAILURE;
+	}
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -28984,6 +28953,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(battleignore, "i?"),
 	BUILDIN_DEF(sc_check,"i?"),
 	BUILDIN_DEF(script4each, "si?????"),
+	BUILDIN_DEF2(script4each, "script4eachmob", "si?????"),
+	BUILDIN_DEF2(script4each, "script4eachnpc", "si?????"),
 	BUILDIN_DEF(bonus_script_remove, "s?"),
 	BUILDIN_DEF(getchartitle, "?"),
 	BUILDIN_DEF(getequipidx, "i?"),

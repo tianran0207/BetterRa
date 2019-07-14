@@ -390,11 +390,16 @@ int map_delblock(struct block_list* bl)
 		return 0;
 	}
 
+	struct map_data *mapdata = map_getmapdata(bl->m);
+
+	if (mapdata->m != bl->m) {
+		ShowError("map_delblock error : mapdata->m != sd->bl.m\n");
+		return 0;
+	}
+
 #ifdef CELL_NOSTACK
 	map_delblcell(bl);
 #endif
-
-	struct map_data *mapdata = map_getmapdata(bl->m);
 
 	pos = bl->x/BLOCK_SIZE+(bl->y/BLOCK_SIZE)*mapdata->bxs;
 

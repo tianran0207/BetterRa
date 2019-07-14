@@ -435,17 +435,33 @@ $@sameip_name$[]		使用指定IP在线的玩家角色名数组
 ---------------------------------------
 
 *script4each "{<脚本>}",<覆盖范围>{,<参数>...};
+*script4each "NPCNAME::EVENT",<覆盖范围>{,<参数>...};
+*script4eachmob "{<脚本>}",<覆盖范围>{,<参数>...};
+*script4eachmob "NPCNAME::EVENT",<覆盖范围>{,<参数>...};
+*script4eachnpc "{<脚本>}",<覆盖范围>{,<参数>...};
+*script4eachnpc "NPCNAME::EVENT",<覆盖范围>{,<参数>...};
 
-对指定范围的玩家执行相同的一段脚本
+对指定范围的玩家、魔物、NPC执行相同的一段脚本，在"{<脚本>}或NPCNAME::EVENT"中使用 $@gid 来获取和脚本关联的玩家、魔物、NPC的 GID.
 
-全服玩家			- script4each "{<脚本>}",0;
-指定地图			- script4each "{<脚本>}",1,"地图名";
-指定区域			- script4each "{<脚本>}",2,"地图名",中心坐标x,中心坐标y,范围;
-指定玩家所在的队伍	- script4each "{<脚本>}",3,玩家角色编号;
-指定玩家所在的公会	- script4each "{<脚本>}",4,玩家角色编号;
-指定区域			- script4each "{<脚本>}",5,"地图名",坐标x0,坐标y0,坐标x1,坐标y1;
-指定队伍			- script4each "{<脚本>}",6,队伍编号;
-指定公会			- script4each "{<脚本>}",7,公会编号;
+全服				  - script4each "{<脚本>}或NPCNAME::EVENT",0;
+指定地图			- script4each "{<脚本>}或NPCNAME::EVENT",1,"地图名";
+指定区域			- script4each "{<脚本>}或NPCNAME::EVENT",2,"地图名",中心坐标x,中心坐标y,范围;
+指定地图上的队伍	- script4each "{<脚本>}或NPCNAME::EVENT",3,"地图名",队伍编号;
+指定地图上的公会	- script4each "{<脚本>}或NPCNAME::EVENT",4,"地图名",公会编号;
+指定区域			- script4each "{<脚本>}或NPCNAME::EVENT",5,"地图名",坐标x0,坐标y0,坐标x1,坐标y1;
+指定队伍			- script4each "{<脚本>}或NPCNAME::EVENT",6,队伍编号;
+指定公会			- script4each "{<脚本>}或NPCNAME::EVENT",7,公会编号;
+指定地图上的阵营	- script4each "{<脚本>}或NPCNAME::EVENT",8,"地图名",阵营编号;
+指定阵营			- script4each "{<脚本>}或NPCNAME::EVENT",9,阵营编号;
+
+例:
+	script4eachmob "{unittalk $@gid,\"123456\";}",1,"prontera";
+
+	等价于
+	script4eachmob "NPCNAME::OnTalk",1,"prontera";
+	end;
+OnTalk:
+	unittalk $@gid,"123456";
 
 注意: 
 	如果<脚本>中有使用到大括号的话, 需要在大括号的左侧使用 \ 来进行转义, 例如:

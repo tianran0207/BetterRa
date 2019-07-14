@@ -283,6 +283,26 @@ void battle_damage(struct block_list *src, struct block_list *target, int64 dama
 	map_freeblock_unlock();
 }
 
+void battle_damage_event(struct block_list* src, struct block_list* target, int attack_type, uint16 skill_id, uint16 skill_lv, int64 *damage) {
+	struct map_session_data* sd = BL_CAST(BL_PC, src);
+	if (*damage && npc_script_event_check(sd, NPCE_ATKFILTER)) {
+		struct unit_data *ud = unit_bl2ud(target);
+		if ((battle_config.attack_filter_target&(target->type)) || ud && ud->attackevent_mark) {
+			pc_setparam(sd, SP_DMG_TYPE, attack_type);
+			pc_setparam(sd, SP_DMG_DAMAGE, (int)cap_value(*damage, 0, INT_MAX));
+			pc_setparam(sd, SP_DMG_SKILLID, skill_id);
+			pc_setparam(sd, SP_DMG_SKILLLV, skill_lv);
+			pc_setparam(sd, SP_DMG_TARGETTYPE, target->type);
+			pc_setparam(sd, SP_DMG_TARGETGID, target->id);
+			pc_setparam(sd, SP_DMG_MOBID, target->type == BL_MOB ? ((TBL_MOB*)target)->mob_id : 0);
+			pc_setparam(sd, SP_DMG_MARK, ud ? ud->attackevent_mark : 0);
+			npc_script_event_atonce(sd, NPCE_ATKFILTER);
+			if (sd->state.processhalt)
+				*damage = pc_readparam(sd, SP_DMG_DAMAGE);
+		}
+	}
+}
+
 /// Damage Delayed Structure
 struct delay_damage {
 	int src_id;
@@ -362,24 +382,8 @@ int battle_delay_damage(t_tick tick, int amotion, struct block_list *src, struct
 		damage > 0 && skill_id != PA_PRESSURE && skill_id != CR_REFLECTSHIELD )
 		damage = 0;
 
-
-	if (src->type == BL_PC && !isspdamage && npc_script_event_check((TBL_PC*)src, NPCE_ATKFILTER)) {
-		struct unit_data *ud = unit_bl2ud(target);
-		if ((battle_config.attack_filter_target&(target->type)) || ud && ud->attackevent_mark) {
-			struct map_session_data* sd = (TBL_PC*)src;
-			pc_setparam(sd, SP_DMG_TYPE, attack_type);
-			pc_setparam(sd, SP_DMG_DAMAGE, (int)cap_value(damage, 0, INT_MAX));
-			pc_setparam(sd, SP_DMG_SKILLID, skill_id);
-			pc_setparam(sd, SP_DMG_SKILLLV, skill_lv);
-			pc_setparam(sd, SP_DMG_TARGETTYPE, target->type);
-			pc_setparam(sd, SP_DMG_TARGETGID, target->id);
-			pc_setparam(sd, SP_DMG_MOBID, target->type == BL_MOB ? ((TBL_MOB*)target)->mob_id : 0);
-			pc_setparam(sd, SP_DMG_MARK, ud ? ud->attackevent_mark : 0);
-			npc_script_event_atonce(sd, NPCE_ATKFILTER);
-			if (sd->state.processhalt)
-				damage = pc_readparam(sd, SP_DMG_DAMAGE);
-		}
-	}
+	if (!isspdamage)
+		battle_damage_event(src, target, attack_type, skill_id, skill_lv, &damage);
 
 	if ( !battle_config.delay_battle_damage || amotion <= 1 ) {
 		//Deal damage

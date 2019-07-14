@@ -3646,6 +3646,8 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	shadow_flag = skill_check_shadowform(bl, damage, dmg.div_);
 
+	battle_damage_event(src, bl, attack_type, skill_id, skill_lv, &damage);
+
 	// Instant damage
 	if( !dmg.amotion ) {
 		if( (!tsc || (!tsc->data[SC_DEVOTION] && skill_id != CR_REFLECTSHIELD && !tsc->data[SC_WATER_SCREEN_OPTION]) || skill_id == HW_GRAVITATION || skill_id == NPC_EVILLAND) && !shadow_flag )
@@ -3667,8 +3669,11 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 				skill_additional_effect(src, bl, skill_id, skill_lv, dmg.flag, dmg.dmg_lv, tick);
 			if( dmg.flag > ATK_BLOCK )
 				skill_counter_additional_effect(src, bl, skill_id, skill_lv, dmg.flag, tick);
-		} else
-			battle_delay_damage(tick, dmg.amotion,src,bl,dmg.flag,skill_id,skill_lv,damage,dmg.dmg_lv,dmg.dmotion, additional_effects, false);
+		} else {
+			if (sd)	sd->runing_event[NPCE_ATKFILTER] = true;
+			battle_delay_damage(tick, dmg.amotion, src, bl, dmg.flag, skill_id, skill_lv, damage, dmg.dmg_lv, dmg.dmotion, additional_effects, false);
+			if (sd)	sd->runing_event[NPCE_ATKFILTER] = false;
+		}
 	}
 
 	if (tsc && skill_id != PA_PRESSURE && skill_id != HW_GRAVITATION && skill_id != NPC_EVILLAND) {
