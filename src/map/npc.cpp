@@ -4689,6 +4689,16 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type, s
 	return vector.size();
 }
 
+int npc_script_event_doall(enum npce_event type) {
+
+	std::vector<struct script_event_s>& vector = script_event[type];
+
+	for (struct script_event_s& evt : vector)
+		run_script(evt.event->nd->u.scr.script, evt.event->pos, 0, evt.event->nd->bl.id);
+
+	return vector.size();
+}
+
 bool npc_script_event_check(struct map_session_data* sd, enum npce_event type)
 {
 	if (sd == NULL)
@@ -4697,6 +4707,11 @@ bool npc_script_event_check(struct map_session_data* sd, enum npce_event type)
 	if (sd->runing_event[type])
 		return false;
 
+	return script_event[type].size() > 0;
+}
+
+bool npc_script_hasevent(enum npce_event type)
+{
 	return script_event[type].size() > 0;
 }
 
@@ -4847,6 +4862,8 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.attack_filter_name;
 	case NPCE_HOOKDLLEVENT:
 		return script_config.hook_dll_event_name;
+	case NPCE_ANYONESKILLEVENT:
+		return script_config.anyone_skill_event_name;
 	case NPCE_ONDISPLAY:
 		return "NOEVENTNAME";
 	default:

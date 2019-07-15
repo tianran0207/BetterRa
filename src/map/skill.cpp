@@ -32,6 +32,7 @@
 #include "itemdb.hpp"
 #include "log.hpp"
 #include "map.hpp"
+#include "mapreg.hpp"
 #include "mercenary.hpp"
 #include "mob.hpp"
 #include "npc.hpp"
@@ -6149,6 +6150,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 		break;
 
 	default:
+		if (skill_id < 20000)
 		ShowWarning("skill_castend_damage_id: Unknown skill used:%d\n",skill_id);
 		clif_skill_damage(src, bl, tick, status_get_amotion(src), tstatus->dmotion,
 			0, abs(skill_get_num(skill_id, skill_lv)),
@@ -11171,6 +11173,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		}
 		break;
 	default:
+		if(skill_id < 20000)
 		ShowWarning("skill_castend_nodamage_id: Unknown skill used:%d\n",skill_id);
 		clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 		map_freeblock_unlock();
@@ -11637,13 +11640,22 @@ TIMER_FUNC(skill_castend_id){
 		if (sd && ud->skill_id != SA_ABRACADABRA && ud->skill_id != WM_RANDOMIZESPELL) // they just set the data so leave it as it is.[Inkfish]
 			sd->skillitem = sd->skillitemlv = sd->skillitem_keep_requirement = 0;
 
+		if (npc_script_hasevent(NPCE_ANYONESKILLEVENT)) {
+			mapreg_setreg(add_str("$@useskill_src"), src->id);
+			mapreg_setreg(add_str("$@useskill_id"), ud->skill_id);
+			mapreg_setreg(add_str("$@useskill_lv"), ud->skill_lv);
+			mapreg_setreg(add_str("$@useskill_target"), target->id);
+			mapreg_setreg(add_str("$@useskill_x"), target->x);
+			mapreg_setreg(add_str("$@useskill_y"), target->y);
+			npc_script_event_doall(NPCE_ANYONESKILLEVENT);
+		}
 #ifdef EVENT_USESKILLEVENT
 		if (npc_script_event_check(sd, NPCE_USESKILLEVENT)) {
 			pc_setreg(sd, add_str("@useskill_id"), ud->skill_id);
 			pc_setreg(sd, add_str("@useskill_lv"), ud->skill_lv);
 			pc_setreg(sd, add_str("@useskill_target"), target->id);
-			pc_setreg(sd, add_str("@useskill_x"), 0);
-			pc_setreg(sd, add_str("@useskill_y"), 0);
+			pc_setreg(sd, add_str("@useskill_x"), target->x);
+			pc_setreg(sd, add_str("@useskill_y"), target->y);
 			npc_script_event(sd, NPCE_USESKILLEVENT);
 		}
 #endif // EVENT_USESKILLEVENT
@@ -12697,7 +12709,15 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
 		// perform skill requirement consumption
 		skill_consume_requirement(sd,skill_id,skill_lv,2);
 	}
-
+	if (npc_script_hasevent(NPCE_ANYONESKILLEVENT)) {
+		mapreg_setreg(add_str("$@useskill_src"), src->id);
+		mapreg_setreg(add_str("$@useskill_id"), skill_id);
+		mapreg_setreg(add_str("$@useskill_lv"), skill_lv);
+		mapreg_setreg(add_str("$@useskill_target"), 0);
+		mapreg_setreg(add_str("$@useskill_x"), x);
+		mapreg_setreg(add_str("$@useskill_y"), y);
+		npc_script_event_doall(NPCE_ANYONESKILLEVENT);
+	}
 #ifdef EVENT_USESKILLEVENT
 	if (npc_script_event_check(sd, NPCE_USESKILLEVENT)) {
 		pc_setreg(sd, add_str("@useskill_id"), skill_id);

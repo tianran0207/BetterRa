@@ -857,3 +857,17 @@ BetterRa 在官方的基础上做了以下改进:
 	BL_ELEM - 元素
 ---------------------------------------
 
+*OnAnyoneUseSkillEvent:
+
+事件描述：
+	当释放技能时触发, 可通过在skill_db中自创ID为20000以上的技能通过打断实现一些新技能(ID在20000以下会报错)
+	
+参数说明：
+	$@useskill_src 释放技能对象的GID
+	$@useskill_id 技能ID
+	$@useskill_lv 技能等级
+	$@useskill_target 目标GID
+	$@useskill_x 目标坐标x 如果是单体技能则返回目标的x坐标
+	$@useskill_y 目标坐标x 如果是单体技能则返回目标的y坐标
+	
+配合脚本指令 unitskilltowide 和 unitskilltoAOE 实现更多技能

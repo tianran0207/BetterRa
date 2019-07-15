@@ -364,7 +364,8 @@ struct Script_Config script_config = {
 	"OnPCDropItemFilter", //drop_item_filter_name
 	"OnMOBDropItemFilter", //mob_drop_item_filter_name
 	"OnPCAttackFilter", //attack_filter_name
-	"OnPCHookDllEvent" //hook_dll_event_name
+	"OnPCHookDllEvent", //hook_dll_event_name
+	"OnAnyoneUseSkillEvent" //anyone_skill_event_name
 };
 
 static jmp_buf     error_jump;
@@ -26375,16 +26376,17 @@ struct skillwide {
 
 static int buildin_unitskillwide_sub(int tid, t_tick tick, int id, intptr_t data)
 {
-	struct mob_data *md = NULL, *src = NULL;
+	struct mob_data *md = NULL;
+	struct block_list *src = NULL;
 	struct skillwide *info;
-
+	struct status_data *status;
 	int i;
 	info = (struct skillwide*)data;
-	src = map_id2md(id);
+	src = map_id2bl (id);
 
 	if (!info) {
 		if (src)
-			unit_free(&src->bl, CLR_TRICKDEAD);
+			unit_free(src, CLR_TRICKDEAD);
 		return 0;
 	}
 	else if (!src) {
@@ -26392,18 +26394,23 @@ static int buildin_unitskillwide_sub(int tid, t_tick tick, int id, intptr_t data
 		return 0;
 	}
 
+	status = status_get_status_data(src);
+
 	for (i = 0; i < 8; i++) {
 		if (info->x[i] == 0 || info->y[i] == 0)
 			continue;
 		if (map_getcell(info->src->m, info->x[i], info->y[i], CELL_CHKNOREACH))
 			continue;
 
-		md = mob_once_spawn_sub(NULL, src->bl.m, info->x[i], info->y[i], "", 2343, "", 0, AI_NONE);
+		md = mob_once_spawn_sub(NULL, src->m, info->x[i], info->y[i], "", 2343, "", 0, AI_NONE);
 		mob_spawn(md);
 		md->sc.option |= OPTION_CLOAK;
 		clif_changeoption(&md->bl);
-		memcpy(&md->status, &src->status, sizeof(struct status_data));
+		memcpy(&md->status, status, sizeof(struct status_data));
 		md->status.mode = (enum e_mode)69926976;
+
+		if (info->src->type == BL_PC)
+			md->master_id = info->src->id;
 		
 		if (skill_get_inf(info->id)&(INF_GROUND_SKILL))
 			unit_skilluse_pos2(&md->bl, info->x[i], info->y[i], info->id, info->lv , 0, 0);
@@ -26518,6 +26525,57 @@ BUILDIN_FUNC(unitskilltowide)
 		else
 			add_timer(gettick() + delay * (steplen / step - 1), func, bl->id, (intptr_t)info);
 	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+int buildin_unitskilltoAOE_sub(struct block_list *bl, va_list ap)
+{
+#ifndef BONUS_SKILL_AOE
+	not_free(script_getfuncname(st));
+	return SCRIPT_CMD_FAILURE;
+#endif 
+	int maxcount, *count;
+	uint16 skill_id, skill_lv;
+	struct block_list* src = va_arg(ap, struct block_list*);
+	skill_id = va_arg(ap, int);
+	skill_lv = va_arg(ap, int);
+	count = va_arg(ap, int *);
+	maxcount = va_arg(ap, int);
+
+	if (battle_check_target(src, bl, BCT_ENEMY) <= 0)
+		return 0;
+
+	if (!maxcount || (*count) < maxcount) {
+		if (skill_get_casttype(skill_id) == CAST_NODAMAGE)
+			skill_castend_nodamage_id(src, bl, skill_id, skill_lv, gettick(), 0);
+		else
+			skill_castend_damage_id(src, bl, skill_id, skill_lv, gettick(), 0);
+	}
+	(*count)++;
+	return 1;
+}
+
+BUILDIN_FUNC(unitskilltoAOE)
+{
+	int range, maxcount, count = 0;
+	uint16 skill_id, skill_lv;
+	struct block_list* bl;
+	struct script_data *data;
+	struct map_session_data * sd;
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	sd = BL_CAST(BL_PC, bl);
+	data = script_getdata(st, 3);
+	get_val(st, data); // Convert into value in case of a variable
+	skill_id = (data_isstring(data) ? skill_name2id(script_getstr(st, 3)) : script_getnum(st, 3));
+	skill_lv = script_getnum(st, 4);
+	range = script_getnum(st, 5);
+	maxcount = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+
+	if (sd) sd->runing_event[NPCE_USESKILLEVENT] = true;
+	map_foreachinrange(buildin_unitskilltoAOE_sub, bl, range, BL_CHAR, bl, skill_id, skill_lv, &count, maxcount);
+	if (sd) sd->runing_event[NPCE_USESKILLEVENT] = false;
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -28974,6 +29032,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(is_attach, "?"),
 	BUILDIN_DEF(unitskilltowide, "iviiiii"),
 	BUILDIN_DEF2(unitskilltowide, "unitskilltowide2", "iviiiii"),
+	BUILDIN_DEF(unitskilltoAOE, "ivii?"),
 	BUILDIN_DEF(addatkevent, "iiisi?"),
 	BUILDIN_DEF(delatkevent, "i?"),
 	BUILDIN_DEF(getatkevent, "ii?"),
