@@ -1702,6 +1702,16 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 	if(!status || status == &dummy_status )
 		return 0;
 
+	if (hp > 0) {
+		struct map_data *mapdata = map_getmapdata(src->m);
+		if (mapdata->flag[MF_DAMAGERATE])
+			hp = hp * mapdata->flag[MF_DAMAGERATE] / 100;
+		if (mapdata->flag[MF_DAMAGEFIX])
+			hp = mapdata->flag[MF_DAMAGEFIX];
+		if (mapdata->flag[MF_DAMAGEMAX])
+			hp = mapdata->flag[MF_DAMAGEMAX] < hp ? mapdata->flag[MF_DAMAGEMAX] : hp;
+	}
+
 	if ((unsigned int)hp >= status->hp) {
 		if (flag&2) return 0;
 		hp = status->hp;

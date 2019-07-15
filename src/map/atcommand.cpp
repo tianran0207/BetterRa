@@ -4329,6 +4329,12 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " NoSkill2 |");
 	if (map_getmapflag(m_id, MF_NOUSEITEM))
 		strcat(atcmd_output, " NoUseItem |");
+	if (map_getmapflag(m_id, MF_DAMAGERATE))
+		strcat(atcmd_output, " NoDamageRate |");
+	if (map_getmapflag(m_id, MF_DAMAGEFIX))
+		strcat(atcmd_output, " NoDamageFix |");
+	if (map_getmapflag(m_id, MF_DAMAGEMAX))
+		strcat(atcmd_output, " NoDamageMax |");
 	//-------------------------------------
 
 	clif_displaymessage(fd, atcmd_output);

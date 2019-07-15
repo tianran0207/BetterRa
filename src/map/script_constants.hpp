@@ -566,6 +566,9 @@
 	export_constant(MF_NOSC);
 	export_constant(MF_NOSKILL2);
 	export_constant(MF_NOUSEITEM);
+	export_constant(MF_DAMAGERATE);
+	export_constant(MF_DAMAGEFIX);
+	export_constant(MF_DAMAGEMAX);
 
 	export_constant(PH_WALKBACK);
 	export_constant(PH_WARPBACK);
