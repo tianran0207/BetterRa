@@ -1704,10 +1704,10 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 
 	if (hp > 0 && target->type == BL_MOB) {
 		struct map_data *mapdata = map_getmapdata(target->m);
-		if (mapdata->flag[MF_MOBDAMAGERATE])
-			hp = hp * mapdata->flag[MF_MOBDAMAGERATE] / 100;
-		if (mapdata->flag[MF_MOBDMGEFIX])
-			hp = mapdata->flag[MF_MOBDMGEFIX];
+		if (mapdata->flag[MF_MOBDMGRATE])
+			hp = hp * mapdata->flag[MF_MOBDMGRATE] / 100;
+		if (mapdata->flag[MF_MOBDMGFIX])
+			hp = mapdata->flag[MF_MOBDMGFIX];
 		if (mapdata->flag[MF_MOBDMGMAX])
 			hp = mapdata->flag[MF_MOBDMGMAX] < hp ? mapdata->flag[MF_MOBDMGMAX] : hp;
 	}
