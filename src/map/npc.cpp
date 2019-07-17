@@ -4222,9 +4222,9 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		case MF_MOBDROPRATE:
 		case MF_MVPDROPRATE:
 		case MF_PARTYLOCK2:
-		case MF_DAMAGERATE:
-		case MF_DAMAGEFIX:
-		case MF_DAMAGEMAX: {
+		case MF_MOBDAMAGERATE:
+		case MF_MOBDMGEFIX:
+		case MF_MOBDMGMAX: {
 			union u_mapflag_args args = {};
 
 			if (state) {

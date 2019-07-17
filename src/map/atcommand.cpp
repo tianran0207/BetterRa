@@ -4329,11 +4329,11 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " NoSkill2 |");
 	if (map_getmapflag(m_id, MF_NOUSEITEM))
 		strcat(atcmd_output, " NoUseItem |");
-	if (map_getmapflag(m_id, MF_DAMAGERATE))
+	if (map_getmapflag(m_id, MF_MOBDAMAGERATE))
 		strcat(atcmd_output, " NoDamageRate |");
-	if (map_getmapflag(m_id, MF_DAMAGEFIX))
+	if (map_getmapflag(m_id, MF_MOBDMGEFIX))
 		strcat(atcmd_output, " NoDamageFix |");
-	if (map_getmapflag(m_id, MF_DAMAGEMAX))
+	if (map_getmapflag(m_id, MF_MOBDMGMAX))
 		strcat(atcmd_output, " NoDamageMax |");
 	//-------------------------------------
 

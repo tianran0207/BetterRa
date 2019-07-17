@@ -4840,9 +4840,9 @@ bool map_setmapflag_sub(int16 m, enum e_mapflag mapflag, bool status, union u_ma
 		case MF_MOBDROPRATE:
 		case MF_MVPDROPRATE:
 		case MF_PARTYLOCK2:
-		case MF_DAMAGERATE:
-		case MF_DAMAGEFIX:
-		case MF_DAMAGEMAX:
+		case MF_MOBDAMAGERATE:
+		case MF_MOBDMGEFIX:
+		case MF_MOBDMGMAX:
 			if (status) {
 				nullpo_retr(false, args);
 				if (mapflag == MF_MOBINFO && args->flag_val == 0)
