@@ -26530,10 +26530,6 @@ BUILDIN_FUNC(unitskilltowide)
 
 int buildin_unitskilltoAOE_sub(struct block_list *bl, va_list ap)
 {
-#ifndef BONUS_SKILL_AOE
-	not_free(script_getfuncname(st));
-	return SCRIPT_CMD_FAILURE;
-#endif 
 	int maxcount, *count;
 	uint16 skill_id, skill_lv;
 	struct block_list* src = va_arg(ap, struct block_list*);
@@ -26557,6 +26553,10 @@ int buildin_unitskilltoAOE_sub(struct block_list *bl, va_list ap)
 
 BUILDIN_FUNC(unitskilltoAOE)
 {
+#ifndef BONUS_SKILL_AOE
+	not_free(script_getfuncname(st));
+	return SCRIPT_CMD_FAILURE;
+#endif 
 	int range, maxcount, count = 0;
 	uint16 skill_id, skill_lv;
 	struct block_list* bl;

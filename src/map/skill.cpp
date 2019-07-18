@@ -653,6 +653,9 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, uint16 sk
 
 	hp = (int)(hp * global_bonus);
 
+	if (src && (hp_bonus = map_getmapflag(src->m, MF_MAXHEAL)) || target && (hp_bonus = map_getmapflag(target->m, MF_MAXHEAL)))
+		hp = min(hp, hp_bonus);
+
 	return (heal) ? max(1, hp) : hp;
 }
 

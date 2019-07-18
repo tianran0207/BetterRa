@@ -4330,11 +4330,17 @@ ACMD_FUNC(mapinfo) {
 	if (map_getmapflag(m_id, MF_NOUSEITEM))
 		strcat(atcmd_output, " NoUseItem |");
 	if (map_getmapflag(m_id, MF_MOBDMGRATE))
-		strcat(atcmd_output, " NoDamageRate |");
+		strcat(atcmd_output, " MobDmgRate |");
 	if (map_getmapflag(m_id, MF_MOBDMGFIX))
-		strcat(atcmd_output, " NoDamageFix |");
+		strcat(atcmd_output, " MobDmgFix |");
 	if (map_getmapflag(m_id, MF_MOBDMGMAX))
-		strcat(atcmd_output, " NoDamageMax |");
+		strcat(atcmd_output, " MobDmgMax |");
+	if (map_getmapflag(m_id, MF_MAXDMG_NORMAL))
+		strcat(atcmd_output, " MaxDmgNormal |");
+	if (map_getmapflag(m_id, MF_MAXDMG_SKILL))
+		strcat(atcmd_output, " MaxDmgSkill |");
+	if (map_getmapflag(m_id, MF_MAXHEAL))
+		strcat(atcmd_output, " MaxHeal |");
 	//-------------------------------------
 
 	clif_displaymessage(fd, atcmd_output);

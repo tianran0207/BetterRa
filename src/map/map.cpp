@@ -4843,6 +4843,9 @@ bool map_setmapflag_sub(int16 m, enum e_mapflag mapflag, bool status, union u_ma
 		case MF_MOBDMGRATE:
 		case MF_MOBDMGFIX:
 		case MF_MOBDMGMAX:
+		case MF_MAXDMG_NORMAL:
+		case MF_MAXDMG_SKILL:
+		case MF_MAXHEAL:
 			if (status) {
 				nullpo_retr(false, args);
 				if (mapflag == MF_MOBINFO && args->flag_val == 0)

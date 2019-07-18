@@ -569,6 +569,9 @@
 	export_constant(MF_MOBDMGRATE);
 	export_constant(MF_MOBDMGFIX);
 	export_constant(MF_MOBDMGMAX);
+	export_constant(MF_MAXDMG_NORMAL);
+	export_constant(MF_MAXDMG_SKILL);
+	export_constant(MF_MAXHEAL);
 
 	export_constant(PH_WALKBACK);
 	export_constant(PH_WARPBACK);
