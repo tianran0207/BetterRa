@@ -283,20 +283,42 @@ void battle_damage(struct block_list *src, struct block_list *target, int64 dama
 	map_freeblock_unlock();
 }
 
-void battle_damage_event(struct block_list* src, struct block_list* target, int attack_type, uint16 skill_id, uint16 skill_lv, int64 *damage) {
-	struct map_session_data* sd = BL_CAST(BL_PC, src);
-	if (*damage && npc_script_event_check(sd, NPCE_ATKFILTER)) {
+void battle_damage_event(struct block_list* src, struct block_list* target, int attack_type, uint16 skill_id, uint16 skill_lv, int64 *damage)
+{
+	struct map_session_data* sd;
+
+	if (*damage <= 0 || src == target)
+		return;
+
+	if (target && (sd = BL_CAST(BL_PC, src)) && npc_script_event_check(sd, NPCE_ATKFILTER)) {
 		struct unit_data *ud = unit_bl2ud(target);
-		if ((battle_config.attack_filter_target&(target->type)) || ud && ud->attackevent_mark) {
+		if ((map_getmapflag(target->m, MF_ATTACKEVENT)&(target->type)) || ud && ud->attackevent_mark) {
 			pc_setparam(sd, SP_DMG_TYPE, attack_type);
 			pc_setparam(sd, SP_DMG_DAMAGE, (int)cap_value(*damage, 0, INT_MAX));
 			pc_setparam(sd, SP_DMG_SKILLID, skill_id);
 			pc_setparam(sd, SP_DMG_SKILLLV, skill_lv);
 			pc_setparam(sd, SP_DMG_TARGETTYPE, target->type);
-			pc_setparam(sd, SP_DMG_TARGETGID, target->id);
+			pc_setparam(sd, SP_DMG_TARGETRID, target->id);
 			pc_setparam(sd, SP_DMG_MOBID, target->type == BL_MOB ? ((TBL_MOB*)target)->mob_id : 0);
 			pc_setparam(sd, SP_DMG_MARK, ud ? ud->attackevent_mark : 0);
 			npc_script_event_atonce(sd, NPCE_ATKFILTER);
+			if (sd->state.processhalt)
+				*damage = pc_readparam(sd, SP_DMG_DAMAGE);
+		}
+	}
+
+	if (src && (sd = BL_CAST(BL_PC, target)) && npc_script_event_check(sd, NPCE_ATKEDFILTER)) {
+		struct unit_data *ud = unit_bl2ud(src);
+		if ((map_getmapflag(src->m, MF_ATTACKEDEVENT)&(src->type)) || ud && ud->attackedevent_mark) {
+			pc_setparam(sd, SP_DMG_TYPE, attack_type);
+			pc_setparam(sd, SP_DMG_DAMAGE, (int)cap_value(*damage, 0, INT_MAX));
+			pc_setparam(sd, SP_DMG_SKILLID, skill_id);
+			pc_setparam(sd, SP_DMG_SKILLLV, skill_lv);
+			pc_setparam(sd, SP_DMG_TARGETTYPE, src->type);
+			pc_setparam(sd, SP_DMG_TARGETRID, src->id);
+			pc_setparam(sd, SP_DMG_MOBID, src->type == BL_MOB ? ((TBL_MOB*)src)->mob_id : 0);
+			pc_setparam(sd, SP_DMG_MARK, ud ? ud->attackedevent_mark : 0);
+			npc_script_event_atonce(sd, NPCE_ATKEDFILTER);
 			if (sd->state.processhalt)
 				*damage = pc_readparam(sd, SP_DMG_DAMAGE);
 		}
@@ -8256,7 +8278,6 @@ static const struct _battle_data {
 	{ "homunculus_share_exp",				&battle_config.homunculus_share_exp,            0,      0,      100,            },
 	{ "remove_noinfo_pet",                  &battle_config.remove_noinfo_pet,               1,      0,      1,              },
 	{ "multiple_script_state",              &battle_config.multiple_script_state,           0,      0,      1,              },
-	{ "attack_filter_target",               &battle_config.attack_filter_target,            0,      0,      BL_ALL,         },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

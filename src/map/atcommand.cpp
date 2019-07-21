@@ -4341,6 +4341,12 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " MaxDmgSkill |");
 	if (map_getmapflag(m_id, MF_MAXHEAL))
 		strcat(atcmd_output, " MaxHeal |");
+	if (map_getmapflag(m_id, MF_ATTACKEVENT))
+		strcat(atcmd_output, " AttackEvent |");
+	if (map_getmapflag(m_id, MF_ATTACKEDEVENT))
+		strcat(atcmd_output, " AttackedEvent |");
+	if (map_getmapflag(m_id, MF_HEALEVENT))
+		strcat(atcmd_output, " HealEvent |");
 	//-------------------------------------
 
 	clif_displaymessage(fd, atcmd_output);

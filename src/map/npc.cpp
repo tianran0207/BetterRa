@@ -964,7 +964,7 @@ bool npc_ondisplay_event(struct map_session_data *sd, struct npc_data *nd)
 		if (sd->runing_event[NPCE_ONDISPLAY])
 			return true;
 
-		npc_script_event_atonce(sd, NPCE_ONDISPLAY, ev);
+		npc_script_event_atonce(sd, NPCE_ONDISPLAY, ev, nd->bl.id);
 		if (sd->state.processhalt)
 			return false;
 	}
@@ -4227,7 +4227,10 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		case MF_MOBDMGMAX:
 		case MF_MAXDMG_NORMAL:
 		case MF_MAXDMG_SKILL:
-		case MF_MAXHEAL: {
+		case MF_MAXHEAL:
+		case MF_ATTACKEVENT:
+		case MF_ATTACKEDEVENT:
+		case MF_HEALEVENT: {
 			union u_mapflag_args args = {};
 
 			if (state) {
@@ -4664,7 +4667,7 @@ int npc_script_event(struct map_session_data* sd, enum npce_event type){
 	return vector.size();
 }
 
-int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type, struct event_data* ev)
+int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type, struct event_data* ev, int id)
 {
 
 	if (type < 0 || type >= NPCE_MAX)
@@ -4686,7 +4689,7 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type, s
 		for (struct script_event_s& evt : vector)
 			run_script(evt.event->nd->u.scr.script, evt.event->pos, sd->bl.id, evt.event->nd->bl.id);
 	}else
-		run_script(ev->nd->u.scr.script, ev->pos, sd->bl.id, ev->nd->bl.id);
+		run_script(ev->nd->u.scr.script, ev->pos, sd->bl.id, id ? id : ev->nd->bl.id);
 
 	sd->runing_event[type] = false;
 	sd->runing_event_type = sd->runing_event[type_bk] ? type_bk : 0;
@@ -4866,6 +4869,10 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.mob_drop_item_filter_name;
 	case NPCE_ATKFILTER:
 		return script_config.attack_filter_name;
+	case NPCE_ATKEDFILTER:
+		return script_config.attacked_filter_name;
+	case NPCE_HEALFILTER:
+		return script_config.heal_filter_name;
 	case NPCE_HOOKDLLEVENT:
 		return script_config.hook_dll_event_name;
 	case NPCE_ANYONESKILLEVENT:

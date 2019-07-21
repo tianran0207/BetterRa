@@ -653,8 +653,22 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, uint16 sk
 
 	hp = (int)(hp * global_bonus);
 
-	if (src && (hp_bonus = map_getmapflag(src->m, MF_MAXHEAL)) || target && (hp_bonus = map_getmapflag(target->m, MF_MAXHEAL)))
+	if (src && (hp_bonus = map_getmapflag(src->m, MF_MAXHEAL)))
 		hp = min(hp, hp_bonus);
+
+	if (target && npc_script_event_check(sd, NPCE_HEALFILTER)) {
+		struct status_data *status = status_get_status_data(target);
+		int flag = map_getmapflag(src->m, MF_HEALEVENT);
+		unsigned int nhp = status->max_hp - status->hp;
+		if (flag&(target->type) && ((flag & 1024) && nhp || !(flag&1024))) {
+			pc_setparam(sd, SP_HEAL_ALL, hp);
+			pc_setparam(sd, SP_HEAL_REAL, nhp > hp ? hp : nhp);
+			pc_setparam(sd, SP_HEAL_TARGETRID, target->id);
+			npc_script_event_atonce(sd, NPCE_HEALFILTER);
+			if (sd->state.processhalt)
+				hp = pc_readparam(sd, SP_HEAL_ALL);
+		}
+	}
 
 	return (heal) ? max(1, hp) : hp;
 }

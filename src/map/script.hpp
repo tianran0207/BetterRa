@@ -296,6 +296,8 @@ struct Script_Config {
 	const char* mob_drop_item_filter_name;
 	// ATK related
 	const char* attack_filter_name;
+	const char* attacked_filter_name;
+	const char* heal_filter_name;
 	// Hook related
 	const char* hook_dll_event_name;
 	// Anyone related

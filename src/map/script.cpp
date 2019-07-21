@@ -364,6 +364,8 @@ struct Script_Config script_config = {
 	"OnPCDropItemFilter", //drop_item_filter_name
 	"OnMOBDropItemFilter", //mob_drop_item_filter_name
 	"OnPCAttackFilter", //attack_filter_name
+	"OnPCAttackedFilter", //attacked_filter_name
+	"OnPCHealFilter", //heal_filter_name
 	"OnPCHookDllEvent", //hook_dll_event_name
 	"OnAnyoneUseSkillEvent" //anyone_skill_event_name
 };
@@ -28015,16 +28017,20 @@ BUILDIN_FUNC(unitatkeventmark)
 {
 	struct block_list *bl;
 	struct unit_data *ud;
+	const char *command = script_getfuncname(st);
 	int num = script_getnum(st, 3);
 
 	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_FAILURE;
 
 	if (!(ud = unit_bl2ud(bl))) {
-		ShowError("buildin_unitatkeventmark: unsupported the type '%d'\n", bl->type);
+		ShowError("buildin_%s: unsupported the type '%d'\n", command, bl->type);
 		return SCRIPT_CMD_FAILURE;
 	}
-	ud->attackevent_mark = num;
+	if (!strcmp(command, "unitatkeventmark"))
+		ud->attackevent_mark = num;
+	else
+		ud->attackedevent_mark = num;
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -29063,6 +29069,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(countitem, "countrentitem2", "viiiiiii?"),
 	BUILDIN_DEF2(countitem, "countrentitem3", "viiiiiiirrr?"),
 	BUILDIN_DEF(unitatkeventmark,"ii"),
+	BUILDIN_DEF2(unitatkeventmark, "unitatkedeventmark", "ii"),
 
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL

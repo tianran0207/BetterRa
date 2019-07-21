@@ -815,10 +815,10 @@ BetterRa 在官方的基础上做了以下改进:
 
 ---------------------------------------
 
-*OnPCAttackFilter
+*OnPCAttackFilter:
 
 事件描述
-	当玩家攻击时触发该事件
+	当玩家攻击且造成伤害时触发
 	注意: 本事件由BetterRA.conf中 attack_filter_target 配置 与 脚本指令 unitatkeventmark 共同控制
 	
 参数说明(注意, 返回参数不带任何符号)
@@ -826,8 +826,8 @@ BetterRa 在官方的基础上做了以下改进:
 	dmg_damage 本次攻击伤害, 最大不超过 2147483647
 	dmg_skillid 本次攻击所使用的技能ID, 如果为普通攻击则为0
 	dmg_skilllv 本次攻击所使用的技能等级, 如果为普通攻击则为0
-	dmg_targettype 本次攻击的目标类型(实体类型)(使用位于运算, 计算是不是想要的攻击类型)
-	dmg_gid 本次攻击目标的GID
+	dmg_targettype 本次攻击的目标类型(实体类型)(使用位于运算, 计算是不是想要的类型)
+	dmg_targetgid 本次攻击目标的GID
 	dmg_mobid 本次攻击目标的魔物ID, 如果不为魔物则为0
 	dmg_mark 返回由脚本指令 unitatkeventmark 设置的标记
 
@@ -855,6 +855,17 @@ BetterRa 在官方的基础上做了以下改进:
 	BL_HOM  - 生命体
 	BL_MER  - 佣兵
 	BL_ELEM - 元素
+	
+---------------------------------------
+
+*OnPCAttackedFilter:
+	
+事件描述
+	当玩家被攻击且造成伤害时触发该事件
+	注意: 本事件由BetterRA.conf中 attacked_filter_target(不同于OnPCAttackFilter事件) 配置 与 脚本指令 unitatkedeventmark(不同于OnPCAttackFilter事件) 共同控制
+	
+参数说明及其他 请参照 OnPCAttackFilter 事件
+
 ---------------------------------------
 
 *OnAnyoneUseSkillEvent:

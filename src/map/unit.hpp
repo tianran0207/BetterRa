@@ -32,6 +32,7 @@ struct unit_data {
 		unsigned type : 2;
 	}skill_fixed;
 	short attackevent_mark;
+	short attackedevent_mark;
 	short attacktarget_lv;
 	short to_x, to_y;
 	short skillx, skilly;
