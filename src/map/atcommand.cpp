@@ -10210,6 +10210,15 @@ ACMD_FUNC(camerainfo){
 	return 0;
 }
 
+ACMD_FUNC(resurrect) {
+	nullpo_retr(-1, sd);
+
+	if (!pc_revive_item(sd))
+		return -1;
+
+	return 0;
+}
+
 #include "../custom/atcommand.inc"
 
 ACMD_FUNC(followpacket)
@@ -10648,6 +10657,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(refineui),
 		ACMD_DEF(verification),
 		ACMD_DEFR(camerainfo, ATCMD_NOCONSOLE|ATCMD_NOAUTOTRADE),
+		ACMD_DEFR(resurrect, ATCMD_NOCONSOLE),
 	};
 	AtCommandInfo* atcommand;
 	int i;
