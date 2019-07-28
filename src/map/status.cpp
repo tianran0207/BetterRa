@@ -11670,7 +11670,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	}
 
 	if (current_equip_combo_pos && tick == INFINITE_TICK) {
-		ShowWarning("sc_start: Item combo contains an INFINITE_TICK duration. Skipping bonus.\n");
+		ShowWarning("sc_start: Item combo contains an INFINITE_TICK duration. (uid: %d, type: %d, pos: %d).\n", bl->id, type, current_equip_combo_pos);
 		return 0;
 	}
 

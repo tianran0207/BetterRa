@@ -340,6 +340,11 @@ int map_addblock(struct block_list* bl)
 
 	struct map_data *mapdata = map_getmapdata(m);
 
+	if (mapdata == nullptr) {
+		ShowError("map_addblock: Try to warp to a null map (mapid: %d,x: %d,y: %d)\n", m, x, y);
+		return 1;
+	}
+
 	if( x < 0 || x >= mapdata->xs || y < 0 || y >= mapdata->ys )
 	{
 		ShowError("map_addblock: out-of-bounds coordinates (\"%s\",%d,%d), map is %dx%d\n", mapdata->name, x, y, mapdata->xs, mapdata->ys);
@@ -349,6 +354,11 @@ int map_addblock(struct block_list* bl)
 	if (mapdata->instance_src_map && mapdata->name[0] == '\0')
 	{
 		ShowError("map_addblock: Try to warp to a freed instance map (src map: \"%s\")\n", map_getmapdata(mapdata->instance_src_map)->name);
+		return 1;
+	}
+
+	if (mapdata->block == nullptr || (bl->type == BL_MOB && mapdata->block_mob == nullptr)) {
+		ShowError("map_addblock: Map data block is free param (map: \"%s\")\n", mapdata->name);
 		return 1;
 	}
 
@@ -392,8 +402,25 @@ int map_delblock(struct block_list* bl)
 
 	struct map_data *mapdata = map_getmapdata(bl->m);
 
-	if (mapdata->m != bl->m) {
-		ShowError("map_delblock error : mapdata->m != sd->bl.m\n");
+	if (mapdata == nullptr) {
+		ShowError("map_delblock: Try to warp to a null map (mapid: %d,x: %d,y: %d)\n", bl->m, bl->x, bl->y);
+		return 0;
+	}
+
+	if (bl->x < 0 || bl->x >= mapdata->xs || bl->y < 0 || bl->y >= mapdata->ys)
+	{
+		ShowError("map_delblock: out-of-bounds coordinates (\"%s\",%d,%d), map is %dx%d\n", mapdata->name, bl->x, bl->y, mapdata->xs, mapdata->ys);
+		return 0;
+	}
+
+	if (mapdata->instance_src_map && mapdata->name[0] == '\0')
+	{
+		ShowError("map_delblock: Try to warp to a freed instance map (src map: \"%s\")\n", map_getmapdata(mapdata->instance_src_map)->name);
+		return 0;
+	}
+
+	if (mapdata->block == nullptr || (bl->type == BL_MOB && mapdata->block_mob == nullptr)) {
+		ShowError("map_delblock: Map data block is free param (map: \"%s\")\n", mapdata->name);
 		return 0;
 	}
 
