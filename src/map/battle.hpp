@@ -224,6 +224,7 @@ struct Battle_Config
 	int homunculus_share_exp;
 	int remove_noinfo_pet;
 	int multiple_script_state;
+	int hidenpc_willbe_disable;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

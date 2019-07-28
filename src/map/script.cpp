@@ -25971,24 +25971,21 @@ BUILDIN_FUNC(setidxrandomoption)
 
 BUILDIN_FUNC(duplicate)
 {
-	char w1[50], w2[50], w3[50], w4[50], mapname[MAP_NAME_LENGTH], other[50 - MAP_NAME_LENGTH];
-	const char *dup_str = NULL;
+	char w1[50], w2[50], w3[50], w4[50], mapname[MAP_NAME_LENGTH], other[50 - MAP_NAME_LENGTH], dup_str[512];
 	const char *stat_buf = "INSTANCING";
 	unsigned short instance_id;
 	int16 m;
+	struct npc_data *nd;
 	const char *command = script_getfuncname(st);
-	
 
-	if (!strcmp(command, "duplicate")) {
-		dup_str = script_getstr(st, 2);
-		if (sscanf(dup_str, "%s\t%s\t%s\t%s", w1, w2, w3, w4) != 4 || sscanf(w1, "%15[^,]%s", mapname, other) != 2)
-			return SCRIPT_CMD_SUCCESS;
-	}
-	else {
-		safestrncpy(w1, script_getstr(st, 2), 50);
-		safestrncpy(w2, script_getstr(st, 3), 50);
-		safestrncpy(w3, script_getstr(st, 4), 50);
-		safestrncpy(w4, script_getstr(st, 5), 50);
+	if(script_hasdata(st, 5))
+		sprintf(dup_str, "%s\t%s\t%s\t%s", script_getstr(st, 2), script_getstr(st, 3), script_getstr(st, 4), script_getstr(st, 5));
+	else
+		safestrncpy(dup_str, script_getstr(st, 2), 512);
+
+	if (sscanf(dup_str, "%s\t%s\t%s\t%s", w1, w2, w3, w4) != 4 || sscanf(w1, "%15[^,]%s", mapname, other) != 2) {
+		ShowError("buildin_%s: Unknown syntax. content: %s.\n", command, dup_str);
+		return SCRIPT_CMD_FAILURE;
 	}
 
 	instance_id = script_instancegetid(st);
@@ -25997,7 +25994,6 @@ BUILDIN_FUNC(duplicate)
 		npc_parse_duplicate(w1, w2, w3, w4, dup_str, dup_str, "FROMSCRIPT");
 
 	else {
-		struct npc_data *nd;
 		char srcname[NPC_NAME_LENGTH], npcname[NPC_NAME_LENGTH];
 		int length;
 		const char *p;
@@ -26017,8 +26013,9 @@ BUILDIN_FUNC(duplicate)
 				npc_parse_duplicate(w1, w2, w3, w4, stat_buf, stat_buf, "FROMSCRIPT");
 			}
 		}
-
 	}
+	nd = npc_name2id(w3);
+	script_pushint(st, nd ? nd->bl.id : 0);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -29030,9 +29027,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(setoptionbyidx, "setoptionbypos", "iiii?"),
 	BUILDIN_DEF(getidxrandomoption, "iii?"),
 	BUILDIN_DEF(setidxrandomoption, "iiiii?"),
-	BUILDIN_DEF(duplicate, "s"),
-	BUILDIN_DEF2(duplicate, "dupnpc", "ssss"),
-	BUILDIN_DEF2(duplicate, "copynpc", "ssss"),
+	BUILDIN_DEF(duplicate, "s???"),
+	BUILDIN_DEF2(duplicate, "dupnpc", "s???"),
+	BUILDIN_DEF2(duplicate, "copynpc", "s???"),
 	BUILDIN_DEF(unloadduplicate, "s"),
 	BUILDIN_DEF2(unloadduplicate, "unloadcopynpc", "s"),
 	BUILDIN_DEF(is_attach, "?"),

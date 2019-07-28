@@ -8278,6 +8278,7 @@ static const struct _battle_data {
 	{ "homunculus_share_exp",				&battle_config.homunculus_share_exp,            0,      0,      100,            },
 	{ "remove_noinfo_pet",                  &battle_config.remove_noinfo_pet,               1,      0,      1,              },
 	{ "multiple_script_state",              &battle_config.multiple_script_state,           0,      0,      1,              },
+	{ "hidenpc_willbe_disable",                 &battle_config.hidenpc_willbe_disable,              0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

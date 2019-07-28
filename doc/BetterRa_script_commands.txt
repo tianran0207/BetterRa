@@ -696,7 +696,9 @@ OnTalk:
 ---------------------------------------
 
 *duplicate("<复制出来的新NPC所在地图名称>,<X坐标>,<Y坐标>,<朝向编号>","duplicate(<来源NPC名称>)","<复制出来的新NPC名称>","<角色编号>");
+*duplicate("<复制出来的新NPC所在地图名称>,<X坐标>,<Y坐标>,<朝向编号>%TAB%duplicate(<来源NPC名称>)%TAB%<复制出来的新NPC名称>%TAB%<角色编号>");
 *copynpc("<复制出来的新NPC所在地图名称>,<X坐标>,<Y坐标>,<朝向编号>","duplicate(<来源NPC名称>)","<复制出来的新NPC名称>","<角色编号>");
+*copynpc("<复制出来的新NPC所在地图名称>,<X坐标>,<Y坐标>,<朝向编号>%TAB%duplicate(<来源NPC名称>)%TAB%<复制出来的新NPC名称>%TAB%<角色编号>");
 *dupnpc("<复制出来的新NPC所在地图名称>,<X坐标>,<Y坐标>,<朝向编号>","duplicate(<来源NPC名称>)","<复制出来的新NPC名称>","<角色编号>");
 
 将一个指定的NPC复制到一个新的位置.
@@ -720,7 +722,8 @@ OnTalk:
 	copynpc "prontera,156,99,2","duplicate(PVPCOPYTEST)","PVP管理员#1","917";
 
 同时此函数支持返回复制出来的新NPC的GID, 方便你使用 unit 系列指令对其进行操作, 如:
-
+	
+	.@gid = copynpc("prontera,156,99,2	duplicate(PVPCOPYTEST)	PVP管理员#1	917");
 	.@gid = copynpc("prontera,156,99,2","duplicate(PVPCOPYTEST)","PVP管理员#1","917");
 	unittalk .@gid, "My GID is : " + .@gid;
 	
