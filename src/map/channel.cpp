@@ -930,6 +930,56 @@ int channel_pcunbind(struct map_session_data *sd){
 	return 0;
 }
 
+int channel_ban(struct map_session_data *sd, char *chname, char *diff)
+{
+	struct Channel *channel;
+	char output[CHAT_SIZE_MAX];
+	int32 timediff = (int32)solve_time(diff);
+
+	if (channel_chk(chname, NULL, 1)) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 1405));// Channel name must start with '#'.
+		return -1;
+	}
+	channel = channel_name2channel(chname, sd, 0);
+	if (!channel) {
+		sprintf(output, msg_txt(sd, 1407), chname);// Channel '%s' is not available.
+		clif_displaymessage(sd->fd, output);
+		return -1;
+	}
+
+	if (timediff == 0) { //allow negative ?
+		safesnprintf(output, sizeof(output), msg_txt(sd, 85), "channel banall", timediff); // Invalid time for %s command (time=%d)
+		clif_displaymessage(sd->fd, output);
+		clif_displaymessage(sd->fd, msg_txt(sd, 702)); // Time parameter format is +/-<value> to alter. y/a = Year, m = Month, d/j = Day, h = Hour, n/mn = Minute, s = Second.
+		return -1;
+	}
+
+	channel->unbantime = (channel->unbantime > gettick() ? channel->unbantime : gettick()) + timediff * 1000;
+	sprintf(output, msg_txt(sd, 2405), chname, (channel->unbantime - gettick()) / 1000);
+	clif_displaymessage(sd->fd, output);
+	return 0;
+}
+
+int channel_unban(struct map_session_data *sd, char *chname)
+{
+	struct Channel *channel;
+	char output[CHAT_SIZE_MAX];
+	if (channel_chk(chname, NULL, 1)) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 1405));// Channel name must start with '#'.
+		return -1;
+	}
+	channel = channel_name2channel(chname, sd, 0);
+	if (!channel) {
+		sprintf(output, msg_txt(sd, 1407), chname);// Channel '%s' is not available.
+		clif_displaymessage(sd->fd, output);
+		return -1;
+	}
+	channel->unbantime = 0;
+	sprintf(output, msg_txt(sd, 2406), chname);
+	clif_displaymessage(sd->fd, output);
+	return 0;
+}
+
 /**
  * A player is attempting to modify the banlist
  * @param sd: Player data

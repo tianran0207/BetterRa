@@ -9657,7 +9657,11 @@ ACMD_FUNC(channel) {
 		return 0;
 	}
 
-	if( strcmpi(key,"delete") == 0 && pc_has_permission(sd, PC_PERM_CHANNEL_ADMIN) ) {
+	if (strcmpi(key, "banchannel") == 0 && pc_has_permission(sd, PC_PERM_CHANNEL_ADMIN)) {
+		return channel_ban(sd, sub1, sub2);
+	} else if (strcmpi(key, "unbanchannel") == 0 && pc_has_permission(sd, PC_PERM_CHANNEL_ADMIN)) {
+		return channel_unban(sd, sub1);
+	} else if ( strcmpi(key,"delete") == 0 && pc_has_permission(sd, PC_PERM_CHANNEL_ADMIN) ) {
 		return channel_pcdelete(sd,sub1);
 	} else if ( strcmpi(key,"list") == 0 ) {
 		return channel_display_list(sd,sub1);
