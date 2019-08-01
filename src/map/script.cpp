@@ -28144,6 +28144,35 @@ BUILDIN_FUNC(when_pcmove_doevent)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(setquesttime)
+{
+	struct map_session_data *sd;
+	int i, quest_id, second;
+
+	quest_id = script_getnum(st, 2);
+
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if ((second = script_getnum(st, 3)) < 0)
+		return SCRIPT_CMD_SUCCESS;
+
+	ARR_FIND(0, sd->num_quests, i, sd->quest_log[i].quest_id == quest_id);
+	if (i < sd->num_quests) {
+		sd->quest_log[i].time = (unsigned int)(time(NULL) + script_getnum(st, 3));
+		clif_quest_delete(sd, quest_id);
+		clif_quest_add(sd, &sd->quest_log[i]);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	else if (quest_add(sd, quest_id, second) == -1) {
+		script_reportsrc(st);
+		script_reportfunc(st);
+	}
+
+	pc_show_questinfo(sd);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -29067,6 +29096,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(countitem, "countrentitem3", "viiiiiiirrr?"),
 	BUILDIN_DEF(unitatkeventmark,"ii"),
 	BUILDIN_DEF2(unitatkeventmark, "unitatkedeventmark", "ii"),
+	BUILDIN_DEF(setquesttime, "ii?"),
 
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL

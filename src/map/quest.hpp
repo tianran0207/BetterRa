@@ -49,7 +49,7 @@ enum quest_check_type {
 
 int quest_pc_login(TBL_PC *sd);
 
-int quest_add(TBL_PC * sd, int quest_id);
+int quest_add(TBL_PC * sd, int quest_id, unsigned int second = 0);
 int quest_delete(TBL_PC * sd, int quest_id);
 int quest_change(TBL_PC * sd, int qid1, int qid2);
 int quest_update_objective_sub(struct block_list *bl, va_list ap);

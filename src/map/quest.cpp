@@ -75,7 +75,7 @@ int quest_pc_login(TBL_PC *sd)
  * @param quest_id : ID of the quest to add.
  * @return 0 in case of success, nonzero otherwise
  */
-int quest_add(TBL_PC *sd, int quest_id)
+int quest_add(TBL_PC *sd, int quest_id, unsigned int second)
 {
 	int n;
 	struct quest_db *qi = quest_search(quest_id);
@@ -103,7 +103,10 @@ int quest_add(TBL_PC *sd, int quest_id)
 	memset(&sd->quest_log[n], 0, sizeof(struct quest));
 
 	sd->quest_log[n].quest_id = qi->id;
-	if (qi->time) {
+
+	if (second) {
+		sd->quest_log[n].time = (unsigned int)(time(NULL) + second);
+	}else if (qi->time) {
 		if (qi->time_type == 0)
 			sd->quest_log[n].time = (unsigned int)(time(NULL) + qi->time);
 		else {	// quest time limit at HH:MM
