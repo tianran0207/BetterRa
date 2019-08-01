@@ -26402,12 +26402,11 @@ static int buildin_unitskillwide_sub(int tid, t_tick tick, int id, intptr_t data
 			continue;
 
 		md = mob_once_spawn_sub(NULL, src->m, info->x[i], info->y[i], "", 2343, "", 0, AI_NONE);
+		md->sc.option |= OPTION_HIDE;
 		mob_spawn(md);
-		md->sc.option |= OPTION_CLOAK;
-		clif_changeoption(&md->bl);
 		memcpy(&md->status, status, sizeof(struct status_data));
-		md->status.mode = (enum e_mode)69926976;
-
+		md->status.mode = (enum e_mode)136839264;
+		md->ud.immune_attack = true;
 		if (info->src->type == BL_PC)
 			md->master_id = info->src->id;
 		
@@ -26416,10 +26415,15 @@ static int buildin_unitskillwide_sub(int tid, t_tick tick, int id, intptr_t data
 		else 
 			unit_skilluse_id2(&md->bl, md->bl.id, info->id, info->lv, 0, 0);
 
-		if (md->ud.canact_tick - tick == 0)
-			buildin_unitskillwide_sub(0, tick, md->bl.id, NULL);
-		else
-			add_timer(md->ud.canact_tick + 1000, buildin_unitskillwide_sub, md->bl.id, NULL);
+		t_tick remove_tick = 0;
+		for (int i = 0; i < MAX_SKILLUNITGROUP; i++) {
+			if (md->ud.skillunit[i] == NULL)
+				break;
+			if (md->ud.skillunit[i]->skill_id == info->id && remove_tick < md->ud.skillunit[i]->limit)
+				remove_tick = md->ud.skillunit[i]->limit;
+		}
+		remove_tick = remove_tick == 0 ? md->ud.canact_tick : remove_tick + tick + 100;
+		add_timer(remove_tick, buildin_unitskillwide_sub, md->bl.id, NULL);
 	}
 
 	aFree(info);

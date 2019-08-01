@@ -11587,6 +11587,14 @@ void clif_parse_WisMessage(int fd, struct map_session_data* sd)
 		char* chname = target;
 
 		channel = channel_name2channel(chname,sd,3);
+
+		if (channel->unbantime && channel->unbantime > gettick()) {
+			sprintf(output, msg_txt(sd, 2405), target, (channel->unbantime - gettick()) / 1000);
+			clif_displaymessage(fd, output);
+			return;
+		} else
+			channel->unbantime = 0;
+
 		if(channel && (pc_has_permission(sd, PC_PERM_CHANNEL_ADMIN) || ((channel->opt&CHAN_OPT_CAN_CHAT) && channel_pccheckgroup(channel,sd->group_id)))){
 			if(channel_pc_haschan(sd,channel)>=0){ //we are in the chan
 				channel_send(channel,sd,message);
@@ -15640,12 +15648,6 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 		j++;
 	}
 	WFIFOSET(fd,len);
-
-	if( md->full ) {// TODO: is this official?
-		char output[100];
-		safesnprintf(output,sizeof(output),"Inbox is full (Max %d). Delete some mails.", MAIL_MAX_INBOX);
-		clif_messagecolor(&sd->bl, color_table[COLOR_LIGHT_GREEN], output, false, SELF);
-	}
 #else
 	int fd = sd->fd;
 	struct mail_data *md = &sd->mail.inbox;
@@ -15797,6 +15799,11 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 	WFIFOW(fd, 2) = (int16)offset;
 	WFIFOSET(fd, offset);
 #endif
+	if (md->full) {// TODO: is this official?
+		char output[512];
+		sprintf(output, msg_txt(sd, 2404), MAIL_MAX_INBOX);
+		clif_messagecolor(&sd->bl, color_table[COLOR_LIGHT_GREEN], output, false, SELF);
+	}
 }
 
 /// Mail inbox list request.

@@ -53,6 +53,7 @@ struct Channel {
 	DBMap *banned;				  ///< List of banned chars -> char_id
 	unsigned short group_count;	  ///< Number of group id
 	unsigned short *groups;		  ///< List of group id, only these groups can join the channel
+	t_tick unbantime;
 };
 
 struct chan_banentry {
@@ -121,6 +122,8 @@ int channel_pcleave(struct map_session_data *sd, char *chname);
 int channel_pccolor(struct map_session_data *sd, char *chname, char *color);
 int channel_pcbind(struct map_session_data *sd, char *chname);
 int channel_pcunbind(struct map_session_data *sd);
+int channel_ban(struct map_session_data *sd, char *chname, char *diff);
+int channel_unban(struct map_session_data *sd, char *chname);
 int channel_pcban(struct map_session_data *sd, char *chname, char *pname, int flag);
 int channel_pckick(struct map_session_data *sd, char *chname, char *pname);
 int channel_pcsetopt(struct map_session_data *sd, char *chname, const char *option, const char *val);
