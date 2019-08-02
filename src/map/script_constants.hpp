@@ -566,6 +566,7 @@
 	export_constant(MF_NOSC);
 	export_constant(MF_NOSKILL2);
 	export_constant(MF_NOUSEITEM);
+	export_constant(MF_NOSLAVE);
 	export_constant(MF_MOBDMGRATE);
 	export_constant(MF_MOBDMGFIX);
 	export_constant(MF_MOBDMGMAX);

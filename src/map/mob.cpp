@@ -3661,6 +3661,9 @@ int mobskill_use(struct mob_data *md, t_tick tick, int event)
 		if (DIFF_TICK(tick, md->skilldelay[i]) < ms[i].delay)
 			continue;
 
+		if (ms[i].skill_id == NPC_SUMMONSLAVE && map_getmapflag(md->bl.m, MF_NOSLAVE))
+			continue;
+
 		c2 = ms[i].cond2;
 
 		if (ms[i].state != md->state.skillstate) {
