@@ -12845,8 +12845,7 @@ BUILDIN_FUNC(setmapflag)
 
 	switch(mf) {
 		case MF_MOBSPAWNBASE: 
-			if (script_hasdata(st, 4) && script_isstring(st, 4)) {
-				if (sscanf(script_getstr(st, 4), "%u,%u,%u,%u", &args.mobspawnbase.hprate, &args.mobspawnbase.atkrate, &args.mobspawnbase.matkrate, &args.mobspawnbase.hitrate) == 4)
+			if (script_hasdata(st, 4) && script_isstring(st, 4) && sscanf(script_getstr(st, 4), "%u,%u,%u,%u", &args.mobspawnbase.hprate, &args.mobspawnbase.atkrate, &args.mobspawnbase.matkrate, &args.mobspawnbase.hitrate) == 4) {
 					map_setmapflag_sub(m, MF_MOBSPAWNBASE, true, &args);
 			}else {
 				ShowWarning("buildin_setmapflag: Unable to set mobspawnbase mapflag as flag must be string, like '100,100,100,100'.\n");
