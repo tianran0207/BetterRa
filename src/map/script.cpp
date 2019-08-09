@@ -28177,6 +28177,41 @@ BUILDIN_FUNC(setquesttime)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(runitemscript)
+{
+	int type = 0;
+	struct item_data *i_data;
+	struct script_code *script;
+	struct map_session_data *sd;
+
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (script_hasdata(st, 3))
+		type = script_getnum(st, 3);
+
+	if (!(i_data = itemdb_exists(script_getnum(st, 2)))) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	switch (type) {
+	case 2:
+		script = i_data->unequip_script;
+		break;
+	case 1:
+		script = i_data->equip_script;
+		break;
+	default:
+		script = i_data->script;
+		break;
+	}
+	if (script)
+		run_script(script, 0, sd->bl.id, 0);
+	
+	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -29101,6 +29136,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unitatkeventmark,"ii"),
 	BUILDIN_DEF2(unitatkeventmark, "unitatkedeventmark", "ii"),
 	BUILDIN_DEF(setquesttime, "ii?"),
+	BUILDIN_DEF(runitemscript, "i??"),
 
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL
