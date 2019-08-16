@@ -5746,6 +5746,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 				}
 			}
 			break;
+		case GN_CARTCANNON: // Cart Cannon gets forced to element of cannon ball (neutral or holy/shadow/ghost)
+			wd.damage = battle_attr_fix(src, target, wd.damage, (sd && sd->bonus.arrow_ele) ? sd->bonus.arrow_ele : ELE_NEUTRAL, tstatus->def_ele, tstatus->ele_lv);
+			break;
 	}
 
 	// perform multihit calculations
@@ -8263,7 +8266,7 @@ static const struct _battle_data {
 	{ "autobonus_in_order",                 &battle_config.autobonus_in_order,              0,      0,      1,              },
 	{ "official_cro",                       &battle_config.official_cro,                    0,      0,      1,              },
 	{ "player_move_event_type",             &battle_config.player_move_event_type,          0,      0,      1,              },
-	{ "player_aspd_type",                   &battle_config.player_aspd_type,                0,      0,      1,              },
+	{ "player_aspd_type",                   &battle_config.player_aspd_type,                0,      0,      C_MAX_ASPDTYPE, },
 	{ "item_trade_enchant",                 &battle_config.item_trade_enchant,              0,      0,      1,              },
 	{ "enable_unittype_type",               &battle_config.enable_unittype_type,            0,      0,      1,              },
 	{ "skill_chorus_check",                 &battle_config.skill_chorus_check,              0,      0,      1,              },

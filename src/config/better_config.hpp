@@ -43,6 +43,10 @@
 #define C_BETTERRA_BETA 0
 #define C_NULLPO_CHECK 0
 #define C_MAX_MULTI_IP 10
+//----------------------------------
+//收费开关
+//----------------------------------
+#define C_MAX_ASPDTYPE 1
 
 //----------------------------------
 //自定义功能集
