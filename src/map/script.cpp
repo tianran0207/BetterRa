@@ -25802,6 +25802,10 @@ BUILDIN_FUNC(resetoptionbyidx)
 		pos = script_getnum(st, 2);
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
+		else {
+			ShowError("buildin_resetoptionbyidx: Unknown equip index '%d'\n", pos);
+			return SCRIPT_CMD_FAILURE;
+		}
 	}
 	else {
 		idx = script_getnum(st, 2);
@@ -25837,6 +25841,10 @@ BUILDIN_FUNC(getoptionbyidx)
 		pos = script_getnum(st, 2);
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
+		else {
+			ShowError("buildin_getoptionbyidx: Unknown equip index '%d'\n", pos);
+			return SCRIPT_CMD_FAILURE;
+		}
 	}
 	else {
 		idx = script_getnum(st, 2);
@@ -25869,6 +25877,10 @@ BUILDIN_FUNC(setoptionbyidx)
 		pos = script_getnum(st, 2);
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
+		else {
+			ShowError("buildin_setoptionbyidx: Unknown equip index '%d'\n", pos);
+			return SCRIPT_CMD_FAILURE;
+		}
 	}
 	else {
 		idx = script_getnum(st, 2);
