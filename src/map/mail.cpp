@@ -201,7 +201,13 @@ enum mail_attach_result mail_setitem(struct map_session_data *sd, short idx, uin
 
 			// Check if it exceeds the total weight
 			if( battle_config.mail_attachment_weight ){
-				for( j = 0; j < i; j++ ){
+				for( j = 0; j < MAIL_MAX_ITEM; j++ ){
+					if (sd->mail.item[j].nameid == 0)
+						break;
+					if (sd->mail.item[j].index < 0 || sd->mail.item[j].index > MAX_INVENTORY)
+						continue;
+					if (sd->mail.item[j].nameid != sd->inventory_data[sd->mail.item[j].index]->nameid)
+						continue;
 					total += sd->mail.item[j].amount * ( sd->inventory_data[sd->mail.item[j].index]->weight / 10 );
 				}
 

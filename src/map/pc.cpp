@@ -4920,6 +4920,10 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 	if( sd->inventory.u.items_inventory[idx_equip].equip != 0 )
 		return 0; // item must be unequipped
 
+	ARR_FIND(0, MAIL_MAX_ITEM, i, sd->mail.item[i].index == idx_equip || sd->mail.item[i].index == idx_card);
+	if (i < MAIL_MAX_ITEM)
+		return 0; // in mail
+
 	ARR_FIND( 0, sd->inventory_data[idx_equip]->slot, i, sd->inventory.u.items_inventory[idx_equip].card[i] == 0 );
 	if( i == sd->inventory_data[idx_equip]->slot )
 		return 0; // no free slots

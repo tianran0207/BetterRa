@@ -15466,10 +15466,12 @@ void clif_Mail_setattachment(struct map_session_data* sd, int index, int amount,
 	clif_add_random_options(WFIFOP(fd,21), item);
 
 	for( i = 0; i < MAIL_MAX_ITEM; i++ ){
-		if( sd->mail.item[i].nameid == 0 ){
+		if (sd->mail.item[i].nameid == 0)
 			break;
-		}
-
+		if (sd->mail.item[i].index < 0 || sd->mail.item[i].index > MAX_INVENTORY)
+			continue;
+		if (sd->mail.item[i].nameid != sd->inventory_data[sd->mail.item[i].index]->nameid)
+			continue;
 		total += sd->mail.item[i].amount * ( sd->inventory_data[sd->mail.item[i].index]->weight / 10 );
 	}
 
