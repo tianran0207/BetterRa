@@ -15319,42 +15319,6 @@ void clif_parse_HomMenu(int fd, struct map_session_data *sd)
 /// 0292
 void clif_parse_AutoRevive(int fd, struct map_session_data *sd)
 {
-	if (sd->sc.data[SC_HELLPOWER]) // Cannot resurrect while under the effect of SC_HELLPOWER.
-		return;
-
-	int16 item_position = itemdb_group_item_exists_pc(sd, IG_TOKEN_OF_SIEGFRIED);
-	uint8 hp = 100, sp = 100;
-
-	if (map_getmapflag(sd->bl.m, MF_NOTOKEN)) {
-		clif_displaymessage(fd, msg_txt(sd, 2335));
-		return;
-	}
-	if (sd->sc.data[SC_BLOCKING_ALIVE] && (sd->sc.data[SC_BLOCKING_ALIVE]->val1 & 1)) {
-		const struct TimerData *timer = get_timer(sd->sc.data[SC_BLOCKING_ALIVE]->timer);
-		if (timer)
-			clif_msg_value(sd, ITEM_REUSE_LIMIT, (int)(DIFF_TICK(timer->tick, gettick()) / 1000));
-		else 
-			clif_messagecolor(&sd->bl, color_table[COLOR_YELLOW], msg_txt(sd, 2401), false, SELF);
-
-		return;
-	}
-	if (item_position < 0) {
-		if (sd->sc.data[SC_LIGHT_OF_REGENE]) {
-			hp = sd->sc.data[SC_LIGHT_OF_REGENE]->val2;
-			sp = 0;
-		} else
-			return;
-	}
-
-	if (!status_revive(&sd->bl, hp, sp))
-		return;
-
-	if (item_position < 0)
-		status_change_end(&sd->bl, SC_LIGHT_OF_REGENE, INVALID_TIMER);
-	else
-		pc_delitem(sd, item_position, 1, 0, 1, LOG_TYPE_CONSUME);
-
-	clif_skill_nodamage(&sd->bl, &sd->bl, ALL_RESURRECTION, 4, 1);
 	pc_revive_item(sd);
 }
 

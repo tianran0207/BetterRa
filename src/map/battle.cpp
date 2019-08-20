@@ -5747,6 +5747,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 			}
 			break;
 		case GN_CARTCANNON: // Cart Cannon gets forced to element of cannon ball (neutral or holy/shadow/ghost)
+			if (!battle_config.cannonball_attr_alone)
+				break;
 			wd.damage = battle_attr_fix(src, target, wd.damage, (sd && sd->bonus.arrow_ele) ? sd->bonus.arrow_ele : ELE_NEUTRAL, tstatus->def_ele, tstatus->ele_lv);
 			break;
 	}
@@ -8275,10 +8277,11 @@ static const struct _battle_data {
 	{ "instance_activation",                &battle_config.instance_activation,             1,      0,      1,              },
 	{ "support_old_mob_db",                 &battle_config.support_old_mob_db,              0,      0,      1,              },
 	{ "homunculus_killed_drop",             &battle_config.homunculus_killed_drop,          1,      0,      1,              },
-	{ "homunculus_share_exp",				&battle_config.homunculus_share_exp,            0,      0,      100,            },
+	{ "homunculus_share_exp",               &battle_config.homunculus_share_exp,            0,      0,      100,            },
 	{ "remove_noinfo_pet",                  &battle_config.remove_noinfo_pet,               1,      0,      1,              },
 	{ "multiple_script_state",              &battle_config.multiple_script_state,           0,      0,      1,              },
-	{ "hidenpc_willbe_disable",                 &battle_config.hidenpc_willbe_disable,              0,      0,      1,              },
+	{ "hidenpc_willbe_disable",             &battle_config.hidenpc_willbe_disable,          0,      0,      1,              },
+	{ "cannonball_attr_alone",              &battle_config.cannonball_attr_alone,           1,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

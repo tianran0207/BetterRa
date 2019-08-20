@@ -225,6 +225,7 @@ struct Battle_Config
 	int remove_noinfo_pet;
 	int multiple_script_state;
 	int hidenpc_willbe_disable;
+	int cannonball_attr_alone;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;
