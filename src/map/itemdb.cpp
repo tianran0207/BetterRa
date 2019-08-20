@@ -470,12 +470,12 @@ static struct item_data *itemdb_create_item(unsigned short nameid) {
  * @param nameid
  * @return *item_data or *dummy_item if item not found
  *------------------------------------------*/
-struct item_data* itemdb_search(unsigned short nameid) {
+struct item_data* itemdb_search_sub(unsigned short nameid, const char* func) {
 	struct item_data* id = NULL;
 	if (nameid == dummy_item->nameid)
 		id = dummy_item;
 	else if (!(id = (struct item_data*)uidb_get(itemdb, nameid))) {
-		ShowWarning("itemdb_search: Item ID %hu does not exists in the item_db. Using dummy data.\n", nameid);
+		ShowWarning("itemdb_search: Item ID %hu does not exists in the item_db. Using dummy data.(source: %s)\n", nameid, func);
 		id = dummy_item;
 	}
 	return id;

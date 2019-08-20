@@ -9781,7 +9781,7 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 					if (flag & 8)
 						str_info2 += sprintf(str_info2, str_info2 != mobinfo2 ? " | ID:%d" : "ID:%d", md->mob_id);
 				}
-				else {
+				else if (flag != -1) {
 					if (battle_config.show_mob_info & 4)
 						str_p += sprintf(str_p, "Lv. %d | ", md->level);
 					if (battle_config.show_mob_info & 1)

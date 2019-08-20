@@ -904,8 +904,9 @@ struct s_random_opt_group {
 struct item_data* itemdb_searchname(const char *name);
 struct item_data* itemdb_search_aegisname( const char *str );
 int itemdb_searchname_array(struct item_data** data, int size, const char *str);
-struct item_data* itemdb_search(unsigned short nameid);
+struct item_data* itemdb_search_sub(unsigned short nameid, const char* func);
 struct item_data* itemdb_exists(unsigned short nameid);
+#define itemdb_search(n) itemdb_search_sub(n, __func__)
 #define itemdb_name(n) itemdb_search(n)->name
 #define itemdb_jname(n) itemdb_search(n)->jname
 #define itemdb_type(n) itemdb_search(n)->type
