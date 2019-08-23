@@ -2928,6 +2928,10 @@ static int battle_get_weapon_element(struct Damage* wd, struct block_list *src, 
 			if (sd && sd->flicker) //Force RL_H_MINE deals fire damage if activated by RL_FLICKER
 				element = ELE_FIRE;
 			break;
+		case GN_CARTCANNON: // Cart Cannon gets forced to element of cannon ball (neutral or holy/shadow/ghost)
+			if (battle_config.cannonball_attr_alone && sd && sd->bonus.arrow_ele)
+				element = sd->bonus.arrow_ele;
+			break;
 	}
 
 	if (sc && sc->data[SC_GOLDENE_FERSE] && ((!skill_id && (rnd() % 100 < sc->data[SC_GOLDENE_FERSE]->val4)) || skill_id == MH_STAHL_HORN))
@@ -5745,11 +5749,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 						wd.damage = battle_attr_fix(src, target, wd.damage, right_element, tstatus->def_ele, tstatus->ele_lv);
 				}
 			}
-			break;
-		case GN_CARTCANNON: // Cart Cannon gets forced to element of cannon ball (neutral or holy/shadow/ghost)
-			if (!battle_config.cannonball_attr_alone)
-				break;
-			wd.damage = battle_attr_fix(src, target, wd.damage, (sd && sd->bonus.arrow_ele) ? sd->bonus.arrow_ele : ELE_NEUTRAL, tstatus->def_ele, tstatus->ele_lv);
 			break;
 	}
 
