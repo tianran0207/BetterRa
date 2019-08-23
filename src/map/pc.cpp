@@ -9034,6 +9034,11 @@ bool pc_revive_item(struct map_session_data *sd) {
 			return false;
 	}
 
+	else if (map_getmapflag(sd->bl.m, MF_NOTOKEN)) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 2335));
+		return false;
+	}
+
 	if (!status_revive(&sd->bl, hp, sp))
 		return false;
 
