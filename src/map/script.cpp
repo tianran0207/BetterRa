@@ -26378,8 +26378,7 @@ static int buildin_unitskillwide_sub(int tid, t_tick tick, int id, intptr_t data
 		md->sc.option |= OPTION_HIDE;
 		mob_spawn(md);
 		memcpy(&md->status, status, sizeof(struct status_data));
-		md->status.mode = (enum e_mode)136839264;
-		md->ud.immune_attack = true;
+		md->status.mode = (enum e_mode)104792160;
 		if (info->src->type == BL_PC)
 			md->master_id = info->src->id;
 		
@@ -28185,6 +28184,19 @@ BUILDIN_FUNC(runitemscript)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(pcdead)
+{
+	struct map_session_data *sd;
+
+	if (script_hasdata(st, 2))
+		sd = map_id2sd(script_getnum(st, 2));
+	else
+		sd = map_id2sd(st->rid);
+
+	script_pushint(st, sd && pc_isdead(sd) ? 1 : 0);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -29110,6 +29122,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(unitatkeventmark, "unitatkedeventmark", "ii"),
 	BUILDIN_DEF(setquesttime, "ii?"),
 	BUILDIN_DEF(runitemscript, "i??"),
+	BUILDIN_DEF(pcdead, "?"),
 
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL
