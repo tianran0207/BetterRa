@@ -366,6 +366,7 @@ struct Script_Config script_config = {
 	"OnPCAttackFilter", //attack_filter_name
 	"OnPCAttackedFilter", //attacked_filter_name
 	"OnPCHealFilter", //heal_filter_name
+	"OnPCBonusFilter", //bonus_filter_name
 	"OnPCHookDllEvent", //hook_dll_event_name
 	"OnAnyoneUseSkillEvent" //anyone_skill_event_name
 };
@@ -9539,6 +9540,41 @@ BUILDIN_FUNC(bonus)
 			if (script_hasdata(st, 3))
 				val1 = script_getnum(st, 3);
 			break;
+	}
+
+	if (npc_script_event_check(sd, NPCE_BONUSFILTER)) {
+		val2 = script_hasdata(st, 4) ? ((type == SP_AUTOSPELL_ONSKILL && script_isstring(st, 4)) ? skill_name2id(script_getstr(st, 4)) : script_getnum(st, 4)) : 0;
+		val3 = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
+		val4 = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+		val5 = script_hasdata(st, 7) ? script_getnum(st, 7) : 0;
+		pc_setreg(sd, add_str("@bonus_type"), type);
+		pc_setreg(sd, add_str("@bonus_val1"), val1);
+		pc_setreg(sd, add_str("@bonus_val2"), val2);
+		pc_setreg(sd, add_str("@bonus_val3"), val3);
+		pc_setreg(sd, add_str("@bonus_val4"), val4);
+		pc_setreg(sd, add_str("@bonus_val5"), val5);
+		npc_script_event_atonce(sd, NPCE_BONUSFILTER);
+		if (sd->state.processhalt) {
+			type = pc_readreg(sd, add_str("@bonus_type"));
+
+			if (type == 0)
+				return SCRIPT_CMD_SUCCESS;
+
+#define BVAL(n) pc_readreg(sd, add_str("@bonus_val"#n))
+			switch (script_lastdata(st) - 2) {
+			case 0:
+			case 1: pc_bonus(sd, type, BVAL(1)); break;
+			case 2: pc_bonus2(sd, type, BVAL(1), BVAL(2)); break;
+			case 3: pc_bonus3(sd, type, BVAL(1), BVAL(2), BVAL(3)); break;
+			case 4: pc_bonus4(sd, type, BVAL(1), BVAL(2), BVAL(3), BVAL(4)); break;
+			case 5: pc_bonus5(sd, type, BVAL(1), BVAL(2), BVAL(3), BVAL(4), BVAL(5)); break;
+			default:
+				ShowDebug("buildin_bonus: unexpected number of arguments (%d)\n", (script_lastdata(st) - 1));
+				break;
+			}
+#undef BVAL
+			return SCRIPT_CMD_SUCCESS;
+		}
 	}
 
 	switch( script_lastdata(st)-2 ) {

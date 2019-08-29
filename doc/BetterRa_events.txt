@@ -868,6 +868,24 @@ BetterRa 在官方的基础上做了以下改进:
 
 ---------------------------------------
 
+*OnPCBonusFilter
+
+事件描述
+	当玩家获得 bonus 属性时触发, 指令可通过 getbonus 获取玩家各参数实际值, 也可通过判断 玩家角色或账号ID进行累加获取实际值
+	
+参数说明：
+	@bonus_type 附加类型, 即 bonus 后第一个参数(例: bStr 等)
+	@bonus_val1 第 1 个参数
+	@bonus_val2 第 2 个参数
+	@bonus_val3 第 3 个参数
+	@bonus_val4 第 4 个参数
+    @bonus_val5 第 5 个参数
+
+中断说明: 
+	中断后可通过修改上面的参数来实现对最终结果的影响, 当 @bonus_type 为0时, 当前 Bonus 附加失效
+	
+---------------------------------------
+
 *OnAnyoneUseSkillEvent:
 
 事件描述：
