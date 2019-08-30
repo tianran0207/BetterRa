@@ -945,6 +945,10 @@ int npc_event_atonce(struct map_session_data* sd, const char* eventname)
 		ShowError("npc_event: event not found [%s]\n", eventname);
 		return 1;
 	}
+	if (ev->nd->sc.option&OPTION_INVISIBLE) {
+		npc_event_dequeue(sd);
+		return 1;
+	}
 	run_script(ev->nd->u.scr.script, ev->pos, sd->bl.id, ev->nd->bl.id);
 	return 0;
 }

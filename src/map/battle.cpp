@@ -8264,6 +8264,7 @@ static const struct _battle_data {
 	{ "multiple_autobonus",                 &battle_config.multiple_autobonus,              0,      0,      1,              },
 	{ "sleep2_ignore_attach",               &battle_config.sleep2_ignore_attach,            0,      0,      1,              },
 	{ "disable_event_queue",                &battle_config.disable_event_queue,             0,      0,      1,              },
+	{ "disable_mobdead_queue",              &battle_config.disable_mobdead_queue,           0,      0,      1,              },
 	{ "autobonus_in_order",                 &battle_config.autobonus_in_order,              0,      0,      1,              },
 	{ "official_cro",                       &battle_config.official_cro,                    0,      0,      1,              },
 	{ "player_move_event_type",             &battle_config.player_move_event_type,          0,      0,      1,              },

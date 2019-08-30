@@ -3061,12 +3061,18 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				pc_setparam(sd, SP_KILLEDGID, md->bl.id);
 				pc_setparam(sd, SP_KILLEDRID, md->mob_id);
 				pc_setparam(sd, SP_KILLERRID, sd->bl.id);
-				npc_event(sd,md->npc_event,0);
+				if (battle_config.disable_mobdead_queue)
+					npc_event_atonce(sd, md->npc_event);
+				else
+					npc_event(sd, md->npc_event, 0);
 			} else if( mvp_sd ) {
 				pc_setparam(mvp_sd, SP_KILLEDGID, md->bl.id);
 				pc_setparam(mvp_sd, SP_KILLEDRID, md->mob_id);
 				pc_setparam(mvp_sd, SP_KILLERRID, sd?sd->bl.id:0);
-				npc_event(mvp_sd,md->npc_event,0);
+				if (battle_config.disable_mobdead_queue)
+					npc_event_atonce(mvp_sd,md->npc_event);
+				else
+					npc_event(mvp_sd, md->npc_event, 0);
 			} else
 				npc_event_do(md->npc_event);
 		}
@@ -3074,7 +3080,6 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			pc_setparam(mvp_sd, SP_KILLEDGID, md->bl.id);
 			pc_setparam(mvp_sd, SP_KILLEDRID, md->mob_id);
 			npc_script_event(mvp_sd, NPCE_KILLNPC); // PCKillNPC [Lance]
-
 		}
 #ifdef EVENT_KILLMVP
 		if (mvp_sd && !md->state.npc_killmonster && status_has_mode(&md->status, MD_MVP) && (battle_config.always_mvp_kill_event || !md->npc_event[0]) && npc_script_event_check(mvp_sd, NPCE_KILLMVP)) {

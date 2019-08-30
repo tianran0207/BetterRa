@@ -28170,13 +28170,10 @@ BUILDIN_FUNC(setquesttime)
 		return SCRIPT_CMD_SUCCESS;
 
 	ARR_FIND(0, sd->num_quests, i, sd->quest_log[i].quest_id == quest_id);
-	if (i < sd->num_quests) {
-		sd->quest_log[i].time = (unsigned int)(time(NULL) + script_getnum(st, 3));
-		clif_quest_delete(sd, quest_id);
-		clif_quest_add(sd, &sd->quest_log[i]);
-		return SCRIPT_CMD_SUCCESS;
-	}
-	else if (quest_add(sd, quest_id, second) == -1) {
+	if (i < sd->num_quests)
+		quest_delete(sd, quest_id);
+
+	if (quest_add(sd, quest_id, second) == -1) {
 		script_reportsrc(st);
 		script_reportfunc(st);
 	}

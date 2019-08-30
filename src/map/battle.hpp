@@ -209,6 +209,7 @@ struct Battle_Config
 	int multiple_autobonus;
 	int sleep2_ignore_attach;
 	int disable_event_queue;
+	int disable_mobdead_queue;
 	int autobonus_in_order;
 	int official_cro;
 	int player_move_event_type;
