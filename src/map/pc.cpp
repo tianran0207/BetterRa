@@ -13512,11 +13512,11 @@ void pc_bonus_script_remove(struct map_session_data *sd, const char *script_str)
 		if (entry && (strcmpi(script_str, StringBuf_Value(entry->script_buf)) == 0)) {
 			linkdb_erase(&sd->bonus_script.head, (void *)((intptr_t)entry));
 			pc_bonus_script_free_entry(sd, entry);
-			if (sd->bonus_script.count == 0) {
-				pc_bonus_script_check_final(sd);
-				break;
-			}
 			count++;
+		}
+		if (sd->bonus_script.count == 0) {
+			pc_bonus_script_check_final(sd);
+			break;
 		}
 		node = node->next;
 	}
