@@ -28230,6 +28230,33 @@ BUILDIN_FUNC(pcdead)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(unitdamage)
+{
+	struct block_list *bl, *src;
+	const char *command = script_getfuncname(st);
+	enum e_damage_type type;
+	int64 damage = 0;
+	int div = 1;
+	t_tick tick = gettick(), rdelay = 0;
+
+	if (!script_rid2bl(2, src))
+		return SCRIPT_CMD_FAILURE;
+	
+	if (strstr(command, "rate"))
+		damage = status_get_max_hp(src) * script_getnum(st, 3) / 100;
+	else
+		damage = script_getnum(st, 3);
+
+	if (script_hasdata(st, 4))
+		div = script_getnum(st, 4);
+
+	type = div > 1 ? DMG_MULTI_HIT : DMG_NORMAL;
+
+	clif_damage(src, src, tick, 0, 0, damage, div, type, 0, false);
+	status_damage(src, src, damage, 0, 0, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -29156,6 +29183,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setquesttime, "ii?"),
 	BUILDIN_DEF(runitemscript, "i??"),
 	BUILDIN_DEF(pcdead, "?"),
+	BUILDIN_DEF2(pcdead, "pcisdead", "?"),
+	BUILDIN_DEF(unitdamage, "ii?"),
+	BUILDIN_DEF2(unitdamage, "unitdamagerate", "ii?"),
 
 	//” œ‰œµÕ≥
 #ifdef SCRIPT_SENDMAIL
