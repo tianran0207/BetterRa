@@ -27602,23 +27602,24 @@ int buildin_sortarray_desc_sub(const void *a, const void *b){
 BUILDIN_FUNC(sortarray)
 {
 	struct script_data *data, *sortdata, num;
-	const char* name;
+	const char *name;
 	int id, sortid = 0, i, array_size, type = 0;
 	unsigned int *list = NULL;
 	struct map_session_data* sd = NULL;
 	struct reg_db *ref = NULL, *sortref = NULL;
-	data = script_getdata(st, 2);
-	sortdata = script_hasdata(st,3) && data_isreference(script_getdata(st, 3)) ? script_getdata(st, 3) : NULL;
+	data = script_hasdata(st, 2) ? script_getdata(st, 2) : NULL;
+	sortdata = script_hasdata(st,3) ? script_getdata(st, 3) : NULL;
+	name = data && data_isreference(data) ? reference_getname(data) : NULL;
 
-	if (!data_isreference(data) || script_isstring(st, 2)){
-		ShowError("buildin_sortarray: not a int variable\n");
-		script_reportdata(data);
-		st->state = END;
+	if (!name || name[strlen(name) - 1] == '$'){
+		ShowError("buildin_sortarray: first array is not a int variable\n");
 		return SCRIPT_CMD_FAILURE;
 	}
+
 	if (sortdata){
-		if (data_isstring(sortdata)) {
-			ShowError("buildin_sortarray: not a int variable\n");
+		const char *sortname = data_isreference(sortdata) ? reference_getname(sortdata) : NULL;
+		if (!sortname || sortname[strlen(sortname) - 1] == '$') {
+			ShowError("buildin_sortarray: second array is not a int variable\n");
 			return SCRIPT_CMD_FAILURE;
 		}
 		if(!script_hasdata(st, 4)){
@@ -29214,7 +29215,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getservantgid, "i?"),
 	BUILDIN_DEF(homattack, "i?"),
 	BUILDIN_DEF(mobdrop, "ii??"),
-	BUILDIN_DEF(sortarray, "r??"),
+	BUILDIN_DEF(sortarray, "???"),
 	BUILDIN_DEF(bonus_ratefix, "ii?"),
 	BUILDIN_DEF(getdaytick, "v?????"),
 	BUILDIN_DEF(unitmasterid, "i"),
