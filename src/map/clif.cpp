@@ -11596,6 +11596,11 @@ void clif_parse_WisMessage(int fd, struct map_session_data* sd)
 
 		channel = channel_name2channel(chname,sd,3);
 
+		if (channel == NULL) {
+			clif_displaymessage(fd, msg_txt(sd, 1402)); //You're not in that channel, type '@join <#channel_name>'
+			return;
+		}
+
 		if (channel->unbantime && channel->unbantime > gettick()) {
 			sprintf(output, msg_txt(sd, 2405), target, (channel->unbantime - gettick()) / 1000);
 			clif_displaymessage(fd, output);

@@ -28233,7 +28233,7 @@ BUILDIN_FUNC(pcdead)
 
 BUILDIN_FUNC(unitdamage)
 {
-	struct block_list *bl, *src;
+	struct block_list *src;
 	const char *command = script_getfuncname(st);
 	enum e_damage_type type;
 	int64 damage = 0;
