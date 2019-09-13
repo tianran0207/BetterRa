@@ -174,7 +174,6 @@ enum item_types {
 	IT_SHADOWGEAR,  //12
 	IT_CASH = 18,
 	IT_AMULET = 20,
-	IT_FORCEUSE,
 	IT_MAX
 };
 
