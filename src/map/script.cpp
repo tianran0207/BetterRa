@@ -27611,21 +27611,27 @@ BUILDIN_FUNC(sortarray)
 	sortdata = script_hasdata(st,3) ? script_getdata(st, 3) : NULL;
 	name = data && data_isreference(data) ? reference_getname(data) : NULL;
 
-	if (!name || name[strlen(name) - 1] == '$'){
+	if (!name || is_string_variable(name)){
 		ShowError("buildin_sortarray: first array is not a int variable\n");
 		return SCRIPT_CMD_FAILURE;
 	}
+	if (not_server_variable(*name) && !script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
 
 	if (sortdata){
 		const char *sortname = data_isreference(sortdata) ? reference_getname(sortdata) : NULL;
-		if (!sortname || sortname[strlen(sortname) - 1] == '$') {
+		if (!sortname || is_string_variable(sortname)) {
 			ShowError("buildin_sortarray: second array is not a int variable\n");
 			return SCRIPT_CMD_FAILURE;
 		}
+		if (!sd && not_server_variable(*sortname) && !script_rid2sd(sd))
+			return SCRIPT_CMD_FAILURE;
+
 		if(!script_hasdata(st, 4)){
 			ShowError("buildin_sortarray: non-existent type\n");
 			return SCRIPT_CMD_FAILURE;
 		}
+
 		sortid = reference_getid(sortdata);
 		sortref = reference_getref(sortdata);
 		script_array_ensure_zero(st, sd, reference_uid(sortid, 0), sortref);
