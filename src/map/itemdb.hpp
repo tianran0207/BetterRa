@@ -852,6 +852,7 @@ struct item_data
 		unsigned group : 1; // As item group container [Cydh]
 		unsigned guid : 1; // This item always be attached with GUID and make it as bound item! [Cydh]
 		unsigned broadcast : 1; ///< Will be broadcasted if someone obtain the item [Cydh]
+		unsigned forceuse : 1;
 		unsigned skill_no_consumed : 1;
 		unsigned item_pckill_drop : 1;
 		unsigned item_drop_event : 1;
