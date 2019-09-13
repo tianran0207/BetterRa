@@ -29098,6 +29098,7 @@ struct script_function buildin_func[] = {
 #include "../custom/script_def.inc"
 
 	BUILDIN_DEF(sleep3, "i"),
+	BUILDIN_DEF2(sleep3, "99max_sleep2", "i"),
 	BUILDIN_DEF(processhalt, ""),
 	BUILDIN_DEF2(processhalt, "halt", ""),
 	BUILDIN_DEF(getinventoryinfo, "ii?"),
