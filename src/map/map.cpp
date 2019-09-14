@@ -5411,11 +5411,11 @@ TIMER_FUNC(server_verification) {
 		return 1;
 
 	if (verification_act == 0 || (verification_act == 1 && verification_times % 60) ) {
-		char url[256], md5[64];
+		char url[256], md5[64], token[256];
 		unsigned int tick = (unsigned int)time(NULL);
-		snprintf(url, sizeof(url), "%d%s", tick, "gettoken");
-		MD5_String(url, md5);
-		snprintf(url, sizeof(url), "%s?tick=%d&token=%s", C_VERIFYURL, tick, md5);
+		safesnprintf(token, 256, "%d%s", tick, "gettoken");
+		MD5_String(token, md5);
+		safesnprintf(url, 256, "%s?tick=%d&token=%s", C_VERIFYURL, tick, md5);
 		memset(cookies, 0, sizeof(cookies));
 		http_get(url, 3, false, false, 0);
 		server_verification_checkurl(url);
