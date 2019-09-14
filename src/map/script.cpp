@@ -4150,6 +4150,17 @@ int run_func(struct script_state *st)
 		st->state = END;
 	}
 
+	if (st->stack == NULL) {
+		struct block_list *bl;
+		if ((bl = map_id2bl(st->rid)) != NULL)
+			ShowError("script:run_func: '%s' finish attach player '%d (map:%s %d,%d)' and script stack is free. please report this!!!\n", st->funcname, bl->id, map_getmapdata(bl->m)->name, bl->x, bl->y);
+		else
+			ShowError("script:run_func: '%s' finish and script stack is free. please report this!!!\n", st->funcname);
+		script_reportsrc(st);
+		st->state = END;
+		return 1;
+	}
+
 	// Stack's datum are used when re-running functions [Eoe]
 	if( st->state == RERUNLINE )
 		return 0;
