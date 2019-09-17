@@ -7409,23 +7409,6 @@ BUILDIN_FUNC(checkweight2)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-#ifdef SCRIPT_SENDMAIL
-struct mail_message script_mail;
-static void buildin_mail_additem_sub(struct item *it, unsigned short amount) {
-	int i;
-
-	if (it->nameid == 0)
-		return;
-	
-	ARR_FIND(0, MAIL_MAX_ITEM, i, script_mail.item[i].nameid == 0);
-
-	if (i < MAIL_MAX_ITEM) {
-		memcpy(&script_mail.item[i], it, sizeof(struct item));
-		script_mail.item[i].amount = amount;
-	}
-}
-#endif // SCRIPT_SENDMAIL
-
 /*==========================================
  * getitem <item id>,<amount>{,<account ID>};
  * getitem "<item name>",<amount>{,<account ID>};
@@ -7495,13 +7478,6 @@ BUILDIN_FUNC(getitem)
 		get_count = 1;
 	else
 		get_count = amount;
-
-#ifdef SCRIPT_SENDMAIL
-	if (strnicmp(command, "mail", 4) == 0) {
-		buildin_mail_additem_sub(&it, get_count);
-		return SCRIPT_CMD_SUCCESS;
-	}
-#endif
 
 	for (i = 0; i < amount; i += get_count)
 	{
@@ -7636,13 +7612,6 @@ BUILDIN_FUNC(getitem2)
 			get_count = 1;
 		else
 			get_count = amount;
-
-#ifdef SCRIPT_SENDMAIL
-		if (strnicmp(command, "mail", 4) == 0) {
-			buildin_mail_additem_sub(&item_tmp, get_count);
-			return SCRIPT_CMD_SUCCESS;
-		}
-#endif
 
 		for (i = 0; i < amount; i += get_count)
 		{
@@ -26058,13 +26027,27 @@ BUILDIN_FUNC(unloadduplicate)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+struct mail_message script_mail;
+static void buildin_mail_additem_sub(struct item *it, unsigned short amount) {
+	int i;
+
+	if (it->nameid == 0)
+		return;
+
+	ARR_FIND(0, MAIL_MAX_ITEM, i, script_mail.item[i].nameid == 0);
+
+	if (i < MAIL_MAX_ITEM) {
+		memcpy(&script_mail.item[i], it, sizeof(struct item));
+		script_mail.item[i].amount = amount;
+	}
+}
+
 // mail_create <发件人名>,<题目>,<内容>{,<ZENY>}
 // mail_additem、mail_additem2、mail_additem3、mail_additembound、mail_additembound2、mail_additembound3 与相应的getitem指令参数相同
 // mail_send {<收件人CID 或 收件人名>} 通过CID发送邮件只能发送给在线玩家
 
 BUILDIN_FUNC(mail_create)
 {
-#ifdef SCRIPT_SENDMAIL
 	const char *text;
 
 	memset(&script_mail, 0, sizeof(struct mail_message));
@@ -26084,13 +26067,114 @@ BUILDIN_FUNC(mail_create)
 	script_mail.timestamp = time(NULL);
 	if (script_hasdata(st, 5))
 		script_mail.zeny = script_getnum(st, 5);
-#endif
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(mail_additem2)
+{
+	unsigned short nameid, amount;
+	int iden, ref, attr;
+	unsigned short c1, c2, c3, c4;
+	char bound = BOUND_NONE;
+	struct map_session_data *sd = map_id2sd(st->rid);
+	struct item_data *item_data = NULL;
+	struct item item_tmp;
+	const char* command = script_getfuncname(st);
+	char lastchar = command[strlen(command) - 1];
+	int offset = 0;
+
+	if (strstr(command, "bound")) {
+		if (lastchar == '2') {
+			int aid_pos = 12;
+			bound = script_getnum(st, 11);
+		}
+		else if (lastchar == '3') {
+			int aid_pos = 15;
+			offset = 12;
+			bound = script_getnum(st, 11);
+		}
+		else {
+			bound = script_getnum(st, 4);
+		}
+
+		if (bound < BOUND_NONE || bound >= BOUND_MAX) {
+			ShowError("script_getitembound2: Not a correct bound type! Type=%d\n", bound);
+			return SCRIPT_CMD_FAILURE;
+		}
+	}
+	else {
+		int aid_pos = 11;
+		if (lastchar == '3') {
+			offset = 11;
+			aid_pos = 14;
+		}
+	}
+
+	if (script_isstring(st, 2)) {
+		const char *name = script_getstr(st, 2);
+		if ((item_data = itemdb_searchname(name)) == NULL) {
+			ShowError("buildin_getitem2: Nonexistant item %s requested (by conv_str).\n", name);
+			return SCRIPT_CMD_FAILURE; //No item created.
+		}
+		nameid = item_data->nameid;
+	}
+	else {
+		nameid = script_getnum(st, 2);
+		if ((item_data = itemdb_exists(nameid)) == NULL) {
+			ShowError("buildin_getitem2: Nonexistant item %d requested (by conv_num).\n", nameid);
+			return SCRIPT_CMD_FAILURE; //No item created.
+		}
+	}
+
+	amount = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+	iden = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
+	ref = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
+	attr = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+	c1 = (unsigned short)(script_hasdata(st, 7) ? script_getnum(st, 7) : 0);
+	c2 = (unsigned short)(script_hasdata(st, 8) ? script_getnum(st, 8) : 0);
+	c3 = (unsigned short)(script_hasdata(st, 9) ? script_getnum(st, 9) : 0);
+	c4 = (unsigned short)(script_hasdata(st, 10) ? script_getnum(st, 10) : 0);
+
+	int get_count = 0;
+	memset(&item_tmp, 0, sizeof(item_tmp));
+	if (item_data->type == IT_WEAPON || item_data->type == IT_ARMOR || item_data->type == IT_SHADOWGEAR) {
+		if (ref > MAX_REFINE)
+			ref = MAX_REFINE;
+	}
+	else if (item_data->type == IT_PETEGG) {
+		iden = 1;
+		ref = 0;
+	}
+	else {
+		iden = 1;
+		ref = attr = 0;
+	}
+	item_tmp.nameid = nameid;
+	item_tmp.identify = iden;
+	item_tmp.refine = ref;
+	item_tmp.attribute = attr;
+	item_tmp.card[0] = c1;
+	item_tmp.card[1] = c2;
+	item_tmp.card[2] = c3;
+	item_tmp.card[3] = c4;
+	item_tmp.bound = bound;
+	if (offset != 0) {
+		int res = script_getitem_randomoption(st, sd, &item_tmp, command, offset);
+		if (res == SCRIPT_CMD_FAILURE)
+			return SCRIPT_CMD_FAILURE;
+	}
+	if (!itemdb_isstackable2(item_data))
+		get_count = 1;
+	else
+		get_count = amount;
+
+	buildin_mail_additem_sub(&item_tmp, get_count);
 	return SCRIPT_CMD_SUCCESS;
 }
 
 BUILDIN_FUNC(mail_send)
 {
-#ifdef SCRIPT_SENDMAIL
 	struct script_data *data;
 	const char *nickname;
 
@@ -26109,7 +26193,6 @@ BUILDIN_FUNC(mail_send)
 
 	safestrncpy(script_mail.dest_name, nickname, sizeof(script_mail.dest_name));
 	intif_Mail_send(0, &script_mail);
-#endif
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -29207,16 +29290,14 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(unitdamage, "unitdamagerate", "ii?"),
 
 	//邮箱系统
-#ifdef SCRIPT_SENDMAIL
 	BUILDIN_DEF(mail_create, "sss?"),
 	BUILDIN_DEF(mail_send, "?"),
-	BUILDIN_DEF2(getitem, "mail_additem", "vi?"),
-	BUILDIN_DEF2(getitem, "mail_additembound", "vii?"),
-	BUILDIN_DEF2(getitem2, "mail_additem2", "viiiiiiii?"),
-	BUILDIN_DEF2(getitem2, "mail_additembound2", "viiiiiiiii?"),
-	BUILDIN_DEF2(getitem2, "mail_additem3", "viiiiiiiirrr?"),
-	BUILDIN_DEF2(getitem2, "mail_additembound3", "viiiiiiiiirrr?"),
-#endif
+	BUILDIN_DEF2(mail_additem2, "mail_additem", "vi?"),
+	BUILDIN_DEF2(mail_additem2, "mail_additembound", "vii?"),
+	BUILDIN_DEF2(mail_additem2, "mail_additem2", "viiiiiiii?"),
+	BUILDIN_DEF2(mail_additem2, "mail_additembound2", "viiiiiiiii?"),
+	BUILDIN_DEF2(mail_additem2, "mail_additem3", "viiiiiiiirrr?"),
+	BUILDIN_DEF2(mail_additem2, "mail_additembound3", "viiiiiiiiirrr?"),
 
 	BUILDIN_DEF(itemexists, "v"),
 	BUILDIN_DEF2(itemexists, "existitem", "v"),
