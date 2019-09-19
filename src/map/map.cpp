@@ -5941,7 +5941,7 @@ DWORD WINAPI http_connect(LPVOID lpParameter) {
 	int http_fd = make_connection(host2ip(http_data->host), http_data->post, true, http_data->timeout);
 	if (http_fd == -1) {
 		aFree(http_data);
-		ShowError("http_connect: url '%s%s' no response.\n", http_data->host, http_data->folder);
+		ShowError("http_connect: connection failed, url '%s/%s' no response.\n", http_data->host, http_data->folder);
 		CloseHandle(http_data->Thread);
 		return false;
 	}
