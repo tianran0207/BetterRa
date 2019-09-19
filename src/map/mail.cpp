@@ -66,21 +66,26 @@ int mail_removeitem(struct map_session_data *sd, short flag, int idx, int amount
 #endif
 	}else{
 		sd->mail.item[i].amount -= amount;
-		if (sd->mail.item[i].amount != 0)
-			i = MAIL_MAX_ITEM;
 
-		for( ; i < MAIL_MAX_ITEM-1; i++ ){
-			if (sd->mail.item[i + 1].nameid == 0)
-				break;
-			sd->mail.item[i].index = sd->mail.item[i+1].index;
-			sd->mail.item[i].nameid = sd->mail.item[i+1].nameid;
-			sd->mail.item[i].amount = sd->mail.item[i+1].amount;
-		}
+		// Item was removed completely
+		if( sd->mail.item[i].amount <= 0 ){
+			// Move the rest of the array forward
+			for( ; i < MAIL_MAX_ITEM - 1; i++ ){
+				if ( sd->mail.item[i + 1].nameid == 0 ){
+					break;
+				}
 
-		for( ; i < MAIL_MAX_ITEM; i++ ){
-			sd->mail.item[i].index = 0;
-			sd->mail.item[i].nameid = 0;
-			sd->mail.item[i].amount = 0;
+				sd->mail.item[i].index = sd->mail.item[i+1].index;
+				sd->mail.item[i].nameid = sd->mail.item[i+1].nameid;
+				sd->mail.item[i].amount = sd->mail.item[i+1].amount;
+			}
+
+			// Zero the rest
+			for( ; i < MAIL_MAX_ITEM; i++ ){
+				sd->mail.item[i].index = 0;
+				sd->mail.item[i].nameid = 0;
+				sd->mail.item[i].amount = 0;
+			}
 		}
 
 #if PACKETVER < 20150513
