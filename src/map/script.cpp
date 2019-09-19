@@ -19117,6 +19117,58 @@ BUILDIN_FUNC(sleep3)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(unitsleep)
+{
+	// First call(by function call)
+	if (st->sleep.tick == 0) {
+		int ticks, uid = script_getnum(st, 2);
+
+		if (map_id2bl(uid) == NULL) {
+			if (strstr(st->funcname, "end")) {
+				st->sleep.gid = 0;
+				st->state = END;
+				return SCRIPT_CMD_SUCCESS;
+			}
+			script_pushint(st, 0);
+		}
+		else
+			script_pushint(st, 1);
+
+		st->sleep.gid = uid;
+		ticks = script_getnum(st, 3);
+
+		if (ticks <= 0) {
+			ShowError("buildin_sleep: negative or zero amount('%d') of milli seconds is not supported\n", ticks);
+			return SCRIPT_CMD_FAILURE;
+		}
+
+		// sleep for the target amount of time
+		st->state = RERUNLINE;
+		st->sleep.tick = ticks;
+		// Second call(by timer after sleeping time is over)
+	}
+	else {
+		if (map_id2bl(st->sleep.gid) == NULL) {
+			if (strstr(st->funcname, "end")) {
+				st->sleep.gid = 0;
+				st->state = END;
+				return SCRIPT_CMD_SUCCESS;
+			}
+			script_pushint(st, 0);
+		}
+		else
+			script_pushint(st, 1);
+
+		st->sleep.gid = 0;
+		// Continue the script
+		st->state = RUN;
+		st->sleep.tick = 0;
+	}
+
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 /// Awakes all the sleep timers of the target npc
 ///
 /// awake "<npc name>";
@@ -29199,6 +29251,8 @@ struct script_function buildin_func[] = {
 
 	BUILDIN_DEF(sleep3, "i"),
 	BUILDIN_DEF2(sleep3, "99max_sleep2", "i"),
+	BUILDIN_DEF(unitsleep, "ii"),
+	BUILDIN_DEF2(unitsleep, "unitsleepend", "ii"),
 	BUILDIN_DEF(processhalt, ""),
 	BUILDIN_DEF2(processhalt, "halt", ""),
 	BUILDIN_DEF(getinventoryinfo, "ii?"),

@@ -32,6 +32,8 @@ enum E_MAPSERVER_ST {
 };
 
 struct map_data *map_getmapdata(int16 m);
+struct map_data *map_mapdata_exists_(int16 m, const char *func);
+#define map_mapdata_exists(m) map_mapdata_exists_((m), __FUNCTION__)
 #define msg_config_read(cfgName,isnew) map_msg_config_read(cfgName,isnew)
 #define msg_txt(sd,msg_number) map_msg_txt(sd,msg_number)
 #define do_final_msg() map_do_final_msg()

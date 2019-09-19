@@ -198,6 +198,34 @@ struct map_data *map_getmapdata(int16 mapid)
 	return &map[mapid];
 }
 
+struct map_data *map_mapdata_exists_(int16 mapid, const char *func)
+{
+	if (mapid < 0 || mapid >= MAX_MAP_PER_SERVER)
+		return nullptr;
+
+	struct map_data *mapdata = &map[mapid];
+
+	if (mapdata == nullptr) {
+		ShowError("%s: Try to reach a null map (mapid: %d)\n", func, mapid);
+		return nullptr;
+	}
+
+	if (mapdata->m != mapid || mapdata->name[0] == '\0' || mapdata->xs == 0 || mapdata->ys == 0) {
+		if (mapdata->instance_src_map)
+			ShowError("%s: Try to reach a freed instance map (src map: \"%s\")\n", func, map_getmapdata(mapdata->instance_src_map)->name);
+		else
+			ShowError("%s: Try to reach a empty map (mapid: %d)\n", func, mapid);
+		return nullptr;
+	}
+
+	if (mapdata->block == nullptr || mapdata->block_mob == nullptr) {
+		ShowError("%s: Map data block is free param (map: \"%s\")\n", func, mapdata->name);
+		return nullptr;
+	}
+
+	return mapdata;
+}
+
 /*==========================================
  * server player count (of all mapservers)
  *------------------------------------------*/
@@ -663,7 +691,7 @@ int map_foreachinrangeV(int (*func)(struct block_list*,va_list),struct block_lis
 	if( m < 0 )
 		return 0;
 
-	struct map_data *mapdata = map_getmapdata(m);
+	struct map_data *mapdata = map_mapdata_exists(m);
 
 	if( mapdata == nullptr || mapdata->block == nullptr ){
 		return 0;
@@ -786,7 +814,7 @@ int map_foreachinareaV(int(*func)(struct block_list*, va_list), int16 m, int16 x
 	if (y1 < y0)
 		SWAP(y0, y1);
 
-	struct map_data *mapdata = map_getmapdata(m);
+	struct map_data *mapdata = map_mapdata_exists(m);
 
 	if( mapdata == nullptr || mapdata->block == nullptr ){
 		return 0;
@@ -891,7 +919,7 @@ int map_forcountinrange(int (*func)(struct block_list*,va_list), struct block_li
 	va_list ap;
 
 	m = center->m;
-	mapdata = map_getmapdata(m);
+	mapdata = map_mapdata_exists(m);
 
 	if( mapdata == nullptr || mapdata->block == nullptr ){
 		return 0;
@@ -965,7 +993,7 @@ int map_forcountinarea(int (*func)(struct block_list*,va_list), int16 m, int16 x
 	if ( y1 < y0 )
 		SWAP(y0, y1);
 
-	struct map_data *mapdata = map_getmapdata(m);
+	struct map_data *mapdata = map_mapdata_exists(m);
 
 	if( mapdata == nullptr || mapdata->block == nullptr ){
 		return 0;
@@ -1028,7 +1056,7 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list), struct block_
 
 	m = center->m;
 
-	struct map_data *mapdata = map_getmapdata(m);
+	struct map_data *mapdata = map_mapdata_exists(m);
 
 	if( mapdata == nullptr || mapdata->block == nullptr ){
 		return 0;
@@ -1150,7 +1178,7 @@ int map_foreachincell(int (*func)(struct block_list*,va_list), int16 m, int16 x,
 	int returnCount = 0;  //total sum of returned values of func() [Skotlex]
 	struct block_list *bl;
 	int blockcount = bl_list_count, i;
-	struct map_data *mapdata = map_getmapdata(m);
+	struct map_data *mapdata = map_mapdata_exists(m);
 	va_list ap;
 
 	if( mapdata == nullptr || mapdata->block == nullptr ){
@@ -1277,7 +1305,7 @@ int map_foreachinpath(int (*func)(struct block_list*,va_list),int16 m,int16 x0,i
 	if ( my0 > my1 )
 		SWAP(my0, my1);
 
-	struct map_data *mapdata = map_getmapdata(m);
+	struct map_data *mapdata = map_mapdata_exists(m);
 
 	if( mapdata == nullptr || mapdata->block == nullptr ){
 		return 0;
@@ -1421,7 +1449,7 @@ int map_foreachindir(int(*func)(struct block_list*, va_list), int16 m, int16 x0,
 		length++;
 	}
 
-	struct map_data *mapdata = map_getmapdata(m);
+	struct map_data *mapdata = map_mapdata_exists(m);
 
 	if( mapdata == nullptr || mapdata->block == nullptr ){
 		return 0;
@@ -1548,7 +1576,7 @@ int map_foreachinmap(int (*func)(struct block_list*,va_list), int16 m, int type,
 	int returnCount = 0;  //total sum of returned values of func() [Skotlex]
 	struct block_list *bl;
 	int blockcount = bl_list_count, i;
-	struct map_data *mapdata = map_getmapdata(m);
+	struct map_data *mapdata = map_mapdata_exists(m);
 	va_list ap;
 
 	if( mapdata == nullptr || mapdata->block == nullptr ){
@@ -1665,7 +1693,7 @@ void map_clearflooritem(struct block_list *bl) {
 int map_searchrandfreecell(int16 m,int16 *x,int16 *y,int stack) {
 	int free_cell,i,j;
 	int free_cells[9][2];
-	struct map_data *mapdata = map_getmapdata(m);
+	struct map_data *mapdata = map_mapdata_exists(m);
 
 	if( mapdata == nullptr || mapdata->block == nullptr ){
 		return 0;
@@ -1740,7 +1768,7 @@ int map_search_freecell(struct block_list *src, int16 m, int16 *x,int16 *y, int1
 		return map_getcell(m,*x,*y,CELL_CHKREACH);
 	}
 
-	struct map_data *mapdata = map_getmapdata(m);
+	struct map_data *mapdata = map_mapdata_exists(m);
 
 	if( mapdata == nullptr || mapdata->block == nullptr ){
 		return 0;

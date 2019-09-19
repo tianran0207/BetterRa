@@ -409,6 +409,7 @@ struct script_state {
 	struct script_code *script;
 	struct sleep_data {
 		int tick,timer,charid;
+		int gid;
 	} sleep;
 	//For backing up purposes
 	struct script_state *bk_st;
