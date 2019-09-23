@@ -243,6 +243,30 @@ static void skill_chk2(int *idx) {
 } while(0)
 #define skill_get3(id,x,var)  { skill_chk(&id); if (!id) return 0; skill_chk2(&x);  return var; }
 
+
+int skill_get_zone(struct block_list *bl, uint16 skill_id) {
+
+	skill_chk(&skill_id);
+
+	if (!skill_id)
+		return 0;
+
+	if (bl->type & skill_db[skill_id]->nocast.type) {
+		struct map_data *mapdata = map_getmapdata(bl->m);
+		uint32 zone = skill_db[skill_id]->nocast.zone;
+		if ((zone & 1 && !mapdata_flag_vs2(mapdata)) ||
+			(zone & 2 && mapdata->flag[MF_PVP]) ||
+			(zone & 4 && mapdata_flag_gvg2_no_te(mapdata)) ||
+			(zone & 8 && mapdata->flag[MF_BATTLEGROUND]) ||
+			(zone & 16 && mapdata_flag_gvg2_te(mapdata)) || // WOE:TE
+			(mapdata->zone && zone&(mapdata->zone) && mapdata->flag[MF_RESTRICTED])) {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 // Skill DB
 enum e_damage_type skill_get_hit( uint16 skill_id )                { skill_chk(&skill_id); if (!skill_id) return DMG_NORMAL; return static_cast<e_damage_type>(skill_db[skill_id]->hit); }
 int skill_get_inf( uint16 skill_id )                               { skill_get  (skill_id, skill_db[skill_id]->inf); }
@@ -265,7 +289,7 @@ int skill_get_maxcount( uint16 skill_id ,uint16 skill_lv )         { skill_get2 
 int skill_get_blewcount( uint16 skill_id ,uint16 skill_lv )        { skill_get2 (skill_id, skill_lv, skill_db[skill_id]->blewcount); }
 int skill_get_castnodex( uint16 skill_id )                         { skill_get  (skill_id, skill_db[skill_id]->castnodex); }
 int skill_get_delaynodex( uint16 skill_id )                        { skill_get  (skill_id, skill_db[skill_id]->delaynodex); }
-int skill_get_nocast ( uint16 skill_id )                           { skill_get  (skill_id, skill_db[skill_id]->nocast); }
+int skill_get_nocast(uint16 skill_id)                              { skill_chk(&skill_id); if (!skill_id || !(skill_db[skill_id]->nocast.type & BL_PC)) return 0; return skill_db[skill_id]->nocast.zone; }
 int skill_get_type( uint16 skill_id )                              { skill_get  (skill_id, skill_db[skill_id]->skill_type); }
 int skill_get_unit_id ( uint16 skill_id, int flag )                { skill_get  (skill_id, skill_db[skill_id]->unit_id[flag]); }
 int skill_get_unit_interval( uint16 skill_id )                     { skill_get  (skill_id, skill_db[skill_id]->unit_interval); }
@@ -21643,7 +21667,8 @@ static bool skill_parse_row_nocastdb(char* split[], int columns, int current)
 {
 	uint16 idx = skill_db_isset(atoi(split[0]), __FUNCTION__);
 
-	skill_db[idx]->nocast |= atoi(split[1]);
+	skill_db[idx]->nocast.zone |= atoi(split[1]);
+	skill_db[idx]->nocast.type = (columns == 2 ? BL_PC : (enum bl_type)atoi(split[2]));
 
 	return true;
 }
@@ -22161,7 +22186,7 @@ static void skill_readdb(void)
 		sv_readdb(dbsubpath2, "skill_cast_db.txt"     , ',',   7,  8, -1, skill_parse_row_castdb, i > 0);
 		sv_readdb(dbsubpath2, "skill_castnodex_db.txt", ',',   2,  3, -1, skill_parse_row_castnodexdb, i > 0);
 		sv_readdb(dbsubpath2, "skill_unit_db.txt"     , ',',   8,  8, -1, skill_parse_row_unitdb, i > 0);
-		sv_readdb(dbsubpath2, "skill_nocast_db.txt"   , ',',   2,  2, -1, skill_parse_row_nocastdb, i > 0);
+		sv_readdb(dbsubpath2, "skill_nocast_db.txt"   , ',',   2,  3, -1, skill_parse_row_nocastdb, i > 0);
 
 		sv_readdb(dbsubpath2, "produce_db.txt"        , ',',   5,  5+2*MAX_PRODUCE_RESOURCE, MAX_SKILL_PRODUCE_DB, skill_parse_row_producedb, i > 0);
 		sv_readdb(dbsubpath1, "create_arrow_db.txt"   , ',', 1+2,  1+2*MAX_ARROW_RESULT, MAX_SKILL_ARROW_DB, skill_parse_row_createarrowdb, i > 0);

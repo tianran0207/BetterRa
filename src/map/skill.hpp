@@ -199,7 +199,10 @@ struct s_skill_db {
 	uint16 delaynodex;							 ///< 1 - Not affected by dex, 2 - Not affected by SC, 4 - Not affected by item
 
 	// skill_nocast_db.txt
-	uint32 nocast;								 ///< Skill cannot be casted at this zone
+	struct s_nocast {
+		uint32 zone;							 ///< Skill cannot be casted at this zone
+		enum bl_type type;
+	}nocast;
 
 	// skill_unit_db.txt
 	uint16 unit_id[2];							 ///< Unit ID. @see enum s_skill_unit_id
@@ -394,6 +397,7 @@ int skill_get_index_( uint16 skill_id, bool silent, const char *func, const char
 #define skill_get_index(skill_id)  skill_get_index_((skill_id), false, __FUNCTION__, __FILE__, __LINE__) /// Get skill index from skill_id (common usage on source)
 #define skill_get_index2(skill_id) skill_get_index_((skill_id), true, __FUNCTION__, __FILE__, __LINE__)  /// Get skill index from skill_id (used when reading skill_db files)
 int skill_get_type( uint16 skill_id );
+int skill_get_zone(struct block_list *bl, uint16 skill_id);
 enum e_damage_type skill_get_hit( uint16 skill_id );
 int skill_get_inf( uint16 skill_id );
 int skill_get_ele( uint16 skill_id , uint16 skill_lv );
