@@ -5863,11 +5863,6 @@ int pc_useitem(struct map_session_data *sd,int n)
 		}
 	}
 
-	if (battle_config.disable_items_callfunc) {
-		if ((sd->npc_id || sd->sleep_mes_active) && has_func_name(sd->inventory_data[n]->script, "callfunc"))
-			return 0;
-	}
-
 	item = sd->inventory.u.items_inventory[n];
 	id = sd->inventory_data[n];
 
@@ -5900,8 +5895,13 @@ int pc_useitem(struct map_session_data *sd,int n)
 	if( id->delay > 0 && !pc_has_permission(sd,PC_PERM_ITEM_UNCONDITIONAL) && pc_itemcd_check(sd, id, tick, n))
 		return 0;
 
-	if (map_getmapflag(sd->bl.m, MF_NOCAPTURE) && sd->inventory_data[n]->type == 2 && sd->inventory_data[n]->script != NULL) {
-		if (has_func_name(sd->inventory_data[n]->script, "pet")) {
+	if (battle_config.disable_items_callfunc) {
+		if ((sd->npc_id || sd->sleep_mes_active) && has_func_name(id->script, "callfunc"))
+			return 0;
+	}
+
+	if (map_getmapflag(sd->bl.m, MF_NOCAPTURE) && id->type == IT_USABLE) {
+		if (has_func_name(id->script, "pet")) {
 			clif_displaymessage(sd->fd, msg_txt(sd, 2336));
 			return 0;
 		}
