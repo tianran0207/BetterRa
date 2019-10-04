@@ -85,7 +85,7 @@ brasilis,155,165,3	script	告示牌#bra1	4_BULLETIN_BOARD2,{
 	close;
 }
 
-brasilis,195,231,3	script	告示牌#bra2	4_BULLETIN_BOARD2,{
+brasilis,191,239,3	script	告示牌#bra2	4_BULLETIN_BOARD2,{
 	mes ":: 韦拉斯纪念碑 ::";
 	close;
 }
