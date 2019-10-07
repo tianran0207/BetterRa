@@ -2246,7 +2246,7 @@ int map_quit(struct map_session_data *sd) {
 
 	struct map_data *mapdata = map_getmapdata(sd->bl.m);
 
-	if (mapdata->instance_id && (battle_config.instance_leave_record & 1)) //Íæ¼ÒÔÚ¸±±¾ÖÐÏÂÏßºó¼ÇÂ¼ÏÂÏßÎ»ÖÃ
+	if (mapdata->instance_id && (battle_config.instance_leave_record & 1)) //çŽ©å®¶åœ¨å‰¯æœ¬ä¸­ä¸‹çº¿åŽè®°å½•ä¸‹çº¿ä½ç½®
 		instance_left_point(sd, mapdata->instance_id);
 
 	if( mapdata->instance_id )
@@ -3676,6 +3676,79 @@ int map_readfromcache(struct map_data *m, char *buffer, char *decode_buffer)
 	return 0; // Not found
 }
 
+static DBMap* map_cache_db = NULL;
+struct s_map_cache_map_info {
+	char *buffer;
+	struct map_cache_map_info info;
+};
+
+void map_loadfromcache(char *buffer)
+{
+	int i;
+	struct map_cache_main_header *header = (struct map_cache_main_header *)buffer;
+	struct map_cache_map_info *info = NULL;
+	char *p = buffer + sizeof(struct map_cache_main_header);
+
+	for (i = 0; i < header->map_count; i++) {
+		struct s_map_cache_map_info *mapinfo;
+
+		info = (struct map_cache_map_info *)p;
+
+		if (!strdb_exists(map_cache_db, info->name)) {
+			CREATE(mapinfo, struct s_map_cache_map_info, 1);
+			memcpy(&mapinfo->info, p, sizeof(struct map_cache_map_info));
+			mapinfo->buffer = p + sizeof(struct map_cache_map_info);
+			strdb_put(map_cache_db, info->name, mapinfo);
+		}
+		else {
+			mapinfo = (struct s_map_cache_map_info *)strdb_get(map_cache_db, info->name);
+			memcpy(&mapinfo->info, p, sizeof(struct map_cache_map_info));
+			mapinfo->buffer = p + sizeof(struct map_cache_map_info);
+		}
+
+		// Jump to next entry..
+		p = mapinfo->buffer + info->len;
+	}
+	return;
+}
+
+int map_getfromcache(struct map_data *m, char *decode_buffer)
+{
+	struct s_map_cache_map_info *mapinfo = (struct s_map_cache_map_info *)strdb_get(map_cache_db, m->name);
+	struct map_cache_map_info *info;
+
+	if (!mapinfo)
+		return 0;
+
+	if ((info = &mapinfo->info) != NULL) {
+		unsigned long size, xy;
+
+		if (info->xs <= 0 || info->ys <= 0)
+			return 0;// Invalid
+
+		m->xs = info->xs;
+		m->ys = info->ys;
+		size = (unsigned long)info->xs*(unsigned long)info->ys;
+
+		if (size > MAX_MAP_SIZE) {
+			ShowWarning("map_readfromcache: %s exceeded MAX_MAP_SIZE of %d\n", info->name, MAX_MAP_SIZE);
+			return 0; // Say not found to remove it from list.. [Shinryo]
+		}
+
+		// TO-DO: Maybe handle the scenario, if the decoded buffer isn't the same size as expected? [Shinryo]
+		decode_zip(decode_buffer, &size, mapinfo->buffer, info->len);
+
+		CREATE(m->cell, struct mapcell, size);
+
+
+		for (xy = 0; xy < size; ++xy)
+			m->cell[xy] = map_gat2cell(decode_buffer[xy]);
+
+		return 1;
+	}
+	return 0;
+}
+
 int map_addmap(char* mapname)
 {
 	if( strcmpi(mapname,"clear")==0 )
@@ -3938,6 +4011,10 @@ int map_readallmaps (void)
 	}
 
 	int maps_removed = 0;
+	map_cache_db = strdb_alloc(DB_OPT_RELEASE_DATA, MAP_NAME_LENGTH);
+
+	map_loadfromcache(map_cache_buffer[0]);
+	map_loadfromcache(map_cache_buffer[1]);
 
 	for (int i = 0; i < map_num; i++) {
 		size_t size;
@@ -3952,16 +4029,17 @@ int map_readallmaps (void)
 			// try to load the map
 			success = map_readgat(mapdata) != 0;
 		}else{
-			// try to load the map
-			// Read from import first, in case of override
-			if( map_cache_buffer[1] != NULL ){
-				success = map_readfromcache( mapdata, map_cache_buffer[1], map_cache_decode_buffer ) != 0;
-			}
-
-			// Nothing was found in import - try to find it in the main file
-			if( !success ){
-				success = map_readfromcache( mapdata, map_cache_buffer[0], map_cache_decode_buffer ) != 0;
-			}
+			//// try to load the map
+			//// Read from import first, in case of override
+			//if( map_cache_buffer[1] != NULL ){
+			//	success = map_readfromcache( mapdata, map_cache_buffer[1], map_cache_decode_buffer ) != 0;
+			//}
+			//
+			//// Nothing was found in import - try to find it in the main file
+			//if( !success ){
+			//	success = map_readfromcache( mapdata, map_cache_buffer[0], map_cache_decode_buffer ) != 0;
+			//}
+			success = map_getfromcache(mapdata, map_cache_decode_buffer);
 		}
 
 		if (success && mapdata->target && mapdata->target[0]) {
@@ -4009,6 +4087,8 @@ int map_readallmaps (void)
 		mapdata->damage_adjust = {};
 		mapdata->channel = NULL;
 	}
+
+	db_destroy(map_cache_db);
 
 	// intialization and configuration-dependent adjustments of mapflags
 	map_flags_init();

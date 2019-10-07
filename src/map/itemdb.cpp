@@ -126,14 +126,36 @@ static int itemdb_searchname_sub(DBKey key, DBData *data, va_list ap)
  * @param aegis_only
  * @return item data
  *------------------------------------------*/
+
+static DBMap* itemdb_name_db = NULL;
+static DBMap* itemdb_aegisname_db = NULL;
+static int itemdb_loadname_sub(DBKey key, DBData *data, va_list ap)
+{
+	struct item_data *item = (struct item_data *)db_data2ptr(data);
+
+	if (strdb_exists(itemdb_name_db, item->name))
+		ShowWarning("itemdb_parse_dbrow: Duplicate item name for \"%s\"\n", item->name);
+
+	strdb_put(itemdb_name_db, item->name, item);
+	strdb_put(itemdb_aegisname_db, item->jname, item);
+	return 0;
+}
+
+static void itemdb_loadname()
+{
+	itemdb->foreach(itemdb, itemdb_loadname_sub);
+}
+
 static struct item_data* itemdb_searchname1(const char *str, bool aegis_only)
 {
 	struct item_data *item = NULL, * item2 = NULL;
 
-	if( !aegis_only )
-		itemdb->foreach(itemdb, itemdb_searchname_sub, str, &item, &item2);
+	if (!aegis_only) {
+		item = (struct item_data *)strdb_get(itemdb_name_db, str);
+		item2 = (struct item_data *)strdb_get(itemdb_aegisname_db, str);
+	}
 	else
-		itemdb->foreach(itemdb, itemdb_searchname_sub, str, &item, NULL);
+		item = (struct item_data *)strdb_get(itemdb_name_db, str);
 
 	return ((item) ? item : item2);
 }
@@ -1436,10 +1458,6 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 
 	//ID,Name,Jname,Type,Price,Sell,Weight,ATK,DEF,Range,Slot,Job,Job Upper,Gender,Loc,wLV,eLV,refineable,View
 	if (!(id = itemdb_exists(nameid))) {
-		// Checks if the Itemname is already taken by another id
-		if( itemdb_searchname1(str[1], true) != NULL )
-			ShowWarning("itemdb_parse_dbrow: Duplicate item name for \"%s\"\n", str[1]);
-
 		// Adds a new Item ID
 		id = itemdb_create_item(nameid);
 	}
@@ -1702,6 +1720,8 @@ static int itemdb_readdb(void){
 
 		ShowStatus("Done reading '" CL_WHITE "%u" CL_RESET "' entries in '" CL_WHITE "%s" CL_RESET "'.\n", count, path);
 	}
+
+	itemdb_loadname();
 
 	return 0;
 }
@@ -2145,6 +2165,9 @@ void itemdb_reload(void) {
 	itemdb_randomopt_group->clear(itemdb_randomopt_group, itemdb_randomopt_group_free);
 	itemdb->clear(itemdb, itemdb_final_sub);
 	db_clear(itemdb_combo);
+	db_clear(itemdb_name_db);
+	db_clear(itemdb_aegisname_db);
+
 	if (battle_config.feature_roulette)
 		itemdb_roulette_free();
 
@@ -2186,6 +2209,8 @@ void itemdb_reload(void) {
 */
 void do_final_itemdb(void) {
 	db_destroy(itemdb_combo);
+	db_destroy(itemdb_name_db);
+	db_destroy(itemdb_aegisname_db);
 	itemdb_group->destroy(itemdb_group, itemdb_group_free);
 	itemdb_randomopt->destroy(itemdb_randomopt, itemdb_randomopt_free);
 	itemdb_randomopt_group->destroy(itemdb_randomopt_group, itemdb_randomopt_group_free);
@@ -2201,6 +2226,8 @@ void do_final_itemdb(void) {
 void do_init_itemdb(void) {
 	itemdb = uidb_alloc(DB_OPT_BASE);
 	itemdb_combo = uidb_alloc(DB_OPT_BASE);
+	itemdb_name_db = strdb_alloc(DB_OPT_BASE, ITEM_NAME_LENGTH);
+	itemdb_aegisname_db = strdb_alloc(DB_OPT_BASE, ITEM_NAME_LENGTH);
 	itemdb_group = uidb_alloc(DB_OPT_BASE);
 	itemdb_randomopt = uidb_alloc(DB_OPT_BASE);
 	itemdb_randomopt_group = uidb_alloc(DB_OPT_BASE);
