@@ -1475,7 +1475,7 @@ bool pc_authok(struct map_session_data *sd, uint32 login_id2, time_t expiration_
 	sd->vars_ok = false;
 	sd->vars_received = 0x0;
 
-	sd->qi_display = NULL;
+	sd->qi_display = nullptr;
 	sd->qi_count = 0;
 
 	//warp player
@@ -5467,6 +5467,7 @@ enum e_additem_result pc_additem(struct map_session_data *sd,struct item *item,i
 		status_calc_pc(sd, SCO_NONE);
 
 	achievement_update_objective(sd, AG_GET_ITEM, 1, id->value_sell);
+	pc_show_questinfo(sd);
 
 	return ADDITEM_SUCCESS;
 }
@@ -5507,6 +5508,8 @@ char pc_delitem(struct map_session_data *sd,int n,int amount,int type, short rea
 
 	if (battle_config.enable_amulet && status_calc)
 		status_calc_pc(sd, SCO_NONE);
+
+	pc_show_questinfo(sd);
 
 	return 0;
 }
@@ -7586,6 +7589,8 @@ int pc_checkjoblevelup(struct map_session_data *sd)
 
 	npc_script_event(sd, NPCE_JOBLVUP);
 	achievement_update_objective(sd, AG_GOAL_LEVEL, 1, sd->status.job_level);
+
+	pc_show_questinfo(sd);
 	return 1;
 }
 
@@ -13711,7 +13716,7 @@ void pc_validate_skill(struct map_session_data *sd) {
  * @param show If show is true and qi_display is 0, set qi_display to 1 and show the event bubble.
  *             If show is false and qi_display is 1, set qi_display to 0 and hide the event bubble.
  **/
-static void pc_show_questinfo_sub(struct map_session_data *sd, bool *qi_display, struct questinfo *qi, bool show) {
+static void pc_show_questinfo_sub(struct map_session_data *sd, bool *qi_display, struct s_questinfo *qi, bool show) {
 	if (show) {
 		// Check if need to be displayed
 		if ((*qi_display) != 1) {
@@ -13724,9 +13729,9 @@ static void pc_show_questinfo_sub(struct map_session_data *sd, bool *qi_display,
 		if ((*qi_display) != 0) {
 			(*qi_display) = 0;
 #if PACKETVER >= 20120410
-			clif_quest_show_event(sd, &qi->nd->bl, 9999, 0);
+			clif_quest_show_event(sd, &qi->nd->bl, QTYPE_NONE, QMARK_NONE);
 #else
-			clif_quest_show_event(sd, &qi->nd->bl, 0, 0);
+			clif_quest_show_event(sd, &qi->nd->bl, QTYPE_QUEST, QMARK_NONE);
 #endif
 		}
 	}
@@ -13738,75 +13743,36 @@ static void pc_show_questinfo_sub(struct map_session_data *sd, bool *qi_display,
  **/
 void pc_show_questinfo(struct map_session_data *sd) {
 #if PACKETVER >= 20090218
-	struct questinfo *qi = NULL;
-	unsigned short i;
-	uint8 j;
-	int8 mystate = 0;
-	bool failed = false;
-
 	nullpo_retv(sd);
 
 	if (sd->bl.m < 0 || sd->bl.m >= MAX_MAPINDEX)
 		return;
 
 	struct map_data *mapdata = map_getmapdata(sd->bl.m);
+	nullpo_retv(mapdata);
 
-	if (!mapdata->qi_count || !mapdata->qi_data)
+	if (mapdata->qi_data.empty())
 		return;
-	if (mapdata->qi_count != sd->qi_count)
+	if (mapdata->qi_data.size() != sd->qi_count)
 		return; // init was not called yet
 
-	for(i = 0; i < mapdata->qi_count; i++) {
+	struct s_questinfo *qi = nullptr;
+	bool show;
+
+	for (int i = 0; i < mapdata->qi_data.size(); i++) {
 		qi = &mapdata->qi_data[i];
+ 		if (!qi)
+ 			continue;
 
-		if (!qi)
-			continue;
-
-		if (quest_check(sd, qi->quest_id, HAVEQUEST) != -1) { // Check if quest is not started
-			pc_show_questinfo_sub(sd, &sd->qi_display[i], qi, false);
-			continue;
-		}
-
-		// Level range checks
-		if (sd->status.base_level < qi->min_level || sd->status.base_level > qi->max_level) {
-			pc_show_questinfo_sub(sd, &sd->qi_display[i], qi, false);
-			continue;
-		}
-
-		// Quest requirements
-		if (qi->req_count) {
-			failed = false;
-			for (j = 0; j < qi->req_count; j++) {
-				mystate = quest_check(sd, qi->req[j].quest_id, HAVEQUEST);
-				mystate = mystate + (mystate < 1);
-				if (mystate != qi->req[j].state) {
-					failed = true;
-					break;
-				}
-			}
-			if (failed) {
-				pc_show_questinfo_sub(sd, &sd->qi_display[i], qi, false);
-				continue;
-			}
-		}
-
-		// Job requirements
-		if (qi->jobid_count) {
-			failed = true;
-			for (j = 0; j < qi->jobid_count; j++) {
-				if (pc_mapid2jobid(sd->class_,sd->status.sex) == qi->jobid[j]) {
-					pc_show_questinfo_sub(sd, &sd->qi_display[i], qi, true);
-					failed = false;
-					break;
-				}
-			}
-			if (!failed)
-				continue;
-			pc_show_questinfo_sub(sd, &sd->qi_display[i], qi, false);
-		}
+		if (!qi->condition)
+			show = true;
 		else {
-			pc_show_questinfo_sub(sd, &sd->qi_display[i], qi, true);
+			if (achievement_check_condition(qi->condition, sd))
+				show = true;
+			else
+				show = false;
 		}
+		pc_show_questinfo_sub(sd, &sd->qi_display[i], qi, show);
 	}
 #endif
 }
@@ -13821,7 +13787,7 @@ void pc_show_questinfo_reinit(struct map_session_data *sd) {
 
 	if (sd->qi_display) {
 		aFree(sd->qi_display);
-		sd->qi_display = NULL;
+		sd->qi_display = nullptr;
 	}
 	sd->qi_count = 0;
 
@@ -13829,10 +13795,12 @@ void pc_show_questinfo_reinit(struct map_session_data *sd) {
 		return;
 
 	struct map_data *mapdata = map_getmapdata(sd->bl.m);
+	nullpo_retv(mapdata);
 
-	if (!mapdata->qi_count || !mapdata->qi_data)
+	if (mapdata->qi_data.empty())
 		return;
-	CREATE(sd->qi_display, bool, (sd->qi_count = mapdata->qi_count));
+
+	CREATE(sd->qi_display, bool, (sd->qi_count = mapdata->qi_data.size()));
 #endif
 }
 
