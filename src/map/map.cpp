@@ -2246,7 +2246,7 @@ int map_quit(struct map_session_data *sd) {
 
 	struct map_data *mapdata = map_getmapdata(sd->bl.m);
 
-	if (mapdata->instance_id && (battle_config.instance_leave_record & 1)) //玩家在副本中下线后记录下线位置
+	if (mapdata->instance_id && (battle_config.instance_leave_record & 1))
 		instance_left_point(sd, mapdata->instance_id);
 
 	if( mapdata->instance_id )
@@ -4039,7 +4039,7 @@ int map_readallmaps (void)
 			//if( !success ){
 			//	success = map_readfromcache( mapdata, map_cache_buffer[0], map_cache_decode_buffer ) != 0;
 			//}
-			success = map_getfromcache(mapdata, map_cache_decode_buffer);
+			success = map_getfromcache(mapdata, map_cache_decode_buffer) != 0;
 		}
 
 		if (success && mapdata->target && mapdata->target[0]) {
