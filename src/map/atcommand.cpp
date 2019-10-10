@@ -4348,6 +4348,8 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " AttackedEvent |");
 	if (map_getmapflag(m_id, MF_HEALEVENT))
 		strcat(atcmd_output, " HealEvent |");
+	if (map_getmapflag(m_id, MF_MAXASPD))
+		strcat(atcmd_output, " MaxASPD |");
 	//-------------------------------------
 
 	clif_displaymessage(fd, atcmd_output);
