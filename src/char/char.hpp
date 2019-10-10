@@ -150,6 +150,8 @@ struct CharServ_Config {
 	char login_ip_str[128];
 	uint32 login_ip;
 	uint16 login_port;
+	int login_timeout;
+	int login_check_interval;
 	char char_ip_str[128];
 	uint32 char_ip;
 	char bind_ip_str[128];

@@ -4259,6 +4259,10 @@ int map_config_read(const char *cfgName)
 			char_ip_set = chrif_setip(w2);
 		else if (strcmpi(w1, "char_port") == 0)
 			chrif_setport(atoi(w2));
+		else if (strcmpi(w1, "char_timeout") == 0)
+			chrif_settimeout(atoi(w2));
+		else if (strcmpi(w1, "char_check_interval") == 0)
+			chrif_setcheckinterval(atoi(w2));
 		else if (strcmpi(w1, "map_ip") == 0) {
 			char *p[2], idx = 0;
 			p[0] = w2;
