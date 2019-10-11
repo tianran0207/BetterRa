@@ -8284,6 +8284,7 @@ static const struct _battle_data {
 	{ "multiple_script_state",              &battle_config.multiple_script_state,           0,      0,      1,              },
 	{ "hidenpc_willbe_disable",             &battle_config.hidenpc_willbe_disable,          0,      0,      1,              },
 	{ "cannonball_attr_alone",              &battle_config.cannonball_attr_alone,           1,      0,      1,              },
+	{ "questinfo_updatewarning",            &battle_config.questinfo_updatewarning,         0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

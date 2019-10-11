@@ -2246,7 +2246,7 @@ int map_quit(struct map_session_data *sd) {
 
 	struct map_data *mapdata = map_getmapdata(sd->bl.m);
 
-	if (mapdata->instance_id && (battle_config.instance_leave_record & 1)) //玩家在副本中下线后记录下线位置
+	if (mapdata->instance_id && (battle_config.instance_leave_record & 1))
 		instance_left_point(sd, mapdata->instance_id);
 
 	if( mapdata->instance_id )

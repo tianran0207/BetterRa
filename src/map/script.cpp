@@ -4930,6 +4930,7 @@ void script_reload(void) {
 #define BUILDIN_DEF_DEPRECATED(x,args,deprecationdate) { buildin_ ## x , #x , args, deprecationdate }
 #define BUILDIN_DEF2_DEPRECATED(x,x2,args,deprecationdate) { buildin_ ## x , x2 , args, deprecationdate }
 #define BUILDIN_FUNC(x) int buildin_ ## x (struct script_state* st)
+#define BUILDIN_FUNC_SKIP(x) int buildin_ ## x (struct script_state* st) { return SCRIPT_CMD_SUCCESS; }
 
 /////////////////////////////////////////////////////////////////////
 // NPC interaction
@@ -19711,8 +19712,11 @@ BUILDIN_FUNC(questinfo)
 			break;
 		case QTYPE_NONE:
 		default:
-			// Default to nothing if icon id is invalid.
-			icon = QTYPE_NONE;
+			if (battle_config.questinfo_updatewarning) {
+				ShowWarning("buildin_questinfo: Command has Invalid. Check the DOC update it. You can close warning in 'BetterRa.conf'\n");
+				script_reportsrc(st);
+			}
+			return SCRIPT_CMD_SUCCESS;
 			break;
 	}
 #else
@@ -26009,9 +26013,9 @@ static void buildin_mail_additem_sub(struct item *it, unsigned short amount) {
 	}
 }
 
-// mail_create <·¢¼şÈËÃû>,<ÌâÄ¿>,<ÄÚÈİ>{,<ZENY>}
-// mail_additem¡¢mail_additem2¡¢mail_additem3¡¢mail_additembound¡¢mail_additembound2¡¢mail_additembound3 ÓëÏàÓ¦µÄgetitemÖ¸Áî²ÎÊıÏàÍ¬
-// mail_send {<ÊÕ¼şÈËCID »ò ÊÕ¼şÈËÃû>} Í¨¹ıCID·¢ËÍÓÊ¼şÖ»ÄÜ·¢ËÍ¸øÔÚÏßÍæ¼Ò
+// mail_create <å‘ä»¶äººå>,<é¢˜ç›®>,<å†…å®¹>{,<ZENY>}
+// mail_additemã€mail_additem2ã€mail_additem3ã€mail_additemboundã€mail_additembound2ã€mail_additembound3 ä¸ç›¸åº”çš„getitemæŒ‡ä»¤å‚æ•°ç›¸åŒ
+// mail_send {<æ”¶ä»¶äººCID æˆ– æ”¶ä»¶äººå>} é€šè¿‡CIDå‘é€é‚®ä»¶åªèƒ½å‘é€ç»™åœ¨çº¿ç©å®¶
 
 BUILDIN_FUNC(mail_create)
 {
@@ -26187,51 +26191,51 @@ BUILDIN_FUNC(getareagid)
 	struct reg_db *ref = NULL;
 	TBL_PC *sd = map_id2sd(st->rid);
 
-	//»ñµÃ·¢ËÍÄ¿±êÀàĞÍ
+	//è·å¾—å‘é€ç›®æ ‡ç±»å‹
 	type = script_getnum(st, 3);
-	//»ñµÃµØÍ¼Ãû
+	//è·å¾—åœ°å›¾å
 	mapname = script_getstr(st, 2);
 
-	//»ñµÃÊı×é²ÎÊı
+	//è·å¾—æ•°ç»„å‚æ•°
 	data = script_getdata(st, script_lastdata(st));
 	
 	if (!data_isreference(data) || data_isstring(data)) {
-		//²»ÊÇ±äÁ¿»òÕûÊı±äÁ¿±¨´í
+		//ä¸æ˜¯å˜é‡æˆ–æ•´æ•°å˜é‡æŠ¥é”™
 		ShowWarning("buildin_getareagid: error in argument! please give a int variable to store num.\n");
 		return SCRIPT_CMD_FAILURE;
 	}
-	//»ñµÃÊı×éÃû
+	//è·å¾—æ•°ç»„å
 	varname = reference_getname(data);
 	ref = reference_getref(data);
 	id = reference_getid(data);
 
-	//Èç¹ûÎªÈËÎï±äÁ¿»òÕßµØÍ¼ÃûÎªthis,ÔòÅĞ¶ÏÈËÎïÊÇ·ñ¹ØÁª
+	//å¦‚æœä¸ºäººç‰©å˜é‡æˆ–è€…åœ°å›¾åä¸ºthis,åˆ™åˆ¤æ–­äººç‰©æ˜¯å¦å…³è”
 	if (not_server_variable(*varname) || !strcmp(mapname, "this")) {
-		//ÈËÎï±äÁ¿ÔòÅĞ¶ÏÊÇ·ñ¹ØÁªÈËÎï
+		//äººç‰©å˜é‡åˆ™åˆ¤æ–­æ˜¯å¦å…³è”äººç‰©
 		if (!script_rid2sd(sd)) {
-			//Èç¹ûÃ»ÓĞ¹ØÁªÈËÎïÔò·µ»Ø-1
+			//å¦‚æœæ²¡æœ‰å…³è”äººç‰©åˆ™è¿”å›-1
 			script_pushint(st, -1);
 			return SCRIPT_CMD_SUCCESS;
 		}
 	}
 
 	if (!strcmp(mapname, "this"))
-		//¸ù¾İÈËÎïËùÔÚµØÍ¼»ñµÃmap_id;
+		//æ ¹æ®äººç‰©æ‰€åœ¨åœ°å›¾è·å¾—map_id;
 		map_id = map_mapindex2mapid(sd->mapindex);
 	else
-		//¸ù¾İµØÍ¼Ãû»ñµÃmap_id
+		//æ ¹æ®åœ°å›¾åè·å¾—map_id
 		map_id = map_mapname2mapid(mapname);
 
 
 	if (map_id < 0) {
-		//µØÍ¼²»´æÔÚ·µ»Ø-2
+		//åœ°å›¾ä¸å­˜åœ¨è¿”å›-2
 		script_pushint(st, -2);
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	//¼ÆÊıÆ÷³õÊ¼Îª0
+	//è®¡æ•°å™¨åˆå§‹ä¸º0
 	count = 0;
-	//Èç¹û7¸ö²ÎÊı(·½·¨1)
+	//å¦‚æœ7ä¸ªå‚æ•°(æ–¹æ³•1)
 	if (script_hasdata(st, 8)) {
 		int x0, y0, x1, y1;
 		x0 = min(script_getnum(st, 4), script_getnum(st, 6));
@@ -26240,7 +26244,7 @@ BUILDIN_FUNC(getareagid)
 		y1 = max(script_getnum(st, 5), script_getnum(st, 7));
 		map_foreachinarea(buildin_getareagid_sub, map_id, x0, y0, x1, y1, type, st, sd, id, varname, ref, &count);
 	}
-	//Èç¹û6¸ö²ÎÊı(·½·¨2)
+	//å¦‚æœ6ä¸ªå‚æ•°(æ–¹æ³•2)
 	else if (script_hasdata(st, 7)) {
 		struct block_list center;
 		int range;
@@ -26250,11 +26254,11 @@ BUILDIN_FUNC(getareagid)
 		range = script_getnum(st, 6);
 		map_foreachinrange(buildin_getareagid_sub, &center, range, type, st, sd, id, varname, ref, &count);
 	}
-	//(·½·¨3)
+	//(æ–¹æ³•3)
 	else {
 		map_foreachinmap(buildin_getareagid_sub, map_id, type, st, sd, id, varname, ref, &count);
 	}
-	//·µ»Ø»ñÈ¡µÄgidÊıÁ¿
+	//è¿”å›è·å–çš„gidæ•°é‡
 	script_pushint(st, count);
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -26338,7 +26342,7 @@ BUILDIN_FUNC(getservantgid)
 				uid = sd->ed->bl.id;
 			break;
 		default:
-			ShowError("buildin_unitremove: Invalid block type('%d'£©. \n", script_getnum(st, 2));
+			ShowError("buildin_unitremove: Invalid block type('%d'). \n", script_getnum(st, 2));
 			return SCRIPT_CMD_FAILURE;
 	}
 	script_pushint(st, uid);
@@ -26813,23 +26817,23 @@ BUILDIN_FUNC(when_progressbar_abort_doevent) {
 }
 
 /**
-* ÈÃÖ¸¶¨GIDµÄ¹ÖÎïÊ¹ÓÃ¼¼ÄÜ
+* è®©æŒ‡å®šGIDçš„æ€ªç‰©ä½¿ç”¨æŠ€èƒ½
 * mobskill <GID>,<Skill ID>,<Skill Lv>,<Cast Time>,<Cancelable>,<Target Type>{,<Offset x>,<Offset y>};
 * mobskill <GID>,<"Skill Name">,<Skill Lv>,<Cast Time>,<Cancelable>,<Target Type>{,<Offset x>,<Offset y>};
-* @param GID: ĞèÒªÊÍ·Å¼¼ÄÜµÄ¹ÖÎïGID
-* @param Skill ID/"Skill Name": ¼¼ÄÜid/¼¼ÄÜÃû³Æ
-* @param Skill Lv: ¼¼ÄÜµÈ¼¶
-* @param Cast Time: Ó½³ªÊ±¼ä(Ãë)
-* @param Cancelable: ÊÇ·ñÄÜ±»´ò¶Ï
-*   0: ²»¿É´ò¶Ï
-*   1: ¿ÉÒÔ´ò¶Ï
-* @param Target Type: Ä¿±êÀàĞÍ
-*   0: ×Ô¼º
-*   1: ¹ÖÎïµ±Ç°Ä¿±ê
-*   2: ¹ÖÎïµÄÖ÷ÈË
-*   3: Ëæ»úÄ¿±ê
-* @param Offset x: µØÃæ¼¼ÄÜÏà¶ÔÓÚÄ¿±ê×ø±êxÖáµÄÆ«ÒÆÁ¿
-* @param Offset y: µØÃæ¼¼ÄÜÏà¶ÔÓÚÄ¿±ê×ø±êyÖáµÄÆ«ÒÆÁ¿
+* @param GID: éœ€è¦é‡Šæ”¾æŠ€èƒ½çš„æ€ªç‰©GID
+* @param Skill ID/"Skill Name": æŠ€èƒ½id/æŠ€èƒ½åç§°
+* @param Skill Lv: æŠ€èƒ½ç­‰çº§
+* @param Cast Time: å’å”±æ—¶é—´(ç§’)
+* @param Cancelable: æ˜¯å¦èƒ½è¢«æ‰“æ–­
+*   0: ä¸å¯æ‰“æ–­
+*   1: å¯ä»¥æ‰“æ–­
+* @param Target Type: ç›®æ ‡ç±»å‹
+*   0: è‡ªå·±
+*   1: æ€ªç‰©å½“å‰ç›®æ ‡
+*   2: æ€ªç‰©çš„ä¸»äºº
+*   3: éšæœºç›®æ ‡
+* @param Offset x: åœ°é¢æŠ€èƒ½ç›¸å¯¹äºç›®æ ‡åæ ‡xè½´çš„åç§»é‡
+* @param Offset y: åœ°é¢æŠ€èƒ½ç›¸å¯¹äºç›®æ ‡åæ ‡yè½´çš„åç§»é‡
 * @author [kuku]
 */
 BUILDIN_FUNC(mobskill)
@@ -26853,13 +26857,13 @@ BUILDIN_FUNC(mobskill)
 	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_SUCCESS;
 
-	//GID¶ÔÓ¦¶ÔÏó±ØĞëÎª¹ÖÎï
+	//GIDå¯¹åº”å¯¹è±¡å¿…é¡»ä¸ºæ€ªç‰©
 	if (bl->type != BL_MOB)
 		return SCRIPT_CMD_SUCCESS;
 
 	md = (TBL_MOB*)bl;
 
-	// 0:×Ô¼º, 1:Ä¿±ê, 2:Ö÷ÈË, default:Ëæ»úÄ¿±ê
+	// 0:è‡ªå·±, 1:ç›®æ ‡, 2:ä¸»äºº, default:éšæœºç›®æ ‡
 	switch (target) {
 	case 0:
 		tbl = map_id2bl(md->bl.id);
@@ -26875,15 +26879,15 @@ BUILDIN_FUNC(mobskill)
 		break;
 	}
 
-	//Ã»ÓĞÄ¿±êÔòÍË³ö
+	//æ²¡æœ‰ç›®æ ‡åˆ™é€€å‡º
 	if (!tbl)
 		return SCRIPT_CMD_SUCCESS;
 
-	//Èç¹û¹ÖÎïÕıÔÚÓ½³ªÔòÈ¡ÏûÄ¿Ç°ÊÍ·ÅµÄ¼¼ÄÜ
+	//å¦‚æœæ€ªç‰©æ­£åœ¨å’å”±åˆ™å–æ¶ˆç›®å‰é‡Šæ”¾çš„æŠ€èƒ½
 	if (md->ud.skilltimer != INVALID_TIMER)
 		unit_skillcastcancel(bl, 0);
 
-	//Èç¹ûÊÇµØÃæ¼¼ÄÜÔòÔÚÄ¿±êÎ»ÖÃ»òÖ¸¶¨Æ«ÒÆµÄÎ»ÖÃÊÍ·Å¼¼ÄÜ,·ñÔòÊ¹ÓÃµ¥Ìå¼¼ÄÜ
+	//å¦‚æœæ˜¯åœ°é¢æŠ€èƒ½åˆ™åœ¨ç›®æ ‡ä½ç½®æˆ–æŒ‡å®šåç§»çš„ä½ç½®é‡Šæ”¾æŠ€èƒ½,å¦åˆ™ä½¿ç”¨å•ä½“æŠ€èƒ½
 	if (skill_get_casttype(skill_id) == CAST_GROUND) {
 		offsetx = script_hasdata(st, 8) ? script_getnum(st, 8) : 0;
 		offsety = script_hasdata(st, 9) ? script_getnum(st, 9) : 0;
@@ -27333,7 +27337,7 @@ BUILDIN_FUNC(unit_Astart_walkto)
 }
 
 /**
- * »ñÈ¡Íæ¼Òµ±Ç°¸±±¾µÄ¸±±¾Ãû
+ * è·å–ç©å®¶å½“å‰å‰¯æœ¬çš„å‰¯æœ¬å
  * instance_name({<char ID>});
  */
 BUILDIN_FUNC(instance_name)
@@ -27344,11 +27348,11 @@ BUILDIN_FUNC(instance_name)
 	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
 	if (instance_data[instance_id].state == INSTANCE_FREE) {
-		script_pushconststr(st, "");  //¸±±¾²»´æÔÚ
+		script_pushconststr(st, "");  //å‰¯æœ¬ä¸å­˜åœ¨
 		return SCRIPT_CMD_SUCCESS;
 	}
 	if ((db = instance_searchtype_db(instance_data[instance_id].type)) == NULL) {
-		script_pushconststr(st, ""); //¸±±¾²»´æÔÚ
+		script_pushconststr(st, ""); //å‰¯æœ¬ä¸å­˜åœ¨
 		return SCRIPT_CMD_SUCCESS;
 	}
 
@@ -28537,6 +28541,10 @@ bool has_func_name(struct script_code *script_code, char *func_name) {
 	return false;
 }
 
+BUILDIN_FUNC_SKIP(setquestinfo_level)
+BUILDIN_FUNC_SKIP(setquestinfo_req)
+BUILDIN_FUNC_SKIP(setquestinfo_job)
+
 /// script command definitions
 /// for an explanation on args, see add_buildin_func
 struct script_function buildin_func[] = {
@@ -29042,7 +29050,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(useatcmd, "s"),
 
 	//Quest Log System [Inkfish]
-	BUILDIN_DEF(questinfo, "i??"),
+	BUILDIN_DEF(questinfo, "i???"),
 	BUILDIN_DEF(setquest, "i?"),
 	BUILDIN_DEF(erasequest, "i?"),
 	BUILDIN_DEF(completequest, "i?"),
@@ -29255,8 +29263,11 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(pcdead, "pcisdead", "?"),
 	BUILDIN_DEF(unitdamage, "ii?"),
 	BUILDIN_DEF2(unitdamage, "unitdamagerate", "ii?"),
+	BUILDIN_DEF(setquestinfo_level, "iii"),
+	BUILDIN_DEF(setquestinfo_req, "iii*"),
+	BUILDIN_DEF(setquestinfo_job, "ii*"),
 
-	//ÓÊÏäÏµÍ³
+	//é‚®ç®±ç³»ç»Ÿ
 	BUILDIN_DEF(mail_create, "sss?"),
 	BUILDIN_DEF(mail_send, "?"),
 	BUILDIN_DEF2(mail_additem2, "mail_additem", "vi?"),
@@ -29285,18 +29296,18 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bonus_ratefix, "ii?"),
 	BUILDIN_DEF(getdaytick, "v?????"),
 	BUILDIN_DEF(unitmasterid, "i"),
-	//ĞĞÎª²ßÂÔÏµÍ³
+	//è¡Œä¸ºç­–ç•¥ç³»ç»Ÿ
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),
 	BUILDIN_DEF(getpolicyinfo, "i?"),
-	//BOTÏµÍ³
+	//BOTç³»ç»Ÿ
 	BUILDIN_DEF(bot_reset, ""),
 	BUILDIN_DEF(bot_run, ""),
 	BUILDIN_DEF(bot_stop, "??"),
 	BUILDIN_DEF(is_bot, "?"),
-	//Â·µãÏµÍ³
+	//è·¯ç‚¹ç³»ç»Ÿ
 	BUILDIN_DEF(unitsteppath, "iv???"),
-	//ÕóÓªÏµÍ³
+	//é˜µè¥ç³»ç»Ÿ
 	BUILDIN_DEF(tribe_setteam, "i?"),
 	BUILDIN_DEF(tribe_mobteam, "i"),
 	BUILDIN_DEF(tribe_getteam, "?"),

@@ -227,6 +227,7 @@ struct Battle_Config
 	int multiple_script_state;
 	int hidenpc_willbe_disable;
 	int cannonball_attr_alone;
+	int questinfo_updatewarning;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

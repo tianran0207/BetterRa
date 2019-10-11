@@ -4195,16 +4195,6 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 	switch(type){
 	case SP_MULTIDAMAGERATE: // bonus3 MultiDamageRate,atk_type,rate,n;
 		if (sd->state.lr_flag != 2) {
-			bool hasentry = false;
-			for (auto &it : sd->multidamage) {
-				if (it.atk_type == type2) {
-					it.rate += type3;
-					it.n += val;
-					hasentry = true;
-					break;
-				}
-			}
-			if (hasentry) break;
 			if (sd->multidamage.size() == MAX_PC_BONUS) {
 				ShowError("pc_bonus2: SP_MULTIDAMAGERATE: Reached max (%d) number of skills per character, (atk_type: %d rate: %d n: %d).\n", MAX_PC_BONUS, type2, type3, val);
 				return;
@@ -6675,9 +6665,6 @@ int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 sk
 	if (battle_config.pc_cooldown_rate != 100)
 		cooldown = cooldown * battle_config.pc_cooldown_rate / 100;
 
-	if (sd->c_bonus.cooldownrate) 
-		cooldown = cooldown * sd->c_bonus.cooldownrate / 100;
-
 	for (auto &it : sd->skillcooldown) {
 		if (it.id == skill_id) {
 			cooldown += it.val;
@@ -6685,6 +6672,9 @@ int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 sk
 			break;
 		}
 	}
+
+	if (sd->c_bonus.cooldownrate)
+		cooldown += cooldown * sd->c_bonus.cooldownrate / 100;
 
 	if (sd->c_bonus.skill_tree.c_idxrate && cooldown) {
 		int c = sd->c_bonus.skill_tree.c_idxrate, i;
