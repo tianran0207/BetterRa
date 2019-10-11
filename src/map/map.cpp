@@ -4039,7 +4039,7 @@ int map_readallmaps (void)
 			//if( !success ){
 			//	success = map_readfromcache( mapdata, map_cache_buffer[0], map_cache_decode_buffer ) != 0;
 			//}
-			success = map_getfromcache(mapdata, map_cache_decode_buffer);
+			success = map_getfromcache(mapdata, map_cache_decode_buffer) != 0;
 		}
 
 		if (success && mapdata->target && mapdata->target[0]) {
@@ -4259,6 +4259,10 @@ int map_config_read(const char *cfgName)
 			char_ip_set = chrif_setip(w2);
 		else if (strcmpi(w1, "char_port") == 0)
 			chrif_setport(atoi(w2));
+		else if (strcmpi(w1, "char_timeout") == 0)
+			chrif_settimeout(atoi(w2));
+		else if (strcmpi(w1, "char_check_interval") == 0)
+			chrif_setcheckinterval(atoi(w2));
 		else if (strcmpi(w1, "map_ip") == 0) {
 			char *p[2], idx = 0;
 			p[0] = w2;
@@ -4898,6 +4902,7 @@ bool map_setmapflag_sub(int16 m, enum e_mapflag mapflag, bool status, union u_ma
 		case MF_ATTACKEVENT:
 		case MF_ATTACKEDEVENT:
 		case MF_HEALEVENT:
+		case MF_MAXASPD:
 			if (status) {
 				nullpo_retr(false, args);
 				if (mapflag == MF_MOBINFO && args->flag_val == 0)

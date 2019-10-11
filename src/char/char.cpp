@@ -2724,6 +2724,8 @@ void char_set_defaults(){
 //	charserv_config.login_ip_str[128];
 	charserv_config.login_ip = 0;
 	charserv_config.login_port = 6900;
+	charserv_config.login_timeout = 5;
+	charserv_config.login_check_interval = 5;
 //	charserv_config.char_ip_str[128];
 	charserv_config.char_ip = 0;
 //	charserv_config.bind_ip_str[128];
@@ -2916,6 +2918,10 @@ bool char_config_read(const char* cfgName, bool normal){
 				}
 			} else if (strcmpi(w1, "login_port") == 0) {
 				charserv_config.login_port = atoi(w2);
+			} else if (strcmpi(w1, "login_timeout") == 0) {
+				charserv_config.login_timeout = atoi(w2);
+			} else if (strcmpi(w1, "login_check_interval") == 0) {
+				charserv_config.login_check_interval = atoi(w2);
 			} else if (strcmpi(w1, "char_ip") == 0) {
 				char *p[2], idx = 0;
 				p[0] = w2;

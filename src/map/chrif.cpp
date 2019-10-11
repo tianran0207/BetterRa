@@ -111,6 +111,8 @@ int char_fd = -1;
 static char char_ip_str[128];
 static uint32 char_ip = 0;
 static uint16 char_port = 6121;
+static int char_timeout = 5;
+static int char_check_interval = 5;
 static char userid[NAME_LENGTH], passwd[NAME_LENGTH];
 static int chrif_state = 0;
 int other_mapserver_count=0; //Holds count of how many other map servers are online (apart of this instance) [Skotlex]
@@ -276,6 +278,16 @@ int chrif_setip(const char* ip) {
 // sets char-server's port number
 void chrif_setport(uint16 port) {
 	char_port = port;
+}
+
+// sets char-server's time out
+void chrif_settimeout(int timeout) {
+	char_timeout = timeout;
+}
+
+// sets char-server's check interval
+void chrif_setcheckinterval(int interval) {
+	char_check_interval = interval;
 }
 
 // says whether the char-server is connected or not
@@ -1891,7 +1903,7 @@ static TIMER_FUNC(check_connect_char_server){
 		}
 
 		chrif_state = 0;
-		char_fd = make_connection(char_ip, char_port,false,10);
+		char_fd = make_connection(char_ip, char_port,false,char_timeout);
 
 		if (char_fd == -1)//Attempt to connect later. [Skotlex]
 			return 0;
@@ -1991,7 +2003,7 @@ void do_init_chrif(void) {
 	add_timer_func_list(auth_db_cleanup, "auth_db_cleanup");
 
 	// establish map-char connection if not present
-	add_timer_interval(gettick() + 1000, check_connect_char_server, 0, 0, 10 * 1000);
+	add_timer_interval(gettick() + 1000, check_connect_char_server, 0, 0, char_check_interval * 1000);
 
 	// wipe stale data for timed-out client connection requests
 	add_timer_interval(gettick() + 1000, auth_db_cleanup, 0, 0, 30 * 1000);

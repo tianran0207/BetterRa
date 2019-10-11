@@ -4252,7 +4252,8 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		case MF_MAXHEAL:
 		case MF_ATTACKEVENT:
 		case MF_ATTACKEDEVENT:
-		case MF_HEALEVENT: {
+		case MF_HEALEVENT: 
+		case MF_MAXASPD: {
 			union u_mapflag_args args = {};
 
 			if (state) {

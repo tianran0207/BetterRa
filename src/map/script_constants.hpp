@@ -576,6 +576,7 @@
 	export_constant(MF_ATTACKEVENT);
 	export_constant(MF_ATTACKEDEVENT);
 	export_constant(MF_HEALEVENT);
+	export_constant(MF_MAXASPD);
 
 	export_constant(PH_WALKBACK);
 	export_constant(PH_WARPBACK);

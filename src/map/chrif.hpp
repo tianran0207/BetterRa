@@ -41,6 +41,8 @@ bool chrif_checkuserid(char *id, char *pwd);
 void chrif_checkdefaultlogin(void);
 int chrif_setip(const char* ip);
 void chrif_setport(uint16 port);
+void chrif_settimeout(int timeout);
+void chrif_setcheckinterval(int interval);
 
 int chrif_isconnected(void);
 void chrif_check_shutdown(void);

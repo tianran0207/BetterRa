@@ -766,7 +766,7 @@ TIMER_FUNC(chlogif_check_connect_logserver){
 		return 0;
 
 	ShowInfo("Attempt to connect to login-server...\n");
-	login_fd = make_connection(charserv_config.login_ip, charserv_config.login_port, false,10);
+	login_fd = make_connection(charserv_config.login_ip, charserv_config.login_port, false, charserv_config.login_timeout);
 	if (login_fd == -1)
 	{	//Try again later. [Skotlex]
 		login_fd = 0;
@@ -802,7 +802,7 @@ int chlogif_isconnected(){
 void do_init_chlogif(void) {
 	// establish char-login connection if not present
 	add_timer_func_list(chlogif_check_connect_logserver, "check_connect_login_server");
-	add_timer_interval(gettick() + 1000, chlogif_check_connect_logserver, 0, 0, 10 * 1000);
+	add_timer_interval(gettick() + 1000, chlogif_check_connect_logserver, 0, 0, charserv_config.login_check_interval * 1000);
 
 	// send a list of all online account IDs to login server
 	add_timer_func_list(chlogif_send_acc_tologin, "send_accounts_tologin");

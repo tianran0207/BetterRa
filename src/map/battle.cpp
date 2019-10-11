@@ -8898,8 +8898,6 @@ void battle_adjust_conf()
 	battle_config.max_aspd = 2000 - battle_config.max_aspd * 10;
 	battle_config.max_third_aspd = 2000 - battle_config.max_third_aspd * 10;
 	battle_config.max_extended_aspd = 2000 - battle_config.max_extended_aspd * 10;
-	battle_config.max_pvp_aspd = 2000 - battle_config.max_pvp_aspd * 10;
-	battle_config.max_gvg_aspd = 2000 - battle_config.max_gvg_aspd * 10;
 	battle_config.max_walk_speed = 100 * DEFAULT_WALK_SPEED / battle_config.max_walk_speed;
 	battle_config.max_cart_weight *= 10;
 
