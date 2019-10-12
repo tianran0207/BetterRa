@@ -374,7 +374,7 @@ que_ng,30,65,3	script	克尔加#nq	730,{
 	}
 }
 
-einbroch,184,194,3	script	可疑男子#nq	 	881,{
+einbroch,184,194,3	script	可疑男子#nq	881,{
 	if (NINJ_Q == 1) {
 		mes "[可以的人]";
 		mes "我以前去过很多";
