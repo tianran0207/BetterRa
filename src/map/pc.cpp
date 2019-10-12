@@ -14026,7 +14026,8 @@ void pc_attendance_claim_reward( struct map_session_data* sd ){
 /*==========================================
 * pc_bot
 *------------------------------------------*/
-static int pcbot_check_ele(struct map_session_data *sd, struct block_list *bl, struct bot_data *bd){
+static int pcbot_check_ele(struct map_session_data *sd, struct block_list *bl, struct bot_data *bd)
+{
 	struct status_data *status;
 	
 	switch (bl->type) {
@@ -14045,8 +14046,8 @@ static int pcbot_check_ele(struct map_session_data *sd, struct block_list *bl, s
 	return 1;
 }
 
-static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap) {
-
+static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap)
+{
 	struct bot_data *bd = va_arg(ap, struct bot_data *);
 	struct block_list **target = va_arg(ap, struct block_list **);
 	struct map_session_data *sd = bd->sd;
@@ -14102,7 +14103,8 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap) {
 	return 1;
 }
 
-static int pcbot_ai_sub_hard_lootsearch(struct block_list *bl, va_list ap) {
+static int pcbot_ai_sub_hard_lootsearch(struct block_list *bl, va_list ap)
+{
 	int dist, i;
 	struct flooritem_data *fitem = (struct flooritem_data*)bl;
 	struct bot_data *bd = va_arg(ap, struct bot_data *);
@@ -14133,31 +14135,40 @@ static int pcbot_ai_sub_hard_lootsearch(struct block_list *bl, va_list ap) {
 	return 1;
 }
 
-static void pcbot_useitem(struct map_session_data *sd, int i) {
-	pc_useitem(sd, i);
+static int pcbot_useitem(struct map_session_data *sd, unsigned short itemid)
+{
+	int i;
+
+	if ((i = pc_search_inventory(sd, itemid)) == -1)
+		return 0;
+
+	if (pc_useitem(sd, i))
+		return 0;
+
 	if (sd->inventory.u.items_inventory[i].amount == 5) {
 		pc_setreg(sd, add_str("@lack_itemid"), sd->inventory.u.items_inventory[i].nameid);
 		npc_script_event(sd, NPCE_BOTITEMLACKEVENT);
 	}
+	return 1;
 }
 
-static int pcbot_fly_away(struct bot_data *bd, t_tick tick) {
-	int i;
+static int pcbot_fly_away(struct bot_data *bd, t_tick tick)
+{
 	struct map_session_data *sd = bd->sd;
 
-	if ((i = pc_search_inventory(sd, bd->info.item_fly_id)) == -1) {
+	if (!pcbot_useitem(sd, bd->info.item_fly_id)) {
 		bd->info.find_fail_fly = 0;
 		bd->info.timeout_fly = 0;
 		return 0;
 	}
-	pcbot_useitem(sd, i);
 	bd->state.move_count = 0;
 	bd->state.next_flytime = tick + bd->info.timeout_fly * 1000;
 	bd->state.next_fly_delay = tick + bd->info.item_fly_delay;
 	return 1;
 }
 
-static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, t_tick tick) {
+static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, t_tick tick)
+{
 	int result, inf;
 	uint16 skill_id = bd->info.skill_id[bd->skill_idx];
 	uint16 skill_lv = bd->info.skill_lv[bd->skill_idx];
@@ -14182,7 +14193,8 @@ static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, t_tick tick
 	return false;
 }
 
-static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
+static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
+{
 	t_tick tick;
 	int i, target_dead = 0;
 	struct map_session_data *sd;
@@ -14206,18 +14218,14 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args) {
 	//³ÔµÀ¾ß¼ì²é
 	if (bd->state.next_heal_delay < tick) {
 		if (bd->info.item_hp_id && sd->battle_status.hp < sd->battle_status.max_hp * 8 / 10) {
-			if ((i = pc_search_inventory(sd, bd->info.item_hp_id)) != -1) {
+			if (pcbot_useitem(sd, bd->info.item_hp_id))
 				bd->state.next_heal_delay = tick + bd->info.item_heal_delay;
-				pcbot_useitem(sd, i);
-			}
 			else
 				bd->info.item_hp_id = 0;
 		}
 		else if (bd->info.item_sp_id && sd->battle_status.sp < sd->battle_status.max_sp * 5 / 10) {
-			if ((i = pc_search_inventory(sd, bd->info.item_sp_id)) != -1) {
+			if (pcbot_useitem(sd, bd->info.item_sp_id)) 
 				bd->state.next_heal_delay = tick + bd->info.item_heal_delay;
-				pcbot_useitem(sd, i);
-			}
 			else
 				bd->info.item_sp_id = 0;
 		}
@@ -14420,9 +14428,8 @@ static int pcbot_ai_hard(int tid, t_tick tick, int id, intptr_t data)
 	return 0;
 }
 
-int pcbot_run(struct map_session_data *sd, int timeout) {
-
-	int count = 0;
+int pcbot_run(struct map_session_data *sd, int timeout)
+{
 	struct bot_data *bd;
 
 	nullpo_ret(sd);
@@ -14449,7 +14456,7 @@ int pcbot_run(struct map_session_data *sd, int timeout) {
 		chrif_save(sd, SC_AUTOTRADE);
 	}
 	bd->running = 1;
-	return count;
+	return 0;
 }
 
 static bool pc_readdb_manner(char* fields[], int columns, int current)

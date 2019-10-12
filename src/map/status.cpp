@@ -12724,7 +12724,6 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_BOT:
 			if (tid == INVALID_TIMER)
 				break;
-			status_change_end(&sd->bl, SC_BOT, INVALID_TIMER);
 			map_quit(sd);
 			return 1;
 			break;

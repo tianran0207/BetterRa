@@ -1,8 +1,32 @@
 prontera,137,125,3	script	GET接口测试	123,{
 	mes "[GET接口测试]";
-	mes "将访调用接口访问 http://www.betterra.cn/test.txt";
+	mes "具体使用方法请参考 npc/BetterRa/BetterRa_http_demo.txt 以及 DOC文件";
+	mes "请你选择测试功能";
 	next;
-	http_get("http://www.betterra.cn/test.txt", 3000, 0);
+	switch(select("加载远程NPC:加载网络文件:取消")){
+	case 1:
+		mes "将访调用接口访问 http://betterra.cn/assets/demo_npc.txt";
+		mes "并自动将返回的文件加载到服务器";
+		if (getmapxy(.@map$,.@x,.@y,BL_NPC,"小猫猫#GETTEST") != -1){
+			unloadnpc("小猫猫#GETTEST");
+		}
+		if (http_get("http://betterra.cn/assets/demo_npc.txt", 3, 1) == 0){
+			mes "[GET接口测试]";
+			mes "文件访问失败";
+			close;
+		}
+		break;
+	case 2:
+		mes "将访调用接口访问 http://betterra.cn/assets/demo_string.txt";
+		mes "返回的文件将打印聊天在窗口";
+		if (http_get("http://betterra.cn/assets/demo_string.txt", 3, 0) == 0){
+			mes "[GET接口测试]";
+			mes "文件访问失败";
+			close;
+		}
+		break;
+	}
+	
 	mes "[GET接口测试]";
 	mes "访问完成";
 	close;

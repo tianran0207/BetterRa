@@ -1148,7 +1148,7 @@ int map_eraseallipport(void);
 void map_addiddb(struct block_list *);
 void map_deliddb(struct block_list *bl);
 void map_addbot(struct bot_data *bd);
-void map_delbot(struct bot_data *bd, bool loginout);
+void map_delbot(struct bot_data *bd, bool logout);
 void map_addhombot(struct map_session_data *sd, int type);
 void map_delhombot(struct map_session_data *sd);
 void map_foreachpc(int (*func)(struct map_session_data* sd, va_list args), ...);

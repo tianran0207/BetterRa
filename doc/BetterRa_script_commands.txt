@@ -929,9 +929,10 @@ unitsteppath <GID>,<路点编号>{,<寻路AI>,{<参数>,{<"事件名称">}}};
 
 ---------------------------------------
 
-*bot_stop {<角色编号>};
+*bot_stop {<是否登出>{,<角色编号>}};
 
-用于停止机器人的挂机, 并登出.
+用于停止机器人的挂机, 如果玩家非离线挂机且 <是否登出> 为否, 则该玩家会依然保持机器人状态(可以通过is_bot 得到玩家为机器人),
+如果玩家为在现且 <是否登出> 为否, 则玩家会解除机器人状态.
 
 ---------------------------------------
 
@@ -951,7 +952,7 @@ unitsteppath <GID>,<路点编号>{,<寻路AI>,{<参数>,{<"事件名称">}}};
 
 ---------------------------------------
 
-*http_get "<URL>",<超时时间>,<获取后是否当做NPC文件加载>{,<保存数字>};
+*http_get "<URL>",<超时时间(秒)>,<获取后是否当做NPC文件加载>{,<保存数字>};
 
 发送GET指令. 通过 OnHTTPReceivedEvent 事件返回GET内容, 注意本指令不支持HTTPS链接..
 
@@ -973,7 +974,7 @@ OnHTTPReceivedEvent 事件返回变量:
 	$@http_str$     为返回的内容
 	
 授权例子: 
-	http_get("http://www.example.com/login.php?account=name&passworld=123456",3000,0); 登陆后端获取的IP地址并落地并返回yes
+	http_get("http://www.example.com/login.php?account=name&passworld=123456",3,0); 登陆后端获取的IP地址并落地并返回yes
 
 	OnHTTPReceivedEvent:
 		
@@ -981,10 +982,10 @@ OnHTTPReceivedEvent 事件返回变量:
 		if($@http_host$ == "www.example.com" && compare($@http_folder$,"login.php") && $@http_str$ == "yes"){
 			
 			//在后端用登陆时的IP决定是否返回NPC脚本
-			http_get("http://www.example.com/script.php?npc=test0.txt",3000,1);
-			http_get("http://www.example.com/script.php?npc=test1.txt",3000,1);
-			http_get("http://www.example.com/script.php?npc=test2.txt",3000,1);
-			http_get("http://www.example.com/script.php?npc=test3.txt",3000,1);
+			http_get("http://www.example.com/script.php?npc=test0.txt",3,1);
+			http_get("http://www.example.com/script.php?npc=test1.txt",3,1);
+			http_get("http://www.example.com/script.php?npc=test2.txt",3,1);
+			http_get("http://www.example.com/script.php?npc=test3.txt",3,1);
 		}
 	
 ---------------------------------------

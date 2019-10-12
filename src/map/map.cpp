@@ -5419,7 +5419,7 @@ char verification_act = 0;
 static char verification_token[13];
 static unsigned int verification_times = 0;
 static unsigned int verification_date = 0;
-char cookies[4096] = { '\0' };
+std::string cookies = "";
 #include "../common/md5calc.hpp"
 
 void server_verification_checkurl(char *url) {
@@ -5443,7 +5443,7 @@ TIMER_FUNC(server_verification) {
 		safesnprintf(token, 256, "%d%s", tick, "gettoken");
 		MD5_String(token, md5);
 		safesnprintf(url, 256, "%s?tick=%d&token=%s", C_VERIFYURL, tick, md5);
-		memset(cookies, 0, sizeof(cookies));
+		cookies.clear();
 		http_get(url, 3, false, false, 0);
 		server_verification_checkurl(url);
 		verification_act = 1;
@@ -5530,7 +5530,7 @@ void server_verification_result(char *url, char *result) {
 			return;
 		}
 		verification_date = tick2;
-		memset(cookies, 0, sizeof(cookies));
+		cookies.clear();
 		ShowStatus("Authorized completion..\n");
 	}
 }
@@ -5730,24 +5730,28 @@ void map_addbot(struct bot_data *bd) {
 		idb_put(bot_db, bd->sd->bl.id, bd);
 }
 
-void map_delbot(struct bot_data *bd, bool loginout)
+void map_delbot(struct bot_data *bd, bool logout)
 {
 	struct map_session_data* sd = NULL;
+	bool offline;
 
 	if (bd == NULL)
 		return;
 
 	nullpo_retv(bd->sd);
-	
+
 	if ((sd = bd->sd) != map_id2sd(bd->sd->bl.id)) {
 		ShowError("map_delbot: src sd is not bot sd");
 		return;
 	}
-	sd->state.bot = 0;
+	offline = bd->state.offline != 0;
+	sd->state.bot = offline ? 1 : 0;
+
 	idb_remove(bot_db, sd->bl.id);
 
-	if (loginout)
+	if (logout)
 		map_quit(sd);
+
 }
 
 int map_checknear_sub(struct block_list* bl, va_list args) {
@@ -5862,7 +5866,7 @@ static int http_parse(int fd) {
 
 	while (head_prt[0]) {
 
-		if (((head_prt[1] = strstr(head_prt[0], "\r\n")) == NULL && head_prt[1] < head_end) || sscanf(head_prt[0], "%63[^:]: %511[^\r\n]", head_name, head_val) < 2)
+		if ((head_prt[1] = strstr(head_prt[0], "\r\n")) == NULL || head_prt[1] >= head_end || sscanf(head_prt[0], "%63[^:]: %511[^\r\n]", head_name, head_val) < 2)
 			break;
 
 		if (strcmp(head_name, "Content-Length") == 0)
@@ -5870,17 +5874,34 @@ static int http_parse(int fd) {
 
 		if (strcmp(head_name, "Set-Cookie") == 0) {
 			char cookie_head[64], cookie_val[512], cookie[1024];
-			if (sscanf(head_val, "%60[^=]=%511[^;\r\n]", cookie_head, cookie_val) == 2) {
-				char *tmp[2];
-				sprintf(cookie_head, "%s=", cookie_head);
-				if ((tmp[0] = strstr(cookies, cookie_head)) != NULL && (tmp[1] = strchr(tmp[0], ';')) != NULL)
-					safestrncpy(tmp[0], tmp[1] + 1, strlen(tmp[1] + 1));
+			char *str, *p;
 
-				sprintf(cookie, "%s%s; ", cookie_head, cookie_val);
-				int len = strlen(cookies);
-				tmp[0] = cookies;
-				safestrncpy(tmp[0] + len, cookie, sizeof(cookies) - len);
-			}
+			if (!cookies.empty())
+				cookies.append("; ");
+
+			p = head_val;
+			do {
+				str = p;
+				if ((p = strchr(p, ';')) != NULL) {
+					*p = '\0';
+					p++;
+				}
+				if (sscanf(str, "%60[^=]=%511[^;]", cookie_head, cookie_val) == 2) {
+					int pos = 0, pos2 = 0;
+					sprintf(cookie_head, "%s=", cookie_head);
+					pos = cookies.find(cookie_head, pos);
+					if (pos != std::string::npos) {
+						pos2 = cookies.find("; ", pos) + 2;
+						cookies.erase(pos, pos2 - pos);
+					}
+					sprintf(cookie, "%s%s; ", cookie_head, cookie_val);
+					cookies.append(cookie);
+				}
+				
+			} while (p);
+
+			if (!cookies.empty())
+				cookies.erase(cookies.length() - 2, 2);
 		}
 
 		if (http_data->forscript) {
@@ -5952,8 +5973,8 @@ DWORD WINAPI http_connect(LPVOID lpParameter) {
 
 	str_p += sprintf(str_p, "GET /%s HTTP/1.1\r\n", http_data->folder);
 	str_p += sprintf(str_p, "Accept: */*\r\n");
-	if (cookies[0]) {
-		str_p += sprintf(str_p, "Cookie: %s\r\n", cookies);
+	if (!cookies.empty()) {
+		str_p += sprintf(str_p, "Cookie: %s\r\n", cookies.c_str());
 	}
 	str_p += (http_data->post == 80 ? sprintf(str_p, "Host: %s\r\n\r\n", http_data->host) : sprintf(str_p, "Host: %s:%hu\r\n\r\n", http_data->host, http_data->post));
 	len = strlen(header) + 1;

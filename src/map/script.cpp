@@ -26013,9 +26013,9 @@ static void buildin_mail_additem_sub(struct item *it, unsigned short amount) {
 	}
 }
 
-// mail_create <å‘ä»¶äººå>,<é¢˜ç›®>,<å†…å®¹>{,<ZENY>}
-// mail_additemã€mail_additem2ã€mail_additem3ã€mail_additemboundã€mail_additembound2ã€mail_additembound3 ä¸ç›¸åº”çš„getitemæŒ‡ä»¤å‚æ•°ç›¸åŒ
-// mail_send {<æ”¶ä»¶äººCID æˆ– æ”¶ä»¶äººå>} é€šè¿‡CIDå‘é€é‚®ä»¶åªèƒ½å‘é€ç»™åœ¨çº¿ç©å®¶
+// mail_create <·¢¼şÈËÃû>,<ÌâÄ¿>,<ÄÚÈİ>{,<ZENY>}
+// mail_additem¡¢mail_additem2¡¢mail_additem3¡¢mail_additembound¡¢mail_additembound2¡¢mail_additembound3 ÓëÏàÓ¦µÄgetitemÖ¸Áî²ÎÊıÏàÍ¬
+// mail_send {<ÊÕ¼şÈËCID »ò ÊÕ¼şÈËÃû>} Í¨¹ıCID·¢ËÍÓÊ¼şÖ»ÄÜ·¢ËÍ¸øÔÚÏßÍæ¼Ò
 
 BUILDIN_FUNC(mail_create)
 {
@@ -26191,51 +26191,51 @@ BUILDIN_FUNC(getareagid)
 	struct reg_db *ref = NULL;
 	TBL_PC *sd = map_id2sd(st->rid);
 
-	//è·å¾—å‘é€ç›®æ ‡ç±»å‹
+	//»ñµÃ·¢ËÍÄ¿±êÀàĞÍ
 	type = script_getnum(st, 3);
-	//è·å¾—åœ°å›¾å
+	//»ñµÃµØÍ¼Ãû
 	mapname = script_getstr(st, 2);
 
-	//è·å¾—æ•°ç»„å‚æ•°
+	//»ñµÃÊı×é²ÎÊı
 	data = script_getdata(st, script_lastdata(st));
 	
 	if (!data_isreference(data) || data_isstring(data)) {
-		//ä¸æ˜¯å˜é‡æˆ–æ•´æ•°å˜é‡æŠ¥é”™
+		//²»ÊÇ±äÁ¿»òÕûÊı±äÁ¿±¨´í
 		ShowWarning("buildin_getareagid: error in argument! please give a int variable to store num.\n");
 		return SCRIPT_CMD_FAILURE;
 	}
-	//è·å¾—æ•°ç»„å
+	//»ñµÃÊı×éÃû
 	varname = reference_getname(data);
 	ref = reference_getref(data);
 	id = reference_getid(data);
 
-	//å¦‚æœä¸ºäººç‰©å˜é‡æˆ–è€…åœ°å›¾åä¸ºthis,åˆ™åˆ¤æ–­äººç‰©æ˜¯å¦å…³è”
+	//Èç¹ûÎªÈËÎï±äÁ¿»òÕßµØÍ¼ÃûÎªthis,ÔòÅĞ¶ÏÈËÎïÊÇ·ñ¹ØÁª
 	if (not_server_variable(*varname) || !strcmp(mapname, "this")) {
-		//äººç‰©å˜é‡åˆ™åˆ¤æ–­æ˜¯å¦å…³è”äººç‰©
+		//ÈËÎï±äÁ¿ÔòÅĞ¶ÏÊÇ·ñ¹ØÁªÈËÎï
 		if (!script_rid2sd(sd)) {
-			//å¦‚æœæ²¡æœ‰å…³è”äººç‰©åˆ™è¿”å›-1
+			//Èç¹ûÃ»ÓĞ¹ØÁªÈËÎïÔò·µ»Ø-1
 			script_pushint(st, -1);
 			return SCRIPT_CMD_SUCCESS;
 		}
 	}
 
 	if (!strcmp(mapname, "this"))
-		//æ ¹æ®äººç‰©æ‰€åœ¨åœ°å›¾è·å¾—map_id;
+		//¸ù¾İÈËÎïËùÔÚµØÍ¼»ñµÃmap_id;
 		map_id = map_mapindex2mapid(sd->mapindex);
 	else
-		//æ ¹æ®åœ°å›¾åè·å¾—map_id
+		//¸ù¾İµØÍ¼Ãû»ñµÃmap_id
 		map_id = map_mapname2mapid(mapname);
 
 
 	if (map_id < 0) {
-		//åœ°å›¾ä¸å­˜åœ¨è¿”å›-2
+		//µØÍ¼²»´æÔÚ·µ»Ø-2
 		script_pushint(st, -2);
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	//è®¡æ•°å™¨åˆå§‹ä¸º0
+	//¼ÆÊıÆ÷³õÊ¼Îª0
 	count = 0;
-	//å¦‚æœ7ä¸ªå‚æ•°(æ–¹æ³•1)
+	//Èç¹û7¸ö²ÎÊı(·½·¨1)
 	if (script_hasdata(st, 8)) {
 		int x0, y0, x1, y1;
 		x0 = min(script_getnum(st, 4), script_getnum(st, 6));
@@ -26244,7 +26244,7 @@ BUILDIN_FUNC(getareagid)
 		y1 = max(script_getnum(st, 5), script_getnum(st, 7));
 		map_foreachinarea(buildin_getareagid_sub, map_id, x0, y0, x1, y1, type, st, sd, id, varname, ref, &count);
 	}
-	//å¦‚æœ6ä¸ªå‚æ•°(æ–¹æ³•2)
+	//Èç¹û6¸ö²ÎÊı(·½·¨2)
 	else if (script_hasdata(st, 7)) {
 		struct block_list center;
 		int range;
@@ -26254,11 +26254,11 @@ BUILDIN_FUNC(getareagid)
 		range = script_getnum(st, 6);
 		map_foreachinrange(buildin_getareagid_sub, &center, range, type, st, sd, id, varname, ref, &count);
 	}
-	//(æ–¹æ³•3)
+	//(·½·¨3)
 	else {
 		map_foreachinmap(buildin_getareagid_sub, map_id, type, st, sd, id, varname, ref, &count);
 	}
-	//è¿”å›è·å–çš„gidæ•°é‡
+	//·µ»Ø»ñÈ¡µÄgidÊıÁ¿
 	script_pushint(st, count);
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -26817,23 +26817,23 @@ BUILDIN_FUNC(when_progressbar_abort_doevent) {
 }
 
 /**
-* è®©æŒ‡å®šGIDçš„æ€ªç‰©ä½¿ç”¨æŠ€èƒ½
+* ÈÃÖ¸¶¨GIDµÄ¹ÖÎïÊ¹ÓÃ¼¼ÄÜ
 * mobskill <GID>,<Skill ID>,<Skill Lv>,<Cast Time>,<Cancelable>,<Target Type>{,<Offset x>,<Offset y>};
 * mobskill <GID>,<"Skill Name">,<Skill Lv>,<Cast Time>,<Cancelable>,<Target Type>{,<Offset x>,<Offset y>};
-* @param GID: éœ€è¦é‡Šæ”¾æŠ€èƒ½çš„æ€ªç‰©GID
-* @param Skill ID/"Skill Name": æŠ€èƒ½id/æŠ€èƒ½åç§°
-* @param Skill Lv: æŠ€èƒ½ç­‰çº§
-* @param Cast Time: å’å”±æ—¶é—´(ç§’)
-* @param Cancelable: æ˜¯å¦èƒ½è¢«æ‰“æ–­
-*   0: ä¸å¯æ‰“æ–­
-*   1: å¯ä»¥æ‰“æ–­
-* @param Target Type: ç›®æ ‡ç±»å‹
-*   0: è‡ªå·±
-*   1: æ€ªç‰©å½“å‰ç›®æ ‡
-*   2: æ€ªç‰©çš„ä¸»äºº
-*   3: éšæœºç›®æ ‡
-* @param Offset x: åœ°é¢æŠ€èƒ½ç›¸å¯¹äºç›®æ ‡åæ ‡xè½´çš„åç§»é‡
-* @param Offset y: åœ°é¢æŠ€èƒ½ç›¸å¯¹äºç›®æ ‡åæ ‡yè½´çš„åç§»é‡
+* @param GID: ĞèÒªÊÍ·Å¼¼ÄÜµÄ¹ÖÎïGID
+* @param Skill ID/"Skill Name": ¼¼ÄÜid/¼¼ÄÜÃû³Æ
+* @param Skill Lv: ¼¼ÄÜµÈ¼¶
+* @param Cast Time: Ó½³ªÊ±¼ä(Ãë)
+* @param Cancelable: ÊÇ·ñÄÜ±»´ò¶Ï
+*   0: ²»¿É´ò¶Ï
+*   1: ¿ÉÒÔ´ò¶Ï
+* @param Target Type: Ä¿±êÀàĞÍ
+*   0: ×Ô¼º
+*   1: ¹ÖÎïµ±Ç°Ä¿±ê
+*   2: ¹ÖÎïµÄÖ÷ÈË
+*   3: Ëæ»úÄ¿±ê
+* @param Offset x: µØÃæ¼¼ÄÜÏà¶ÔÓÚÄ¿±ê×ø±êxÖáµÄÆ«ÒÆÁ¿
+* @param Offset y: µØÃæ¼¼ÄÜÏà¶ÔÓÚÄ¿±ê×ø±êyÖáµÄÆ«ÒÆÁ¿
 * @author [kuku]
 */
 BUILDIN_FUNC(mobskill)
@@ -26857,13 +26857,13 @@ BUILDIN_FUNC(mobskill)
 	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_SUCCESS;
 
-	//GIDå¯¹åº”å¯¹è±¡å¿…é¡»ä¸ºæ€ªç‰©
+	//GID¶ÔÓ¦¶ÔÏó±ØĞëÎª¹ÖÎï
 	if (bl->type != BL_MOB)
 		return SCRIPT_CMD_SUCCESS;
 
 	md = (TBL_MOB*)bl;
 
-	// 0:è‡ªå·±, 1:ç›®æ ‡, 2:ä¸»äºº, default:éšæœºç›®æ ‡
+	// 0:×Ô¼º, 1:Ä¿±ê, 2:Ö÷ÈË, default:Ëæ»úÄ¿±ê
 	switch (target) {
 	case 0:
 		tbl = map_id2bl(md->bl.id);
@@ -26879,15 +26879,15 @@ BUILDIN_FUNC(mobskill)
 		break;
 	}
 
-	//æ²¡æœ‰ç›®æ ‡åˆ™é€€å‡º
+	//Ã»ÓĞÄ¿±êÔòÍË³ö
 	if (!tbl)
 		return SCRIPT_CMD_SUCCESS;
 
-	//å¦‚æœæ€ªç‰©æ­£åœ¨å’å”±åˆ™å–æ¶ˆç›®å‰é‡Šæ”¾çš„æŠ€èƒ½
+	//Èç¹û¹ÖÎïÕıÔÚÓ½³ªÔòÈ¡ÏûÄ¿Ç°ÊÍ·ÅµÄ¼¼ÄÜ
 	if (md->ud.skilltimer != INVALID_TIMER)
 		unit_skillcastcancel(bl, 0);
 
-	//å¦‚æœæ˜¯åœ°é¢æŠ€èƒ½åˆ™åœ¨ç›®æ ‡ä½ç½®æˆ–æŒ‡å®šåç§»çš„ä½ç½®é‡Šæ”¾æŠ€èƒ½,å¦åˆ™ä½¿ç”¨å•ä½“æŠ€èƒ½
+	//Èç¹ûÊÇµØÃæ¼¼ÄÜÔòÔÚÄ¿±êÎ»ÖÃ»òÖ¸¶¨Æ«ÒÆµÄÎ»ÖÃÊÍ·Å¼¼ÄÜ,·ñÔòÊ¹ÓÃµ¥Ìå¼¼ÄÜ
 	if (skill_get_casttype(skill_id) == CAST_GROUND) {
 		offsetx = script_hasdata(st, 8) ? script_getnum(st, 8) : 0;
 		offsety = script_hasdata(st, 9) ? script_getnum(st, 9) : 0;
@@ -27121,11 +27121,16 @@ static void buildin_bot_reset_sub(TBL_PC *sd) {
 
 BUILDIN_FUNC(bot_reset) {
 	TBL_PC *sd;
+	struct bot_data *bd;
 
 	if (!script_rid2sd(sd))
 		return SCRIPT_CMD_FAILURE;
 
+	if (!(bd = map_id2bot(sd->bl.id)))
+		return SCRIPT_CMD_SUCCESS;
+
 	buildin_bot_reset_sub(sd);
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -27159,10 +27164,10 @@ BUILDIN_FUNC(bot_stop)
 {
 	TBL_PC *sd;
 
-	if (!script_charid2sd(2, sd))
+	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	map_delbot(map_id2bot(sd->bl.id), (script_hasdata(st,3) && script_hasdata(st, 3) == 1 ? true : false));
+	map_delbot(map_id2bot(sd->bl.id), (script_hasdata(st,2) && script_hasdata(st, 2) == 1 ? true : false));
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -27337,7 +27342,7 @@ BUILDIN_FUNC(unit_Astart_walkto)
 }
 
 /**
- * è·å–ç©å®¶å½“å‰å‰¯æœ¬çš„å‰¯æœ¬å
+ * »ñÈ¡Íæ¼Òµ±Ç°¸±±¾µÄ¸±±¾Ãû
  * instance_name({<char ID>});
  */
 BUILDIN_FUNC(instance_name)
@@ -27348,11 +27353,11 @@ BUILDIN_FUNC(instance_name)
 	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
 	if (instance_data[instance_id].state == INSTANCE_FREE) {
-		script_pushconststr(st, "");  //å‰¯æœ¬ä¸å­˜åœ¨
+		script_pushconststr(st, "");  //¸±±¾²»´æÔÚ
 		return SCRIPT_CMD_SUCCESS;
 	}
 	if ((db = instance_searchtype_db(instance_data[instance_id].type)) == NULL) {
-		script_pushconststr(st, ""); //å‰¯æœ¬ä¸å­˜åœ¨
+		script_pushconststr(st, ""); //¸±±¾²»´æÔÚ
 		return SCRIPT_CMD_SUCCESS;
 	}
 
@@ -29267,7 +29272,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setquestinfo_req, "iii*"),
 	BUILDIN_DEF(setquestinfo_job, "ii*"),
 
-	//é‚®ç®±ç³»ç»Ÿ
+	//ÓÊÏäÏµÍ³
 	BUILDIN_DEF(mail_create, "sss?"),
 	BUILDIN_DEF(mail_send, "?"),
 	BUILDIN_DEF2(mail_additem2, "mail_additem", "vi?"),
@@ -29296,18 +29301,18 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bonus_ratefix, "ii?"),
 	BUILDIN_DEF(getdaytick, "v?????"),
 	BUILDIN_DEF(unitmasterid, "i"),
-	//è¡Œä¸ºç­–ç•¥ç³»ç»Ÿ
+	//ĞĞÎª²ßÂÔÏµÍ³
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),
 	BUILDIN_DEF(getpolicyinfo, "i?"),
-	//BOTç³»ç»Ÿ
+	//BOTÏµÍ³
 	BUILDIN_DEF(bot_reset, ""),
 	BUILDIN_DEF(bot_run, ""),
 	BUILDIN_DEF(bot_stop, "??"),
 	BUILDIN_DEF(is_bot, "?"),
-	//è·¯ç‚¹ç³»ç»Ÿ
+	//Â·µãÏµÍ³
 	BUILDIN_DEF(unitsteppath, "iv???"),
-	//é˜µè¥ç³»ç»Ÿ
+	//ÕóÓªÏµÍ³
 	BUILDIN_DEF(tribe_setteam, "i?"),
 	BUILDIN_DEF(tribe_mobteam, "i"),
 	BUILDIN_DEF(tribe_getteam, "?"),
