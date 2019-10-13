@@ -26800,10 +26800,7 @@ BUILDIN_FUNC(unitskillfixedreset) {
 		return SCRIPT_CMD_FAILURE;
 	}
 
-	ud->skill_fixed.skill_id = 0;
-	ud->skill_fixed.damage = 0;
-	ud->skill_fixed.casttime = 0;
-	ud->skill_fixed.type = 0;
+	memset(&ud->skill_fixed, 0, sizeof(ud->skill_fixed));
 
 	return SCRIPT_CMD_SUCCESS;
 }

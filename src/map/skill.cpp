@@ -3403,13 +3403,6 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			break;
 		}
 	}
-	struct unit_data *ud = unit_bl2ud(src);
-	if (ud && (ud->skill_fixed.skill_id == skill_id || ud->skill_fixed.skill_id == -1)) {
-		if(ud->skill_fixed.type & 2)
-			dmg.damage = ud->skill_fixed.damage;
-		else
-			dmg.damage += ud->skill_fixed.damage;
-	}
 
 	//If the damage source is a unit, the damage is not delayed
 	if (src != dsrc && skill_id != GS_GROUNDDRIFT)
@@ -3736,7 +3729,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	if (dmg.dmg_lv >= ATK_MISS && (type = skill_get_walkdelay(skill_id, skill_lv)) > 0)
 	{	//Skills with can't walk delay also stop normal attacking for that
 		//duration when the attack connects. [Skotlex]
-		//struct unit_data *ud = unit_bl2ud(src);
+		struct unit_data *ud = unit_bl2ud(src);
 		if (ud && DIFF_TICK(ud->attackabletime, tick + type) < 0)
 			ud->attackabletime = tick + type;
 	}
@@ -3767,9 +3760,9 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			if( dmg.flag > ATK_BLOCK )
 				skill_counter_additional_effect(src, bl, skill_id, skill_lv, dmg.flag, tick);
 		} else {
-			if (sd)	sd->runing_event[NPCE_ATKFILTER] = true;
+			if (sd)	sd->runing_event[NPCE_ATKFILTER] = sd->runing_event[NPCE_ATKEDFILTER] = true;
 			battle_delay_damage(tick, dmg.amotion, src, bl, dmg.flag, skill_id, skill_lv, damage, dmg.dmg_lv, dmg.dmotion, additional_effects, false);
-			if (sd)	sd->runing_event[NPCE_ATKFILTER] = false;
+			if (sd)	sd->runing_event[NPCE_ATKFILTER] = sd->runing_event[NPCE_ATKEDFILTER] = false;
 		}
 	}
 

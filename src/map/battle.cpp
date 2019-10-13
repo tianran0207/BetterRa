@@ -323,6 +323,19 @@ void battle_damage_event(struct block_list* src, struct block_list* target, int 
 				*damage = pc_readparam(sd, SP_DMG_DAMAGE);
 		}
 	}
+
+	if (sd->runing_event[NPCE_ATKFILTER] || sd->runing_event[NPCE_ATKEDFILTER]) {
+		struct unit_data *ud = unit_bl2ud(src);
+		if (ud && ud->skill_fixed.damage && (ud->skill_fixed.skill_id == skill_id || ud->skill_fixed.skill_id == -1)) {
+			if (ud->skill_fixed.type & 2)
+				*damage = ud->skill_fixed.damage;
+			else
+				*damage += ud->skill_fixed.damage;
+
+			ud->skill_fixed.type &= ~2;
+			ud->skill_fixed.damage = 0;
+		}
+	}
 }
 
 /// Damage Delayed Structure
