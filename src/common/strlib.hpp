@@ -138,7 +138,7 @@ const char* skip_escaped_c(const char* p);
 /// Tracks the progress of the operation (current line number, number of successfully processed rows).
 /// Returns 'true' if it was able to process the specified file, or 'false' if it could not be read.
 bool sv_readdb(const char* directory, const char* filename, char delim, int mincols, int maxcols, int maxrows, bool (*parseproc)(char* fields[], int columns, int current), bool silent);
-
+bool sv_readdb_line(const char* filepath, int lines, char *buffer, char delim, int mincols, int maxcols, bool(*parseproc)(char* fields[], int columns, int current));
 
 /// StringBuf - dynamic string
 struct StringBuf

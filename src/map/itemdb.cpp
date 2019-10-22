@@ -141,6 +141,24 @@ static int itemdb_loadname_sub(DBKey key, DBData *data, va_list ap)
 	return 0;
 }
 
+void itemdb_addname(unsigned short nameid, const char *from)
+{
+	struct item_data* item1 = itemdb_exists(nameid);
+	struct item_data* item2;
+
+	if (item1 == NULL) {
+		ShowWarning("itemdb_addname: Invalid item id %d.\n", nameid);
+		return;
+	}
+	item2 = itemdb_searchname(item1->name);
+
+	if (item2 && item1->nameid != item2->nameid)
+		ShowWarning("itemdb_addname: Duplicate item name for \"%s\" from '%s'\n", item1->name, from ? from : "Unknow From");
+
+	strdb_put(itemdb_name_db, item1->name, item1);
+	strdb_put(itemdb_aegisname_db, item1->jname, item1);
+}
+
 static void itemdb_loadname()
 {
 	itemdb->foreach(itemdb, itemdb_loadname_sub);
@@ -667,7 +685,7 @@ static bool itemdb_read_vending(char* fields[], int columns, int current)
 /** Search by name for the override flags available items (Give item another sprite)
 * Structure: <nameid>,<sprite>
 */
-static bool itemdb_read_itemavail(char* str[], int columns, int current) {
+bool itemdb_read_itemavail(char* str[], int columns, int current) {
 	unsigned short nameid, sprite;
 	struct item_data *id;
 
@@ -1131,6 +1149,129 @@ static bool itemdb_combos_contrast(struct item_data * id, const int *item, int r
 	return false;
 }
 
+bool itemdb_read_combos_line(const char *path, int lines, char *line, uint32 *number) {
+	char *str[2], *p;
+	uint32 num = 0;
+
+	if (number == NULL) {
+		num = db_size(itemdb_combo);
+		number = &num;
+	}
+
+	if (line[0] == '/' && line[1] == '/')
+		return false;
+
+	memset(str, 0, sizeof(str));
+
+	p = line;
+
+	p = trim(p);
+
+	if (*p == '\0')
+		return false;// empty line
+
+	if (!strchr(p,','))
+	{
+		/* is there even a single column? */
+		ShowError("itemdb_read_combos: Insufficient columns in line %d of \"%s\", skipping.\n", lines, path);
+		return false;
+	}
+
+	str[0] = p;
+	p = strchr(p,',');
+	*p = '\0';
+	p++;
+
+	str[1] = p;
+	p = strchr(p,',');
+	p++;
+
+	if (str[1][0] != '{') {
+		ShowError("itemdb_read_combos(#1): Invalid format (Script column) in line %d of \"%s\", skipping.\n", lines, path);
+		return false;
+	}
+	/* no ending key anywhere (missing \}\) */
+	if ( str[1][strlen(str[1])-1] != '}' ) {
+		ShowError("itemdb_read_combos(#2): Invalid format (Script column) in line %d of \"%s\", skipping.\n", lines, path);
+		return false;
+	} else {
+		int items[MAX_ITEMS_PER_COMBO];
+		int v = 0, retcount = 0;
+		struct item_data * id = NULL;
+		int idx = 0;
+		if((retcount = itemdb_combo_split_atoi(str[0], items)) < 2) {
+			ShowError("itemdb_read_combos: line %d of \"%s\" doesn't have enough items to make for a combo (min:2), skipping.\n", lines, path);
+			return false;
+		}
+		/* validate */
+		for(v = 0; v < retcount; v++) {
+			if( !itemdb_exists(items[v]) ) {
+				ShowError("itemdb_read_combos: line %d of \"%s\" contains unknown item ID %d, skipping.\n", lines, path,items[v]);
+				break;
+			}
+		}
+		/* failed at some item */
+		if( v < retcount )
+			return false;
+		id = itemdb_exists(items[0]);
+		if (battle_config.combo_mode == 2 && itemdb_combos_contrast(id, items, retcount, &idx)) {
+			if (id->combos[idx]->script)
+				script_free_code(id->combos[idx]->script);
+			id->combos[idx]->script = parse_script(str[1], path, lines, 0);
+			for (v = 1; v < retcount; v++) {
+				struct item_data * it;
+				int index;
+				it = itemdb_exists(items[v]);
+				if (itemdb_combos_contrast(it, items, retcount, &index)) {
+					it->combos[index]->script = id->combos[idx]->script;
+				}
+			}
+		}
+		else {
+			idx = id->combos_count;
+			/* first entry, create */
+			if (id->combos == NULL) {
+				CREATE(id->combos, struct item_combo*, 1);
+				id->combos_count = 1;
+			} else {
+				RECREATE(id->combos, struct item_combo*, ++id->combos_count);
+			}
+			CREATE(id->combos[idx], struct item_combo, 1);
+			id->combos[idx]->nameid = (unsigned short*)aMalloc(retcount * sizeof(unsigned short));
+			id->combos[idx]->count = retcount;
+			id->combos[idx]->script = parse_script(str[1], path, lines, 0);
+			id->combos[idx]->id = *number;
+			id->combos[idx]->isRef = false;
+			/* populate ->nameid field */
+			for (v = 0; v < retcount; v++) {
+				id->combos[idx]->nameid[v] = items[v];
+			}
+
+			/* populate the children to refer to this combo */
+			for (v = 1; v < retcount; v++) {
+				struct item_data * it;
+				int index;
+				it = itemdb_exists(items[v]);
+				index = it->combos_count;
+				if (it->combos == NULL) {
+					CREATE(it->combos, struct item_combo*, 1);
+					it->combos_count = 1;
+				} else {
+					RECREATE(it->combos, struct item_combo*, ++it->combos_count);
+				}
+				CREATE(it->combos[index], struct item_combo, 1);
+				/* we copy previously alloc'd pointers and just set it to reference */
+				memcpy(it->combos[index], id->combos[idx], sizeof(struct item_combo));
+				/* we flag this way to ensure we don't double-dealloc same data */
+				it->combos[index]->isRef = true;
+			}
+			uidb_put(itemdb_combo, id->combos[idx]->id, id->combos[idx]);
+		}
+		(*number)++;
+	}
+	return true;
+}
+
 static void itemdb_read_combos(const char* basedir, bool silent) {
 	uint32 lines = 0, count = 0, number = 0;
 	char line[1024];
@@ -1150,121 +1291,11 @@ static void itemdb_read_combos(const char* basedir, bool silent) {
 
 	// process rows one by one
 	while(fgets_ex(line, sizeof(line), fp)) {
-		char *str[2], *p;
-
 		lines++;
 
-		if (line[0] == '/' && line[1] == '/')
+		if (!itemdb_read_combos_line(path, lines, line, &number))
 			continue;
 
-		memset(str, 0, sizeof(str));
-
-		p = line;
-
-		p = trim(p);
-
-		if (*p == '\0')
-			continue;// empty line
-
-		if (!strchr(p,','))
-		{
-			/* is there even a single column? */
-			ShowError("itemdb_read_combos: Insufficient columns in line %d of \"%s\", skipping.\n", lines, path);
-			continue;
-		}
-
-		str[0] = p;
-		p = strchr(p,',');
-		*p = '\0';
-		p++;
-
-		str[1] = p;
-		p = strchr(p,',');
-		p++;
-
-		if (str[1][0] != '{') {
-			ShowError("itemdb_read_combos(#1): Invalid format (Script column) in line %d of \"%s\", skipping.\n", lines, path);
-			continue;
-		}
-		/* no ending key anywhere (missing \}\) */
-		if ( str[1][strlen(str[1])-1] != '}' ) {
-			ShowError("itemdb_read_combos(#2): Invalid format (Script column) in line %d of \"%s\", skipping.\n", lines, path);
-			continue;
-		} else {
-			int items[MAX_ITEMS_PER_COMBO];
-			int v = 0, retcount = 0;
-			struct item_data * id = NULL;
-			int idx = 0;
-			if((retcount = itemdb_combo_split_atoi(str[0], items)) < 2) {
-				ShowError("itemdb_read_combos: line %d of \"%s\" doesn't have enough items to make for a combo (min:2), skipping.\n", lines, path);
-				continue;
-			}
-			/* validate */
-			for(v = 0; v < retcount; v++) {
-				if( !itemdb_exists(items[v]) ) {
-					ShowError("itemdb_read_combos: line %d of \"%s\" contains unknown item ID %d, skipping.\n", lines, path,items[v]);
-					break;
-				}
-			}
-			/* failed at some item */
-			if( v < retcount )
-				continue;
-			id = itemdb_exists(items[0]);
-			if (battle_config.combo_mode == 2 && itemdb_combos_contrast(id, items, retcount, &idx)) {
-				if (id->combos[idx]->script)
-					script_free_code(id->combos[idx]->script);
-				id->combos[idx]->script = parse_script(str[1], path, lines, 0);
-				for (v = 1; v < retcount; v++) {
-					struct item_data * it;
-					int index;
-					it = itemdb_exists(items[v]);
-					if (itemdb_combos_contrast(it, items, retcount, &index)) {
-						it->combos[index]->script = id->combos[idx]->script;
-					}
-				}
-			}
-			else {
-				idx = id->combos_count;
-				/* first entry, create */
-				if (id->combos == NULL) {
-					CREATE(id->combos, struct item_combo*, 1);
-					id->combos_count = 1;
-				} else {
-					RECREATE(id->combos, struct item_combo*, ++id->combos_count);
-				}
-				CREATE(id->combos[idx], struct item_combo, 1);
-				id->combos[idx]->nameid = (unsigned short*)aMalloc(retcount * sizeof(unsigned short));
-				id->combos[idx]->count = retcount;
-				id->combos[idx]->script = parse_script(str[1], path, lines, 0);
-				id->combos[idx]->id = number;
-				id->combos[idx]->isRef = false;
-				/* populate ->nameid field */
-				for (v = 0; v < retcount; v++) {
-					id->combos[idx]->nameid[v] = items[v];
-				}
-
-				/* populate the children to refer to this combo */
-				for (v = 1; v < retcount; v++) {
-					struct item_data * it;
-					int index;
-					it = itemdb_exists(items[v]);
-					index = it->combos_count;
-					if (it->combos == NULL) {
-						CREATE(it->combos, struct item_combo*, 1);
-						it->combos_count = 1;
-					} else {
-						RECREATE(it->combos, struct item_combo*, ++it->combos_count);
-					}
-					CREATE(it->combos[index], struct item_combo, 1);
-					/* we copy previously alloc'd pointers and just set it to reference */
-					memcpy(it->combos[index], id->combos[idx], sizeof(struct item_combo));
-					/* we flag this way to ensure we don't double-dealloc same data */
-					it->combos[index]->isRef = true;
-				}
-				uidb_put(itemdb_combo, id->combos[idx]->id, id->combos[idx]);
-			}
-			number++;
-		}
 		count++;
 	}
 	fclose(fp);
@@ -1589,6 +1620,110 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 * Read item from item db
 * item_db2 overwriting item_db
 */
+bool itemdb_readdb_line(const char *path, int lines,char *line) {
+
+	char *str[32], *p;
+	int i;
+	if(line[0] == '/' && line[1] == '/')
+		return false;
+
+	memset(str, 0, sizeof(str));
+
+	p = strstr(line,"//");
+
+	if( p != nullptr ){
+		*p = '\0';
+	}
+
+	p = line;
+	while( ISSPACE(*p) )
+		++p;
+	if( *p == '\0' )
+		return false;// empty line
+	for( i = 0; i < 19; ++i )
+	{
+		str[i] = p;
+		p = strchr(p,',');
+		if( p == NULL )
+			break;// comma not found
+		*p = '\0';
+		++p;
+	}
+
+	if( p == NULL )
+	{
+		ShowError("itemdb_readdb: Insufficient columns in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+		return false;
+	}
+
+	// Script
+	if( *p != '{' )
+	{
+		ShowError("itemdb_readdb: Invalid format (Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+		return false;
+	}
+	str[19] = p + 1;
+	p = strstr(p+1,"},");
+	if( p == NULL )
+	{
+		ShowError("itemdb_readdb: Invalid format (Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+		return false;
+	}
+	*p = '\0';
+	p += 2;
+
+	// OnEquip_Script
+	if( *p != '{' )
+	{
+		ShowError("itemdb_readdb: Invalid format (OnEquip_Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+		return false;
+	}
+	str[20] = p + 1;
+	p = strstr(p+1,"},");
+	if( p == NULL )
+	{
+		ShowError("itemdb_readdb: Invalid format (OnEquip_Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+		return false;
+	}
+	*p = '\0';
+	p += 2;
+
+	// OnUnequip_Script (last column)
+	if( *p != '{' )
+	{
+		ShowError("itemdb_readdb: Invalid format (OnUnequip_Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+		return false;
+	}
+	str[21] = p;
+	p = &str[21][strlen(str[21]) - 2];
+
+	if ( *p != '}' ) {
+		/* lets count to ensure it's not something silly e.g. a extra space at line ending */
+		int v, lcurly = 0, rcurly = 0;
+
+		for( v = 0; v < strlen(str[21]); v++ ) {
+			if( str[21][v] == '{' )
+				lcurly++;
+			else if (str[21][v] == '}') {
+				rcurly++;
+				p = &str[21][v];
+			}
+		}
+
+		if( lcurly != rcurly ) {
+			ShowError("itemdb_readdb: Mismatching curly braces in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+			return false;
+		}
+	}
+	str[21] = str[21] + 1;  //skip the first left curly
+	*p = '\0';              //null the last right curly
+
+	if (!itemdb_parse_dbrow(str, path, lines, SCRIPT_IGNORE_EXTERNAL_BRACKETS))
+		return false;
+
+	return true;
+}
+
 static int itemdb_readdb(void){
 	const char* filename[] = {
 		DBPATH"item_db.txt",
@@ -1614,103 +1749,9 @@ static int itemdb_readdb(void){
 		// process rows one by one
 		while(fgets_ex(line, sizeof(line), fp))
 		{
-			char *str[32], *p;
-			int i;
 			lines++;
-			if(line[0] == '/' && line[1] == '/')
-				continue;
-			memset(str, 0, sizeof(str));
 
-			p = strstr(line,"//");
-
-			if( p != nullptr ){
-				*p = '\0';
-			}
-
-			p = line;
-			while( ISSPACE(*p) )
-				++p;
-			if( *p == '\0' )
-				continue;// empty line
-			for( i = 0; i < 19; ++i )
-			{
-				str[i] = p;
-				p = strchr(p,',');
-				if( p == NULL )
-					break;// comma not found
-				*p = '\0';
-				++p;
-			}
-
-			if( p == NULL )
-			{
-				ShowError("itemdb_readdb: Insufficient columns in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
-				continue;
-			}
-
-			// Script
-			if( *p != '{' )
-			{
-				ShowError("itemdb_readdb: Invalid format (Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
-				continue;
-			}
-			str[19] = p + 1;
-			p = strstr(p+1,"},");
-			if( p == NULL )
-			{
-				ShowError("itemdb_readdb: Invalid format (Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
-				continue;
-			}
-			*p = '\0';
-			p += 2;
-
-			// OnEquip_Script
-			if( *p != '{' )
-			{
-				ShowError("itemdb_readdb: Invalid format (OnEquip_Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
-				continue;
-			}
-			str[20] = p + 1;
-			p = strstr(p+1,"},");
-			if( p == NULL )
-			{
-				ShowError("itemdb_readdb: Invalid format (OnEquip_Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
-				continue;
-			}
-			*p = '\0';
-			p += 2;
-
-			// OnUnequip_Script (last column)
-			if( *p != '{' )
-			{
-				ShowError("itemdb_readdb: Invalid format (OnUnequip_Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
-				continue;
-			}
-			str[21] = p;
-			p = &str[21][strlen(str[21]) - 2];
-
-			if ( *p != '}' ) {
-				/* lets count to ensure it's not something silly e.g. a extra space at line ending */
-				int v, lcurly = 0, rcurly = 0;
-
-				for( v = 0; v < strlen(str[21]); v++ ) {
-					if( str[21][v] == '{' )
-						lcurly++;
-					else if (str[21][v] == '}') {
-						rcurly++;
-						p = &str[21][v];
-					}
-				}
-
-				if( lcurly != rcurly ) {
-					ShowError("itemdb_readdb: Mismatching curly braces in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
-					continue;
-				}
-			}
-			str[21] = str[21] + 1;  //skip the first left curly
-			*p = '\0';              //null the last right curly
-
-			if (!itemdb_parse_dbrow(str, path, lines, SCRIPT_IGNORE_EXTERNAL_BRACKETS))
+			if (!itemdb_readdb_line(path, lines, line))
 				continue;
 
 			count++;

@@ -77,6 +77,7 @@ struct instance_db {
 
 extern struct instance_data instance_data[MAX_INSTANCE_DATA];
 
+bool instance_readdb_sub(char* str[], int columns, int current);
 struct instance_db *instance_searchtype_db(unsigned short instance_id);
 struct instance_db *instance_searchname_db(const char* name);
 void instance_getsd(unsigned short instance_id, struct map_session_data **sd, enum send_target *target);

@@ -324,7 +324,7 @@ void battle_damage_event(struct block_list* src, struct block_list* target, int 
 		}
 	}
 
-	if (sd->runing_event[NPCE_ATKFILTER] || sd->runing_event[NPCE_ATKEDFILTER]) {
+	if (sd && (sd->runing_event[NPCE_ATKFILTER] || sd->runing_event[NPCE_ATKEDFILTER])) {
 		struct unit_data *ud = unit_bl2ud(src);
 		if (ud && ud->skill_fixed.damage && (ud->skill_fixed.skill_id == skill_id || ud->skill_fixed.skill_id == -1)) {
 			if (ud->skill_fixed.type & 2)

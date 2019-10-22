@@ -4044,8 +4044,8 @@ int map_readallmaps (void)
 
 		if (success && mapdata->target && mapdata->target[0]) {
 			safestrncpy(mapdata->name, mapdata->target, MAP_NAME_LENGTH);
-			if (!mapindex_name2id(mapdata->name))
-				mapindex_addmap(-1, mapdata->name);
+			memset(mapdata->target, 0, MAP_NAME_LENGTH * sizeof(char));
+			mapindex_addmap(-1, mapdata->name);
 		}
 
 		// The map was not found - remove it
