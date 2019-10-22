@@ -759,12 +759,12 @@
 522,0,0,0,0,0,0,10,1,no,0,0,0,weapon,0,0x0,		NJ_TOBIDOUGU,飞刀修炼
 523,9,6,1,-1,0x40,0,10,1,no,0,0,0,weapon,0,0x0,	NJ_SYURIKEN,飞镖扔
 524,9,8,1,-1,0x40,0,5,3,no,0,0,0,weapon,0,0x0,	NJ_KUNAI,短刀扔
-525,9,8,2,-1,0x2,0,5,-3:-3:-4:-4:-5,no,0,0x40000,0,weapon,0,0x0,	NJ_HUUMA,风魔飞镖扔
+525,9,8,1,-1,0x2,1:1:1:2:2,5,-3:-3:-4:-4:-5,no,0,0x40000,0,weapon,0,0x0,	NJ_HUUMA,风魔飞镖扔
 526,9,6,1,0,0x50,0,10,1,no,0,0x18000,0,misc,0,0x0,		NJ_ZENYNAGE,钱扔
 527,0,6,4,-1,0,0,5,1,no,0,0,0,weapon,4,0x0,		NJ_TATAMIGAESHI,榻榻米翻开
-528,-1,6,1,-1,0,0,10,1,no,0,0,0,weapon,0,0x0,	NJ_KASUMIKIRI,雾割
+528,-1,6,1,-1,0,0,10,-2,no,0,0,0,weapon,0,0x0,	NJ_KASUMIKIRI,雾割
 529,7:9:11:13:15,6,2,0,0x1,0,5,1,no,0,0,0,none,0,0x4,	NJ_SHADOWJUMP,影子图越
-530,7:9:11:13:15,6,1,-1,0x100,0,5,1,no,0,0,0,weapon,0,0x204,	NJ_KIRIKAGE,影子割
+530,7:9:11:13:15,6,1,-1,0x100,0,5,-3,no,0,0,0,weapon,0,0x204,	NJ_KIRIKAGE,影子割
 531,0,6,4,0,0x1,0,5,1,no,0,0,0,none,7,0x0,		NJ_UTSUSEMI,金蝉脱壳
 532,0,6,4,0,0x1,0,10,1,yes,0,0,0,magic,0,0x0,	NJ_BUNSINJYUTSU,幻影化身
 533,0,0,0,0,0,0,10,0,no,0,0,0,none,0,0x0,		NJ_NINPOU,忍法修炼
@@ -775,8 +775,8 @@
 538,9,6,2,1,0x1,0,10,1,yes,0,0,0,magic,0,0x1000,	NJ_SUITON,水遁
 539,0,6,4,1,0,0,5,1,yes,0,0,0,magic,0,0x0,		NJ_HYOUSYOURAKU,冰晶落
 540,9,8,1,4,0,0,10,1:2:2:3:3:4:4:5:5:6,yes,0,0,0,magic,0,0x0,	NJ_HUUJIN,风刃
-541,9,6,2,4,0,0,5,1,yes,0,0,0,magic,0,0x0,	NJ_RAIGEKISAI,雷击碎
-542,5:6:7:8:9,8,1,4,0,1,5,1,yes,0,0x40000,5:6:7:8:9,magic,0,0x0,	NJ_KAMAITACHI,朔风劈开
+541,9,6,2,4,0,0,5,-3,yes,0,0,0,magic,0,0x0,	NJ_RAIGEKISAI,雷击碎
+542,5:6:7:8:9,8,1,4,0,1,5,-5,yes,0,0x40000,5:6:7:8:9,magic,0,0x0,	NJ_KAMAITACHI,朔风劈开
 543,0,6,4,0,0x1,0,5,1,yes,0,0,0,none,0,0x0,		NJ_NEN,念
 544,-5,8,1,0,0x40,0,10,1,no,0,0,0,misc,0,0x0,	NJ_ISSEN,一闪
 
@@ -935,7 +935,7 @@
 2005,1,6,2,4,0x2,2,5,1,no,0,0,0,weapon,3,0x0,	RK_WINDCUTTER,裂风之刃
 2006,0,6,4,-1,0x2,5,5,1,no,0,0,0,weapon,0,0x0,	RK_IGNITIONBREAK,爆裂之刃
 2007,0,0,0,0,0,0,5,0,no,0,0,0,none,0,0x0,		RK_DRAGONTRAINING,训龙术
-2008,9,6,2,3,0x4A,1:1:1:2:2:2:3:3:4:4,10,1,no,0,0x40000,0,weapon,0,0x0,	RK_DRAGONBREATH,龙之吐息
+2008,9,6,2,3,0x42,1:1:1:2:2:2:3:3:4:4,10,1,no,0,0x40000,0,weapon,0,0x0,	RK_DRAGONBREATH,龙之吐息
 2009,0,6,4,0,0x3,3:4:5:6:7,5,1,no,0,0,0,none,0,0x0,	RK_DRAGONHOWLING,龙之咆哮
 2010,0,0,0,0,0,0,10,0,no,0,0,0,none,0,0x0,		RK_RUNEMASTERY,符文掌握
 2011,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,0x0,	RK_MILLENNIUMSHIELD,千年之盾
@@ -1138,28 +1138,28 @@
 //****
 // SR Sura
 2326,1,8,1,-1,0,0,10,-2,no,0,0,0,weapon,0,0x0,	SR_DRAGONCOMBO,双龙摆尾
-2327,0,8,4,-1,0x2,2,5,-3,no,0,0x40000,0,weapon,3,0x0,	SR_SKYNETBLOW,天罗地网
-2328,0,6,4,-1,0x2,1:2:3:4:5,5,1,no,0,0x40000,0,weapon,0,0x0,	SR_EARTHSHAKER,地震波
+2327,1,8,4,-1,0x2,2,5,-3,no,0,0x40000,0,weapon,0,0x0,	SR_SKYNETBLOW,天罗地网
+2328,1,6,4,-1,0x2,1:2:3:4:5,5,1,no,0,0x40000,0,weapon,0,0x0,	SR_EARTHSHAKER,地震波
 2329,1,8,4,-1,0,0,5,-2,no,0,0x200,0,weapon,0,0x0,	SR_FALLENEMPIRE,大锤崩坠
 2330,1,6,1,-1,0x42,1:1:1:1:1:2:2:2:2:2,10,1,yes,0,0x40000,0,weapon,0,0x0,	SR_TIGERCANNON,虎炮
 2331,0,0,0,0,0,0,10,0,no,0,0,0,none,0,0x0,		SR_HELLGATE,Hell Gate
-2332,0,6,4,-1,0x2,3,5,1,no,0,0x40000,0,weapon,0,0x0,	SR_RAMPAGEBLASTER,气弹爆破
-2333,0,6,4,0,0x1,0,5,1,no,0,0,0,none,0,0x0,		SR_CRESCENTELBOW,崩拳
-2334,0,6,4,0,0x3,1:1:2:2:3,5,1,no,0,0,0,none,0,0x0,	SR_CURSEDCIRCLE,咒缚阵
-2335,0,6,4,0,0x1,0,5,1,no,0,0,0,none,0,0x0,		SR_LIGHTNINGWALK,闪电步
-2336,7:8:9:10:11,6,1,-1,0,0,5,1,no,0,0,0,weapon,2:3:4:5:6,0x0,	SR_KNUCKLEARROW,修罗强击
-2337,0,6,4,-1,0x2,2,1,1,yes,0,0,0,weapon,0,0x1000,	SR_WINDMILL,旋风腿
-2338,0,6,4,0,0x1,0,10,1,no,0,0,0,none,0,0x0,	SR_RAISINGDRAGON,潜龙升天
+2332,1,6,4,-1,0x2,3,5,1,no,0,0x40000,0,weapon,0,0x0,	SR_RAMPAGEBLASTER,气弹爆破
+2333,1,6,4,0,0x1,0,5,1,no,0,0,0,none,0,0x0,		SR_CRESCENTELBOW,崩拳
+2334,1,6,4,0,0x3,1:1:2:2:3,5,1,no,0,0,0,none,0,0x0,	SR_CURSEDCIRCLE,咒缚阵
+2335,1,6,4,0,0x1,0,5,1,no,0,0,0,none,0,0x0,		SR_LIGHTNINGWALK,闪电步
+2336,8:9:10:11,6,1,-1,0,0,5,1,no,0,0,0,weapon,2:3:4:5:6,0x0,	SR_KNUCKLEARROW,修罗强击
+2337,1,6,4,-1,0x2,2,1,1,yes,0,0,0,weapon,0,0x1000,	SR_WINDMILL,旋风腿
+2338,1,6,4,0,0x1,0,10,1,no,0,0,0,none,0,0x0,	SR_RAISINGDRAGON,潜龙升天
 2339,0,0,0,0,0,0,5,1,no,0,0,0,none,0,0x0,		SR_GENTLETOUCH,Gentle Touch
-2340,0,6,4,0,0x3,2,1,1,no,0,0,0,none,0,0x0,	SR_ASSIMILATEPOWER,元气功
+2340,1,6,4,0,0x3,2,1,1,no,0,0,0,none,0,0x0,	SR_ASSIMILATEPOWER,元气功
 2341,3,6,16,0,0x1,0,1,1,yes,0,0x200,0,none,0,0x0,	SR_POWERVELOCITY,真气注入
 2342,1,6,1,-1,0x20,0,5,1,no,0,0,0,weapon,7,0x0,	SR_CRESCENTELBOW_AUTOSPELL,Crescent Elbow Autospell
-2343,1:2:3:3:4:4:5:5:6:7,8,1,-1,0,0,10,-7,yes,0,0,0,weapon,0,0x0,	SR_GATEOFHELL,罗刹破凰拳
+2343,7,8,1,-1,0,0,10,-7,yes,0,0,0,weapon,0,0x0,	SR_GATEOFHELL,罗刹破凰拳
 2344,2,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x0,	SR_GENTLETOUCH_QUIET,点穴 - 默
 2345,2,6,16,0,0x1,0,5,1,no,0,0,0,none,0,0x0,	SR_GENTLETOUCH_CURE,点穴 - 愈
-2346,0,6,4,0,0x1,0,5,1,yes,0,0,0,none,0,0x0,	SR_GENTLETOUCH_ENERGYGAIN,点穴 - 气
-2347,2,6,16,0,0x1,0,5,1,yes,0,0,0,none,0,0x0,	SR_GENTLETOUCH_CHANGE,点穴 - 迅
-2348,2,6,16,0,0x1,0,5,1,yes,0,0,0,none,0,0x0,	SR_GENTLETOUCH_REVITALIZE,点穴 - 生
+2346,1,6,4,0,0x1,0,5,1,yes,0,0,0,none,0,0x0,	SR_GENTLETOUCH_ENERGYGAIN,点穴 - 气
+2347,2,6,4,0,0x1,0,5,1,yes,0,0,0,none,0,0x0,	SR_GENTLETOUCH_CHANGE,点穴 - 迅
+2348,2,6,4,0,0x1,0,5,1,yes,0,0,0,none,0,0x0,	SR_GENTLETOUCH_REVITALIZE,点穴 - 生
 //More from Sura but not following ID order
 2517,0,6,4,-1,0x2,3:4:5:6:7,5,1,no,0,0,0,weapon,0,0x0,	SR_HOWLINGOFLION,狮子吼
 2518,11,6,2,-1,0x2,1:1:2:2:3,5,1,no,0,0,0,weapon,0,0x0,	SR_RIDEINLIGHTNING,雷光弹
@@ -1237,7 +1237,7 @@
 2474,0,0,0,0,0,0,5,0,no,0,0,0,none,0,0x0,		GN_TRAINING_SWORD,单手剑使用熟练度
 2475,0,0,0,0,0,0,5,0,no,0,0,0,none,0,0x0,		GN_REMODELING_CART,手推车强化
 2476,0,6,4,-1,0x2,2,5,1,no,0,0,0,weapon,2,0x0,	GN_CART_TORNADO,手推车龙卷风
-2477,7:8:9:10:11,6,1,0,0x42,1:1:2:2:3,5,1,yes,0,0,0,weapon,0,0x0,	GN_CARTCANNON,手推车加农炮
+2477,7:8:9:10:11,6,1,-1,0x42,1:1:2:2:3,5,1,yes,0,0,0,weapon,0,0x0,	GN_CARTCANNON,手推车加农炮
 2478,0,6,4,0,0x1,0,5,1,yes,0,0,0,none,0,0x0,	GN_CARTBOOST,手推车爆发
 2479,9,6,2,0,0,0,5,1,yes,0,0x80,3,misc,0,0x0,	GN_THORNS_TRAP,荆棘陷阱
 2480,11,6,1,0,0x1,0,5,1,yes,0,0,3,misc,0,0x0,		GN_BLOOD_SUCKER,吸血草
@@ -1306,26 +1306,26 @@
 //2574,0,6,1,-1,0,0,10,1,no,0,0,0,weapon,0,0,	RL_GLITTERING_GREED_ATK,Flip The Coin Greed Attack
 
 // Star Emperor
-2574,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_LIGHTOFMOON,Light of Moon
-2575,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_LUNARSTANCE,Lunar Stance
-2576,0,0,4,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_FULLMOONKICK,Full Moon Kick
-2577,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_LIGHTOFSTAR,Light of Star
-2578,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_STARSTANCE,Star Stance
-2579,0,0,4,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_NEWMOONKICK,New Moon Kick
-2580,1,0,1,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_FLASHKICK,Flash Kick
-2581,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_STAREMPEROR,Star Emperor
-2582,3,0,1,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_NOVAEXPLOSING,Nova Explosing
-2583,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_UNIVERSESTANCE,Universe Stance
-2584,0,0,4,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_FALLINGSTAR,Falling Star
-2585,9,0,1,0,0,0,1,0,yes,0,0,0,none,0,0,		SJ_GRAVITYCONTROL,Gravity Control
-2586,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_BOOKOFDIMENSION,Book of Dimension
-2587,7,0,2,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_BOOKOFCREATINGSTAR,Book of Creating Star
-2588,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_DOCUMENT,Document
-2589,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0,		SJ_PURIFY,Purify
-2590,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_LIGHTOFSUN,Light of Sun
-2591,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_SUNSTANCE,Sun Stance
-2592,0,0,4,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_SOLARBURST,Solar Burst
-2593,1,0,1,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_PROMINENCEKICK,Prominence Kick
+2574,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_LIGHTOFMOON,月光
+2575,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_LUNARSTANCE,月之势
+2576,0,0,4,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_FULLMOONKICK,满月踢
+2577,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_LIGHTOFSTAR,星光
+2578,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_STARSTANCE,星之势
+2579,0,0,4,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_NEWMOONKICK,新月踢
+2580,1,0,1,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_FLASHKICK,闪光踢
+2581,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_STAREMPEROR,星帝降临
+2582,3,0,1,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_NOVAEXPLOSING,新星爆炸
+2583,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_UNIVERSESTANCE,宇宙之势
+2584,0,0,4,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_FALLINGSTAR,流星
+2585,9,0,1,0,0,0,1,0,yes,0,0,0,none,0,0,		SJ_GRAVITYCONTROL,重力控制
+2586,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_BOOKOFDIMENSION,次元之书
+2587,7,0,2,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_BOOKOFCREATINGSTAR,创造之书
+2588,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_DOCUMENT,太阳月亮和星星的记录
+2589,0,0,0,0,0,0,1,0,no,0,0,0,none,0,0,		SJ_PURIFY,纯净的太阳月亮和星星
+2590,0,0,4,0,0,0,5,0,yes,0,0,0,none,0,0,		SJ_LIGHTOFSUN,日光
+2591,0,0,4,0,0,0,3,0,yes,0,0,0,none,0,0,		SJ_SUNSTANCE,日之势
+2592,0,0,4,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_SOLARBURST,太阳爆炸
+2593,1,0,1,0,0,0,7,0,yes,0,0,0,none,0,0,		SJ_PROMINENCEKICK,突击
 2594,0,0,1,0,0,0,7,0,yes,0,0x4000,0,none,0,0,	SJ_FALLINGSTAR_ATK,Falling Star Attack
 2595,0,0,1,0,0,0,7,0,yes,0,0x4000,0,none,0,0,	SJ_FALLINGSTAR_ATK2,Falling Star Attack 2
 
@@ -1398,7 +1398,7 @@
 5001,1,8,1,-1,0,0,5,3,no,0,0,0,weapon,0,0x0, GC_DARKCROW,漆黑之爪
 5002,0,6,4,0,0x1,0,5,1,no,0,0,0,none,0,0x0, RA_UNLIMIT,无限射击
 5003,7,6,1,-1,0x2,4:5:6:7:-1,5,1,no,0,0,0,weapon,0,0x0, GN_ILLUSIONDOPING,致幻剂
-5004,9,6,2,1,0x3A,1:1:1:2:2:2:3:3:4:4,10,1,no,0,0x40000,0,weapon,0,0x0, RK_DRAGONBREATH_WATER,龙之吐息 - 水
+5004,9,6,2,1,0x42,1:1:1:2:2:2:3:3:4:4,10,1,no,0,0x40000,0,weapon,0,0x0, RK_DRAGONBREATH_WATER,龙之吐息 - 水
 5005,0,6,4,0,0x3,3,1,1,no,0,0,0,none,0,0x0, RK_LUXANIMA,Lux Anima
 5006,1,6,2,-1,0x2,3,5,1,no,0,0,3,weapon,0,0x4000, NC_MAGMA_ERUPTION,熔岩喷发
 5007,0,6,4,0,0x3,5:6:7:8:9,5,1,no,0,0,0,none,0,0x0, WM_FRIGG_SONG,丰饶之歌

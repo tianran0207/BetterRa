@@ -124,6 +124,10 @@ Thumbs.db
 /libmysql.dll
 /pcre8.dll
 /zlib.dll
+
+# CMakeFiles
+/CMakeFiles/
+
 personal
 /tools/BetterRA_Tool/BetterRaTool.bak
 /*.map
