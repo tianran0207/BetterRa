@@ -304,6 +304,9 @@ struct item_drop_list {
 	struct item_drop* item;            // linked list of drops
 };
 
+bool mob_readdb_sub(char* fields[], int columns, int current);
+bool mob_readdb_mobavail(char* str[], int columns, int current);
+bool mob_parse_row_mobskilldb(char** str, int columns, int current);
 struct mob_db *mob_db(int mob_id);
 uint16 mobdb_searchname(const char * const str);
 struct mob_db* mobdb_search_aegisname( const char* str );

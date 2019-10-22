@@ -1060,6 +1060,43 @@ bool sv_readdb(const char* directory, const char* filename, char delim, int minc
 	return true;
 }
 
+bool sv_readdb_line(const char* filepath, int lines, char *buffer, char delim, int mincols, int maxcols, bool(*parseproc)(char* fields[], int columns, int current))
+{
+	char **fields, *match; // buffer for fields ([0] is reserved)
+	int columns, nb_cols;
+
+	// allocate enough memory for the maximum requested amount of columns plus the reserved one
+	nb_cols = maxcols + 1;
+	fields = (char**)aMalloc(nb_cols * sizeof(char*));
+
+	if ((match = strstr(buffer, "//")) != NULL)
+		match[0] = 0;
+
+	if (buffer[0] == '\0' || buffer[0] == '\n' || buffer[0] == '\r')
+		return false;
+
+	columns = sv_split(buffer, strlen(buffer), 0, delim, fields, nb_cols, (e_svopt)(SV_TERMINATE_LF|SV_TERMINATE_CRLF));
+
+	if (columns < mincols)
+	{
+		ShowError("sv_readdb_line: Insufficient columns in line %d of \"%s\" (found %d, need at least %d).\n", lines, filepath, columns, mincols);
+		return false; // not enough columns
+	}
+	if (columns > maxcols)
+	{
+		ShowError("sv_readdb_line: Too many columns in line %d of \"%s\" (found %d, maximum is %d).\n", lines, filepath, columns, maxcols);
+		return false; // too many columns
+	}
+	// parse this row
+	if (!parseproc(fields + 1, columns, 0))
+	{
+		ShowError("sv_readdb_line: Could not process contents of line %d of \"%s\".\n", lines, filepath);
+		return false; // too many columns
+	}
+	aFree(fields);
+
+	return true;
+}
 
 /////////////////////////////////////////////////////////////////////
 // StringBuf - dynamic string

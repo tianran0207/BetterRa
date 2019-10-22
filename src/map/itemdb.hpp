@@ -905,6 +905,10 @@ struct s_random_opt_group {
 	uint16 total;
 };
 
+bool itemdb_readdb_line(const char *path, int lines, char *line);
+bool itemdb_read_itemavail(char* str[], int columns, int current);
+bool itemdb_read_combos_line(const char *path, int lines, char *line, uint32 *number);
+void itemdb_addname(unsigned short nameid, const char *from);
 struct item_data* itemdb_searchname(const char *name);
 struct item_data* itemdb_search_aegisname( const char *str );
 int itemdb_searchname_array(struct item_data** data, int size, const char *str);

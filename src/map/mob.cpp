@@ -4417,7 +4417,7 @@ static bool mob_parse_dbrow(char** str)
 /*==========================================
  * mob_db.txt reading
  *------------------------------------------*/
-static bool mob_readdb_sub(char* fields[], int columns, int current)
+bool mob_readdb_sub(char* fields[], int columns, int current)
 {
 	return mob_parse_dbrow(fields);
 }
@@ -4478,7 +4478,7 @@ static int mob_read_sqldb(void)
 /*==========================================
  * MOB display graphic change data reading
  *------------------------------------------*/
-static bool mob_readdb_mobavail(char* str[], int columns, int current)
+bool mob_readdb_mobavail(char* str[], int columns, int current)
 {
 	int mob_id, sprite_id;
 	struct mob_db *db;
@@ -4632,7 +4632,7 @@ static bool mob_parse_row_chatdb(char* fields[], int columns, int current)
 /*==========================================
  * processes one mob_skill_db entry
  *------------------------------------------*/
-static bool mob_parse_row_mobskilldb(char** str, int columns, int current)
+bool mob_parse_row_mobskilldb(char** str, int columns, int current)
 {
 	static const struct {
 		char str[32];

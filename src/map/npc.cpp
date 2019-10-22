@@ -961,7 +961,7 @@ bool npc_ondisplay_event(struct map_session_data *sd, struct npc_data *nd)
 	sprintf(name, "%s::OnDisplay", nd->name);
 	ev = (struct event_data*)strdb_get(ev_db, name);
 
-	if(!sd) {
+	if(!sd && nd->u.scr.label_list) {
 		int i;
 		for (i = 0; i < nd->u.scr.label_list_num; i++) {
 			if (!strcmp(nd->u.scr.label_list[i].name, "OnDisplay"))
@@ -4435,6 +4435,84 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 	return strchr(start,'\n');// continue
 }
 
+static const char* npc_parse_dbread(char* w1, const char* start, const char* buffer, const char* filepath)
+{
+	static const char *head[] = { "item_db","item_avail","item_combo_db","mob_db","mob_avail","mob_skill_db","instances_db" };
+	const char *p;
+	int i, len, lines = 0;
+
+	if ((p = strchr(w1, ':')) == NULL)
+		return start;
+
+	len = p - w1;
+
+	ARR_FIND(0, ARRAYLENGTH(head), i, strncasecmp(w1, head[i], len) == 0);
+	if (i == ARRAYLENGTH(head))
+		return start;
+
+	start = strchr(start, '\n');
+
+	for (p = skip_space(start); p && *p; p = skip_space(start))
+	{
+		char line[2048], idstr[24];
+		const char *str, *nextline = strchr(p, '\n');
+		int data_id;
+
+		if (!nextline)
+			len = strlen(p);
+		else
+			len = nextline - p + sizeof(char);
+
+		memcpy(line, p, len * sizeof(char));
+		line[len] = '\0';
+
+		str = line;
+		if ((str = strchr(str+1, '\t')) != NULL && (str = strchr(str+1, '\t')) != NULL && (str = strchr(str+1, '\t')) != NULL)
+			break;
+
+		str = line;
+		if ((str = strchr(str, ',')) == NULL || str - line >= 24)
+			break;
+
+		safestrncpy(idstr, line, str - line + 1);
+
+		if ((data_id = atoi(idstr)) == 0)
+			break;
+
+		start = nextline;
+		lines++;
+
+		switch (i) {
+		case 0:
+			itemdb_readdb_line(filepath,lines,line);
+			itemdb_addname(data_id, filepath);
+			continue;
+		case 1:
+			sv_readdb_line(filepath, lines, line, ',',2,2,&itemdb_read_itemavail);
+			continue;
+		case 2:
+			itemdb_read_combos_line(filepath, lines, line, NULL);
+			continue;
+		case 3: //mob_db
+			sv_readdb_line(filepath,lines,line,',',31+2*MAX_MVP_DROP+2*MAX_MOB_DROP, 31+2*MAX_MVP_DROP+2*MAX_MOB_DROP, &mob_readdb_sub);
+			continue;
+		case 4:
+			sv_readdb_line(filepath, lines, line,',',2,12,&mob_readdb_mobavail);
+			continue;
+		case 5:
+			sv_readdb_line(filepath,lines,line,',',19,19,&mob_parse_row_mobskilldb);
+			continue;
+		case 6:
+			sv_readdb_line(filepath,lines,line,',',7,7+MAX_MAP_PER_INSTANCE,&instance_readdb_sub);
+			continue;
+		default:
+			return start;
+		}
+	}
+
+	return start;
+}
+
 /**
  * Read file and create npc/func/mapflag/monster... accordingly.
  * @param filepath : Relative path of file from map-serv bin
@@ -4550,6 +4628,9 @@ int npc_parsesrcfile(const char* filepath, bool runOnInit, char *other_buffer)
 		}
 		else
 			w4[0] = '\0';
+
+		if( count == 1 && (p = npc_parse_dbread(trim(w1), p, buffer, filepath)))
+			continue;
 
 		if( count < 3 )
 		{// Unknown syntax

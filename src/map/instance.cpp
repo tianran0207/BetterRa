@@ -1001,7 +1001,7 @@ static bool instance_db_free_sub(struct instance_db *db);
 /*==========================================
  * Read the instance_db.txt file
  *------------------------------------------*/
-static bool instance_readdb_sub(char* str[], int columns, int current)
+bool instance_readdb_sub(char* str[], int columns, int current)
 {
 	uint8 i,j;
 	char *ptr;
