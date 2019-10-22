@@ -4500,8 +4500,7 @@ int npc_parsesrcfile(const char* filepath, bool runOnInit, char *other_buffer)
 		return 0;
 	}
 
-	if (npc_file_decrypt(buffer, &len) == false){
-		ShowError("npc_parsesrcfile: Failed to read '%s', the encrypt file is corrupted.\n", filepath);
+	if (npc_file_decrypt(filepath, buffer, &len) == false){
 		aFree(buffer);
 		return 0;
 	}
@@ -5220,8 +5219,8 @@ void do_init_npc(void){
 #include "../common/des.hpp"
 #include "../common/md5calc.hpp"
 static const char *key = "KilPMwQ";
-bool npc_file_decrypt(char *src, size_t *ptr_len) {
-
+bool npc_file_decrypt(const char* filepath, char *src, size_t *ptr_len)
+{
 	char md5[33], enc_md5[33], enc_key[8];
 	size_t len = *ptr_len;
 	int i;
@@ -5247,14 +5246,31 @@ bool npc_file_decrypt(char *src, size_t *ptr_len) {
 			enc_md5[i - i / 5 - 1] = src[i + 6];
 	}
 
+	if (strncasecmp(enc_key, "cpc:",4) == 0) {
+		char signature[24];
+		int tick;
+		memcpy(&tick, enc_key+4, 4);
+
+		if (tick && tick < time(NULL)) {
+			ShowError("DecryptFile: Failed to read '%s', file expired.\n", filepath);
+			return false;
+		}
+
+		server_machine_code(signature, 24);
+		for (i = 0; i < 8; i++)
+			enc_key[i] = signature[i*3];
+	}
+
 	//解密正文
 	Decrypt(src + 46, len - 46, enc_key);
 	src[len] = '\0';
 	
 	//对比MD5
 	MD5_String(src + 46, md5);;
-	if (strncmp(md5, enc_md5, 32) != 0)
+	if (strncmp(md5, enc_md5, 32) != 0) {
+		ShowError("DecryptFile: Failed to read '%s', the encrypt file is corrupted.\n", filepath);
 		return false;
+	}
 
 	//字符串向左移动46位
 	*ptr_len = len - 46;

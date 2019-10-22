@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 /*
 * des.h provides the following functions and constants:
@@ -17,27 +18,33 @@ void MD5_String(const char * string, char * output);
 
 void file_encrypt(const char *inputfile, const char *outputfile, const char *enc_key, bool c_hex);
 void file_decrypt(const char *inputfile, const char *outputfile, const char *dec_key);
+int time2tick(char *str_time);
 
 int main(int argc, char* argv[]) {
-	
-	//char *input = "C:\\Users\\HOME_CTR\\Documents\\Visual Studio 2015\\Projects\\ConsoleApplication5\\ConsoleApplication5\\ReadMe.txt";
-	//char *output = "C:\\Users\\HOME_CTR\\Documents\\Visual Studio 2015\\Projects\\ConsoleApplication5\\ConsoleApplication5\\test.txt";
-	//char *key = "12345678";
+
+	//int tick = 0;
+	//char key[128] = { 0 };
+	//char *input = "D:\\rathena2017223\\BetterRa\\tools\\BetterRA_Script\\Debug\\BetterRA脚本加密.bat";
+	//char *output = "D:\\rathena2017223\\BetterRa\\tools\\BetterRA_Script\\Debug\\test.txt";
+	//tick = time2tick("20191023");
+	//memcpy(key, "9a8e153316c1e213fa80a45", 24);
+	//memcpy(key + 25, &tick, 4);
 	//
 	//file_encrypt(input, output, key, (argc == 5 && strcmp(argv[5], "hex") == 0));
+
 	//file_encrypt("C:\\Users\\HOME_CTR\\Documents\\Visual Studio 2015\\Projects\\ConsoleApplication5\\ConsoleApplication5\\ReadMe.txt"
 	//	, "C:\\Users\\HOME_CTR\\Documents\\Visual Studio 2015\\Projects\\ConsoleApplication5\\ConsoleApplication5\\test.txt", "12344678", true);
 	//file_decrypt("C:\\Users\\HOME_CTR\\Documents\\Visual Studio 2015\\Projects\\ConsoleApplication5\\ConsoleApplication5\\test.txt"
 	//	, "C:\\Users\\HOME_CTR\\Documents\\Visual Studio 2015\\Projects\\ConsoleApplication5\\ConsoleApplication5\\test2.txt", "12344678");
-
+	
 	if (argc < 2) {
 		printf("[加密文件] : -e 待加密文件 保存路径 秘钥 输出格式(HEX:BIT)\n");
-		printf("[解密文件] : -d 待解密文件 保存路径 秘钥\n");
+		printf("[加密文件] : -c 待加密文件 保存路径 机器码 输出格式(HEX:BIT)\n");
 		return 1;
 	}
 	else if (strcmp(argv[1], "-e") == 0) { // Generate key file
 		if (argc < 4) {
-			printf("[提示] 指定的参数无效. 用法: -e 待加密文件 保存路径 秘钥(必须为8位) 输出16进制文件填(HEX)..\n");
+			printf("[提示] 指定的参数无效. 用法: -e 待加密文件 保存路径 秘钥(必须为8位) 输出格式(HEX:BIT)..\n");
 			return 1;
 		}
 		if (strlen(argv[4]) != 8) {
@@ -47,16 +54,24 @@ int main(int argc, char* argv[]) {
 		file_encrypt(argv[2], argv[3], argv[4], (argc == 6 && strcmp(argv[5], "HEX") == 0));
 		return 0;
 	}
-	else if (strcmp(argv[1], "-d") == 0) {
-		if (argc != 5) {
-			printf("[提示] 指定的参数无效. 用法: -d 待解密文件 保存路径 秘钥(必须为8位)..\n");
+	else if (strcmp(argv[1], "-c") == 0) { // Generate key file
+		int tick = 0;
+		char key[128] = { 0 };
+		if (argc < 4) {
+			printf("[提示] 指定的参数无效. 用法: -c 待加密文件 保存路径 机器码(必须为24位) 输出格式(HEX:BIT) 有效时间(忽略为一直有效)..\n");
 			return 1;
 		}
-		if (strlen(argv[4]) != 8) {
-			printf("[提示] 密码必须为8位..\n");
+		if (strlen(argv[4]) != 23) {
+			printf("[提示] 机器码必须为23位..\n");
 			return 1;
 		}
-		file_decrypt(argv[2], argv[3], argv[4]);
+		if (argc == 7 && (tick = time2tick(argv[6])) == 0) {
+			printf("[提示] 有效时间错误..\n");
+			return 1;
+		}
+		memcpy(key, argv[4], 24);
+		memcpy(key + 25, &tick, 4);
+		file_encrypt(argv[2], argv[3], key, (argc >= 6 && strcmp(argv[5], "HEX") == 0));
 		return 0;
 	}
 	else {
@@ -70,7 +85,7 @@ void file_encrypt(const char *inputfile, const char *outputfile, const char *enc
 
 	char *key = "KilPMwQ";
 	char *buffer;
-	char md5[33], header[128];
+	char md5[33], header[128], realkey1[8], realkey2[8];
 	int i, len;
 	FILE *output_file, *input_file;
 
@@ -107,17 +122,28 @@ void file_encrypt(const char *inputfile, const char *outputfile, const char *enc
 		return;
 	}
 
+	if (strlen(enc_key) == 8) {
+		memcpy(realkey1, enc_key, 8);
+		memcpy(realkey2, enc_key, 8);
+	}
+	else {
+		memcpy(realkey1, "cpc:", 4);
+		memcpy(realkey1 + 4, enc_key + 25, 4);
+		for (int i = 0; i < 8; i++)
+			realkey2[i] = enc_key[i * 3];
+	}
+
 	MD5_String(buffer + 40, md5);
 	for (i = 0; i < 40; i++) {
 		if (i % 5 == 0)
-			header[i] = enc_key[i / 5];
+			header[i] = realkey1[i / 5];
 		else
 			header[i] = md5[i - i / 5 - 1];
 	}
 
 	memcpy(buffer, header, 40);
 	Encrypt(buffer, 40, key);
-	Encrypt(buffer + 40, len, enc_key);
+	Encrypt(buffer + 40, len, realkey2);
 
 	if (len % 8 > 0) {
 		len = len / 8 * 8 + 8;
@@ -466,4 +492,24 @@ void MD5_String(const char * string, char * output)
 		digest[4], digest[5], digest[6], digest[7],
 		digest[8], digest[9], digest[10], digest[11],
 		digest[12], digest[13], digest[14], digest[15]);
+}
+
+int time2tick(char *str_time)
+{
+	struct tm stm;
+	int tick;
+
+	memset(&stm, 0, sizeof(stm));
+
+	if (sscanf(str_time, "%4d%2d%2d", &stm.tm_year, &stm.tm_mon, &stm.tm_mday) < 3)
+		return 0;
+	
+	stm.tm_year -= 1900;
+	stm.tm_mon -= 1;
+	tick = (int)mktime(&stm);
+
+	if (tick < time(NULL))
+		return 0;
+
+	return tick;
 }

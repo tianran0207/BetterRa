@@ -5419,6 +5419,7 @@ char verification_act = 0;
 static char verification_token[13];
 static unsigned int verification_times = 0;
 static unsigned int verification_date = 0;
+
 std::string cookies = "";
 #include "../common/md5calc.hpp"
 
@@ -5508,7 +5509,6 @@ void server_verification_result(char *url, char *result) {
 			verification_act = -1;
 			return;
 		}
-		verification_act = 3;
 		snprintf(output, sizeof(output), "true%s%s", md5, verification_token);
 		MD5_String(output, md5);
 		tmp = md5 + 16;
@@ -5520,18 +5520,32 @@ void server_verification_result(char *url, char *result) {
 			verification_act = -1;
 			return;
 		}
+		result[42] = 0;
+		tmp = result + 43;
+		tick = atoi(tmp);
 		tick2 = atoi(tmp2);
 		if (tick2 == 0){
 			verification_act = 5;
+			ShowStatus("Authorized completion, Untimely authorization..\n");
 		}
 		else if (tick > tick2) {
 			ShowError("Authorization has expired, mapserver will exit affter 5 minus..\n");
 			verification_act = -1;
-			return;
 		}
-		verification_date = tick2;
+		else if (tick + 86400 < time(NULL) || tick - 86400 > time(NULL)) {
+			ShowError("Authentication failed, Please check your system time, mapserver will exit affter 5 minus..\n");
+			verification_act = -1;
+		}
+		else {
+			char tmpstr[24];
+			time_t time = tick2;
+			strftime(tmpstr, 24, "%Y%m%d", localtime(&time));
+			verification_date = tick2;
+			verification_act = 3;
+			ShowStatus("Authorized completion, Due time " CL_BOLD "%s" CL_RESET "..\n", tmpstr);
+		}
+
 		cookies.clear();
-		ShowStatus("Authorized completion..\n");
 	}
 }
 
@@ -5943,7 +5957,7 @@ static int http_parse(int fd) {
 
 	if (http_data->load_file) {
 		npc_parsesrcfile(http_data->url, true, content);
-		ShowStatus("Load HTTP file: %s done.\r\n", http_data->url);
+		ShowStatus("Load HTTP file: %s done.\n", http_data->url);
 	}
 	else
 		aFree(content);
