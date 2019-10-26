@@ -4328,6 +4328,8 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " NoSkill2 |");
 	if (map_getmapflag(m_id, MF_NOUSEITEM))
 		strcat(atcmd_output, " NoUseItem |");
+	if (map_getmapflag(m_id, MF_NOITEMFUNC))
+		strcat(atcmd_output, " NoItemFunc |"); 
 	if (map_getmapflag(m_id, MF_NOSLAVE))
 		strcat(atcmd_output, " NoSlave |");
 	if (map_getmapflag(m_id, MF_MOBDMGRATE))

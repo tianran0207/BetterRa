@@ -4225,6 +4225,7 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 	switch( mapflag ){
 		case MF_NOSC:
 		case MF_NOSKILL2:
+		case MF_NOITEMFUNC:
 		case MF_MOBINFO:
 		case MF_MOBDROPRATE:
 		case MF_MVPDROPRATE:

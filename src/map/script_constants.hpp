@@ -567,6 +567,7 @@
 	export_constant(MF_NOSC);
 	export_constant(MF_NOSKILL2);
 	export_constant(MF_NOUSEITEM);
+	export_constant(MF_NOITEMFUNC);
 	export_constant(MF_NOSLAVE);
 	export_constant(MF_MOBDMGRATE);
 	export_constant(MF_MOBDMGFIX);
@@ -592,6 +593,8 @@
 	export_constant(SC_BLOCKING_ARMOR);
 	export_constant(SC_BLOCKING_SHADOWGEAR);
 	export_constant(SC_IGNORE_RETURN);
+	export_constant(SC_ATK_ATTR_FIX);
+	export_constant(SC_DEF_ATTR_FIX);
 
 	export_constant(EFST_BLOCKING_ALIVE);
 	export_constant(EFST_BLOCKING_WEAPON);

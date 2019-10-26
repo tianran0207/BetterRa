@@ -3732,11 +3732,11 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 
 			if (!sd->inventory_data[i] || sd->inventory_data[i]->type != IT_AMULET)
 				continue;
-
 			if (!(1ULL << (sd->class_&MAPID_BASEMASK)&sd->inventory_data[i]->class_base[(sd->class_&JOBL_2_1) ? 1 : ((sd->class_&JOBL_2_2) ? 2 : 0)]))
 				continue;
-
 			if (!sd->inventory_data[i]->script || sd->inventory_data[i]->elv > sd->status.base_level)
+				continue;
+			if (itemdb_isNoFunc(sd->inventory_data[i], sd->bl.m))
 				continue;
 
 			run_script(sd->inventory_data[i]->script, 0, sd->bl.id, 0);
@@ -3756,6 +3756,8 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 		if (pc_is_same_equip_index((enum equip_index)i, sd->equip_index, index))
 			continue;
 		if (!sd->inventory_data[index])
+			continue;
+		if (itemdb_isNoFunc(sd->inventory_data[index], sd->bl.m))
 			continue;
 
 		base_status->def += sd->inventory_data[index]->def;
@@ -3845,7 +3847,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 
 	if(sd->equip_index[EQI_AMMO] >= 0) {
 		index = sd->equip_index[EQI_AMMO];
-		if(sd->inventory_data[index]) { // Arrows
+		if(sd->inventory_data[index] && !itemdb_isNoFunc(sd->inventory_data[index], sd->bl.m)) { // Arrows
 			sd->bonus.arrow_atk += sd->inventory_data[index]->atk;
 			sd->state.lr_flag = 2;
 			if( !itemdb_group_item_exists(IG_THROWABLE, sd->inventory_data[index]->nameid) ) // Don't run scripts on throwable items
@@ -3872,7 +3874,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 			while (j < combo->count) {
 				struct item_data *id = itemdb_exists(combo->nameid[j]);
 				// Don't run the script if at least one of combo's pair has restriction
-				if (id && !pc_has_permission(sd, PC_PERM_USE_ALL_EQUIPMENT) && itemdb_isNoEquip(id, sd->bl.m)) {
+				if (id && !pc_has_permission(sd, PC_PERM_USE_ALL_EQUIPMENT) && itemdb_isNoEquip(id, sd->bl.m) && itemdb_isNoFunc(id, sd->bl.m)){
 					no_run = true;
 					break;
 				}
@@ -3903,7 +3905,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 		if (pc_is_same_equip_index((enum equip_index)i, sd->equip_index, index))
 			continue;
 
-		if (sd->inventory_data[index]) {
+		if (sd->inventory_data[index] && !itemdb_isNoFunc(sd->inventory_data[index], sd->bl.m)) {
 			int j;
 			struct item_data *data;
 
@@ -3953,7 +3955,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 		if (pc_is_same_equip_index((enum equip_index)i, sd->equip_index, index))
 			continue;
 		
-		if (sd->inventory_data[index]) {
+		if (sd->inventory_data[index] && !itemdb_isNoFunc(sd->inventory_data[index], sd->bl.m)) {
 			int j;
 			struct s_random_opt_data *data;
 			for (j = 0; j < MAX_ITEM_RDM_OPT; j++) {
@@ -3991,7 +3993,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 
 	if( sd->pd ) { // Pet Bonus
 		struct pet_data *pd = sd->pd;
-		std::shared_ptr<s_pet_db> pet_db_ptr = pd->get_pet_db();
+		std::shared_ptr<s_pet_db> pet_db_ptr = itemdb_isNoFunc(itemdb_exists(pd->pet.egg_id), sd->bl.m) ? nullptr : pd->get_pet_db();
 
 		if (pet_db_ptr != nullptr && pet_db_ptr->pet_bonus_script)
 			run_script(pet_db_ptr->pet_bonus_script,0,sd->bl.id,0);

@@ -491,7 +491,36 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 		return damage;
 	}
 
-	ratio = attr_fix_table[def_lv-1][atk_elem][def_type];
+	int atk_val[4] = { 0,atk_elem,0,0 }, def_val[4] = { 0,def_type,def_lv,0 };
+	if (sc && sc->count && sc->data[SC_ATK_ATTR_FIX])
+		memcpy(atk_val, &sc->data[SC_ATK_ATTR_FIX]->val1, sizeof(int) * 4);
+	if (tsc && tsc->count && tsc->data[SC_DEF_ATTR_FIX])
+		memcpy(def_val, &tsc->data[SC_DEF_ATTR_FIX]->val1, sizeof(int) * 4);
+
+	atk_elem = atk_val[1] = (atk_val[0] != 0 && atk_val[0] <= 3 ? atk_val[1] : atk_elem);
+	def_type = def_val[1] = (def_val[0] != 0 && def_val[0] <= 3 ? def_val[1] : def_type);
+	def_lv = (def_val[0] != 0 && def_val[0] <= 3 && def_val[3] ? def_val[3] : def_lv);
+
+	ratio = battle_attr_ratio(atk_elem, def_type, def_lv);
+
+	if (atk_val[0] || def_val[0]) {
+		bool same_ele = (atk_val[1] == def_val[1]);
+		int *tmp_val;
+		for (int i = 0; i < 2; i++) {
+			tmp_val = (i == 0 ? atk_val : def_val);
+			if (!tmp_val[0])
+				continue;
+			switch (tmp_val[0]) {
+			case 1: ratio = (same_ele ? tmp_val[2] : ratio);     break;
+			case 2: ratio += (same_ele ? tmp_val[2] : 0);        break;
+			case 3: if (same_ele) return tmp_val[2];             break;
+			case 4: ratio = (same_ele ? tmp_val[2] : ratio);     break;
+			case 5: ratio = (same_ele ? ratio + tmp_val[2] : 0); break;
+			case 6: return (same_ele ? tmp_val[2] : 0);          break;
+			}
+		}
+	}
+
 	if (sc && sc->count) { //increase dmg by src status
 		switch(atk_elem){
 			case ELE_FIRE:

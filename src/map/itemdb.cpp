@@ -1074,6 +1074,7 @@ static bool itemdb_read_flag(char* fields[], int columns, int current) {
 	if (flag&16) id->flag.broadcast = 1;
 	if (flag&32) id->flag.delay_consume = 2;
 	if (flag&64) id->flag.forceuse = 1;
+	if (flag&128) id->flag.no_func = 1;
 	if (flag&256) id->flag.delay_consume = 3;
 	if (flag&512) id->flag.skill_no_consumed = 1;
 	if (flag&1024) id->flag.item_pckill_drop = 1;
@@ -1832,6 +1833,31 @@ bool itemdb_isNoEquip(struct item_data *id, uint16 m) {
 		(id->flag.no_equip&(mapdata->zone) && mapdata->flag[MF_RESTRICTED]) // Zone restriction
 		)
 		return true;
+	return false;
+}
+
+bool itemdb_isNoFunc(struct item_data *id, uint16 m) {
+	if (id->flag.no_func)
+		return true;
+
+	int type;
+
+	switch (id->type) {
+	case IT_WEAPON:		type = 1;	break;
+	case IT_ARMOR:		type = 2;	break;
+	case IT_AMMO:		type = 4;	break;
+	case IT_SHADOWGEAR:	type = 8;	break;
+	case IT_AMULET:		type = 16;	break;
+	case IT_PETEGG:		type = 32;	break;
+	default:
+		return false;
+	}
+
+	struct map_data *mapdata = map_getmapdata(m);
+
+	if (mapdata->flag[MF_NOITEMFUNC] & type)
+		return true;
+
 	return false;
 }
 

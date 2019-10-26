@@ -842,6 +842,7 @@ struct item_data
 	struct {
 		unsigned announce : 3;
 		unsigned available : 1;
+		unsigned no_func : 1;
 		uint32 no_equip;
 		unsigned no_refine : 1;	// [celest]
 		unsigned delay_consume : 3;	// 1 - Signifies items that are not consumed immediately upon double-click; 2 - Signifies items that are not removed on consumption [Skotlex]
@@ -971,6 +972,7 @@ char itemdb_isidentified(unsigned short nameid, int from);
 bool itemdb_isstackable2(struct item_data *id);
 #define itemdb_isstackable(nameid) itemdb_isstackable2(itemdb_search(nameid))
 bool itemdb_isNoEquip(struct item_data *id, uint16 m);
+bool itemdb_isNoFunc(struct item_data *id, uint16 m);
 
 struct item_combo *itemdb_combo_exists(unsigned short combo_id);
 

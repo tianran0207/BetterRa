@@ -10587,7 +10587,7 @@ BUILDIN_FUNC(monster)
 
 	struct map_session_data* sd;
 	int16 m;
-	int i;
+	int i, mobid = 0;
 
 	if (script_hasdata(st, 8)) {
 		event = script_getstr(st, 8);
@@ -10623,11 +10623,13 @@ BUILDIN_FUNC(monster)
 		m = map_mapname2mapid(mapn);
 
 	for(i = 0; i < amount; i++) { //not optimised
-		int mobid = mob_once_spawn(sd, m, x, y, str, class_, 1, event, size, ai);
+		mobid = mob_once_spawn(sd, m, x, y, str, class_, 1, event, size, ai);
 
 		if (mobid)
 			mapreg_setreg(reference_uid(add_str("$@mobid"), i), mobid);
 	}
+
+	script_pushint(st, mobid);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -10688,7 +10690,7 @@ BUILDIN_FUNC(areamonster)
 
 	struct map_session_data* sd;
 	int16 m;
-	int i;
+	int i, mobid = 0;
 
 	if (script_hasdata(st,10)) {
 		event = script_getstr(st, 10);
@@ -10724,11 +10726,13 @@ BUILDIN_FUNC(areamonster)
 		m = map_mapname2mapid(mapn);
 
 	for(i = 0; i < amount; i++) { //not optimised
-		int mobid = mob_once_spawn_area(sd, m, x0, y0, x1, y1, str, class_, 1, event, size, ai);
+		mobid = mob_once_spawn_area(sd, m, x0, y0, x1, y1, str, class_, 1, event, size, ai);
 
 		if (mobid)
 			mapreg_setreg(reference_uid(add_str("$@mobid"), i), mobid);
 	}
+
+	script_pushint(st, mobid);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -25130,17 +25134,17 @@ BUILDIN_FUNC(getsameuidinfo)
 	iter = mapit_getallusers();
 	for (pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter)) {
 		if (!strcmp(uid, pl_sd->mac)) {
-			pc_setreg(sd, reference_uid(add_str("@sameuid_aid"), i), pl_sd->status.account_id);
-			pc_setreg(sd, reference_uid(add_str("@sameuid_cid"), i), pl_sd->status.char_id);
-			pc_setregstr(sd, reference_uid(add_str("@sameuid_name$"), i), pl_sd->status.name);
+			mapreg_setreg(reference_uid(add_str("$@sameuid_aid"), i), pl_sd->status.account_id);
+			mapreg_setreg(reference_uid(add_str("$@sameuid_cid"), i), pl_sd->status.char_id);
+			mapreg_setregstr(reference_uid(add_str("$@sameuid_name$"), i), pl_sd->status.name);
 			i++;
 		}
 	}
-	pc_setreg(sd, add_str("@sameuid_amount"), i);
+	mapreg_setreg(add_str("$@sameuid_amount"), i);
 	mapit_free(iter);
 	return SCRIPT_CMD_SUCCESS;
 #else
-	ShowError("buildin_getlastip: Packet Encryption is disable, You can't get computer UID. return NULL\n");
+	ShowError("buildin_getsameuidinfo: Packet Encryption is disable, You can't get computer UID. return NULL\n");
 	return SCRIPT_CMD_SUCCESS;
 #endif
 }
