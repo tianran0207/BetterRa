@@ -842,7 +842,7 @@ struct item_data
 	struct {
 		unsigned announce : 3;
 		unsigned available : 1;
-		unsigned no_func : 1;
+		unsigned no_itemfunc : 1;
 		uint32 no_equip;
 		unsigned no_refine : 1;	// [celest]
 		unsigned delay_consume : 3;	// 1 - Signifies items that are not consumed immediately upon double-click; 2 - Signifies items that are not removed on consumption [Skotlex]
