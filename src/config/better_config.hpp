@@ -35,6 +35,7 @@
 #define C_MAX_HATEFFECT 0            //最大特殊头饰效果的ID上限
 #define C_MAX_RC2 0                  //最大自定义种族数量
 #define C_MAX_SKILLUNITTEMP 20       //最大地面上最大技能存在数量
+#define C_MAX_LEVEL 175              //最大等级
 
 #define C_SHOW_SERVER_STATS 0
 
