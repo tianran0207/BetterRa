@@ -1043,14 +1043,14 @@ static void parse_callfunc_compatible_sub(const char *p, char *parm, int num)
 	return;
 }
 
-static const int func_getmapxy = add_word("getmapxy");
 static int parse_callfunc_compatible(const char *p, int func)
 {
+	static const int func_getmapxy = add_word("getmapxy");
 	static char parm[128];
 
 	if (func == func_getmapxy && battle_config.enable_unittype_type) {
 		parse_callfunc_compatible_sub(p, parm, 4);
-		return is_number(parm) ? add_word("getmapxy20192130") : func;
+		return is_number(parm) ? add_word("getmapxy20190130") : func;
 	}
 	
 	return func;
@@ -15463,7 +15463,7 @@ BUILDIN_FUNC(getmapxy)
 	if (script_hasdata(st, 5))
 		type = script_getnum(st, 5);
 
-	if (!strcmp(script_getfuncname(st), "getmapxy20192130")) {
+	if (!strcmp(script_getfuncname(st), "getmapxy20190130")) {
 		switch (type) {
 		case 0: type = BL_PC; break;
 		case 1: type = BL_NPC; break;
@@ -29319,7 +29319,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setquestinfo_level, "iii"),
 	BUILDIN_DEF(setquestinfo_req, "iii*"),
 	BUILDIN_DEF(setquestinfo_job, "ii*"),
-	BUILDIN_DEF2(getmapxy,"getmapxy20192130","rrr??"),
+	BUILDIN_DEF2(getmapxy,"getmapxy20190130","rrr??"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
