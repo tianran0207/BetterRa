@@ -37,9 +37,9 @@ int main(int argc, char* argv[]) {
 	//file_decrypt("C:\\Users\\HOME_CTR\\Documents\\Visual Studio 2015\\Projects\\ConsoleApplication5\\ConsoleApplication5\\test.txt"
 	//	, "C:\\Users\\HOME_CTR\\Documents\\Visual Studio 2015\\Projects\\ConsoleApplication5\\ConsoleApplication5\\test2.txt", "12344678");
 	
-	if (argc < 2) {
+	if (argc < 4) {
 		printf("[加密文件] : -e 待加密文件 保存路径 秘钥 输出格式(HEX:BIT)\n");
-		printf("[加密文件] : -c 待加密文件 保存路径 机器码 输出格式(HEX:BIT)\n");
+		printf("[加密文件] : -c 待加密文件 保存路径 机器码(必须为24位) 输出格式(HEX:BIT) 有效时间(忽略为一直有效)\n");
 		return 1;
 	}
 	else if (strcmp(argv[1], "-e") == 0) { // Generate key file
