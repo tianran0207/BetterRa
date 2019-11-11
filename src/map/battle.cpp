@@ -8358,6 +8358,7 @@ static const struct _battle_data {
 	{ "hidenpc_willbe_disable",             &battle_config.hidenpc_willbe_disable,          0,      0,      1,              },
 	{ "cannonball_attr_alone",              &battle_config.cannonball_attr_alone,           1,      0,      1,              },
 	{ "questinfo_updatewarning",            &battle_config.questinfo_updatewarning,         0,      0,      1,              },
+	{ "item_noequip_deny_all",              &battle_config.item_noequip_deny_all,           0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

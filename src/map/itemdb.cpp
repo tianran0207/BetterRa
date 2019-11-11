@@ -1836,29 +1836,28 @@ bool itemdb_isNoEquip(struct item_data *id, uint16 m) {
 	return false;
 }
 
-bool itemdb_isNoFunc(struct item_data *id, uint16 m) {
-	if (id->flag.no_itemfunc)
-		return true;
-
-	int type;
+bool itemdb_isNoFunc(struct item_data *id, uint16 m)
+{
+	struct map_data *mapdata;
+	int type, flag = -1;
 
 	switch (id->type) {
-	case IT_WEAPON:		type = 1;	break;
-	case IT_ARMOR:		type = 2;	break;
-	case IT_AMMO:		type = 4;	break;
-	case IT_SHADOWGEAR:	type = 8;	break;
-	case IT_AMULET:		type = 16;	break;
-	case IT_PETEGG:		type = 32;	break;
-	default:
-		return false;
+		case IT_WEAPON:		type = 1;	break;
+		case IT_ARMOR:		type = 2;	break;
+		case IT_AMMO:		type = 4;	break;
+		case IT_SHADOWGEAR:	type = 8;	break;
+		case IT_AMULET:		type = 16;	break;
+		case IT_PETEGG:		type = 32;	break;
+		default:            type = 0;   break;
 	}
 
-	struct map_data *mapdata = map_getmapdata(m);
-
-	if (mapdata->flag[MF_NOITEMFUNC] & type)
+	if (battle_config.item_noequip_deny_all && (type & 11) && itemdb_isNoEquip(id, m))
 		return true;
 
-	return false;
+	if (!(mapdata = map_getmapdata(m)) || !(flag = mapdata->flag[MF_NOITEMFUNC]))
+		return false;
+
+	return flag != -1 && (flag & type) ? id->flag.no_itemfunc != 1 : id->flag.no_itemfunc == 1;
 }
 
 /**
