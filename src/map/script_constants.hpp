@@ -4076,13 +4076,13 @@
 
 	/* unit control - types */
 	/* Send deprecation notice and temporarily replace with new constant value. */
-	export_deprecated_constant3("UNITTYPE_PC", battle_config.enable_unittype_type?0:BL_PC, "BL_PC");
-	export_deprecated_constant3("UNITTYPE_NPC", battle_config.enable_unittype_type?1:BL_NPC, "BL_NPC");
-	export_deprecated_constant3("UNITTYPE_PET", battle_config.enable_unittype_type?2:BL_PET, "BL_PET");
+	export_deprecated_constant3("UNITTYPE_PC", BL_PC, "BL_PC");
+	export_deprecated_constant3("UNITTYPE_NPC", BL_NPC, "BL_NPC");
+	export_deprecated_constant3("UNITTYPE_PET", BL_PET, "BL_PET");
 	export_deprecated_constant3("UNITTYPE_MOB", BL_MOB, "BL_MOB");
-	export_deprecated_constant3("UNITTYPE_HOM", battle_config.enable_unittype_type?3:BL_HOM, "BL_HOM");
-	export_deprecated_constant3("UNITTYPE_MER", battle_config.enable_unittype_type?4:BL_MER, "BL_MER");
-	export_deprecated_constant3("UNITTYPE_ELEM", battle_config.enable_unittype_type?5:BL_ELEM, "BL_ELEM");
+	export_deprecated_constant3("UNITTYPE_HOM", BL_HOM, "BL_HOM");
+	export_deprecated_constant3("UNITTYPE_MER", BL_MER, "BL_MER");
+	export_deprecated_constant3("UNITTYPE_ELEM", BL_ELEM, "BL_ELEM");
 
 	/* unit control - mob */
 	export_constant(UMOB_SIZE);

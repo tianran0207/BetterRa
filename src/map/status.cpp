@@ -11518,8 +11518,8 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	} else // Special considerations when loading SC data.
 		switch( type ) {
 			case SC_WEAPONBLOCKING:
-				t_tickime = tick;
-				tick = t_tickime + max(val4 * 5000, 0);
+				tick_time = tick;
+				tick = tick_time + max(val4 * 5000, 0);
 				break;
 			case SC_WEDDING:
 			case SC_XMAS:

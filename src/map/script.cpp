@@ -1010,6 +1010,52 @@ static int add_word(const char* p)
 	return i;
 }
 
+static void parse_callfunc_compatible_sub(const char *p, char *parm, int num)
+{
+	int len = strlen(p), paren = 0, idx = 0, n = 1;
+	const char *str = p;
+	bool hasparen = false;
+
+	str = skip_word(str);
+	str = skip_space(str);
+
+	if (*str == '(')
+		hasparen = true;
+
+	for (int i = 0; i < len; i++) {
+		if (*str == '(')
+			paren++;
+		else if (*str == ')')
+			paren--;
+		else if ((hasparen && paren == 1 || !hasparen && paren == 0)) {
+			if (*str == ',')
+				n++;
+			else if (n == num)
+				parm[idx++] = *str;
+		}
+
+		str++;
+		if (n > num || hasparen && paren == 0 || *str == ';' || idx > 126) {
+			parm[idx] = '\0';
+			return;
+		}
+	}
+	return;
+}
+
+static const int func_getmapxy = add_word("getmapxy");
+static int parse_callfunc_compatible(const char *p, int func)
+{
+	static char parm[128];
+
+	if (func == func_getmapxy && battle_config.enable_unittype_type) {
+		parse_callfunc_compatible_sub(p, parm, 4);
+		return is_number(parm) ? add_word("getmapxy20192130") : func;
+	}
+	
+	return func;
+}
+
 /// Parses a function call.
 /// The argument list can have parenthesis or not.
 /// The number of arguments is checked.
@@ -1022,6 +1068,7 @@ const char* parse_callfunc(const char* p, int require_paren, int is_custom)
 
 	func = add_word(p);
 	if( str_data[func].type == C_FUNC ){
+		// func = parse_callfunc_compatible(p, func);
 		// buildin function
 		add_scriptl(func);
 		add_scriptc(C_ARG);
@@ -15416,7 +15463,7 @@ BUILDIN_FUNC(getmapxy)
 	if (script_hasdata(st, 5))
 		type = script_getnum(st, 5);
 
-	if (battle_config.enable_unittype_type) {
+	if (!strcmp(script_getfuncname(st), "getmapxy20192130")) {
 		switch (type) {
 		case 0: type = BL_PC; break;
 		case 1: type = BL_NPC; break;
@@ -29272,6 +29319,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setquestinfo_level, "iii"),
 	BUILDIN_DEF(setquestinfo_req, "iii*"),
 	BUILDIN_DEF(setquestinfo_job, "ii*"),
+	BUILDIN_DEF2(getmapxy,"getmapxy20192130","rrr??"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
