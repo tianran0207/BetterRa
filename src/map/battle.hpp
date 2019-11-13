@@ -215,7 +215,7 @@ struct Battle_Config
 	int player_move_event_type;
 	int player_aspd_type;
 	int item_trade_enchant;
-	int enable_unittype_type;
+	int getmapxy_compatible;
 	int skill_chorus_check;
 	int skill_partner_check;
 	int guild_storage_per_lvup;

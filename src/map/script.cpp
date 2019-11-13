@@ -785,9 +785,9 @@ int add_str(const char* p)
 	// grow list if neccessary
 	if( str_num >= str_data_size )
 	{
-		str_data_size += 128;
+		str_data_size += 1280;
 		RECREATE(str_data,struct str_data_struct,str_data_size);
-		memset(str_data + (str_data_size - 128), '\0', 128);
+		memset(str_data + (str_data_size - 1280), '\0', 1280);
 	}
 
 	len=(int)strlen(p);
@@ -795,9 +795,9 @@ int add_str(const char* p)
 	// grow string buffer if neccessary
 	while( str_pos+len+1 >= str_size )
 	{
-		str_size += 256;
+		str_size += 10240;
 		RECREATE(str_buf,char,str_size);
-		memset(str_buf + (str_size - 256), '\0', 256);
+		memset(str_buf + (str_size - 10240), '\0', 10240);
 	}
 
 	safestrncpy(str_buf+str_pos, p, len+1);
@@ -988,9 +988,10 @@ static const char* skip_word(const char* p)
 /// Adds a word to str_data.
 /// @see skip_word
 /// @see add_str
+static char *add_word_buf = NULL;
+static int add_word_len = 0;
 static int add_word(const char* p)
 {
-	char* word;
 	int len;
 	int i;
 
@@ -1000,19 +1001,21 @@ static int add_word(const char* p)
 		disp_error_message("script:add_word: invalid word. A word consists of undercores and/or alphanumeric characters, and valid variable prefixes/postfixes.", p);
 
 	// Duplicate the word
-	word = (char*)aMalloc(len+1);
-	memcpy(word, p, len);
-	word[len] = 0;
+	if (len + 1 > add_word_len)
+		RECREATE(add_word_buf, char, (add_word_len = (len + 1)));
+
+	memcpy(add_word_buf, p, len);
+	add_word_buf[len] = 0;
 
 	// add the word
-	i = add_str(word);
-	aFree(word);
+	i = add_str(add_word_buf);
+
 	return i;
 }
 
 static void parse_callfunc_compatible_sub(const char *p, char *parm, int num)
 {
-	int len = strlen(p), paren = 0, idx = 0, n = 1;
+	int paren = 0, idx = 0, n = 1;
 	const char *str = p;
 	bool hasparen = false;
 
@@ -1022,7 +1025,7 @@ static void parse_callfunc_compatible_sub(const char *p, char *parm, int num)
 	if (*str == '(')
 		hasparen = true;
 
-	for (int i = 0; i < len; i++) {
+	while (p - str < 256 && *str != '\0') {
 		if (*str == '(')
 			paren++;
 		else if (*str == ')')
@@ -1033,9 +1036,8 @@ static void parse_callfunc_compatible_sub(const char *p, char *parm, int num)
 			else if (n == num)
 				parm[idx++] = *str;
 		}
-
 		str++;
-		if (n > num || hasparen && paren == 0 || *str == ';' || idx > 126) {
+		if (n > num || hasparen && paren == 0 || *str == ';' || idx > 62) {
 			parm[idx] = '\0';
 			return;
 		}
@@ -1043,16 +1045,14 @@ static void parse_callfunc_compatible_sub(const char *p, char *parm, int num)
 	return;
 }
 
+static const int func_getmapxy = add_word("getmapxy");
 static int parse_callfunc_compatible(const char *p, int func)
 {
-	static const int func_getmapxy = add_word("getmapxy");
-	static char parm[128];
-
-	if (func == func_getmapxy && battle_config.enable_unittype_type) {
+	static char parm[64];
+	if (func == func_getmapxy && battle_config.getmapxy_compatible) {
 		parse_callfunc_compatible_sub(p, parm, 4);
-		return is_number(parm) ? add_word("getmapxy20190130") : func;
+		return is_number(parm) ? add_word("getmapxy_old") : func;
 	}
-	
 	return func;
 }
 
@@ -1068,7 +1068,7 @@ const char* parse_callfunc(const char* p, int require_paren, int is_custom)
 
 	func = add_word(p);
 	if( str_data[func].type == C_FUNC ){
-		// func = parse_callfunc_compatible(p, func);
+		func = parse_callfunc_compatible(p, func);
 		// buildin function
 		add_scriptl(func);
 		add_scriptc(C_ARG);
@@ -4905,6 +4905,8 @@ void do_final_script() {
 		aFree(str_data);
 	if (str_buf)
 		aFree(str_buf);
+	if (add_word_buf)
+		aFree(add_word_buf);
 
 	for( i = 0; i < atcmd_binding_count; i++ ) {
 		aFree(atcmd_binding[i]);
@@ -14296,9 +14298,13 @@ static int buildin_searchinventory_sub(struct map_session_data *sd, struct item 
 		if (flag) {
 			if ((flag & 1) && inventory[i].refine)
 				continue;
-			if ((flag & 2) && memcmp(inventory[i].card, it.card, sizeof(inventory[i].card)))
+			if ((flag & 2) && inventory[i].expire_time)
 				continue;
-			if ((flag & 4) && memcmp(inventory[i].option, it.option, sizeof(inventory[i].option)))
+			if ((flag & 4) && inventory[i].bound)
+				continue;
+			if ((flag & 8) && memcmp(inventory[i].card, it.card, sizeof(inventory[i].card)))
+				continue;
+			if ((flag & 16) && memcmp(inventory[i].option, it.option, sizeof(inventory[i].option)))
 				continue;
 		}
 		pc_setreg(sd, reference_uid(add_str("@inventorylist_idx"), j), i);
@@ -14313,7 +14319,7 @@ static int buildin_searchinventory_sub(struct map_session_data *sd, struct item 
 BUILDIN_FUNC(searchinventory)
 {
 	TBL_PC *sd;
-	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0xFFFF;
 
 	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
@@ -14325,7 +14331,7 @@ BUILDIN_FUNC(searchinventory)
 BUILDIN_FUNC(searchcartinventory)
 {
 	TBL_PC *sd;
-	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0xFFFF;
 
 	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
@@ -14337,7 +14343,7 @@ BUILDIN_FUNC(searchcartinventory)
 BUILDIN_FUNC(searchstorageinventory)
 {
 	TBL_PC *sd;
-	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0xFFFF;
 
 	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
@@ -15559,7 +15565,7 @@ BUILDIN_FUNC(getmapxy)
 	if (script_hasdata(st, 5))
 		type = script_getnum(st, 5);
 
-	if (!strcmp(script_getfuncname(st), "getmapxy20190130")) {
+	if (!strcmp(script_getfuncname(st), "getmapxy_old")) {
 		switch (type) {
 		case 0: type = BL_PC; break;
 		case 1: type = BL_NPC; break;
@@ -28511,13 +28517,16 @@ BUILDIN_FUNC(setgroupid)
 	}else
 		script_rid2sd(sd);
 	
-	if (!sd || !pc_group_exists(new_group)) {
-		ShowError("buildin_sendmail: Player or Groupid does not exist..\n");
+	if (!sd)
+		return SCRIPT_CMD_FAILURE;
+
+	if (!pc_group_exists(new_group)) {
+		ShowError("buildin_setgroupid: group id (%d) does not exist..\n", new_group);
 		return SCRIPT_CMD_FAILURE;
 	}
-
 	sd->group_id = new_group;
 	pc_group_pc_load(sd);/* update cache */
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -29467,9 +29476,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setquestinfo_level, "iii"),
 	BUILDIN_DEF(setquestinfo_req, "iii*"),
 	BUILDIN_DEF(setquestinfo_job, "ii*"),
-	BUILDIN_DEF2(getmapxy,"getmapxy20190130","rrr??"),
+	BUILDIN_DEF2(getmapxy,"getmapxy_old","rrr??"),
 	BUILDIN_DEF(getbrokencount, "?"),
-	BUILDIN_DEF(needed_status_point, "ii?"),
 	BUILDIN_DEF(setgroupid, "i?"),
 	BUILDIN_DEF(mobattached, ""),
 	BUILDIN_DEF(getcartinventorylist, "??"),

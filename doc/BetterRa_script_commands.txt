@@ -186,13 +186,40 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 
 ---------------------------------------
 
-*getinventorylist {<角色编号>};
+*getinventorylist {<角色编号>,<类型>};
+*getcartinventorylist {<角色编号>,<类型>};
+*getstorageinventorylist {<角色编号>,<类型>};
+
+返回背包、手推车、仓库清单。
 
 在原来返回的数组基础上, BetterRa 新增了以下返回数组:
 
-- @inventorylist_idx[] 用来返回每个道具的背包位置序号.
-- @inventorylist_uid$[] 用来返回每个道具的装备唯一编号(字符串类型数组).
-- @inventorylist_favorite[] 用来返回每个道具是否被玩家收藏.
+	- @inventorylist_idx[] 背包位置序号.
+	- @inventorylist_uid$[] 装备唯一编号(字符串类型数组).
+	- @inventorylist_favorite[] 是否被玩家收藏.
+	- @inventorylist_equipswich[] 快速切换装备的位置.
+
+类型: 因每次获取清单都会有大量的变量被赋值, 经常调用会导致服务器卡顿问题, 
+      特添加返回类型, 可通过 | 运算返回多组数据
+	  
+	- INV_ID           物品ID - @inventorylist_id[]
+	- INV_AMOUNT       物品数量 - @inventorylist_amount[]
+	- INV_EQUIP        现装备位置 - @inventorylist_equip[]
+	- INV_REFINE       精炼等级 - @inventorylist_refine[]
+	- INV_IDENTIFY     是否鉴定 - @inventorylist_identify[]
+	- INV_ATTRIBUTE    属性 - @inventorylist_attribute[]
+	- INV_EXPIRE       租赁时间 - @inventorylist_expire[]
+	- INV_BOUND        绑定 - @inventorylist_bound[]
+	- INV_CARD         卡片 - @inventorylist_card[]
+	- INV_OPTION       随机属性 - @inventorylist_option_id[] @inventorylist_option_value[] inventorylist_option_parameter[]
+	- INV_IDX          位置序列 - @inventorylist_idx[]
+	- INV_FAVORITE     是否收藏 - @inventorylist_favorite[]
+	- INV_UID          物品UID - @inventorylist_uid$[]
+	- INV_EQUIPSWITCH  切换位置 - @inventorylist_equipswich[]
+	- INV_ALL          获取所有(默认)
+
+例: 获取背包物品id、数量和背包中的序列
+	getinventorylist getcharid(0),INV_ID|INV_AMOUNT|INV_IDX;
 
 注意:
 	背包位置序号每一次登录、每一次玩家在自己的背包中增删物品(包括但不限: 
@@ -200,6 +227,32 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 	所以请注意在一段连续、玩家不可能会停下来做其他动作的脚本中去使用“背包位置序号”. 
 	否则, 只要你在 getinventorylist 之后, 还给玩家空隙去进行道具的增删, 
 	那么 @inventorylist_idx[] 中的数据将不再可靠.
+	
+---------------------------------------
+
+*searchinventory <物品ID>{,<条件>{,<角色ID>}};
+*searchcartinventory <物品ID>{,<条件>{,<角色ID>}};
+*searstoragechinventory <物品ID>{,<条件>{,<角色ID>}};
+
+过滤并查找背包、手推车、仓库中的物品.
+
+条件: (多个条件相加或使用与运算)
+	- 1  未精炼过的道具
+	- 2  非租赁道具
+	- 4  非绑定道具
+	- 8  没有卡片和附魔的道具
+	- 16 没有随机属性标签的道具
+
+返回数组:
+	- @inventorylist_idx[] 背包位置序号
+	- @inventorylist_amount[] 背包中的数量
+	- @inventorylist_count 上面数组的成员数
+	
+例: 
+	searchinventory 501,1|2|4|8|16;
+	
+返回值:
+	操作成功返回物品在背包中的总数量 (@inventorylist_amount[]的和)
 
 ---------------------------------------
 
@@ -1679,6 +1732,20 @@ $@sameip_amount 使用指定机器码登录的玩家个数.
 *getbrokencount({<角色ID>});
 
 获取背包中损坏装备的数量。
+
+---------------------------------------
+
+*mobattached();
+
+脚本是否与魔物相关联, 是则返回魔物GID, 否则返回 0;
+一般用于 OnTouchNPC 获取关联魔物, 与 getattachedrid + getunittype 用法相同。
+
+---------------------------------------
+
+*setgroupid <权限等级>{,<角色ID>};
+*setgroupid <权限等级>{,<"角色名">};
+
+赋予玩家新的权限等级, 玩家不在线会失败并报错.
 
 ----------------------------------------
 --         以下功能为付费功能         --

@@ -8345,7 +8345,7 @@ static const struct _battle_data {
 	{ "player_move_event_type",             &battle_config.player_move_event_type,          0,      0,      1,              },
 	{ "player_aspd_type",                   &battle_config.player_aspd_type,                0,      0,      C_MAX_ASPDTYPE, },
 	{ "item_trade_enchant",                 &battle_config.item_trade_enchant,              0,      0,      1,              },
-	{ "enable_unittype_type",               &battle_config.enable_unittype_type,            0,      0,      1,              },
+	{ "getmapxy_compatible",               &battle_config.getmapxy_compatible,            0,      0,      1,              },
 	{ "skill_chorus_check",                 &battle_config.skill_chorus_check,              0,      0,      1,              },
 	{ "skill_partner_check",                &battle_config.skill_partner_check,             0,      0,      1,              },
 	{ "guild_storage_per_lvup",             &battle_config.guild_storage_per_lvup,        100,      0,      MAX_GUILD_STORAGE,},
