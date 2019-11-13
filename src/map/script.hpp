@@ -447,6 +447,24 @@ enum script_parse_options {
 	SCRIPT_RETURN_EMPTY_SCRIPT = 0x4// returns the script object instead of NULL for empty scripts
 };
 
+enum  inventory_mask {
+	INV_ID          = 0x0001,
+	INV_AMOUNT      = 0x0002,
+	INV_EQUIP       = 0x0004,
+	INV_REFINE      = 0x0008,
+	INV_IDENTIFY    = 0x0010,
+	INV_ATTRIBUTE   = 0x0020,
+	INV_EXPIRE      = 0x0040,
+	INV_BOUND       = 0x0080,
+	INV_CARD        = 0x0100,
+	INV_OPTION      = 0x0200,
+	INV_IDX         = 0x0400,
+	INV_FAVORITE    = 0x0800,
+	INV_UID         = 0x1000,
+	INV_EQUIPSWITCH = 0x2000,
+	INV_ALL         = 0xFFFF
+};
+
 enum monsterinfo_types {
 	MOB_NAME = 0,
 	MOB_LV,

@@ -14200,6 +14200,49 @@ BUILDIN_FUNC(petloot)
 	pd->loot->weight = 0;
 	return SCRIPT_CMD_SUCCESS;
 }
+
+static void buildin_getinventorylist_sub(struct map_session_data *sd, struct item *inventory, int max_invertory, int type)
+{
+	char card_var[NAME_LENGTH], randopt_var[50], uid[24];
+	int i, j = 0, k;
+	for (i = 0; i<max_invertory; i++) {
+		if (inventory[i].nameid > 0 && inventory[i].amount > 0) {
+			if (type & INV_ID) pc_setreg(sd, reference_uid(add_str("@inventorylist_id"), j), inventory[i].nameid);
+			if (type & INV_AMOUNT) pc_setreg(sd, reference_uid(add_str("@inventorylist_amount"), j), inventory[i].amount);
+			if (type & INV_EQUIP) pc_setreg(sd, reference_uid(add_str("@inventorylist_equip"), j), inventory[i].equip);
+			if (type & INV_REFINE) pc_setreg(sd, reference_uid(add_str("@inventorylist_refine"), j), inventory[i].refine);
+			if (type & INV_IDENTIFY) pc_setreg(sd, reference_uid(add_str("@inventorylist_identify"), j), inventory[i].identify);
+			if (type & INV_ATTRIBUTE) pc_setreg(sd, reference_uid(add_str("@inventorylist_attribute"), j), inventory[i].attribute);
+			if (type & INV_CARD) {
+				for (k = 0; k < MAX_SLOTS; k++) {
+					sprintf(card_var, "@inventorylist_card%d", k + 1);
+					pc_setreg(sd, reference_uid(add_str(card_var), j), inventory[i].card[k]);
+				}
+			}
+			if (type & INV_EXPIRE) pc_setreg(sd, reference_uid(add_str("@inventorylist_expire"), j), inventory[i].expire_time);
+			if (type & INV_BOUND) pc_setreg(sd, reference_uid(add_str("@inventorylist_bound"), j), inventory[i].bound);
+			if (type & INV_OPTION) {
+				for (k = 0; k < MAX_ITEM_RDM_OPT; k++) {
+						sprintf(randopt_var, "@inventorylist_option_id%d", k + 1);
+						pc_setreg(sd, reference_uid(add_str(randopt_var), j), inventory[i].option[k].id);
+						sprintf(randopt_var, "@inventorylist_option_value%d", k + 1);
+						pc_setreg(sd, reference_uid(add_str(randopt_var), j), inventory[i].option[k].value);
+						sprintf(randopt_var, "@inventorylist_option_parameter%d", k + 1);
+						pc_setreg(sd, reference_uid(add_str(randopt_var), j), inventory[i].option[k].param);
+				}
+			}
+			if (type & INV_IDX) pc_setreg(sd, reference_uid(add_str("@inventorylist_idx"), j), i);
+			if (type & INV_FAVORITE) pc_setreg(sd, reference_uid(add_str("@inventorylist_favorite"), j), inventory[i].favorite);
+			if (type & INV_UID) {
+				_ui64toa(inventory[i].unique_id, uid, 10);
+				pc_setregstr(sd, reference_uid(add_str("@inventorylist_uid$"), j), uid);
+			}
+			if (type & INV_EQUIPSWITCH) pc_setreg(sd, reference_uid(add_str("@inventorylist_equipswich"), j), inventory[i].equipSwitch);
+			j++;
+		}
+	}
+	pc_setreg(sd, add_str("@inventorylist_count"), j);
+}
 /*==========================================
  * Set arrays with info of all sd inventory :
  * @inventorylist_id, @inventorylist_amount, @inventorylist_equip,
@@ -14210,43 +14253,96 @@ BUILDIN_FUNC(petloot)
 BUILDIN_FUNC(getinventorylist)
 {
 	TBL_PC *sd;
-	char card_var[NAME_LENGTH], randopt_var[50], uid[24];
-	int i,j=0,k;
 
 	if (!script_charid2sd(2,sd))
 		return SCRIPT_CMD_FAILURE;
-	for(i=0;i<MAX_INVENTORY;i++){
-		if(sd->inventory.u.items_inventory[i].nameid > 0 && sd->inventory.u.items_inventory[i].amount > 0){
-			pc_setreg(sd,reference_uid(add_str("@inventorylist_id"), j),sd->inventory.u.items_inventory[i].nameid);
-			pc_setreg(sd,reference_uid(add_str("@inventorylist_amount"), j),sd->inventory.u.items_inventory[i].amount);
-			pc_setreg(sd,reference_uid(add_str("@inventorylist_equip"), j),sd->inventory.u.items_inventory[i].equip);
-			pc_setreg(sd,reference_uid(add_str("@inventorylist_refine"), j),sd->inventory.u.items_inventory[i].refine);
-			pc_setreg(sd,reference_uid(add_str("@inventorylist_identify"), j),sd->inventory.u.items_inventory[i].identify);
-			pc_setreg(sd,reference_uid(add_str("@inventorylist_attribute"), j),sd->inventory.u.items_inventory[i].attribute);
-			for (k = 0; k < MAX_SLOTS; k++)
-			{
-				sprintf(card_var, "@inventorylist_card%d",k+1);
-				pc_setreg(sd,reference_uid(add_str(card_var), j),sd->inventory.u.items_inventory[i].card[k]);
-			}
-			pc_setreg(sd,reference_uid(add_str("@inventorylist_expire"), j),sd->inventory.u.items_inventory[i].expire_time);
-			pc_setreg(sd,reference_uid(add_str("@inventorylist_bound"), j),sd->inventory.u.items_inventory[i].bound);
-			pc_setreg(sd,reference_uid(add_str("@inventorylist_idx"), j), i);
-			pc_setreg(sd, reference_uid(add_str("@inventorylist_favorite"), j), sd->inventory.u.items_inventory[i].favorite);
-			_ui64toa(sd->inventory.u.items_inventory[i].unique_id, uid, 10);
-			pc_setregstr(sd,reference_uid(add_str("@inventorylist_uid$"), j), uid);
-			for (k = 0; k < MAX_ITEM_RDM_OPT; k++)
-			{
-				sprintf(randopt_var, "@inventorylist_option_id%d",k+1);
-				pc_setreg(sd,reference_uid(add_str(randopt_var), j),sd->inventory.u.items_inventory[i].option[k].id);
-				sprintf(randopt_var, "@inventorylist_option_value%d",k+1);
-				pc_setreg(sd,reference_uid(add_str(randopt_var), j),sd->inventory.u.items_inventory[i].option[k].value);
-				sprintf(randopt_var, "@inventorylist_option_parameter%d",k+1);
-				pc_setreg(sd,reference_uid(add_str(randopt_var), j),sd->inventory.u.items_inventory[i].option[k].param);
-			}
-			j++;
+
+	buildin_getinventorylist_sub(sd, sd->inventory.u.items_inventory, MAX_INVENTORY, script_hasdata(st, 3) ? script_getnum(st, 3) : INV_ALL);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getcartinventorylist)
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	buildin_getinventorylist_sub(sd, sd->cart.u.items_cart, MAX_CART, script_hasdata(st, 3) ? script_getnum(st, 3) : INV_ALL);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getstorageinventorylist)
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	buildin_getinventorylist_sub(sd, sd->storage.u.items_storage, MAX_STORAGE, script_hasdata(st, 3) ? script_getnum(st, 3) : INV_ALL);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+static int buildin_searchinventory_sub(struct map_session_data *sd, struct item *inventory, int max_invertory, unsigned short nameid, int flag)
+{
+	int i, j = 0, amount = 0;
+	struct item it;
+	memcpy(&it, 0, sizeof(struct item));
+	for (i = 0; i<max_invertory; i++) {
+		if (inventory[i].nameid != nameid)
+			continue;
+		if (inventory[i].amount <= 0)
+			continue;
+		if (flag) {
+			if ((flag & 1) && inventory[i].refine)
+				continue;
+			if ((flag & 2) && memcmp(inventory[i].card, it.card, sizeof(inventory[i].card)))
+				continue;
+			if ((flag & 4) && memcmp(inventory[i].option, it.option, sizeof(inventory[i].option)))
+				continue;
 		}
+		pc_setreg(sd, reference_uid(add_str("@inventorylist_idx"), j), i);
+		pc_setreg(sd, reference_uid(add_str("@inventorylist_amount"), j), inventory[i].amount);
+		amount += inventory[i].amount;
+		j++;
 	}
-	pc_setreg(sd,add_str("@inventorylist_count"),j);
+	pc_setreg(sd, add_str("@inventorylist_count"), j);
+	return amount;
+}
+
+BUILDIN_FUNC(searchinventory)
+{
+	TBL_PC *sd;
+	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, buildin_searchinventory_sub(sd, sd->inventory.u.items_inventory, MAX_INVENTORY, script_getnum(st, 2), flag));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(searchcartinventory)
+{
+	TBL_PC *sd;
+	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, buildin_searchinventory_sub(sd, sd->cart.u.items_cart, MAX_CART, script_getnum(st, 2), flag));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(searchstorageinventory)
+{
+	TBL_PC *sd;
+	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, buildin_searchinventory_sub(sd, sd->storage.u.items_storage, MAX_STORAGE, script_getnum(st, 2), flag));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -28382,6 +28478,58 @@ BUILDIN_FUNC(unitdamage)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(getbrokencount)
+{
+	int i, counter = 0;
+	struct map_session_data *sd;
+
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	for (i = 0; i < MAX_INVENTORY; i++) {
+		if (sd->inventory.u.items_inventory[i].card[0] == CARD0_PET)
+			continue;
+		if (sd->inventory.u.items_inventory[i].attribute)
+			counter++;
+	}
+
+	script_pushint(st, counter);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(setgroupid)
+{
+	struct map_session_data* sd = NULL;
+	int new_group = script_getnum(st, 2);
+
+	if(script_hasdata(st, 3)){
+		if (script_isint(st, 3))
+			script_charid2sd(3, sd);
+		else
+			script_nick2sd(3, sd);
+	}else
+		script_rid2sd(sd);
+	
+	if (!sd || !pc_group_exists(new_group)) {
+		ShowError("buildin_sendmail: Player or Groupid does not exist..\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	sd->group_id = new_group;
+	pc_group_pc_load(sd);/* update cache */
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(mobattached)
+{
+	if (st->rid == 0 || map_id2md(st->rid) == NULL)
+		script_pushint(st, 0);
+	else
+		script_pushint(st, st->rid);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -28840,7 +28988,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getitemslots,"i"),
 	BUILDIN_DEF(makepet,"i"),
 	BUILDIN_DEF(getexp,"ii?"),
-	BUILDIN_DEF(getinventorylist,"?"),
+	BUILDIN_DEF(getinventorylist,"??"),
 	BUILDIN_DEF(getskilllist,"?"),
 	BUILDIN_DEF(clearitem,"?"),
 	BUILDIN_DEF(classchange,"i??"),
@@ -29320,7 +29468,15 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setquestinfo_req, "iii*"),
 	BUILDIN_DEF(setquestinfo_job, "ii*"),
 	BUILDIN_DEF2(getmapxy,"getmapxy20190130","rrr??"),
-
+	BUILDIN_DEF(getbrokencount, "?"),
+	BUILDIN_DEF(needed_status_point, "ii?"),
+	BUILDIN_DEF(setgroupid, "i?"),
+	BUILDIN_DEF(mobattached, ""),
+	BUILDIN_DEF(getcartinventorylist, "??"),
+	BUILDIN_DEF(getstorageinventorylist, "??"),
+	BUILDIN_DEF(searchinventory, "i??"),
+	BUILDIN_DEF(searchcartinventory, "i??"),
+	BUILDIN_DEF(searchstorageinventory, "i??"),
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
 	BUILDIN_DEF(mail_send, "?"),

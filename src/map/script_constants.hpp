@@ -605,6 +605,22 @@
 	export_constant(CELL_SAFEZONE);
 	export_constant(CELL_CHKSAFEZONE);
 
+	export_constant(INV_ID);
+	export_constant(INV_AMOUNT);
+	export_constant(INV_EQUIP);
+	export_constant(INV_REFINE);
+	export_constant(INV_IDENTIFY);
+	export_constant(INV_ATTRIBUTE);
+	export_constant(INV_EXPIRE);
+	export_constant(INV_BOUND);
+	export_constant(INV_CARD);
+	export_constant(INV_OPTION);
+	export_constant(INV_IDX);
+	export_constant(INV_FAVORITE);
+	export_constant(INV_UID);
+	export_constant(INV_EQUIPSWITCH);
+	export_constant(INV_ALL);
+
 	export_parameter("dmg_type", SP_DMG_TYPE);
 	export_parameter("dmg_damage", SP_DMG_DAMAGE);
 	export_parameter("dmg_skillid", SP_DMG_SKILLID);
