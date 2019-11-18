@@ -14907,7 +14907,7 @@ BUILDIN_FUNC(nude)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-int atcommand_sub(struct script_state* st,int type) {
+int atcommand_sub(struct script_state* st,int type, int flag) {
 	TBL_PC *sd, dummy_sd;
 	int fd;
 	const char *cmd;
@@ -14937,7 +14937,7 @@ int atcommand_sub(struct script_state* st,int type) {
 		sd->permissions |= PC_PERM_ALLPERMISSION;
 	}
 
-	if (!is_atcommand(fd, sd, cmd, type)) {
+	if (!is_atcommand(flag ? 0 : fd, sd, cmd, type)) {
 		ShowWarning("buildin_atcommand: failed to execute command '%s'\n", cmd);
 		script_reportsrc(st);
 		return SCRIPT_CMD_FAILURE;
@@ -14949,7 +14949,8 @@ int atcommand_sub(struct script_state* st,int type) {
  * gmcommand [MouseJstr]
  *------------------------------------------*/
 BUILDIN_FUNC(atcommand) {
-	return atcommand_sub(st,0);
+	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+	return atcommand_sub(st,0,flag);
 }
 
 /** Displays a message for the player only (like system messages like "you got an apple" )
@@ -21766,7 +21767,8 @@ BUILDIN_FUNC(unbindatcmd) {
 }
 
 BUILDIN_FUNC(useatcmd) {
-	return atcommand_sub(st,3);
+	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+	return atcommand_sub(st,3,flag);
 }
 
 BUILDIN_FUNC(checkre)
@@ -29080,7 +29082,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(specialeffect2,"i??"), // skill effect on players[Valaris]
 	BUILDIN_DEF(nude,"?"), // nude command [Valaris]
 	BUILDIN_DEF(mapwarp,"ssii??"),		// Added by RoVeRT
-	BUILDIN_DEF(atcommand,"s"), // [MouseJstr]
+	BUILDIN_DEF(atcommand,"s?"), // [MouseJstr]
 	BUILDIN_DEF2(atcommand,"charcommand","s"), // [MouseJstr]
 	BUILDIN_DEF(movenpc,"sii?"), // [MouseJstr]
 	BUILDIN_DEF(message,"ss"), // [MouseJstr]
@@ -29316,7 +29318,7 @@ struct script_function buildin_func[] = {
 	//@commands (script based)
 	BUILDIN_DEF(bindatcmd, "ss??"),
 	BUILDIN_DEF(unbindatcmd, "s"),
-	BUILDIN_DEF(useatcmd, "s"),
+	BUILDIN_DEF(useatcmd, "s?"),
 
 	//Quest Log System [Inkfish]
 	BUILDIN_DEF(questinfo, "i???"),
