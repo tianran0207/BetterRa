@@ -1747,6 +1747,54 @@ $@sameip_amount 使用指定机器码登录的玩家个数.
 
 赋予玩家新的权限等级, 玩家不在线会失败并报错.
 
+---------------------------------------
+
+getunitstatus <GID>,<类型>;
+
+获得相应GID (玩家、魔物、宠物、生命体、佣兵、元素、NPC) 的战斗属性.
+
+类型:
+	STATUS_HP			血量
+	STATUS_SP			蓝量
+	STATUS_MAXHP		最大血量
+	STATUS_MAXSP		最大蓝量
+	STATUS_STR			总力量值
+	STATUS_AGI			总敏捷值
+	STATUS_VIT			总体力值
+	STATUS_INT			总智力值
+	STATUS_DEX			总灵巧值
+	STATUS_LUK			总幸运值
+	STATUS_ATK			总物攻
+	STATUS_ATK_L		物攻(左值) 或 除玩家外获得最小物攻
+	STATUS_ATK_R 		物攻(右值) 或 除玩家外获得最大物攻
+	STATUS_MATK			总魔攻
+	STATUS_MATK_L		魔攻(左值) 或 除玩家外获得最小魔攻
+	STATUS_MATK_R		魔攻(右值) 或 除玩家外获得最大魔攻
+	STATUS_SPEED		移动速度
+	STATUS_ADELAY		攻击后延迟
+	STATUS_AMOTION		攻击后行走延迟
+	STATUS_DMOTION		被攻击后延迟
+	STATUS_MODE			MODE
+	STATUS_HIT			命中率
+	STATUS_FLEE_L		回避率
+	STATUS_FLEE_R		完全回避
+	STATUS_CRI			暴击率
+	STATUS_DEF_L		物防(左值)
+	STATUS_DEF_R		物防(右值)
+	STATUS_MDEF_L		魔防(左值)
+	STATUS_MDEF_R		魔防(右值)
+	STATUS_ATK_ELE		攻击属性
+	STATUS_ATK_RANGE	攻击范围
+	STATUS_DEF_ELE		防御属性
+	STATUS_DEF_ELE_LV 	防御属性等级
+	STATUS_SIZE			体型
+	STATUS_RACE			种族
+	STATUS_CLASS		职业(外观ID)
+	STATUS_ASPD			攻速
+	
+返回值:
+	相应的战斗属性
+
 ----------------------------------------
 --         以下功能为付费功能         --
 -- 收费功能可在官网直接下载测试端测试 --

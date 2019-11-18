@@ -11100,6 +11100,11 @@ void clif_parse_WalkToXY(int fd, struct map_session_data *sd)
 	if (sd->state.trading)
 		return;
 
+#if PACKETVER >= 20131223
+	if (sd->npc_shopid)
+		return;
+#endif
+
 	if (sd->sc.opt1 && ( sd->sc.opt1 == OPT1_STONEWAIT || sd->sc.opt1 == OPT1_BURNING ))
 		; //You CAN walk on this OPT1 value.
 	else if (sd->progressbar.npc_id) {

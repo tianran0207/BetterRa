@@ -28539,6 +28539,65 @@ BUILDIN_FUNC(mobattached)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(getunitstatus)
+{
+	struct block_list* bl;
+	struct map_session_data* sd = NULL;
+	struct status_data *status;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	sd = BL_CAST(BL_PC, bl);
+	status = status_get_status_data(bl);
+
+#define CASE_STATUS(idx__,var__) case idx__: script_pushint(st, var__); break
+
+	switch (script_getnum(st, 3)) {
+		CASE_STATUS(STATUS_HP, status->hp);
+		CASE_STATUS(STATUS_SP, status->sp);
+		CASE_STATUS(STATUS_MAXHP, status->max_hp);
+		CASE_STATUS(STATUS_MAXSP, status->max_sp);
+		CASE_STATUS(STATUS_STR, status->str);
+		CASE_STATUS(STATUS_AGI, status->agi);
+		CASE_STATUS(STATUS_VIT, status->vit);
+		CASE_STATUS(STATUS_INT, status->int_);
+		CASE_STATUS(STATUS_DEX, status->dex);
+		CASE_STATUS(STATUS_LUK, status->luk);
+		CASE_STATUS(STATUS_ATK, sd ? pc_leftside_atk(sd) + pc_rightside_atk(sd) : (status->rhw.atk + status->rhw.atk2) / 2);
+		CASE_STATUS(STATUS_ATK_L, sd ? pc_leftside_atk(sd) : status->rhw.atk);
+		CASE_STATUS(STATUS_ATK_R, sd ? pc_rightside_atk(sd) : status->rhw.atk2);
+		CASE_STATUS(STATUS_MATK, sd ? pc_leftside_matk(sd) + pc_rightside_matk(sd) : (status->matk_min + status->matk_max) / 2);
+		CASE_STATUS(STATUS_MATK_L, sd ? pc_leftside_matk(sd) : status->matk_min);
+		CASE_STATUS(STATUS_MATK_R, sd ? pc_rightside_matk(sd) : status->matk_max);
+		CASE_STATUS(STATUS_SPEED, status_get_speed(bl));
+		CASE_STATUS(STATUS_ADELAY, status->adelay);
+		CASE_STATUS(STATUS_AMOTION, status->amotion);
+		CASE_STATUS(STATUS_DMOTION, status->dmotion);
+		CASE_STATUS(STATUS_MODE, status->mode);
+		CASE_STATUS(STATUS_HIT, status->hit);
+		CASE_STATUS(STATUS_FLEE_L, status->flee);
+		CASE_STATUS(STATUS_FLEE_R, status->flee2);
+		CASE_STATUS(STATUS_CRI, status->cri);
+		CASE_STATUS(STATUS_DEF_L, sd ? pc_leftside_def(sd) : status->def);
+		CASE_STATUS(STATUS_DEF_R, sd ? pc_rightside_def(sd) : status->def2);
+		CASE_STATUS(STATUS_MDEF_L, sd ? pc_leftside_mdef(sd) : status->mdef);
+		CASE_STATUS(STATUS_MDEF_R, sd ? pc_rightside_mdef(sd) : status->mdef2);
+		CASE_STATUS(STATUS_ATK_ELE, status->rhw.ele);
+		CASE_STATUS(STATUS_DEF_ELE, status->def_ele);
+		CASE_STATUS(STATUS_DEF_ELE_LV, status->ele_lv);
+		CASE_STATUS(STATUS_ATK_RANGE, status->rhw.range);
+		CASE_STATUS(STATUS_SIZE, status->size);
+		CASE_STATUS(STATUS_RACE, status->race);
+		CASE_STATUS(STATUS_CLASS, status_get_class(bl));
+		CASE_STATUS(STATUS_ASPD, (2000 - sd->battle_status.amotion) / 10);
+	}
+
+#undef CASE_STATUS
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -29485,6 +29544,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(searchinventory, "i??"),
 	BUILDIN_DEF(searchcartinventory, "i??"),
 	BUILDIN_DEF(searchstorageinventory, "i??"),
+	BUILDIN_DEF(getunitstatus, "ii"),
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
 	BUILDIN_DEF(mail_send, "?"),
