@@ -838,7 +838,7 @@ static bool itemdb_read_group(char* str[], int columns, int current) {
 /** Read item forbidden by mapflag (can't equip item)
 * Structure: <nameid>,<mode>
 */
-static bool itemdb_read_noequip(char* str[], int columns, int current) {
+bool itemdb_read_noequip(char* str[], int columns, int current) {
 	unsigned short nameid;
 	int flag;
 	struct item_data *id;
@@ -863,7 +863,7 @@ static bool itemdb_read_noequip(char* str[], int columns, int current) {
 /** Reads item trade restrictions [Skotlex]
 * Structure: <nameid>,<mask>,<gm level>
 */
-static bool itemdb_read_itemtrade(char* str[], int columns, int current) {
+bool itemdb_read_itemtrade(char* str[], int columns, int current) {
 	unsigned short nameid, flag, gmlv;
 	struct item_data *id;
 

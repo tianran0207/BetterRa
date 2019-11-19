@@ -4438,7 +4438,7 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 
 static const char* npc_parse_dbread(char* w1, const char* start, const char* buffer, const char* filepath)
 {
-	static const char *head[] = { "item_db","item_avail","item_combo_db","mob_db","mob_avail","mob_skill_db","instances_db" };
+	static const char *head[] = { "item_db","item_avail","item_noequip","item_trade","item_combo_db","mob_db","mob_avail","mob_skill_db","instances_db" };
 	const char *p;
 	int i, len, lines = 0;
 
@@ -4492,18 +4492,24 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
 			sv_readdb_line(filepath, lines, line, ',',2,2,&itemdb_read_itemavail);
 			continue;
 		case 2:
-			itemdb_read_combos_line(filepath, lines, line, NULL);
+			sv_readdb_line(filepath, lines, line, ',',2,2,&itemdb_read_noequip);
 			continue;
-		case 3: //mob_db
-			sv_readdb_line(filepath,lines,line,',',31+2*MAX_MVP_DROP+2*MAX_MOB_DROP, 31+2*MAX_MVP_DROP+2*MAX_MOB_DROP, &mob_readdb_sub);
+		case 3:
+			sv_readdb_line(filepath, lines, line, ',',3,3,&itemdb_read_itemtrade);
 			continue;
 		case 4:
-			sv_readdb_line(filepath, lines, line,',',2,12,&mob_readdb_mobavail);
+			itemdb_read_combos_line(filepath, lines, line, NULL);
 			continue;
-		case 5:
-			sv_readdb_line(filepath,lines,line,',',19,19,&mob_parse_row_mobskilldb);
+		case 5: //mob_db
+			sv_readdb_line(filepath,lines,line,',',31+2*MAX_MVP_DROP+2*MAX_MOB_DROP, 31+2*MAX_MVP_DROP+2*MAX_MOB_DROP, &mob_readdb_sub);
 			continue;
 		case 6:
+			sv_readdb_line(filepath, lines, line,',',2,12,&mob_readdb_mobavail);
+			continue;
+		case 7:
+			sv_readdb_line(filepath,lines,line,',',19,19,&mob_parse_row_mobskilldb);
+			continue;
+		case 8:
 			sv_readdb_line(filepath,lines,line,',',7,7+MAX_MAP_PER_INSTANCE,&instance_readdb_sub);
 			continue;
 		default:

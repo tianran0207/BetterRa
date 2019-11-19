@@ -210,13 +210,8 @@ struct map_data *map_mapdata_exists_(int16 mapid, const char *func)
 		return nullptr;
 	}
 
-	if (mapdata->m != mapid || mapdata->name[0] == '\0' || mapdata->xs == 0 || mapdata->ys == 0) {
-		if (mapdata->instance_src_map)
-			ShowError("%s: Try to reach a freed instance map (src map: \"%s\")\n", func, map_getmapdata(mapdata->instance_src_map)->name);
-		else
-			ShowError("%s: Try to reach a empty map (mapid: %d)\n", func, mapid);
+	if (mapdata->m != mapid || mapdata->name[0] == '\0' || mapdata->xs == 0 || mapdata->ys == 0)
 		return nullptr;
-	}
 
 	if (mapdata->block == nullptr || mapdata->block_mob == nullptr) {
 		ShowError("%s: Map data block is free param (map: \"%s\")\n", func, mapdata->name);
