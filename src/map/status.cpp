@@ -3737,6 +3737,8 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 				continue;
 			if (!sd->inventory_data[i]->script || sd->inventory_data[i]->elv > sd->status.base_level)
 				continue;
+			if (!pc_has_permission(sd, PC_PERM_USE_ALL_EQUIPMENT) && itemdb_isNoEquip(sd->inventory_data[i], sd->bl.m))
+				continue;
 			if (itemdb_isNoFunc(sd->inventory_data[i], sd->bl.m))
 				continue;
 
