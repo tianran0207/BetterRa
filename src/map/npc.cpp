@@ -4436,7 +4436,52 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 	return strchr(start,'\n');// continue
 }
 
-static const char* npc_parse_dbread(char* w1, const char* start, const char* buffer, const char* filepath)
+DBMap *npc_database_db = NULL;
+static const char* npc_parse_dbread(char* w1, const char* start, const char* buffer, const char* filepath, int *dbread_type);
+static void npc_database_set(const char* filepath, char *line, int *dbread_type)
+{
+	StringBuf *buf;
+
+	if (*dbread_type == -1)
+		return;
+
+	if (!(buf = (StringBuf *)strdb_get(npc_database_db, filepath))) {
+		buf = StringBuf_Malloc();
+		strdb_put(npc_database_db, filepath, buf);
+	}
+	if (*dbread_type == 1) {
+		*dbread_type = 0;
+		StringBuf_Clear(buf);
+	}
+
+	StringBuf_AppendStr(buf, line);
+	StringBuf_AppendStr(buf, "\n");
+}
+
+static int npc_database_clear(DBKey key, DBData *data, va_list ap) 
+{
+	StringBuf *buf = (StringBuf *)db_data2ptr(data);
+	StringBuf_Free(buf);
+	return 1;
+}
+
+void npc_database_reload(char *type)
+{
+	StringBuf *buf;
+	char *otherbuf, filepath[128];
+	DBIterator *iter = db_iterator(npc_database_db);
+	for (buf = (StringBuf *)dbi_first(iter); dbi_exists(iter); buf = (StringBuf *)dbi_next(iter)) {
+		int len = StringBuf_Length(buf);
+		CREATE(otherbuf, char, len+10);
+		memcpy(otherbuf, StringBuf_Value(buf), len);
+		otherbuf[len+1] = '\0';
+		sprintf(filepath, "npc_reload_%s", type);
+		npc_parsesrcfile(filepath, false, otherbuf);
+	}
+	dbi_destroy(iter);
+}
+
+static const char* npc_parse_dbread(char* w1, const char* start, const char* buffer, const char* filepath, int *dbread_type)
 {
 	static const char *head[] = { "item_db","item_avail","item_noequip","item_trade","item_combo_db","mob_db","mob_avail","mob_skill_db","instances_db" };
 	const char *p;
@@ -4451,12 +4496,15 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
 	if (i == ARRAYLENGTH(head))
 		return start;
 
+	*dbread_type = !strncasecmp(filepath, "npc_reload", 10) ? -1 : *dbread_type;
+	npc_database_set(filepath, w1, dbread_type);
+
 	start = strchr(start, '\n');
 
 	for (p = skip_space(start); p && *p; p = skip_space(start))
 	{
-		char line[2048], idstr[24];
 		const char *str, *nextline = strchr(p, '\n');
+		char line[2048], idstr[24];
 		int data_id;
 
 		if (!nextline)
@@ -4479,6 +4527,8 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
 
 		if ((data_id = atoi(idstr)) == 0)
 			break;
+
+		npc_database_set(filepath, line, dbread_type);
 
 		start = nextline;
 		lines++;
@@ -4585,6 +4635,7 @@ int npc_parsesrcfile(const char* filepath, bool runOnInit, char *other_buffer)
 		return 0;
 	}
 
+	int dbread_type = 1;
 	if (npc_file_decrypt(filepath, buffer, &len) == false){
 		aFree(buffer);
 		return 0;
@@ -4635,7 +4686,7 @@ int npc_parsesrcfile(const char* filepath, bool runOnInit, char *other_buffer)
 		else
 			w4[0] = '\0';
 
-		if( count == 1 && (p = npc_parse_dbread(trim(w1), p, buffer, filepath)))
+		if( count == 1 && (p = npc_parse_dbread(trim(w1), p, buffer, filepath, &dbread_type)))
 			continue;
 
 		if( count < 3 )
@@ -5182,6 +5233,7 @@ void do_final_npc(void) {
 	ev_db->destroy(ev_db, NULL);
 	npcname_db->destroy(npcname_db, NULL);
 	npc_path_db->destroy(npc_path_db, NULL);
+	npc_database_db->destroy(npc_database_db, npc_database_clear);
 #if PACKETVER >= 20131223
 	NPCMarketDB->destroy(NPCMarketDB, npc_market_free);
 #endif
@@ -5247,6 +5299,7 @@ void do_init_npc(void){
 	ev_db = strdb_alloc((DBOptions)(DB_OPT_DUP_KEY|DB_OPT_RELEASE_DATA), EVENT_NAME_LENGTH);
 	npcname_db = strdb_alloc(DB_OPT_BASE, NPC_NAME_LENGTH+1);
 	npc_path_db = strdb_alloc((DBOptions)(DB_OPT_BASE|DB_OPT_DUP_KEY|DB_OPT_RELEASE_DATA),80);
+	npc_database_db = strdb_alloc((DBOptions)(DB_OPT_BASE|DB_OPT_DUP_KEY), 80);
 #if PACKETVER >= 20131223
 	NPCMarketDB = strdb_alloc(DB_OPT_BASE, NPC_NAME_LENGTH+1);
 	npc_market_fromsql();
