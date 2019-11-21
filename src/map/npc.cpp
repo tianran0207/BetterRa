@@ -4496,7 +4496,13 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
 	if (i == ARRAYLENGTH(head))
 		return start;
 
-	*dbread_type = !strncasecmp(filepath, "npc_reload", 10) ? -1 : *dbread_type;
+	// *dbread_type == -1 skip npc_database_set. 
+	if ((*dbread_type = !strncasecmp(filepath, "npc_reload", 10) ? -1 : *dbread_type) == -1) {
+		char db_name[64];
+		safestrncpy(db_name, filepath+11, strlen(filepath)-10);
+		i = strncasecmp(db_name, head[i], strlen(db_name)) ? -1 : i; // i == -1 skip load block
+	}
+
 	npc_database_set(filepath, w1, dbread_type);
 
 	start = strchr(start, '\n');
@@ -4534,6 +4540,8 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
 		lines++;
 
 		switch (i) {
+		case -1:
+			continue;
 		case 0:
 			itemdb_readdb_line(filepath,lines,line);
 			itemdb_addname(data_id, filepath);

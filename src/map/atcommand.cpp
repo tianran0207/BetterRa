@@ -3882,7 +3882,6 @@ ACMD_FUNC(reload) {
 		clif_displaymessage(fd, msg_txt(sd, 2375)); // Step_path database has been reloaded.
 	} else if (strstr(command, "itemdb") || strncmp(message, "itemdb", 4) == 0) {
 		itemdb_reload();
-		npc_database_reload("itemdb");
 		clif_displaymessage(fd, msg_txt(sd,97)); // Item database has been reloaded.
 	} else if (strstr(command, "mobdb") || strncmp(message, "mobdb", 3) == 0) {
 		mob_reload();
@@ -3891,7 +3890,6 @@ ACMD_FUNC(reload) {
 		mercenary_readdb();
 		mercenary_read_skilldb();
 		reload_elementaldb();
-		npc_database_reload("mobdb");
 		clif_displaymessage(fd, msg_txt(sd,98)); // Monster database has been reloaded.
 	} else if (strstr(command, "skilldb") || strncmp(message, "skilldb", 4) == 0) {
 		skill_reload();

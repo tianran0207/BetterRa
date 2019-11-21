@@ -2240,6 +2240,8 @@ void itemdb_reload(void) {
 	memset(vending_itemid, 0, sizeof(vending_itemid)); // Extended Vending system [Lilith]
 	// read new data
 	itemdb_read();
+	npc_database_reload("item");
+
 	cashshop_reloaddb();
 
 	if (battle_config.feature_roulette)
