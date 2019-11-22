@@ -11084,6 +11084,22 @@ void clif_progressbar_npc( struct npc_data *nd, struct map_session_data* sd ){
 #endif
 }
 
+void clif_progressbar_unit(struct block_list *bl, uint32 color, uint32 time)
+{
+#if PACKETVER >= 20130821
+	unsigned char buf[14];
+
+	WBUFW(buf,0) = 0x9d1;
+	WBUFL(buf,2) = bl->id;
+	WBUFL(buf,6) = color;
+	WBUFL(buf,10) = time;
+
+	clif_send(buf, packet_len(0x9d1), bl, AREA);
+#else
+	ShowWarning("clif_progressbar_unit: Using progressbar with units available for PACKETVER >= 20130821 only.");
+#endif
+}
+
 /// Request to walk to a certain position on the current map.
 /// 0085 <dest>.3B (CZ_REQUEST_MOVE)
 /// 035f <dest>.3B (CZ_REQUEST_MOVE2)

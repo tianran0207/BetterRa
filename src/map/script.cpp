@@ -28600,6 +28600,155 @@ BUILDIN_FUNC(getunitstatus)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(progressbar_unit)
+{
+	struct block_list *bl;
+	const char *color = script_getstr(st, 2);
+	uint32 second = script_getnum(st, 3);
+	
+	if (!script_rid2bl(4, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	clif_progressbar_unit(bl, (unsigned int)strtoul(color, (char **)NULL, 0), second);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getvariableofpc)
+{
+	const char* name;
+	struct script_data* data = script_getdata(st, 2);
+	struct map_session_data *sd = map_id2sd(script_getnum(st, 3));
+
+	if (!data_isreference(data)) {
+		ShowError("buildin_getvariableofnpc: not a variable\n");
+		script_reportdata(data);
+		script_pushnil(st);
+		st->state = END;
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	name = reference_getname(data);
+	if (*name == '$' || *name == '.' || *name == '\'') {
+		ShowError("script:getvariableofpc: illegal scope (not pc variable)\n");
+		script_reportdata(data);
+		script_pushnil(st);
+		st->state = END;
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	if (sd == NULL){
+		// player not found, return default value
+		if (script_hasdata(st, 4)) {
+			script_pushcopy(st, 4);
+		} else if (is_string_variable(name)) {
+			script_pushconststr(st, "");
+		} else {
+			script_pushint(st, 0);
+		}
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	if (!sd->regs.vars)
+		sd->regs.vars = i64db_alloc(DB_OPT_BASE);
+
+	push_val2(st->stack, C_NAME, reference_getuid(data), &sd->regs);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+// getcalendartime(<day of month>, <day of week>{, <hour>{, <minute>}});
+// Returns the UNIX Timestamp of next ocurrency of given time
+BUILDIN_FUNC(getcalendartime)
+{
+	struct tm info = { 0 };
+	int day_of_month = script_hasdata(st, 4) ? script_getnum(st, 4) : -1;
+	int day_of_week = script_hasdata(st, 5) ? script_getnum(st, 5) : -1;
+	int year = date_get_year();
+	int month = date_get_month();
+	int day = date_get_day();
+	int cur_hour = date_get_hour();
+	int cur_min = date_get_min();
+	int hour = script_getnum(st, 2);
+	int minute = script_getnum(st, 3);
+
+	info.tm_sec = 0;
+	info.tm_min = minute;
+	info.tm_hour = hour;
+	info.tm_mday = day;
+	info.tm_mon = month - 1;
+	info.tm_year = year - 1900;
+
+	if (day_of_month > -1 && day_of_week > -1) {
+		ShowError("script:getcalendartime: You must only specify a day_of_week or a day_of_month, not both\n");
+		script_pushint(st, -1);
+		return false;
+	}
+	if (day_of_month > -1 && (day_of_month < 1 || day_of_month > 31)) {
+		ShowError("script:getcalendartime: Day of Month in invalid range. Must be between 1 and 31.\n");
+		script_pushint(st, -1);
+		return false;
+	}
+	if (day_of_week > -1 && (day_of_week < 0 || day_of_week > 6)) {
+		ShowError("script:getcalendartime: Day of Week in invalid range. Must be between 0 and 6.\n");
+		script_pushint(st, -1);
+		return false;
+	}
+	if (hour > -1 && (hour > 23)) {
+		ShowError("script:getcalendartime: Hour in invalid range. Must be between 0 and 23.\n");
+		script_pushint(st, -1);
+		return false;
+	}
+	if (minute > -1 && (minute > 59)) {
+		ShowError("script:getcalendartime: Minute in invalid range. Must be between 0 and 59.\n");
+		script_pushint(st, -1);
+		return false;
+	}
+	if (hour == -1 || minute == -1) {
+		ShowError("script:getcalendartime: Minutes and Hours are required\n");
+		script_pushint(st, -1);
+		return false;
+	}
+
+	if (day_of_month > -1) {
+		if (day_of_month < day) { // Next Month
+			info.tm_mon++;
+		} else if (day_of_month == day) { // Today
+			if (hour < cur_hour || (hour == cur_hour && minute < cur_min)) { // But past time, next month
+				info.tm_mon++;
+			}
+		}
+
+		// Loops until month has finding a month that has day_of_month
+		do {
+			time_t t;
+			struct tm *lt;
+			info.tm_mday = day_of_month;
+			t = mktime(&info);
+			lt = localtime(&t);
+			info = *lt;
+		} while (info.tm_mday != day_of_month);
+	} else if (day_of_week > -1) {
+		int cur_wday = date_get_dayofweek();
+
+		if (day_of_week > cur_wday) { // This week
+			info.tm_mday += (day_of_week - cur_wday);
+		} else if (day_of_week == cur_wday) { // Today
+			if (hour < cur_hour || (hour == cur_hour && minute <= cur_min)) {
+				info.tm_mday += 7; // Next week
+			}
+		} else if (day_of_week < cur_wday) { // Next week
+			info.tm_mday += (7 - cur_wday + day_of_week);
+		}
+	} else if (day_of_week == -1 && day_of_month == -1) { // Next occurence of hour/min
+		if (hour < cur_hour || (hour == cur_hour && minute < cur_min)) {
+			info.tm_mday++;
+		}
+	}
+
+	script_pushint(st, mktime(&info));
+
+	return true;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -29547,6 +29696,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(searchcartinventory, "i??"),
 	BUILDIN_DEF(searchstorageinventory, "i??"),
 	BUILDIN_DEF(getunitstatus, "ii"),
+	BUILDIN_DEF(progressbar_unit, "si?"),
+	BUILDIN_DEF(getvariableofpc, "ri?"),
+	BUILDIN_DEF(getcalendartime, "ii??"),
 	//ÓÊÏäÏµÍ³
 	BUILDIN_DEF(mail_create, "sss?"),
 	BUILDIN_DEF(mail_send, "?"),
