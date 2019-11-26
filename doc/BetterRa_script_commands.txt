@@ -1141,7 +1141,15 @@ OnHTTPReceivedEvent 事件返回变量:
 	bonus2 bMagicAddRace2,mr,x;
 	
 	bonus2 bSubSkill,sk,n;
-
+	
+	bonus2 bResEff,eff,n;
+	
+	bonus bCastrate,n;
+	bonus2 bCastrate,sk,n;
+	bonus bFixedCastrate,n;
+	bonus2 bFixedCastrate,sk,n;
+	bonus bDelayrate,n;
+	bonus2 bSkillCooldown,sk,t;
 ---------------------------------------
 
 bonus_ratefix <类型>,<最大值>{,<角色ID>};

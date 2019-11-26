@@ -28662,11 +28662,11 @@ BUILDIN_FUNC(getcalendartime)
 	struct tm info = { 0 };
 	int day_of_month = script_hasdata(st, 4) ? script_getnum(st, 4) : -1;
 	int day_of_week = script_hasdata(st, 5) ? script_getnum(st, 5) : -1;
-	int year = date_get_year();
-	int month = date_get_month();
-	int day = date_get_day();
-	int cur_hour = date_get_hour();
-	int cur_min = date_get_min();
+	int year = date_get(DT_YEAR);
+	int month = date_get(DT_MONTH);
+	int day = date_get(DT_DAYOFMONTH);
+	int cur_hour = date_get(DT_HOUR);
+	int cur_min = date_get(DT_MINUTE);
 	int hour = script_getnum(st, 2);
 	int minute = script_getnum(st, 3);
 

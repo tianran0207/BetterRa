@@ -4544,23 +4544,26 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 	int val3 = val3ptr ? *val3ptr : 0;
 	int val4 = val4ptr ? *val4ptr : 0;
 	int val5 = val5ptr ? *val5ptr : 0;
-	
+
+#define BONUS_WEAPON_CHK(__ptr, __var, __idx) \
+			if (!sd->state.lr_flag || sd->state.lr_flag == 3) \
+				__ptr = sd->right_weapon. ## __var[__idx]; \
+			else if (sd->state.lr_flag == 1) \
+				__ptr = sd->left_weapon. ## __var[__idx];
+#define BONUS_WEAPON_CHK_A(__ptr, __var, __idx) BONUS_WEAPON_CHK(__ptr, __var, __idx)\
+			else if (sd->state.lr_flag == 2) \
+				 __ptr = sd->arrow_ ## __var[__idx];
+
+#define BONUS_VECTOR_CHK(__vector, __cmp, __func) for (__vector){ if(__cmp) { __func; break; } }
+
 	switch (type) {
 	case SP_ADDELE:
 		PC_BONUS_CHK_ELEMENT(val1, SP_ADDELE);
-		if (val3 == 0) {
-			if (!sd->state.lr_flag || sd->state.lr_flag == 3)
-				*val2ptr = sd->right_weapon.addele[val1];
-			else if (sd->state.lr_flag == 1)
-				*val2ptr = sd->left_weapon.addele[val1];
-			else if (sd->state.lr_flag == 2)
-				*val2ptr = sd->arrow_addele[val1];
-		} else {
-			for (const auto &it : (sd->state.lr_flag ? sd->left_weapon.addele2 : sd->right_weapon.addele2)) {
-				if (it.ele == val1 && it.flag == val3)
-					*val2ptr = it.rate;
-			}
+		if (val3 == 0){
+			BONUS_WEAPON_CHK_A(*val2ptr, addele, val1);
+			break;
 		}
+		BONUS_VECTOR_CHK(const auto &it: (sd->state.lr_flag ? sd->left_weapon.addele2 : sd->right_weapon.addele2), it.ele == val1 && it.flag == val3, *val2ptr = it.rate);
 		break;
 	case SP_MAGIC_ADDELE:
 		PC_BONUS_CHK_ELEMENT(val1, SP_MAGIC_ADDELE);
@@ -4572,10 +4575,7 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 			*val2ptr = sd->subele_script[val1];
 			break;
 		}
-		for (const auto &it : sd->subele2) {
-			if (it.ele == val1 && it.flag == val3)
-				*val2ptr = it.rate;
-		}
+		BONUS_VECTOR_CHK(const auto &it: sd->subele2, it.ele == val1 && it.flag == val3, *val2ptr = it.rate);
 		break;
 	case SP_SUBDEF_ELE:
 		PC_BONUS_CHK_ELEMENT(val1, SP_SUBDEF_ELE);
@@ -4583,12 +4583,7 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 		break;
 	case SP_ADDRACE:
 		PC_BONUS_CHK_RACE(val1, SP_ADDRACE);
-		if (!sd->state.lr_flag || sd->state.lr_flag == 3)
-			*val2ptr = sd->right_weapon.addrace[val1];
-		else if (sd->state.lr_flag == 1)
-			*val2ptr = sd->left_weapon.addrace[val1];
-		else if (sd->state.lr_flag == 2)
-			*val2ptr = sd->arrow_addrace[val1];
+		BONUS_WEAPON_CHK_A(*val2ptr, addrace, val1);
 		break;
 	case SP_MAGIC_ADDRACE:
 		PC_BONUS_CHK_RACE(val1, SP_MAGIC_ADDRACE);
@@ -4600,12 +4595,7 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 		break;
 	case SP_ADDCLASS:
 		PC_BONUS_CHK_CLASS(val1, SP_ADDCLASS);
-		if (!sd->state.lr_flag || sd->state.lr_flag == 3)
-			*val2ptr = sd->right_weapon.addclass[val1];
-		else if (sd->state.lr_flag == 1)
-			*val2ptr = sd->left_weapon.addclass[val1];
-		else if (sd->state.lr_flag == 2)
-			*val2ptr = sd->arrow_addclass[val1];
+		BONUS_WEAPON_CHK_A(*val2ptr, addclass, val1);
 		break;
 	case SP_MAGIC_ADDCLASS:
 		PC_BONUS_CHK_CLASS(val1, SP_MAGIC_ADDCLASS);
@@ -4617,12 +4607,7 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 		break;
 	case SP_ADDSIZE:
 		PC_BONUS_CHK_SIZE(val1, SP_ADDSIZE);
-		if (!sd->state.lr_flag || sd->state.lr_flag == 3)
-			*val2ptr = sd->right_weapon.addsize[val1];
-		else if (sd->state.lr_flag == 1)
-			*val2ptr = sd->left_weapon.addsize[val1];
-		else if (sd->state.lr_flag == 2)
-			*val2ptr = sd->arrow_addsize[val1];
+		BONUS_WEAPON_CHK_A(*val2ptr, addsize, val1);
 		break;
 	case SP_MAGIC_ADDSIZE:
 		PC_BONUS_CHK_SIZE(val1, SP_MAGIC_ADDSIZE);
@@ -4633,43 +4618,20 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 		*val2ptr = sd->subsize[val1];
 		break;
 	case SP_ADD_DAMAGE_CLASS:
-		for (const auto &it : (sd->state.lr_flag ? sd->left_weapon.add_dmg : sd->right_weapon.add_dmg)) {
-			if (it.id == val1) {
-				*val2ptr = it.val;
-				break;
-			}
-		}
+		BONUS_VECTOR_CHK(const auto &it: (sd->state.lr_flag ? sd->left_weapon.add_dmg : sd->right_weapon.add_dmg), it.id == val1, *val2ptr = it.val);
 		break;
 	case SP_ADD_MAGIC_DAMAGE_CLASS:
-		for (const auto &it : sd->add_mdmg) {
-			if (it.id == val1) {
-				*val2ptr = it.val;
-				break;
-			}
-		}
+		BONUS_VECTOR_CHK(const auto &it: sd->add_mdmg, it.id == val1, *val2ptr = it.val);
 		break;
 	case SP_ADD_DEF_MONSTER:
-		for (const auto &it : sd->add_def) {
-			if (it.id == val1) {
-				*val2ptr = it.val;
-				break;
-			}
-		}
+		BONUS_VECTOR_CHK(const auto &it: sd->add_def, it.id == val1, *val2ptr = it.val);
 		break;
 	case SP_ADD_MDEF_MONSTER:
-		for (const auto &it : sd->add_mdef) {
-			if (it.id == val1) {
-				*val2ptr = it.val;
-				break;
-			}
-		}
+		BONUS_VECTOR_CHK(const auto &it: sd->add_mdef, it.id == val1, *val2ptr = it.val);
 		break;
 	case SP_ADDRACE2:
 		PC_BONUS_CHK_RACE2(val1, SP_ADDRACE2);
-		if (sd->state.lr_flag != 2)
-			*val2ptr = sd->right_weapon.addrace2[val1];
-		else
-			*val2ptr = sd->left_weapon.addrace2[val1];
+		BONUS_WEAPON_CHK(*val2ptr, addrace2, val1);
 		break;
 	case SP_SUBRACE2:
 		PC_BONUS_CHK_RACE2(val1, SP_SUBRACE2);
@@ -4680,19 +4642,30 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 		*val2ptr = sd->magic_addrace2[val1];
 		break;
 	case SP_SUB_SKILL:
-		for (const auto &it : sd->subskill) {
-			if (it.id == val1) {
-				*val2ptr = it.val;
-				break;
-			}
-		}
+		BONUS_VECTOR_CHK(const auto &it: sd->subskill, it.id == val1, *val2ptr = it.val);
 		break;
 	case SP_DELAYRATE:
 		if (sd->state.lr_flag != 2)
 			*val1ptr = sd->delayrate;
+	case SP_RESEFF:
+		BONUS_VECTOR_CHK(const auto &it: sd->reseff, it.id == val1, *val2ptr = it.val);
+		break;
+	case SP_CASTRATE:
+	case SP_VARCASTRATE:
+		BONUS_VECTOR_CHK(const auto &it: sd->skillcastrate, it.id == val1, *val2ptr = it.val);
+		break;
+	case SP_FIXCASTRATE:
+		BONUS_VECTOR_CHK(const auto &it: sd->skillfixcastrate, it.id == val1, *val2ptr = it.val);
+		break;
+	case SP_SKILL_COOLDOWN:
+		BONUS_VECTOR_CHK(const auto &it: sd->skillcooldown, it.id == val1, *val2ptr = it.val);
+		break;
 	default:
 		return false;
 	}
+#undef BONUS_WEAPON_CHK
+#undef BONUS_WEAPON_CHK_A
+#undef BONUS_VECTOR_CHK
 	return true;
 }
 
@@ -4702,6 +4675,7 @@ void pc_bonus_limit(struct map_session_data *sd) {
 	int i;
 
 #define BONUS_LIMIT(__var) if ((__var) > limit) ((__var) = limit)
+#define BONUS_VECTOR_LIMIT(__vector, __var) for (auto &it : __vector) BONUS_LIMIT(it. ## __var)
 #define BONUS_LOOP(__start, __end, __var, __func) \
 	for( (__var) = (__start); (__var) < (__end); ++(__var) ) \
 		__func
@@ -4711,16 +4685,14 @@ void pc_bonus_limit(struct map_session_data *sd) {
 		switch (type) {
 		case SP_ADDELE: // ELE_MAX
 			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->right_weapon.addele[i]); BONUS_LIMIT(sd->left_weapon.addele[i]); BONUS_LIMIT(sd->arrow_addele[i]););
-			for (auto &it : (sd->state.lr_flag ? sd->left_weapon.addele2 : sd->right_weapon.addele2))
-				BONUS_LIMIT(it.rate);
+			BONUS_VECTOR_LIMIT(sd->state.lr_flag ? sd->left_weapon.addele2 : sd->right_weapon.addele2, rate);
 			break;
 		case SP_MAGIC_ADDELE:
 			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->magic_addele_script[i]););
 			break;
 		case SP_SUBELE:
 			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->subele_script[i]););
-			for (auto &it : sd->subele2)
-				BONUS_LIMIT(it.rate);
+			BONUS_VECTOR_LIMIT(sd->subele2, rate);
 			break;
 		case SP_SUBDEF_ELE:
 			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->subdefele[i]););
@@ -4762,27 +4734,35 @@ void pc_bonus_limit(struct map_session_data *sd) {
 			BONUS_LOOP(0, RC2_MAX, i, BONUS_LIMIT(sd->magic_addrace2[i]););
 			break;
 		case SP_ADD_DAMAGE_CLASS: // OTHER
-			for (auto &it : (sd->state.lr_flag ? sd->left_weapon.add_dmg : sd->right_weapon.add_dmg))
-				BONUS_LIMIT(it.val);
+			BONUS_VECTOR_LIMIT(sd->state.lr_flag ? sd->left_weapon.add_dmg : sd->right_weapon.add_dmg, val);
 			break;
 		case SP_ADD_MAGIC_DAMAGE_CLASS:
-			for (auto &it : sd->add_mdmg)
-				BONUS_LIMIT(it.val);
+			BONUS_VECTOR_LIMIT(sd->add_mdmg, val);
 			break;
 		case SP_ADD_DEF_MONSTER:
-			for (auto &it : sd->add_def)
-				BONUS_LIMIT(it.val);
+			BONUS_VECTOR_LIMIT(sd->add_def, val);
 			break;
 		case SP_ADD_MDEF_MONSTER:
-			for (auto &it : sd->add_mdef)
-				BONUS_LIMIT(it.val);
+			BONUS_VECTOR_LIMIT(sd->add_mdef, val);
 			break;
 		case SP_SUB_SKILL:
-			for (auto &it : sd->subskill)
-				BONUS_LIMIT(it.val);
+			BONUS_VECTOR_LIMIT(sd->subskill, val);
 			break;
 		case SP_DELAYRATE:
 			BONUS_LIMIT(sd->delayrate);
+			break;
+		case SP_RESEFF:
+			BONUS_VECTOR_LIMIT(sd->reseff, val);
+			break;
+		case SP_CASTRATE:
+		case SP_VARCASTRATE:
+			BONUS_VECTOR_LIMIT(sd->skillcastrate, val);
+			break;
+		case SP_FIXCASTRATE:
+			BONUS_VECTOR_LIMIT(sd->skillfixcastrate, val);
+			break;
+		case SP_SKILL_COOLDOWN:
+			BONUS_VECTOR_LIMIT(sd->skillcooldown, val);
 			break;
 		default:
 			ShowWarning("pc_bonus_limit: Invalid type '%d' limit for player AID: '%u', CID: '%u'\n", type, sd->status.account_id, sd->status.char_id);
@@ -4792,6 +4772,7 @@ void pc_bonus_limit(struct map_session_data *sd) {
 	sd->bonus_limit.clear();
 
 #undef BONUS_LIMIT
+#undef BONUS_VECTOR_LIMIT
 #undef BONUS_LOOP
 }
 
