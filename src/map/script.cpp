@@ -28077,7 +28077,7 @@ BUILDIN_FUNC(getmobdmglog)
 		if (maxcount <= ++count)
 			break;
 	}
-	if (script_hasdata(st, 6) && script_getnum(st, 6) != 0)
+	if (!script_hasdata(st, 6) || script_getnum(st, 6) != 0)
 		qsort((void *)array_vars, count, sizeof(struct sortarray_s), buildin_sortarray_desc_sub);
 
 	for (i = 0; i < count; i++) {
