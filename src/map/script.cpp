@@ -28033,48 +28033,59 @@ BUILDIN_FUNC(stylistui) {
 
 BUILDIN_FUNC(getmobdmglog)
 {
-	struct script_data *data = NULL;
+	struct script_data *data_cid = NULL, *data_dmg = NULL;
+	struct sortarray_s *array_vars;
 	struct map_session_data *sd = NULL;
-	struct reg_db *ref = NULL;
+	struct reg_db *ref_cid = NULL, *ref_dmg;
 	mob_data *md;
-	const char* varname = NULL;
-	int i, key, type, count = 0, maxcount;
+	const char* name_cid, *name_dmg;
+	int i, type, count = 0, maxcount, key_cid, key_dmg;
 	
 	if ((md = map_id2md(script_getnum(st, 2))) == NULL) {
 		script_pushint(st, 0);
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	type = script_getnum(st, 3);
-	if (type != 1 && type != 2) {
-		script_pushint(st, 0);
-		return SCRIPT_CMD_SUCCESS;
-	}
+	data_cid = script_getdata(st, 3);
+	data_dmg = script_getdata(st, 4);
 
-	data = script_getdata(st, 4);
-	if (!data_isreference(data) || data_isstring(data)) {
-		ShowWarning("buildin_getareagid: error in argument! please give a int variable to store num.\n");
+	if (!data_isreference(data_cid) || !data_isreference(data_dmg) || data_isstring(data_cid) || data_isstring(data_dmg)) {
+		ShowWarning("script: buildin_getmobdmglog: cid or dmg parm is not a variable.\n");
 		return SCRIPT_CMD_FAILURE;
 	}
-
-	varname = reference_getname(data);
-	if (not_server_variable(*varname) && !script_rid2sd(sd))
+	name_cid = reference_getname(data_cid);
+	name_dmg = reference_getname(data_dmg);
+	
+	if ((not_server_variable(*name_cid) || not_server_variable(*name_dmg)) && !script_rid2sd(sd))
 		return SCRIPT_CMD_FAILURE;
 
-	key = add_str(varname);
-	ref = reference_getref(data);
+	ref_cid = reference_getref(data_cid);
+	ref_dmg = reference_getref(data_dmg);
+
+	key_cid = add_str(name_cid);
+	key_dmg = add_str(name_dmg);
+
 	maxcount = script_hasdata(st, 5) ? script_getnum(st, 5) : DAMAGELOG_SIZE;
+
+	CREATE(array_vars, struct sortarray_s, maxcount);
 	for (i = 0; i < DAMAGELOG_SIZE; i++) {
 		if (md->dmglog[i].id == 0 || md->dmglog[i].flag != 0)
 			continue;
-		if (type == 1)
-			set_reg(st, sd, reference_uid(key, i), varname, (void *)__64BPRTSIZE(md->dmglog[i].id), ref);
-		else
-			set_reg(st, sd, reference_uid(key, i), varname, (void *)__64BPRTSIZE(md->dmglog[i].dmg), ref);
 
+		array_vars[count].val1 = md->dmglog[i].dmg;
+		array_vars[count].val2 = md->dmglog[i].id;
 		if (maxcount <= ++count)
 			break;
 	}
+	if (script_hasdata(st, 6) && script_getnum(st, 6) != 0)
+		qsort((void *)array_vars, count, sizeof(struct sortarray_s), buildin_sortarray_desc_sub);
+
+	for (i = 0; i < count; i++) {
+		set_reg(st, sd, reference_uid(key_cid, i), name_cid, (void *)__64BPRTSIZE(array_vars[i].val2), ref_cid);
+		set_reg(st, sd, reference_uid(key_dmg, i), name_dmg, (void *)__64BPRTSIZE(array_vars[i].val1), ref_dmg);
+	}
+
+	aFree(array_vars);
 	script_pushint(st, count);
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -29656,7 +29667,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unitskillfixedreset, "i"),
 	BUILDIN_DEF(when_progressbar_abort_doevent, "?"),
 	BUILDIN_DEF(mobskill, "iviiii??"),
-	BUILDIN_DEF(getmobdmglog, "iir?"),
+	BUILDIN_DEF(getmobdmglog, "irr??"),
 	BUILDIN_DEF(charid2rid, "i"),
 	BUILDIN_DEF(unithide, "ii?"),
 	BUILDIN_DEF(unitshow, "ii"),
