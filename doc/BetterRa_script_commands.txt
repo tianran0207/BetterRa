@@ -1150,9 +1150,23 @@ OnHTTPReceivedEvent 事件返回变量:
 	bonus2 bFixedCastrate,sk,n;
 	bonus bDelayrate,n;
 	bonus2 bSkillCooldown,sk,t;
+	
 ---------------------------------------
 
-bonus_ratefix <类型>,<最大值>{,<角色ID>};
+*bonus_minfix <类型>,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>}}}},<最小值>;
+*bonus_maxfix <类型>,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>}}}},<最大值>;
+
+此指令可用在 OnPCStatCalcEvent 事件下面用来修正相应的bonus数值。
+
+例:
+	bonus_maxfix bAddEle,Ele_Dark,.@val,BF_SHORT,80; // 近距离攻击时的暗属性修正不能大于80%, .@val 获取最终的值
+	bonus_minfix bAddEle,Ele_Dark,.@val,10; // 暗属性修正不能小于10%, .@val 获取最终的值
+	
+支持的 Bonus 列表同getbonus.
+
+---------------------------------------
+
+*bonus_ratefix <类型>,<最大值>{,<角色ID>};
 
 此指令可用在 OnPCStatCalcEvent 事件下面用来修正相应的bonus数值。
 

@@ -27648,17 +27648,18 @@ BUILDIN_FUNC(getbonus)
 	char* varname = NULL;
 	struct script_data *data[5];
 	TBL_PC *sd;
+	const char *command = script_getfuncname(st);
 
 	int type = script_getnum(st, 2);
-	int i, val[5];
+	int i, val[5], res;
 
 	if (!script_rid2sd(sd))
 		return SCRIPT_CMD_FAILURE;
 
-	for (i = 0; i < 5; i++)
+	for (i = 0; i < 5; i++) {
+
 		data[i] = script_hasdata(st, i + 3) ? script_getdata(st, i + 3) : NULL;
 
-	for (i = 0; i < 5; i++) {
 		if (data[i] && data_isstring(data[i])) {
 			ShowWarning("buildin_getbonus: error in argument! please give int variable or num.\n");
 			return SCRIPT_CMD_FAILURE;
@@ -27666,10 +27667,19 @@ BUILDIN_FUNC(getbonus)
 		val[i] = !data[i] || data_isreference(data[i]) ? 0 : conv_num(st, data[i]);
 	}
 
-	if (!pc_bonus_chk(sd, type, &val[0], &val[1], &val[2], &val[3], &val[4])) {
-		ShowWarning("buildin_getbonus: the type of '%d' is unsupport.\n", type);
-		return SCRIPT_CMD_FAILURE;
+	if (*command == 'b') {
+		int lastdata = script_lastdata(st);
+		int minmax = script_getnum(st, lastdata);
+		if (lastdata - 3 < 5) val[lastdata - 3] = 0;
+		if (strstr(command, "min"))
+			res = pc_bonus_chk(sd, type, &val[0], &val[1], &val[2], &val[3], &val[4], &minmax, NULL) ? 1 : 0;
+		else if (strstr(command, "max"))
+			res = pc_bonus_chk(sd, type, &val[0], &val[1], &val[2], &val[3], &val[4], NULL, &minmax) ? 1 : 0;
 	}
+	else
+		res = pc_bonus_chk(sd, type, &val[0], &val[1], &val[2], &val[3], &val[4], NULL, NULL) ? 1 : 0;
+	
+
 	for (i = 0; i < 5; i++) {
 		if (!data[i])
 			continue;
@@ -28039,7 +28049,7 @@ BUILDIN_FUNC(getmobdmglog)
 	struct reg_db *ref_cid = NULL, *ref_dmg;
 	mob_data *md;
 	const char* name_cid, *name_dmg;
-	int i, type, count = 0, maxcount, key_cid, key_dmg;
+	int i, count = 0, maxcount, key_cid, key_dmg;
 	
 	if ((md = map_id2md(script_getnum(st, 2))) == NULL) {
 		script_pushint(st, 0);
@@ -29770,6 +29780,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getareamember, "i??"),
 	BUILDIN_DEF(magicshield, "iii?"),
 	BUILDIN_DEF(getbonus, "i?????"),
+	BUILDIN_DEF2(getbonus, "bonus_minfix", "i??????"),
+	BUILDIN_DEF2(getbonus, "bonus_maxfix", "i??????"),
 	BUILDIN_DEF(getrateidx, "*"),
 	BUILDIN_DEF(mobstaypos, "iii"),
 	BUILDIN_DEF(roulette_bonus, "i"),
