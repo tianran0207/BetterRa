@@ -4970,6 +4970,196 @@ void script_reload(void) {
 	mapreg_reload();
 }
 
+/**
+ * Writes a string to a StringBuf by combining a format string and a set of
+ * arguments taken from the current script state (caller script function
+ * arguments).
+ *
+ * @param[in]  st    Script state (must have at least a string at index
+ *                   'start').
+ * @param[in]  start Index of the format string argument.
+ * @param[out] out   Output string buffer (managed by the caller, must be
+ *                   already initialized)
+ * @retval false if an error occurs.
+ */
+static bool script_sprintf(struct script_state *st, int start, struct StringBuf *out)
+{
+	const char *format = NULL, *p = NULL, *np = NULL, *str = NULL;
+	char *buf = NULL;
+	int buf_len = 0,  lastarg = start;
+	int argc = script_lastdata(st) + 1;
+
+	nullpo_retr(false, out);
+
+	if (!script_hasdata(st, start) || start < 2 && start >= argc)
+		return false;
+
+	p = format = script_getstr(st, start);
+
+	while ((np = strchr(p, '%')) != NULL) {
+		bool flag_plus = false, flag_minus = false, flag_zero = false, flag_space = false;
+		bool positional_arg = false;
+		int width = 0, nextarg = lastarg + 1, thisarg = nextarg;
+
+		if (p != np) {
+			int len = (int)(np - p + 1);
+			if (buf_len < len) {
+				RECREATE(buf, char, len);
+				buf_len = len;
+			}
+			safestrncpy(buf, p, len);
+			StringBuf_AppendStr(out, buf);
+		}
+		np++;
+
+		// placeholder = "%%" ; (special case)
+		if (*np == '%') {
+			StringBuf_AppendStr(out, "%");
+			p = np + 1;
+			continue;
+		}
+		// placeholder = "%n" ; (ignored)
+		if (*np == 'n') {
+			ShowWarning("script_sprintf: Format %%n not supported! Skipping...\n");
+			script_reportsrc(st);
+			lastarg = nextarg;
+			p = np + 1;
+			continue;
+		}
+
+		// std-placeholder = "%" [pos-parameter] [flags] [width] [precision] [length] type
+		// pos-parameter = number "$"
+		if (ISDIGIT(*np) && *np != '0') {
+			const char *pp = np;
+			while (ISDIGIT(*pp))
+				pp++;
+			if (*pp == '$') {
+				thisarg = atoi(np) + start;
+				positional_arg = true;
+				np = pp + 1;
+			}
+		}
+		if (thisarg >= argc) {
+			ShowError("script_sprintf: Not enough arguments passed!\n");
+			if (buf != NULL)
+				aFree(buf);
+			return false;
+		}
+		// flags = *("-" / "+" / "0" / SP)
+		while (true) {
+			if (*np == '-') {
+				flag_minus = true;
+			} else if (*np == '+') {
+				flag_plus = true;
+			} else if (*np == ' ') {
+				flag_space = true;
+			} else if (*np == '0') {
+				flag_zero = true;
+			} else {
+				break;
+			}
+			np++;
+		}
+		// width = number / ("*" [pos-parameter])
+		if (ISDIGIT(*np)) {
+			width = atoi(np);
+			while (ISDIGIT(*np))
+				np++;
+		} else if (*np == '*') {
+			bool positional_widtharg = false;
+			int width_arg;
+			np++;
+			// pos-parameter = number "$"
+			if (ISDIGIT(*np) && *np != '0') {
+				const char *pp = np;
+				while (ISDIGIT(*pp))
+					pp++;
+				if (*pp == '$') {
+					width_arg = atoi(np) + start;
+					positional_widtharg = true;
+					np = pp + 1;
+				}
+			}
+			if (!positional_widtharg) {
+				width_arg = nextarg;
+				nextarg++;
+				if (!positional_arg)
+					thisarg++;
+			}
+			if (width_arg >= argc || thisarg >= argc) {
+				ShowError("script_sprintf: Not enough arguments passed!\n");
+				if (buf != NULL)
+					aFree(buf);
+				return false;
+			}
+			width = script_getnum(st, width_arg);
+		}
+
+		// precision = "." (number / ("*" [pos-parameter])) ; (not needed/implemented)
+		// length = "hh" / "h" / "l" / "ll" / "L" / "z" / "j" / "t" ; (not needed/implemented)
+		// type = "d" / "i" / "u" / "f" / "F" / "e" / "E" / "g" / "G" / "x" / "X" / "o" / "s" / "c" / "p" / "a" / "A"
+		if (buf_len < 16) {
+			RECREATE(buf, char, 16);
+			buf_len = 16;
+		}
+		int i = 0;
+		memset(buf, '\0', buf_len);
+		buf[i++] = '%';
+		if (flag_minus)
+			buf[i++] = '-';
+		if (flag_plus)
+			buf[i++] = '+';
+		else if (flag_space) // ignored if '+' is specified
+			buf[i++] = ' ';
+		if (flag_zero)
+			buf[i++] = '0';
+		if (width > 0)
+			safesnprintf(buf + i, buf_len - i - 1, "%d", width);
+
+		buf[(int)strlen(buf)] = *np;
+		switch (*np) {
+		case 'd':		case 'i':		case 'u':
+		case 'x':		case 'X':		case 'o':
+			// Piggyback printf
+			StringBuf_Printf(out, buf, script_getnum(st, thisarg));
+			break;
+		case 's':
+			// Piggyback printf
+			StringBuf_Printf(out, buf, script_getstr(st, thisarg));
+			break;
+		case 'c':
+			str = script_getstr(st, thisarg);
+			// Piggyback printf
+			StringBuf_Printf(out, buf, str[0]);
+			break;
+		case 'f':		case 'F':		case 'e':
+		case 'E':		case 'g':		case 'G':
+		case 'p':		case 'a':		case 'A':
+			ShowWarning("script_sprintf: Format %%%c not supported! Skipping...\n", *np);
+			script_reportsrc(st);
+			lastarg = nextarg;
+			p = np + 1;
+			continue;
+		default:
+			ShowError("script_sprintf: Invalid format string.\n");
+			if (buf != NULL)
+				aFree(buf);
+			return false;
+		}
+		lastarg = nextarg;
+		p = np + 1;
+	}
+
+	// Append the remaining part
+	if (p != NULL)
+		StringBuf_AppendStr(out, p);
+
+	if (buf != NULL)
+		aFree(buf);
+
+	return true;
+}
+
 //-----------------------------------------------------------------------------
 // buildin functions
 //
@@ -16486,138 +16676,16 @@ BUILDIN_FUNC(implode)
 //-------------------------------------------------------
 BUILDIN_FUNC(sprintf)
 {
-	unsigned int len, argc = 0, arg = 0, buf2_len = 0;
-	const char* format;
-	char* p;
-	char* q;
-	char* buf  = NULL;
-	char* buf2 = NULL;
-	struct script_data* data;
-	StringBuf final_buf;
-
-	// Fetch init data
-	format = script_getstr(st, 2);
-	argc = script_lastdata(st)-2;
-	len = strlen(format);
-
-	// Skip parsing, where no parsing is required.
-	if(len == 0) {
-		script_pushconststr(st,"");
-		return SCRIPT_CMD_SUCCESS;
-	}
-
-	// Pessimistic alloc
-	CREATE(buf, char, len+1);
-
-	// Need not be parsed, just solve stuff like %%.
-	if(argc == 0) {
-		memcpy(buf,format,len+1);
-		script_pushstrcopy(st, buf);
-		aFree(buf);
-		return SCRIPT_CMD_SUCCESS;
-	}
-
-	safestrncpy(buf, format, len+1);
-
+	StringBuf buf;
 	// Issue sprintf for each parameter
-	StringBuf_Init(&final_buf);
-	q = buf;
-	while((p = strchr(q, '%')) != NULL) {
-		if(p != q) {
-			len = p - q + 1;
-
-			if(buf2_len < len) {
-				RECREATE(buf2, char, len);
-				buf2_len = len;
-			}
-
-			safestrncpy(buf2, q, len);
-			StringBuf_AppendStr(&final_buf, buf2);
-			q = p;
-		}
-
-		p = q + 1;
-
-		if(*p == '%') {  // %%
-			StringBuf_AppendStr(&final_buf, "%");
-			q+=2;
-			continue;
-		}
-
-		if(*p == 'n') {  // %n
-			ShowWarning("buildin_sprintf: Format %%n not supported! Skipping...\n");
-			script_reportsrc(st);
-			q+=2;
-			continue;
-		}
-
-		if(arg >= argc) {
-			ShowError("buildin_sprintf: Not enough arguments passed!\n");
-			if(buf) aFree(buf);
-			if(buf2) aFree(buf2);
-			StringBuf_Destroy(&final_buf);
-			script_pushconststr(st,"");
-			return SCRIPT_CMD_FAILURE;
-		}
-
-		if((p = strchr(q+1, '%')) == NULL)
-			p = strchr(q, 0);  // EOS
-
-		len = p - q + 1;
-
-		if(buf2_len < len) {
-			RECREATE(buf2, char, len);
-			buf2_len = len;
-		}
-
-		safestrncpy(buf2, q, len);
-		q = p;
-
-		// Note: This assumes the passed value being the correct
-		// type to the current format specifier. If not, the server
-		// probably crashes or returns anything else, than expected,
-		// but it would behave in normal code the same way so it's
-		// the scripter's responsibility.
-		data = script_getdata(st, arg+3);
-
-		if(data_isstring(data))  // String
-			StringBuf_Printf(&final_buf, buf2, script_getstr(st, arg+3));
-		else if(data_isint(data))  // Number
-			StringBuf_Printf(&final_buf, buf2, script_getnum(st, arg+3));
-		else if(data_isreference(data)) {  // Variable
-			char* name = reference_getname(data);
-
-			if(name[strlen(name)-1]=='$')  // var Str
-				StringBuf_Printf(&final_buf, buf2, script_getstr(st, arg+3));
-			else  // var Int
-				StringBuf_Printf(&final_buf, buf2, script_getnum(st, arg+3));
-		} else {  // Unsupported type
-			ShowError("buildin_sprintf: Unknown argument type!\n");
-			if(buf) aFree(buf);
-			if(buf2) aFree(buf2);
-			StringBuf_Destroy(&final_buf);
-			script_pushconststr(st,"");
-			return SCRIPT_CMD_FAILURE;
-		}
-
-		arg++;
+	StringBuf_Init(&buf);
+	if (!script_sprintf(st, 2, &buf)) {
+		StringBuf_Destroy(&buf);
+		script_pushconststr(st, "");
+		return SCRIPT_CMD_FAILURE;
 	}
-
-	// Append anything left
-	if(*q)
-		StringBuf_AppendStr(&final_buf, q);
-
-	// Passed more, than needed
-	if(arg < argc) {
-		ShowWarning("buildin_sprintf: Unused arguments passed.\n");
-		script_reportsrc(st);
-	}
-
-	script_pushstrcopy(st, StringBuf_Value(&final_buf));
-
-	if(buf) aFree(buf);
-	if(buf2) aFree(buf2);
-	StringBuf_Destroy(&final_buf);
+	script_pushstrcopy(st, StringBuf_Value(&buf));
+	StringBuf_Destroy(&buf);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -28770,17 +28838,17 @@ BUILDIN_FUNC(setequipedcard)
 	struct map_session_data *sd;
 	int card, slot, pos, flag = 1, i;
 
-	if (!script_rid2sd(sd))
+	if (!script_charid2sd(5, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	pos = script_getnum(st, 2);
 	if ((pos < EQI_ACC_L || pos > EQI_HAND_R) && pos != EQI_AMMO) {
-		ShowError("buildin_setitemcard: Wrong equip position: %d\n", pos);
+		ShowError("buildin_setequipedcard: Wrong equip position: %d\n", pos);
 		return SCRIPT_CMD_FAILURE;
 	}
 	card = script_getnum(st, 4);
 	if (card != 0 && !itemdb_exists(card)) {
-		ShowError("buildin_setitemcard: Item id is not exists: %d\n", card);
+		ShowError("buildin_setequipedcard: Item id is not exists: %d\n", card);
 		return SCRIPT_CMD_FAILURE;
 	}
 	if ((i = sd->equip_index[pos]) < 0) {
@@ -28801,6 +28869,71 @@ BUILDIN_FUNC(setequipedcard)
 #else
 	return SCRIPT_CMD_FAILURE;
 #endif
+}
+
+BUILDIN_FUNC(mesf)
+{
+	TBL_PC* sd;
+	struct StringBuf buf;
+
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_SUCCESS;
+
+	StringBuf_Init(&buf);
+
+	if (!script_sprintf(st, 2, &buf)) {
+		StringBuf_Destroy(&buf);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	clif_scriptmes(sd, st->oid, StringBuf_Value(&buf));
+	StringBuf_Destroy(&buf);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(consolemes)
+{
+	struct StringBuf buf;
+	StringBuf_Init(&buf);
+	int type = script_hasdata(st, 2) ? script_getnum(st, 2) : 0;
+
+	if (!script_sprintf(st, 3, &buf)) {
+		StringBuf_Destroy(&buf);
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	switch (type) {
+	default:
+	case MSG_DEBUG:
+		ShowDebug("%s\n", StringBuf_Value(&buf));
+		break;
+	case MSG_ERROR:
+		ShowError("%s (rid: %d, oid: %d)\n", st->rid, st->oid, StringBuf_Value(&buf));
+		break;
+	case MSG_WARNING:
+		ShowWarning("%s (rid: %d, oid: %d)\n", st->rid, st->oid, StringBuf_Value(&buf));
+		break;
+	case MSG_INFORMATION:
+		ShowInfo("%s\n", StringBuf_Value(&buf));
+		break;
+	case MSG_STATUS:
+		ShowStatus("%s\n", StringBuf_Value(&buf));
+		break;
+	case MSG_NOTICE:
+		ShowNotice("%s\n", StringBuf_Value(&buf));
+		break;
+	}
+
+	StringBuf_Destroy(&buf);
+	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(abs)
+{
+	script_pushint(st, abs(script_getnum(st, 2)));
+	return SCRIPT_CMD_SUCCESS;
 }
 
 BUILDIN_FUNC(roulette_bonus)
@@ -29754,6 +29887,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getvariableofpc, "ri?"),
 	BUILDIN_DEF(getcalendartime, "ii??"),
 	BUILDIN_DEF(setequipedcard, "iii?"),
+	BUILDIN_DEF(mesf, "s*"),
+	BUILDIN_DEF(consolemes, "iv*"),
+	BUILDIN_DEF(abs, "i"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),

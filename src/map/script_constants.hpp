@@ -659,6 +659,13 @@
 	export_constant(STATUS_CLASS);
 	export_constant(STATUS_ASPD);
 
+	export_constant(MSG_STATUS);
+	export_constant(MSG_INFORMATION);
+	export_constant(MSG_NOTICE);
+	export_constant(MSG_WARNING);
+	export_constant(MSG_DEBUG);
+	export_constant(MSG_ERROR);
+
 	export_parameter("dmg_type", SP_DMG_TYPE);
 	export_parameter("dmg_damage", SP_DMG_DAMAGE);
 	export_parameter("dmg_skillid", SP_DMG_SKILLID);

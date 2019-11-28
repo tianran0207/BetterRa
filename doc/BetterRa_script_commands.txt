@@ -1858,7 +1858,7 @@ getunitstatus <GID>,<类型>;
 
 ----------------------------------------
 
-*getcalendartime(<时>, <分>{, <月份的第几天>{, <每周的第几天>}});
+*getcalendartime(<时>,<分>{,<月份的第几天>{,<每周的第几天>}});
 
 指令返回下次出现指定时间的时间戳
 
@@ -1881,8 +1881,108 @@ getunitstatus <GID>,<类型>;
 	getcalendartime(19, 10, -1, 1); // 获得下次 周一 19:10 的时间戳
 	
 ----------------------------------------
+
+*sprintf(<格式文本>{,参数{,参数{, ...}}});
+
+C语言样式的sprintf. 将参数带入格式并输出最终字符串.
+
+格式字符串可以使用以下结构：
+
+  %[参数排序符][flags][width]specifier
+
+格式文本支持以下说明符:
+
+%%: 输出一个 '%' (特殊情况，不支持参数、标志、宽度)
+%d, %i: 有符号十进制整数
+%u: 无符号十进制整数
+%x: 无符号十六进制整数
+%X: 无符号十六进制整数（大写字母）
+%o: 有符号八进制
+%s: 字符的字符串
+%c: 字符（仅使用字符串的第一个字符）
+
+格式文本不支持以下说明符：
+
+%n (出于安全考虑不支持)
+%f, %F, %e, %E, %g, %G (脚本引擎不支持浮点类型)
+%p (脚本引擎不支持指针)
+%a, %A (不支持, 请分别使用 0x%x 和 0x%X 替代)
+
+参数排序符:
+
+可以通过 'x$' 指定格式文本中的说明符分别使用哪个参数 ( x 是一个数字, 代表引用第几个参数),
+他可以将参数重新排序 (这在翻译字符串中可能有用，因为句子顺序可能与原始顺序不同). 
+
+例子:
+	// 当翻译成其他语言时, 可能因为参数的顺序不同, 而需要颠倒参数的情况, 可以通过 'x$' 重新排序参数
+	mes(sprintf("Hello, It's %d minutes after %d o'clock.", gettime(DT_MINUTE), gettime(DT_HOUR))); // 例句
+	mes(sprintf("你好, 现在是 %2$d点 %1$d分", gettime(DT_MINUTE), gettime(DT_HOUR))); // 译句
+
+格式文本支持的 flags（标识）有:
+
+- (减号): 在给定的字段宽度内左对齐，默认是右对齐（参见 width 子说明符）
++ (加好): 强制在结果之前显示加号或减号（+ 或 -），即正数前面会显示 + 号。默认情况下，只有负数前面会显示一个 - 号。
+(空格): 如果没有写入任何符号，则在该值前面插入一个空格。
+0 (零): 在指定填充 padding 的数字左边放置零（0），而不是空格（参见 width 子说明符）
+
+	mes(sprintf("现在的温度是 %+d 摄氏度", 25)); // 数值前面保留 '+' 号
+	.@map_name$ = sprintf("quiz_%02d", .@i); // 位数不组宽度 2, 在前面填充 0, 所以输出 "quiz_00"
+
+可以在参数中指定字段宽度，以确保至少填充多少个字符。如果使用('*')作为指定宽度，
+则宽度将作为sprintf()函数的参数读取
+
+	sprintf("%04d", 10) // Returns "0010"
+	sprintf("%0*d", 5, 10) // Returns "00010"
+	sprintf("%5d", 10) // Returns "   10"
+	sprintf("%-5d", 10) // Returns "10   "
+	sprintf("%10s", "Hello") // Returns "     Hello";
+	sprintf("%-10s", "Hello") // Returns "Hello    ";
+
+精度 ('.precision') 和 长度 ('hh', 'h', 'l', 'll', 'L', 'z', 'j', 't') 未实现, 脚本引擎不需要.
+
+例子:
+	.@format$ = "The %s contains %d monkeys";
+	dispbottom(sprintf(.@format$, "zoo", 5));
+	//prints "The zoo contains 5 monkeys"
+
+	dispbottom(sprintf(.@format$, "barrel", 82));
+	//prints "The barrel contains 82 monkeys"
 	
-*setequipedcard(<装备位置编号>,<第几个卡槽>,<物品ID>);
+----------------------------------------
+
+*mesf <格式文本>{,参数{,参数{, ...}}};
+
+在NPC对话框打印一句话, 同 mes,具体使用方法参见 sprintf
+
+例句:
+
+	mesf("你好, 我是 %s, 一名等级为 %d 的 %s", strcharinfo(PC_NAME), BaseLevel, jobname(Class));
+	// is equivalent to:
+	mes(sprintf("你好, 我是 %s, 一名等级为 %d 的 %s", strcharinfo(PC_NAME), BaseLevel, jobname(Class)));
+
+指令是 mes() 和 sprintf() 的简化版.
+
+----------------------------------------
+
+*consolemes("<类型>","<格式文本>"{,<参数>{,<参数>{, ...}}})
+
+在控制台打印文本, 第2个参数往后使用的是类似于sprintf的格式
+
+<类型>:
+	MSG_DEBUG		调试信息
+	MSG_ERROR		错误信息
+	MSG_WARNING		警告信息
+	MSG_INFORMATION	普通信息
+	MSG_STATUS 		状态信息
+	MSG_NOTICE 		注意信息
+Example:
+
+	consolemes(CONSOLEMES_DEBUG, "%s 点击了我!", strcharinfo(PC_NAME));
+	consolemes(CONSOLEMES_DEBUG, "\033[0;32mHello World"); // 支持颜色代码
+
+----------------------------------------
+	
+*setequipedcard <装备位置编号>,<第几个卡槽>,<物品ID>{,<角色ID>};
 
 在已装备的道具中设置相应卡槽中的物品, 不会在窗口提示卸下再穿上装备.
 如果 卡片ID 为 0 则拆下相应卡槽的道具
@@ -1891,6 +1991,12 @@ getunitstatus <GID>,<类型>;
 <装备位置编号> 是指 EQI_* 开头的位置常量
 <第几个卡槽> 从0开始 0~3的数字
 <物品ID> 为你想要插入卡槽的物品, 可以是任何物品
+
+----------------------------------------
+
+*abs(<数字>);
+
+返回数字绝对值
 
 ----------------------------------------
 --         以下功能为付费功能         --
