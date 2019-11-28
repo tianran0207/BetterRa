@@ -734,6 +734,7 @@ void clif_read_mobinfo(void);
 
 void clif_use_card(struct map_session_data *sd,int idx);
 void clif_insert_card(struct map_session_data *sd,int idx_equip,int idx_card,int flag);
+void clif_change_card(struct map_session_data *sd, unsigned int pos, int solt, unsigned short card, int flag);
 
 void clif_inventorylist(struct map_session_data *sd);
 void clif_equiplist(struct map_session_data *sd);

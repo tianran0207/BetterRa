@@ -28700,33 +28700,27 @@ BUILDIN_FUNC(getcalendartime)
 
 	if (day_of_month > -1 && day_of_week > -1) {
 		ShowError("script:getcalendartime: You must only specify a day_of_week or a day_of_month, not both\n");
-		script_pushint(st, -1);
-		return false;
+		return SCRIPT_CMD_FAILURE;
 	}
 	if (day_of_month > -1 && (day_of_month < 1 || day_of_month > 31)) {
 		ShowError("script:getcalendartime: Day of Month in invalid range. Must be between 1 and 31.\n");
-		script_pushint(st, -1);
-		return false;
+		return SCRIPT_CMD_FAILURE;
 	}
 	if (day_of_week > -1 && (day_of_week < 0 || day_of_week > 6)) {
 		ShowError("script:getcalendartime: Day of Week in invalid range. Must be between 0 and 6.\n");
-		script_pushint(st, -1);
-		return false;
+		return SCRIPT_CMD_FAILURE;
 	}
 	if (hour > -1 && (hour > 23)) {
 		ShowError("script:getcalendartime: Hour in invalid range. Must be between 0 and 23.\n");
-		script_pushint(st, -1);
-		return false;
+		return SCRIPT_CMD_FAILURE;
 	}
 	if (minute > -1 && (minute > 59)) {
 		ShowError("script:getcalendartime: Minute in invalid range. Must be between 0 and 59.\n");
-		script_pushint(st, -1);
-		return false;
+		return SCRIPT_CMD_FAILURE;
 	}
 	if (hour == -1 || minute == -1) {
 		ShowError("script:getcalendartime: Minutes and Hours are required\n");
-		script_pushint(st, -1);
-		return false;
+		return SCRIPT_CMD_FAILURE;
 	}
 
 	if (day_of_month > -1) {
@@ -28766,8 +28760,47 @@ BUILDIN_FUNC(getcalendartime)
 	}
 
 	script_pushint(st, mktime(&info));
+	return SCRIPT_CMD_SUCCESS;
+}
 
-	return true;
+// insert or remove card into equipped item
+BUILDIN_FUNC(setequipedcard)
+{
+#if PACKETVER >= 20151118
+	struct map_session_data *sd;
+	int card, slot, pos, flag = 1, i;
+
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	pos = script_getnum(st, 2);
+	if ((pos < EQI_ACC_L || pos > EQI_HAND_R) && pos != EQI_AMMO) {
+		ShowError("buildin_setitemcard: Wrong equip position: %d\n", pos);
+		return SCRIPT_CMD_FAILURE;
+	}
+	card = script_getnum(st, 4);
+	if (card != 0 && !itemdb_exists(card)) {
+		ShowError("buildin_setitemcard: Item id is not exists: %d\n", card);
+		return SCRIPT_CMD_FAILURE;
+	}
+	if ((i = sd->equip_index[pos]) < 0) {
+		ShowError("buildin_setequipedcard: Item in equipment slot %d is not equipped\n", pos);
+		return SCRIPT_CMD_FAILURE;
+	}
+	slot = script_getnum(st, 3);
+	if (slot < 0 || slot >= MAX_SLOTS) {
+		ShowError("buildin_setequipedcard: Wrong card slot %d. Must be in range 0-3.\n", slot);
+		return SCRIPT_CMD_FAILURE;
+	}
+	clif_change_card(sd, equip_bitmask[pos], slot, card, card == 0 ? 2 : 1);
+	log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[i]);
+	sd->inventory.u.items_inventory[i].card[slot] = card;
+	log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[i]);
+	status_calc_pc(sd, SCO_NONE);
+	return SCRIPT_CMD_SUCCESS;
+#else
+	return SCRIPT_CMD_FAILURE;
+#endif
 }
 
 BUILDIN_FUNC(roulette_bonus)
@@ -29720,6 +29753,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(progressbar_unit, "si?"),
 	BUILDIN_DEF(getvariableofpc, "ri?"),
 	BUILDIN_DEF(getcalendartime, "ii??"),
+	BUILDIN_DEF(setequipedcard, "iii?"),
+
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
 	BUILDIN_DEF(mail_send, "?"),
