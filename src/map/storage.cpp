@@ -678,6 +678,10 @@ void storage_guild_log( struct map_session_data* sd, struct item* item, int16 am
 	int i;
 	SqlStmt* stmt = SqlStmt_Malloc(mmysql_handle);
 	StringBuf buf;
+
+	char esc_name[NAME_LENGTH*2+1];
+	Sql_EscapeStringLen(mmysql_handle, esc_name, sd->status.name, strnlen(sd->status.name, NAME_LENGTH));
+
 	StringBuf_Init(&buf);
 
 	StringBuf_Printf(&buf, "INSERT INTO `%s` (`time`, `guild_id`, `char_id`, `name`, `nameid`, `amount`, `identify`, `refine`, `attribute`, `unique_id`, `bound`", guild_storage_log_table);
@@ -689,7 +693,7 @@ void storage_guild_log( struct map_session_data* sd, struct item* item, int16 am
 		StringBuf_Printf(&buf, ", `option_parm%d`", i);
 	}
 	StringBuf_Printf(&buf, ") VALUES(NOW(),'%u','%u', '%s', '%d', '%d','%d','%d','%d','%" PRIu64 "','%d'",
-		sd->status.guild_id, sd->status.char_id, sd->status.name, item->nameid, amount, item->identify, item->refine,item->attribute, item->unique_id, item->bound);
+		sd->status.guild_id, sd->status.char_id, esc_name, item->nameid, amount, item->identify, item->refine,item->attribute, item->unique_id, item->bound);
 
 	for (i = 0; i < MAX_SLOTS; i++)
 		StringBuf_Printf(&buf, ",'%d'", item->card[i]);

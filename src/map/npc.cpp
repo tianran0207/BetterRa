@@ -3618,8 +3618,12 @@ int npc_instancedestroy(struct npc_data* nd)
  **/
 void npc_market_tosql(const char *exname, struct npc_item_list *list) {
 	SqlStmt* stmt = SqlStmt_Malloc(mmysql_handle);
+
+	char esc_exname[NPC_NAME_LENGTH*2+1];
+	Sql_EscapeStringLen(mmysql_handle, esc_exname, exname, strnlen(exname, NPC_NAME_LENGTH));
+
 	if (SQL_ERROR == SqlStmt_Prepare(stmt, "REPLACE INTO `%s` (`name`,`nameid`,`price`,`amount`,`flag`) VALUES ('%s','%hu','%d','%hu','%" PRIu8 "')",
-		market_table, exname, list->nameid, list->value, list->qty, list->flag) ||
+		market_table, esc_exname, list->nameid, list->value, list->qty, list->flag) ||
 		SQL_ERROR == SqlStmt_Execute(stmt))
 		SqlStmt_ShowDebug(stmt);
 	SqlStmt_Free(stmt);
@@ -3633,12 +3637,16 @@ void npc_market_tosql(const char *exname, struct npc_item_list *list) {
  **/
 void npc_market_delfromsql_(const char *exname, unsigned short nameid, bool clear) {
 	SqlStmt* stmt = SqlStmt_Malloc(mmysql_handle);
+
+	char esc_exname[NPC_NAME_LENGTH*2+1];
+	Sql_EscapeStringLen(mmysql_handle, esc_exname, exname, strnlen(exname, NPC_NAME_LENGTH));
+
 	if (clear) {
-		if( SQL_ERROR == SqlStmt_Prepare(stmt, "DELETE FROM `%s` WHERE `name`='%s'", market_table, exname) ||
+		if( SQL_ERROR == SqlStmt_Prepare(stmt, "DELETE FROM `%s` WHERE `name`='%s'", market_table, esc_exname) ||
 			SQL_ERROR == SqlStmt_Execute(stmt))
 			SqlStmt_ShowDebug(stmt);
 	} else {
-		if (SQL_ERROR == SqlStmt_Prepare(stmt, "DELETE FROM `%s` WHERE `name`='%s' AND `nameid`='%d' LIMIT 1", market_table, exname, nameid) ||
+		if (SQL_ERROR == SqlStmt_Prepare(stmt, "DELETE FROM `%s` WHERE `name`='%s' AND `nameid`='%d' LIMIT 1", market_table, esc_exname, nameid) ||
 			SQL_ERROR == SqlStmt_Execute(stmt))
 			SqlStmt_ShowDebug(stmt);
 	}
