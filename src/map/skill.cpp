@@ -3739,7 +3739,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	shadow_flag = skill_check_shadowform(bl, damage, dmg.div_);
 
-	battle_damage_event(src, bl, attack_type, skill_id, skill_lv, &damage);
+	battle_damage_event(src, bl, attack_type, skill_id, skill_lv, &damage, tick);
 
 	// Instant damage
 	if( !dmg.amotion ) {

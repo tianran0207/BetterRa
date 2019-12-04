@@ -2161,15 +2161,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	casttime = skill_vfcastfix(src, casttime, skill_id, skill_lv);
 #endif
 
-	if (ud && ud->skill_fixed.casttime && (ud->skill_fixed.skill_id == skill_id || ud->skill_fixed.skill_id == -1)) {
-		if (ud->skill_fixed.type & 1)
-			casttime = ud->skill_fixed.casttime;
-		else
-			casttime += ud->skill_fixed.casttime;
-
-		ud->skill_fixed.type &= ~1;
-		ud->skill_fixed.casttime = 0;
-	}
+	battle_damage_casttime_fix(src, skill_id, NULL, &casttime, tick);
 
 	if(!ud->state.running) // Need TK_RUN or WUGDASH handler to be done before that, see bugreport:6026
 		unit_stop_walking(src, 1); // Even though this is not how official works but this will do the trick. bugreport:6829
@@ -2412,15 +2404,7 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 	casttime = skill_vfcastfix(src, casttime, skill_id, skill_lv );
 #endif
 
-	if (ud && ud->skill_fixed.casttime && (ud->skill_fixed.skill_id == skill_id || ud->skill_fixed.skill_id == -1)) {
-		if (ud->skill_fixed.type & 1)
-			casttime = ud->skill_fixed.casttime;
-		else
-			casttime += ud->skill_fixed.casttime;
-
-		ud->skill_fixed.type &= ~1;
-		ud->skill_fixed.casttime = 0;
-	}
+	battle_damage_casttime_fix(src, skill_id, NULL, &casttime, tick);
 
 	ud->state.skillcastcancel = castcancel&&casttime>0?1:0;
 	if (!sd || sd->skillitem != skill_id || skill_get_cast(skill_id, skill_lv))

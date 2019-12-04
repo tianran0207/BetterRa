@@ -103,7 +103,8 @@ int64 battle_calc_bg_damage(struct block_list *src,struct block_list *bl,int64 d
 
 void battle_damage(struct block_list *src, struct block_list *target, int64 damage, t_tick delay, uint16 skill_lv, uint16 skill_id, enum damage_lv dmg_lv, unsigned short attack_type, bool additional_effects, t_tick tick, bool spdamage);
 int battle_delay_damage (t_tick tick, int amotion, struct block_list *src, struct block_list *target, int attack_type, uint16 skill_id, uint16 skill_lv, int64 damage, enum damage_lv dmg_lv, t_tick ddelay, bool additional_effects, bool spdamage);
-void battle_damage_event(struct block_list* src, struct block_list* target, int attack_type, uint16 skill_id, uint16 skill_lv, int64 *damage);
+void battle_damage_casttime_fix(struct block_list* src, uint16 skill_id, int64 *damage, int *casttime, t_tick tick);
+void battle_damage_event(struct block_list* src, struct block_list* target, int attack_type, uint16 skill_id, uint16 skill_lv, int64 *damage, t_tick tick);
 
 int battle_calc_chorusbonus(struct map_session_data *sd);
 

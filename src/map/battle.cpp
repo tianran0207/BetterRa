@@ -283,9 +283,66 @@ void battle_damage(struct block_list *src, struct block_list *target, int64 dama
 	map_freeblock_unlock();
 }
 
-void battle_damage_event(struct block_list* src, struct block_list* target, int attack_type, uint16 skill_id, uint16 skill_lv, int64 *damage)
+void battle_damage_casttime_fix(struct block_list* bl, uint16 skill_id, int64 *damage, int *casttime, t_tick tick)
+{
+	struct unit_data *ud;
+
+	if ((ud = unit_bl2ud(bl)) == NULL)
+		return;
+
+	if (ud->atk_fix.keeptime && ud->atk_fix.keeptime < tick)
+		ud->atk_fix.skill_id = 0;
+
+	if (ud->atk_fix.skill_id && (ud->atk_fix.skill_id == skill_id || 
+		(skill_id != 0 && ud->atk_fix.skill_id == -1) ||
+		(skill_id == 0 && ud->atk_fix.skill_id == -2) ||
+		ud->atk_fix.skill_id == -3))
+	{
+		if (ud->atk_fix.casting_skill_id && ud->atk_fix.casting_skill_id != skill_id) {
+			ud->atk_fix.skill_id = 0;
+			return;
+		}
+		if (casttime && skill_id && ud->atk_fix.casttime) {
+			if (ud->atk_fix.type & 1)
+				*casttime = ud->atk_fix.casttime;
+			else if (ud->atk_fix.type & 4)
+				*casttime = (*casttime) * ud->atk_fix.casttime / 100;
+			else
+				*casttime += ud->atk_fix.casttime;
+
+			if (*casttime < 0)
+				*casttime = 0;
+
+			if (!ud->atk_fix.keeptime) {
+				if (skill_get_nk(skill_id) & NK_NO_DAMAGE) {
+					ud->atk_fix.skill_id = 0;
+					return;
+				}
+				ud->atk_fix.casttime = 0;
+				ud->atk_fix.casting_skill_id = skill_id;
+			}
+		}
+		else if (damage && ud->atk_fix.damage) {
+			if (ud->atk_fix.type & 2)
+				*damage = ud->atk_fix.damage;
+			else if (ud->atk_fix.type & 8)
+				*damage = (*damage) * ud->atk_fix.damage / 100;
+			else
+				*damage += ud->atk_fix.damage;
+
+			if (!ud->atk_fix.keeptime)
+				ud->atk_fix.skill_id = 0;
+		}
+		else 
+			ud->atk_fix.skill_id = 0;
+	}
+}
+
+void battle_damage_event(struct block_list* src, struct block_list* target, int attack_type, uint16 skill_id, uint16 skill_lv, int64 *damage, t_tick tick)
 {
 	struct map_session_data* sd;
+
+	battle_damage_casttime_fix(src, skill_id, damage, NULL, gettick());
 
 	if (*damage <= 0 || src == target)
 		return;
@@ -321,19 +378,6 @@ void battle_damage_event(struct block_list* src, struct block_list* target, int 
 			npc_script_event_atonce(sd, NPCE_ATKEDFILTER);
 			if (sd->state.processhalt)
 				*damage = pc_readparam(sd, SP_DMG_DAMAGE);
-		}
-	}
-
-	if (sd && (sd->runing_event[NPCE_ATKFILTER] || sd->runing_event[NPCE_ATKEDFILTER])) {
-		struct unit_data *ud = unit_bl2ud(src);
-		if (ud && ud->skill_fixed.damage && (ud->skill_fixed.skill_id == skill_id || ud->skill_fixed.skill_id == -1)) {
-			if (ud->skill_fixed.type & 2)
-				*damage = ud->skill_fixed.damage;
-			else
-				*damage += ud->skill_fixed.damage;
-
-			ud->skill_fixed.type &= ~2;
-			ud->skill_fixed.damage = 0;
 		}
 	}
 }
@@ -418,7 +462,7 @@ int battle_delay_damage(t_tick tick, int amotion, struct block_list *src, struct
 		damage = 0;
 
 	if (!isspdamage)
-		battle_damage_event(src, target, attack_type, skill_id, skill_lv, &damage);
+		battle_damage_event(src, target, attack_type, skill_id, skill_lv, &damage, tick);
 
 	if ( !battle_config.delay_battle_damage || amotion <= 1 ) {
 		//Deal damage

@@ -27006,10 +27006,12 @@ BUILDIN_FUNC(unitskillfixed) {
 		return SCRIPT_CMD_FAILURE;
 	}
 	
-	ud->skill_fixed.skill_id = script_getnum(st, 3);
-	ud->skill_fixed.damage = script_getnum(st, 4);
-	ud->skill_fixed.casttime = script_getnum(st, 5);
-	ud->skill_fixed.type = script_getnum(st, 6);
+	ud->atk_fix.skill_id = script_getnum(st, 3);
+	ud->atk_fix.casting_skill_id = 0;
+	ud->atk_fix.damage = script_getnum(st, 4);
+	ud->atk_fix.casttime = script_getnum(st, 5);
+	ud->atk_fix.type = script_getnum(st, 6);
+	ud->atk_fix.keeptime = script_getnum(st, 7) ? script_getnum(st, 7) : 0;
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -27023,7 +27025,7 @@ BUILDIN_FUNC(unitskillfixedreset) {
 		return SCRIPT_CMD_FAILURE;
 	}
 
-	memset(&ud->skill_fixed, 0, sizeof(ud->skill_fixed));
+	memset(&ud->atk_fix, 0, sizeof(ud->atk_fix));
 
 	return SCRIPT_CMD_SUCCESS;
 }

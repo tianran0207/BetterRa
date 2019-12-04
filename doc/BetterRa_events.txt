@@ -133,7 +133,7 @@ BetterRa 在官方的基础上做了以下改进:
 
 时机注意事项:
 	“准备脱掉”说明还没完全脱掉, 所以此时使用 
-	getinventoryinfo(@equip_idx, 2) 去获取该装备的穿戴位置时,
+	getinventoryinfo(@unequip_idx, 2) 去获取该装备的穿戴位置时,
 	返回的内容绝对不会是 0
 
 中断注意事项:
