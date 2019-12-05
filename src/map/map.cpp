@@ -494,6 +494,11 @@ int map_moveblock(struct block_list *bl, int x1, int y1, t_tick tick)
 		return 0;
 	}
 
+	struct map_data *mapdata = map_getmapdata(bl->m);
+
+	if (x1 < 0 || y1 < 0 || (x1 >= mapdata->xs) || (y1 >= mapdata->ys))
+		return 0;
+
 	//TODO: Perhaps some outs of bounds checking should be placed here?
 	if (bl->type&BL_CHAR) {
 		sc = status_get_sc(bl);
