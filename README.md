@@ -2,6 +2,60 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20191215  [修复] 元素技能 黑洞 不能正常吸取玩家的问题
+* 20191215  [修改] 数据文件 mob_avail txt转yml setunitdata 和 getunitdata 支持外观数据 
+* 20191215  [修复] MySQL数据库结构优化, 老数据库依然可以用 
+* 20191215  [修复] NPC技能 硬化防御 和 绝对防御 的技能问题
+* 20191215  [修改] 将精炼上限提取到conf配置中
+* 20191215  [修改] 数据文件 atcommand_athena conf转yml
+* 20191215  [修改] 数据文件 abra_db txt转yml
+* 20191215  [修改] 数据文件 improvise_db txt转yml
+* 20191215  [修改] 数据文件 spellbook_db txt转yml
+* 20191215  [修改] 数据文件 magicmushroom_db txt转yml
+* 20191215  [添加] 战斗选项 monster.conf 中 mob_warp 支持魔物站在传送点会被传送的选项
+* 20191215  [修复] 宠物在交易时孵化和丢失宠物后蛋还保留在背包的问题。
+* 20191215  [优化] 物品附加 bVariableCast bSkillVariableCast 可在复兴前生效
+* 20191215  [修复] 修罗点血技能可以叠加的问题
+* 20191205  [修复] 由于实体越界造成的宕机
+* 20191204  [优化] 脚本指令 unitskillfixed 加入普通攻击和倍率增减伤害和念咒
+* 20191203  [修复] 1处严重级别注入漏洞, 2处低级别注入风险
+* 20191129  [优化] 脚本指令 sprintf 结构改为 %[参数排序符][flags][width]specifier 添加更多说明符支持
+* 20191129  [添加] 脚本指令 mesf 在NPC对话框打印一句话, 同 mes,具体使用方法参见 sprintf
+* 20191129  [添加] 脚本指令 consolemes 在控制台打印文本, 第2个参数往后使用的是类似于sprintf的格式
+* 20191129  [添加] 脚本指令 abs 返回数字绝对值
+* 20191128  [添加] 脚本指令 setequipedcard 在已装备的道具中设置相应卡槽中的物品
+* 20191128  [添加] 脚本指令 bonus_minfix 限制bonus的最小值
+* 20191128  [添加] 脚本指令 bonus_maxfix 限制bonus的最大值
+* 20191126  [优化] 脚本指令 getmobdmglog 获取伤害数据时对数据进行排序(可选), 并同时返回 cid 和 dmg 数据
+* 20191126  [优化] getbonus 和 bonus_fixrate 的算法
+* 20191126  [添加] 脚本指令 getbonus 和 fixrate 支持 bResEff bCastrate bFixedCastrate bDelayrate bSkillCooldown
+* 20191122  [添加] 脚本指令 progressbar_unit 在GID对应的目标头上显示一个读条进度
+* 20191122  [添加] 脚本指令 getvariableofpc 脚本返回指定玩家的变量
+* 20191122  [添加] 脚本指令 getcalendartime 指令返回下次出现指定时间的时间戳
+* 20191120  [优化] 脚本文件中数据库读入算法, 使其可以在reloaditemdb和reloadmobdb时重读
+* 20191120  [添加] item_noequip在地图上的限制规则, 对护符物品生效
+* 20191120  [修复] 正常关闭服务器产生的报错问题
+* 20191120  [添加] 脚本文件中数据库读入算法 更新item_noequip 和 item_trade 加载的算法;
+* 20191118  [优化] 脚本指令 atcommand 和 useatcmd 添加标签参数, 控制是否显示指令输出信息 (绿色字)
+* 20191118  [修复] 使用指令 callshop 后玩家可以移动的问题
+* 20191118  [添加] 脚本指令 getunitstatus 获取相应GID对应类型的战斗属性
+* 20191117  [修复] 清除玩家 bonus 时, 结构体未对齐的问题
+* 20191114  [优化] 脚本指令 getinventorylist 根据类型获取变量数组
+* 20191114  [添加] 脚本指令 getcartinventorylist 返回手推车物品列表, 用法与 getinventorylist 一样
+* 20191114  [添加] 脚本指令 getstorageinventorylist 返回手推车物品列表, 用法与 getinventorylist 一样
+* 20191114  [添加] 脚本指令 searchinventory 过滤并查找背包中的物品
+* 20191114  [添加] 脚本指令 searchcartinventory 过滤并查找手推车中的物品
+* 20191114  [添加] 脚本指令 searstoragechinventory 过滤并查找仓库中的物品
+* 20191114  [添加] 脚本指令 mobattached 脚本是否与魔物相关联
+* 20191114  [添加] 脚本指令 setgroupid 赋予玩家新的权限等级
+* 20191114  [删除] 战斗配置 enable_unittype_type 开启时会有新旧脚本混用的问题
+* 20191112  [添加] 战斗配置 getmapxy_compatible 兼容 getmapxy 旧脚本中的数字类型
+* 20191112  [添加] 脚本指令 getmapxy 兼容模块 兼容第四个参数为数字的情况。通过战斗配置 enable_unittype_type 开启（暂时关闭中待测试）
+* 20191111  [优化] 地图mapflag noitemfunc 在原有基础上自由控制禁止与允许
+* 20191111  [修复] 由于上次更新导致的套装属性在 item_noequip.txt 中禁止后依然生效的问题
+* 20191111  [添加] 战斗配置 item_noequip_deny_all 当使用 item_noequip.txt 禁止装备类道具时, 其上的攻击力、防御力、卡片等内容全部失效
+* 20191111  [优化] 战斗配置 multiple_script_state 多脚本堆栈默认打开状态
+* 20191101  [添加] 服务端定制添加最大等级定制
 * 20191027  [添加] 地图标记 noitemfunc 在玩家重计算属性时禁止加载一些物品的属性
 * 20191027  [添加] 物品标记 item_flag.txt 添加 128 - 物品无视 mapflag 中 noitemfunc 对应的项目
 * 20191027  [优化] 脚本指令 monster 和 areamonster 返回最后一个召唤魔物的GID
