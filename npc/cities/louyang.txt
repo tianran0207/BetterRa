@@ -1,6 +1,6 @@
-//===== rAthena Script ======================================= 
-//= Louyang City NPCs 
-//===== By: ================================================== 
+//===== rAthena Script =======================================
+//= Luoyang City NPCs
+//===== By: ==================================================
 //= Vidar (1.0)
 //= Mass Zero (1.1)
 //= Dino9021, roughly translated by Celest (1.2)
@@ -13,13 +13,13 @@
 //= rAthena Project
 //===== Description: ========================================= 
 //= [Official Conversion]
-//= Louyang Town Script
+//= Luoyang Town Script
 //===== Additional Comments: ================================= 
 //= 2.9 Rescripted to Aegis 10.3 Standards. [L0ne_W0lf]
 //= 3.0 Moved Alberta NPC to pre-re/re paths. [Euphy]
 //============================================================
 
-// Louyang Transportation
+// Luoyang Transportation
 //============================================================
 -	script	::Girl_louyang	-1,{
 	mes "[姑娘]";
@@ -118,7 +118,7 @@ lou_fild01,190,100,7	script	姑娘#1lou	4_F_CHNDRESS1,{
 	close;
 }
 
-// Generic Louyang NPCs
+// Generic Luoyang NPCs
 //============================================================
 louyang,297,167,2	script	肌肉发达的女人#lou	4_F_CHNDRESS1,{
 	if (!Sex) {
@@ -238,7 +238,7 @@ louyang,272,133,0	duplicate(LouTrainee)	训练者#10lou	4_M_CHN8GUEK
 louyang,272,131,0	duplicate(LouTrainee)	训练者#11lou	4_M_CHN8GUEK
 louyang,272,129,0	duplicate(LouTrainee)	训练者#12lou	4_M_CHN8GUEK
 
-// Louyang Viewing Tower
+// Luoyang Viewing Tower
 //============================================================
 lou_in01,25,23,5	script	很和气的女士#lo	4_F_CHNDRESS3,{
 	mes "[洪缈]";
@@ -321,7 +321,7 @@ louyang,84,254,0	script	出口#lou	HIDDEN_NPC,{
 //= 2.6 Removed Duplicates [Silent]
 //= 2.6a Updated a few names with new item_db.txt names [Evera]
 //= 2.7 Split quests to quests/quests_louyang.txt [Evera]
-//= 2.7a Minor optimizations before Louyang quests [Lupus]
+//= 2.7a Minor optimizations before Luoyang quests [Lupus]
 //= 2.7b Moved guides to the Guides folder. 2.7 more typos [Lupus]
 //= 2.8 Moved some quest-related NPCs to proper file. [SinSloth]
 //= 2.9 Rescripted to Aegis 10.3 Standards. [L0ne_W0lf]

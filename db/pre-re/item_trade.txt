@@ -113,7 +113,7 @@
 7341,507,100	//老旧坠子
 
 // Lighthalzen Quest items
-// * Schwartzvalt Trilogy Quest items
+// * Schwarzwald Trilogy Quest items
 7342,507,100	//薄的档案夹
 7343,507,100	//封印的档案夹
 7344,507,100	//西怒卡斯事件档案
@@ -332,7 +332,7 @@
 // Taiwan ???
 2713,507,100	//修行证明书
 
-// Satan Morroc
+// Satan Morocc
 7820,507,100	//梦罗克的皮肤碎片
 
 // Vietnam Independence Day

@@ -1,5 +1,5 @@
 //===== rAthena Script ======================================= 
-//= Morroc Guides
+//= Morocc Guides
 //===== By: ================================================== 
 //= L0ne_W0lf
 //===== Current Version: ===================================== 
@@ -8,14 +8,14 @@
 //= rAthena Project
 //===== Description: ========================================= 
 //= [Official Conversion]
-//= Guides for the city of Morroc and Morroc Ruins.
+//= Guides for the city of Morocc and Morocc Ruins.
 //===== Additional Comments: ================================= 
 //= 1.0 First version, Renewal guide.
 //= 1.1 Fixed and optimized. [Euphy]
 //= 1.2 Navigation system update. [Euphy]
 //============================================================ 
 
-morocc,153,286,6	script	解说员#01morocc::GuideMorroc	707,{
+morocc,153,286,6	script	解说员#01morocc::GuideMorocc	707,{
 	cutin "moc_soldier",2;
 	mes "[梦罗克 解说员]";
 	mes "这里是沙漠之都";
@@ -168,9 +168,9 @@ L_Mark:
 	mes "还需要其它服务吗?";
 	return;
 }
-morocc,154,38,6	duplicate(GuideMorroc)	解说员#02morocc	707
-morocc,296,213,4	duplicate(GuideMorroc)	解说员#03morocc	707
-morocc,28,170,5	duplicate(GuideMorroc)	解说员#04morocc	707
+morocc,154,38,6	duplicate(GuideMorocc)	解说员#02morocc	707
+morocc,296,213,4	duplicate(GuideMorocc)	解说员#03morocc	707
+morocc,28,170,5	duplicate(GuideMorocc)	解说员#04morocc	707
 
 moc_ruins,159,53,3	script	解说员#01ruins::GuideMocRuins	707,{
 	cutin "moc_soldier",2;
@@ -209,7 +209,7 @@ moc_ruins,159,53,3	script	解说员#01ruins::GuideMocRuins	707,{
 					break;
 				case 3:
 					mes "[梦罗克 解说员]";
-					mes "前往"+F_Navi("Morroc","moc_ruins,158,40","^FF5400");
+					mes "前往"+F_Navi("Morocc","moc_ruins,158,40","^FF5400");
 					mes "东南方出口的位置";
 					mes "已经标记在";
 					mes "小地图上了，";

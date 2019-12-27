@@ -532,7 +532,7 @@ umbala,92,159,4	script	±∞¿÷Ãπ#um	785,{
 		next;
 		mes "[Bertan]";
 		mes "What's the matter,";
-		mes "ya big Rune-Midgardian?!?!";
+		mes "ya big Rune-Midgartsian?!?!";
 		mes "I just called you a 'loser!'";
 		mes "I guess you're too stupid";
 		mes "to understand!!";
@@ -557,7 +557,7 @@ umbala,92,159,4	script	±∞¿÷Ãπ#um	785,{
 		switch(rand(1,6)) {
 		case 1:
 			mes "[Bertan]";
-			mes "What did the Rune-Midgardian";
+			mes "What did the Rune-Midgartsian";
 			mes "say to the Savage?";
 			mes "...";
 			next;
@@ -612,7 +612,7 @@ umbala,92,159,4	script	±∞¿÷Ãπ#um	785,{
 			close;
 		case 4:
 			mes "[Bertan]";
-			mes "Why are Rune-Midgardians";
+			mes "Why are Rune-Midgartsians";
 			mes "SOOoOOoo...";
 			mes "Um, hmmmmm.";
 			mes "Maybe that joke";

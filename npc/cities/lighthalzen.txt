@@ -1955,7 +1955,7 @@ lhz_in02,21,38,7	script	银行 职员#1::BankClerk	86,{
 lhz_in02,21,25,7	duplicate(BankClerk)	银行 职员#2	86
 lhz_in02,34,22,1	duplicate(BankClerk)	银行 职员#3	755
 
-// Lightalzen Prison Area -------------------------------------------------------------
+// Lighthalzen Prison Area -------------------------------------------------------------
 
 lhz_in02,145,177,0	script	酒醉的 叔叔#07	849,{
 	mes "[叔叔]";

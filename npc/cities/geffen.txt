@@ -882,7 +882,7 @@ geffen_in,114,73,5	script	汉斯	4_M_SEAMAN,{
 	mes "[汉斯]";
 	mes "这格芬肯定是奇怪的.但是, 值得在这里的旅行的方式从斯楚瓦尔兹贝特共和国.";
 	next;
-	if (select("Schubaltzwald Republic?:So, why are you traveling?") == 1) {
+	if (select("Schwarzwald Republic?:So, why are you traveling?") == 1) {
 		mes "[汉斯]";
 		mes "你...";
 		mes "你知道";

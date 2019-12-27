@@ -14,7 +14,7 @@
 //= 1.5a Fixed a small screw up with the color codes in the Glastheim BB [MasterOfMuppets]
 //= 1.5b Fixed another small screw up with the color codes in the Glastheim BB [Kayla]
 //= 1.6 Removed Duplicates [Silent]
-//= 1.7 Updated Morroc NPCs to reflect episode 12.1 changes. [L0ne_W0lf]
+//= 1.7 Updated Morocc NPCs to reflect episode 12.1 changes. [L0ne_W0lf]
 //= 1.8 Updated Payon Cave Bulletion Board Locations. [Masao]
 //= 1.9 Moved Izlude NPC to Pre-RE path. [Euphy]
 //= 2.0 Moved some NPC to Pre-re path. [Capuche]

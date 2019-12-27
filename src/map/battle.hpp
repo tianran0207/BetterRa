@@ -761,6 +761,7 @@ struct Battle_Config
 	int min_shop_sell;
 	int feature_equipswitch;
 	int pet_walk_speed;
+	int blacksmith_fame_refine_threshold;
 
 	int feature_refineui;
 	int feature_stylistui;

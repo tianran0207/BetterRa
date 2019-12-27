@@ -257,7 +257,7 @@ prontera,146,89,6	script	卡普拉 职员::kaf_prontera5	117,{
 	callfunc "F_KafEnd",0,1,"普隆德拉城内";
 }
 
-// Yuno
+// Juno
 //============================================================
 yuno,152,187,4	script	卡普拉 职员::kaf_yuno	860,{
 	cutin "kafra_08",2;
@@ -435,7 +435,7 @@ einbroch,59,203,6	script	卡普拉 职员#ein1::kaf_einbroch2	861,{
 	callfunc "F_KafEnd",0,1,"艾音布罗克城内";
 }
 
-// Gonryun
+// Kunlun
 //============================================================
 gonryun,159,122,4	script	卡普拉 职员::kaf_gonryun	116,{
 	cutin "kafra_02",2;
@@ -483,7 +483,7 @@ lhz_in02,237,284,4	script	卡普拉 职员::kaf_lhz_in02	861,{
 	callfunc "F_KafEnd",0,1,"里希塔乐镇城内";
 }
 
-// Louyang
+// Luoyang
 //============================================================
 louyang,210,104,5	script	卡普拉 职员::kaf_louyang	4_F_KAFRA2,{
 	cutin "kafra_01",2;
@@ -561,7 +561,7 @@ mjolnir_02,83,362,4	script	卡普拉 职员::kaf_mjolnir_02	116,{
 	callfunc "F_KafEnd",0,1,"妙勒尼废弃矿场门口";
 }
 
-// - Morroc Ruins
+// - Morocc Ruins
 moc_ruins,59,157,5	script	卡普拉 职员::moc_ruins	114,{
 	cutin "kafra_04",2;
 	mes "[卡普拉 职员]";

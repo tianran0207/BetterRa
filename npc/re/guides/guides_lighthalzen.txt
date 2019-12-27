@@ -8,7 +8,7 @@
 //= 1.2 Navigation system update. [Euphy]
 //============================================================
 
-lighthalzen,207,310,5	script	里希塔乐镇导游#lhz01::GuideLighthazlen	852,{
+lighthalzen,207,310,5	script	里希塔乐镇导游#lhz01::GuideLighthalzen	852,{
 	cutin "ein_soldier",2;
 	mes "[里希塔乐镇导游]";
 	mes "欢迎光临 企业之都^8B4513里希塔乐镇^000000,";
@@ -168,7 +168,7 @@ L_Mark:
 	mes "你还需要确认其他建筑物的位置吗?";
 	return;
 }
-lighthalzen,220,310,3	duplicate(GuideLighthazlen)	里希塔乐镇导游#lhz02	852
-lighthalzen,154,100,5	duplicate(GuideLighthazlen)	里希塔乐镇导游#lhz03	852
-lighthalzen,307,224,3	duplicate(GuideLighthazlen)	里希塔乐镇导游#lhz04	852
-lighthalzen,247,82,3	duplicate(GuideLighthazlen)	里希塔乐镇导游#lhz05	852
+lighthalzen,220,310,3	duplicate(GuideLighthalzen)	里希塔乐镇导游#lhz02	852
+lighthalzen,154,100,5	duplicate(GuideLighthalzen)	里希塔乐镇导游#lhz03	852
+lighthalzen,307,224,3	duplicate(GuideLighthalzen)	里希塔乐镇导游#lhz04	852
+lighthalzen,247,82,3	duplicate(GuideLighthalzen)	里希塔乐镇导游#lhz05	852

@@ -1,5 +1,5 @@
 //===== rAthena Script =======================================
-//= Ayotaya Town
+//= Ayothaya Town
 //===== By: ==================================================
 //= MasterOfMuppets
 //===== Current Version: =====================================
@@ -8,7 +8,7 @@
 //= rAthena Project
 //===== Description: =========================================
 //= [Official Conversion]
-//= Ayotaya Town Script
+//= Ayothaya Town Script
 //===== Additional Comments: =================================
 //= 1.6 Rescripted to Aegis 10.3 standards. [L0ne_W0lf]
 //= 1.7 Fixed character's anme bugs [Lupus]
@@ -61,9 +61,9 @@
 		if (select("我准备好了, 我们出发吧!:不想去...") == 1) {
 			if (Zeny > 9999) {
 				mes "[哎伊拜婷]";
-			mes "呵!哈!呵!哈!";
-			mes "我的漂亮的故乡";
-			mes "请你等我一下吧!!";
+				mes "呵!哈!呵!哈!";
+				mes "我的漂亮的故乡";
+				mes "请你等我一下吧!!";
 				close2;
 				set Zeny, Zeny - 10000;
 				warp "ayothaya",149,71;

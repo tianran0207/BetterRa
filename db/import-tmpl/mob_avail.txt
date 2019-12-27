@@ -14,3 +14,6 @@
 // SpriteID is a job class value.
 // Weapon and Shield uses Item ID, while Head uses View ID.
 
+// 注意: 
+// BetterRA 已对此文件重新兼容, 由于 rAthena 弃用此文件, 导致此文件相关功能停止更新, 建议使用 mob_avail.yml
+

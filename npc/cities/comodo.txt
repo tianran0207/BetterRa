@@ -388,7 +388,7 @@ cmd_in02,146,180,4	script	卡普拉 蜜丝提::kaf_comodo2	4_F_KAFRA7,{
 	end;
 }
 
-// Morroc Field
+// Morocc Field
 //============================================================
 moc_fild12,35,303,4	script	斯卢特卢#cmd	1_M_ORIENT01,{
 	mes "[斯卢特卢]";

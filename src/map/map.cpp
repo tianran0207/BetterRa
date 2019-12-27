@@ -162,8 +162,6 @@ struct map_cache_map_info {
 };
 
 char motd_txt[256] = CONF_PATH "/motd.txt";
-char help_txt[256] = CONF_PATH "/help.txt";
-char help2_txt[256] = CONF_PATH "/help2.txt";
 char charhelp_txt[256] = CONF_PATH "/charhelp.txt";
 char channel_conf[256] = CONF_PATH "/channels.conf";
 
@@ -4316,10 +4314,6 @@ int map_config_read(const char *cfgName)
 			save_settings = cap_value(atoi(w2),CHARSAVE_NONE,CHARSAVE_ALL);
 		else if (strcmpi(w1, "motd_txt") == 0)
 			safestrncpy(motd_txt, w2, sizeof(motd_txt));
-		else if (strcmpi(w1, "help_txt") == 0)
-			safestrncpy(help_txt, w2, sizeof(help_txt));
-		else if (strcmpi(w1, "help2_txt") == 0)
-			safestrncpy(help2_txt, w2, sizeof(help2_txt));
 		else if (strcmpi(w1, "charhelp_txt") == 0)
 			safestrncpy(charhelp_txt, w2, sizeof(charhelp_txt));
 		else if (strcmpi(w1, "channel_conf") == 0)
@@ -5561,7 +5555,6 @@ int do_init(int argc, char *argv[])
 	LOG_CONF_NAME=CONF_PATH "/log_athena.conf";
 	MAP_CONF_NAME = CONF_PATH "/map_athena.conf";
 	BATTLE_CONF_FILENAME = CONF_PATH "/battle_athena.conf";
-	ATCOMMAND_CONF_FILENAME = CONF_PATH "/atcommand_athena.conf";
 	SCRIPT_CONF_NAME = CONF_PATH "/script_athena.conf";
 	GRF_PATH_FILENAME = CONF_PATH "/grf-files.txt";
 	safestrncpy(console_log_filepath, "./log/map-msg_log.log", sizeof(console_log_filepath));

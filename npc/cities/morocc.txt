@@ -1,5 +1,5 @@
 //===== rAthena Script ======================================= 
-//= Morroc Town
+//= Morocc Town
 //===== By: ================================================== 
 //= kobra_k88; L0ne_W0lf
 //===== Current Version: ===================================== 
@@ -8,7 +8,7 @@
 //= rAthena Project
 //===== Description: ========================================= 
 //= [Official Conversion]
-//= Morroc Town NPCs
+//= Morocc Town NPCs
 //===== Additional Comments: ================================= 
 //= Fully working
 //= Fixed Lapidary sprite, Implemented ANTHELL trigger
@@ -27,7 +27,7 @@
 //= 2.2 Removed duplicate bartender NPC. (bugreport:4555) [L0ne_W0lf]
 //============================================================
 
-// Morroc
+// Morocc
 //============================================================
 morocc,150,120,5	script	管制士兵#01::MocSoldier	4_M_MOC_SOLDIER,3,3,{
 	mes "[梦罗克 管制士兵]";
@@ -531,13 +531,13 @@ moc_ruins,174,120,4	script	苍蝇叔叔#moc	1_M_JOBGUIDER,{
 	}
 }
 
-moc_ruins,173,70,4	script	Uncle Morroc#moc	1_M_02,{
+moc_ruins,173,70,4	script	Uncle Morocc#moc	1_M_02,{
 	mes "[Phlanette]";
-	mes "Morroc is located in an extremely dry region, surrounded by desert.";
-	mes "No place in the world is as hot as Morroc.";
+	mes "Morocc is located in an extremely dry region, surrounded by desert.";
+	mes "No place in the world is as hot as Morocc.";
 	next;
 	mes "[Phlanette]";
-	mes "I have a hunch that this hot and dry climate in Morroc is because of that Satan sealed deeper underground for so long.";
+	mes "I have a hunch that this hot and dry climate in Morocc is because of that Satan sealed deeper underground for so long.";
 	next;
 	switch(select("Tell me about the desert.:Quit Conversation")) {
 	case 1:
@@ -549,17 +549,17 @@ moc_ruins,173,70,4	script	Uncle Morroc#moc	1_M_02,{
 		mes "Nonetheless, there are a few hardy plants that can survive and grow in the desert.";
 		next;
 		mes "[Phlanette]";
-		mes "Unfortunately some of those plants growing around Morroc have been mutated into monsters.";
+		mes "Unfortunately some of those plants growing around Morocc have been mutated into monsters.";
 		mes "One of those is Muka, the mutated cactus..";
 		next;
 		mes "[Phlanette]";
-		mes "However, now that the Satan has revived, no one's sure of what changes would be made in the life cycles of Morroc.";
+		mes "However, now that the Satan has revived, no one's sure of what changes would be made in the life cycles of Morocc.";
 		close;
 	case 2:
 		mes "[Phlanette]";
 		mes "Here and there!";
 		mes "Sand everywhere...";
-		mes "Oh, I curse you, the desert of Morroc!!";
+		mes "Oh, I curse you, the desert of Morocc!!";
 		mes "Damn you!";
 		next;
 		mes "[Phlanette]";
