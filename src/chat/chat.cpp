@@ -7,6 +7,7 @@
 #include "../common/db.hpp"
 #include "../common/malloc.hpp"
 #include "../common/random.hpp"
+#include "../common/msg_conf.hpp"
 #include "../common/showmsg.hpp"
 #include "../common/socket.hpp"
 #include "../common/strlib.hpp"
@@ -101,6 +102,19 @@ bool chat_config_read(const char* cfgName, bool issql) {
 
 	ShowInfo("Done reading %s.\n", cfgName);
 	return true;
+}
+
+#define CHAT_MAX_MSG 300	//max number of msg_conf
+static char* msg_table[CHAT_MAX_MSG]; // Login Server messages_conf
+
+int chat_msg_read(const char *cfgName) {
+	return _msg_config_read(cfgName, CHAT_MAX_MSG, msg_table);
+}
+const char* chat_msg_txt(int msg_number) {
+	return _msg_txt(msg_number, CHAT_MAX_MSG, msg_table);
+}
+void chat_msg_final(void) {
+	_do_final_msg(CHAT_MAX_MSG, msg_table);
 }
 
 static char* gethttpheadline(char** buf) {
@@ -367,6 +381,11 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 	else
 		RFIFOSKIP(fd, packetlen);
 	if (!strcmp(decoded,"HBT")) { //心跳包
+		t_tick tick = gettick();
+		if (sd->beattick + 10000 < tick) {
+			set_eof(fd);
+			return 1;
+		}
 		sd->beattick = gettick();
 		return 1;
 	}else if (!strnicmp(decoded, "GL:", 3)) { //全服
@@ -567,24 +586,20 @@ static bool chat_mapif_isconnected() {
 }
 
 static int chat_mapif_keepalive(int fd) {
-	RFIFOSKIP(fd, 2);
 	session[fd]->flag.ping = 0;
 	return 1;
 }
 static int chat_mapif_result(int fd) {
-	int type = RFIFOW(fd, 2);
+	int type = RFIFOW(fd, 4);
 	switch (type) {
 	case 0:
 		ShowStatus("Chat-server connection refused.\n");
-		RFIFOSKIP(fd, 4);
 		exit(EXIT_FAILURE);
 		break;
 	case 1:
 		ShowStatus("Chat-server Connected to Map-Server.\n\n");
 		break;
 	}
-	RFIFOSKIP(fd, 4);
-	
 	return 1;
 }
 //----------------------------------------------------------
@@ -658,30 +673,33 @@ static int chat_mapif_WisMessage(int fd) {
 	return 1;
 }
 
-static int chat_mapif_error(int fd, uint16 cmd) {
-	struct online_chat_data *od = (struct online_chat_data *)uidb_get(online_chat_db, RFIFOL(fd, 2));
+static int chat_mapif_error(int fd) {
+	struct online_chat_data *od = (struct online_chat_data *)uidb_get(online_chat_db, RFIFOL(fd, 4));
+	unsigned char type = RFIFOB(fd, 8);
 
-	if (od) {
-		switch (cmd) {
-		case 0xFC33:
-			send_message(od->fd, "PR:WR:提示: 你没有队伍或队伍中没有玩家。");
-			break;
-		case 0xFC34:
-			send_message(od->fd, "GU:WR:提示: 你没有公会或公会中没有玩家。");
-			break;
-		case 0xFC35:
-			send_message(od->fd, "WS:WR:提示: 对方不在线。");
-			break;
-		}
+	if (od == NULL)
+		return 1;
+
+	switch (type) {
+	case 3: // no party
+		send_message(od->fd, "PR:WR:提示: 你没有队伍或队伍中没有玩家。");
+		break;
+	case 4: // no guild
+		send_message(od->fd, "GU:WR:提示: 你没有公会或公会中没有玩家。");
+		break;
+	case 5: // no online
+		send_message(od->fd, "WS:WR:提示: 对方不在线。");
+		break;
 	}
-	RFIFOSKIP(fd, 6);
 	return 1;
 }
 
 static int chat_mapif_parse(int fd) {
 	
+	int packet_len;
+
 	if (fd != map_fd) {
-		ShowDebug("parse_fromlogin: Disconnecting invalid session #%d (is not the login-server)\n", fd);
+		ShowDebug("chat_mapif_parse: Disconnecting invalid session #%d (is not the login-server)\n", fd);
 		do_close(fd);
 		return 0;
 	}
@@ -691,7 +709,8 @@ static int chat_mapif_parse(int fd) {
 		map_fd = -1;
 		ShowWarning("Connection to Map Server lost.\n\n");
 		return 0;
-	}	else if (session[fd]->flag.ping) {/* we've reached stall time */
+	}
+	else if (session[fd]->flag.ping) {/* we've reached stall time */
 		if (DIFF_TICK(last_tick, session[fd]->rdata_tick) > (stall_time * 5)) {/* we can't wait any longer */
 			set_eof(fd);
 			return 0;
@@ -705,14 +724,25 @@ static int chat_mapif_parse(int fd) {
 			session[fd]->flag.ping = 2;
 		}
 	}
-	uint16 cjie = RFIFOW(fd, 0);
-	while (RFIFOREST(fd) >= 2) {
+
+	if (RFIFOREST(fd) < 4)
+		return 0;
+
+	uint16 cmd = RFIFOW(fd, 0);
+	packet_len = RFIFOW(fd, 2);
+
+	if (packet_len < 4 || packet_len > 32768) {
+		ShowWarning("chat_mapif_parse: Received packet 0x%04x specifies invalid packet_len (%d), disconnecting session #%d.\n", cmd, packet_len, fd);
+		set_eof(fd);
+		return 0;
+	}
+
+	while ((int)RFIFOREST(fd) >= packet_len) {
 		// -1: Login server is not connected
 		//  0: Avoid processing followup packets (prev was probably incomplete) packet
 		//  1: Continue parsing
 		int next = 1;
-		uint16 command = RFIFOW(fd, 0);
-		switch (command) {
+		switch (cmd) {
 		//case 0x2711: next = chlogif_parse_ackconnect(fd, sd); break;
 		case 0xFC30:  next = chat_mapif_result(fd); break;
 		case 0xFC31:  next = chat_mapif_keepalive(fd); break;
@@ -720,29 +750,27 @@ static int chat_mapif_parse(int fd) {
 		case 0xFC42:  next = chat_mapif_PartyMessage(fd); break;
 		case 0xFC43:  next = chat_mapif_GuildMessage(fd); break;
 		case 0xFC44:  next = chat_mapif_WisMessage(fd); break;
-		case 0xFC33:  next = chat_mapif_error(fd, command); break;
-		case 0xFC34:  next = chat_mapif_error(fd, command); break;
-		case 0xFC35:  next = chat_mapif_error(fd, command); break;
+		case 0xFC33:  next = chat_mapif_error(fd); break;
 		default:
+			ShowError("chat_mapif_parse: Unknown packet 0x%04x received from login-server, skiping packet.\n", cmd);
 			RFIFOSKIP(fd, session[fd]->rdata_size);
 			next = 1;
-			//ShowError("Unknown packet 0x%04x received from login-server, disconnecting.\n", command);
-			//set_eof(fd);
-			//return 0;
 		}
 		if (next == 0)
 			return 0;
+
+		RFIFOSKIP(fd, packet_len);
 	}
 
-	RFIFOFLUSH(fd);
 	return 0;
 }
 
 int do_init(int argc, char** argv)
 {
 
-	const char* CHAT_CONF_NAME = "conf/chat_athena.conf";
-	const char* SQL_CONF_NAME = "conf/inter_athena.conf";
+	const char* CHAT_CONF_NAME = CONF_PATH "/chat_athena.conf";
+	const char* SQL_CONF_NAME = CONF_PATH "/inter_athena.conf";
+	const char* MSG_CONF_NAME_EN = CONF_PATH "/msg_conf/chat_msg.conf";
 
 	chatserv_config.map_ip = 0;
 	chatserv_config.map_port = 5121;
@@ -754,6 +782,7 @@ int do_init(int argc, char** argv)
 
 	chat_config_read(CHAT_CONF_NAME, false);
 	chat_config_read(SQL_CONF_NAME, true);
+	chat_msg_read(MSG_CONF_NAME_EN);
 	online_chat_db = uidb_alloc(DB_OPT_RELEASE_DATA);
 
 	sql_handle = Sql_Malloc();
@@ -778,7 +807,7 @@ int do_init(int argc, char** argv)
 	set_defaultparse(chatclif_parse);
 
 	add_timer_func_list(chat_check_connect_mapserver, "chat_check_connect_mapserver");
-	add_timer_interval(gettick() + 15000, chat_check_connect_mapserver, 0, 0, 20 * 1000);
+	add_timer_interval(gettick() + 5000, chat_check_connect_mapserver, 0, 0, 5000);
 
 	ShowStatus("Connect map-server after " CL_GREEN " 15 seconds" CL_RESET ".\n", chatserv_config.chat_port);
 	ShowStatus("The chat-server is " CL_GREEN "ready" CL_RESET " (Server is listening on the port %d).\n", chatserv_config.chat_port);
@@ -798,4 +827,5 @@ void do_final(void)
 {
 	do_close(map_fd);
 	do_close(chat_fd);
+	chat_msg_final();
 }

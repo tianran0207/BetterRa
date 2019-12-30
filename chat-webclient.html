@@ -5,7 +5,7 @@
 	<link rel="stylesheet" href="https://apps.bdimg.com/libs/bootstrap/3.3.4/css/bootstrap.css">
 	<script src="https://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
 	<script src="https://apps.bdimg.com/libs/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-	<title>菜鸟教程(runoob.com)</title>
+	<title>BetterRA WEB聊天系统</title>
 	</head>
 	<body>
 	<div class="container" style="padding-top: 50px">
@@ -36,7 +36,7 @@
 				<div style="display:none">
 					<ul id="channel" class="nav nav-pills">
 						<li class="active"><a href="JavaScript:void(0)">全部 <span class="badge">0</span></a></li>
-						<li><a href="JavaScript:void(0)">公开 <span class="badge">0</span></a></li>
+						<li><a href="JavaScript:void(0)">世界 <span class="badge">0</span></a></li>
 						<li><a href="JavaScript:void(0)">公会 <span class="badge">0</span></a></li>
 						<li><a href="JavaScript:void(0)">队伍 <span class="badge">0</span></a></li>
 						<li><a href="JavaScript:void(0)">私聊 <span class="badge">0</span></a></li>
@@ -44,11 +44,11 @@
 					<div id="FILL" class="form-group" style="padding:10px;overflow-y:scroll;width:100%;height:400px"></div>
 					<div class="input-group dropup">
 						<div class="input-group-btn">
-							<button name="channel" type="button" class="btn btn-default  dropdown-toggle" data-toggle="dropdown">公开
+							<button name="channel" type="button" class="btn btn-default  dropdown-toggle" data-toggle="dropdown">世界
 								<span class="caret"></span>
 							</button>
 							<ul id="channellist" class="dropdown-menu">
-								<li><a href="JavaScript:void(0)">公开</a></li>
+								<li><a href="JavaScript:void(0)">世界</a></li>
 								<li><a href="JavaScript:void(0)">公会</a></li>
 								<li><a href="JavaScript:void(0)">队伍</a></li>
 								<li><a href="JavaScript:void(0)">私聊</a></li>
@@ -109,7 +109,7 @@ $("#login button").click(function(){
 	
 	nickname = "GM01";
 	console.log(nickname);
-	ChatSocket("127.0.0.1:8080","GM01","123456");
+	ChatSocket("127.0.0.1:8080","admin","123456");
 	//nickname = $('input[name="nickname"]').val();
 	//ChatSocket($('input[name="address"]').val(),$('input[name="nickname"]').val(),$('input[name="password"]').val());
 });
@@ -135,8 +135,8 @@ $("#send").click(function(){
 	num = $("#channel li:nth-child("+(channelid+1)+") a span").text();
 	if(num>999)	num = 999;
 	$("#channel li:nth-child("+(channelid+1)+") a span").text(parseInt(num) + 1);
-	
-	msg = makemsg(channelid, content.replace(":",":"+nickname+" : "), color);
+	console.log(content);
+	msg = makemsg(channelid, content, color);
 	if (channelid == channel || channel == 0) 
 		$("#FILL").append(msg);
 		
@@ -188,13 +188,12 @@ function JoinMsg(msg){
 function ChatSocket(url,account,password){
 	if ("WebSocket" in window){
 		ws = new WebSocket("ws://"+url+"/"+Base64encode(account+"|"+password));
-		//ws = new WebSocket("ws://123.207.167.163:9010/ajaxchattest");
 		ws.onopen = function(){
 			$("#login").next().show();
 			$("#login").hide();
 			sh=setInterval(function (){
 				ws.send("HBT");
-			},10000);
+			},20000);
 		};
 		ws.onmessage = function (evt){
 			if (evt.data != "HBT")

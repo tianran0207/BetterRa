@@ -22006,7 +22006,6 @@ static int clif_parse(int fd)
 
 	//chat-server interface 
 	if (cmd == 0x9F0F) {
-
 		intif_chat_server_recv(fd);
 		return 0;
 	}

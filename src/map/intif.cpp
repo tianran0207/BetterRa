@@ -3852,33 +3852,60 @@ int CheckForChatServer(void)
 	return ((chat_fd <= 0) || session[chat_fd] == NULL || session[chat_fd]->wdata == NULL);
 }
 
+int intif_chat_error(int fd, int account_id, unsigned char error) {
+	WFIFOHEAD(fd, 9);
+	WFIFOW(fd, 0) = 0xFC33;
+	WFIFOW(fd, 2) = 9;
+	WFIFOL(fd, 4) = account_id;
+	WFIFOB(fd, 8) = error;
+	WFIFOSET(fd, 9);
+	return 1;
+}
+
 int intif_chat_server_recv(int fd) {
-	int type, account_id, len;
+	int type, account_id, packet_len;
 	int guild_id, party_id, i;
 	struct guild *g;
 	struct party_data *p;
 	struct map_session_data *sd;
 	const char *mes, *nick, *sendnick;
-	len = RFIFOW(fd, 2);
-	type = RFIFOW(fd, 4);
 
 	if (!battle_config.chat_server_interface) {
 		ShowWarning("Chat-Server connection detected. currently this service interface is not open, please set 'chat_server_interface' is 'yes'..\n");
-		WFIFOHEAD(fd, 2); WFIFOW(fd, 0) = 0xFC30; WFIFOW(fd, 2) = 0; WFIFOSET(fd, 4);
+		WFIFOHEAD(fd, 6); 
+		WFIFOW(fd, 0) = 0xFC30;
+		WFIFOW(fd, 2) = 6;
+		WFIFOW(fd, 4) = 0; 
+		WFIFOSET(fd, 6);
 		set_eof(fd);
 		return 0;
 	}
+
+	if (RFIFOREST(fd) < 4)
+		return 0;
+
+	packet_len = RFIFOW(fd, 2);
+	if (RFIFOREST(fd) < packet_len)
+		return 0;
+
+	type = RFIFOW(fd, 4);
 
 	switch (type) {
 	case 0:
 		//ÑéÖ¤ÕËºÅÃÜÂë
 		chat_fd = fd;
 		ShowStatus("Chat-server is connected with ip '" CL_WHITE "%s" CL_RESET "'\n", ip2str(session[fd]->client_addr, NULL));
-		//if(chrif_checkuserid)
-		WFIFOHEAD(fd, 2); WFIFOW(fd, 0) = 0xFC30; WFIFOW(fd, 2) = 1; WFIFOSET(fd, 4);
+		WFIFOHEAD(fd, 6); 
+		WFIFOW(fd, 0) = 0xFC30;
+		WFIFOW(fd, 2) = 6;
+		WFIFOW(fd, 4) = 1; 
+		WFIFOSET(fd, 6);
 		break;
 	case 1:
-		WFIFOHEAD(fd, 2); WFIFOW(fd, 0) = 0xFC31; WFIFOSET(fd, 2);
+		WFIFOHEAD(fd, 4);
+		WFIFOW(fd, 0) = 0xFC31;
+		WFIFOW(fd, 2) = 4;
+		WFIFOSET(fd, 4);
 		break;
 	case 2: {
 		const char *fontColor = RFIFOCP(fd, 6); //0xRRGGBB\0
@@ -3898,10 +3925,7 @@ int intif_chat_server_recv(int fd) {
 				break;
 			}
 		}
-		WFIFOHEAD(fd, 6);
-		WFIFOW(fd, 0) = 0xFC33;
-		WFIFOL(fd, 2) = account_id;
-		WFIFOSET(fd, 6);
+		intif_chat_error(fd, account_id, 3);
 		break;
 	case 4:
 		account_id = RFIFOL(fd, 6);
@@ -3914,10 +3938,7 @@ int intif_chat_server_recv(int fd) {
 				break;
 			}
 		}
-		WFIFOHEAD(fd, 6);
-		WFIFOW(fd, 0) = 0xFC34;
-		WFIFOL(fd, 2) = account_id;
-		WFIFOSET(fd, 6);
+		intif_chat_error(fd, account_id, 4);
 		break;
 	case 5: 
 		nick = RFIFOCP(fd, 10); //NAME_LENGTH
@@ -3925,20 +3946,17 @@ int intif_chat_server_recv(int fd) {
 		account_id = RFIFOL(fd, 6); //aid
 		mes = RFIFOCP(fd, 10 + NAME_LENGTH * 2);
 		sd = map_nick2sd(nick, false);
-		if (sd)
+		if (sd) {
 			clif_wis_message(sd, sendnick, mes, (int)strlen(mes) + 1, 0);
-		else {
-			WFIFOHEAD(fd, 6);
-			WFIFOW(fd, 0) = 0xFC35;
-			WFIFOL(fd, 2) = account_id;
-			WFIFOSET(fd, 6);
+			break;
 		}
+		intif_chat_error(fd, account_id, 5);
 		break;
 	default:
 		break;
 	}
 	int length = session[fd]->rdata_size;
-	RFIFOSKIP(fd, len);
+	RFIFOSKIP(fd, packet_len);
 	return 1;
 }
 
