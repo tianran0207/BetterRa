@@ -27,6 +27,7 @@ char chat_server_id[32] = "ragnarok";
 char chat_server_pw[32] = ""; // Allow user to send empty password (bugreport:7787)
 char chat_server_db[32] = "ragnarok";
 char default_codepage[32] = ""; //Feature by irmin.
+char channel[32] = "world";
 
 bool chat_config_read(const char* cfgName, bool issql) {
 	char line[1024], w1[1024], w2[1024];
@@ -85,10 +86,20 @@ bool chat_config_read(const char* cfgName, bool issql) {
 			}
 		}else if (strcmpi(w1, "chat_port") == 0) {
 			chatserv_config.chat_port = atoi(w2);
+		}else if (strcmpi(w1, "listen_group") == 0) {
+			chatserv_config.listen_group = atoi(w2);
+		}else if (strcmpi(w1, "global_min_group") == 0) {
+			chatserv_config.global_min_group = atoi(w2);
+		}else if (strcmpi(w1, "global_min_reg_time") == 0) {
+			chatserv_config.global_min_reg_time = atoi(w2);
+		}else if (strcmpi(w1, "global_world_clan") == 0) {
+			safestrncpy(chatserv_config.global_world_clan, w2, sizeof(chatserv_config.global_world_clan));
+		}else if (strcmpi(w1, "global_prefix") == 0) {
+			safestrncpy(chatserv_config.global_prefix, w2, sizeof(chatserv_config.global_prefix));
+		}else if (strcmpi(w1, "global_color") == 0) {
+			safestrncpy(chatserv_config.global_color, w2, sizeof(chatserv_config.global_color));
 		}else if (strcmpi(w1, "global_deley") == 0) {
 			chatserv_config.global_deley = atoi(w2);
-		}else if (strcmpi(w1, "public_deley") == 0) {
-			chatserv_config.public_deley = atoi(w2);
 		}else if (strcmpi(w1, "display_type") == 0) {
 			chatserv_config.display_type = atoi(w2);
 		}else if (strcmpi(w1, "userid") == 0) {
@@ -105,6 +116,7 @@ bool chat_config_read(const char* cfgName, bool issql) {
 }
 
 #define CHAT_MAX_MSG 300	//max number of msg_conf
+#define CHAT_SIZE_MAX 255
 static char* msg_table[CHAT_MAX_MSG]; // Login Server messages_conf
 
 int chat_msg_read(const char *cfgName) {
@@ -127,7 +139,7 @@ static char* gethttpheadline(char** buf) {
 	return line;
 }
 
-static uint64 recv_decode(int fd, unsigned char *buf, char *decoded) {
+static uint64 recv_decode(int fd, unsigned char *buf, char *decoded, int maxlen) {
 	unsigned char Uint64byte[8], masks[4];
 	uint64 len, packetlen;
 	int i;
@@ -164,8 +176,9 @@ static uint64 recv_decode(int fd, unsigned char *buf, char *decoded) {
 		return 0;
 	}
 
-	for (i = 0; i < len; i++)
+	for (i = 0; i < len && i < maxlen; i++)
 		decoded[i] = data[i] ^ masks[i % 4];
+
 	decoded[i] = '\0';
 
 	return packetlen;
@@ -174,7 +187,9 @@ static uint64 recv_decode(int fd, unsigned char *buf, char *decoded) {
 static int send_message(int fd, char *buf) {
 	unsigned char sendbuf[2048],temp[2048];
 	int lenght;
-	gbk2utf8(buf, (char *)sendbuf, 2048);
+
+	if (!gbk2utf8(buf, (char *)sendbuf, 2048))
+		return 1;
 
 	lenght = strlen((char *)sendbuf);
 	temp[0] = 0x81;
@@ -201,9 +216,9 @@ static bool chat_auth_ok(int fd, const char *nickname, const char *password) {
 	char* data;
 	struct chat_session_data *sd;
 	struct online_chat_data *olsd;
-	int char_id, account_id, party_id, guild_id;
+	uint32 char_id, account_id, party_id, guild_id;
 	if (SQL_ERROR == Sql_Query(sql_handle, "SELECT `char_id`,`account_id`,`party_id`,`guild_id` FROM `char` WHERE `name` = '%s' LIMIT 1", nickname) || SQL_SUCCESS != Sql_NextRow(sql_handle)) {
-		ShowInfo("chat_login: Nickname '%s' does not exist.\n", nickname);
+		ShowInfo("chat_auth_ok: Nickname '%s' does not exist.\n", nickname);
 		Sql_FreeResult(sql_handle);
 		return false;
 	}
@@ -218,8 +233,8 @@ static bool chat_auth_ok(int fd, const char *nickname, const char *password) {
 	if (uidb_exists(online_chat_db, account_id))
 		return false;
 
-	if (SQL_ERROR == Sql_Query(sql_handle, "SELECT `unban_time`,`group_id` FROM `login` WHERE `account_id` = %d AND `user_pass` = '%s' LIMIT 1", account_id, password) || SQL_SUCCESS != Sql_NextRow(sql_handle)) {
-		ShowInfo("chat_login: The password for the nickname(%s) is incorrect.\n", nickname);
+	if (SQL_ERROR == Sql_Query(sql_handle, "SELECT `group_id`,`state`,`unban_time`,`expiration_time` FROM `login` WHERE `account_id` = %d AND `user_pass` = '%s' LIMIT 1", account_id, password) || SQL_SUCCESS != Sql_NextRow(sql_handle)) {
+		ShowInfo("chat_auth_ok: The password for the nickname(%s) is incorrect.\n", nickname);
 		return false;
 	}
 
@@ -233,10 +248,20 @@ static bool chat_auth_ok(int fd, const char *nickname, const char *password) {
 	sd->beattick = gettick();
 	sd->fd = fd;
 	safestrncpy(sd->nickname, nickname, NAME_LENGTH);
-
-	Sql_GetData(sql_handle, 0, &data, NULL); sd->unban_time = strtoul(data, NULL, 10);
-	Sql_GetData(sql_handle, 0, &data, NULL); sd->unban_time = strtoul(data, NULL, 10);
+	
+	Sql_GetData(sql_handle, 0, &data, NULL); sd->group_id = (unsigned int)atoi(data);
+	Sql_GetData(sql_handle, 1, &data, NULL); sd->state = (unsigned int)strtoul(data, NULL, 10);
+	Sql_GetData(sql_handle, 2, &data, NULL); sd->unban_time = atol(data);
+	Sql_GetData(sql_handle, 3, &data, NULL); sd->expiration_time = atol(data);
 	Sql_FreeResult(sql_handle);
+
+	if (sd->expiration_time != 0 && sd->expiration_time < time(NULL) ||
+		sd->unban_time != 0 && sd->unban_time > time(NULL) ||
+		sd->state != 0) {
+		aFree(session[fd]->session_data);
+		session[fd]->session_data = NULL;
+		return false;
+	}
 
 	CREATE(olsd, struct online_chat_data, 1);
 	olsd->account_id = account_id;
@@ -343,85 +368,96 @@ static int inclif_parse_websocket(int fd) {
 }
 
 enum chat_type {
-	PKL_PUBLIC = 1,
-	PKL_GLOBAL,
+	PKL_PUBLIC,
 	PKL_PARTY,
 	PKL_GUILD,
 	PKL_WHISPER,
 };
 
 static void PrintMessage(char *msg, int type, bool send) {
-	char channel[64];
-	switch (type) {
-	case PKL_PUBLIC:  safestrncpy(channel, "[喊话]", sizeof(channel)); break;
-	case PKL_GLOBAL:  safestrncpy(channel, "[公开]", sizeof(channel)); break;
-	case PKL_PARTY:   safestrncpy(channel, "[队伍]", sizeof(channel)); break;
-	case PKL_GUILD:   safestrncpy(channel, "[公会]", sizeof(channel)); break;
-	case PKL_WHISPER: safestrncpy(channel, "[密语]", sizeof(channel)); break;
-	}
 	if (send)
-		ShowInfo("WEB接收->%s %s\n", channel, msg + 3);
+		ShowInfo("Receive: %s %s\n", chat_msg_txt(type), msg + 3);
 	else
-		ShowInfo("WEB发送->%s %s\n", channel, msg + 3);
+		ShowInfo("Send: %s %s\n", chat_msg_txt(type), msg + 3);
 }
-
 
 static bool chat_mapif_isconnected();
 static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 	int packetlen;
-	char decoded[2048], gbkcode[2048];
+	char decoded[2048], gbkcode[CHAT_SIZE_MAX*2];
 	unsigned char *buf = (unsigned char *)RFIFOCP(fd, 0);
 	short type;
 	
 	if(!chat_mapif_isconnected())
 		return 0;
 
-	if ((packetlen = (int)recv_decode(fd, buf, decoded)) == 0)
+	if ((packetlen = (int)recv_decode(fd, buf, decoded, 2048)) == 0)
 		return 1;
 	else
 		RFIFOSKIP(fd, packetlen);
 	if (!strcmp(decoded,"HBT")) { //心跳包
 		t_tick tick = gettick();
-		if (sd->beattick + 10000 < tick) {
+		if (sd->beattick + 10000 > tick) {
+			safesnprintf(gbkcode, CHAT_SIZE_MAX, "WR:%s", chat_msg_txt(10));
+			send_message(fd, gbkcode);
 			set_eof(fd);
 			return 1;
 		}
 		sd->beattick = gettick();
 		return 1;
-	}else if (!strnicmp(decoded, "GL:", 3)) { //全服
-		type = PKL_GLOBAL;
-	}else if (!strnicmp(decoded, "PR:", 3)) { //队伍
+	}else if (!strnicmp(decoded, "GL:", 3)) {
+		type = PKL_PUBLIC;
+	}else if (!strnicmp(decoded, "PR:", 3)) {
 		type = PKL_PARTY;
-	}else if (!strnicmp(decoded, "GU:", 3)) { //公会
+	}else if (!strnicmp(decoded, "GU:", 3)) {
 		type = PKL_GUILD;
-	}else if (!strnicmp(decoded, "WS:", 3)) { //私聊
+	}else if (!strnicmp(decoded, "WS:", 3)) {
 		type = PKL_WHISPER;
 	}
 	else
 		return 1;
 
-	utf82gbk(decoded + 3, gbkcode, 2048);
+	if (!utf82gbk(decoded + 3, gbkcode, CHAT_SIZE_MAX)) {
+		char message[CHAT_SIZE_MAX];
+		sprintf(message, chat_msg_txt(21), CHAT_SIZE_MAX);
+		send_message(fd, message);
+		return 1;
+	}
 	
 	switch (type)
 	{
-	case PKL_GLOBAL:
-		sprintf(decoded, "%s : %s", sd->nickname, gbkcode);
+	case PKL_PUBLIC:
+		if (sd->group_id < chatserv_config.global_min_group) {
+			char message[CHAT_SIZE_MAX];
+			sprintf(message, chat_msg_txt(22), chatserv_config.global_min_group);
+			send_message(fd, message);
+			return 1;
+		}
+		if (sd->global_tick + chatserv_config.global_deley > gettick()) {
+			char message[CHAT_SIZE_MAX];
+			sprintf(message, chat_msg_txt(20), chatserv_config.global_deley / 1000);
+			send_message(fd, message);
+			return 1;
+		}
+		sd->global_tick = gettick();
+		safesnprintf(decoded, 2048, "%s%s%s : %s", channel, chatserv_config.global_prefix, sd->nickname, gbkcode);
 		packetlen = strlen(decoded) + 6 + 10;
 		WFIFOHEAD(map_fd, packetlen);
 		WFIFOW(map_fd, 0) = 0x9F0F;
 		WFIFOW(map_fd, 2) = packetlen;
 		WFIFOW(map_fd, 4) = 2;
-		strncpy(WFIFOCP(map_fd, 6), "0xFF0000", 9);
-		strncpy(WFIFOCP(map_fd, 15), decoded, strlen(decoded) + 1);
+		memcpy(WFIFOCP(map_fd, 6), chatserv_config.global_color, 9);
+		memcpy(WFIFOCP(map_fd, 15), decoded, strlen(decoded) + 1);
 		WFIFOSET(map_fd, packetlen);
 		sprintf(gbkcode, "GL:%s", decoded);
 		break;
 	case PKL_PARTY:
 		if (sd->party_id <= 0) {
-			send_message(fd, "PR:WR:提示: 你没有队伍。。");
+			sprintf(gbkcode, "PR:WR:%s", chat_msg_txt(11));
+			send_message(fd, gbkcode);
 			return 1;
 		}
-		sprintf(decoded, "%s : %s", sd->nickname, gbkcode);
+		sprintf(decoded, "%s%s : %s", chatserv_config.global_prefix, sd->nickname, gbkcode);
 		packetlen = strlen(decoded) + 15;
 		WFIFOHEAD(map_fd, packetlen);
 		WFIFOW(map_fd, 0) = 0x9F0F;
@@ -435,10 +471,11 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 		break;
 	case PKL_GUILD:
 		if (sd->guild_id <= 0) {
-			send_message(fd, "GU:WR:提示 : 你没有公会。。");
+			sprintf(gbkcode, "GU:WR:%s", chat_msg_txt(12));
+			send_message(fd, gbkcode);
 			return 1;
 		}
-		sprintf(decoded, "%s : %s", sd->nickname, gbkcode);
+		sprintf(decoded, "%s%s : %s", chatserv_config.global_prefix, sd->nickname, gbkcode);
 		packetlen = strlen(decoded) + 15;
 		WFIFOHEAD(map_fd, packetlen);
 		WFIFOW(map_fd, 0) = 0x9F0F;
@@ -453,8 +490,8 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 	case PKL_WHISPER:
 		buf = (unsigned char *)strstr(gbkcode, "|#|");
 		*buf = '\0'; buf = buf + 3;
-		//gbkcode 为 nickname
-		//buf 为 mes
+		//gbkcode - nickname
+		//buf - mes
 		strncpy(decoded, (char *)buf, strlen((char *)buf) + 1);
 		packetlen = strlen(decoded) + 10 + NAME_LENGTH * 2 + 1;
 		WFIFOHEAD(map_fd, packetlen);
@@ -465,11 +502,10 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 		strncpy(WFIFOCP(map_fd, 10), gbkcode, strlen(gbkcode) + 1);
 		strncpy(WFIFOCP(map_fd, 10 + NAME_LENGTH), sd->nickname, NAME_LENGTH);
 		strncpy(WFIFOCP(map_fd, 10 + NAME_LENGTH * 2), decoded, strlen(decoded) + 1);
-		sprintf(gbkcode, "WS:%s : %s", sd->nickname, decoded);
+		sprintf(gbkcode, "WS:%s%s : %s", chatserv_config.global_prefix, sd->nickname, decoded);
 		WFIFOSET(map_fd, packetlen);
 		break;
 	}
-	//send_message(fd, gbkcode);
 	PrintMessage(gbkcode, type, true);
 	return 1;
 }
@@ -570,13 +606,14 @@ static int chat_check_connect_mapserver(int tid, t_tick tick, int id, intptr_t d
 	session[map_fd]->flag.server = 1;
 	realloc_fifo(map_fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
 
-	WFIFOHEAD(map_fd, 54);
+	WFIFOHEAD(map_fd, 78);
 	WFIFOW(map_fd, 0) = 0x9F0F;
-	WFIFOW(map_fd, 2) = 54;
+	WFIFOW(map_fd, 2) = 78;
 	WFIFOW(map_fd, 4) = 0;
-	memcpy(WFIFOP(map_fd, 6), chatserv_config.userid, 24);
-	memcpy(WFIFOP(map_fd, 30), chatserv_config.passwd, 24);
-	WFIFOSET(map_fd, 54);
+	memcpy(WFIFOP(map_fd, 6), chatserv_config.userid, NAME_LENGTH);
+	memcpy(WFIFOP(map_fd, 30), chatserv_config.passwd, NAME_LENGTH);
+	memcpy(WFIFOP(map_fd, 54), chatserv_config.global_world_clan, NAME_LENGTH);
+	WFIFOSET(map_fd, 78);
 
 	return 1;
 }
@@ -593,11 +630,12 @@ static int chat_mapif_result(int fd) {
 	int type = RFIFOW(fd, 4);
 	switch (type) {
 	case 0:
-		ShowStatus("Chat-server connection refused.\n");
-		exit(EXIT_FAILURE);
+		memset(channel, 0, NAME_LENGTH);
+		ShowStatus("Chat-server Connected to Map-Server. without channel.\n");
 		break;
 	case 1:
-		ShowStatus("Chat-server Connected to Map-Server.\n\n");
+		memcpy(channel, RFIFOP(fd, 6), NAME_LENGTH);
+		ShowStatus("Chat-server Connected to Map-Server. World channel alias is '%s'.\n", channel);
 		break;
 	}
 	return 1;
@@ -607,14 +645,18 @@ static int chat_mapif_result(int fd) {
 static int chat_mapif_GlobalMessage(int fd) {
 	DBIterator* iter;
 	struct online_chat_data *od;
-	char message[1024];
-	sprintf(message, "GL:%s", RFIFOCP(fd, 4));
+	char message[512];
+
+	if (chatserv_config.listen_group > 99)
+		return 1;
+
+	safesnprintf(message, 512, "PU:%s", RFIFOCP(fd, 4));
 	iter = db_iterator(online_chat_db);
 	for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
-		send_message(od->fd, message);
+		if (chatserv_config.listen_group >= od->guild_id)
+			send_message(od->fd, message);
 	}
 	dbi_destroy(iter);
-	RFIFOSKIP(fd, RFIFOW(fd, 2));
 	PrintMessage(message, PKL_PUBLIC, false);
 	return 1;
 }
@@ -622,17 +664,16 @@ static int chat_mapif_GlobalMessage(int fd) {
 static int chat_mapif_PartyMessage(int fd) {
 	DBIterator* iter;
 	struct online_chat_data *od;
-	char message[1024];
+	char message[512];
 	int party_id;
 	party_id = RFIFOL(fd, 4);
-	sprintf(message, "PR:%s", RFIFOCP(fd, 8));
+	safesnprintf(message, 512, "PR:%s", RFIFOCP(fd, 8));
 	iter = db_iterator(online_chat_db);
 	for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
-		if (od->party_id == party_id)
+		if (chatserv_config.listen_group >= od->guild_id || od->party_id == party_id)
 			send_message(od->fd, message);
 	}
 	dbi_destroy(iter);
-	RFIFOSKIP(fd, RFIFOW(fd, 2));
 	PrintMessage(message, PKL_PARTY, false);
 	return 1;
 }
@@ -640,17 +681,16 @@ static int chat_mapif_PartyMessage(int fd) {
 static int chat_mapif_GuildMessage(int fd) {
 	DBIterator* iter;
 	struct online_chat_data *od;
-	char message[1024];
+	char message[512];
 	int guild_id;
 	guild_id = RFIFOL(fd, 4);
-	sprintf(message, "GU:%s", RFIFOCP(fd, 8));
+	safesnprintf(message, 512, "GU:%s", RFIFOCP(fd, 8));
 	iter = db_iterator(online_chat_db);
 	for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
-		if (od->guild_id == guild_id)
+		if (chatserv_config.listen_group >= od->guild_id || od->guild_id == guild_id)
 			send_message(od->fd, message);
 	}
 	dbi_destroy(iter);
-	RFIFOSKIP(fd, RFIFOW(fd, 2));
 	PrintMessage(message, PKL_GUILD, false);
 	return 1;
 }
@@ -658,17 +698,19 @@ static int chat_mapif_GuildMessage(int fd) {
 static int chat_mapif_WisMessage(int fd) {
 	DBIterator* iter;
 	struct online_chat_data *od;
-	char message[1024], *name;
-	memcpy(message, RFIFOCP(fd, 0), RFIFOW(fd, 2));
+	char message[512], *name;
 	name = RFIFOCP(fd, 4);
-	sprintf(message, "WS:%s", RFIFOCP(fd, 4 + NAME_LENGTH));
+	if (strcmp(chatserv_config.global_world_clan, name))
+		safesnprintf(message, 512, "WS:%s", RFIFOCP(fd, 4 + NAME_LENGTH));
+	else
+		safesnprintf(message, 512, "GL:%s", RFIFOCP(fd, 4 + NAME_LENGTH));
+	
 	iter = db_iterator(online_chat_db);
 	for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
-		if (!strcmp(name, od->nickname))
+		if (*message == 'G'|| chatserv_config.listen_group >= od->guild_id || !strcmp(name, od->nickname))
 			send_message(od->fd, message);
 	}
 	dbi_destroy(iter);
-	RFIFOSKIP(fd, RFIFOW(fd, 2));
 	PrintMessage(message, PKL_WHISPER, false);
 	return 1;
 }
@@ -676,21 +718,23 @@ static int chat_mapif_WisMessage(int fd) {
 static int chat_mapif_error(int fd) {
 	struct online_chat_data *od = (struct online_chat_data *)uidb_get(online_chat_db, RFIFOL(fd, 4));
 	unsigned char type = RFIFOB(fd, 8);
+	char message[1024];
 
 	if (od == NULL)
 		return 1;
 
 	switch (type) {
 	case 3: // no party
-		send_message(od->fd, "PR:WR:提示: 你没有队伍或队伍中没有玩家。");
+		sprintf(message, "PR:WR:%s", chat_msg_txt(15));
 		break;
 	case 4: // no guild
-		send_message(od->fd, "GU:WR:提示: 你没有公会或公会中没有玩家。");
+		sprintf(message, "GU:WR:%s", chat_msg_txt(16));
 		break;
 	case 5: // no online
-		send_message(od->fd, "WS:WR:提示: 对方不在线。");
+		sprintf(message, "WS:WR:%s", chat_msg_txt(17));
 		break;
 	}
+	send_message(od->fd, "WS:WR:提示: 对方不在线。");
 	return 1;
 }
 
@@ -753,8 +797,8 @@ static int chat_mapif_parse(int fd) {
 		case 0xFC33:  next = chat_mapif_error(fd); break;
 		default:
 			ShowError("chat_mapif_parse: Unknown packet 0x%04x received from login-server, skiping packet.\n", cmd);
-			RFIFOSKIP(fd, session[fd]->rdata_size);
-			next = 1;
+			set_eof(fd);
+			return 0;
 		}
 		if (next == 0)
 			return 0;
@@ -772,6 +816,8 @@ int do_init(int argc, char** argv)
 	const char* SQL_CONF_NAME = CONF_PATH "/inter_athena.conf";
 	const char* MSG_CONF_NAME_EN = CONF_PATH "/msg_conf/chat_msg.conf";
 
+	memset(&chatserv_config, 0, sizeof(chatserv_config));
+
 	chatserv_config.map_ip = 0;
 	chatserv_config.map_port = 5121;
 	chatserv_config.chat_ip = 0;
@@ -779,6 +825,7 @@ int do_init(int argc, char** argv)
 	chatserv_config.chat_port = 8080;
 	safestrncpy(chatserv_config.userid, "s1", sizeof(chatserv_config.userid));
 	safestrncpy(chatserv_config.passwd, "p1", sizeof(chatserv_config.passwd));
+	safestrncpy(chatserv_config.global_color, "0xFFFFFF", sizeof(chatserv_config.global_color));
 
 	chat_config_read(CHAT_CONF_NAME, false);
 	chat_config_read(SQL_CONF_NAME, true);

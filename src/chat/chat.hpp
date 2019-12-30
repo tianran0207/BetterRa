@@ -13,8 +13,8 @@ int map_fd = -1; //login file descriptor
 int chat_fd = -1; //char file descriptor
 
 struct ChatServ_Config {
-	char userid[24];
-	char passwd[24];
+	char userid[NAME_LENGTH];
+	char passwd[NAME_LENGTH];
 	char map_ip_str[128];
 	uint32 map_ip;
 	uint16 map_port;
@@ -23,8 +23,13 @@ struct ChatServ_Config {
 	char bind_ip_str[128];
 	uint32 bind_ip;
 	uint16 chat_port;
+	uint32 listen_group;
+	uint32 global_min_group;
+	uint32 global_min_reg_time;
+	char global_world_clan[NAME_LENGTH];
+	char global_prefix[NAME_LENGTH];
+	char global_color[12];
 	uint16 global_deley;
-	uint16 public_deley;
 	int display_type;
 };
 extern struct CharServ_Config charserv_config;
@@ -35,13 +40,14 @@ struct chat_session_data {
 	uint32 char_id;
 	uint32 party_id;
 	uint32 guild_id;
+	uint32 group_id;
 	char nickname[NAME_LENGTH];
 
 	t_tick beattick;
 	t_tick global_tick;
-	t_tick public_tick;
-	t_tick unban_time;
-	t_tick ban_tick;
+	unsigned int state;
+	time_t unban_time;
+	time_t expiration_time;
 
 	int fd;
 	uint64 skiplen;

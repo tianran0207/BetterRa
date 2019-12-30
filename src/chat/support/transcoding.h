@@ -33,7 +33,7 @@ extern "C" {
  * @param len [in] The most bytes which starting at dst, will be written.
  *
  */
-void utf82gbk(char* src, char* dst, int len);
+int utf82gbk(char* src, char* dst, int len);
 
 /**
  * GBK to UTF-8
@@ -42,7 +42,7 @@ void utf82gbk(char* src, char* dst, int len);
  * @param dst [out]
  * @param len [in] The most bytes which starting at dst, will be written.
  */
-void gbk2utf8(char* src, char* dst, int len);
+int gbk2utf8(char* src, char* dst, int len);
 
 #ifdef __cplusplus
 }

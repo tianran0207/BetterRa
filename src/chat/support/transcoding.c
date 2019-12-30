@@ -39,39 +39,40 @@
 
 
 #ifdef WIN32
-void utf82gbk(char* src, char* dst, int len)
+int utf82gbk(char* src, char* dst, int len)
 {
     int ret = 0;
     WCHAR* strA;
     int i= MultiByteToWideChar(CP_UTF8, 0, src, -1, NULL, 0);
-    if (i <= 0) {
-        printf("ERROR.");
-        return;
-    }
+
+    if (i <= 0)
+        return 0;
+    
     strA = (WCHAR*)malloc(i * 2);
     MultiByteToWideChar(CP_UTF8, 0, src, -1, strA, i);
     i = WideCharToMultiByte(CP_ACP, 0, strA, -1, NULL, 0, NULL, NULL);
     if (len >= i) {
         ret = WideCharToMultiByte(CP_ACP, 0, strA, -1, dst, i, NULL, NULL);
         dst[i] = 0;
-    }
+	}
     if (ret <= 0) {
         free(strA);
-        return;
+        return 0;
     }
 
-    free( strA );
+    free(strA);
+	return 1;
 }
 
-void gbk2utf8(char* src, char* dst, int len)
+int gbk2utf8(char* src, char* dst, int len)
 {
     int ret = 0;
     WCHAR* strA;
     int i= MultiByteToWideChar(CP_ACP, 0, src, -1, NULL, 0);
-    if (i <= 0) {
-        printf("ERROR.");
-        return;
-    }
+
+    if (i <= 0)
+        return 0;
+   
     strA = (WCHAR*)malloc(i * 2);
     MultiByteToWideChar(CP_ACP, 0, src, -1, strA, i);
     i = WideCharToMultiByte(CP_UTF8, 0, strA, -1, NULL, 0, NULL, NULL);
@@ -81,14 +82,15 @@ void gbk2utf8(char* src, char* dst, int len)
     }
 
     if (ret <= 0) {
-        free(strA);
-        return;
+		free(strA);
+		return 0;
     }
     free(strA);
+	return 1;
 }
 #else   //Linux
 // starkwong: In iconv implementations, inlen and outlen should be type of size_t not uint, which is different in length on Mac
-void utf82gbk(char* src, char* dst, int len)
+int utf82gbk(char* src, char* dst, int len)
 {
     int ret = 0;
     size_t inlen = strlen(src) + 1;
@@ -101,13 +103,15 @@ void utf82gbk(char* src, char* dst, int len)
         ret = iconv(cd, &inbuf, &inlen, &outbuf, &outlen);
         if (ret != 0) {
             printf("iconv failed err: %s\n", strerror(errno));
+			return 0;
         }
 
         iconv_close(cd);
     }
+	return 1;
 }
 
-void gbk2utf8(char* src, char* dst, int len)
+int gbk2utf8(char* src, char* dst, int len)
 {
     int ret = 0;
     size_t inlen = strlen(src) + 1;
@@ -127,9 +131,11 @@ void gbk2utf8(char* src, char* dst, int len)
     cd = iconv_open("UTF-8", "GBK");
     if (cd != (iconv_t)-1) {
         ret = iconv(cd, &inbuf, &inlen, &outbuf, &outlen);
-        if (ret != 0)
-            printf("iconv failed err: %s\n", strerror(errno));
-
+		if (ret != 0) {
+			printf("iconv failed err: %s\n", strerror(errno));
+			return 0;
+		}
+        
         if (outbuf2 != NULL) {
             strcpy(dst, outbuf2);
             free(outbuf2);
@@ -137,6 +143,7 @@ void gbk2utf8(char* src, char* dst, int len)
 
         iconv_close(cd);
     }
+	return 1;
 }
 #endif
 

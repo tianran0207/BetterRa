@@ -94,6 +94,7 @@ $("#channel a").click(function(){
 	var color = "#FF0000"
 	$.each(recv, function (index, value){
 		switch(value.substr(0,3)){
+			case 'PU:':  idx = 0; color = "000000"; break;
 			case 'GL:':  idx = 1; color = "000000"; break;
 			case 'GU:':  idx = 2; color = "00cb69"; break;
 			case 'PR:':  idx = 3; color = "eb9001"; break;
@@ -107,11 +108,10 @@ $("#channel a").click(function(){
 
 $("#login button").click(function(){
 	
-	nickname = "GM01";
-	console.log(nickname);
-	ChatSocket("127.0.0.1:8080","admin","123456");
-	//nickname = $('input[name="nickname"]').val();
-	//ChatSocket($('input[name="address"]').val(),$('input[name="nickname"]').val(),$('input[name="password"]').val());
+	//nickname = "GM01";
+	//ChatSocket("127.0.0.1:8080","admin","123456");
+	nickname = $('input[name="nickname"]').val();
+	ChatSocket($('input[name="address"]').val(),$('input[name="nickname"]').val(),$('input[name="password"]').val());
 });
 
 $("#send").click(function(){
@@ -127,6 +127,7 @@ $("#send").click(function(){
 		case 3: color = "eb9001"; content = "PR:"+content; break;
 		case 4: color = "005aff"; content = "WS:"+$('input[name="sendname"]').val()+"|#|"+content; break;
 	}
+		
 	recv[recv.length] = content.replace(":",":"+nickname+" : ");
 	if (recv.length >= 1000)
 		recv.splice(0,1);
@@ -135,8 +136,7 @@ $("#send").click(function(){
 	num = $("#channel li:nth-child("+(channelid+1)+") a span").text();
 	if(num>999)	num = 999;
 	$("#channel li:nth-child("+(channelid+1)+") a span").text(parseInt(num) + 1);
-	console.log(content);
-	msg = makemsg(channelid, content, color);
+	msg = makemsg(channelid, content.replace(":",":"+nickname+" : "), color);
 	if (channelid == channel || channel == 0) 
 		$("#FILL").append(msg);
 		
@@ -144,17 +144,31 @@ $("#send").click(function(){
 });
 
 function makemsg(idx, msg, color){
-	
+
 	msg = msg.substr(3);
 	if(msg.substr(0,3) == "WR:")
 		return "<span style='color:#"+color+"'>" + msg.substr(3) + "</span><br>";
-	console.log(msg);
-	if(idx == 4){
+	
+	switch (idx){
+	case 0: 
+		msg = '[公开]&nbsp;' + msg;
+		break;
+	case 1: 
+		msg = '[世界]&nbsp;' + msg;
+		break;
+	case 2: 
+		msg = '[公会]&nbsp;' + msg;
+		break;
+	case 3: 
+		msg = '[队伍]&nbsp;' + msg;
+		break;
+	case 4: 
 		if(msg.indexOf("|#|") != -1)
-			msg = msg.replace(/^(.*?)\|#\|(.*?)$/, "[发送至 $1 ] $2");
-		else
-			msg = msg.replace(/^(.*?) : (.*?)/, "[来自 $1 ] $2");
+			msg = msg.replace(/^(.*?) : (.*?)\|#\|(.*?)$/, "$1 : [发送至 $2 ] $3");
+		msg = '[私聊]&nbsp;' + msg;
+		break;
 	}
+	console.log(msg);
 		
 	msg = "<span style='color:#"+color+"'>" + msg + "</span><br>";
 	
@@ -165,10 +179,11 @@ function JoinMsg(msg){
 	recv[recv.length] = msg;
 	if (recv.length >= 1000)
 		recv.splice(0,1);
-	
+	console.log(msg);
 	var idx = 0;
 	var color = "#FF0000";
 	switch(msg.substr(0,3)){
+		case 'PU:':  idx = 0; color = "000000"; break;
 		case 'GL:':  idx = 1; color = "000000"; break;
 		case 'GU:':  idx = 2; color = "00cb69"; break;
 		case 'PR:':  idx = 3; color = "eb9001"; break;
@@ -197,7 +212,7 @@ function ChatSocket(url,account,password){
 		};
 		ws.onmessage = function (evt){
 			if (evt.data != "HBT")
-				JoinMsg(evt.data)
+				JoinMsg(evt.data);
 		};
 		ws.onclose = function(){ 
 			clearInterval(sh);
