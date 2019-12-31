@@ -21608,7 +21608,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		pc_setreg(sd, add_str("@refine_nameid"), id->nameid);
 		pc_setreg(sd, add_str("@refine_rate"), materials[i].chance);
 		pc_setreg(sd, add_str("@refine_cost"), materials[i].cost.nameid);
-		pc_setreg(sd, add_str("@refine_blessing"), (use_blacksmith_blessing ? 1 : 0));
+		pc_setreg(sd, add_str("@refine_blessing"), (use_blacksmith_blessing ? status_get_refine_blessing(id->wlv, item->refine) : 0));
 		npc_script_event_atonce(sd, NPCE_REFINEUIFILTER);
 		if (sd->state.processhalt)
 			return;
