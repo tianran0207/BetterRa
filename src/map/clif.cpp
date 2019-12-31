@@ -21595,10 +21595,15 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		return;
 	}
 
-	if (use_blacksmith_blessing && (k = pc_search_inventory(sd, 6635)) < 0 && sd->inventory.u.items_inventory[k].amount < status_get_refine_blessing(id->wlv, item->refine))
-		return;
-
 	if (npc_script_event_check(sd, NPCE_REFINEUIFILTER)) {
+		uint16 n = pc_search_inventory(sd, 6635);
+		if (sd->status.zeny < materials[i].cost.zeny)
+			return; //Not enough.
+		if (j < 0 || sd->inventory.u.items_inventory[j].amount < 1)
+			return;
+		if (use_blacksmith_blessing && (n < 0 || sd->inventory.u.items_inventory[n].amount < status_get_refine_blessing(id->wlv, item->refine)))
+			return;
+
 		pc_setreg(sd, add_str("@refine_idx"), index);
 		pc_setreg(sd, add_str("@refine_nameid"), id->nameid);
 		pc_setreg(sd, add_str("@refine_rate"), materials[i].chance);
@@ -21610,8 +21615,8 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		materials[i].chance = pc_readreg(sd, add_str("@refine_rate"));
 	}
 
-	if (use_blacksmith_blessing && pc_delitem(sd, k, status_get_refine_blessing(id->wlv, item->refine), 0, 0, LOG_TYPE_CONSUME))
-		return; ;
+	if (use_blacksmith_blessing && ((k = pc_search_inventory(sd, 6635)) < 0 || pc_delitem(sd, k, status_get_refine_blessing(id->wlv, item->refine), 0, 0, LOG_TYPE_CONSUME)))
+		return;
 
 	// Try to pay for the refine
 	if( pc_payzeny( sd, materials[i].cost.zeny, LOG_TYPE_CONSUME, NULL ) ){
