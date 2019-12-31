@@ -27,7 +27,7 @@ struct ChatServ_Config {
 	uint32 global_min_group;
 	uint32 global_min_reg_time;
 	char global_world_clan[NAME_LENGTH];
-	char global_prefix[NAME_LENGTH];
+	char web_client_prefix[NAME_LENGTH];
 	char global_color[12];
 	uint16 global_deley;
 	int display_type;
@@ -50,7 +50,6 @@ struct chat_session_data {
 	time_t expiration_time;
 
 	int fd;
-	uint64 skiplen;
 };
 
 struct online_chat_data {
@@ -58,6 +57,7 @@ struct online_chat_data {
 	uint32 char_id;
 	uint32 party_id;
 	uint32 guild_id;
+	uint32 group_id;
 	char nickname[NAME_LENGTH];
 	int fd;
 };

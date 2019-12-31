@@ -3850,13 +3850,25 @@ int intif_parse(int fd)
 //type 11: logout
 
 #include "channel.hpp"
+struct s_chat_data {
+	uint32 account_id, char_id, group_id;
+	char name[NAME_LENGTH];
+};
 
-int CheckForChatServer(void)
+DBMap* chat_server_data = NULL;
+static int CheckForChatServer(void)
 {
 	return ((chat_fd <= 0) || session[chat_fd] == NULL || session[chat_fd]->wdata == NULL);
 }
 
-int intif_chat_error(int fd, int account_id, unsigned char error) {
+void do_final_chat()
+{
+	if (chat_server_data)
+		db_destroy(chat_server_data);
+}
+
+static int intif_chat_error(int fd, int account_id, char error)
+{
 	WFIFOHEAD(fd, 9);
 	WFIFOW(fd, 0) = 0xFC33;
 	WFIFOW(fd, 2) = 9;
@@ -3866,7 +3878,26 @@ int intif_chat_error(int fd, int account_id, unsigned char error) {
 	return 1;
 }
 
-int intif_chat_server_recv(int fd) {
+int intif_chat_check(int account_id, char *name)
+{
+	struct s_chat_data *cd;
+	DBIterator *iter;
+
+	if (account_id && uidb_exists(chat_server_data, account_id))
+		return 1;
+
+	iter = db_iterator(chat_server_data);
+	for (cd = (struct s_chat_data *)dbi_first(iter); dbi_exists(iter); cd = (struct s_chat_data *)dbi_next(iter)) {
+		if (!strcmp(cd->name, name))
+			return 1;
+	}
+	dbi_destroy(iter);
+
+	return 0;
+}
+
+int intif_chat_server_recv(int fd)
+{
 	int type, account_id, packet_len;
 	int guild_id, party_id, i;
 	struct guild *g;
@@ -3875,7 +3906,7 @@ int intif_chat_server_recv(int fd) {
 	const char *mes, *nick, *sendnick;
 
 	if (!battle_config.chat_server_interface) {
-		ShowWarning("Chat-Server connection detected. currently this service interface is not open, please set 'chat_server_interface' to 'yes'..\n");
+		ShowWarning("Chat-Server connection failure. Interface disable..\n");
 		intif_chat_error(fd, 0, -1);
 		set_eof(fd);
 		return 0;
@@ -3910,6 +3941,10 @@ int intif_chat_server_recv(int fd) {
 			set_eof(fd);
 			return 0;
 		}
+		if (!chat_server_data)
+			chat_server_data = uidb_alloc(DB_OPT_RELEASE_DATA);
+
+		chat_server_data->clear(chat_server_data, NULL);
 		channel = channel_name2channel(chname, NULL, 3);
 
 		chat_fd = fd;
@@ -3979,6 +4014,22 @@ int intif_chat_server_recv(int fd) {
 			break;
 		}
 		intif_chat_error(fd, account_id, 5);
+		break;
+	case 10: {
+		account_id = RFIFOL(fd, 6);
+		struct s_chat_data *cd = (struct s_chat_data *)uidb_get(chat_server_data, account_id);
+		if (cd == NULL)
+			CREATE(cd, struct s_chat_data, 1);
+		cd->account_id = RFIFOL(fd, 6);
+		cd->char_id = RFIFOL(fd, 10);
+		cd->group_id = RFIFOW(fd, 14);
+		memcpy(cd->name, RFIFOCP(fd, 16), NAME_LENGTH);
+		uidb_put(chat_server_data, account_id, cd);
+		}
+		break;
+	case 11:
+		account_id = RFIFOL(fd, 6);
+		uidb_remove(chat_server_data, account_id);
 		break;
 	default:
 		break;

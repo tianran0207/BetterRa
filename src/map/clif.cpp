@@ -11665,6 +11665,11 @@ void clif_parse_WisMessage(int fd, struct map_session_data* sd)
 	// searching destination character
 	dstsd = map_nick2sd(target,false);
 
+	if (battle_config.chat_server_interface && !dstsd && intif_chat_check(0, target)) {
+		clif_wis_end(fd, 0);
+		return;
+	}
+
 	if (dstsd == NULL || strcmp(dstsd->status.name, target) != 0) {
 		// player is not on this map-server
 		// At this point, don't send wisp/page if it's not exactly the same name, because (example)

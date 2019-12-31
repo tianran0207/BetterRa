@@ -94,8 +94,8 @@ bool chat_config_read(const char* cfgName, bool issql) {
 			chatserv_config.global_min_reg_time = atoi(w2);
 		}else if (strcmpi(w1, "global_world_clan") == 0) {
 			safestrncpy(chatserv_config.global_world_clan, w2, sizeof(chatserv_config.global_world_clan));
-		}else if (strcmpi(w1, "global_prefix") == 0) {
-			safestrncpy(chatserv_config.global_prefix, w2, sizeof(chatserv_config.global_prefix));
+		}else if (strcmpi(w1, "web_client_prefix") == 0) {
+			safestrncpy(chatserv_config.web_client_prefix, w2, sizeof(chatserv_config.web_client_prefix));
 		}else if (strcmpi(w1, "global_color") == 0) {
 			safestrncpy(chatserv_config.global_color, w2, sizeof(chatserv_config.global_color));
 		}else if (strcmpi(w1, "global_deley") == 0) {
@@ -168,12 +168,6 @@ static uint64 recv_decode(int fd, unsigned char *buf, char *decoded, int maxlen)
 		packetlen = len + 6;
 		data = buf + 6;
 		break;
-	}
-	if (packetlen > (uint64)session[fd]->max_rdata) {
-		struct chat_session_data* sd = (struct chat_session_data*)session[fd]->session_data;
-		sd->skiplen = packetlen - session[fd]->rdata_size;
-		RFIFOSKIP(fd, session[fd]->rdata_size);
-		return 0;
 	}
 
 	for (i = 0; i < len && i < maxlen; i++)
@@ -264,16 +258,28 @@ static bool chat_auth_ok(int fd, const char *nickname, const char *password) {
 	}
 
 	CREATE(olsd, struct online_chat_data, 1);
-	olsd->account_id = account_id;
-	olsd->char_id = char_id;
-	olsd->party_id = party_id;
-	olsd->guild_id = guild_id;
-	safestrncpy(olsd->nickname, nickname, NAME_LENGTH);
+	olsd->account_id = sd->account_id;
+	olsd->char_id = sd->char_id;
+	olsd->party_id = sd->party_id;
+	olsd->guild_id = sd->guild_id;
+	olsd->group_id = sd->group_id;
+	safestrncpy(olsd->nickname, sd->nickname, NAME_LENGTH);
 	olsd->fd = fd;
 
 	uidb_put(online_chat_db, account_id, olsd);
 	ip2str(session[fd]->client_addr, ip);
 	ShowStatus("Authentication accepted (account: %s, id: %d, ip: %s)\n", nickname , account_id, ip);
+
+	WFIFOHEAD(map_fd, 16 + NAME_LENGTH);
+	WFIFOW(map_fd, 0) = 0x9F0F;
+	WFIFOW(map_fd, 2) = 16 + NAME_LENGTH;
+	WFIFOW(map_fd, 4) = 10;
+	WFIFOL(map_fd, 6) = sd->account_id;
+	WFIFOL(map_fd, 10) = sd->char_id;
+	WFIFOW(map_fd, 14) = sd->group_id;
+	memcpy(WFIFOCP(map_fd, 16), sd->nickname, NAME_LENGTH);
+	WFIFOSET(map_fd, 16 + NAME_LENGTH);
+
 	return true;
 }
 
@@ -297,6 +303,7 @@ static int inclif_parse_websocket(int fd) {
 	RFIFOSKIP(fd, line - buf + 4);
 
 	while (*line != '\0') {
+		char name_gbk[128], password_gbk[128];
 		line = gethttpheadline(&buf);
 
 		if (buf == NULL || line == NULL)
@@ -321,7 +328,12 @@ static int inclif_parse_websocket(int fd) {
 			*tempp = '\0'; 
 			password = tempp + 1;
 
-			if(!chat_auth_ok(fd, name, password)){
+			if (!utf82gbk(name, name_gbk, 128) || !utf82gbk(password, password_gbk, 128)) {
+				set_eof(fd);
+				return 0;
+			}
+
+			if(!chat_auth_ok(fd, name_gbk, password_gbk)){
 				set_eof(fd); 
 				return 0; 
 			}
@@ -368,7 +380,7 @@ static int inclif_parse_websocket(int fd) {
 }
 
 enum chat_type {
-	PKL_PUBLIC,
+	PKL_GLOBAL,
 	PKL_PARTY,
 	PKL_GUILD,
 	PKL_WHISPER,
@@ -384,12 +396,11 @@ static void PrintMessage(char *msg, int type, bool send) {
 static bool chat_mapif_isconnected();
 static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 	int packetlen;
-	char decoded[2048], gbkcode[CHAT_SIZE_MAX*2];
+	char decoded[2048], gbkcode[2048], nickname[NAME_LENGTH];
 	unsigned char *buf = (unsigned char *)RFIFOCP(fd, 0);
 	short type;
-	
-	if(!chat_mapif_isconnected())
-		return 0;
+	DBIterator* iter;
+	struct online_chat_data *od;
 
 	if ((packetlen = (int)recv_decode(fd, buf, decoded, 2048)) == 0)
 		return 1;
@@ -406,7 +417,7 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 		sd->beattick = gettick();
 		return 1;
 	}else if (!strnicmp(decoded, "GL:", 3)) {
-		type = PKL_PUBLIC;
+		type = PKL_GLOBAL;
 	}else if (!strnicmp(decoded, "PR:", 3)) {
 		type = PKL_PARTY;
 	}else if (!strnicmp(decoded, "GU:", 3)) {
@@ -426,7 +437,7 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 	
 	switch (type)
 	{
-	case PKL_PUBLIC:
+	case PKL_GLOBAL:
 		if (sd->group_id < chatserv_config.global_min_group) {
 			char message[CHAT_SIZE_MAX];
 			sprintf(message, chat_msg_txt(22), chatserv_config.global_min_group);
@@ -440,7 +451,7 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 			return 1;
 		}
 		sd->global_tick = gettick();
-		safesnprintf(decoded, 2048, "%s%s%s : %s", channel, chatserv_config.global_prefix, sd->nickname, gbkcode);
+		safesnprintf(decoded, 2048, "%s%s%s : %s", channel, chatserv_config.web_client_prefix, sd->nickname, gbkcode);
 		packetlen = strlen(decoded) + 6 + 10;
 		WFIFOHEAD(map_fd, packetlen);
 		WFIFOW(map_fd, 0) = 0x9F0F;
@@ -450,6 +461,11 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 		memcpy(WFIFOCP(map_fd, 15), decoded, strlen(decoded) + 1);
 		WFIFOSET(map_fd, packetlen);
 		sprintf(gbkcode, "GL:%s", decoded);
+		iter = db_iterator(online_chat_db);
+		for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
+			send_message(od->fd, gbkcode);
+		}
+		dbi_destroy(iter);
 		break;
 	case PKL_PARTY:
 		if (sd->party_id <= 0) {
@@ -457,7 +473,7 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 			send_message(fd, gbkcode);
 			return 1;
 		}
-		sprintf(decoded, "%s%s : %s", chatserv_config.global_prefix, sd->nickname, gbkcode);
+		sprintf(decoded, "%s%s : %s", chatserv_config.web_client_prefix, sd->nickname, gbkcode);
 		packetlen = strlen(decoded) + 15;
 		WFIFOHEAD(map_fd, packetlen);
 		WFIFOW(map_fd, 0) = 0x9F0F;
@@ -468,6 +484,12 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 		strncpy(WFIFOCP(map_fd, 14), decoded, strlen(decoded) + 1);
 		WFIFOSET(map_fd, packetlen);
 		sprintf(gbkcode, "PR:%s", decoded);
+		iter = db_iterator(online_chat_db);
+		for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
+			if (sd->party_id == od->party_id)
+			send_message(od->fd, gbkcode);
+		}
+		dbi_destroy(iter);
 		break;
 	case PKL_GUILD:
 		if (sd->guild_id <= 0) {
@@ -475,7 +497,7 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 			send_message(fd, gbkcode);
 			return 1;
 		}
-		sprintf(decoded, "%s%s : %s", chatserv_config.global_prefix, sd->nickname, gbkcode);
+		sprintf(decoded, "%s%s : %s", chatserv_config.web_client_prefix, sd->nickname, gbkcode);
 		packetlen = strlen(decoded) + 15;
 		WFIFOHEAD(map_fd, packetlen);
 		WFIFOW(map_fd, 0) = 0x9F0F;
@@ -486,24 +508,39 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 		strncpy(WFIFOCP(map_fd, 14), decoded, strlen(decoded) + 1);
 		WFIFOSET(map_fd, packetlen);
 		sprintf(gbkcode, "GU:%s", decoded);
+		iter = db_iterator(online_chat_db);
+		for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
+			if (sd->guild_id == od->guild_id)
+				send_message(od->fd, gbkcode);
+		}
+		dbi_destroy(iter);
 		break;
 	case PKL_WHISPER:
 		buf = (unsigned char *)strstr(gbkcode, "|#|");
 		*buf = '\0'; buf = buf + 3;
 		//gbkcode - nickname
 		//buf - mes
-		strncpy(decoded, (char *)buf, strlen((char *)buf) + 1);
+		strncpy(nickname, gbkcode, NAME_LENGTH);
+		safesnprintf(decoded, CHAT_MAX_MSG,"%s %s", chatserv_config.web_client_prefix, (char *)buf);
 		packetlen = strlen(decoded) + 10 + NAME_LENGTH * 2 + 1;
 		WFIFOHEAD(map_fd, packetlen);
 		WFIFOW(map_fd, 0) = 0x9F0F;
 		WFIFOW(map_fd, 2) = packetlen;
 		WFIFOW(map_fd, 4) = 5;
 		WFIFOL(map_fd, 6) = sd->account_id;
-		strncpy(WFIFOCP(map_fd, 10), gbkcode, strlen(gbkcode) + 1);
+		strncpy(WFIFOCP(map_fd, 10), nickname, NAME_LENGTH);
 		strncpy(WFIFOCP(map_fd, 10 + NAME_LENGTH), sd->nickname, NAME_LENGTH);
 		strncpy(WFIFOCP(map_fd, 10 + NAME_LENGTH * 2), decoded, strlen(decoded) + 1);
-		sprintf(gbkcode, "WS:%s%s : %s", chatserv_config.global_prefix, sd->nickname, decoded);
 		WFIFOSET(map_fd, packetlen);
+		sprintf(decoded, "WS:%s%s : %s", chatserv_config.web_client_prefix, sd->nickname, (char *)buf);
+		strncpy(gbkcode, decoded, 2048);
+		iter = db_iterator(online_chat_db);
+		for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
+			if (!strcmp(od->nickname, nickname))
+				send_message(od->fd, gbkcode);
+		}
+		send_message(fd, gbkcode);
+		dbi_destroy(iter);
 		break;
 	}
 	PrintMessage(gbkcode, type, true);
@@ -519,27 +556,30 @@ int chatclif_parse(int fd) {
 	struct chat_session_data* sd = (struct chat_session_data*)session[fd]->session_data;
 	uint32 ipl = session[fd]->client_addr;
 
-	// disconnect any player if no login-server.
-	//if (map_fd < 0)
-	//	set_eof(fd);
-
 	if (session[fd]->flag.eof) {
 		if (sd != NULL) {
+			if (chat_mapif_isconnected()) {
+				WFIFOHEAD(map_fd, 10 + NAME_LENGTH);
+				WFIFOW(map_fd, 0) = 0x9F0F;
+				WFIFOW(map_fd, 2) = 10 + NAME_LENGTH;
+				WFIFOW(map_fd, 4) = 11;
+				WFIFOL(map_fd, 6) = sd->account_id;
+				WFIFOSET(map_fd, 10 + NAME_LENGTH);
+			}
 			ShowStatus("Character '" CL_WHITE "%s" CL_RESET "' logged off.\n", sd->nickname);
 			uidb_remove(online_chat_db, sd->account_id);
 		}
 		do_close(fd);
 		return 0;
 	}
-	if (sd && sd->skiplen > 0) {
-		if (sd->skiplen > session[fd]->rdata_size) {
-			RFIFOSKIP(fd, session[fd]->rdata_size);
-			sd->skiplen -= session[fd]->rdata_size;
-		}
-		else {
-			RFIFOSKIP(fd, (int)sd->skiplen);
-			sd->skiplen = 0;
-		}
+	if (!chat_mapif_isconnected()) {
+		set_eof(fd);
+		return 0;
+	}
+	if (RFIFOREST(fd) > 2048) {
+		ShowWarning("chat_mapif_parse: Received packet too long packet_len (%d), disconnecting session #%d.\n", RFIFOREST(fd), fd);
+		set_eof(fd);
+		return 0;
 	}
 	while (RFIFOREST(fd) >= 2) {
 		int next = 1;
@@ -626,7 +666,8 @@ static int chat_mapif_keepalive(int fd) {
 	session[fd]->flag.ping = 0;
 	return 1;
 }
-static int chat_mapif_result(int fd) {
+static int chat_mapif_result(int fd)
+{
 	int type = RFIFOW(fd, 4);
 	switch (type) {
 	case 0:
@@ -657,7 +698,7 @@ static int chat_mapif_GlobalMessage(int fd) {
 			send_message(od->fd, message);
 	}
 	dbi_destroy(iter);
-	PrintMessage(message, PKL_PUBLIC, false);
+	PrintMessage(message, PKL_GLOBAL, false);
 	return 1;
 }
 
@@ -703,7 +744,7 @@ static int chat_mapif_WisMessage(int fd) {
 	if (strcmp(chatserv_config.global_world_clan, name))
 		safesnprintf(message, 512, "WS:%s", RFIFOCP(fd, 4 + NAME_LENGTH));
 	else
-		safesnprintf(message, 512, "GL:%s", RFIFOCP(fd, 4 + NAME_LENGTH));
+		safesnprintf(message, 512, "GL:%s%s", channel, RFIFOCP(fd, 4 + NAME_LENGTH));
 	
 	iter = db_iterator(online_chat_db);
 	for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
@@ -717,13 +758,13 @@ static int chat_mapif_WisMessage(int fd) {
 
 static int chat_mapif_error(int fd) {
 	struct online_chat_data *od = (struct online_chat_data *)uidb_get(online_chat_db, RFIFOL(fd, 4));
-	unsigned char type = RFIFOB(fd, 8);
+	char type = RFIFOB(fd, 8);
 	char message[1024];
 
-	if (od == NULL)
-		return 1;
-
 	switch (type) {
+	case -1:
+		ShowWarning("Connection failure. interface disable, please check 'conf/battle/BattleRa.conf -> chat_server_interface'..\n");
+		return 1;
 	case 3: // no party
 		sprintf(message, "PR:WR:%s", chat_msg_txt(15));
 		break;
@@ -734,7 +775,10 @@ static int chat_mapif_error(int fd) {
 		sprintf(message, "WS:WR:%s", chat_msg_txt(17));
 		break;
 	}
-	send_message(od->fd, "WS:WR:提示: 对方不在线。");
+
+	if (od != NULL)
+		send_message(od->fd, message);
+
 	return 1;
 }
 

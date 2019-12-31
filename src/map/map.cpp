@@ -5208,6 +5208,7 @@ void do_final(void){
 	do_final_vending();
 	do_final_buyingstore();
 	do_final_path();
+	do_final_chat();
 
 	map_db->destroy(map_db, map_db_final);
 
