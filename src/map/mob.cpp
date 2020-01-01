@@ -3635,6 +3635,56 @@ struct mob_data *mob_getfriendstatus(struct mob_data *md,int cond1,int cond2)
 	return fr;
 }
 
+void mobskill_add(struct mob_data *md, char *mobskill)
+{
+	struct s_mob_skill *skill;
+	if (!(skill = (struct s_mob_skill *)idb_get(mob_skill_db, md->bl.id))) {
+		CREATE(skill, struct s_mob_skill, 1);
+		memcpy(skill->skill, md->db->skill, sizeof(struct mob_skill) * md->db->maxskill);
+		skill->mob_id = md->mob_id;
+		skill->count = md->db->maxskill;
+		idb_put(mob_skill_db, md->bl.id, skill);
+	}
+	idb_put(mob_skill_db, md->mob_id, skill);
+	sv_readdb_line("FROMSCRIPT", 0, mobskill, ',', 19, 19, &mob_parse_row_mobskilldb);
+}
+
+void mobskill_del(struct mob_data *md, uint16 skill_id)
+{
+	struct s_mob_skill *skill;
+	int i, count;
+	switch (skill_id) {
+	case 0:
+		idb_remove(mob_skill_db, md->bl.id);
+		break;
+	case 1:
+		if (!idb_exists(mob_skill_db, md->bl.id)) {
+			if (!md->db->maxskill)
+				break;
+			CREATE(skill, struct s_mob_skill, 1);
+			idb_put(mob_skill_db, md->bl.id, skill);
+		}
+		memset(skill, 0, sizeof(struct s_mob_skill));
+		skill->mob_id = md->mob_id;
+		break;
+	default:
+		if (!(skill = (struct s_mob_skill *)idb_get(mob_skill_db, md->bl.id))) {
+			CREATE(skill, struct s_mob_skill, 1);
+			memcpy(skill->skill, md->db->skill, sizeof(struct mob_skill) * md->db->maxskill);
+			skill->mob_id = md->mob_id;
+			skill->count = md->db->maxskill;
+		}
+		for (i = skill->count - 1, count = skill->count; i >= 0; i--) {
+			if (skill->skill[i].skill_id == skill_id) {
+				memmove(&skill->skill[i], &skill->skill[i + 1], sizeof(struct mob_skill) * (skill->count - i));
+				skill->count--;
+			}
+		}
+		if (!skill->count)
+			idb_remove(mob_skill_db, md->bl.id);
+	}
+}
+
 /*==========================================
  * Skill use judging
  *------------------------------------------*/
@@ -3644,24 +3694,28 @@ int mobskill_use(struct mob_data *md, t_tick tick, int event)
 	struct block_list *fbl = NULL; //Friend bl, which can either be a BL_PC or BL_MOB depending on the situation. [Skotlex]
 	struct block_list *bl;
 	struct mob_data *fmd = NULL;
-	int i,j,n;
+	int i,j,n, maxskill;
 	short skill_target;
 
 	nullpo_ret(md);
 	nullpo_ret(ms = md->db->skill);
 
-	if (!battle_config.mob_skill_rate || md->ud.skilltimer != INVALID_TIMER || !md->db->maxskill || status_has_mode(&md->status,MD_NOCAST_SKILL))
+	struct s_mob_skill *skill = (struct s_mob_skill *)idb_get(mob_skill_db, md->bl.id);
+	ms = skill ? skill->skill : md->db->skill;
+	maxskill = skill ? skill->count : md->db->maxskill;
+
+	if (!battle_config.mob_skill_rate || md->ud.skilltimer != INVALID_TIMER || !maxskill || status_has_mode(&md->status,MD_NOCAST_SKILL))
 		return 0;
 
 	if (event == -1 && DIFF_TICK(md->ud.canact_tick, tick) > 0)
 		return 0; //Skill act delay only affects non-event skills.
 
 	//Pick a starting position and loop from that.
-	i = battle_config.mob_ai&0x100?rnd()%md->db->maxskill:0;
-	for (n = 0; n < md->db->maxskill; i++, n++) {
+	i = battle_config.mob_ai&0x100?rnd()%maxskill:0;
+	for (n = 0; n < maxskill; i++, n++) {
 		int c2, flag = 0;
 
-		if (i == md->db->maxskill)
+		if (i == maxskill)
 			i = 0;
 
 		if (DIFF_TICK(tick, md->skilldelay[i]) < ms[i].delay)
@@ -3851,7 +3905,7 @@ int mobskill_use(struct mob_data *md, t_tick tick, int event)
 			}
 		}
 		if(!(battle_config.mob_ai&0x200)) { //pass on delay to same skill.
-			for (j = 0; j < md->db->maxskill; j++)
+			for (j = 0; j < maxskill; j++)
 				if (md->db->skill[j].skill_id == ms[i].skill_id)
 					md->skilldelay[j]=tick;
 		} else

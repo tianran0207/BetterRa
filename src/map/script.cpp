@@ -28084,6 +28084,38 @@ BUILDIN_FUNC(unitmasterid)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(addmobskill)
+{
+	struct mob_data *md;
+	if ((md = map_id2md(script_getnum(st, 2))) == NULL) {
+		script_pushint(st, 0);
+	}
+	else {
+		const char *p, *line= script_getstr(st, 3);
+		char str[512];
+		if ((p = strchr(line, ',')) != NULL) {
+			safesnprintf(str, 512, "%d,%s\n", md->mob_id, p+1);
+			mobskill_add(md, str);
+			script_pushint(st, 1);
+		}else
+			script_pushint(st, 0);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(delmobskill)
+{
+	struct mob_data *md;
+	if ((md = map_id2md(script_getnum(st, 2))) == NULL) {
+		script_pushint(st, 0);
+	}
+	else {
+		mobskill_del(md, script_getnum(st, 3));
+		script_pushint(st, 1);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(getdaytick)
 {
 	struct tm stm;
@@ -29949,6 +29981,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bonus_ratefix, "ii?"),
 	BUILDIN_DEF(getdaytick, "v?????"),
 	BUILDIN_DEF(unitmasterid, "i"),
+	BUILDIN_DEF(addmobskill, "is"),
+	BUILDIN_DEF(delmobskill, "ii"),
 	//行为策略系统
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),
