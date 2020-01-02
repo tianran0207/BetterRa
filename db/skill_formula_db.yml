@@ -1,0 +1,21 @@
+# 定义技能的技能公式(暂未实装, 测试中)
+# 格式: 技能ID,对谁有效,倍率公式,最终伤害修正,咏唱公式,持续时间公式
+# 注意: 获取玩家 status 参数, 请使用指令 getstatus 指令
+#       使用 getsrcstatus  获得攻击者的基础战斗讯息, 
+#       使用 gettargetstatus 获得目标的基础战斗讯息,
+#       指令不需要与玩家关联, 公式中不要使用sleep等会延迟操作的指令
+# skf_id 技能ID
+# skf_lv 技能等级
+# skf_val 原版公式计算结果, 通过修改此值, 更改最终结果
+
+
+Header:
+  Type: SKILL_FORMULA_DB
+  Version: 1
+  
+Body:
+  - Skill: 14
+    Tips: 冰箭术技能倍率调整
+    Typeable: 1
+    Ratio: >
+        skf_val = skf_lv *100;

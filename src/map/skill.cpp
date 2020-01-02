@@ -21392,6 +21392,79 @@ int skill_get_time3(struct map_data *mapdata, uint16 skill_id, uint16 skill_lv) 
 	return time;
 }
 
+const std::string SkillFormulaDatabase::getDefaultLocation() {
+	return std::string(db_path) + "/skill_formula_db.yml";
+}
+
+static void skill_destroy_formula(uint16 skill_id)
+{
+	struct s_skill_db::s_formula *formula = &skill_db[skill_id]->formula;
+	if (formula->ratio)
+		script_free_code(formula->ratio);
+	if (formula->damage)
+		script_free_code(formula->damage);
+	if (formula->casting)
+		script_free_code(formula->casting);
+	if (formula->duration)
+		script_free_code(formula->duration);
+	formula->ratio = nullptr;
+	formula->damage = nullptr;
+	formula->casting = nullptr;
+	formula->duration = nullptr;
+}
+
+uint64 SkillFormulaDatabase::parseBodyNode(const YAML::Node &node) {
+	uint16 Skill;
+	uint32 Typeable;
+	std::string script;
+
+	if (!this->asUInt16(node, "Skill", Skill))
+		return 0;
+
+	Skill = skill_db_isset(Skill, __FUNCTION__);
+	struct s_skill_db::s_formula *formula = &skill_db[Skill]->formula;
+
+	if (this->asUInt32(node, "Typeable", Typeable))
+		formula->typeable = Typeable;
+	else
+		formula->typeable = BL_ALL;
+
+	skill_destroy_formula(Skill);
+
+	if (this->nodeExists(node, "Ratio") && this->asString(node, "Ratio", script))
+		formula->ratio = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Ratio"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+
+	if (this->nodeExists(node, "Damage") && this->asString(node, "Damage", script))
+		formula->damage = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Damage"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+
+	if (this->nodeExists(node, "Casting") && this->asString(node, "Casting", script))
+		formula->casting = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Casting"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+
+	if (this->nodeExists(node, "Duration") && this->asString(node, "Duration", script))
+		formula->duration = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Duration"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+
+	return 1;
+}
+
+SkillFormulaDatabase skill_formula_db;
+
+struct block_list *formula_src = NULL;
+struct block_list *formula_target = NULL;
+void skill_formula_fix(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, void *val)
+{
+	int64 *damage;
+	int *ratio;
+	formula_src = src;
+	formula_target = target;
+	switch (type) {
+	case 1:
+
+	
+	}
+	formula_src = NULL;
+	formula_target = NULL;
+}
+
 /*==========================================
  * sub-function of DB reading.
  * skill_db.txt
@@ -22220,6 +22293,7 @@ static void skill_db_destroy(void) {
 	for (i = 0; i < SKILL_MAX_DB(); i++) {
 		if (skill_db[i]) {
 			skill_destroy_requirement(i);
+			skill_destroy_formula(i);
 			aFree(skill_db[i]);
 		}
 		skill_db[i] = NULL;
@@ -22293,6 +22367,7 @@ static void skill_readdb(void)
 		aFree(dbsubpath2);
 	}
 
+	skill_formula_db.load();
 	abra_db.load();
 	improvised_song_db.load();
 	magic_mushroom_db.load();

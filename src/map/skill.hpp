@@ -239,6 +239,15 @@ struct s_skill_db {
 		uint8 option;
 		uint16 joballowed, req_opt;
 	} copyable;
+
+	struct s_formula {
+		uint32 typeable;
+		struct script_code* ratio;
+		struct script_code* damage;
+		struct script_code* casting;
+		struct script_code* duration;
+
+	} formula;
 };
 extern struct s_skill_db **skill_db;
 
@@ -372,6 +381,19 @@ struct s_skill_arrow_db {
 		cre_amount[MAX_ARROW_RESULT]; /// Amount of each arrow created
 };
 extern struct s_skill_arrow_db skill_arrow_db[MAX_SKILL_ARROW_DB];
+
+class SkillFormulaDatabase : public YamlDatabase {
+public:
+	SkillFormulaDatabase() : YamlDatabase("SKILL_FORMULA_DB", 1) {
+
+	}
+	void clear() { };
+	const std::string getDefaultLocation();
+	uint64 parseBodyNode(const YAML::Node& node);
+};
+void skill_formula_fix(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, void *val);
+extern struct block_list *formula_src;
+extern struct block_list *formula_target;
 
 /// Abracadabra database
 struct s_skill_abra_db {
