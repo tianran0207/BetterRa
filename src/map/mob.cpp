@@ -3637,51 +3637,46 @@ struct mob_data *mob_getfriendstatus(struct mob_data *md,int cond1,int cond2)
 
 void mobskill_add(struct mob_data *md, char *mobskill)
 {
-	struct s_mob_skill *skill;
-	if (!(skill = (struct s_mob_skill *)idb_get(mob_skill_db, md->bl.id))) {
+	struct s_mob_skill *skill = md->skill;
+	if (skill == NULL) {
 		CREATE(skill, struct s_mob_skill, 1);
 		memcpy(skill->skill, md->db->skill, sizeof(struct mob_skill) * md->db->maxskill);
 		skill->mob_id = md->mob_id;
 		skill->count = md->db->maxskill;
-		idb_put(mob_skill_db, md->bl.id, skill);
+		md->skill = skill;
 	}
 	idb_put(mob_skill_db, md->mob_id, skill);
 	sv_readdb_line("FROMSCRIPT", 0, mobskill, ',', 19, 19, &mob_parse_row_mobskilldb);
+	idb_remove(mob_skill_db, md->mob_id);
 }
 
 void mobskill_del(struct mob_data *md, uint16 skill_id)
 {
-	struct s_mob_skill *skill;
-	int i, count;
+	struct s_mob_skill *skill = md->skill;
+	int i;
+	if (skill_id != 0 && skill == NULL) {
+		CREATE(skill, struct s_mob_skill, 1);
+		memcpy(skill->skill, md->db->skill, sizeof(struct mob_skill) * md->db->maxskill);
+		skill->mob_id = md->mob_id;
+		skill->count = md->db->maxskill;
+		md->skill = skill;
+	}
 	switch (skill_id) {
 	case 0:
-		idb_remove(mob_skill_db, md->bl.id);
+		if (skill) aFree(skill);
+		md->skill = NULL;
 		break;
 	case 1:
-		if (!idb_exists(mob_skill_db, md->bl.id)) {
-			if (!md->db->maxskill)
-				break;
-			CREATE(skill, struct s_mob_skill, 1);
-			idb_put(mob_skill_db, md->bl.id, skill);
-		}
 		memset(skill, 0, sizeof(struct s_mob_skill));
 		skill->mob_id = md->mob_id;
 		break;
 	default:
-		if (!(skill = (struct s_mob_skill *)idb_get(mob_skill_db, md->bl.id))) {
-			CREATE(skill, struct s_mob_skill, 1);
-			memcpy(skill->skill, md->db->skill, sizeof(struct mob_skill) * md->db->maxskill);
-			skill->mob_id = md->mob_id;
-			skill->count = md->db->maxskill;
+		for (i = skill->count - 1; i >= 0; i--) {
+			if (skill->skill[i].skill_id != skill_id)
+				continue;
+			memmove(&skill->skill[i], &skill->skill[i + 1], sizeof(struct mob_skill) * (skill->count - i));
+			skill->count--;
 		}
-		for (i = skill->count - 1, count = skill->count; i >= 0; i--) {
-			if (skill->skill[i].skill_id == skill_id) {
-				memmove(&skill->skill[i], &skill->skill[i + 1], sizeof(struct mob_skill) * (skill->count - i));
-				skill->count--;
-			}
-		}
-		if (!skill->count)
-			idb_remove(mob_skill_db, md->bl.id);
 	}
 }
 
@@ -3700,15 +3695,18 @@ int mobskill_use(struct mob_data *md, t_tick tick, int event)
 	nullpo_ret(md);
 	nullpo_ret(ms = md->db->skill);
 
-	struct s_mob_skill *skill = (struct s_mob_skill *)idb_get(mob_skill_db, md->bl.id);
-	ms = skill ? skill->skill : md->db->skill;
-	maxskill = skill ? skill->count : md->db->maxskill;
-
-	if (!battle_config.mob_skill_rate || md->ud.skilltimer != INVALID_TIMER || !maxskill || status_has_mode(&md->status,MD_NOCAST_SKILL))
+	if (!battle_config.mob_skill_rate || md->ud.skilltimer != INVALID_TIMER || status_has_mode(&md->status,MD_NOCAST_SKILL))
 		return 0;
 
 	if (event == -1 && DIFF_TICK(md->ud.canact_tick, tick) > 0)
 		return 0; //Skill act delay only affects non-event skills.
+
+	struct s_mob_skill *skill = md->skill;
+	ms = skill ? skill->skill : md->db->skill;
+	maxskill = skill ? skill->count : md->db->maxskill;
+
+	if (!maxskill)
+		return 0;
 
 	//Pick a starting position and loop from that.
 	i = battle_config.mob_ai&0x100?rnd()%maxskill:0;
