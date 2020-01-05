@@ -6,8 +6,7 @@
 #         Casting 咏唱公式
 #         Delay 技能延迟公式
 #         Duration 持续时间公式(如果技能无持续时间, 则无效果)
-# 注意: 获取玩家 status 参数, 请使用指令 getstatus 指令
-#       使用 getsrcstatus  获得攻击者的基础战斗讯息, 
+# 注意: 使用 getsrcstatus  获得攻击者的基础战斗讯息, 
 #       使用 gettargetstatus 获得目标的基础战斗讯息,
 #       指令不需要与玩家关联, 公式中不要使用sleep等会延迟操作的指令
 # skf_id 技能ID
