@@ -242,11 +242,10 @@ struct s_skill_db {
 
 	struct s_formula {
 		uint32 typeable;
-		struct script_code* ratio;
-		struct script_code* damage;
+		struct script_code* formula;
 		struct script_code* casting;
 		struct script_code* duration;
-
+		struct script_code* delay;
 	} formula;
 };
 extern struct s_skill_db **skill_db;
@@ -390,10 +389,14 @@ public:
 	void clear() { };
 	const std::string getDefaultLocation();
 	uint64 parseBodyNode(const YAML::Node& node);
+
+	struct block_list *src = NULL;
+	struct block_list *target = NULL;
+	int damage, time;
+	uint16 skill_id, skill_lv;
+	void script_run(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, int64 *damage, int *time);
 };
-void skill_formula_fix(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, void *val);
-extern struct block_list *formula_src;
-extern struct block_list *formula_target;
+extern SkillFormulaDatabase skill_formula_db;
 
 /// Abracadabra database
 struct s_skill_abra_db {

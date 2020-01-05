@@ -2813,6 +2813,12 @@ struct script_data *get_val_(struct script_state* st, struct script_data* data, 
 
 	//##TODO use reference_tovariable(data) when it's confirmed that it works [FlavioJS]
 	if( !reference_toconstant(data) && not_server_variable(prefix) ) {
+		if (sd == NULL && !st->rid && reference_toparam(data)) {
+			data->type = C_INT;
+			data->u.num = map_readparam(reference_getparamtype(data));
+			data->ref = NULL;
+			return data;
+		}
 		if( sd == NULL && !script_rid2sd(sd) ) {// needs player attached
 			if( postfix == '$' ) {// string variable
 				ShowWarning("script:get_val: cannot access player variable '%s', defaulting to \"\"\n", name);
@@ -6389,6 +6395,12 @@ BUILDIN_FUNC(setr)
 
 	if (!strcmp(command, "setr"))
 		pos = 5;
+
+	if (!script_hasdata(st, pos) && !st->rid && str_data[script_getvarid(num)].type == C_PARAM) {
+		script_pushcopy(st, 2);
+		map_setparam(str_data[script_getvarid(num)].val, script_getnum(st, 3));
+		return SCRIPT_CMD_SUCCESS;
+	}
 
 	if (not_server_variable(prefix) && !script_charid2sd(pos,sd)) {
 		ShowError("buildin_set: No player attached for player variable '%s'\n", name);
@@ -28691,21 +28703,19 @@ BUILDIN_FUNC(mobattached)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(getunitstatus)
+static int buildin_readstatus_sub(struct block_list *bl, int type)
 {
-	struct block_list* bl;
+	struct status_data *status = status_get_status_data(bl);
 	struct map_session_data* sd = NULL;
-	struct status_data *status;
 
-	if (!script_rid2bl(2, bl))
-		return SCRIPT_CMD_FAILURE;
-
+	if (bl == NULL) {
+		ShowError("buildin_readstatus_sub: bl == NULL.\n");
+		return 0;
+	}
 	sd = BL_CAST(BL_PC, bl);
-	status = status_get_status_data(bl);
 
-#define CASE_STATUS(idx__,var__) case idx__: script_pushint(st, var__); break
-
-	switch (script_getnum(st, 3)) {
+#define CASE_STATUS(idx__,var__) case idx__: return var__
+	switch (type) {
 		CASE_STATUS(STATUS_HP, status->hp);
 		CASE_STATUS(STATUS_SP, status->sp);
 		CASE_STATUS(STATUS_MAXHP, status->max_hp);
@@ -28744,9 +28754,31 @@ BUILDIN_FUNC(getunitstatus)
 		CASE_STATUS(STATUS_CLASS, status_get_class(bl));
 		CASE_STATUS(STATUS_ASPD, (2000 - sd->battle_status.amotion) / 10);
 	}
-
 #undef CASE_STATUS
+	return 0;
+}
 
+BUILDIN_FUNC(getunitstatus)
+{
+	struct block_list* bl;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, buildin_readstatus_sub(bl, script_getnum(st, 3)));
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getsrcstatus)
+{
+	script_pushint(st, buildin_readstatus_sub(skill_formula_db.src, script_getnum(st, 2)));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(gettargetstatus)
+{
+	script_pushint(st, buildin_readstatus_sub(skill_formula_db.target, script_getnum(st, 2)));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -29944,6 +29976,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(searchcartinventory, "i??"),
 	BUILDIN_DEF(searchstorageinventory, "i??"),
 	BUILDIN_DEF(getunitstatus, "ii"),
+	BUILDIN_DEF(getsrcstatus, "i"),
+	BUILDIN_DEF(gettargetstatus, "i"),
 	BUILDIN_DEF(progressbar_unit, "si?"),
 	BUILDIN_DEF(getvariableofpc, "ri?"),
 	BUILDIN_DEF(getcalendartime, "ii??"),

@@ -17146,6 +17146,7 @@ int skill_delayfix(struct block_list *bl, uint16 skill_id, uint16 skill_lv)
 		}
 	}
 
+	skill_formula_db.script_run(bl, NULL, skill_id, skill_lv, 3, NULL, &time);
 	//ShowInfo("Delay delayfix = %d\n",time);
 
 	return max(time,0);
@@ -21399,17 +21400,17 @@ const std::string SkillFormulaDatabase::getDefaultLocation() {
 static void skill_destroy_formula(uint16 skill_id)
 {
 	struct s_skill_db::s_formula *formula = &skill_db[skill_id]->formula;
-	if (formula->ratio)
-		script_free_code(formula->ratio);
-	if (formula->damage)
-		script_free_code(formula->damage);
+	if (formula->formula)
+		script_free_code(formula->formula);
 	if (formula->casting)
 		script_free_code(formula->casting);
+	if (formula->delay)
+		script_free_code(formula->delay);
 	if (formula->duration)
 		script_free_code(formula->duration);
-	formula->ratio = nullptr;
-	formula->damage = nullptr;
+	formula->formula = nullptr;
 	formula->casting = nullptr;
+	formula->delay = nullptr;
 	formula->duration = nullptr;
 }
 
@@ -21431,38 +21432,56 @@ uint64 SkillFormulaDatabase::parseBodyNode(const YAML::Node &node) {
 
 	skill_destroy_formula(Skill);
 
-	if (this->nodeExists(node, "Ratio") && this->asString(node, "Ratio", script))
-		formula->ratio = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Ratio"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
-
-	if (this->nodeExists(node, "Damage") && this->asString(node, "Damage", script))
-		formula->damage = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Damage"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+	if (this->nodeExists(node, "Formula") && this->asString(node, "Formula", script))
+		formula->formula = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Formula"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
 
 	if (this->nodeExists(node, "Casting") && this->asString(node, "Casting", script))
 		formula->casting = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Casting"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
 
+	if (this->nodeExists(node, "Delay") && this->asString(node, "Delay", script))
+		formula->delay = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Delay"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+
 	if (this->nodeExists(node, "Duration") && this->asString(node, "Duration", script))
 		formula->duration = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Duration"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
-
 	return 1;
 }
 
 SkillFormulaDatabase skill_formula_db;
-
-struct block_list *formula_src = NULL;
-struct block_list *formula_target = NULL;
-void skill_formula_fix(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, void *val)
+void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, int64 *damage, int *time)
 {
-	int64 *damage;
-	int *ratio;
-	formula_src = src;
-	formula_target = target;
+	struct script_code* script;
+	uint16 idx = skill_get_index(skill_id);
+
+	if (idx == 0 || src && !(skill_db[idx]->formula.typeable & src->type)) // invalid skill id
+		return;
+
 	switch (type) {
 	case 1:
-
-	
+		script = skill_db[idx]->formula.formula;
+		break;
+	case 2:
+		script = skill_db[idx]->formula.casting;
+		break;
+	case 3:
+		script = skill_db[idx]->formula.delay;
+		break;
+	case 4:
+		script = skill_db[idx]->formula.duration;
+		break;
 	}
-	formula_src = NULL;
-	formula_target = NULL;
+	if (script == NULL)
+		return;
+	skill_formula_db.src = src;
+	skill_formula_db.target = target;
+	skill_formula_db.skill_id = skill_id;
+	skill_formula_db.skill_lv = skill_lv;
+	skill_formula_db.damage = damage ? (int)cap_value (*damage, INT_MIN, INT_MAX) : 0;
+	skill_formula_db.time = time ? (int)cap_value(*time, INT_MIN, INT_MAX) : 0;
+	run_script(script, 0, 0, fake_nd->bl.id);
+	if (damage) *damage = skill_formula_db.damage;
+	if (time) *time = skill_formula_db.time;
+	skill_formula_db.src = NULL;
+	skill_formula_db.target = NULL;
 }
 
 /*==========================================

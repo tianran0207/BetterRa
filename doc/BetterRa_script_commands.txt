@@ -1829,6 +1829,13 @@ getunitstatus <GID>,<类型>;
 
 ----------------------------------------
 
+*getsrcstatus <类型>;
+*gettargetstatus <类型>;
+
+获取攻击者和被攻击者的属性信息, 本指令只能用于 skill_formula_db.yml 中..
+
+----------------------------------------
+
 *atcommand <"GM指令">{,<标签>};
 *useatcmd <"GM指令">{,<标签>};
 

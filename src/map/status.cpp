@@ -11578,6 +11578,12 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				break;
 		}
 
+	if (status_sc2skill(type) != 0) {
+		struct unit_data *ud = unit_bl2ud(bl);
+		if (ud && status_sc2skill(type) == ud->skill_id)
+			skill_formula_db.script_run(src, bl, ud->skill_id, ud->skill_lv, 4, NULL, &tick);
+	}
+
 	if (npc_script_event_check(sd, NPCE_BUFFFIXFILTER) && !(flag&SCSTART_LOADED)) {
 		pc_setreg(sd, add_str("@started_sc_id"), type);
 		pc_setreg(sd, add_str("@started_sc_rate"), rate);

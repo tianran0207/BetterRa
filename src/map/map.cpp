@@ -5703,6 +5703,37 @@ int do_init(int argc, char *argv[])
 	return 0;
 }
 
+int map_readparam(int type)
+{
+	int val = 0;
+	switch (type) {
+	case SP_SKF_ID:          val = skill_formula_db.skill_id; break;
+	case SP_SKF_LV:          val = skill_formula_db.skill_lv; break;
+	case SP_SKF_DMG:         val = skill_formula_db.damage;   break;
+	case SP_SKF_TIM:         val = skill_formula_db.time;     break;
+	}
+	return val;
+}
+
+bool map_setparam(int type, int val)
+{
+	switch (type) {
+	case SP_SKF_ID:
+		skill_formula_db.skill_id = val;
+		return true;
+	case SP_SKF_LV:
+		skill_formula_db.skill_lv = val;
+		return true;
+	case SP_SKF_DMG:
+		skill_formula_db.damage = val;
+		return true;
+	case SP_SKF_TIM:
+		skill_formula_db.time = val;
+		return true;
+	}
+	return false;
+}
+
 void not_free(const char *name){
 	ShowWarning("This function '%s' is NOT FREE!! Please contact the author.(QQ:809236588)\n", name);
 }
