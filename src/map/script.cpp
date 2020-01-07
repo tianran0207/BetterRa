@@ -29029,6 +29029,33 @@ BUILDIN_FUNC(abs)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+static int buildin_mapcutin_sub(struct block_list *bl, va_list ap)
+{
+	TBL_PC* sd = (TBL_PC*)bl;
+	const char *image = va_arg(ap, const char *);
+	int type = va_arg(ap, int);
+	clif_cutin(sd, image, type);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(mapcutin)
+{
+	const char *mapname = script_getstr(st, 2);
+	int16 m;
+
+	if ((m = map_mapname2mapid(mapname)) < 0)
+		return SCRIPT_CMD_SUCCESS;
+
+	map_foreachinmap(buildin_mapcutin_sub, m, BL_PC,script_getstr(st, 3), script_getnum(st, 4));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(end2)
+{
+	st->state = END;
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -29985,6 +30012,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mesf, "s*"),
 	BUILDIN_DEF(consolemes, "iv*"),
 	BUILDIN_DEF(abs, "i"),
+	BUILDIN_DEF(mapcutin, "ssi"),
+	BUILDIN_DEF(end2, ""),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
