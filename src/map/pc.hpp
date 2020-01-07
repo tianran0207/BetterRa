@@ -273,6 +273,11 @@ struct s_bonus_skilldamage {
 	int damage;
 };
 
+struct s_bonus_skillrange {
+	uint16 sk;
+	int16 range;
+};
+
 struct policies {
 	short policy_id;
 	int base_exp_rate;
@@ -661,6 +666,7 @@ struct map_session_data {
 	std::vector<s_multidamagerate> multidamage;
 	std::vector<s_bonus_skillforaoe> skillforaoe; //custom;
 	std::vector<s_bonus_skilldamage> skilldamage;
+	std::vector<s_bonus_skillrange> skillrange;
 
 	struct autowalk_data autowalk;
 

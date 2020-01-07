@@ -39,3 +39,6 @@ bonus2 bIgnoreDefClassVal,c,n;          无视 c 类别魔物 n 点魔法防御力
 
 bonus bIgnoreWhiteImprison,n;           无视白色监狱, n无意义
 
+bonus2 bAddSkillRange,sk,n;             增加 sk 技能 n 格范围, 可用于溅射或范围技能
+
+

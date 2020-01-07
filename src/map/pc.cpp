@@ -3552,6 +3552,18 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_ADD_SKILL_RANGE: // bonus2 bAddSkillRange,sk,n;
+		if (sd->state.lr_flag != 2) {
+			if (sd->skillrange.size() == MAX_PC_BONUS) {
+				ShowWarning("pc_bonus2: SP_ADD_SKILL_RANGE: Reached max (%d) number of skills per character, bonus skill %d (%d) lost.\n", MAX_PC_BONUS, type2, val);
+				break;
+			}
+			struct s_bonus_skillrange entry = {};
+			entry.sk = type2;
+			entry.range = val;
+			sd->skillrange.push_back(entry);
+		}
+		break;
 	case SP_IGNORE_MDEF_RACE_VAL: // bonus2 bIgnoreMdefRaceVal,r,n;
 		PC_BONUS_CHK_RACE(type2, SP_IGNORE_MDEF_RACE_VAL);
 		if (sd->state.lr_flag != 2)

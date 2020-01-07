@@ -9732,6 +9732,7 @@ BUILDIN_FUNC(bonus)
 	}
 
 	switch( type ) {
+		case SP_ADD_SKILL_RANGE:
 		case SP_SKILL_ITEM_FIX:
 		case SP_AUTOSPELL:
 		case SP_AUTOSPELL_WHENHIT:
