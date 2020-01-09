@@ -249,7 +249,7 @@ struct s_regen {
 
 struct s_bonus_limit {
 	uint16 type;
-	short limit;
+	int limit;
 };
 
 struct s_skill_noconsume {
@@ -259,23 +259,33 @@ struct s_skill_noconsume {
 };
 
 struct s_multidamagerate {
-	short rate, atk_type, n;
+	uint16 rate, atk_type;
+	uint32 n;
 };
 
-struct s_bonus_skillforaoe {
+struct s_skillcritical {
+	uint16 sk, crirate;
+	uint32 dmgrate;
+};
+
+struct s_skillforaoe {
 	uint16 sk;
 	short range, quantity, rate;
 };
 
-struct s_bonus_skilldamage {
-	uint16 sk;
-	short lv;
+struct s_skilldamage {
+	uint16 sk, lv;
 	int damage;
 };
 
-struct s_bonus_skillrange {
+struct s_skillrange {
 	uint16 sk;
 	int16 range;
+};
+
+struct s_skilltoground {
+	uint16 sk;
+	uint16 range;
 };
 
 struct policies {
@@ -664,9 +674,11 @@ struct map_session_data {
 	std::vector<s_bonus_limit> bonus_limit;
 	std::vector<s_skill_noconsume> skillitemfix;
 	std::vector<s_multidamagerate> multidamage;
-	std::vector<s_bonus_skillforaoe> skillforaoe; //custom;
-	std::vector<s_bonus_skilldamage> skilldamage;
-	std::vector<s_bonus_skillrange> skillrange;
+	std::vector<s_skillcritical> skillcritical;
+	std::vector<s_skillforaoe> skillforaoe; //custom;
+	std::vector<s_skilldamage> skilldamage;
+	std::vector<s_skillrange> skillrange;
+	std::vector<s_skilltoground> skilltoground;
 
 	struct autowalk_data autowalk;
 

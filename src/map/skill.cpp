@@ -3380,25 +3380,6 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	dmg = battle_calc_attack(attack_type,src,bl,skill_id,skill_lv,flag&0xFFF);
 
-	if (src->type == BL_PC) {
-		for (auto &it : sd->skilldamage) {
-			if (it.sk != skill_id)
-				continue;
-			switch (it.lv) {
-			case -1:
-				dmg.damage += (it.damage * skill_lv);
-				break;
-			case 0:
-				dmg.damage += it.damage;
-				break;
-			default:
-				if (skill_lv == it.lv)
-					dmg.damage += it.damage;
-			}
-			break;
-		}
-	}
-
 	//If the damage source is a unit, the damage is not delayed
 	if (src != dsrc && skill_id != GS_GROUNDDRIFT)
 		dmg.amotion = 0;
@@ -3516,6 +3497,32 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		skill_id == CASH_BLESSING || skill_id == CASH_INCAGI ||
 		skill_id == MER_INCAGI || skill_id == MER_BLESSING) && tsd->sc.data[SC_CHANGEUNDEAD] )
 		damage = 1;
+
+	if (src->type == BL_PC && skill_id) {
+		for (auto &it : sd->skilldamage) {
+			if (it.sk != skill_id)
+				continue;
+			switch (it.lv) {
+			case -1:
+				damage += (it.damage * skill_lv);
+				break;
+			case 0:
+				damage += it.damage;
+				break;
+			default:
+				if (skill_lv == it.lv)
+					damage += it.damage;
+			}
+		}
+		bool displaydmg = false;
+		for (auto &it : sd->skillcritical) {
+			if (it.sk != skill_id && rnd() % 1000 >= it.crirate)
+				continue;
+			damage = damage * it.dmgrate / 100;
+			displaydmg = true;
+		}
+		if (displaydmg) clif_skill_damage(dsrc, bl, tick, dmg.amotion, dmg.dmotion, damage, 1, 415, dmg.div_, DMG_SKILL);
+	}
 
 	if( damage && tsc && tsc->data[SC_GENSOU] && dmg.flag&BF_MAGIC ){
 		struct block_list *nbl;
@@ -11954,6 +11961,17 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
 		return 0;
 
 	sd = BL_CAST(BL_PC, src);
+
+	if (sd) {
+		for (auto &it : sd->skilltoground) {
+			if (it.sk != skill_id)
+				continue;
+			i = it.range;
+			map_foreachinallarea(skill_area_sub, src->m, x-i, y-i, x+i, y+i, BL_CHAR, src, skill_id, skill_lv, tick, flag|BCT_ENEMY|1,
+				skill_get_casttype(skill_id) == CAST_NODAMAGE ? skill_castend_nodamage_id : skill_castend_damage_id);
+			return 0;
+		}
+	}
 
 	sc = status_get_sc(src);
 	type = status_skill2sc(skill_id);

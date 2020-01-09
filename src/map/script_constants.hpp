@@ -543,7 +543,9 @@
 	export_constant2("bCooldownrate", SP_COOLDOWNRATE);
 	export_constant2("bFixedCastAddRate", SP_FIXCASTADDRATE);
 	export_constant2("bMultiDamageRate", SP_MULTIDAMAGERATE);
+	export_constant2("bSkillCritical", SP_SKILLCRITICAL);
 	export_constant2("bAddSkillRange", SP_ADD_SKILL_RANGE);
+	export_constant2("bSkillToGround", SP_SKILL_TO_GROUND);
 	export_constant2("bIgnoreMdefRaceVal", SP_IGNORE_MDEF_RACE_VAL);
 	export_constant2("bIgnoreMdefClassVal", SP_IGNORE_MDEF_CLASS_VAL);
 	export_constant2("bIgnoreDefRaceVal", SP_IGNORE_DEF_RACE_VAL);

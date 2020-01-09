@@ -12676,7 +12676,21 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, uin
 {
 	t_tick tick = gettick();
 
-	if( !(skill_get_inf(skill_id)&INF_GROUND_SKILL) )
+	bool skilltoground = false;
+	for (auto &it : sd->skilltoground) {
+		if (it.sk != skill_id)
+			continue;
+		skilltoground = true;
+	}
+	if (!skilltoground && !(skill_get_inf(skill_id)&INF_GROUND_SKILL)){
+		for (int i = 0; i < MAX_SKILL; i++) {
+			if (sd->status.skill[i].id != skill_id)
+				continue;
+			clif_skillinfo(sd, skill_id, 0);
+		}
+	}
+
+	if( !skilltoground && !(skill_get_inf(skill_id)&INF_GROUND_SKILL) )
 		return; //Using a target skill on the ground? WRONG.
 
 	if (sd->state.block_action & PCBLOCK_SKILL) {
