@@ -220,6 +220,7 @@ struct Battle_Config
 	int skill_chorus_check;
 	int skill_partner_check;
 	int guild_storage_per_lvup;
+	int guild_storage_official;
 	int instance_activation;
 	int support_old_mob_db;
 	int homunculus_killed_drop;

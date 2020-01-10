@@ -655,7 +655,7 @@ char storage_guild_storageopen(struct map_session_data* sd)
 
 #ifdef OFFICIAL_GUILD_STORAGE
 	gstor->max_amount = guild_checkskill(sd->guild, GD_GUILD_STORAGE) * battle_config.guild_storage_per_lvup;
-	if (gstor->max_amount > MAX_GUILD_STORAGE)
+	if (gstor->max_amount > MAX_GUILD_STORAGE || !battle_config.guild_storage_official)
 		gstor->max_amount = MAX_GUILD_STORAGE;
 #endif
 
