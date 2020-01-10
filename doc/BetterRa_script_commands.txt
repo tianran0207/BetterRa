@@ -653,30 +653,21 @@ OnTalk:
 
 ---------------------------------------
 
-*setoptionbyidx <背包位置序号>,<Random Option ID数组>,<Random Option value数组>,<Random Option param数组>;
+*setoptionbyidx <背包序号>,<Random Option ID数组>,<Random Option value数组>,<Random Option param数组>;
+*setoptionbypos <装备编号>,<Random Option ID数组>,<Random Option value数组>,<Random Option param数组>;
 
-设置背包序号指定道具的 Random Option 属性.
+设置 背包序号/装备编号 指定道具的 Random Option 属性.
+
+装备编号: 是指 EQI_* 开头的位置常量.
 
 此选项会在 picklog 日志表中留下道具的变化痕迹.
 
 ---------------------------------------
 
-*resetoptionbyidx <背包位置序号>;
+*resetoptionbyidx <背包序号>;
+*resetoptionbypos <装备编号>;
 
-给定背包位置序号, 清空指定物品的 Random Option 内容.
-
-此选项会在 picklog 日志表中留下道具的变化痕迹.
-
-返回值:
-	操作成功则返回 1, 失败则返回 0
-
----------------------------------------
-
-*resetoptionbypos <装备位置编号>;
-
-给定装备位置编号, 清空指定物品的 Random Option 内容.
-
-装备位置编号: 是指 EQI_* 开头的位置常量.
+清空 背包序号/装备编号 指定物品的 Random Option 内容.
 
 此选项会在 picklog 日志表中留下道具的变化痕迹.
 
@@ -684,24 +675,22 @@ OnTalk:
 	操作成功则返回 1, 失败则返回 0
 
 ---------------------------------------
+
 *getoptionbyidx <背包序号>;
+*getoptionbypos <装备编号>;
 
-获取背包序号指定道具的 Random Option 属性的值.
-
-调用指令后, 装备的 Random Option 属性的值保存在三个数组中 @option_id @option_value @option_param
-
----------------------------------------
-*getoptionbypos <装备位置编号>;
-
-获取装备位置编号指定道具的 Random Option 属性的值.
+获取 背包序号/装备编号 指定道具的 Random Option 属性的值.
 
 调用指令后, 装备的 Random Option 属性的值保存在三个数组中 @option_id @option_value @option_param
 
 ---------------------------------------
 
 *getidxrandomoption(<背包序号>,<Random Option序号>,<要修改的数据类型>{,<角色编号>});
+*getposrandomoption(<装备编号>,<Random Option序号>,<要修改的数据类型>{,<角色编号>});
 
-获取背包序号指定道具的 Random Option 属性的值.
+获取 背包序号/装备编号 指定道具的 Random Option 属性的值.
+
+装备编号: 是指 EQI_* 开头的位置常量.
 
 要修改的数据类型:
 	ROA_ID - 随机属性的ID, 要和 db/re/item_randomopt_db.txt 中的对应
@@ -714,8 +703,11 @@ OnTalk:
 ---------------------------------------
 
 *setidxrandomoption(<背包序号>,<Random Option序号>,<id>,<value>,<param>{,<角色编号>});
+*setposrandomoption(<装备编号>,<Random Option序号>,<id>,<value>,<param>{,<角色编号>});
 
-设置背包序号指定道具的 Random Option 属性.
+设置 背包序号/装备编号 指定道具的 Random Option 属性.
+
+装备编号: 是指 EQI_* 开头的位置常量.
 
 如果被设定的道具未被穿戴, 那么会先告诉客户端该道具被删除, 
 然后完成对道具的属性修改后, 再告诉客户端你获得了一个新道具, 此时聊天栏会有个提示.

@@ -26016,7 +26016,7 @@ BUILDIN_FUNC(resetoptionbyidx)
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
 		else {
-			ShowError("buildin_resetoptionbyidx: Unknown equip index '%d'\n", pos);
+			ShowError("%s: Unknown equip index '%d'\n", command, pos);
 			return SCRIPT_CMD_FAILURE;
 		}
 	}
@@ -26055,7 +26055,7 @@ BUILDIN_FUNC(getoptionbyidx)
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
 		else {
-			ShowError("buildin_getoptionbyidx: Unknown equip index '%d'\n", pos);
+			ShowError("%s: Unknown equip index '%d'\n", command, pos);
 			return SCRIPT_CMD_FAILURE;
 		}
 	}
@@ -26091,7 +26091,7 @@ BUILDIN_FUNC(setoptionbyidx)
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
 		else {
-			ShowError("buildin_setoptionbyidx: Unknown equip index '%d'\n", pos);
+			ShowError("%s: Unknown equip index '%d'\n", command, pos);
 			return SCRIPT_CMD_FAILURE;
 		}
 	}
@@ -26120,12 +26120,24 @@ BUILDIN_FUNC(setoptionbyidx)
 BUILDIN_FUNC(getidxrandomoption)
 {
 	TBL_PC *sd;
-	int idx, i;
+	int idx, pos, i;
+	const char *command = script_getfuncname(st);
 
 	if (!script_charid2sd(5, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	idx = script_getnum(st, 2);
+	if (strstr(command, "pos")) {
+		pos = script_getnum(st, 2);
+		if (equip_index_check(pos))
+			idx = pc_checkequip(sd, equip_bitmask[pos]);
+		else {
+			ShowError("%s: Unknown equip index '%d'\n", command, pos);
+			return SCRIPT_CMD_FAILURE;
+		}
+	}
+	else {
+		idx = script_getnum(st, 2);
+	}
 
 	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
 		
@@ -26155,16 +26167,29 @@ BUILDIN_FUNC(getidxrandomoption)
 BUILDIN_FUNC(setidxrandomoption)
 {
 	TBL_PC *sd;
-	int idx, i, id;
-	bool isequip = false;
+	int idx, pos, i, id;
+	const char *command = script_getfuncname(st);
+
 	if (!script_charid2sd(7, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	idx = script_getnum(st, 2);
+	if (strstr(command, "pos")) {
+		pos = script_getnum(st, 2);
+		if (equip_index_check(pos))
+			idx = pc_checkequip(sd, equip_bitmask[pos]);
+		else {
+			ShowError("%s: Unknown equip index '%d'\n", command, pos);
+			return SCRIPT_CMD_FAILURE;
+		}
+	}
+	else {
+		idx = script_getnum(st, 2);
+	}
+
 	id = script_getnum(st, 4);
 
 	if (itemdb_randomopt_exists(id) == NULL) {
-		ShowError("buildin_setidxrandomoption: Invalid random option ID '%d'.\n", id);
+		ShowError("%s: Invalid random option ID '%d'.\n", command, id);
 		return SCRIPT_CMD_FAILURE;
 	}
 
@@ -29945,7 +29970,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setoptionbyidx, "iiii?"),
 	BUILDIN_DEF2(setoptionbyidx, "setoptionbypos", "iiii?"),
 	BUILDIN_DEF(getidxrandomoption, "iii?"),
+	BUILDIN_DEF2(getidxrandomoption, "getposrandomoption", "iii?"),
 	BUILDIN_DEF(setidxrandomoption, "iiiii?"),
+	BUILDIN_DEF2(setidxrandomoption, "setposrandomoption", "iiiii?"),
 	BUILDIN_DEF(duplicate, "s???"),
 	BUILDIN_DEF2(duplicate, "dupnpc", "s???"),
 	BUILDIN_DEF2(duplicate, "copynpc", "s???"),
