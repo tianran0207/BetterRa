@@ -246,6 +246,11 @@ struct s_skill_db {
 		struct script_code* casting;
 		struct script_code* duration;
 		struct script_code* delay;
+		struct s_onplace {
+			int pertick;
+			struct script_code* script;
+		}onplace;
+		
 	} formula;
 };
 extern struct s_skill_db **skill_db;
@@ -392,7 +397,7 @@ public:
 
 	struct block_list *src = NULL;
 	struct block_list *target = NULL;
-	int damage, time;
+	int damage, time, gid, cid;
 	uint16 skill_id, skill_lv;
 	void script_run(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, int64 *damage, int *time);
 };

@@ -669,8 +669,10 @@
 	export_constant(MSG_DEBUG);
 	export_constant(MSG_ERROR);
 
-	export_parameter("skf_id", SP_SKF_ID);
-	export_parameter("skf_lv", SP_SKF_LV);
+	export_parameter("skf_gid", SP_SKF_GID);
+	export_parameter("skf_cid", SP_SKF_CID);
+	export_parameter("skf_id", SP_SKF_SKID);
+	export_parameter("skf_lv", SP_SKF_SKLV);
 	export_parameter("skf_dmg", SP_SKF_DMG);
 	export_parameter("skf_tim", SP_SKF_TIM);
 	export_parameter("dmg_type", SP_DMG_TYPE);

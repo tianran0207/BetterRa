@@ -5707,8 +5707,10 @@ int map_readparam(int type)
 {
 	int val = 0;
 	switch (type) {
-	case SP_SKF_ID:          val = skill_formula_db.skill_id; break;
-	case SP_SKF_LV:          val = skill_formula_db.skill_lv; break;
+	case SP_SKF_GID:         val = skill_formula_db.gid;      break;
+	case SP_SKF_CID:         val = skill_formula_db.cid;      break;
+	case SP_SKF_SKID:          val = skill_formula_db.skill_id; break;
+	case SP_SKF_SKLV:          val = skill_formula_db.skill_lv; break;
 	case SP_SKF_DMG:         val = skill_formula_db.damage;   break;
 	case SP_SKF_TIM:         val = skill_formula_db.time;     break;
 	}
@@ -5718,10 +5720,16 @@ int map_readparam(int type)
 bool map_setparam(int type, int val)
 {
 	switch (type) {
-	case SP_SKF_ID:
+	case SP_SKF_GID:
+		skill_formula_db.gid = val;
+		return true;
+	case SP_SKF_CID:
+		skill_formula_db.cid = val;
+		return true;
+	case SP_SKF_SKID:
 		skill_formula_db.skill_id = val;
 		return true;
-	case SP_SKF_LV:
+	case SP_SKF_SKLV:
 		skill_formula_db.skill_lv = val;
 		return true;
 	case SP_SKF_DMG:

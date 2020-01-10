@@ -21445,10 +21445,13 @@ static void skill_destroy_formula(uint16 skill_id)
 		script_free_code(formula->delay);
 	if (formula->duration)
 		script_free_code(formula->duration);
+	if (formula->onplace.script)
+		script_free_code(formula->onplace.script);
 	formula->formula = nullptr;
 	formula->casting = nullptr;
 	formula->delay = nullptr;
 	formula->duration = nullptr;
+	formula->onplace.script = nullptr;
 }
 
 uint64 SkillFormulaDatabase::parseBodyNode(const YAML::Node &node) {
@@ -21480,6 +21483,15 @@ uint64 SkillFormulaDatabase::parseBodyNode(const YAML::Node &node) {
 
 	if (this->nodeExists(node, "Duration") && this->asString(node, "Duration", script))
 		formula->duration = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Duration"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+
+	if (this->nodeExists(node, "OnPlace")) {
+		const YAML::Node& onplaceNode = node["OnPlace"];
+		if (!this->asInt32(onplaceNode, "PerTick", formula->onplace.pertick))
+			formula->onplace.pertick = 1000;
+		if (this->asString(onplaceNode, "Script", script))
+			formula->onplace.script = parse_script(script.c_str(), this->getCurrentFile().c_str(), onplaceNode["Script"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+	}
+
 	return 1;
 }
 
@@ -21505,18 +21517,23 @@ void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list 
 	case 4:
 		script = skill_db[idx]->formula.duration;
 		break;
+	case 5:
+		script = skill_db[idx]->formula.onplace.script;
+		break;
 	}
 	if (script == NULL)
 		return;
 	skill_formula_db.src = src;
 	skill_formula_db.target = target;
-	skill_formula_db.skill_id = skill_id;
-	skill_formula_db.skill_lv = skill_lv;
-	skill_formula_db.damage = damage ? (int)cap_value (*damage, INT_MIN, INT_MAX) : 0;
-	skill_formula_db.time = time ? (int)cap_value(*time, INT_MIN, INT_MAX) : 0;
+	map_setparam(SP_SKF_GID, src->id);
+	map_setparam(SP_SKF_CID, src->type == BL_PC ? ((TBL_PC*)src)->status.char_id : 0);
+	map_setparam(SP_SKF_SKID, skill_id);
+	map_setparam(SP_SKF_SKLV, skill_lv);
+	map_setparam(SP_SKF_DMG, damage ? (int)cap_value(*damage, INT_MIN, INT_MAX) : 0);
+	map_setparam(SP_SKF_TIM, time ? (int)cap_value(*time, INT_MIN, INT_MAX) : 0);
 	run_script(script, 0, 0, fake_nd->bl.id);
-	if (damage) *damage = skill_formula_db.damage;
-	if (time) *time = skill_formula_db.time;
+	if (damage) *damage = map_readparam(SP_SKF_DMG);
+	if (time) *time = map_readparam(SP_SKF_TIM);
 	skill_formula_db.src = NULL;
 	skill_formula_db.target = NULL;
 }
