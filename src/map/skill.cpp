@@ -13098,8 +13098,6 @@ struct skill_unit_group *skill_unitsetting(struct block_list *src, uint16 skill_
 				continue;
 			range += it.range;
 		}
-		if (range <= 0)
-			return NULL;
 	}
 
 	switch( skill_id ) {
