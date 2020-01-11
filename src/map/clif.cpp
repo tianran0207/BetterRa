@@ -5390,7 +5390,7 @@ void clif_skillinfoblock(struct map_session_data *sd)
 				break;
 
 			WFIFOW(fd,len)   = id;
-			WFIFOL(fd,len+2) = skill_get_inf(id);
+			WFIFOL(fd,len+2) = skill_get_pc_inf(sd, id);
 			WFIFOW(fd,len+6) = sd->status.skill[i].lv;
 			WFIFOW(fd,len+8) = skill_get_sp(id,sd->status.skill[i].lv);
 			WFIFOW(fd,len+10)= skill_get_range2(&sd->bl,id,sd->status.skill[i].lv,false);
@@ -5438,7 +5438,7 @@ void clif_addskill(struct map_session_data *sd, int skill_id)
 	WFIFOHEAD(fd, packet_len(0x111));
 	WFIFOW(fd,0) = 0x111;
 	WFIFOW(fd,2) = skill_id;
-	WFIFOL(fd,4) = skill_get_inf(skill_id);
+	WFIFOL(fd,4) = skill_get_pc_inf(sd, skill_id);
 	WFIFOW(fd,8) = sd->status.skill[idx].lv;
 	WFIFOW(fd,10) = skill_get_sp(skill_id,sd->status.skill[idx].lv);
 	WFIFOW(fd,12)= skill_get_range2(&sd->bl,skill_id,sd->status.skill[idx].lv,false);
@@ -6973,7 +6973,7 @@ void clif_item_skill(struct map_session_data *sd,uint16 skill_id,uint16 skill_lv
 	WFIFOHEAD(fd,packet_len(0x147));
 	WFIFOW(fd, 0)=0x147;
 	WFIFOW(fd, 2)=skill_id;
-	WFIFOW(fd, 4)=skill_get_inf(skill_id);
+	WFIFOW(fd, 4)= skill_get_pc_inf(sd, skill_id);
 	WFIFOW(fd, 6)=0;
 	WFIFOW(fd, 8)=skill_lv;
 	WFIFOW(fd,10)=skill_get_sp(skill_id,skill_lv);
@@ -12676,21 +12676,7 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, uin
 {
 	t_tick tick = gettick();
 
-	bool skilltoground = false;
-	for (auto &it : sd->skilltoground) {
-		if (it.sk != skill_id)
-			continue;
-		skilltoground = true;
-	}
-	if (!skilltoground && !(skill_get_inf(skill_id)&INF_GROUND_SKILL)){
-		for (int i = 0; i < MAX_SKILL; i++) {
-			if (sd->status.skill[i].id != skill_id)
-				continue;
-			clif_skillinfo(sd, skill_id, 0);
-		}
-	}
-
-	if( !skilltoground && !(skill_get_inf(skill_id)&INF_GROUND_SKILL) )
+	if(!(skill_get_pc_inf(sd, skill_id)&INF_GROUND_SKILL) )
 		return; //Using a target skill on the ground? WRONG.
 
 	if (sd->state.block_action & PCBLOCK_SKILL) {

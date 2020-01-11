@@ -3570,15 +3570,11 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 				ShowWarning("pc_bonus2: SP_SKILL_TO_GROUND: Reached max (%d) number of skills per character, bonus skill %d (%d) lost.\n", MAX_PC_BONUS, type2, val);
 				break;
 			}
-			for (int i = 0; i < MAX_SKILL; i++) {
-				if (sd->status.skill[i].id != type2)
-					continue;
-				struct s_skilltoground entry = {};
-				entry.sk = type2;
-				entry.range = val;
-				sd->skilltoground.push_back(entry);
-				clif_skillinfo(sd, type2, 2);
-			}
+			struct s_skilltoground entry = {};
+			entry.sk = type2;
+			entry.range = val;
+			sd->skilltoground.push_back(entry);
+			clif_skillinfo(sd, type2, INF_GROUND_SKILL);
 		}
 		break;
 	case SP_IGNORE_MDEF_RACE_VAL: // bonus2 bIgnoreMdefRaceVal,r,n;

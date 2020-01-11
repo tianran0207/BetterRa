@@ -332,6 +332,21 @@ int skill_tree_get_max(uint16 skill_id, int b_class)
 		return skill_get_max(skill_id);
 }
 
+int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id)
+{
+	int i;
+	if (sd == NULL)
+		return skill_get_inf(skill_id);
+
+	for (auto &it : sd->skilltoground) {
+		if (it.sk != skill_id)
+			continue;
+		return INF_GROUND_SKILL;
+	}
+
+	return skill_get_inf(skill_id);
+}
+
 int skill_frostjoke_scream(struct block_list *bl,va_list ap);
 int skill_attack_area(struct block_list *bl,va_list ap);
 struct skill_unit_group *skill_locate_element_field(struct block_list *bl); // [Skotlex]
