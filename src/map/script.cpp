@@ -6396,7 +6396,7 @@ BUILDIN_FUNC(setr)
 	if (!strcmp(command, "setr"))
 		pos = 5;
 
-	if (!script_hasdata(st, pos) && !st->rid && str_data[script_getvarid(num)].type == C_PARAM) {
+	if (not_server_variable(prefix) && !script_hasdata(st, pos) && !st->rid && str_data[script_getvarid(num)].type == C_PARAM) {
 		script_pushcopy(st, 2);
 		map_setparam(str_data[script_getvarid(num)].val, script_getnum(st, 3));
 		return SCRIPT_CMD_SUCCESS;
