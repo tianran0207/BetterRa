@@ -29077,6 +29077,19 @@ BUILDIN_FUNC(mapcutin)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(battle_check)
+{
+	struct block_list *src, *target;
+
+	if ((src = map_id2bl(script_getnum(st, 2))) == NULL)
+		script_pushint(st, 0);
+	else if ((target = map_id2bl(script_getnum(st, 3))) == NULL)
+		script_pushint(st, 0);
+	else
+		script_pushint(st, battle_check_target(src, target, script_getnum(st, 4)));
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(end2)
 {
 	st->state = END;
@@ -30043,6 +30056,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(abs, "i"),
 	BUILDIN_DEF(mapcutin, "ssi"),
 	BUILDIN_DEF(end2, ""),
+	BUILDIN_DEF(battle_check, "iii"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),

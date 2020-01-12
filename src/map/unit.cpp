@@ -2164,8 +2164,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 
 	battle_damage_casttime_fix(src, skill_id, NULL, &casttime, tick);
 
-	if (skill_id)
-		skill_formula_db.script_run(src, NULL, skill_id, skill_lv, 2, NULL, &casttime);
+	skill_formula_db.script_run(src, NULL, skill_id, skill_lv, 2, NULL, &casttime);
 
 	if(!ud->state.running) // Need TK_RUN or WUGDASH handler to be done before that, see bugreport:6026
 		unit_stop_walking(src, 1); // Even though this is not how official works but this will do the trick. bugreport:6829

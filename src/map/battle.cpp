@@ -7151,8 +7151,7 @@ struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct bl
 		}
 	}
 
-	if (skill_id)
-		skill_formula_db.script_run(bl, target, skill_id, skill_lv, 1, &d.damage, NULL);
+	skill_formula_db.script_run(bl, target, skill_id, skill_lv, 1, &d.damage, NULL);
 
 	struct map_session_data *sd = BL_CAST(BL_PC, bl);
 

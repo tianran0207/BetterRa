@@ -248,6 +248,7 @@ struct s_skill_db {
 		struct script_code* delay;
 		struct s_onplace {
 			int pertick;
+			int target;
 			struct script_code* script;
 		}onplace;
 		
@@ -321,6 +322,7 @@ struct skill_unit {
 	struct block_list bl;
 	struct skill_unit_group *group; /// Skill group reference
 	t_tick limit;
+	t_tick pertick;  //skill_formula_db.yml -> OnPlace
 	int val1, val2;
 	short range;
 	unsigned alive : 1;
@@ -397,7 +399,7 @@ public:
 
 	struct block_list *src = NULL;
 	struct block_list *target = NULL;
-	int damage, time, gid, cid;
+	int damage, time, sgid, scid, tgid;
 	uint16 skill_id, skill_lv;
 	void script_run(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, int64 *damage, int *time);
 };

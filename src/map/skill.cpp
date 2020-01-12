@@ -18840,6 +18840,21 @@ struct skill_unit_group_tickset *skill_unitgrouptickset_search(struct block_list
 	return &set[j];
 }
 
+static int skill_onplace_script(struct block_list* bl, va_list ap) {
+	struct block_list* src = va_arg(ap, struct block_list *);
+	struct skill_unit* unit = va_arg(ap, struct skill_unit *);
+	struct skill_unit_group* group = NULL;
+	int flag = va_arg(ap, int);
+	nullpo_ret(unit);
+	nullpo_ret(group = unit->group);
+
+	if (battle_check_target(src, bl, flag) <= 0)
+		return 0;
+
+	skill_formula_db.script_run(src, bl, group->skill_id, group->skill_lv, 5, NULL, NULL);
+	return 1;
+}
+
 /*==========================================
  * Check for validity skill unit that triggered by skill_unit_timer_sub
  * And trigger skill_unit_onplace_timer for object that maybe stands there (catched object is *bl)
@@ -18861,6 +18876,9 @@ int skill_unit_timer_sub_onplace(struct block_list* bl, va_list ap)
 		return 0; //AoE skills are ineffective. [Skotlex]
 
 	if( battle_check_target(&unit->bl,bl,group->target_flag) <= 0 )
+		return 0;
+
+	if (map_find_skill_unit_oncell(bl, bl->x, bl->y, SA_LANDPROTECTOR, NULL, 0))
 		return 0;
 
 	skill_unit_onplace_timer(unit,bl,tick);
@@ -19105,6 +19123,13 @@ static int skill_unit_timer_sub(DBKey key, DBData *data, va_list ap)
 	//Don't continue if unit or even group is expired and has been deleted.
 	if( !group || !unit->alive )
 		return 0;
+
+	uint16 idx;
+	if (group->skill_id && (idx = skill_get_index(group->skill_id)) != 0 && skill_db[idx]->formula.onplace.pertick && DIFF_TICK(tick, unit->pertick) >= skill_db[idx]->formula.onplace.pertick) {
+		struct block_list* src = battle_get_master(&unit->bl);
+		unit->pertick = tick;
+		map_foreachinrange(skill_onplace_script, bl, unit->range, BL_CHAR, src, bl, skill_db[idx]->formula.onplace.target);
+	}
 
 	dissonance = skill_dance_switch(unit, 0);
 
@@ -21503,6 +21528,8 @@ uint64 SkillFormulaDatabase::parseBodyNode(const YAML::Node &node) {
 		const YAML::Node& onplaceNode = node["OnPlace"];
 		if (!this->asInt32(onplaceNode, "PerTick", formula->onplace.pertick))
 			formula->onplace.pertick = 1000;
+		if (!this->asInt32(onplaceNode, "Target", formula->onplace.target))
+			formula->onplace.target = BCT_ENEMY;
 		if (this->asString(onplaceNode, "Script", script))
 			formula->onplace.script = parse_script(script.c_str(), this->getCurrentFile().c_str(), onplaceNode["Script"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
 	}
@@ -21514,9 +21541,12 @@ SkillFormulaDatabase skill_formula_db;
 void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, int64 *damage, int *time)
 {
 	struct script_code* script;
-	uint16 idx = skill_get_index(skill_id);
+	uint16 idx;
 
-	if (idx == 0 || src && !(skill_db[idx]->formula.typeable & src->type)) // invalid skill id
+	if (skill_id == 0)
+		return;
+
+	if ((idx = skill_get_index(skill_id)) == 0 || src && !(skill_db[idx]->formula.typeable & src->type)) // invalid skill id
 		return;
 
 	switch (type) {
@@ -21540,8 +21570,9 @@ void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list 
 		return;
 	skill_formula_db.src = src;
 	skill_formula_db.target = target;
-	map_setparam(SP_SKF_GID, src->id);
-	map_setparam(SP_SKF_CID, src->type == BL_PC ? ((TBL_PC*)src)->status.char_id : 0);
+	map_setparam(SP_SKF_SGID, src->id);
+	map_setparam(SP_SKF_SCID, src->type == BL_PC ? ((TBL_PC*)src)->status.char_id : 0);
+	map_setparam(SP_SKF_TGID, target ? target->id : 0);
 	map_setparam(SP_SKF_SKID, skill_id);
 	map_setparam(SP_SKF_SKLV, skill_lv);
 	map_setparam(SP_SKF_DMG, damage ? (int)cap_value(*damage, INT_MIN, INT_MAX) : 0);
