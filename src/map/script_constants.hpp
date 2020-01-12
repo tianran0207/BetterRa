@@ -573,6 +573,9 @@
 	export_constant(MF_NOITEMFUNC);
 	export_constant(MF_NOSLAVE);
 	export_constant(MF_MOBDMGRATE);
+	export_constant(MF_MOBDMGRATE2);
+	export_constant(MF_MOBATKRATE);
+	export_constant(MF_MOBATKRATE2);
 	export_constant(MF_MOBDMGFIX);
 	export_constant(MF_MOBDMGMAX);
 	export_constant(MF_MAXDMG_NORMAL);

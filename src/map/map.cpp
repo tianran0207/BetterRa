@@ -4889,6 +4889,9 @@ bool map_setmapflag_sub(int16 m, enum e_mapflag mapflag, bool status, union u_ma
 		case MF_MVPDROPRATE:
 		case MF_PARTYLOCK2:
 		case MF_MOBDMGRATE:
+		case MF_MOBDMGRATE2:
+		case MF_MOBATKRATE:
+		case MF_MOBATKRATE2:
 		case MF_MOBDMGFIX:
 		case MF_MOBDMGMAX:
 		case MF_MAXDMG_NORMAL:

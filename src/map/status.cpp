@@ -1702,8 +1702,12 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 	if(!status || status == &dummy_status )
 		return 0;
 
+	struct map_data *mapdata = map_getmapdata(target->m);
+	if (hp > 0 && src->type == BL_MOB) {
+		if (mapdata->flag[MF_MOBATKRATE])
+			hp = hp * mapdata->flag[MF_MOBATKRATE] / 100;
+	}
 	if (hp > 0 && target->type == BL_MOB) {
-		struct map_data *mapdata = map_getmapdata(target->m);
 		if (mapdata->flag[MF_MOBDMGRATE])
 			hp = hp * mapdata->flag[MF_MOBDMGRATE] / 100;
 		if (mapdata->flag[MF_MOBDMGFIX])

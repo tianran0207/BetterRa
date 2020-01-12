@@ -334,7 +334,6 @@ int skill_tree_get_max(uint16 skill_id, int b_class)
 
 int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id)
 {
-	int i;
 	if (sd == NULL)
 		return skill_get_inf(skill_id);
 

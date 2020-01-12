@@ -7137,16 +7137,27 @@ struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct bl
 	else // Some skills like Weaponry Research will cause damage even if attack is dodged
 		d.dmg_lv = ATK_DEF;
 
-	if (bl) {
-		int64 damage = d.damage + d.damage2;
-		int val = skill_id ? map_getmapflag(bl->m, MF_MAXDMG_SKILL) : map_getmapflag(bl->m, MF_MAXDMG_NORMAL);
-		if (val && damage > val) {
+	struct map_data *mapdata = map_getmapdata(bl ? bl->m : target ? target->m : -1);
+	int64 damage = d.damage + d.damage2;
+
+	if (mapdata && damage) {
+
+		if (bl && bl->type == BL_MOB && mapdata->flag[MF_MOBATKRATE2])
+			damage = damage * mapdata->flag[MF_MOBATKRATE2] / 100;
+		if (target && target->type == BL_MOB && mapdata->flag[MF_MOBDMGRATE2])
+			damage = damage * mapdata->flag[MF_MOBDMGRATE2] / 100;
+	
+		int val = skill_id ? mapdata->flag[MF_MAXDMG_SKILL] : mapdata->flag[MF_MAXDMG_NORMAL];
+		if (val && damage > val)
+			damage = val;
+
+		if (damage != d.damage + d.damage2) {
 			if (d.damage2 == 0)
-				d.damage = val;
+				d.damage = damage;
 			else {
-				int64 ratio = d.damage * 1000 / damage;
-				d.damage = val * ratio / 1000;
-				d.damage2 = val - d.damage;
+				int64 ratio = d.damage * 1000 / (d.damage + d.damage2);
+				d.damage = damage * ratio / 1000;
+				d.damage2 = damage - d.damage;
 			}
 		}
 	}
