@@ -28,7 +28,7 @@ dicastes01,189,191,5	script	√∞œ’º“ ∞¢À’#info	481,2,2,{
 	mes "What would you like to know?";
 	F_Navi("[√∞œ’º“ ∞¢À’]");
 	next;
-	switch(select("Dicastes Diel:Residential Area:Training Room:Factory:Pub:Cat Hand Caravan")) {
+	switch(select("Dicastes Diel:Residential Area:Training Room:Factory:Pub:Cat Paw Caravan")) {
 	case 1:
 		mes "[√∞œ’º“ ∞¢À’]";
 		mes "Ah~ That's a beautiful building.";

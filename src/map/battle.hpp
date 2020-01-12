@@ -763,6 +763,10 @@ struct Battle_Config
 	int feature_equipswitch;
 	int pet_walk_speed;
 	int blacksmith_fame_refine_threshold;
+	int mob_nopc_idleskill_rate;
+	int mob_nopc_move_rate;
+	int boss_nopc_idleskill_rate;
+	int boss_nopc_move_rate;
 
 	int feature_refineui;
 	int feature_stylistui;

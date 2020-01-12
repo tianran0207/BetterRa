@@ -46,12 +46,6 @@ using namespace rathena;
 
 #define IDLE_SKILL_INTERVAL 10	//Active idle skills should be triggered every 1 second (1000/MIN_MOBTHINKTIME)
 
-// Probability for mobs far from players from doing their IDLE skill. (rate of 1000 minute)
-// in Aegis, this is 100% for mobs that have been activated by players and none otherwise.
-#define MOB_LAZYSKILLPERC(md) (mob_is_spotted(md)?1000:0)
-// Move probability for mobs away from players (rate of 1000 minute)
-// in Aegis, this is 100% for mobs that have been activated by players and none otherwise.
-#define MOB_LAZYMOVEPERC(md) (mob_is_spotted(md)?1000:0)
 const t_tick MOB_MAX_DELAY = 24 * 3600 * 1000;
 #define MAX_MINCHASE 30	//Max minimum chase value to use for mobs.
 #define RUDE_ATTACKED_COUNT 1	//After how many rude-attacks should the skill be used?
@@ -2068,14 +2062,23 @@ static int mob_ai_sub_lazy(struct mob_data *md, va_list args)
 		if (md->ud.walktimer == INVALID_TIMER && md->autowalk.path && unit_check_step(&md->bl, &md->autowalk, tick))
 			return 0;
 
-		if( rnd()%1000 < MOB_LAZYMOVEPERC(md) )
+		// Move probability for mobs away from players
+		// In Aegis, this is 100% for mobs that have been activated by players and none otherwise.
+		if( mob_is_spotted(md) &&
+			((!status_has_mode(&md->status,MD_STATUS_IMMUNE) && rnd()%100 < battle_config.mob_nopc_move_rate) ||
+			(status_has_mode(&md->status,MD_STATUS_IMMUNE) && rnd()%100 < battle_config.boss_nopc_move_rate)))
 			mob_randomwalk(md, tick);
 	}
 	else if( md->ud.walktimer == INVALID_TIMER )
 	{
 		//Because it is not unset when the mob finishes walking.
 		md->state.skillstate = MSS_IDLE;
-		if( rnd()%1000 < MOB_LAZYSKILLPERC(md) ) //Chance to do a mob's idle skill.
+
+		// Probability for mobs far from players from doing their IDLE skill.
+		// In Aegis, this is 100% for mobs that have been activated by players and none otherwise.
+		if( mob_is_spotted(md) &&
+			((!status_has_mode(&md->status,MD_STATUS_IMMUNE) && rnd()%100 < battle_config.mob_nopc_idleskill_rate) ||
+			(status_has_mode(&md->status,MD_STATUS_IMMUNE) && rnd()%100 < battle_config.boss_nopc_idleskill_rate)))
 			mobskill_use(md, tick, -1);
 	}
 
@@ -4543,14 +4546,12 @@ uint64 MobAvailDatabase::parseBodyNode(const YAML::Node &node) {
 	if (!this->asString(node, "Mob", mob_name))
 		return 0;
 
-	uint32 mob_id = mobdb_searchname(mob_name.c_str());
+	struct mob_db *mob = mobdb_search_aegisname(mob_name.c_str());
 
-	if (mob_id == 0) {
+	if (mob == nullptr) {
 		this->invalidWarning(node["Mob"], "Unknown mob %s.\n", mob_name.c_str());
 		return 0;
 	}
-
-	struct mob_db *mob = mob_db(mob_id);
 
 	if (this->nodeExists(node, "Sprite")) {
 		std::string sprite;
@@ -4566,12 +4567,14 @@ uint64 MobAvailDatabase::parseBodyNode(const YAML::Node &node) {
 				return 0;
 			}
 		} else {
-			constant = mobdb_searchname(sprite.c_str());
+			struct mob_db *sprite_mob = mobdb_search_aegisname(sprite.c_str());
 
-			if (constant == 0) {
+			if (sprite_mob == nullptr) {
 				this->invalidWarning(node["Sprite"], "Unknown mob sprite constant %s.\n", sprite.c_str());
 				return 0;
 			}
+
+			constant = sprite_mob->vd.class_;
 		}
 
 		mob->vd.class_ = constant;
