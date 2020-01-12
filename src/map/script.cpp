@@ -26663,26 +26663,31 @@ BUILDIN_FUNC(setpolicyid)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	if (sd->group_id == 99)
-		return SCRIPT_CMD_SUCCESS;
-
 	val = script_getnum(st, 2);
 	if (val < 0 || val >= MAX_POLICIES) {
 		ShowError("bulidin_setpolicyid: Invalid policy id('%d').\n", val);
 		return SCRIPT_CMD_FAILURE;
 	}
-	if (policie[val].policy_id == 0) {
+	if (val == 0) {
+		if (!sd->policies)
+			return SCRIPT_CMD_SUCCESS;
+		if (policie[val].bind_group_id != -1) {
+			sd->group_id = sd->group_id_old;
+			pc_group_pc_load(sd);
+		}
 		sd->policies = 0;
-		sd->group_id = sd->group_id_old;
-		pc_group_pc_load(sd);
 		return SCRIPT_CMD_SUCCESS;
 	}
-	sd->policies = val;
-	sd->group_id_old = sd->group_id;
+	if (policie[val].policy_id == 0)
+		return SCRIPT_CMD_SUCCESS;
 	if (policie[val].bind_group_id != -1) {
+		sd->group_id_old = sd->group_id;
 		sd->group_id = policie[val].policy_id;
 		pc_group_pc_load(sd);
 	}
+	sd->policies = val;
+	if (policie[sd->policies].look_head_top)
+		clif_changelook(&sd->bl, LOOK_HEAD_TOP, policie[sd->policies].look_head_top);
 	return SCRIPT_CMD_SUCCESS;
 }
 

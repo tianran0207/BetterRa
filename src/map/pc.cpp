@@ -13921,8 +13921,6 @@ void pc_set_costume_view(struct map_session_data *sd) {
 		clif_changelook(&sd->bl, LOOK_HEAD_TOP, sd->status.head_top);
 	if (robe != sd->status.robe)
 		clif_changelook(&sd->bl, LOOK_ROBE, sd->status.robe);
-	if (sd->policies && policie[sd->policies].look_head_top != 0)
-		clif_changelook(&sd->bl, LOOK_HEAD_TOP, policie[sd->policies].look_head_top);
 }
 
 std::shared_ptr<s_attendance_period> pc_attendance_period(){

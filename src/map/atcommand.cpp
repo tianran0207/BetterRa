@@ -10427,18 +10427,26 @@ ACMD_FUNC(policy)
 		return 0;
 	}
 	clif_displaymessage(fd, "Change success.\n");
-	if (policie[val].policy_id == 0) {
+	if (val == 0) {
+		if (!sd->policies)
+			return 0;
+		if (policie[val].bind_group_id != -1) {
+			sd->group_id = sd->group_id_old;
+			pc_group_pc_load(sd);
+		}
 		sd->policies = 0;
-		sd->group_id = sd->group_id_old;
-		pc_group_pc_load(sd);
 		return 0;
 	}
-	sd->policies = val;
-	sd->group_id_old = sd->group_id;
+	if (policie[val].policy_id == 0)
+		return 0;
 	if (policie[val].bind_group_id != -1) {
+		sd->group_id_old = sd->group_id;
 		sd->group_id = policie[val].policy_id;
 		pc_group_pc_load(sd);
 	}
+	sd->policies = val;
+	if (policie[val].look_head_top)
+		clif_changelook(&sd->bl, LOOK_HEAD_TOP, policie[sd->policies].look_head_top);
 	return 0;
 }
 

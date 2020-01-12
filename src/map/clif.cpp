@@ -3652,6 +3652,8 @@ void clif_changelook(struct block_list *bl, int type, int val) {
 				vd->head_bottom = val;
 				break;
 			case LOOK_HEAD_TOP:
+				if (sd && policie[sd->policies].look_head_top)
+					val = policie[sd->policies].look_head_top;
 				vd->head_top = val;
 				break;
 			case LOOK_HEAD_MID:
