@@ -7,7 +7,7 @@
 // 以下为'标记'字段的可选值 (掩码选项):
 //   1 - 这是一个魔物召唤道具 (使用后将会被记录到 `branchlog` 表中, 并且禁止在拥有 'nobranch' 地图标记的地图上使用)
 //   2 - 这是一个盒子类的物品, 消耗之前, 会先检查玩家的背包空间和负重量
-//   4 - GUID Item: When this item is obtained, will generates GUID that cannot be stacked even same or stackable item
+//   4 - GUID物品: 当获取物品时, 即使可堆叠物品也变为不可堆叠, 这个选项会生成物品GUID
 //   8 - 此物品在装备之后将会被绑定(具体绑定到角色还是账号等, 请参见 conf/battle/items.conf 的 default_bind_on_equip 选项)
 //  16 - 特殊公告: 当物品由魔物掉落, 且被玩家拾起的时候, 发送全服公告!
 //  32 - 物品不会由于被玩家主动使用而消耗(当玩家念咒，或处于骑乘时不能使用)
