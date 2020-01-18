@@ -769,14 +769,19 @@ OnTalk:
 	.@gid = copynpc("prontera,156,99,2","duplicate(PVPCOPYTEST)","PVP管理员#1","917");
 	unittalk .@gid, "My GID is : " + .@gid;
 	
-如果想要复制一个副本中的NPC, 那么需要在用到地图名称的地方使用 instance_mapname 进行转换, 原始NPC的名称也需要用 instance_npcname 进行转换, 如:
+如果想要复制到副本中, 那么需要在用到地图名称的地方使用 instance_mapname 进行转换, 如果原始NPC的也在副本中的话也需要使用 instance_npcname 对NPC名称进行转换, 如果NPC在副本外的话则不需要转换NPC名字 如:
 
 	.@w1 = instance_mapname("1@tower") + ",156,99,2";
-	.@w2 = "duplicate(" + instance_npcname("PVPCOPYTEST") + ")";
-	.@w3 = "PVP管理员#1";
+	.@w2 = "duplicate(" + instance_npcname("PVPCOPYTEST") + ")"; // .@w2 = "duplicate(PVPCOPYTEST)";
+	.@w3 = "PVP管理员::1";
 	.@w4 = "917";
 	
 	copynpc .@w1, .@w2, .@w3, .@w4;
+	instance_npcname(PVP管理员::1); //获得真实名字
+	
+注意: 将NPC复制到副本中时 NPC名称中必须带有 ::XXX 才能复制成功!!此项是为了防止重复, 但与 #XXX 类似但有所不同, 
+      副本中使用 ::XXX 其中 XXX 在当前副本中复制同一个NPC时不允许重复, 长度不能大于8, 且最好使用数字
+	  获取副本中的NPC真实名称同理 类似 
 
 返回值:
 	复制成功, 则返回复制出来的新NPC的GID, 失败则返回 0

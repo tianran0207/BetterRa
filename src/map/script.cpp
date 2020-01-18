@@ -20743,10 +20743,10 @@ BUILDIN_FUNC(instance_npcname)
 		instance_id = script_instancegetid(st);
 
 	if (instance_id && (p = strstr(str, "::")) != NULL && strlen(p) > 2) {
-		static char srcname[NAME_LENGTH];
+		char srcname[NAME_LENGTH];
 		*(p = p + 2);
 		safestrncpy(srcname, str, p - str - 1);
-		if ((nd = npc_name2id(srcname)) != NULL) {
+		if ((nd = npc_name2id(srcname)) != NULL && !strcmp (nd->path, "FROMSCRIPT")) {
 			snprintf(srcname, sizeof(srcname), "dup_%hu_%d_%s", instance_id, nd->bl.id, p);
 			script_pushconststr(st, srcname);
 			return SCRIPT_CMD_SUCCESS;
@@ -26220,7 +26220,7 @@ BUILDIN_FUNC(setidxrandomoption)
 
 BUILDIN_FUNC(duplicate)
 {
-	char w1[50], w2[50], w3[50], w4[50], mapname[MAP_NAME_LENGTH], other[50 - MAP_NAME_LENGTH], dup_str[512];
+	char w1[50], w2[50], w3[50], w4[50], mapname[MAP_NAME_LENGTH], npcname[NPC_NAME_LENGTH], other[50 - MAP_NAME_LENGTH], dup_str[512];
 	const char *stat_buf = "INSTANCING";
 	unsigned short instance_id;
 	int16 m;
@@ -26238,19 +26238,20 @@ BUILDIN_FUNC(duplicate)
 	}
 
 	instance_id = script_instancegetid(st);
+	safestrncpy(npcname, w3, NPC_NAME_LENGTH);
 
 	if (!instance_id || (m = map_mapname2mapid(mapname)) < 0 || (m = instance_mapname2mapid(map[m].name, instance_id)) < 0)
 		npc_parse_duplicate(w1, w2, w3, w4, dup_str, dup_str, "FROMSCRIPT");
 
 	else {
-		char srcname[NPC_NAME_LENGTH], npcname[NPC_NAME_LENGTH];
+		char srcname[NPC_NAME_LENGTH];
 		int length;
 		const char *p;
 		length = strlen(w2);
 		if (w2[length - 1] == ')' && length > 11 && length - 11 < sizeof(srcname)) {
 			safestrncpy(srcname, w2 + 10, length - 10);
 
-			if ((p = strchr(w3, '::')) == NULL || strlen(p) < 3)
+			if ((p = strstr(w3, "::")) == NULL || strlen(p) < 3)
 				return SCRIPT_CMD_SUCCESS;
 			*(p = p + 2);
 
@@ -26263,7 +26264,7 @@ BUILDIN_FUNC(duplicate)
 			}
 		}
 	}
-	nd = npc_name2id(w3);
+	nd = npc_name2id(npcname);
 	script_pushint(st, nd ? nd->bl.id : 0);
 	return SCRIPT_CMD_SUCCESS;
 }
