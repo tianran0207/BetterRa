@@ -777,10 +777,10 @@ OnTalk:
 	.@w4 = "917";
 	
 	copynpc .@w1, .@w2, .@w3, .@w4;
-	instance_npcname(PVP管理员::1); //获得真实名字
+	npctalk "我是复制自 PVPCOPYTEST 的NPC", instance_npcname("PVPCOPYTEST::1");
 	
 注意: 将NPC复制到副本中时 NPC名称中必须带有 ::XXX 才能复制成功!!此项是为了防止重复, 但与 #XXX 类似但有所不同, 
-      副本中使用 ::XXX 其中 XXX 在当前副本中复制同一个NPC时不允许重复, 长度不能大于8, 且最好使用数字
+      副本中使用 ::XXX 其中 XXX 在当前副本中复制同一个NPC时不允许重复, 长度不能大于6, 且最好使用数字
 	  获取副本中的NPC真实名称同理 类似 
 
 返回值:

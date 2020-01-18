@@ -15541,7 +15541,7 @@ BUILDIN_FUNC(npctalk)
 {
 	struct npc_data* nd = NULL;
 	const char* str = script_getstr(st,2);
-
+	str = script_getstr(st, 3);
 	if (script_hasdata(st, 3) && strlen(script_getstr(st,3)) > 0)
 		nd = npc_name2id(script_getstr(st, 3));
 	else
@@ -20742,11 +20742,11 @@ BUILDIN_FUNC(instance_npcname)
 	else
 		instance_id = script_instancegetid(st);
 
-	if (instance_id && (p = strstr(str, "::")) != NULL && strlen(p) > 2) {
-		char srcname[NAME_LENGTH];
+	if ((p = strstr(str, "::")) != NULL && strlen(p) > 2) {
+		static char srcname[NAME_LENGTH];
 		*(p = p + 2);
 		safestrncpy(srcname, str, p - str - 1);
-		if ((nd = npc_name2id(srcname)) != NULL && !strcmp (nd->path, "FROMSCRIPT")) {
+		if (instance_id && (nd = npc_name2id(srcname)) != NULL) {
 			snprintf(srcname, sizeof(srcname), "dup_%hu_%d_%s", instance_id, nd->bl.id, p);
 			script_pushconststr(st, srcname);
 			return SCRIPT_CMD_SUCCESS;
