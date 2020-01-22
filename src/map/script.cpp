@@ -9735,6 +9735,7 @@ BUILDIN_FUNC(bonus)
 		case SP_ADD_SKILL_RANGE:
 		case SP_SKILL_TO_GROUND:
 		case SP_SKILL_ITEM_FIX:
+		case SP_SKILL_AOE:
 		case SP_AUTOSPELL:
 		case SP_AUTOSPELL_WHENHIT:
 		case SP_AUTOSPELL_ONSKILL:
@@ -15541,7 +15542,7 @@ BUILDIN_FUNC(npctalk)
 {
 	struct npc_data* nd = NULL;
 	const char* str = script_getstr(st,2);
-	str = script_getstr(st, 3);
+
 	if (script_hasdata(st, 3) && strlen(script_getstr(st,3)) > 0)
 		nd = npc_name2id(script_getstr(st, 3));
 	else
