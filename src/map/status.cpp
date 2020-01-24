@@ -3728,6 +3728,9 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	sd->skillforaoe.clear();
 	sd->skillrange.clear();
 	sd->skilltoground.clear();
+	sd->skillnospecial.clear();
+	sd->skillnorequire.clear();
+	sd->skillattribute.clear();
 
 	// Autobonus
 	pc_delautobonus(sd, sd->autobonus, true);

@@ -2875,6 +2875,10 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 	status = &sd->base_status;
 
 	switch(type){
+		case SP_RETURN_DEF_RATE:  // bonus bReturnDefRate,n;
+			if (sd->state.lr_flag != 2)
+				sd->c_bonus.return_def = val;
+			break;
 		case SP_IGNORE_IMPRISON:  // bonus bIgnoreWhiteImprison,n;
 			if (sd->state.lr_flag != 2)
 				sd->c_bonus.ignore_imprison = 1;
@@ -3552,15 +3556,39 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_SKILL_NO_CAST:
+		if (sd->state.lr_flag != 2) {
+			if (sd->skillnorequire.size() == MAX_PC_BONUS) {
+				ShowWarning("pc_bonus2: SP_SKILL_NO_CAST: Reached max (%d) number of skills per character, bonus skill %d (%d) lost.\n", MAX_PC_BONUS, type2, val);
+				break;
+			}
+			struct s_skill_val entry = {};
+			entry.sk = type2;
+			entry.val |= val;
+			sd->skillnorequire.push_back(entry);
+		}
+		break;
+	case SP_SKILL_NO_SPECIAL:
+		if (sd->state.lr_flag != 2) {
+			if (sd->skillnospecial.size() == MAX_PC_BONUS) {
+				ShowWarning("pc_bonus: SP_SKILL_NO_SPECIAL: Reached max (%d) number of skills per character, bonus skill %d (%d) lost.\n", MAX_PC_BONUS, val);
+				break;
+			}
+			struct s_skill_val entry = {};
+			entry.sk = type2;
+			entry.val |= val;
+			sd->skillnospecial.push_back(entry);
+		}
+		break;
 	case SP_ADD_SKILL_RANGE: // bonus2 bAddSkillRange,sk,n;
 		if (sd->state.lr_flag != 2) {
 			if (sd->skillrange.size() == MAX_PC_BONUS) {
 				ShowWarning("pc_bonus2: SP_ADD_SKILL_RANGE: Reached max (%d) number of skills per character, bonus skill %d (%d) lost.\n", MAX_PC_BONUS, type2, val);
 				break;
 			}
-			struct s_skillrange entry = {};
+			struct s_skill_val entry = {};
 			entry.sk = type2;
-			entry.range = val;
+			entry.val = val;
 			sd->skillrange.push_back(entry);
 		}
 		break;
@@ -3570,9 +3598,9 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 				ShowWarning("pc_bonus2: SP_SKILL_TO_GROUND: Reached max (%d) number of skills per character, bonus skill %d (%d) lost.\n", MAX_PC_BONUS, type2, val);
 				break;
 			}
-			struct s_skilltoground entry = {};
+			struct s_skill_val entry = {};
 			entry.sk = type2;
-			entry.range = val;
+			entry.val = val;
 			sd->skilltoground.push_back(entry);
 			clif_skillinfo(sd, type2, INF_GROUND_SKILL);
 		}
@@ -4216,6 +4244,19 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_SKILL_ATTR: // bonus2 bAddSkillRange,sk,n;
+		if (sd->state.lr_flag != 2) {
+			if (sd->skillrange.size() == MAX_PC_BONUS) {
+				ShowError("pc_bonus2: SP_SKILL_ATTR: Reached max (%d) number of skills per character, (sk: %d attr: %d disp: %d).\n", MAX_PC_BONUS, type2, type3, val);
+				break;
+			}
+			struct s_skill_attr entry = {};
+			entry.sk = type2 != 0 ? type2 : -1;
+			entry.attr = type3;
+			entry.n = val;
+			sd->skillattribute.push_back(entry);
+		}
+		break;
 	case SP_MULTIDAMAGERATE: // bonus3 bMultiDamageRate,atk_type,rate,n;
 		if (sd->state.lr_flag != 2) {
 			if (sd->multidamage.size() == MAX_PC_BONUS) {

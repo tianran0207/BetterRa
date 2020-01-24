@@ -5036,7 +5036,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 	case RG_BACKSTAP:
 		{
 			uint8 dir = map_calc_dir(src, bl->x, bl->y), t_dir = unit_getdir(bl);
-			if (check_distance_bl(src, bl, 0) || !map_check_dir(dir, t_dir) || bl->type == BL_SKILL) {
+			if (!skill_check_condition(sd, skill_id, SPECIAL_NO) || check_distance_bl(src, bl, 0) || !map_check_dir(dir, t_dir) || bl->type == BL_SKILL) {
 				status_change_end(src, SC_HIDING, INVALID_TIMER);
 				skill_attack(BF_WEAPON, src, src, bl, skill_id, skill_lv, tick, flag);
 				dir = dir < 4 ? dir+4 : dir-4; // change direction [Celest]
@@ -5073,7 +5073,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 
 			skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
 			if (skill_id == MO_EXTREMITYFIST) {
-				if (!battle_config.extremityfist_nocast_sp)
+				if (!battle_config.extremityfist_nocast_sp && skill_check_condition(sd, skill_id, SPECIAL_SP))
 					status_set_sp(src, 0, 0);
 				status_change_end(src, SC_EXPLOSIONSPIRITS, INVALID_TIMER);
 				status_change_end(src, SC_BLADESTOP, INVALID_TIMER);
@@ -5258,7 +5258,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 				for (auto &it : sd->skillrange) {
 					if (it.sk != skill_id)
 						continue;
-					splash += it.range;
+					splash += it.val;
 				}
 				if (splash <= 0)
 					break;
@@ -5428,7 +5428,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 
 	case PR_TURNUNDEAD:
 	case ALL_RESURRECTION:
-		if (!battle_check_undead(tstatus->race, tstatus->def_ele))
+		if (skill_check_condition(sd, skill_id, SPECIAL_NO) && !battle_check_undead(tstatus->race, tstatus->def_ele))
 			break;
 		skill_attack(BF_MAGIC,src,src,bl,skill_id,skill_lv,tick,flag);
 		break;
@@ -11356,7 +11356,7 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 		case PR_TURNUNDEAD:
 			{
 				struct status_data *tstatus = status_get_status_data(target);
-				if (!battle_check_undead(tstatus->race, tstatus->def_ele))
+				if (skill_check_condition(BL_CAST(BL_PC, src), skill_id, SPECIAL_NO) && !battle_check_undead(tstatus->race, tstatus->def_ele))
 					return USESKILL_FAIL_MAX;
 			}
 			break;
@@ -11980,7 +11980,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
 		for (auto &it : sd->skilltoground) {
 			if (it.sk != skill_id)
 				continue;
-			i = it.range;
+			i = it.val;
 			map_foreachinallarea(skill_area_sub, src->m, x-i, y-i, x+i, y+i, BL_CHAR, src, skill_id, skill_lv, tick, flag|BCT_ENEMY|1,
 				skill_get_casttype(skill_id) == CAST_NODAMAGE ? skill_castend_nodamage_id : skill_castend_damage_id);
 			return 0;
@@ -13110,7 +13110,7 @@ struct skill_unit_group *skill_unitsetting(struct block_list *src, uint16 skill_
 		for (auto &it : sd->skillrange) {
 			if (it.sk != skill_id)
 				continue;
-			range += it.range;
+			range += it.val;
 		}
 	}
 
@@ -13548,7 +13548,7 @@ struct skill_unit_group *skill_unitsetting(struct block_list *src, uint16 skill_
 				break;
 			case WZ_WATERBALL:
 				//Check if there are cells that can be turned into waterball units
-				if (!sd || map_getcell(src->m, ux, uy, CELL_CHKWATER) 
+				if (!sd || !skill_check_condition(sd, skill_id, SPECIAL_NO) || map_getcell(src->m, ux, uy, CELL_CHKWATER)
 					|| (map_find_skill_unit_oncell(src, ux, uy, SA_DELUGE, NULL, 1)) != NULL || (map_find_skill_unit_oncell(src, ux, uy, NJ_SUITON, NULL, 1)) != NULL)
 					break; //Turn water, deluge or suiton into waterball cell
 				continue;
@@ -14166,7 +14166,7 @@ int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *bl, t_t
 			break;
 
 		case UNT_MAGNUS:
-			if (!battle_check_undead(tstatus->race,tstatus->def_ele) && tstatus->race!=RC_DEMON)
+			if (skill_check_condition(BL_CAST(BL_PC, ss), sg->skill_id, SPECIAL_NO) && !battle_check_undead(tstatus->race,tstatus->def_ele) && tstatus->race!=RC_DEMON)
 				break;
 			skill_attack(BF_MAGIC,ss,&unit->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
 			break;
@@ -15198,6 +15198,16 @@ int skill_isammotype(struct map_session_data *sd, unsigned short skill_id)
 	);
 }
 
+bool skill_check_condition(struct map_session_data *sd, uint16 skill_id, int flag)
+{
+	if (!sd || !skill_id) return true;
+	for (auto &it : sd->skillnospecial) {
+		if (it.sk == skill_id && (it.val & flag))
+			return false;
+	}
+	return true;
+}
+
 /**
 * Check SC required to cast a skill
 * @param sc
@@ -16026,7 +16036,7 @@ bool skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_i
 		case ST_WATER:
 			if (sc && (sc->data[SC_DELUGE] || sc->data[SC_SUITON]))
 				break;
-			if (map_getcell(sd->bl.m,sd->bl.x,sd->bl.y,CELL_CHKWATER) && !map_getcell(sd->bl.m,sd->bl.x,sd->bl.y,CELL_CHKLANDPROTECTOR))
+			if (!skill_check_condition(sd, skill_id, SPECIAL_NO) || map_getcell(sd->bl.m,sd->bl.x,sd->bl.y,CELL_CHKWATER) && !map_getcell(sd->bl.m,sd->bl.x,sd->bl.y,CELL_CHKLANDPROTECTOR))
 				break;
 			clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
 			return false;
@@ -16809,6 +16819,24 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, uint16
 		if (req_opt&0x0400) req.spiritball = 0;
 		if (req_opt&0x0800) { memset(req.itemid,0,sizeof(req.itemid)); memset(req.amount,0,sizeof(req.amount)); }
 		if (req_opt&0x1000) req.eqItem_count = 0;
+	}
+
+	for (auto &it : sd->skillnorequire) {
+		if (it.sk != skill_id)
+			continue;
+		if (it.val & 0x0001) req.hp = 0;
+		if (it.val & 0x0002) req.mhp = 0;
+		if (it.val & 0x0004) req.sp = 0;
+		if (it.val & 0x0008) req.hp_rate = 0;
+		if (it.val & 0x0010) req.sp_rate = 0;
+		if (it.val & 0x0020) req.zeny = 0;
+		if (it.val & 0x0040) req.weapon = 0;
+		if (it.val & 0x0080) { req.ammo = 0; req.ammo_qty = 0; }
+		if (it.val & 0x0100) req.state = ST_NONE;
+		if (it.val & 0x0200) req.status_count = 0;
+		if (it.val & 0x0400) req.spiritball = 0;
+		if (it.val & 0x0800) { memset(req.itemid, 0, sizeof(req.itemid)); memset(req.amount, 0, sizeof(req.amount)); }
+		if (it.val & 0x1000) req.eqItem_count = 0;
 	}
 
 	return req;

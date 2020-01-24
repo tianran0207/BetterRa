@@ -438,6 +438,13 @@ public:
 void do_init_skill(void);
 void do_final_skill(void);
 
+enum no_condition : int {
+	SPECIAL_NO = 1,
+	SPECIAL_HP = 2,
+	SPECIAL_SP = 4,
+};
+bool skill_check_condition(struct map_session_data *sd, uint16 skill_id, int flag);
+
 /// Cast type
 enum { CAST_GROUND, CAST_DAMAGE, CAST_NODAMAGE };
 /// Returns the cast type of the skill: ground cast, castend damage, castend no damage

@@ -25,22 +25,53 @@ bonus2 bSkillTreeDelayRate,jobid,n;		职业技能独立技能延迟按百分比调整
 bonus2 bSkillTreeDelay,jobid,n;			职业技能独立技能延迟调整
 
 
-bonus bCooldownrate,n;                  技能独立延迟时间 + n%
-bonus bMaxASPD,n;                       修改ASPD上限(无视CONF中的配置)
-bonus3 bSkillItemFix,sk,iid,n;          技能 sk 消耗的物品ID iid 增加 n 个(n可以为负数) 
+bonus bCooldownrate,n;					技能独立延迟时间 + n%
+bonus bMaxASPD,n;						修改ASPD上限(无视CONF中的配置)
+bonus3 bSkillItemFix,sk,iid,n;			技能 sk 消耗的物品ID iid 增加 n 个(n可以为负数) 
 
-bonus bFixedCastAddRate,n;              固定咏唱时间 + n%(可累加)
-bonus3 bMultiDamageRate,bf,r,n;	    	当玩家使用 bf 攻击时, 有 r/10% 的概率使伤害变为原来的 n% 倍
-bonus3 bSkillCritical,sk,r,n;	    	当玩家使用 sk 攻击时, 有 r/10% 的概率使伤害变为原来的 n% 倍
-bonus2 bIgnoreMdefRaceVal,r,n;          无视 r 种族 n 点魔法防御力
-bonus2 bIgnoreMdefClassVal,c,n;         无视 c 类别魔物 n 点魔法防御力
-bonus2 bIgnoreDefRaceVal,r,n;           无视 r 种族 n 点魔法防御力
-bonus2 bIgnoreDefClassVal,c,n;          无视 c 类别魔物 n 点魔法防御力
+bonus bFixedCastAddRate,n;				固定咏唱时间 + n%(可累加)
+bonus3 bMultiDamageRate,bf,r,n;			当玩家使用 bf 攻击时, 有 r/10% 的概率使伤害变为原来的 n% 倍
+bonus3 bSkillCritical,sk,r,n;			当玩家使用 sk 攻击时, 有 r/10% 的概率使伤害变为原来的 n% 倍
+bonus2 bIgnoreMdefRaceVal,r,n;			无视 r 种族 n 点魔法防御力
+bonus2 bIgnoreMdefClassVal,c,n;			无视 c 类别魔物 n 点魔法防御力
+bonus2 bIgnoreDefRaceVal,r,n;			无视 r 种族 n 点魔法防御力
+bonus2 bIgnoreDefClassVal,c,n;			无视 c 类别魔物 n 点魔法防御力
 
-bonus bIgnoreWhiteImprison,n;           无视白色监狱, n无意义
+bonus bIgnoreWhiteImprison,n;			无视白色监狱, n无意义
 
-bonus2 bAddSkillRange,sk,n;             增加 sk 技能 n 格范围, 可用于溅射或范围技能
+bonus2 bAddSkillRange,sk,n;				增加 sk 技能 n 格范围, 可用于溅射或范围技能
 
-bonus2 bSkillToGround,sk,n;             技能 sk 变为地面技能, 并攻击 n 格范围内的敌对目标
+bonus2 bSkillToGround,sk,n;				技能 sk 变为地面技能, 并攻击 n 格范围内的敌对目标
+
+bonus2 bSkillNoSpecial,sk,bitmask;		移除技能 sk 的特殊条件, bitmask 为 掩码类型(可叠加),  
+										转生术/十字驱魔 (bitmask=1 移除对方为不死或恶魔限制)
+										水球术/天使之泪 (bitmask=1 移除地面为水面限制)
+										背刺(bitmask=1 移除背对限制)
+										阿修罗霸皇拳(bitmask=4 移除SP消耗)
+										(其他技能, 可联系作者添加)
+										
+bonus2 bSkillNoRequire,sk,bitmask;		移除技能 sk 的需求条件, bitmask 为 掩码类型(可叠加),  
+										移除 'skill_require_db.txt' 中技能的指定需求.
+										   1 = hp
+										   2 = maxhptrigger
+										   4 = sp
+										   8 = hprate
+										  16 = sprate
+										  32 = zeny
+										  64 = weapon type
+										 128 = ammo (with the amount)
+										 256 = state
+										 512 = statuses
+										1024 = spirit sphere
+										2048 = items (with the amount)
+										4096 = equipments
+										
+bonus3 bSkillAttribute,sk,ele,n;		技能 sk 变为 ele 属性,
+										 sk 为  0 时为普通攻击(n为属性附加持续时长(毫秒))
+										ele 为 -1 时变为最克制属性(n 为是否显示温暖的风特效), 
+										ele 为 -2 时变为最接近属性(n 为是否显示温暖的风特效), 
+										ele 为 -3 时无视属性克制(伤害倍率修正为 n%, 优先度最高), 
+
+bonus bReturnDefRate,n;					受到反射伤害时, 伤害变为原来的 n%
 
 
