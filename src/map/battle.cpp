@@ -536,7 +536,7 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 		return damage;
 	}
 
-	if (src->type == BL_PC) {
+	if (src && src->type == BL_PC) {
 		struct map_session_data *sd = (struct map_session_data *)src;
 		struct unit_data *ud = unit_bl2ud(src);
 		for (const auto &it : sd->skillattribute) {
