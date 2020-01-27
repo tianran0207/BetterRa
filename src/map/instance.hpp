@@ -85,6 +85,8 @@ void instance_getsd(unsigned short instance_id, struct map_session_data **sd, en
 int instance_create(int owner_id, const char *name, enum instance_mode mode);
 int instance_destroy(unsigned short instance_id);
 void instance_left_point(struct map_session_data *sd, unsigned short instance);
+int instance_addmap_name(unsigned short instance_id, const char *mapname, bool copynpc);
+int instance_delmap_name(unsigned short instance_id, const char *mapname);
 enum e_instance_enter instance_enter_left(struct map_session_data *sd);
 enum e_instance_enter instance_enter(struct map_session_data *sd, unsigned short instance_id, const char *name, short x, short y);
 int instance_reqinfo(struct map_session_data *sd, unsigned short instance_id);

@@ -822,6 +822,75 @@ void instance_left_point(struct map_session_data *sd, unsigned short instance_id
 	pc_setregistry_str(sd, add_str("instance_record$"), output);
 }
 
+int instance_addmap_name(unsigned short instance_id, const char *mapname, bool copynpc)
+{
+	int i, m;
+	struct instance_data *im;
+	struct instance_db *db;
+	struct s_instance_map *entry;
+
+	if (instance_id <= 0 || instance_id >= MAX_INSTANCE_DATA)
+		return 0;
+
+	im = &instance_data[instance_id];
+
+	// If the instance isn't idle, we can't do anything
+	if (im->state != INSTANCE_BUSY || (db = instance_searchtype_db(im->type)) == NULL)
+		return 0;
+
+	// Add the maps
+	if (db->maplist_count > MAX_MAP_PER_INSTANCE) {
+		ShowError("instance_addmap_name: Too many maps (%d) created for a single instance '%s' (%hu).\n", db->maplist_count, StringBuf_Value(db->name), instance_id);
+		return 0;
+	}
+
+	m = map_mapname2mapid(mapname);
+	ARR_FIND(0, im->cnt_map, i, im->map[i]->src_m == m);
+	if (i < im->cnt_map) {
+		ShowError("instance_addmap_name: Failed to create map '%s' already exist for instance '%s' (%hu).\n",mapname, StringBuf_Value(db->name), instance_id);
+		return 0;
+	}
+
+	// Add initial map
+	if ((m = map_addinstancemap(mapname, instance_id)) < 0) {
+		ShowError("instance_addmap_name: Failed to create map for instance '%s' (%hu).\n", StringBuf_Value(db->name), instance_id);
+		return 0;
+	}
+	entry = ers_alloc(instance_maps_ers, struct s_instance_map);
+	entry->m = m;
+	entry->src_m = map_mapname2mapid(mapname);
+	RECREATE(im->map, struct s_instance_map *, im->cnt_map + 1);
+	im->map[im->cnt_map++] = entry;
+
+	if (copynpc) {
+		struct map_data *mapdata = map_getmapdata(entry->src_m);
+		map_foreachinallarea(instance_addnpc_sub, entry->src_m, 0, 0, mapdata->xs, mapdata->ys, BL_NPC, entry->m);
+	}
+	return 1;
+}
+
+int instance_delmap_name(unsigned short instance_id, const char *mapname) {
+	int i, m;
+	struct instance_data *im;
+
+	if (instance_id <= 0 || instance_id >= MAX_INSTANCE_DATA)
+		return 0;
+
+	im = &instance_data[instance_id];
+	m = instance_mapname2mapid(mapname, instance_id);
+
+	ARR_FIND(0, im->cnt_map, i, im->map[i]->m == m);
+	if (i == im->cnt_map || i == 0)
+		return 0;
+
+	map_delinstancemap(im->map[i]->m);
+	ers_free(instance_maps_ers, im->map[i]);
+	if (i < --im->cnt_map)
+		memmove(im->map[i], im->map[i+1], sizeof(struct s_instance_map *) * (im->cnt_map - i));
+
+	return 1;
+}
+
 /*==========================================
  * Warp a user into instance
  *------------------------------------------*/

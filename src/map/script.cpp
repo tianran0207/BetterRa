@@ -29104,6 +29104,37 @@ BUILDIN_FUNC(end2)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(instance_addmap)
+{
+	const char *mapname;
+	int instance_id, copynpc = 1;
+	mapname = script_getstr(st, 2);
+	if (script_hasdata(st, 3))
+		copynpc = script_getnum(st, 4);
+
+	if (script_hasdata(st, 4))
+		instance_id = script_getnum(st, 4);
+	else
+		instance_id = script_instancegetid(st);
+
+	script_pushint(st, instance_addmap_name(instance_id, mapname, copynpc == 1));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(instance_delmap)
+{
+	const char *mapname;
+	int instance_id, copynpc = 1;
+	mapname = script_getstr(st, 2);
+	if (script_hasdata(st, 3))
+		instance_id = script_getnum(st, 3);
+	else
+		instance_id = script_instancegetid(st);
+
+	script_pushint(st, instance_delmap_name(instance_id, mapname));
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -30065,6 +30096,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mapcutin, "ssi"),
 	BUILDIN_DEF(end2, ""),
 	BUILDIN_DEF(battle_check, "iii"),
+	BUILDIN_DEF(instance_addmap, "s??"),
+	BUILDIN_DEF(instance_delmap, "s?"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
