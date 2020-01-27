@@ -25489,7 +25489,7 @@ BUILDIN_FUNC(equipinventory)
 	}
 	idx = script_getnum(st, 2);
 	
-	if (idx <0 || idx >= MAX_INVENTORY || !itemdb_isequip2(sd->inventory_data[idx]) || !sd->inventory_data[idx]) {
+	if (idx <0 || idx >= MAX_INVENTORY || !sd->inventory_data[idx] || !itemdb_isequip2(sd->inventory_data[idx])) {
 		script_pushint(st, 0);
 		return SCRIPT_CMD_SUCCESS;
 	}
