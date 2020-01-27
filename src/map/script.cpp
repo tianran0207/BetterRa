@@ -29192,10 +29192,6 @@ BUILDIN_FUNC(roulette_iteminfo)
 
 BUILDIN_FUNC(roulette_open)
 {
-#ifndef SCRIPT_ROULETTE
-	not_free(script_getfuncname(st));
-	return SCRIPT_CMD_FAILURE;
-#endif
 	TBL_PC *sd;
 
 	if (!script_charid2sd(5, sd))
