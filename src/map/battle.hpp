@@ -231,6 +231,9 @@ struct Battle_Config
 	int cannonball_attr_alone;
 	int questinfo_updatewarning;
 	int item_noequip_deny_all;
+	int attack_event;
+	int attacked_event;
+	int mob_drop_event;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

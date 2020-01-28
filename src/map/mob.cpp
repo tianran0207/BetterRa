@@ -2789,7 +2789,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			if ((it->flag.item_pckill_drop && !(dmgbltypes&BL_PC)) || (homkillonly && !battle_config.homunculus_killed_drop))
 				continue;
 
-			if (npc_script_event_check(mvp_sd, NPCE_MOBDROPITEMFILTER) && it->flag.item_drop_event) {
+			static const int itemtype_mark[30] = { 1,0,2,4,8,16,32,64,0,128,256,512,1024,0,0,0,0,0,2048,0,4096 };
+			if (npc_script_event_check(mvp_sd, NPCE_MOBDROPITEMFILTER) && (it->flag.item_drop_event || (battle_config.mob_drop_event & itemtype_mark[it->type]))) {
 				pc_setreg(mvp_sd, add_str("@drop_mobid"), md->mob_id);
 				pc_setreg(mvp_sd, add_str("@drop_itemid"), md->db->dropitem[i].nameid);
 				pc_setreg(mvp_sd, add_str("@drop_rate"), md->db->dropitem[i].p);

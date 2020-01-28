@@ -348,7 +348,7 @@ void battle_damage_event(struct block_list* src, struct block_list* target, int 
 	if (*damage <= 0 || src == target)
 		return;
 
-	if (target && (sd = BL_CAST(BL_PC, src)) && npc_script_event_check(sd, NPCE_ATKFILTER)) {
+	if (target && (sd = BL_CAST(BL_PC, src)) && (npc_script_event_check(sd, NPCE_ATKFILTER) || (battle_config.attack_event & target->type))) {
 		struct unit_data *ud = unit_bl2ud(target);
 		if ((map_getmapflag(target->m, MF_ATTACKEVENT)&(target->type)) || ud && ud->attackevent_mark) {
 			pc_setparam(sd, SP_DMG_TYPE, attack_type);
@@ -365,7 +365,7 @@ void battle_damage_event(struct block_list* src, struct block_list* target, int 
 		}
 	}
 
-	if (src && (sd = BL_CAST(BL_PC, target)) && npc_script_event_check(sd, NPCE_ATKEDFILTER)) {
+	if (src && (sd = BL_CAST(BL_PC, target)) && (npc_script_event_check(sd, NPCE_ATKEDFILTER) || (battle_config.attacked_event & src->type))) {
 		struct unit_data *ud = unit_bl2ud(src);
 		if ((map_getmapflag(src->m, MF_ATTACKEDEVENT)&(src->type)) || ud && ud->attackedevent_mark) {
 			pc_setparam(sd, SP_DMG_TYPE, attack_type);
@@ -8457,6 +8457,9 @@ static const struct _battle_data {
 	{ "cannonball_attr_alone",              &battle_config.cannonball_attr_alone,           1,      0,      1,              },
 	{ "questinfo_updatewarning",            &battle_config.questinfo_updatewarning,         0,      0,      1,              },
 	{ "item_noequip_deny_all",              &battle_config.item_noequip_deny_all,           0,      0,      1,              },
+	{ "attack_event",                       &battle_config.attack_event,                    0,      0,      INT_MAX,        },
+	{ "attacked_event",                     &battle_config.attacked_event,                  0,      0,      INT_MAX,        },
+	{ "mob_drop_event",                     &battle_config.mob_drop_event,                  0,      0,      INT_MAX,        },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

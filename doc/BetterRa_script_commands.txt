@@ -1646,7 +1646,7 @@ prontera,150,150,4	shop	Buy_Title_Test	48,501:-1
 *unitatkeventmark <GID>,<标记值>;
 
 指令为 OnPCAttackFilter 事件的标记指令, 用于标记玩家、魔物、宠物、生命体、佣兵等。
-当被标记的魔物被攻击时会强制触发 OnPCAttackFilter 事件, 无视 BetterRA.conf 中 attack_filter_target 配置,
+当被标记的魔物被攻击时会强制触发 OnPCAttackFilter 事件, 无视 BetterRA.conf 中 attack_event 配置,
 事件中返回的 dmg_mark 为此处设定的 <标记值>
 
 ---------------------------------------
@@ -1654,7 +1654,7 @@ prontera,150,150,4	shop	Buy_Title_Test	48,501:-1
 *unitatkedeventmark <GID>,<标记值>;
 
 指令为 OnPCAttackedFilter 事件的标记指令, 用于标记玩家、魔物、宠物、生命体、佣兵等。
-当被标记的魔物被攻击时会强制触发 OnPCAttackedFilter 事件, 无视 BetterRA.conf 中 attack_filter_target 配置,
+当被标记的魔物被攻击时会强制触发 OnPCAttackedFilter 事件, 无视 BetterRA.conf 中 attacked_event 配置,
 事件中返回的 dmg_mark 为此处设定的 <标记值>
 
 ---------------------------------------
