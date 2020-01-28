@@ -371,6 +371,7 @@ struct map_session_data {
 		int dmg_damage, dmg_targetgid;
 		int heal_all, heal_real, heal_targetgid;
 	}eventparam;
+	uint16 skill_attr;
 	/**
 	 * Extended Vending system [Lilith]
 	**/

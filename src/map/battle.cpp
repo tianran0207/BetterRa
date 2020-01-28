@@ -538,12 +538,12 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 
 	if (src && src->type == BL_PC) {
 		struct map_session_data *sd = (struct map_session_data *)src;
-		struct unit_data *ud = unit_bl2ud(src);
 		for (const auto &it : sd->skillattribute) {
 			static int seven_ele[] = { ELE_EARTH,ELE_WIND,ELE_WATER,ELE_FIRE,ELE_GHOST,ELE_DARK,ELE_HOLY };
 			static sc_type seven_sc[] = { SC_EARTHWEAPON,SC_WINDWEAPON,SC_WATERWEAPON,SC_FIREWEAPON,SC_GHOSTWEAPON,SC_SHADOWWEAPON,SC_ASPERSIO };
-			if (it.sk != ud->skill_id && it.sk != -1)
+			if (it.sk != sd->skill_attr && it.sk != -1)
 				continue;
+			sd->skill_attr = 0;
 			if (it.attr == -3) {
 #ifdef RENEWAL
 				damage = damage - (int64)((damage * (100 - it.n)) / 100);

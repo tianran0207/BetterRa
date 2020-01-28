@@ -2224,6 +2224,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 				sd->canequip_tick = tick + casttime;
 				break;
 		}
+		sd->skill_attr = skill_id;
 	}
 
 	ud->skilltarget  = target_id;
@@ -2413,14 +2414,14 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 	if (!sd || sd->skillitem != skill_id || skill_get_cast(skill_id, skill_lv))
 		ud->canact_tick = tick + i64max(casttime, max(status_get_amotion(src), battle_config.min_skill_delay_limit)) + SECURITY_CASTTIME;
 
-// 	if( sd )
-// 	{
+	if( sd ) {
 // 		switch( skill_id )
 // 		{
 // 		case ????:
 // 			sd->canequip_tick = tick + casttime;
 // 		}
-// 	}
+		sd->skill_attr = skill_id;
+ 	}
 
 	ud->skill_id    = skill_id;
 	ud->skill_lv    = skill_lv;

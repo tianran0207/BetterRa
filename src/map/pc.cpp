@@ -356,6 +356,10 @@ struct s_manner {
 	char type;
 };
 #endif
+DBMap* statc_db = NULL;
+struct s_statc {
+	int16 param[6];
+};
 
 /**
 * Converts a class to its array index for CLASS_COUNT defined arrays.
@@ -7997,6 +8001,14 @@ int pc_gets_status_point(int level)
 #define PC_STATUS_POINT_COST(low) (( 1 + ((low) + 9) / 10 ))
 #endif
 
+static int pc_get_statc(int low, int n) {
+	struct s_statc *statc = (struct s_statc *)idb_get(statc_db, low);
+	if (statc != NULL && statc->param[n] > 0) {
+		return statc->param[n];
+	}
+	return PC_STATUS_POINT_COST(low);
+}
+
 /// Returns the number of stat points needed to change the specified stat by val.
 /// If val is negative, returns the number of stat points that would be needed to
 /// raise the specified stat from (current value - val) to current value.
@@ -8019,7 +8031,7 @@ int pc_need_status_point(struct map_session_data* sd, int type, int val)
 		SWAP(low, high);
 
 	for ( ; low < high; low++ )
-		sp += PC_STATUS_POINT_COST(low);
+		sp += pc_get_statc(low, type - SP_STR);
 
 	return sp;
 }
@@ -8043,7 +8055,7 @@ int pc_maxparameterincrease(struct map_session_data* sd, int type)
 	max_param = pc_maxparameter(sd, (enum e_params)(type-SP_STR));
 
 	while (final_val <= max_param && status_points >= 0) {
-		status_points -= PC_STATUS_POINT_COST(final_val);
+		status_points -= pc_get_statc(final_val, type - SP_STR);;
 		final_val++;
 	}
 	final_val--;
@@ -12786,6 +12798,26 @@ static bool pc_readdb_job_noenter_map(char *str[], int columns, int current) {
 	return true;
 }
 
+static bool pc_readdb_statscost(char* fields[], int columns, int current)
+{
+	struct s_statc *statc;
+	int lv = atoi(fields[0]);
+	if (columns != 2 && columns != 7)
+		return false;
+	statc = (struct s_statc *)idb_get(statc_db, lv);
+	if (statc == NULL) {
+		CREATE(statc, struct s_statc, 1);
+		idb_put(statc_db, lv, statc);
+	}
+	for (int i = 0; i < 6; i++) {
+		if (columns == 2)
+			statc->param[i] = atoi(fields[1]);
+		else
+			statc->param[i] = atoi(fields[i+1]);
+	}
+	return true;
+}
+
 static int pc_read_statsdb(const char *basedir, int last_s, bool silent){
 	int i=1;
 	char line[24000]; //FIXME this seem too big
@@ -12859,6 +12891,7 @@ void pc_readdb(void) {
 
 	 // reset then read statspoint
 	memset(statp,0,sizeof(statp));
+	db_clear(statc_db);
 	for(i=0; i<ARRAYLENGTH(dbsubpath); i++){
 		uint8 n1 = (uint8)(strlen(db_path)+strlen(dbsubpath[i])+1);
 		uint8 n2 = (uint8)(strlen(db_path)+strlen(DBPATH)+strlen(dbsubpath[i])+1);
@@ -12874,6 +12907,7 @@ void pc_readdb(void) {
 			safesnprintf(dbsubpath2,n1,"%s%s",db_path,dbsubpath[i]);
 		}
 		sv_readdb(dbsubpath1, "manner.txt", ',', 1, 2, -1, &pc_readdb_manner, i > 0);
+		sv_readdb(dbsubpath1, "statcost.txt", ',', 2, 7, -1, &pc_readdb_statscost, i > 0);
 		s = pc_read_statsdb(dbsubpath2,s,i > 0);
 		if (i == 0)
 #ifdef RENEWAL_ASPD // Paths are hardcoded here to specifically pick the correct database
@@ -14609,6 +14643,7 @@ bool pc_manner_check(struct map_session_data* sd, char *mes)
 void do_final_pc(void) {
 
 	manner_db->destroy(manner_db, pc_manner_db_final);
+	statc_db->destroy(statc_db, NULL);
 
 	db_destroy(itemcd_db);
 	do_final_pc_groups();
@@ -14623,6 +14658,7 @@ void do_final_pc(void) {
 void do_init_pc(void) {
 
 	manner_db = idb_alloc(DB_OPT_BASE);
+	statc_db = idb_alloc(DB_OPT_RELEASE_DATA);
 	itemcd_db = idb_alloc(DB_OPT_RELEASE_DATA);
 
 	pc_readdb();
