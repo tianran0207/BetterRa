@@ -887,8 +887,8 @@ int pc_equippoint_sub(struct map_session_data *sd,struct item_data* id, int n){
 	if (!itemdb_isequip2(id))
 		return 0; //Not equippable by players.
 
-	if (battle_config.item_costume_card) {
-		for (int i = 0; i < MAX_SLOTS && n >= 0; i++) { // Uses MAX_SLOTS to support Soul Bound system [Inkfish]
+	if (battle_config.item_costume_card && n >= 0) {
+		for (int i = 0; i < MAX_SLOTS ; i++) { // Uses MAX_SLOTS to support Soul Bound system [Inkfish]
 			int c = sd->inventory.u.items_inventory[n].card[i];
 			if (c == 0)
 				continue;
@@ -10963,7 +10963,7 @@ int pc_load_combo(struct map_session_data *sd) {
  *------------------------------------------*/
 bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswitch)
 {
-	int i, pos, flag = 0, iflag;
+	int i, pos, pos2, flag = 0, iflag;
 	struct item_data *id;
 	uint8 res = ITEM_EQUIP_ACK_OK;
 	short* equip_index;
@@ -10989,7 +10989,8 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 
 	if (!(id = sd->inventory_data[n]))
 		return false;
-	pos = pc_equippoint_sub(sd, sd->inventory_data[n],-1); //With a few exceptions, item should go in all specified slots.
+	pos = pc_equippoint(sd, n); //With a few exceptions, item should go in all specified slots.
+	pos2 = pc_equippoint_sub(sd, sd->inventory_data[n], -1);
 
 	if(battle_config.battle_log && !equipswitch)
 		ShowInfo("equip %hu (%d) %x:%x\n",sd->inventory.u.items_inventory[n].nameid,n,id?id->equip:0,req_pos);
@@ -11008,7 +11009,7 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 		return false;
 	}
 
-	if (!(pos&req_pos) || sd->inventory.u.items_inventory[n].equip != 0 || sd->inventory.u.items_inventory[n].attribute==1 ) { // [Valaris]
+	if (!((pos&req_pos) || (pos2&req_pos)) || sd->inventory.u.items_inventory[n].equip != 0 || sd->inventory.u.items_inventory[n].attribute==1 ) { // [Valaris]
 		if( equipswitch ){
 			clif_equipswitch_add( sd, n, req_pos, ITEM_EQUIP_ACK_FAIL );
 		}else{
@@ -11016,7 +11017,7 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 		}
 		return false;
 	}
-	pos = pc_equippoint(sd, n);
+	
 	if( sd->sc.count && (sd->sc.data[SC_BERSERK] || sd->sc.data[SC_SATURDAYNIGHTFEVER] ||
 		sd->sc.data[SC_KYOUGAKU] || (sd->sc.data[SC_PYROCLASTIC] && sd->inventory_data[n]->type == IT_WEAPON)) ) {
 		if( equipswitch ){
