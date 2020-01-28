@@ -1055,7 +1055,7 @@ static bool itemdb_read_dropeffect(char* fields[], int columns, int current) {
 */
 static bool itemdb_read_flag(char* fields[], int columns, int current) {
 	unsigned short nameid = atoi(fields[0]);
-	int flag;
+	int flag, flag2;
 	bool set;
 	struct item_data *id;
 
@@ -1065,6 +1065,7 @@ static bool itemdb_read_flag(char* fields[], int columns, int current) {
 	}
 	
 	flag = abs(atoi(fields[1]));
+	flag2 = columns == 3 ?abs(atoi(fields[2])) : 0;
 	set = atoi(fields[1]) > 0;
 
 	if (flag&1) id->flag.dead_branch = set ? 1 : 0;
@@ -1079,6 +1080,7 @@ static bool itemdb_read_flag(char* fields[], int columns, int current) {
 	if (flag&512) id->flag.skill_no_consumed = 1;
 	if (flag&1024) id->flag.item_pckill_drop = 1;
 	if (flag&2048) id->flag.item_drop_event = 1;
+	if (flag2&1) id->flag.item_costume_card = 1;
 /*	if( flag & 64 ){
 		id->flag.dropEffect = 1;
 	}else if( flag & 128 ){
@@ -2090,7 +2092,7 @@ static void itemdb_read(void) {
 		sv_readdb(dbsubpath2, "item_trade.txt",         ',', 3, 3, -1, &itemdb_read_itemtrade, i > 0);
 		sv_readdb(dbsubpath2, "item_delay.txt",         ',', 2, 3, -1, &itemdb_read_itemdelay, i > 0);
 		sv_readdb(dbsubpath2, "item_buyingstore.txt",   ',', 1, 1, -1, &itemdb_read_buyingstore, i > 0);
-		sv_readdb(dbsubpath2, "item_flag.txt",          ',', 2, 2, -1, &itemdb_read_flag, i > 0);
+		sv_readdb(dbsubpath2, "item_flag.txt",          ',', 2, 3, -1, &itemdb_read_flag, i > 0);
 		sv_readdb(dbsubpath2, "item_dropeffect.txt",    ',', 2, 2, -1, &itemdb_read_dropeffect, i > 0);
 		sv_readdb(dbsubpath2, "item_randomopt_group.txt", ',', 5, 2+5*MAX_ITEM_RDM_OPT, -1, &itemdb_read_randomopt_group, i > 0);
 		aFree(dbsubpath1);

@@ -8460,6 +8460,7 @@ static const struct _battle_data {
 	{ "attack_event",                       &battle_config.attack_event,                    0,      0,      INT_MAX,        },
 	{ "attacked_event",                     &battle_config.attacked_event,                  0,      0,      INT_MAX,        },
 	{ "mob_drop_event",                     &battle_config.mob_drop_event,                  0,      0,      INT_MAX,        },
+	{ "item_costume_card",                  &battle_config.item_costume_card,               0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

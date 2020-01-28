@@ -234,6 +234,7 @@ struct Battle_Config
 	int attack_event;
 	int attacked_event;
 	int mob_drop_event;
+	int item_costume_card;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;
