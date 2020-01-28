@@ -900,3 +900,18 @@ BetterRa 在官方的基础上做了以下改进:
 	$@useskill_y 目标坐标x 如果是单体技能则返回目标的y坐标
 	
 配合脚本指令 unitskilltowide 和 unitskilltoAOE 实现更多技能
+
+---------------------------------------
+
+*OnPCSelectItemEvent:
+
+事件描述:
+	当玩家选择物品列表中的物品后执行该事件, 物品列表通过 itemlist 指令弹出, 该事件触发后立即执行
+	
+参数说明:
+如果关闭了物品选择窗口
+	@itemlist_param 事件参数, 即 itemlist 指令的第二个参数
+	@itemlist_itemid 为选中的物品ID, 如果取消则返回 65535
+	
+---------------------------------------
+

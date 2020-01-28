@@ -362,6 +362,7 @@ struct Script_Config script_config = {
 	"OnPCCartAddFilter", //cart_add_filter_name
 	"OnPCInventoryAddFilter", //inventory_add_filter_name
 	"OnPCDropItemFilter", //drop_item_filter_name
+	"OnPCSelectItemEvent", //select_item_event_name
 	"OnMOBDropItemFilter", //mob_drop_item_filter_name
 	"OnPCAttackFilter", //attack_filter_name
 	"OnPCAttackedFilter", //attacked_filter_name
@@ -29256,6 +29257,31 @@ BUILDIN_FUNC(roulette_generate)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(itemlist)
+{
+	struct script_data *data;
+	int id, i, array_size;
+	struct map_session_data* sd = NULL;
+	struct reg_db *ref = NULL;
+	data = script_getdata(st, 2);
+	ref = reference_getref(data);
+	id = reference_getid(data);
+
+	if (data_isstring(data) || !script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	array_size = script_array_highest_key(st, sd, reference_getname(data), ref);
+	unsigned short *item_id = (unsigned short*)aMalloc(sizeof(unsigned short)*array_size);
+	for (i = 0; i < array_size; ++i){
+		item_id[i] = (int32)__64BPRTSIZE(get_val2(st, reference_uid(id, i), ref));
+		script_removetop(st, -1, 0);
+	}
+	sd->menulist_data = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+	clif_itemlist(sd, item_id, array_size);
+	aFree(item_id);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 // declarations that were supposed to be exported from npc_chat.cpp
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -30094,6 +30120,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(battle_check, "iii"),
 	BUILDIN_DEF(instance_addmap, "s??"),
 	BUILDIN_DEF(instance_delmap, "s?"),
+	BUILDIN_DEF(itemlist, "v??"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),

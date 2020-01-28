@@ -292,6 +292,8 @@ struct Script_Config {
 	const char* cart_add_filter_name;
 	const char* inventory_add_filter_name;
 	const char* drop_item_filter_name;
+	// Item related
+	const char* select_item_event_name;
 	// Mob related
 	const char* mob_drop_item_filter_name;
 	// ATK related

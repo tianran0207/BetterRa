@@ -13097,6 +13097,12 @@ void clif_parse_SelectArrow(int fd,struct map_session_data *sd) {
 			case 12548: //item id
 				buyingstore_currency(sd, nameid);
 				break;
+			default:
+				if (npc_script_event_check(sd, NPCE_ITEMSELECTEVENT)) {
+					pc_setreg(sd, add_str("@itemlist_param"), sd->menulist_data);
+					pc_setreg(sd, add_str("@itemlist_itemid"), nameid);
+					npc_script_event_atonce(sd, NPCE_ITEMSELECTEVENT);
+				}
 			}
 			sd->menulist_data = 0;
 	}
