@@ -858,6 +858,7 @@ struct item_data
 		unsigned item_pckill_drop : 1;
 		unsigned item_drop_event : 1;
 		unsigned item_costume_card : 1;
+		unsigned item_ignore_autoloot : 1;
 		bool bindOnEquip; ///< Set item as bound when equipped
 		uint8 dropEffect; ///< Drop Effect Mode
 	} flag;

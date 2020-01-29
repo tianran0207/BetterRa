@@ -2208,10 +2208,11 @@ static void mob_item_drop(struct mob_data *md, struct item_drop_list *dlist, str
 		test_autoloot = test_autoloot && sd->bl.m == md->bl.m
 		&& check_distance_blxy(&sd->bl, dlist->x, dlist->y, AUTOLOOT_DISTANCE);
 #endif
-	if( test_autoloot && !map_getmapflag(sd->bl.m, MF_NOAUTOLOOT)) {	//Autoloot.
+	struct item_data *it = itemdb_search(ditem->item_data.nameid);
+	if( test_autoloot && !map_getmapflag(sd->bl.m, MF_NOAUTOLOOT) && !it->flag.item_ignore_autoloot) {	//Autoloot.
 		struct party_data *p = party_search(sd->status.party_id);
 
-		if ((itemdb_search(ditem->item_data.nameid))->flag.broadcast &&
+		if (it->flag.broadcast &&
 			(!p || !(p->party.item & 2)) // Somehow, if party's pickup distribution is 'Even Share', no announcemet
 			)
 			intif_broadcast_obtain_special_item(sd, ditem->item_data.nameid, md->mob_id, ITEMOBTAIN_TYPE_MONSTER_ITEM);

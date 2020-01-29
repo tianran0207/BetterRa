@@ -1081,6 +1081,7 @@ static bool itemdb_read_flag(char* fields[], int columns, int current) {
 	if (flag&1024) id->flag.item_pckill_drop = 1;
 	if (flag&2048) id->flag.item_drop_event = 1;
 	if (flag2&1) id->flag.item_costume_card = 1;
+	if (flag2&2) id->flag.item_ignore_autoloot = 1;
 /*	if( flag & 64 ){
 		id->flag.dropEffect = 1;
 	}else if( flag & 128 ){
