@@ -4763,7 +4763,7 @@ static int map_mapflag_pvp_stop_sub(struct block_list *bl, va_list ap)
 enum e_mapflag map_getmapflag_by_name(char* name)
 {
 	char flag_constant[255];
-	int mapflag;
+	int64 mapflag;
 
 	safesnprintf(flag_constant, sizeof(flag_constant), "mf_%s", name);
 
@@ -5706,9 +5706,9 @@ int do_init(int argc, char *argv[])
 	return 0;
 }
 
-int map_readparam(int type)
+int64 map_readparam(int64 type)
 {
-	int val = 0;
+	int64 val = 0;
 	switch (type) {
 	case SP_SKF_SGID:        val = skill_formula_db.sgid;     break;
 	case SP_SKF_SCID:        val = skill_formula_db.scid;     break;
@@ -5721,8 +5721,9 @@ int map_readparam(int type)
 	return val;
 }
 
-bool map_setparam(int type, int val)
+bool map_setparam(int64 type, int64 val_tmp)
 {
+	int val = static_cast<unsigned int>(val_tmp);
 	switch (type) {
 	case SP_SKF_SGID:
 		skill_formula_db.sgid = val;
@@ -5740,7 +5741,7 @@ bool map_setparam(int type, int val)
 		skill_formula_db.skill_lv = val;
 		return true;
 	case SP_SKF_DMG:
-		skill_formula_db.damage = val;
+		skill_formula_db.damage = val_tmp;
 		return true;
 	case SP_SKF_TIM:
 		skill_formula_db.time = val;

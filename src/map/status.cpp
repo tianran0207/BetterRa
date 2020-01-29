@@ -5559,12 +5559,16 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, enum e_status_ca
 	struct status_data b_status; // Previous battle status
 	struct status_data* status; // Pointer to current battle status
 
-	if (bl->type == BL_PC && ((TBL_PC*)bl)->delayed_damage != 0) {
-		if (opt&SCO_FORCE)
-			((TBL_PC*)bl)->state.hold_recalc = 0; /* Clear and move on */
-		else {
-			((TBL_PC*)bl)->state.hold_recalc = 1; /* Flag and stop */
-			return;
+	if (bl->type == BL_PC) {
+		struct map_session_data *sd = BL_CAST(BL_PC, bl);
+
+		if (sd->delayed_damage != 0) {
+			if (opt&SCO_FORCE)
+				sd->state.hold_recalc = false; // Clear and move on
+			else {
+				sd->state.hold_recalc = true; // Flag and stop
+				return;
+			}
 		}
 	}
 
@@ -11593,21 +11597,21 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	}
 
 	if (npc_script_event_check(sd, NPCE_BUFFFIXFILTER) && !(flag&SCSTART_LOADED)) {
-		pc_setreg(sd, add_str("@started_sc_id"), type);
-		pc_setreg(sd, add_str("@started_sc_rate"), rate);
-		pc_setreg(sd, add_str("@started_sc_tick"), tick);
-		pc_setreg(sd, add_str("@started_sc_val1"), val1);
-		pc_setreg(sd, add_str("@started_sc_val2"), val2);
-		pc_setreg(sd, add_str("@started_sc_val3"), val3);
-		pc_setreg(sd, add_str("@started_sc_val4"), val4);
+		pc_setreg2(sd, "@started_sc_id", type);
+		pc_setreg2(sd, "@started_sc_rate", rate);
+		pc_setreg2(sd, "@started_sc_tick", tick);
+		pc_setreg2(sd, "@started_sc_val1", val1);
+		pc_setreg2(sd, "@started_sc_val2", val2);
+		pc_setreg2(sd, "@started_sc_val3", val3);
+		pc_setreg2(sd, "@started_sc_val4", val4);
 		npc_script_event_atonce(sd, NPCE_BUFFFIXFILTER);
 		if (sd->state.processhalt) {
-			if ((tick = pc_readreg(sd, add_str("@started_sc_tick"))) == 0)
+			if ((tick = static_cast<int>(pc_readreg2(sd, "@started_sc_tick"))) == 0)
 				return 0;
-			val1 = pc_readreg(sd, add_str("@started_sc_val1"));
-			val2 = pc_readreg(sd, add_str("@started_sc_val2"));
-			val3 = pc_readreg(sd, add_str("@started_sc_val3"));
-			val4 = pc_readreg(sd, add_str("@started_sc_val4"));
+			val1 = static_cast<int>(pc_readreg2(sd, "@started_sc_val1"));
+			val2 = static_cast<int>(pc_readreg2(sd, "@started_sc_val2"));
+			val3 = static_cast<int>(pc_readreg2(sd, "@started_sc_val3"));
+			val4 = static_cast<int>(pc_readreg2(sd, "@started_sc_val4"));
 		}
 	}
 
@@ -12037,33 +12041,31 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	else
 		sce->timer = INVALID_TIMER; // Infinite duration
 
-	if (calc_flag)
-		status_calc_bl(bl,calc_flag);
+	if (calc_flag) {
+		if (sd) {
+			switch(type) {
+				// Statuses that adjust HP/SP and heal after starting
+				case SC_BERSERK:
+				case SC_MERC_HPUP:
+				case SC_MERC_SPUP:
+					status_calc_bl_(bl, static_cast<scb_flag>(calc_flag), SCO_FORCE);
+					break;
+				default:
+					status_calc_bl(bl, calc_flag);
+					break;
+			}
+		} else
+			status_calc_bl(bl, calc_flag);
+	}
 
 	if ( sc_isnew && StatusChangeStateTable[type] ) // Non-zero
 		status_calc_state(bl,sc,( enum scs_flag ) StatusChangeStateTable[type],true);
 
-
-	if(sd) {
-		if (sd->pd)
-			pet_sc_check(sd, type); // Skotlex: Pet Status Effect Healing
-		switch (type) {
-			case SC_BERSERK:
-			case SC_MERC_HPUP:
-			case SC_MERC_SPUP:
-				status_calc_pc(sd, SCO_FORCE);
-				break;
-			default:
-				status_calc_pc(sd, SCO_NONE);
-				break;
-		}
-	}
+	if (sd && sd->pd)
+		pet_sc_check(sd, type); // Skotlex: Pet Status Effect Healing
 
 	// 1st thing to execute when loading status
 	switch (type) {
-		case SC_FULL_THROTTLE:
-			status_percent_heal(bl,100,0);
-			break;
 		case SC_BERSERK:
 			if (!(sce->val2)) { // Don't heal if already set
 				status_heal(bl, status->max_hp, 0, 1); // Do not use percent_heal as this healing must override BERSERK's block.
@@ -12083,6 +12085,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if (sd)
 				clif_bossmapinfo(sd, map_id2boss(sce->val1), BOSS_INFO_ALIVE_WITHMSG); // First Message
 			break;
+		case SC_FULL_THROTTLE:
 		case SC_MERC_HPUP:
 			status_percent_heal(bl, 100, 0); // Recover Full HP
 			break;
@@ -14902,7 +14905,7 @@ void status_change_clear_onChangeMap(struct block_list *bl, struct status_change
  */
 static bool status_readdb_status_disabled(char **str, int columns, int current)
 {
-	int type = SC_NONE;
+	int64 type = SC_NONE;
 
 	if (ISDIGIT(str[0][0]))
 		type = atoi(str[0]);
@@ -14960,6 +14963,7 @@ static bool status_yaml_readdb_refine_sub(const YAML::Node &node, int refine_inf
 	const YAML::Node &costs = node["Costs"];
 
 	for (const auto costit : costs) {
+		int64 idx_tmp = 0;
 		const YAML::Node &type = costit;
 		int idx = 0, price;
 		unsigned short material;
@@ -14973,8 +14977,10 @@ static bool status_yaml_readdb_refine_sub(const YAML::Node &node, int refine_inf
 		std::string refine_cost_const = type["Type"].as<std::string>();
 		if (ISDIGIT(refine_cost_const[0]))
 			idx = atoi(refine_cost_const.c_str());
-		else
-			script_get_constant(refine_cost_const.c_str(), &idx);
+		else {
+			script_get_constant(refine_cost_const.c_str(), &idx_tmp);
+			idx = static_cast<int>(idx_tmp);
+		}
 		price = type["Price"].as<int>();
 		material = type["Material"].as<uint16>();
 

@@ -11623,7 +11623,7 @@ void clif_parse_WisMessage(int fd, struct map_session_data* sd)
 			for( i = 0; i < NUM_WHISPER_VAR; ++i ) {
 				char variablename[CHAT_SIZE_MAX];
 				safesnprintf(variablename,sizeof(variablename),"@whispervar%d$", i);
-				set_var(sd,variablename,(char *) split_data[i]);
+				set_var_str( sd, variablename, split_data[i] );
 			}
 
 			safesnprintf(event,sizeof(event),"%s::%s", npc->exname,script_config.onwhisper_event_name);
@@ -12629,7 +12629,9 @@ void clif_parse_skill_toid( struct map_session_data* sd, uint16 skill_id, uint16
 	if( sd->menuskill_id ) {
 		if( sd->menuskill_id == SA_TAMINGMONSTER ) {
 			clif_menuskill_clear(sd); //Cancel pet capture.
-		} else if( sd->menuskill_id != SA_AUTOSPELL )
+		}else if( sd->menuskill_id == SG_FEEL ){
+			clif_menuskill_clear( sd ); // Cancel selection
+		}else if( sd->menuskill_id != SA_AUTOSPELL )
 			return; //Can't use skills while a menu is open.
 	}
 
@@ -12737,6 +12739,8 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, uin
 	if( sd->menuskill_id ) {
 		if( sd->menuskill_id == SA_TAMINGMONSTER ) {
 			clif_menuskill_clear(sd); //Cancel pet capture.
+		}else if( sd->menuskill_id == SG_FEEL ){
+			clif_menuskill_clear( sd ); // Cancel selection
 		} else if( sd->menuskill_id != SA_AUTOSPELL )
 			return; //Can't use skills while a menu is open.
 	}
@@ -21620,7 +21624,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		npc_script_event_atonce(sd, NPCE_REFINEUIFILTER);
 		if (sd->state.processhalt)
 			return;
-		materials[i].chance = pc_readreg(sd, add_str("@refine_rate"));
+		materials[i].chance = static_cast<uint8>(pc_readreg(sd, add_str("@refine_rate")));
 	}
 
 	if (use_blacksmith_blessing && ((k = pc_search_inventory(sd, 6635)) < 0 || pc_delitem(sd, k, status_get_refine_blessing(id->wlv, item->refine), 0, 0, LOG_TYPE_CONSUME)))

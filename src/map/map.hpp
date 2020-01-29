@@ -1276,8 +1276,8 @@ extern char market_table[32];
 extern char roulette_table[32];
 extern char guild_storage_log_table[32];
 
-int map_readparam(int type);
-bool map_setparam(int type, int val);
+int64 map_readparam(int64 type);
+bool map_setparam(int64 type, int64 val_tmp);
 void do_shutdown(void);
 extern char verification_act;
 void not_free(const char *name);

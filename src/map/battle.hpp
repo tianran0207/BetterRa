@@ -771,6 +771,8 @@ struct Battle_Config
 	int mob_nopc_move_rate;
 	int boss_nopc_idleskill_rate;
 	int boss_nopc_move_rate;
+	int hom_idle_no_share;
+	int devotion_standup_fix;
 
 	int feature_refineui;
 	int feature_stylistui;

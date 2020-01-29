@@ -758,7 +758,7 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, uint16 sk
 			pc_setparam(sd, SP_HEAL_TARGETRID, target->id);
 			npc_script_event_atonce(sd, NPCE_HEALFILTER);
 			if (sd->state.processhalt)
-				hp = pc_readparam(sd, SP_HEAL_ALL);
+				hp = static_cast<uint16>(pc_readparam(sd, SP_HEAL_ALL));
 		}
 	}
 
@@ -21602,11 +21602,11 @@ void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list 
 	map_setparam(SP_SKF_TGID, target ? target->id : 0);
 	map_setparam(SP_SKF_SKID, skill_id);
 	map_setparam(SP_SKF_SKLV, skill_lv);
-	map_setparam(SP_SKF_DMG, damage ? (int)cap_value(*damage, INT_MIN, INT_MAX) : 0);
-	map_setparam(SP_SKF_TIM, time ? (int)cap_value(*time, INT_MIN, INT_MAX) : 0);
+	map_setparam(SP_SKF_DMG, damage ? *damage : 0);
+	map_setparam(SP_SKF_TIM, time ? cap_value(*time, INT_MIN, INT_MAX) : 0);
 	run_script(script, 0, 0, fake_nd->bl.id);
 	if (damage) *damage = map_readparam(SP_SKF_DMG);
-	if (time) *time = map_readparam(SP_SKF_TIM);
+	if (time) *time = static_cast<int>(map_readparam(SP_SKF_TIM));
 	skill_formula_db.src = NULL;
 	skill_formula_db.target = NULL;
 }
@@ -21676,16 +21676,20 @@ uint8 skill_split_atoi2(char *str, int *val, const char *delim, int min_value, u
 	char *p = strtok(str, delim);
 
 	while (p != NULL) {
+		int64 n_tmp;
 		int n = min_value;
 
 		trim(p);
 
 		if (ISDIGIT(p[0])) // If using numeric
 			n = atoi(p);
-		else if (!script_get_constant(p, &n)) { // If using constant value
-			ShowError("skill_split_atoi2: Invalid value: '%s'\n", p);
-			p = strtok(NULL, delim);
-			continue;
+		else {
+			if (!script_get_constant(p, &n_tmp)) { // If using constant value
+				ShowError("skill_split_atoi2: Invalid value: '%s'\n", p);
+				p = strtok(NULL, delim);
+				continue;
+			}
+			n = static_cast<int>(n_tmp);
 		}
 
 		if (n > min_value) {
@@ -22378,6 +22382,7 @@ static bool skill_parse_row_changematerialdb(char* split[], int columns, int cur
  */
 static bool skill_parse_row_skilldamage(char* split[], int columns, int current)
 {
+	int64 caster_tmp;
 	uint16 id = 0;
 	int caster;
 
@@ -22394,10 +22399,11 @@ static bool skill_parse_row_skilldamage(char* split[], int columns, int current)
 	if (ISDIGIT(split[1][0]))
 		caster = atoi(split[1]);
 	else { // Try to parse caster as constant
-		if (!script_get_constant(split[1], &caster)) {
+		if (!script_get_constant(split[1], &caster_tmp)) {
 			ShowError("skill_parse_row_skilldamage: Invalid caster constant given for skill %d. Skipping.", id);
 			return false;
 		}
+		caster = static_cast<int>(caster_tmp);
 	}
 	skill_db[id]->damage.caster |= caster;
 	skill_db[id]->damage.map |= atoi(split[2]);
