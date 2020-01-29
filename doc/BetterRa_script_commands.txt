@@ -214,7 +214,7 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 	- INV_OPTION       随机属性 - @inventorylist_option_id[] @inventorylist_option_value[] inventorylist_option_parameter[]
 	- INV_IDX          位置序列 - @inventorylist_idx[]
 	- INV_FAVORITE     是否收藏 - @inventorylist_favorite[]
-	- INV_UID          物品UID - @inventorylist_uid$[]
+	- INV_UID          物品UID - @inventorylist_uid$[] 或 @inventorylist_uid[]
 	- INV_EQUIPSWITCH  切换位置 - @inventorylist_equipswich[]
 	- INV_ALL          获取所有(默认)
 
@@ -325,15 +325,13 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 	8 	- 第三个卡槽的卡片编号
 	9 	- 第四个卡槽的卡片编号
 	10	- 过期时间(Unix时间戳, 0 表示永不过期)
-	11	- 装备的唯一编号(unique_id) - 注意: 返回字符串类型的变量
+	11	- 绑定类型
+	12	- 装备的唯一编号(unique_id) - 注意: 返回字符串类型的变量
 	16  - 是否被玩家收藏.
 
-注意:
-	若你想获取装备的唯一编号, 那么用来存放返回值的必须是一个字符串类型的变量(变量结尾带$符号),
-	如果用来存放返回值的变量是数值类型的话, 那么拿到的值不是装备的唯一编号.
 	
-	.@uid$ = getinventoryinfo(背包序号, 11);	// 正确
-	.@uid = getinventoryinfo(背包序号, 11);		// 错误
+	.@uid$ = getinventoryinfo(背包序号, 11);	
+	.@uid = getinventoryinfo(背包序号, 11);		
 	
 返回值:
 	失败则返回 -1, 成功则返回你所查询的信息的值

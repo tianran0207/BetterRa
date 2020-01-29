@@ -14549,6 +14549,7 @@ static void buildin_getinventorylist_sub(struct map_session_data *sd, struct ite
 			if (type & INV_FAVORITE) pc_setreg(sd, reference_uid(add_str("@inventorylist_favorite"), j), inventory[i].favorite);
 			if (type & INV_UID) {
 				_ui64toa(inventory[i].unique_id, uid, 10);
+				pc_setreg(sd, reference_uid(add_str("@inventorylist_uid"), j), inventory[i].unique_id);				
 				pc_setregstr(sd, reference_uid(add_str("@inventorylist_uid$"), j), uid);
 			}
 			if (type & INV_EQUIPSWITCH) pc_setreg(sd, reference_uid(add_str("@inventorylist_equipswich"), j), inventory[i].equipSwitch);
