@@ -456,7 +456,7 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 		}
 	}
 
-	skill_formula_db.script_run(src, target, skill_id, skill_lv, 1, &damage, NULL);
+	skf_db.script_run(src, target, skill_id, skill_lv, 1, wd, &damage, NULL);
 
 	if (damage != wd->damage + wd->damage2 || ddamage > 0) {
 		if (wd->damage2 == 0) {
@@ -3729,7 +3729,6 @@ static void battle_calc_multi_attack(struct Damage* wd, struct block_list *src,s
  *	Initial refactoring by Baalberith
  *	Refined and optimized by helvetica
  */
-static bool battle_attack_skill_ratio_fix(struct Damage *wd, struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int* skillratio);
 static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *src,struct block_list *target,uint16 skill_id,uint16 skill_lv)
 {
 	struct map_session_data *sd = BL_CAST(BL_PC, src);
@@ -3778,9 +3777,6 @@ static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *
 			}
 		}
 	}
-
-	if (battle_config.jro_formulas && battle_attack_skill_ratio_fix(wd, src, target, skill_id, skill_lv, &skillratio))
-		return skillratio;
 
 	switch(skill_id) {
 		case SM_BASH:
@@ -7713,9 +7709,6 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		vellum_damage = true;
 
 	if( sc && sc->count ) {
-		if (sc->data[SC_INSPIRATION] && battle_config.jro_formulas) {
-			skill_counter_additional_effect(target, src, 0, 0, BF_WEAPON|BF_SHORT|BF_NORMAL, tick);
-		}
 		if (sc->data[SC_EXEEDBREAK]) {
 			if (!is_infinite_defense(target, wd.flag) && !vellum_damage)
 				wd.damage *= sc->data[SC_EXEEDBREAK]->val2 / 100;
@@ -8485,7 +8478,6 @@ static const struct _battle_data {
 	{ "npc_timeout",                        &battle_config.npc_timeout,                     1,      0,      1,              },
 	{ "atcommand_info",                     &battle_config.atcommand_info,                  0,      0,      1|2,            },
 	{ "mvpdrop_last_hit_loot",              &battle_config.mvpdrop_last_hit_loot,           0,      0,      1,              },
-	{ "jro_formulas",                       &battle_config.jro_formulas,                    0,      0,      1,              },
 	{ "shadowgear_refine_ui",               &battle_config.shadowgear_refine_ui,            1,      0,      1,              },
 	{ "homunculus_max_aspd",                &battle_config.homunculus_max_aspd,             180,    0,      199,            },
 	{ "dropeffect_weapon",                  &battle_config.dropeffect_weapon,               0,      0,      6,              },
@@ -9148,14 +9140,6 @@ void battle_set_defaults()
  *----------------------------------*/
 void battle_adjust_conf()
 {
-
-#ifndef JRO_FORMULAS
-	if (battle_config.jro_formulas) {
-		not_free("BatterRa.conf -> jro_formulas");
-		battle_config.jro_formulas = 0;
-	}
-#endif // JRO_FORMULAS
-
 	battle_config.homunculus_max_aspd = 2000 - battle_config.homunculus_max_aspd * 10;
 	battle_config.monster_max_aspd = 2000 - battle_config.monster_max_aspd * 10;
 	battle_config.max_aspd = 2000 - battle_config.max_aspd * 10;
@@ -9373,50 +9357,34 @@ void do_final_battle(void)
 	ers_destroy(delay_damage_ers);
 }
 
-static bool battle_attack_skill_ratio_fix(struct Damage *wd, struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int* skillratio)
+int64 SkillFormulaDatabase::script_attr_fix(int64 damage)
 {
-	struct map_session_data *sd = BL_CAST(BL_PC, src);
-	struct map_session_data *tsd = BL_CAST(BL_PC, target);
-	int ratio = *(skillratio);
-	switch (skill_id) {
-	case SU_SCRATCH:
-		ratio += 300 + 200 * skill_lv;
-		break;
-	case SU_PICKYPECK:
-	case SU_PICKYPECK_DOUBLE_ATK:
-		ratio += 1150 + 50 * skill_lv;
-		if (status_get_hp(target) < status_get_max_hp(target) / 100 * (skill_lv * 10 + 20) )
-			ratio *= 2;
-		if (sd && pc_checkskill(sd, SU_SPIRITOFLIFE))
-			ratio += ratio * status_get_hp(src) / status_get_max_hp(src);
-		break;
-	case SU_SCAROFTAROU:
-		ratio += 3900 + 200 * skill_lv;
-		if (sd && pc_checkskill(sd, SU_SPIRITOFLIFE))
-			ratio += ratio * status_get_hp(src) / status_get_max_hp(src);
-		break;
-	case SU_SV_STEMSPEAR:
-		ratio += 4900;
-		break;
-	case SU_LUNATICCARROTBEAT:
-		ratio += 1900 + 100 * skill_lv;
-		if (sd && pc_checkskill(sd, SU_SPIRITOFLIFE))
-			ratio += ratio * status_get_hp(src) / status_get_max_hp(src);
-		break;
-	case SU_SVG_SPIRIT:
-		ratio += 2400 + 100 * skill_lv;
-		if (sd && pc_checkskill(sd, SU_SPIRITOFLIFE))
-			ratio += ratio * status_get_hp(src) / status_get_max_hp(src);
-		break;
-	case SU_BITE:
-		ratio += 1900;
-		if (status_get_hp(target) < status_get_max_hp(target) / 100 * 70)
-			ratio = ratio * 3 / 2;
-		break;
-	}
-	if (ratio == *(skillratio))
-		return false;
+	if (!skf_db.src || !skf_db.target || !skf_db.wd)
+		return damage;
+	struct Damage wd_tmp;
+	memcpy(&wd_tmp, skf_db.wd, sizeof(struct Damage));
+	wd_tmp.damage = damage;
+	wd_tmp.damage2 = 0;
+	battle_calc_element_damage(skf_db.wd, skf_db.src, skf_db.target, skf_db.info.skill_id, skf_db.info.skill_lv);
+	return wd_tmp.damage + wd_tmp.damage2;
+}
 
-	*(skillratio) = ratio;
-	return true;
+int64 SkillFormulaDatabase::script_card_fix(int64 damage, int attack_type, int nk, int hand)
+{
+	if (!skf_db.src || !skf_db.target || !skf_db.wd)
+		return damage;
+	uint16 skill_id = skf_db.info.skill_id, skill_lv = skf_db.info.skill_lv;
+	int right_element = battle_get_weapon_element(skf_db.wd, skf_db.src, skf_db.target, skill_id, skill_lv, EQI_HAND_R, false);
+	int left_element = battle_get_weapon_element(skf_db.wd, skf_db.src, skf_db.target, skill_id, skill_lv, EQI_HAND_L, false);
+	if (nk == -1)
+		nk = skill_id ? battle_skill_get_damage_properties(skill_id, skf_db.wd->miscflag) : 0;
+	damage = battle_calc_cardfix(attack_type, skf_db.src, skf_db.target, nk, right_element, left_element, damage, hand, skf_db.wd->flag);
+	if (attack_type&BF_LONG && skf_db.src->type == BL_PC && (skill_id != RA_WUGBITE && skill_id != RA_WUGSTRIKE)) {
+		struct map_session_data *sd = (struct map_session_data *)skf_db.src;
+		damage = damage * sd->bonus.long_attack_atk_rate / 100;
+	}
+	if (nk & 0x100)
+		battle_display.critical = true;
+	
+	return damage;
 }

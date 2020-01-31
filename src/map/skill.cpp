@@ -17196,7 +17196,7 @@ int skill_delayfix(struct block_list *bl, uint16 skill_id, uint16 skill_lv)
 		}
 	}
 
-	skill_formula_db.script_run(bl, NULL, skill_id, skill_lv, 3, NULL, &time);
+	skf_db.script_run(bl, NULL, skill_id, skill_lv, 3, NULL, NULL, &time);
 	//ShowInfo("Delay delayfix = %d\n",time);
 
 	return max(time,0);
@@ -18849,7 +18849,7 @@ static int skill_onplace_script(struct block_list* bl, va_list ap) {
 	if (battle_check_target(src, bl, flag) <= 0)
 		return 0;
 
-	skill_formula_db.script_run(src, bl, group->skill_id, group->skill_lv, 5, NULL, NULL);
+	skf_db.script_run(src, bl, group->skill_id, group->skill_lv, 5, NULL, NULL, NULL);
 	return 1;
 }
 
@@ -21535,8 +21535,8 @@ uint64 SkillFormulaDatabase::parseBodyNode(const YAML::Node &node) {
 	return 1;
 }
 
-SkillFormulaDatabase skill_formula_db;
-void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, int64 *damage, int *time)
+SkillFormulaDatabase skf_db;
+void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, struct Damage *wd, int64 *damage, int *time)
 {
 	struct script_code* script;
 	uint16 idx;
@@ -21550,6 +21550,7 @@ void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list 
 	switch (type) {
 	case 1:
 		script = skill_db[idx]->formula.formula;
+		if (script)	battle_display.critical = false;
 		break;
 	case 2:
 		script = skill_db[idx]->formula.casting;
@@ -21566,21 +21567,27 @@ void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list 
 	}
 	if (script == NULL)
 		return;
-	skill_formula_db.src = src;
-	skill_formula_db.target = target;
+
+#ifndef BRA_SKILL_FORMULA
+	ShowError("DataBase File 'skill_formula_db.txt' is a charging item. It can be used after payment.\n");
+	return;
+#endif
+	skf_db.src = src;
+	skf_db.target = target;
+	skf_db.wd = wd;
 	map_setparam(SP_SKF_SGID, src->id);
 	map_setparam(SP_SKF_SCID, src->type == BL_PC ? ((TBL_PC*)src)->status.char_id : 0);
 	map_setparam(SP_SKF_TGID, target ? target->id : 0);
 	map_setparam(SP_SKF_SKID, skill_id);
 	map_setparam(SP_SKF_SKLV, skill_lv);
-	map_setparam(SP_SKF_DMG, damage ? *damage : 0);
+	map_setparam(SP_SKF_DMG, (damage ? *damage : 0));
 	map_setparam(SP_SKF_TIM, time ? cap_value(*time, INT_MIN, INT_MAX) : 0);
 	run_script(script, 0, 0, fake_nd->bl.id);
 	if (damage) *damage = map_readparam(SP_SKF_DMG);
 	if (time) *time = static_cast<int>(map_readparam(SP_SKF_TIM));
-	skill_formula_db.src = NULL;
-	skill_formula_db.target = NULL;
-	battle_display.critical = false;
+	skf_db.src = NULL;
+	skf_db.target = NULL;
+	skf_db.wd = NULL;
 }
 
 /*==========================================
@@ -22491,7 +22498,7 @@ static void skill_readdb(void)
 		aFree(dbsubpath2);
 	}
 
-	skill_formula_db.load();
+	skf_db.load();
 	abra_db.load();
 	improvised_song_db.load();
 	magic_mushroom_db.load();

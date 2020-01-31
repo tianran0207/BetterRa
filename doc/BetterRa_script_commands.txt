@@ -1824,10 +1824,65 @@ getunitstatus <GID>,<类型>;
 
 ----------------------------------------
 
-*getsrcstatus <类型>;
-*gettargetstatus <类型>;
+*skf_src_status <类型>;
 
-获取攻击者和被攻击者的属性信息, 本指令只能用于 skill_formula_db.yml 中..
+获取攻击者的基础属性, 用于自定义技能公式, 必须在 skill_formula_db.yml 文件中使用..
+
+类型:
+	参考 getunitstatus 指令
+
+----------------------------------------
+
+*skf_target_status <类型>;
+
+获取目标(被攻击者)的基础属性, 用于自定义技能公式, 必须在 skill_formula_db.yml 文件中使用..
+
+类型:
+	参考 getunitstatus 指令
+
+----------------------------------------
+
+*skf_attr_fix <伤害>;
+
+计算本次伤害的属性修正, 用于自定义技能公式, 必须在 skill_formula_db.yml 中的 Formula 部分使用..
+
+----------------------------------------
+
+*skf_card_fix <伤害>,<攻击类型>{,<NK>{,<左手右手>}};
+
+计算本次伤害的 BONUS 修正, 用于自定义技能公式, 必须在 skill_formula_db.yml 中的 Formula 部分使用..
+
+攻击类型:
+按攻击范围:
+	BF_SHORT:  近距离攻击
+	BF_LONG:   远距离攻击
+	默认:   BF_SHORT+BF_LONG
+按攻击类型:
+	BF_WEAPON: 武器攻击
+	BF_MAGIC:  魔法攻击
+	BF_MISC:   混合攻击
+	默认:   BF_WEAPON
+按技能类型:
+	BF_NORMAL: 普通攻击
+	BF_SKILL:  技能攻击
+	默认:   如果攻击类型是 BF_WEAPON (only) BF_NORMAL, 否则 BF_SKILL+BF_NORMAL.
+	
+NK: 为 skill_db.txt 中的 NK项 填写-1为技能默认
+	0x01 - No damage skill
+	0x02 - Has splash area
+	0x04 - Damage should be split among targets
+	0x08 - Skill ignores caster's % damage cards (misc type always ignores)
+	0x10 - Skill ignores elemental adjustments
+	0x20 - Skill ignores target's defense (misc type always ignores)
+	0x40 - Skill ignores target's flee (magic type always ignores)
+	0x80 - Skill ignores target's def cards
+	0x100 - Skill can critical (蓝色框框显示伤害)
+
+<左手右手>
+BF_MISC and BF_MAGIC ignore flag value
+	3: Calculates attacker bonuses in both hands.
+	2: Calculates attacker bonuses in right-hand only.
+	0 or 1: Only calculates target bonuses.
 
 ----------------------------------------
 

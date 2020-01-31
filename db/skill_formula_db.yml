@@ -12,6 +12,7 @@
 #           PerTick:  # 每隔多少tick触发一次
 #           Target:   # 目标敌对情况
 #           Script:   # 触发后执行的脚本
+#
 # Typeable: (可以相加)
 #	BL_PC		- 玩家单位
 #	BL_MOB		- 魔物单位
@@ -23,29 +24,32 @@
 #	BL_NPC		- NPC单位
 #	BL_CHAT		- 聊天室单位 (拿到了也暂时用不上)
 #	BL_ELEM		- 元素精灵单位 (拿到了也暂时用不上)
-# Target: (可以相加)
-#   BCT_SELF		= 0x010000, ///< 自己, 如果两个GID为相同时, 返回真
-#	BCT_ENEMY		= 0x020000, ///< 敌对
-#	BCT_PARTY		= 0x040000, ///< 队友
-#	BCT_GUILDALLY	= 0x080000, ///< 公会盟友关系, 但非同公会
-#	BCT_NEUTRAL		= 0x100000, ///< 中立
-#	BCT_SAMEGUILD	= 0x200000, ///< 同公会, 非公会盟友
 #
-#	BCT_GUILD		= BCT_SAMEGUILD|BCT_GUILDALLY,	///< 公会成员和盟友
-#	BCT_NOGUILD		= BCT_ALL&~BCT_GUILD,			///< 非公会同盟
-#	BCT_NOPARTY		= BCT_ALL&~BCT_PARTY,			///< 非队友
-#	BCT_NOENEMY		= BCT_ALL&~BCT_ENEMY,			///< 非敌对
-# 注意: 使用 getsrcstatus  获得攻击者的基础战斗讯息, 
-#       使用 gettargetstatus 获得目标的基础战斗讯息,
-#       指令不需要与玩家关联, 公式中不要使用sleep等会延迟操作的指令
-# skf_sgid 释放技能对象的GID
-# skf_scid 释放技能玩家的CID 如果不是玩家则为0
-# skf_tgid 技能所攻击目标的GID
-# skf_id 技能ID
-# skf_lv 技能等级
-# skf_dmg 最终伤害 
-# skf_tim 咏唱时间 延迟时间或持续时间
-
+# 参数:
+#   在本文件中可以使用的一些参数, 通过直接修改参数达到修改伤害、时间等内容。
+#   skf_sgid 释放技能对象的GID
+#   skf_scid 释放技能玩家的CID 如果不是玩家则为0
+#   skf_tgid 技能所攻击目标的GID
+#   skf_id 技能ID
+#   skf_lv 技能等级
+#   skf_dmg 最终伤害 
+#   skf_tim 咏唱时间 延迟时间或持续时间
+#
+########################################################################
+#                                                                      #
+# 脚本指令: 使用方法 查看 doc/BetterRa_script_commands.txt             #
+#   指令 skf_src_status  获得攻击者的基础属性                          #
+#   指令 skf_target_status 获得目标(被攻击者)的基础属性                #
+#   指令 skf_attr_fix 计算本次的属性修正                               #
+#   指令 skf_card_fix 计算本次伤害的 BONUS 修正                        #
+#   注意: 指令不需要与玩家关联, 公式中不要使用sleep等会延迟操作的指令  #
+#                                                                      #
+########################################################################
+#
+# 注意! 脚本不需要在同一行, 支持多行, 如果需要使用此功能, 请联作者
+# 功能可在测试版测试, 测试版为 BetterRA.cn 首页下载的限制 5 人登录版
+#
+########################################################################
 
 Header:
   Type: SKILL_FORMULA_DB
@@ -56,11 +60,11 @@ Body:
 #    Tips: 伤害修正为 100 * skf_lv + rand(int * 100), 念咒为1秒, 当dex大于100时无延迟;
 #    Typeable: 1
 #    Formula: >
-#      skf_dmg = 100 * skf_lv * getsrcstatus(STATUS_INT) + rand(getsrcstatus(STATUS_INT) * 100);
+#      skf_dmg = 100 * skf_lv * skf_src_status(STATUS_INT) + rand(skf_src_status(STATUS_INT) * 100);
 #    Casting: >
 #      skf_tim = 1000;
 #    Delay: >
-#      skf_tim = getsrcstatus(STATUS_DEX) > 100 ? 0 : skf_tim;
+#      skf_tim = skf_src_status(STATUS_DEX) > 100 ? 0 : skf_tim;
 #    Duration: >
 #      skf_tim = 1000;
 #

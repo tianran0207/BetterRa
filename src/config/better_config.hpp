@@ -131,7 +131,6 @@
 	#define SCRIPT_UNITSKILLTOWIDE          // 技能扩散
 	#define SCRIPT_ROULETTE                 // 转盘规则
 	#define SCRIPT_MAGICSHIELD              // 魔法护盾
-	#define JRO_FORMULAS                    // JRO技能公式
 	#define C_UTF8_CODE                     // 支持UTF8编码文件
 #endif
 #endif //_BETTERRA_CONFIG_H_

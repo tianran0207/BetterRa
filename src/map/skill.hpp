@@ -399,12 +399,18 @@ public:
 
 	struct block_list *src = NULL;
 	struct block_list *target = NULL;
-	int time, sgid, scid, tgid;
-	uint16 skill_id, skill_lv;
-	int64 damage;
-	void script_run(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, int64 *damage, int *time);
+	struct Damage *wd;
+	int sgid, scid, tgid;
+	struct s_damage {
+		uint16 skill_id, skill_lv;
+		int64 damage;
+		int time;
+	}info;
+	int64 script_attr_fix(int64 damage);
+	int64 script_card_fix(int64 damage, int attack_type, int nk, int hand);
+	void script_run(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, struct Damage *wd, int64 *damage, int *time);
 };
-extern SkillFormulaDatabase skill_formula_db;
+extern SkillFormulaDatabase skf_db;
 
 /// Abracadabra database
 struct s_skill_abra_db {

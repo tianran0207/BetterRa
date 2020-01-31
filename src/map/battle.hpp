@@ -192,7 +192,6 @@ struct Battle_Config
 	int npc_timeout;
 	int atcommand_info;
 	int mvpdrop_last_hit_loot;
-	int jro_formulas;
 	int shadowgear_refine_ui;
 	int homunculus_max_aspd;
 	int dropeffect_weapon;

@@ -9827,7 +9827,7 @@ BUILDIN_FUNC(bonus)
 	type = script_getnum(st,2);
 
 	if (!buildin_bonus_check_free(type)) {
-		ShowWarning("This bonus '%d' is NOT FREE!! Please contact the author.(QQ:809236588)\n", type);
+		ShowError("%s: Item Bonus '%d' is a charging item. It can be used after payment.\n", __FUNCTION__, type);
 		return SCRIPT_CMD_SUCCESS;
 	}
 
@@ -28899,15 +28899,39 @@ BUILDIN_FUNC(getunitstatus)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(getsrcstatus)
+BUILDIN_FUNC(skf_src_status)
 {
-	script_pushint(st, buildin_readstatus_sub(skill_formula_db.src, script_getnum(st, 2)));
+	struct status_data *status;
+	if (!skf_db.src || !(status = status_get_status_data(skf_db.src)))
+		script_pushint(st, 0);
+	else
+		script_pushint(st, buildin_readstatus_sub(skf_db.src, script_getnum(st, 2)));
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(gettargetstatus)
+BUILDIN_FUNC(skf_target_status)
 {
-	script_pushint(st, buildin_readstatus_sub(skill_formula_db.target, script_getnum(st, 2)));
+	struct status_data *status;
+	if (!skf_db.target || !(status = status_get_status_data(skf_db.target)))
+		script_pushint(st, 0);
+	else
+		script_pushint(st, buildin_readstatus_sub(skf_db.target, script_getnum(st, 2)));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(skf_attr_fix)
+{
+	script_pushint(st, skf_db.script_attr_fix(script_getnum64(st, 2)));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(skf_card_fix)
+{
+	int64 damage = script_getnum64(st, 2);
+	int attack_type = script_getnum(st, 3);
+	int nk = script_hasdata(st, 4) ? script_getnum(st, 4) : -1;
+	int hand = script_hasdata(st, 5) ? script_getnum(st, 5) : 2;
+	script_pushint(st, skf_db.script_card_fix(damage, attack_type, nk, hand));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -30198,8 +30222,10 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(searchcartinventory, "i??"),
 	BUILDIN_DEF(searchstorageinventory, "i??"),
 	BUILDIN_DEF(getunitstatus, "ii"),
-	BUILDIN_DEF(getsrcstatus, "i"),
-	BUILDIN_DEF(gettargetstatus, "i"),
+	BUILDIN_DEF(skf_src_status, "i"),
+	BUILDIN_DEF(skf_target_status, "i"),
+	BUILDIN_DEF(skf_attr_fix, "i"),
+	BUILDIN_DEF(skf_card_fix, "ii??"),
 	BUILDIN_DEF(progressbar_unit, "si?"),
 	BUILDIN_DEF(getvariableofpc, "ri?"),
 	BUILDIN_DEF(getcalendartime, "ii??"),

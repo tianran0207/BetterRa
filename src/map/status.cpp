@@ -11593,7 +11593,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	if (status_sc2skill(type) != 0) {
 		struct unit_data *ud = unit_bl2ud(bl);
 		if (ud && status_sc2skill(type) == ud->skill_id)
-			skill_formula_db.script_run(src, bl, ud->skill_id, ud->skill_lv, 4, NULL, &tick);
+			skf_db.script_run(src, bl, ud->skill_id, ud->skill_lv, 4, NULL, NULL, &tick);
 	}
 
 	if (npc_script_event_check(sd, NPCE_BUFFFIXFILTER) && !(flag&SCSTART_LOADED)) {

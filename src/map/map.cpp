@@ -5710,13 +5710,13 @@ int64 map_readparam(int64 type)
 {
 	int64 val = 0;
 	switch (type) {
-	case SP_SKF_SGID:        val = skill_formula_db.sgid;     break;
-	case SP_SKF_SCID:        val = skill_formula_db.scid;     break;
-	case SP_SKF_TGID:        val = skill_formula_db.tgid;     break;
-	case SP_SKF_SKID:        val = skill_formula_db.skill_id; break;
-	case SP_SKF_SKLV:        val = skill_formula_db.skill_lv; break;
-	case SP_SKF_DMG:         val = skill_formula_db.damage;   break;
-	case SP_SKF_TIM:         val = skill_formula_db.time;     break;
+	case SP_SKF_SGID:        val = skf_db.sgid;          break;
+	case SP_SKF_SCID:        val = skf_db.scid;          break;
+	case SP_SKF_TGID:        val = skf_db.tgid;          break;
+	case SP_SKF_SKID:        val = skf_db.info.skill_id; break;
+	case SP_SKF_SKLV:        val = skf_db.info.skill_lv; break;
+	case SP_SKF_DMG:         val = skf_db.info.damage;   break;
+	case SP_SKF_TIM:         val = skf_db.info.time;     break;
 	}
 	return val;
 }
@@ -5726,25 +5726,25 @@ bool map_setparam(int64 type, int64 val_tmp)
 	int val = static_cast<unsigned int>(val_tmp);
 	switch (type) {
 	case SP_SKF_SGID:
-		skill_formula_db.sgid = val;
+		skf_db.sgid = val;
 		return true;
 	case SP_SKF_SCID:
-		skill_formula_db.scid = val;
+		skf_db.scid = val;
 		return true;
 	case SP_SKF_TGID:
-		skill_formula_db.tgid = val;
+		skf_db.tgid = val;
 		return true;
 	case SP_SKF_SKID:
-		skill_formula_db.skill_id = val;
+		skf_db.info.skill_id = val;
 		return true;
 	case SP_SKF_SKLV:
-		skill_formula_db.skill_lv = val;
+		skf_db.info.skill_lv = val;
 		return true;
 	case SP_SKF_DMG:
-		skill_formula_db.damage = val_tmp;
+		skf_db.info.damage = val_tmp;
 		return true;
 	case SP_SKF_TIM:
-		skill_formula_db.time = val;
+		skf_db.info.time = val;
 		return true;
 	}
 	return false;
