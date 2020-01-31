@@ -9170,7 +9170,8 @@ int64 pc_readparam(struct map_session_data* sd,int64 type)
 
 	switch(type) {
 		case SP_DMG_TYPE:        val = sd->eventparam.dmg_type; break;
-		case SP_DMG_DAMAGE:      val = sd->eventparam.dmg_damage; break;
+		case SP_DMG_VAL:         val = sd->eventparam.dmg_val; break;
+		case SP_DMG_DISP_VAL:    val = sd->eventparam.dmg_disp_val; break;
 		case SP_DMG_SKILLID:     val = sd->eventparam.dmg_skillid; break;
 		case SP_DMG_SKILLLV:     val = sd->eventparam.dmg_skilllv; break;
 		case SP_DMG_TARGETTYPE:  val = sd->eventparam.dmg_targettype; break;
@@ -9356,8 +9357,11 @@ bool pc_setparam(struct map_session_data *sd,int64 type,int64 val_tmp)
 	case SP_DMG_TYPE:
 		sd->eventparam.dmg_type = val;
 		return true;
-	case SP_DMG_DAMAGE:
-		sd->eventparam.dmg_damage = val;
+	case SP_DMG_VAL:
+		sd->eventparam.dmg_val = val;
+		return true;
+	case SP_DMG_DISP_VAL:
+		sd->eventparam.dmg_disp_val = val;
 		return true;
 	case SP_DMG_SKILLID:
 		sd->eventparam.dmg_skillid = val;

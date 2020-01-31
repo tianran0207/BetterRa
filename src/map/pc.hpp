@@ -264,7 +264,7 @@ struct s_multidamagerate {
 };
 
 struct s_skillcritical {
-	uint16 sk, crirate;
+	int32 sk, crirate;
 	uint32 dmgrate;
 };
 
@@ -368,7 +368,7 @@ struct map_session_data {
 	int sleep_mes_active;
 	struct s_damage_event {
 		short dmg_type, dmg_skillid, dmg_skilllv, dmg_targettype, dmg_mobid, dmg_mark;
-		int dmg_damage, dmg_targetgid;
+		int dmg_val, dmg_disp_val, dmg_targetgid;
 		int heal_all, heal_real, heal_targetgid;
 	}eventparam;
 	uint16 skill_attr;

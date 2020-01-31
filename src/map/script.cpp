@@ -28837,7 +28837,7 @@ static int buildin_readstatus_sub(struct block_list *bl, int type)
 	struct status_data *status = status_get_status_data(bl);
 	struct map_session_data* sd = NULL;
 
-	if (bl == NULL) {
+	if (bl == NULL || status == NULL) {
 		ShowError("buildin_readstatus_sub: bl == NULL.\n");
 		return 0;
 	}

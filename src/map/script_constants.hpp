@@ -710,7 +710,8 @@
 	export_parameter("skf_dmg", SP_SKF_DMG);
 	export_parameter("skf_tim", SP_SKF_TIM);
 	export_parameter("dmg_type", SP_DMG_TYPE);
-	export_parameter("dmg_damage", SP_DMG_DAMAGE);
+	export_parameter("dmg_damage", SP_DMG_VAL);
+	export_parameter("dmg_display", SP_DMG_DISP_VAL);
 	export_parameter("dmg_skillid", SP_DMG_SKILLID);
 	export_parameter("dmg_skilllv", SP_DMG_SKILLLV);
 	export_parameter("dmg_targettype", SP_DMG_TARGETTYPE);

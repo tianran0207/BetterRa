@@ -4914,6 +4914,10 @@ int clif_damage(struct block_list* src, struct block_list* dst, t_tick tick, int
 	nullpo_ret(src);
 	nullpo_ret(dst);
 
+	if (battle_display.block_id == dst->id && tick == battle_display.tick && battle_display.damage + battle_display.damage2 > 0) {
+		damage = (int)cap_value(battle_display.damage, INT_MIN, INT_MAX);
+		damage2 = (int)cap_value(battle_display.damage2, INT_MIN, INT_MAX);
+	}
 	if (type != DMG_MULTI_HIT_CRITICAL)
 		type = clif_calc_delay(type,div,damage+damage2,ddelay);
 	sc = status_get_sc(dst);
@@ -5670,7 +5674,19 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,t_tick tick,
 		if(sc->data[SC_HALLUCINATION] && damage)
 			damage = clif_hallucination_damage();
 	}
-
+	if (battle_display.block_id == dst->id && tick == battle_display.tick) {
+		int rdamage = (int)cap_value(battle_display.damage + battle_display.damage2, INT_MIN, INT_MAX);
+		damage = rdamage ? rdamage : damage;
+		battle_display.damage = battle_display.damage2 = 0;
+		if (skill_id != TK_STORMKICK && battle_display.critical && battle_config.skill_critical_display) {
+			if (src->type == BL_SKILL) {
+				clif_skill_damage(dst, dst, tick, 0, 0, damage, 1, TK_STORMKICK, 1, DMG_SPLASH);
+				return clif_calc_walkdelay(dst, ddelay, type, damage, div);
+			}
+			clif_skill_damage(dst, dst, tick, sdelay, ddelay, damage, 1, TK_STORMKICK, 1, DMG_SPLASH);
+		}
+		battle_display.critical = false;
+	}
 #if PACKETVER < 3
 	WBUFW(buf,0)=0x114;
 	WBUFW(buf,2)=skill_id;

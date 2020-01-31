@@ -84,6 +84,14 @@ struct Damage {
 //(Used in read pc.cpp) attribute table (battle_attr_fix)
 extern int attr_fix_table[MAX_ELE_LEVEL][ELE_MAX][ELE_MAX];
 
+struct s_battle_display {
+	int block_id;
+	int64 damage, damage2;
+	t_tick tick;
+	bool critical;
+};
+extern struct s_battle_display battle_display;
+
 // Damage Calculation
 
 struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct block_list *target,uint16 skill_id,uint16 skill_lv,int flag);
@@ -104,7 +112,7 @@ int64 battle_calc_bg_damage(struct block_list *src,struct block_list *bl,int64 d
 void battle_damage(struct block_list *src, struct block_list *target, int64 damage, t_tick delay, uint16 skill_lv, uint16 skill_id, enum damage_lv dmg_lv, unsigned short attack_type, bool additional_effects, t_tick tick, bool spdamage);
 int battle_delay_damage (t_tick tick, int amotion, struct block_list *src, struct block_list *target, int attack_type, uint16 skill_id, uint16 skill_lv, int64 damage, enum damage_lv dmg_lv, t_tick ddelay, bool additional_effects, bool spdamage);
 void battle_damage_casttime_fix(struct block_list* src, uint16 skill_id, int64 *damage, int *casttime, t_tick tick);
-void battle_damage_event(struct block_list* src, struct block_list* target, int attack_type, uint16 skill_id, uint16 skill_lv, int64 *damage, t_tick tick);
+int64 battle_damage_event(struct block_list* src, struct block_list* target, struct Damage *wd, uint16 skill_id, uint16 skill_lv, t_tick tick);
 
 int battle_calc_chorusbonus(struct map_session_data *sd);
 
@@ -235,6 +243,12 @@ struct Battle_Config
 	int attacked_event;
 	int mob_drop_event;
 	int item_costume_card;
+	int skill_critical_enable;
+	int skill_critical_display;
+	int skill_critical_rate;
+	int skill_critical_damage;
+	int skill_critical_boss;
+	int skill_critical_luk;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

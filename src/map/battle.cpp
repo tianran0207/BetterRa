@@ -339,20 +339,90 @@ void battle_damage_casttime_fix(struct block_list* bl, uint16 skill_id, int64 *d
 	}
 }
 
-void battle_damage_event(struct block_list* src, struct block_list* target, int attack_type, uint16 skill_id, uint16 skill_lv, int64 *damage, t_tick tick)
+struct s_battle_display battle_display;
+int64 battle_damage_event(struct block_list* src, struct block_list* target, struct Damage *wd, uint16 skill_id, uint16 skill_lv, t_tick tick)
 {
-	struct map_session_data* sd;
+	struct map_session_data* sd = BL_CAST(BL_PC, src);
+	struct map_data *mapdata;
+	int64 damage = wd->damage + wd->damage2, ddamage = 0;
+	battle_display.block_id = 0;
+	if (damage <= 0)
+		return damage;
+	battle_display.block_id = target ? target->id : 0;
+	battle_display.tick = tick;
+	battle_display.critical = false;
+	battle_display.damage = battle_display.damage2 = 0;
 
-	battle_damage_casttime_fix(src, skill_id, damage, NULL, gettick());
+	battle_damage_casttime_fix(src, skill_id, &damage, NULL, tick);
 
-	if (*damage <= 0 || src == target)
-		return;
+	if (sd && (wd->flag & DMG_SKILL)) {
+		for (auto &it : sd->skilldamage) {
+			if (it.sk != skill_id)
+				continue;
+			switch (it.lv) {
+			case -1:
+				damage += (it.damage * skill_lv);
+				break;
+			case 0:
+				damage += it.damage;
+				break;
+			default:
+				if (skill_lv == it.lv)
+					damage += it.damage;
+			}
+		}
+		int cri_def = 0, cri_rate = 100;
+		struct status_data *status = status_get_status_data(target);
+		if (status && battle_config.skill_critical_luk)
+			cri_def = status->luk * 2;
+		if (status && status->class_ == CLASS_BOSS)
+			cri_rate = battle_config.skill_critical_boss;
 
-	if (target && (sd = BL_CAST(BL_PC, src)) && (npc_script_event_check(sd, NPCE_ATKFILTER) || (battle_config.attack_event & target->type))) {
+		for (auto &it : sd->skillcritical) {
+			if (it.sk != skill_id && it.sk != -1)
+				continue;
+			if (rnd() % 1000 >= (it.crirate * cri_rate / 100) - cri_def)
+				continue;
+			damage = damage * it.dmgrate / 100;
+			battle_display.critical = true;
+		}
+	}
+	if (src && (battle_config.skill_critical_enable & src->type) && !battle_display.critical) {
+		struct status_data *status ;
+		int cri;
+		if (!battle_config.skill_critical_rate) {
+			status = status_get_status_data(src);
+			cri = 10 + ((status ? status->luk : 0) * 10 / 3);
+		}
+		else
+			cri = battle_config.skill_critical_rate;
+		status = status_get_status_data(target);
+		if (status && battle_config.skill_critical_luk)
+			cri -= status->luk * 2;
+		if (status && status->class_ == CLASS_BOSS)
+			cri = cri * battle_config.skill_critical_boss / 100;
+		if (rnd() % 1000 < cri) {
+			damage = damage * battle_config.skill_critical_damage / 100;
+			battle_display.critical = true;
+		}
+	}
+	mapdata = map_getmapdata(src ? src->m : target ? target->m : -1);
+	if (mapdata && damage) {
+		if (src && src->type == BL_MOB && mapdata->flag[MF_MOBATKRATE2])
+			damage = damage * mapdata->flag[MF_MOBATKRATE2] / 100;
+		if (target && target->type == BL_MOB && mapdata->flag[MF_MOBDMGRATE2])
+			damage = damage * mapdata->flag[MF_MOBDMGRATE2] / 100;
+
+		int val = skill_id ? mapdata->flag[MF_MAXDMG_SKILL] : mapdata->flag[MF_MAXDMG_NORMAL];
+		if (val && damage > val)
+			damage = val;
+	}
+	if (target && sd && (npc_script_event_check(sd, NPCE_ATKFILTER))) {
 		struct unit_data *ud = unit_bl2ud(target);
-		if ((map_getmapflag(target->m, MF_ATTACKEVENT)&(target->type)) || ud && ud->attackevent_mark) {
-			pc_setparam(sd, SP_DMG_TYPE, attack_type);
-			pc_setparam(sd, SP_DMG_DAMAGE, (int)cap_value(*damage, 0, INT_MAX));
+		if ((map_getmapflag(target->m, MF_ATTACKEVENT)&(target->type)) || ud && ud->attackevent_mark || (battle_config.attack_event & target->type)) {
+			pc_setparam(sd, SP_DMG_TYPE, wd->flag);
+			pc_setparam(sd, SP_DMG_VAL, damage);
+			pc_setparam(sd, SP_DMG_DISP_VAL, ddamage);
 			pc_setparam(sd, SP_DMG_SKILLID, skill_id);
 			pc_setparam(sd, SP_DMG_SKILLLV, skill_lv);
 			pc_setparam(sd, SP_DMG_TARGETTYPE, target->type);
@@ -360,16 +430,18 @@ void battle_damage_event(struct block_list* src, struct block_list* target, int 
 			pc_setparam(sd, SP_DMG_MOBID, target->type == BL_MOB ? ((TBL_MOB*)target)->mob_id : 0);
 			pc_setparam(sd, SP_DMG_MARK, ud ? ud->attackevent_mark : 0);
 			npc_script_event_atonce(sd, NPCE_ATKFILTER);
-			if (sd->state.processhalt)
-				*damage = pc_readparam(sd, SP_DMG_DAMAGE);
+			if (sd->state.processhalt) {
+				damage = pc_readparam(sd, SP_DMG_VAL);
+				ddamage = pc_readparam(sd, SP_DMG_DISP_VAL);
+			}
 		}
 	}
-
-	if (src && (sd = BL_CAST(BL_PC, target)) && (npc_script_event_check(sd, NPCE_ATKEDFILTER) || (battle_config.attacked_event & src->type))) {
+	if (src && (sd = BL_CAST(BL_PC, target)) && (npc_script_event_check(sd, NPCE_ATKEDFILTER))) {
 		struct unit_data *ud = unit_bl2ud(src);
-		if ((map_getmapflag(src->m, MF_ATTACKEDEVENT)&(src->type)) || ud && ud->attackedevent_mark) {
-			pc_setparam(sd, SP_DMG_TYPE, attack_type);
-			pc_setparam(sd, SP_DMG_DAMAGE, (int)cap_value(*damage, 0, INT_MAX));
+		if ((map_getmapflag(src->m, MF_ATTACKEDEVENT)&(src->type)) || ud && ud->attackedevent_mark || (battle_config.attacked_event & src->type)) {
+			pc_setparam(sd, SP_DMG_TYPE, wd->flag);
+			pc_setparam(sd, SP_DMG_VAL, damage);
+			pc_setparam(sd, SP_DMG_DISP_VAL, ddamage);
 			pc_setparam(sd, SP_DMG_SKILLID, skill_id);
 			pc_setparam(sd, SP_DMG_SKILLLV, skill_lv);
 			pc_setparam(sd, SP_DMG_TARGETTYPE, src->type);
@@ -377,10 +449,30 @@ void battle_damage_event(struct block_list* src, struct block_list* target, int 
 			pc_setparam(sd, SP_DMG_MOBID, src->type == BL_MOB ? ((TBL_MOB*)src)->mob_id : 0);
 			pc_setparam(sd, SP_DMG_MARK, ud ? ud->attackedevent_mark : 0);
 			npc_script_event_atonce(sd, NPCE_ATKEDFILTER);
-			if (sd->state.processhalt)
-				*damage = pc_readparam(sd, SP_DMG_DAMAGE);
+			if (sd->state.processhalt) {
+				damage = pc_readparam(sd, SP_DMG_VAL);
+				ddamage = pc_readparam(sd, SP_DMG_DISP_VAL);
+			}
 		}
 	}
+
+	skill_formula_db.script_run(src, target, skill_id, skill_lv, 1, &damage, NULL);
+
+	if (damage != wd->damage + wd->damage2 || ddamage > 0) {
+		if (wd->damage2 == 0) {
+			wd->damage = damage;
+			battle_display.damage = ddamage;
+		}
+		else {
+			int64 ratio = wd->damage * 10000 / (wd->damage + wd->damage2);
+			wd->damage = damage * ratio / 10000;
+			wd->damage2 = damage - wd->damage;
+			battle_display.damage = ddamage * ratio / 10000;
+			battle_display.damage2 = ddamage - battle_display.damage;
+		}
+	}
+
+	return damage;
 }
 
 /// Damage Delayed Structure
@@ -461,9 +553,6 @@ int battle_delay_damage(t_tick tick, int amotion, struct block_list *src, struct
 
 		damage = 0;
 	}
-
-	if (!isspdamage)
-		battle_damage_event(src, target, attack_type, skill_id, skill_lv, &damage, tick);
 
 	if ( !battle_config.delay_battle_damage || amotion <= 1 ) {
 		//Deal damage
@@ -7173,33 +7262,6 @@ struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct bl
 	else // Some skills like Weaponry Research will cause damage even if attack is dodged
 		d.dmg_lv = ATK_DEF;
 
-	struct map_data *mapdata = map_getmapdata(bl ? bl->m : target ? target->m : -1);
-	int64 damage = d.damage + d.damage2;
-
-	if (mapdata && damage) {
-
-		if (bl && bl->type == BL_MOB && mapdata->flag[MF_MOBATKRATE2])
-			damage = damage * mapdata->flag[MF_MOBATKRATE2] / 100;
-		if (target && target->type == BL_MOB && mapdata->flag[MF_MOBDMGRATE2])
-			damage = damage * mapdata->flag[MF_MOBDMGRATE2] / 100;
-	
-		int val = skill_id ? mapdata->flag[MF_MAXDMG_SKILL] : mapdata->flag[MF_MAXDMG_NORMAL];
-		if (val && damage > val)
-			damage = val;
-
-		if (damage != d.damage + d.damage2) {
-			if (d.damage2 == 0)
-				d.damage = damage;
-			else {
-				int64 ratio = d.damage * 1000 / (d.damage + d.damage2);
-				d.damage = damage * ratio / 1000;
-				d.damage2 = damage - d.damage;
-			}
-		}
-	}
-
-	skill_formula_db.script_run(bl, target, skill_id, skill_lv, 1, &d.damage, NULL);
-
 	struct map_session_data *sd = BL_CAST(BL_PC, bl);
 
 	if (sd && d.damage + d.damage2 > 1)
@@ -7702,6 +7764,8 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			skill_attack(skill_get_type(skill_id), src, src, target, skill_id, sc->data[SC_DUPLELIGHT]->val1, tick, SD_LEVEL);
 		}
 	}
+
+	damage = battle_damage_event(src, target, &wd, 0, 0, tick);
 
 	wd.dmotion = clif_damage(src, target, tick, wd.amotion, wd.dmotion, wd.damage, wd.div_ , wd.type, wd.damage2, wd.isspdamage);
 
@@ -8472,6 +8536,12 @@ static const struct _battle_data {
 	{ "attacked_event",                     &battle_config.attacked_event,                  0,      0,      INT_MAX,        },
 	{ "mob_drop_event",                     &battle_config.mob_drop_event,                  0,      0,      INT_MAX,        },
 	{ "item_costume_card",                  &battle_config.item_costume_card,               0,      0,      1,              },
+	{ "skill_critical_enable",              &battle_config.skill_critical_enable,           0,      0,      BL_ALL,         },
+	{ "skill_critical_display",             &battle_config.skill_critical_display,          0,      0,      1,              },
+	{ "skill_critical_rate",                &battle_config.skill_critical_rate,             0,      0,      INT_MAX,        },
+	{ "skill_critical_damage",              &battle_config.skill_critical_damage,           150,    0,      INT_MAX,        },
+	{ "skill_critical_boss",                &battle_config.skill_critical_boss,             0,      0,      INT_MAX,        },
+	{ "skill_critical_luk",                 &battle_config.skill_critical_luk,              1,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },
