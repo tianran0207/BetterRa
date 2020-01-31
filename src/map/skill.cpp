@@ -21580,6 +21580,7 @@ void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list 
 	if (time) *time = static_cast<int>(map_readparam(SP_SKF_TIM));
 	skill_formula_db.src = NULL;
 	skill_formula_db.target = NULL;
+	battle_display.critical = false;
 }
 
 /*==========================================
