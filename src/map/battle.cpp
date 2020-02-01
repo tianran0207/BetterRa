@@ -355,7 +355,7 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 
 	battle_damage_casttime_fix(src, skill_id, &damage, NULL, tick);
 
-	if (sd && (wd->flag & DMG_SKILL)) {
+	if (sd && (wd->flag & BF_SKILL)) {
 		for (auto &it : sd->skilldamage) {
 			if (it.sk != skill_id)
 				continue;
