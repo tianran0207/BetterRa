@@ -559,7 +559,9 @@
 	export_constant2("bFixedCastAddRate", SP_FIXCASTADDRATE);
 	export_constant2("bMultiDamageRate", SP_MULTIDAMAGERATE);
 	export_constant2("bSkillCritical", SP_SKILLCRITICAL);
+	export_constant2("bAddSkillArea", SP_ADD_SKILL_AREA);
 	export_constant2("bAddSkillRange", SP_ADD_SKILL_RANGE);
+	export_constant2("bSkillToAround", SP_SKILL_TO_AROUND);
 	export_constant2("bSkillToGround", SP_SKILL_TO_GROUND);
 	export_constant2("bSkillNoSpecial", SP_SKILL_NO_SPECIAL);
 	export_constant2("bSkillNoRequire", SP_SKILL_NO_CAST);

@@ -332,7 +332,7 @@ int skill_tree_get_max(uint16 skill_id, int b_class)
 		return skill_get_max(skill_id);
 }
 
-int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id)
+int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range)
 {
 	if (sd == NULL)
 		return skill_get_inf(skill_id);
@@ -340,8 +340,17 @@ int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id)
 	for (auto &it : sd->skilltoground) {
 		if (it.sk != skill_id)
 			continue;
+		if (range) *range = it.val;
 		return INF_GROUND_SKILL;
 	}
+	for (auto &it : sd->skilltoaround) {
+		if (it.sk != skill_id)
+			continue;
+		if (range) *range = it.val;
+		return INF_SELF_SKILL;
+	}
+	if (range && (skill_id == *range || (sd->bl.id == *range && skill_get_inf(skill_id) != INF_SELF_SKILL)))
+		clif_skillinfo(sd, skill_id, skill_get_inf(skill_id));
 
 	return skill_get_inf(skill_id);
 }
@@ -407,6 +416,14 @@ int skill_get_range2(struct block_list *bl, uint16 skill_id, uint16 skill_lv, bo
 			if(inf3&INF3_EFF_SHADOWJUMP) range = skill_get_range(NJ_SHADOWJUMP,pc_checkskill((TBL_PC*)bl,NJ_SHADOWJUMP));
 			if(inf3&INF3_EFF_RADIUS) range += pc_checkskill((TBL_PC*)bl, WL_RADIUS);
 			if(inf3&INF3_EFF_RESEARCHTRAP) range += (1 + pc_checkskill((TBL_PC*)bl, RA_RESEARCHTRAP))/2;
+		}
+	}
+	if (bl->type == BL_PC) {
+		struct map_session_data *sd = (struct map_session_data *)bl;
+		for (auto &it : sd->skillrange) {
+			if (it.sk != skill_id || it.sk == -1)
+				continue;
+			range += it.val;
 		}
 	}
 
@@ -5226,7 +5243,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 
 			int splash = skill_get_splash(skill_id, skill_lv);
 			if (sd) {
-				for (auto &it : sd->skillrange) {
+				for (auto &it : sd->skillarea) {
 					if (it.sk != skill_id)
 						continue;
 					splash += it.val;
@@ -11284,7 +11301,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
  * @param skill_lv
  * @return -1 success, others are failed @see enum useskill_fail_cause.
  **/
-static int8 skill_castend_id_check(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv) {
+static int8 skill_castend_id_check(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, bool check_target) {
 	int inf = skill_get_inf(skill_id);
 	int inf2 = skill_get_inf2(skill_id);
 	struct status_change *tsc = status_get_sc(target);
@@ -11406,7 +11423,7 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 			break;
 	}
 
-	if (inf && battle_check_target(src, target, inf) <= 0) {
+	if (check_target && inf && battle_check_target(src, target, inf) <= 0) {
 		switch(skill_id) {
 			case RK_PHANTOMTHRUST:
 			case AB_CLEARANCE:
@@ -11426,18 +11443,44 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 
 int skill_castend_for_AOE(struct block_list *bl, va_list ap)
 {
+	struct block_list *src;
 	struct unit_data *ud;
 	int maxcount;
-	int *count;
+	int *count, inf, inf2;
+	t_tick tick;
 
-	ud = va_arg(ap, struct unit_data *);
+	src = va_arg(ap, struct block_list *);
+	tick = va_arg(ap, t_tick);
 	count = va_arg(ap, int *);
 	maxcount = va_arg(ap, int);
 
-	if (ud->skilltarget == bl->id)
+	if ((ud = unit_bl2ud(src)) == NULL || ud->target == bl->id)
 		return 0;
 
-	if ((*count) < maxcount) {
+	inf = skill_get_inf(ud->skill_id);
+	inf2 = skill_get_inf2(ud->skill_id);
+
+	if (inf&INF_ATTACK_SKILL ||
+		(inf&INF_SELF_SKILL && skill_get_inf2(ud->skill_id)&INF2_NO_TARGET_SELF) //Combo skills
+		) // Casted through combo.
+		inf = BCT_ENEMY; //Offensive skill.
+	else if (inf2&INF2_NO_ENEMY)
+		inf = BCT_NOENEMY;
+	else
+		inf = 0;
+
+	if (inf2 & (INF2_PARTY_ONLY | INF2_GUILD_ONLY) && src != bl) {
+		inf |=
+			(inf2&INF2_PARTY_ONLY ? BCT_PARTY : 0) |
+			(inf2&INF2_GUILD_ONLY ? BCT_GUILD : 0);
+		//Remove neutral targets (but allow enemy if skill is designed to be so)
+		inf &= ~BCT_NEUTRAL;
+	}
+
+	if (battle_check_target(src, bl, inf) <= 0)
+		return 0;
+	
+	if (!maxcount || (*count) < maxcount) {
 		if (skill_get_casttype(ud->skill_id) == CAST_NODAMAGE)
 			skill_castend_nodamage_id(ud->bl, bl, ud->skill_id, ud->skill_lv, gettick(), 0);
 		else
@@ -11502,6 +11545,9 @@ TIMER_FUNC(skill_castend_id){
 		target = src;
 	else
 		target = map_id2bl(ud->skilltarget);
+
+	int skilltoaround = 0;
+	if (sd) skill_get_pc_inf(sd, ud->skill_id, &skilltoaround);
 
 	// Use a do so that you can break out of it when the skill fails.
 	do {
@@ -11576,7 +11622,7 @@ TIMER_FUNC(skill_castend_id){
 		}
 
 		// Failing
-		if (fail || (res = skill_castend_id_check(src, target, ud->skill_id, ud->skill_lv)) >= 0) {
+		if (fail || (res = skill_castend_id_check(src, target, ud->skill_id, ud->skill_lv, !skilltoaround)) >= 0) {
 			if (sd && res != USESKILL_FAIL_MAX)
 				clif_skill_fail(sd, ud->skill_id, (enum useskill_fail_cause)res, 0);
 			break;
@@ -11674,17 +11720,19 @@ TIMER_FUNC(skill_castend_id){
 
 		map_freeblock_lock();
 
+		if (sd && skilltoaround) { int count = 0; map_foreachinrange(skill_castend_for_AOE, src, skilltoaround, BL_CHAR, src, tick, &count, 0); } else
+
 		if (skill_get_casttype(ud->skill_id) == CAST_NODAMAGE)
 			skill_castend_nodamage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
 		else
 			skill_castend_damage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
 
-		if (sd) {
+		if (sd && !skilltoaround) {
 			int count = 0;
 			for (const auto &it : sd->skillforaoe) {
 				if (it.sk != ud->skill_id || rnd() % 1000 > it.rate)
 					continue;
-				map_foreachinrange(skill_castend_for_AOE, target, it.range, target->type, ud, &count, it.quantity);
+				map_foreachinrange(skill_castend_for_AOE, target, it.range, BL_CHAR, src, tick, &count, it.quantity);
 			}
 		}
 
@@ -13078,7 +13126,7 @@ struct skill_unit_group *skill_unitsetting(struct block_list *src, uint16 skill_
 	hidden = (unit_flag&UF_HIDDEN_TRAP && (battle_config.traps_setting == 2 || (battle_config.traps_setting == 1 && map_flag_vs(src->m))));
 
 	if (sd) {
-		for (auto &it : sd->skillrange) {
+		for (auto &it : sd->skillarea) {
 			if (it.sk != skill_id)
 				continue;
 			range += it.val;

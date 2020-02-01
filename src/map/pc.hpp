@@ -279,8 +279,7 @@ struct s_skilldamage {
 };
 
 struct s_skill_val {
-	uint16 sk;
-	int16 val;
+	int sk, val;
 };
 
 struct s_skill_attr {
@@ -680,7 +679,9 @@ struct map_session_data {
 	std::vector<s_skillcritical> skillcritical;
 	std::vector<s_skillforaoe> skillforaoe; //custom;
 	std::vector<s_skilldamage> skilldamage;
+	std::vector<s_skill_val> skillarea;
 	std::vector<s_skill_val> skillrange;
+	std::vector<s_skill_val> skilltoaround;
 	std::vector<s_skill_val> skilltoground;
 	std::vector<s_skill_val> skillnospecial;
 	std::vector<s_skill_attr> skillattribute;

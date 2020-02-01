@@ -41,8 +41,10 @@ bonus2 bIgnoreDefClassVal,c,n;			无视 c 类别魔物 n 点魔法防御力
 
 bonus bIgnoreWhiteImprison,n;			无视白色监狱, n无意义
 
-bonus2 bAddSkillRange,sk,n;				增加 sk 技能 n 格范围, 可用于溅射或范围技能
+bonus2 bAddSkillArea,sk,n;				增加 sk 技能 n 格范围, 可用于溅射或范围技能
+bonus2 bAddSkillRange,sk,n;				增加 sk 技能 n 格攻击距离
 
+bonus2 bSkillToAround,sk,n;				技能 sk 变为群体技能, 自动选择自身 n 格范围内的敌对目标进行攻击
 bonus2 bSkillToGround,sk,n;				技能 sk 变为地面技能, 并攻击 n 格范围内的敌对目标
 
 bonus2 bSkillNoSpecial,sk,bitmask;		移除技能 sk 的特殊条件, bitmask 为 掩码类型(可叠加),  
