@@ -1086,8 +1086,9 @@ static bool itemdb_read_flag(char* fields[], int columns, int current) {
 	if (flag&512) id->flag.skill_no_consumed = 1;
 	if (flag&1024) id->flag.item_pckill_drop = 1;
 	if (flag&2048) id->flag.item_drop_event = 1;
-	if (flag2&1) id->flag.item_costume_card = 1;
-	if (flag2&2) id->flag.item_ignore_autoloot = 1;
+	if (flag2&1) id->flag.costume_card = 1;
+	if (flag2&2) id->flag.equip_invalid = 1;
+	if (flag2&4) id->flag.item_ignore_autoloot = 1;
 /*	if( flag & 64 ){
 		id->flag.dropEffect = 1;
 	}else if( flag & 128 ){
@@ -1845,9 +1846,9 @@ bool itemdb_isNoEquip(struct item_data *id, uint16 m) {
 	return false;
 }
 
-bool itemdb_isNoFunc(struct item_data *id, uint16 m)
+bool itemdb_isNoFunc(struct map_session_data *sd, struct item_data *id, int pos)
 {
-	struct map_data *mapdata;
+	
 	int type, flag = -1;
 
 	switch (id->type) {
@@ -1860,13 +1861,15 @@ bool itemdb_isNoFunc(struct item_data *id, uint16 m)
 		default:            type = 0;   break;
 	}
 
-	if (battle_config.item_noequip_deny_all && (type & 11) && itemdb_isNoEquip(id, m))
+	if (battle_config.item_noequip_deny_all && (type & 11) && itemdb_isNoEquip(id, sd->bl.m))
 		return true;
 
-	if (!(mapdata = map_getmapdata(m)) || !(flag = mapdata->flag[MF_NOITEMFUNC]))
-		return false;
+	if (id->flag.equip_invalid || (sd->equip_index[pos] != -1 && sd->equip_invalid[pos]))
+		return true;
 
-	return flag != -1 && (flag & type) ? id->flag.no_itemfunc != 1 : id->flag.no_itemfunc == 1;
+	flag = map_getmapflag(sd->bl.m, MF_NOITEMFUNC);
+
+	return (flag & type) ? id->flag.no_itemfunc != 1 : id->flag.no_itemfunc == 1;
 }
 
 /**

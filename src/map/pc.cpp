@@ -878,7 +878,7 @@ void pc_setnewpc(struct map_session_data *sd, uint32 account_id, uint32 char_id,
 * @param sd
 * @param id
 */
-int pc_equippoint_sub(struct map_session_data *sd,struct item_data* id, int n){
+int pc_equippoint_sub(struct map_session_data *sd,struct item_data* id){
 	int ep = 0;
 
 	nullpo_ret(sd);
@@ -887,28 +887,7 @@ int pc_equippoint_sub(struct map_session_data *sd,struct item_data* id, int n){
 	if (!itemdb_isequip2(id))
 		return 0; //Not equippable by players.
 
-	if (battle_config.item_costume_card && n >= 0) {
-		for (int i = 0; i < MAX_SLOTS ; i++) { // Uses MAX_SLOTS to support Soul Bound system [Inkfish]
-			int c = sd->inventory.u.items_inventory[n].card[i];
-			if (c == 0)
-				continue;
-			struct item_data *data = itemdb_exists(c);
-			if (!data || !data->flag.item_costume_card)
-				continue;
-			if (id->equip & EQP_HEAD_TOP)	ep |= EQP_COSTUME_HEAD_TOP;
-			if (id->equip & EQP_HEAD_MID)	ep |= EQP_COSTUME_HEAD_MID;
-			if (id->equip & EQP_HEAD_LOW)	ep |= EQP_COSTUME_HEAD_LOW;
-			if (id->equip & EQP_GARMENT)	ep |= EQP_COSTUME_GARMENT;
-			if (id->equip & EQP_ARMOR)		ep |= EQP_SHADOW_ARMOR;
-			if (id->equip & EQP_HAND_R)		ep |= EQP_SHADOW_WEAPON;
-			if (id->equip & EQP_HAND_L)		ep |= EQP_SHADOW_SHIELD;
-			if (id->equip & EQP_SHOES)		ep |= EQP_SHADOW_SHOES;
-			if (id->equip & EQP_ACC_R)		ep |= EQP_SHADOW_ACC_R;
-			if (id->equip & EQP_ACC_L)		ep |= EQP_SHADOW_ACC_L;
-			break;
-		}
-	}
-	ep = ep ? ep : id->equip;
+	ep = id->equip;
 	if(id->look == W_DAGGER	|| id->look == W_1HSWORD || id->look == W_1HAXE) {
 		if(pc_checkskill(sd,AS_LEFT) > 0 || (sd->class_&MAPID_UPPERMASK) == MAPID_ASSASSIN || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO) { //Kagerou and Oboro can dual wield daggers. [Rytech]
 			if (ep == EQP_WEAPON)
@@ -928,7 +907,40 @@ int pc_equippoint_sub(struct map_session_data *sd,struct item_data* id, int n){
 int pc_equippoint(struct map_session_data *sd,int n){
 	nullpo_ret(sd);
 
-	return pc_equippoint_sub(sd,sd->inventory_data[n], n);
+	return pc_equippoint_sub(sd,sd->inventory_data[n]);
+}
+
+int pc_equip_costume_card(struct map_session_data *sd, int n)
+{
+	nullpo_ret(sd);
+	struct item_data *card, *id;
+	int pos = 0;
+	for (int i = 0; i < MAX_SLOTS && n >= 0; i++) { // Uses MAX_SLOTS to support Soul Bound system [Inkfish]
+		id = sd->inventory_data[n];
+		int c = sd->inventory.u.items_inventory[n].card[i];
+		if (c == 0 || (card = itemdb_exists(c)) == NULL)
+			continue;
+		if (card->flag.costume_card) {
+			if (id->equip & EQP_HEAD_TOP)	pos |= EQP_COSTUME_HEAD_TOP;
+			if (id->equip & EQP_HEAD_MID)	pos |= EQP_COSTUME_HEAD_MID;
+			if (id->equip & EQP_HEAD_LOW)	pos |= EQP_COSTUME_HEAD_LOW;
+			if (id->equip & EQP_GARMENT)	pos |= EQP_COSTUME_GARMENT;
+			if (id->equip & EQP_ARMOR)		pos |= EQP_SHADOW_ARMOR;
+			if (id->equip & EQP_HAND_R)		pos |= EQP_SHADOW_WEAPON;
+			if (id->equip & EQP_HAND_L)		pos |= EQP_SHADOW_SHIELD;
+			if (id->equip & EQP_SHOES)		pos |= EQP_SHADOW_SHOES;
+			if (id->equip & EQP_ACC_R)		pos |= EQP_SHADOW_ACC_R;
+			if (id->equip & EQP_ACC_L)		pos |= EQP_SHADOW_ACC_L;
+		}
+		if (card->flag.equip_invalid) {
+			pos = pos ? pos : pc_equippoint(sd, n);
+			for (i = 0; i < EQI_MAX; i++) {
+				if (pos & equip_bitmask[i])
+					sd->equip_invalid[i] = n;
+			}
+		}
+	}
+	return pos ? pos : pc_equippoint(sd, n);
 }
 
 /**
@@ -10994,7 +11006,7 @@ int pc_load_combo(struct map_session_data *sd) {
  *------------------------------------------*/
 bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswitch)
 {
-	int i, pos, pos2, flag = 0, iflag;
+	int i, pos, flag = 0, iflag;
 	struct item_data *id;
 	uint8 res = ITEM_EQUIP_ACK_OK;
 	short* equip_index;
@@ -11021,7 +11033,6 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 	if (!(id = sd->inventory_data[n]))
 		return false;
 	pos = pc_equippoint(sd, n); //With a few exceptions, item should go in all specified slots.
-	pos2 = pc_equippoint_sub(sd, sd->inventory_data[n], -1);
 
 	if(battle_config.battle_log && !equipswitch)
 		ShowInfo("equip %hu (%d) %x:%x\n",sd->inventory.u.items_inventory[n].nameid,n,id?id->equip:0,req_pos);
@@ -11040,7 +11051,7 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 		return false;
 	}
 
-	if (!((pos&req_pos) || (pos2&req_pos)) || sd->inventory.u.items_inventory[n].equip != 0 || sd->inventory.u.items_inventory[n].attribute==1 ) { // [Valaris]
+	if (!(pos&req_pos) || sd->inventory.u.items_inventory[n].equip != 0 || sd->inventory.u.items_inventory[n].attribute==1 ) { // [Valaris]
 		if( equipswitch ){
 			clif_equipswitch_add( sd, n, req_pos, ITEM_EQUIP_ACK_FAIL );
 		}else{
@@ -11070,11 +11081,11 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 		}
 		return false;
 	}
-
+	req_pos = pos = pc_equip_costume_card(sd, n);
 #ifdef EVENT_EQUIPFILTER
 	if (npc_script_event_check(sd, NPCE_EQUIPFILTER)) {
 		pc_setreg(sd, add_str("@equip_idx"), n);
-		pc_setreg(sd, add_str("@equip_pos"), n);
+		pc_setreg(sd, add_str("@equip_pos"), req_pos);
 		npc_script_event_atonce(sd, NPCE_EQUIPFILTER);
 		if (sd->state.processhalt)
 			return false;
@@ -11629,7 +11640,7 @@ void pc_checkitem(struct map_session_data *sd) {
 			continue;
 		if( !it->equip )
 			continue;
-		if( it->equip&~pc_equippoint(sd,i) ) {
+		if( it->equip&~pc_equip_costume_card(sd,i) ) {
 			pc_unequipitem(sd, i, 2);
 			calc_flag = 1;
 			continue;

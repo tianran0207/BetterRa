@@ -857,7 +857,8 @@ struct item_data
 		unsigned skill_no_consumed : 1;
 		unsigned item_pckill_drop : 1;
 		unsigned item_drop_event : 1;
-		unsigned item_costume_card : 1;
+		unsigned costume_card : 1;
+		unsigned equip_invalid : 1;
 		unsigned item_ignore_autoloot : 1;
 		bool bindOnEquip; ///< Set item as bound when equipped
 		uint8 dropEffect; ///< Drop Effect Mode
@@ -975,7 +976,7 @@ char itemdb_isidentified(unsigned short nameid, int from);
 bool itemdb_isstackable2(struct item_data *id);
 #define itemdb_isstackable(nameid) itemdb_isstackable2(itemdb_search(nameid))
 bool itemdb_isNoEquip(struct item_data *id, uint16 m);
-bool itemdb_isNoFunc(struct item_data *id, uint16 m);
+bool itemdb_isNoFunc(struct map_session_data *sd, struct item_data *id, int pos = -1);
 
 struct item_combo *itemdb_combo_exists(unsigned short combo_id);
 

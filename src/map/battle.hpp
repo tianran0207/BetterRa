@@ -241,7 +241,6 @@ struct Battle_Config
 	int attack_event;
 	int attacked_event;
 	int mob_drop_event;
-	int item_costume_card;
 	int skill_critical_enable;
 	int skill_critical_display;
 	int skill_critical_rate;

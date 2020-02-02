@@ -8527,7 +8527,6 @@ static const struct _battle_data {
 	{ "attack_event",                       &battle_config.attack_event,                    0,      0,      INT_MAX,        },
 	{ "attacked_event",                     &battle_config.attacked_event,                  0,      0,      INT_MAX,        },
 	{ "mob_drop_event",                     &battle_config.mob_drop_event,                  0,      0,      INT_MAX,        },
-	{ "item_costume_card",                  &battle_config.item_costume_card,               0,      0,      1,              },
 	{ "skill_critical_enable",              &battle_config.skill_critical_enable,           0,      0,      BL_ALL,         },
 	{ "skill_critical_display",             &battle_config.skill_critical_display,          0,      0,      1,              },
 	{ "skill_critical_rate",                &battle_config.skill_critical_rate,             0,      0,      INT_MAX,        },
