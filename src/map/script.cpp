@@ -29255,6 +29255,37 @@ BUILDIN_FUNC(instance_delmap)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(itemlist)
+{
+	struct script_data *data;
+	int id, i, array_size;
+	struct map_session_data* sd = NULL;
+	struct reg_db *ref = NULL;
+	data = script_getdata(st, 2);
+	ref = reference_getref(data);
+	id = reference_getid(data);
+
+	if (data_isstring(data) || !script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	array_size = script_array_highest_key(st, sd, reference_getname(data), ref);
+	unsigned short *item_id = (unsigned short*)aMalloc(sizeof(unsigned short)*array_size);
+	for (i = 0; i < array_size; ++i)
+		item_id[i] = (unsigned short)get_val2_num(st, reference_uid(id, i), ref);
+
+	sd->menulist_data = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+	clif_itemlist(sd, item_id, array_size);
+	aFree(item_id);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getconstantstr)
+{
+	const char *str = script_get_constant_str(script_getstr(st, 2), script_getnum64(st, 3));
+	script_pushconststr(st, str ? str : "");
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -29373,30 +29404,6 @@ BUILDIN_FUNC(roulette_generate)
 	WFIFOL(fd, 17) = sd->roulette_point.bronze;
 	WFIFOSET(fd, packet_len(0xa20));
 
-	return SCRIPT_CMD_SUCCESS;
-}
-
-BUILDIN_FUNC(itemlist)
-{
-	struct script_data *data;
-	int id, i, array_size;
-	struct map_session_data* sd = NULL;
-	struct reg_db *ref = NULL;
-	data = script_getdata(st, 2);
-	ref = reference_getref(data);
-	id = reference_getid(data);
-
-	if (data_isstring(data) || !script_charid2sd(4, sd))
-		return SCRIPT_CMD_FAILURE;
-
-	array_size = script_array_highest_key(st, sd, reference_getname(data), ref);
-	unsigned short *item_id = (unsigned short*)aMalloc(sizeof(unsigned short)*array_size);
-	for (i = 0; i < array_size; ++i)
-		item_id[i] = (unsigned short)get_val2_num(st, reference_uid(id, i), ref);
-	
-	sd->menulist_data = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
-	clif_itemlist(sd, item_id, array_size);
-	aFree(item_id);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -30241,6 +30248,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(instance_addmap, "s??"),
 	BUILDIN_DEF(instance_delmap, "s?"),
 	BUILDIN_DEF(itemlist, "v??"),
+	BUILDIN_DEF(getconstantstr, "si"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
