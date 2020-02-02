@@ -288,6 +288,15 @@ struct s_skill_attr {
 	int n;
 };
 
+struct s_status_bonus {
+	int status, bonus, val, val2;
+	bool run;
+};
+
+struct s_status_val {
+	int status, val1, val2, val3, val4;
+};
+
 struct policies {
 	short policy_id;
 	int base_exp_rate;
@@ -685,8 +694,10 @@ struct map_session_data {
 	std::vector<s_skill_val> skilltoaround;
 	std::vector<s_skill_val> skilltoground;
 	std::vector<s_skill_val> skillnospecial;
-	std::vector<s_skill_attr> skillattribute;
 	std::vector<s_skill_val> skillnorequire;
+	std::vector<s_skill_attr> skillattribute;
+	std::vector<s_status_bonus> statusbonus;
+	std::vector<s_status_val> addstatusval;
 
 	struct autowalk_data autowalk;
 

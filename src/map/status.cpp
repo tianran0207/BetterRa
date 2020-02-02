@@ -3733,6 +3733,8 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	sd->skillnospecial.clear();
 	sd->skillnorequire.clear();
 	sd->skillattribute.clear();
+	sd->statusbonus.clear();
+	sd->addstatusval.clear();
 
 	// Autobonus
 	pc_delautobonus(sd, sd->autobonus, true);
@@ -11616,6 +11618,25 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val4 = static_cast<int>(pc_readreg2(sd, "@started_sc_val4"));
 		}
 	}
+	if (sd) {
+		for (auto &it : sd->statusbonus) {
+			if (it.status != type || it.run == true)
+				continue;
+
+			calc_flag |= SCB_ALL;
+		}
+	}
+	if (src && src->type == BL_PC) {
+		struct map_session_data *ssd = BL_CAST(BL_PC, src);
+		for (auto &it : sd->addstatusval) {
+			if (it.status != type)
+				continue;
+			val1 += it.val1;
+			val2 += it.val2;
+			val3 += it.val3;
+			val4 += it.val4;
+		}
+	}
 
 	// Values that must be set regardless of flag&4 e.g. val_flag [Ind]
 	switch(type) {
@@ -12956,6 +12977,22 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			break;
 	}
 
+	if (sd) {
+		for (auto &it : sd->statusbonus) {
+			if (it.status != type || it.run == false)
+				continue;
+
+			calc_flag = static_cast<scb_flag>(calc_flag|SCB_ALL);
+		}
+	}
+#ifdef EVENT_BUFFEND
+	if (npc_script_event_check(sd, NPCE_BUFFEND)) {
+		pc_setreg(sd, add_str("@ended_sc_id"), type);
+		pc_setreg(sd, add_str("@endedsc"), type);
+		npc_script_event(sd, NPCE_BUFFEND);
+	}
+#endif
+
 	opt_flag = 1;
 	switch(type) {
 	case SC_STONE:
@@ -13190,14 +13227,6 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		npc_touch_areanpc(sd,bl->m,bl->x,bl->y); // Trigger on-touch event.
 
 	ers_free(sc_data_ers, sce);
-
-#ifdef EVENT_BUFFEND
-	if (npc_script_event_check(sd, NPCE_BUFFEND)) {
-		pc_setreg(sd, add_str("@ended_sc_id"), type);
-		pc_setreg(sd, add_str("@endedsc"), type);
-		npc_script_event(sd, NPCE_BUFFEND);
-	}
-#endif
 
 	return 1;
 }

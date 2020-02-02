@@ -4306,10 +4306,27 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 	nullpo_retv(sd);
 
 	switch(type){
-	case SP_SKILL_ATTR: // bonus2 bAddSkillAttr,sk,n;
+	case SP_STATUS_ADD_BONUS: // bonus3 bStatusAddBonus,sc,bonus,n;
+		if (sd->state.lr_flag != 2) {
+			if (sd->statusbonus.size() == MAX_PC_BONUS) {
+				ShowError("pc_bonus3: SP_STATUS_ADD_BONUS: Reached max (%d) number of skills per character, (status: %d bonus: %d val: %d).\n", MAX_PC_BONUS, type2, type3, val);
+				break;
+			}
+			struct s_status_bonus entry = {};
+			entry.status = type2;
+			entry.bonus = type3;
+			entry.val = val;
+			if (sd->sc.data[type2]) {
+				pc_bonus(sd, type3, val);
+				entry.run = true;
+			}
+			sd->statusbonus.push_back(entry);
+		}
+		break;
+	case SP_SKILL_ATTR: // bonus3 bSkillAttribute,sk,ele,n;
 		if (sd->state.lr_flag != 2) {
 			if (sd->skillattribute.size() == MAX_PC_BONUS) {
-				ShowError("pc_bonus2: SP_SKILL_ATTR: Reached max (%d) number of skills per character, (sk: %d attr: %d disp: %d).\n", MAX_PC_BONUS, type2, type3, val);
+				ShowError("pc_bonus3: SP_SKILL_ATTR: Reached max (%d) number of skills per character, (sk: %d attr: %d n: %d).\n", MAX_PC_BONUS, type2, type3, val);
 				break;
 			}
 			struct s_skill_attr entry = {};
@@ -4322,7 +4339,7 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 	case SP_MULTIDAMAGERATE: // bonus3 bMultiDamageRate,atk_type,rate,n;
 		if (sd->state.lr_flag != 2) {
 			if (sd->multidamage.size() == MAX_PC_BONUS) {
-				ShowError("pc_bonus2: SP_MULTIDAMAGERATE: Reached max (%d) number of skills per character, (atk_type: %d rate: %d n: %d).\n", MAX_PC_BONUS, type2, type3, val);
+				ShowError("pc_bonus3: SP_MULTIDAMAGERATE: Reached max (%d) number of skills per character, (atk_type: %d rate: %d n: %d).\n", MAX_PC_BONUS, type2, type3, val);
 				break;
 			}
 			struct s_multidamagerate entry;
@@ -4335,7 +4352,7 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 	case SP_SKILLCRITICAL: // bonus3 bSkillCritical,sk,r,n;
 		if (sd->state.lr_flag != 2) {
 			if (sd->skillcritical.size() == MAX_PC_BONUS) {
-				ShowError("pc_bonus2: SP_MULTIDAMAGERATE: Reached max (%d) number of skills per character, (atk_type: %d rate: %d n: %d).\n", MAX_PC_BONUS, type2, type3, val);
+				ShowError("pc_bonus3: SP_SKILLCRITICAL: Reached max (%d) number of skills per character, (sk: %d crirate: %d dmgrate: %d).\n", MAX_PC_BONUS, type2, type3, val);
 				break;
 			}
 			struct s_skillcritical entry;
@@ -4357,7 +4374,7 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 			}
 			if (hasentry) break;
 			if (sd->skillitemfix.size() == MAX_PC_BONUS) {
-				ShowError("pc_bonus2: SP_SKILL_ITEM_FIX: Reached max (%d) number of skills per character, (skillid: %d itemid: %d amount: %d).\n", MAX_PC_BONUS, type2, type3, val);
+				ShowError("pc_bonus3: SP_SKILL_ITEM_FIX: Reached max (%d) number of skills per character, (sk: %d iid: %d amount: %d).\n", MAX_PC_BONUS, type2, type3, val);
 				return;
 			}
 			struct s_skill_noconsume entry;
@@ -4379,7 +4396,7 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 			}
 			if (hasentry) break;
 			if (sd->skilldamage.size() == MAX_PC_BONUS) {
-				ShowError("pc_bonus2: SP_SKILL_DAMAGE: Reached max (%d) number of skills per character, (skillid: %d itemid: %d amount: %d).\n", MAX_PC_BONUS, type2, type3, val);
+				ShowError("pc_bonus3: SP_SKILL_DAMAGE: Reached max (%d) number of skills per character, (sk: %d lv: %d damage: %d).\n", MAX_PC_BONUS, type2, type3, val);
 				break;
 			}
 			struct s_skilldamage entry;
@@ -4527,7 +4544,25 @@ void pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type
 	nullpo_retv(sd);
 
 	switch(type){
-	case SP_SKILL_AOE:
+	case SP_STATUS_ADD_BONUS: // bonus4 bStatusAddBonus,sc,bonus,r,n;
+		if (sd->state.lr_flag != 2) {
+			if (sd->statusbonus.size() == MAX_PC_BONUS) {
+				ShowError("pc_bonus4: SP_STATUS_ADD_BONUS: Reached max (%d) number of skills per character, (status: %d bonus: %d val: %d val2: %d).\n", MAX_PC_BONUS, type2, type3, type4, val);
+				break;
+			}
+			struct s_status_bonus entry = {};
+			entry.status = type2;
+			entry.bonus = type3;
+			entry.val = type4;
+			entry.val2 = val;
+			if (sd->sc.data[type2]) {
+				pc_bonus2(sd, type3, type4, val);
+				entry.run = true;
+			}
+			sd->statusbonus.push_back(entry);
+		}
+		break;
+	case SP_SKILL_AOE: // bonus4 bSkillForAOE,sk,range,n,r;
 		if (sd->state.lr_flag != 2) {
 			bool hasentry = false;
 			for (auto &it : sd->skillforaoe) {
@@ -4541,7 +4576,7 @@ void pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type
 			}
 			if (hasentry) break;
 			if (sd->skillforaoe.size() == MAX_PC_BONUS) {
-				ShowError("pc_bonus2: SP_SKILL_AOE: Reached max (%d) number of skills per character, (skillid: %d).\n", MAX_PC_BONUS, type2);
+				ShowError("pc_bonus4: SP_SKILL_AOE: Reached max (%d) number of skills per character, (sk: %d, range: %d, quantity: %d, rate: %d).\n", MAX_PC_BONUS, type2, type3, type4, val);
 				return;
 			}
 			struct s_skillforaoe entry;
@@ -4638,6 +4673,21 @@ void pc_bonus5(struct map_session_data *sd,int type,int type2,int type3,int type
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_ADD_STATUS_VAL: // bonus5 bAddStatusVal,sc,val1,val2,val3,val4;
+		if (sd->state.lr_flag != 2) {
+			if (sd->addstatusval.size() == MAX_PC_BONUS) {
+				ShowError("pc_bonus5: SP_ADD_STATUS_VAL: Reached max (%d) number of skills per character, (status: %d val1: %d val2: %d val3: %d val4: %d).\n", MAX_PC_BONUS, type2, type3, type4, type5, val);
+				break;
+			}
+			struct s_status_val entry = {};
+			entry.status = type2;
+			entry.val1 = type3;
+			entry.val2 = type4;
+			entry.val3 = type5;
+			entry.val4 = val;
+			sd->addstatusval.push_back(entry);
+		}
+		break;
 	case SP_AUTOSPELL: // bonus5 bAutoSpell,sk,y,n,bf,i;
 		if(sd->state.lr_flag != 2)
 			pc_bonus_autospell(sd->autospell, (val&1?type2:-type2), (val&2?-type3:type3), type4, type5, current_equip_card_id);

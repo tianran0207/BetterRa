@@ -349,7 +349,7 @@ int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range)
 		if (range) *range = it.val;
 		return INF_SELF_SKILL;
 	}
-	if (range && (skill_id == *range || (sd->bl.id == *range && skill_get_inf(skill_id) != INF_SELF_SKILL)))
+	if (range && (skill_id == *range || (sd->bl.id == *range && skill_get_inf(skill_id) == INF_ATTACK_SKILL)))
 		clif_skillinfo(sd, skill_id, skill_get_inf(skill_id));
 
 	return skill_get_inf(skill_id);
