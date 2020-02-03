@@ -380,6 +380,7 @@ struct map_session_data {
 		int heal_all, heal_real, heal_targetgid;
 	}eventparam;
 	uint16 skill_attr;
+	bool perfect_hide;
 	short equip_invalid[EQI_MAX];
 	/**
 	 * Extended Vending system [Lilith]

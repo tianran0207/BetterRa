@@ -8533,6 +8533,7 @@ static const struct _battle_data {
 	{ "skill_critical_damage",              &battle_config.skill_critical_damage,           150,    0,      INT_MAX,        },
 	{ "skill_critical_boss",                &battle_config.skill_critical_boss,             0,      0,      INT_MAX,        },
 	{ "skill_critical_luk",                 &battle_config.skill_critical_luk,              1,      0,      1,              },
+	{ "gm_perfect_hide",                    &battle_config.gm_perfect_hide,                 1,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

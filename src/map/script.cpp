@@ -8253,6 +8253,8 @@ BUILDIN_FUNC(makeitem) {
 		else
 			item_tmp.identify = itemdb_isidentified(nameid, 32);
 
+		item_tmp.bound = static_cast<char>(get_dropitem_special(1));
+		item_tmp.expire_time = static_cast<unsigned int>(get_dropitem_special(2));
 		map_addflooritem(&item_tmp,amount,m,x,y,0,0,0,4,0);
 	}
 	return SCRIPT_CMD_SUCCESS;
@@ -8334,6 +8336,8 @@ BUILDIN_FUNC(makeitem2) {
 				return res;
 		}
 
+		item_tmp.bound = static_cast<char>(get_dropitem_special(1));
+		item_tmp.expire_time = static_cast<unsigned int>(get_dropitem_special(2));
 		map_addflooritem(&item_tmp,amount,m,x,y,0,0,0,4,0);
 	}
 	else
@@ -29286,6 +29290,32 @@ BUILDIN_FUNC(getconstantstr)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+struct s_next_makeitem {
+	int64 bound, expire_time, dropEffect;
+}next_makeitem;
+
+int64 get_dropitem_special(int type)
+{
+	switch (type) {
+	case 1: return next_makeitem.bound;
+	case 2: return time(NULL) + next_makeitem.expire_time;
+	case 3: {
+		int64 dropEffect = next_makeitem.dropEffect;
+		memset(&next_makeitem, 0, sizeof(struct s_next_makeitem));
+		return dropEffect;
+		}
+	}
+	return 0;
+}
+
+BUILDIN_FUNC(next_dropitem_special)
+{
+	next_makeitem.bound = script_getnum(st, 2);
+	next_makeitem.expire_time = script_getnum64(st, 3);
+	next_makeitem.dropEffect = script_getnum(st, 4);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -30249,6 +30279,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(instance_delmap, "s?"),
 	BUILDIN_DEF(itemlist, "v??"),
 	BUILDIN_DEF(getconstantstr, "si"),
+	BUILDIN_DEF(next_dropitem_special, "iii"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),

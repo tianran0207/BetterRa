@@ -247,6 +247,7 @@ struct Battle_Config
 	int skill_critical_damage;
 	int skill_critical_boss;
 	int skill_critical_luk;
+	int gm_perfect_hide;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;
