@@ -11628,7 +11628,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	}
 	if (src && src->type == BL_PC) {
 		struct map_session_data *ssd = BL_CAST(BL_PC, src);
-		for (auto &it : sd->addstatusval) {
+		for (auto &it : ssd->addstatusval) {
 			if (it.status != type)
 				continue;
 			val1 += it.val1;

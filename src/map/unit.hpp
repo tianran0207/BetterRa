@@ -32,6 +32,10 @@ struct unit_data {
 		short type;
 		t_tick keeptime;
 	}atk_fix;
+	struct s_def_fix {
+		int rate1, rate2;
+		int64 min_dmg, max_dmg;
+	}def_fix;
 	short attackevent_mark;
 	short attackedevent_mark;
 	short attacktarget_lv;

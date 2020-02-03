@@ -343,6 +343,7 @@ struct s_battle_display battle_display;
 int64 battle_damage_event(struct block_list* src, struct block_list* target, struct Damage *wd, uint16 skill_id, uint16 skill_lv, t_tick tick)
 {
 	struct map_session_data* sd = BL_CAST(BL_PC, src);
+	struct unit_data *ud = unit_bl2ud(target);
 	struct map_data *mapdata;
 	int64 damage = wd->damage + wd->damage2, ddamage = 0;
 	battle_display.block_id = 0;
@@ -417,8 +418,14 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 		if (val && damage > val)
 			damage = val;
 	}
+	if (ud && ud->def_fix.rate1) {
+		damage = damage * ud->def_fix.rate1 / ud->def_fix.rate2;
+		if (ud->def_fix.min_dmg && damage < ud->def_fix.min_dmg)
+			damage = ud->def_fix.min_dmg;
+		if (ud->def_fix.max_dmg && damage > ud->def_fix.max_dmg)
+			damage = ud->def_fix.max_dmg;
+	}
 	if (target && sd && (npc_script_event_check(sd, NPCE_ATKFILTER))) {
-		struct unit_data *ud = unit_bl2ud(target);
 		if ((map_getmapflag(target->m, MF_ATTACKEVENT)&(target->type)) || ud && ud->attackevent_mark || (battle_config.attack_event & target->type)) {
 			pc_setparam(sd, SP_DMG_TYPE, wd->flag);
 			pc_setparam(sd, SP_DMG_VAL, damage);
@@ -437,7 +444,7 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 		}
 	}
 	if (src && (sd = BL_CAST(BL_PC, target)) && (npc_script_event_check(sd, NPCE_ATKEDFILTER))) {
-		struct unit_data *ud = unit_bl2ud(src);
+		ud = unit_bl2ud(src);
 		if ((map_getmapflag(src->m, MF_ATTACKEDEVENT)&(src->type)) || ud && ud->attackedevent_mark || (battle_config.attacked_event & src->type)) {
 			pc_setparam(sd, SP_DMG_TYPE, wd->flag);
 			pc_setparam(sd, SP_DMG_VAL, damage);
