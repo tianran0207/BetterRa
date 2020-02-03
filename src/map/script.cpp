@@ -29114,7 +29114,7 @@ BUILDIN_FUNC(setequipedcard)
 		return SCRIPT_CMD_FAILURE;
 
 	pos = script_getnum(st, 2);
-	if ((pos < EQI_ACC_L || pos > EQI_HAND_R) && pos != EQI_AMMO) {
+	if ((pos <= EQI_COMPOUND_ON || pos >= EQI_MAX)) {
 		ShowError("buildin_setequipedcard: Wrong equip position: %d\n", pos);
 		return SCRIPT_CMD_FAILURE;
 	}
@@ -29318,7 +29318,7 @@ int64 get_dropitem_special(int type)
 {
 	switch (type) {
 	case 1: return next_makeitem.bound;
-	case 2: return time(NULL) + next_makeitem.expire_time;
+	case 2: return next_makeitem.expire_time ? time(NULL) + next_makeitem.expire_time : 0;
 	case 3: {
 		int64 dropEffect = next_makeitem.dropEffect;
 		memset(&next_makeitem, 0, sizeof(struct s_next_makeitem));

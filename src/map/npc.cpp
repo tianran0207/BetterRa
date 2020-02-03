@@ -4505,8 +4505,10 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
 	const char *p;
 	int i, len, lines = 0;
 
-	if ((p = strchr(w1, ':')) == NULL)
-		return start;
+	if ((p = strchr(w1, ':')) == NULL) {
+		ShowError("npc_parse_dbread: Invalid script database line in file '%s', line '%d'. Skipping line...\n", filepath, strline(buffer, start - buffer));
+		return strchr(start, '\n');
+	}
 
 	len = p - w1;
 
