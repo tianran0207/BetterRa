@@ -9793,14 +9793,34 @@ BUILDIN_FUNC(statusup2)
 
 bool buildin_bonus_check_free(int type) {
 	switch (type) {
+#ifndef BONUS_SKILL_AOE
 	case SP_SKILL_AOE:
-#ifdef BONUS_SKILL_AOE
-		return true;
 #endif
+#ifndef BONUS_MULTIDAMAGERATE
 	case SP_MULTIDAMAGERATE:
-#ifdef BONUS_MULTIDAMAGERATE
-		return true;
 #endif
+#ifndef BONUS_ADD_SKILL_AREA
+	case SP_ADD_SKILL_AREA:
+#endif
+#ifndef BONUS_ADD_SKILL_RANGE
+	case SP_ADD_SKILL_RANGE:
+#endif
+#ifndef BONUS_SKILL_TO_AROUND
+	case SP_SKILL_TO_AROUND:
+#endif
+#ifndef BONUS_SKILL_TO_GROUND
+	case SP_SKILL_TO_GROUND:
+#endif
+#ifndef BONUS_SKILL_NO_CAST
+	case SP_SKILL_NO_CAST:
+#endif
+#ifndef BONUS_STATUS_ADD_BONUS
+	case SP_STATUS_ADD_BONUS:
+#endif
+#ifndef BONUS_ADD_STATUS_VAL
+	case SP_ADD_STATUS_VAL:
+#endif
+	case -1:
 		return false;
 	default:
 		break;

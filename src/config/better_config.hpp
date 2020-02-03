@@ -128,6 +128,13 @@
 	#endif
 	#define BONUS_SKILL_AOE                 // 单体技能改为AOE
 	#define BONUS_MULTIDAMAGERATE           // 多倍伤害
+	#define BONUS_ADD_SKILL_AREA            // 增加技能范围
+	#define BONUS_ADD_SKILL_RANGE           // 增加技能释放距离
+	#define BONUS_SKILL_TO_AROUND           // 按住自动对附近目标单体攻击
+	#define BONUS_SKILL_TO_GROUND           // 单体技能变地面范围攻击
+	#define BONUS_SKILL_NO_CAST             // 忽略技能消耗
+	#define BONUS_STATUS_ADD_BONUS          // 当获得状态时增加新的bonus
+	#define BONUS_ADD_STATUS_VAL            // 赋予状态时状态参数累加
 	#define SCRIPT_UNITSKILLTOWIDE          // 技能扩散
 	#define SCRIPT_ROULETTE                 // 转盘规则
 	#define SCRIPT_MAGICSHIELD              // 魔法护盾
