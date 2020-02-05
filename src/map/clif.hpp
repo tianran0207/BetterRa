@@ -712,6 +712,7 @@ void clif_skill_delunit(struct skill_unit *unit);
 void clif_skillunit_update(struct block_list* bl);
 
 void clif_autospell(struct map_session_data *sd,uint16 skill_lv);
+int clif_skilllist(struct map_session_data *sd, unsigned short skill_id[], unsigned short count);
 void clif_devotion(struct block_list *src, struct map_session_data *tsd);
 void clif_spiritball(struct block_list *bl);
 void clif_combo_delay(struct block_list *bl,t_tick wait);

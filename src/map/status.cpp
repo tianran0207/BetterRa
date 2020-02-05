@@ -3735,6 +3735,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	sd->skillattribute.clear();
 	sd->statusbonus.clear();
 	sd->addstatusval.clear();
+	sd->reseff.clear();
 
 	// Autobonus
 	pc_delautobonus(sd, sd->autobonus, true);
@@ -8565,9 +8566,16 @@ t_tick status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_
 
 		// Item resistance (only applies to rate%)
 		if (sd && rate > 0) {
+			struct map_session_data *ssd = BL_CAST(BL_PC, src);
+			int subreseff = 0;
+			if (ssd)
+				for (const auto &it : ssd->subreseff) {
+					if (it.id == type)
+						subreseff += it.val;
+				}
 			for (const auto &it : sd->reseff) {
 				if (it.id == type)
-					rate -= rate * it.val / 10000;
+					rate -= rate * cap_value(it.val - subreseff, 0, 10000) / 10000;
 			}
 			if (sd->sc.data[SC_COMMONSC_RESIST] && SC_COMMON_MIN <= type && type <= SC_COMMON_MAX)
 				rate -= rate*sd->sc.data[SC_COMMONSC_RESIST]->val1/100;

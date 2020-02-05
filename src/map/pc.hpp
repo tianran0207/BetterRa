@@ -699,6 +699,7 @@ struct map_session_data {
 	std::vector<s_skill_attr> skillattribute;
 	std::vector<s_status_bonus> statusbonus;
 	std::vector<s_status_val> addstatusval;
+	std::vector<s_item_bonus> subreseff;
 
 	struct autowalk_data autowalk;
 

@@ -342,6 +342,7 @@ struct Script_Config script_config = {
 	"OnPCUseSkillExEvent", //use_skill_event_name
 	"OnPCUseItemExFilter", //use_item_filter_name
 	"OnPCUseItemExEvent", //use_item_event_name
+	"OnPCUseTokenFilter", //use_token_filter_name
 	"OnPCWillLoadMapEvent", //map_will_load_event_name
 	"OnPCInChatroomFilter", //chatroom_join_filter_name
 	"OnPCChangeTitleFilter", //title_change_filter_name
@@ -369,6 +370,7 @@ struct Script_Config script_config = {
 	"OnPCInventoryAddFilter", //inventory_add_filter_name
 	"OnPCDropItemFilter", //drop_item_filter_name
 	"OnPCSelectItemEvent", //select_item_event_name
+	"OnPCSelectSkillEvent", //select_skill_event_name
 	"OnMOBDropItemFilter", //mob_drop_item_filter_name
 	"OnPCAttackFilter", //attack_filter_name
 	"OnPCAttackedFilter", //attacked_filter_name
@@ -29285,6 +29287,7 @@ BUILDIN_FUNC(itemlist)
 	int id, i, array_size;
 	struct map_session_data* sd = NULL;
 	struct reg_db *ref = NULL;
+	const char *command = script_getfuncname(st);
 	data = script_getdata(st, 2);
 	ref = reference_getref(data);
 	id = reference_getid(data);
@@ -29298,7 +29301,10 @@ BUILDIN_FUNC(itemlist)
 		item_id[i] = (unsigned short)get_val2_num(st, reference_uid(id, i), ref);
 
 	sd->menulist_data = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
-	clif_itemlist(sd, item_id, array_size);
+	if (!strcasecmp(command,"item"))
+		clif_itemlist(sd, item_id, array_size);
+	else
+		clif_skilllist(sd, item_id, array_size);
 	aFree(item_id);
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -30314,6 +30320,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(instance_addmap, "s??"),
 	BUILDIN_DEF(instance_delmap, "s?"),
 	BUILDIN_DEF(itemlist, "v??"),
+	BUILDIN_DEF2(itemlist, "skilllist", "v??"),
 	BUILDIN_DEF(getconstantstr, "si"),
 	BUILDIN_DEF(next_dropitem_special, "iii"),
 	BUILDIN_DEF(unitdefratefixed, "ii???"),

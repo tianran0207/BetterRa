@@ -254,6 +254,7 @@ struct Script_Config {
 	// Useitem related
 	const char*	use_item_filter_name;
 	const char*	use_item_event_name;
+	const char*	use_token_filter_name;
 	// Mapload related
 	const char*	map_will_load_event_name;
 	// Chatroom related
@@ -295,6 +296,8 @@ struct Script_Config {
 	const char* drop_item_filter_name;
 	// Item related
 	const char* select_item_event_name;
+	// Skill related
+	const char* select_skill_event_name;
 	// Mob related
 	const char* mob_drop_item_filter_name;
 	// ATK related

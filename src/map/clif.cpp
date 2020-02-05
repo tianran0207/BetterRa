@@ -8241,6 +8241,25 @@ void clif_autospell(struct map_session_data *sd,uint16 skill_lv)
 	sd->menuskill_val = skill_lv;
 }
 
+int clif_skilllist(struct map_session_data *sd, unsigned short skill_id[], unsigned short count)
+{
+	int fd;
+
+	nullpo_retr(0, sd);
+
+	if (!count)
+		return 0;
+
+	fd = sd->fd;
+	WFIFOHEAD(fd, packet_len(0x1cd));
+	WFIFOW(fd, 0) = 0x1cd;
+
+	for (int i = 0; i < count && i < 7; i++)
+		WFIFOL(fd, 2+i*4) = skill_id[i];
+
+	WFIFOSET(fd, packet_len(0x1cd));
+	return 1;
+}
 
 /// Devotion's visual effect (ZC_DEVOTIONLIST).
 /// 01cf <devoter id>.L { <devotee id>.L }*5 <max distance>.W
@@ -13150,8 +13169,14 @@ void clif_parse_SelectArrow(int fd,struct map_session_data *sd) {
 /// 01ce <skill id>.L
 void clif_parse_AutoSpell(int fd,struct map_session_data *sd)
 {
-	if (sd->menuskill_id != SA_AUTOSPELL)
+	if (sd->menuskill_id != SA_AUTOSPELL){
+		if (npc_script_event_check(sd, NPCE_SKILLSELECTEVENT)) {
+			pc_setreg(sd, add_str("@skilllist_param"), sd->menuskill_id);
+			pc_setreg(sd, add_str("@skilllist_skillid"), RFIFOL(fd, packet_db[RFIFOW(fd, 0)].pos[0]));
+			npc_script_event_atonce(sd, NPCE_SKILLSELECTEVENT);
+		}
 		return;
+	}
 	sd->state.workinprogress = WIP_DISABLE_NONE;
 	skill_autospell(sd,RFIFOL(fd,packet_db[RFIFOW(fd,0)].pos[0]));
 	clif_menuskill_clear(sd);

@@ -3593,6 +3593,15 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_SUBRESEFF: // bonus2 bResEff,eff,n;
+		if (sd->state.lr_flag == 2)
+			break;
+		if (sd->subreseff.size() == MAX_PC_BONUS) {
+			ShowWarning("pc_bonus2: SP_SUBRESEFF: Reached max (%d) number of resistance bonuses per character!\n", MAX_PC_BONUS);
+			break;
+		}
+		pc_bonus_itembonus(sd->subreseff, type2, val, true);
+		break;
 	case SP_SKILL_NO_CAST:
 		if (sd->state.lr_flag != 2) {
 			if (sd->skillnorequire.size() == MAX_PC_BONUS) {
@@ -9229,6 +9238,13 @@ bool pc_revive_item(struct map_session_data *sd) {
 	else if (map_getmapflag(sd->bl.m, MF_NOTOKEN)) {
 		clif_displaymessage(sd->fd, msg_txt(sd, 2335));
 		return false;
+	}
+
+	if (npc_script_event_check(sd, NPCE_USETOKENFILTER)) {
+		pc_setreg(sd, add_str("@token_idx"), item_position);
+		npc_script_event_atonce(sd, NPCE_USETOKENFILTER);
+		if (sd->state.processhalt)
+			return false;
 	}
 
 	if (!status_revive(&sd->bl, hp, sp))
