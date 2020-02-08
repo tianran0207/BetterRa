@@ -4513,8 +4513,10 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
 	len = p - w1;
 
 	ARR_FIND(0, ARRAYLENGTH(head), i, strncasecmp(w1, head[i], len) == 0);
-	if (i == ARRAYLENGTH(head))
-		return start;
+	if (i == ARRAYLENGTH(head)) {
+		ShowError("npc_parse_dbread: Invalid script database line in file '%s', line '%d'. Skipping line...\n", filepath, strline(buffer, start - buffer));
+		return strchr(start, '\n');
+	}
 
 	// *dbread_type == -1 skip npc_database_set. 
 	if ((*dbread_type = !strncasecmp(filepath, "npc_reload", 10) ? -1 : *dbread_type) == -1) {
