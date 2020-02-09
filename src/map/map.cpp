@@ -2932,6 +2932,7 @@ int map_delinstancemap(int m)
 	map_free_questinfo(mapdata);
 	mapdata->damage_adjust = {};
 	mapdata->flag.clear();
+	mapdata->flag_val.clear();
 	mapdata->skill_damage.clear();
 
 	mapindex_removemap(mapdata->index);
@@ -3810,6 +3811,7 @@ void map_flags_init(void){
 		union u_mapflag_args args = {};
 
 		mapdata->flag.clear();
+		mapdata->flag_val.clear();
 		mapdata->flag.reserve(MF_MAX); // Reserve the bucket size
 		args.flag_val = 100;
 
@@ -3821,7 +3823,6 @@ void map_flags_init(void){
 
 		// Clear adjustment data, will be reset after loading NPC
 		mapdata->damage_adjust = {};
-		mapdata->mobspawnbase = {};
 		mapdata->drop_list.clear();
 		mapdata->skill_damage.clear();
 		mapdata->skill_duration.clear();
@@ -3847,9 +3848,9 @@ void map_data_copy(struct map_data *dst_map, struct map_data *src_map) {
 
 	memcpy(&dst_map->save, &src_map->save, sizeof(struct point));
 	memcpy(&dst_map->damage_adjust, &src_map->damage_adjust, sizeof(struct s_skill_damage));
-	memcpy(&dst_map->mobspawnbase, &src_map->mobspawnbase, sizeof(struct s_mob_spawn_base));
 
 	dst_map->flag.insert(src_map->flag.begin(), src_map->flag.end());
+	dst_map->flag_val.insert(src_map->flag_val.begin(), src_map->flag_val.end());
 	dst_map->skill_damage.insert(src_map->skill_damage.begin(), src_map->skill_damage.end());
 	dst_map->skill_duration.insert(src_map->skill_duration.begin(), src_map->skill_duration.end());
 
@@ -4871,16 +4872,6 @@ bool map_setmapflag_sub(int16 m, enum e_mapflag mapflag, bool status, union u_ma
 	}
 
 	switch(mapflag) {
-		case MF_MOBSPAWNBASE:
-			if (status) {
-				nullpo_retr(false, args);
-				mapdata->mobspawnbase.hprate = args->mobspawnbase.hprate;
-				mapdata->mobspawnbase.atkrate = args->mobspawnbase.atkrate;
-				mapdata->mobspawnbase.matkrate = args->mobspawnbase.matkrate;
-				mapdata->mobspawnbase.hitrate = args->mobspawnbase.hitrate;
-			}
-			mapdata->flag[mapflag] = status;
-			break;
 		case MF_NOSC:
 		case MF_NOSKILL2:
 		case MF_NOITEMFUNC:
@@ -4888,10 +4879,6 @@ bool map_setmapflag_sub(int16 m, enum e_mapflag mapflag, bool status, union u_ma
 		case MF_MOBDROPRATE:
 		case MF_MVPDROPRATE:
 		case MF_PARTYLOCK2:
-		case MF_MOBDMGRATE:
-		case MF_MOBDMGRATE2:
-		case MF_MOBATKRATE:
-		case MF_MOBATKRATE2:
 		case MF_MOBDMGFIX:
 		case MF_MOBDMGMAX:
 		case MF_MAXDMG_NORMAL:
@@ -4908,6 +4895,26 @@ bool map_setmapflag_sub(int16 m, enum e_mapflag mapflag, bool status, union u_ma
 				mapdata->flag[mapflag] = args->flag_val;
 			}else
 				mapdata->flag[mapflag] = false;
+			break;
+		case MF_MOBATKRATE:
+		case MF_MOBDMGRATE:
+		case MF_PCATKRATE:
+		case MF_PCDMGRATE:
+		case MF_OTHERATKRATE:
+		case MF_OTHERDMGRATE:
+		case MF_MOBSPAWNBASE:
+			if (status) {
+				nullpo_retr(false, args);
+				mapdata->flag_val[mapflag].val = args->u.val;
+				mapdata->flag_val[mapflag].val2 = args->u.val2;
+				mapdata->flag_val[mapflag].val3 = args->u.val3;
+				mapdata->flag_val[mapflag].val4 = args->u.val4;
+				mapdata->flag[mapflag] = true;
+			}
+			else {
+				mapdata->flag_val.erase(mapflag);
+				mapdata->flag[mapflag] = false;
+			}
 			break;
 		case MF_NOSAVE:
 			if (status) {

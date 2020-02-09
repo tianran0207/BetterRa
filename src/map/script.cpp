@@ -13213,11 +13213,17 @@ BUILDIN_FUNC(setmapflag)
 	union u_mapflag_args args = {};
 
 	switch(mf) {
+		case MF_MOBATKRATE:
+		case MF_MOBDMGRATE:
+		case MF_PCATKRATE:
+		case MF_PCDMGRATE:
+		case MF_OTHERATKRATE:
+		case MF_OTHERDMGRATE:
 		case MF_MOBSPAWNBASE: 
-			if (script_hasdata(st, 4) && script_isstring(st, 4) && sscanf(script_getstr(st, 4), "%u,%u,%u,%u", &args.mobspawnbase.hprate, &args.mobspawnbase.atkrate, &args.mobspawnbase.matkrate, &args.mobspawnbase.hitrate) == 4) {
-					map_setmapflag_sub(m, MF_MOBSPAWNBASE, true, &args);
-			}else {
-				ShowWarning("buildin_setmapflag: Unable to set mobspawnbase mapflag as flag must be string, like '100,100,100,100'.\n");
+			if (!script_hasdata(st, 4) || !script_isstring(st, 4) || !sscanf(script_getstr(st, 4), "%d,%d,%d,%d", &args.u.val, &args.u.val2, &args.u.val3, &args.u.val4)) {
+				char name[128];
+				map_getmapflag_name(static_cast<e_mapflag>(mf), name);
+				ShowWarning("buildin_setmapflag: Unable to set %s mapflag as flag data is missing, data is a string like '100,100,100,100'.\n", name);
 				return SCRIPT_CMD_FAILURE;
 			}
 			break;
@@ -29135,6 +29141,11 @@ BUILDIN_FUNC(setequipedcard)
 		return SCRIPT_CMD_FAILURE;
 	}
 	clif_change_card(sd, equip_bitmask[pos], slot, card, card == 0 ? 2 : 1);
+	struct item_data*  it = itemdb_exists(sd->inventory.u.items_inventory[i].card[slot]);
+	if (it && it->flag.costume_card){
+		pc_unequipitem(sd, i, 0);
+		clif_equiplist(sd);
+	}
 	log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[i]);
 	sd->inventory.u.items_inventory[i].card[slot] = card;
 	log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[i]);
@@ -29355,6 +29366,21 @@ BUILDIN_FUNC(unitdefratefixed)
 	ud->def_fix.rate2 = script_hasdata(st, 4) ? script_getnum(st, 4) : 100;
 	ud->def_fix.min_dmg = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
 	ud->def_fix.max_dmg = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(settitleicon)
+{
+	struct block_list *bl;
+	struct unit_data *ud;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	ud = unit_bl2ud(bl);
+	ud->groupicon = script_getnum(st, 3);
+	safestrncpy(ud->title, script_getstr(st, 4), NAME_LENGTH);
+	clif_name_area(bl);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -30324,6 +30350,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getconstantstr, "si"),
 	BUILDIN_DEF(next_dropitem_special, "iii"),
 	BUILDIN_DEF(unitdefratefixed, "ii???"),
+	BUILDIN_DEF(settitleicon, "iis"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),

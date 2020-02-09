@@ -248,6 +248,7 @@ struct mob_data {
 	 **/
 	int tomb_nid;
 	struct autowalk_data autowalk;
+	t_tick info_refresh;
 };
 
 class MobAvailDatabase : public YamlDatabase {

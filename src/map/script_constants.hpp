@@ -596,10 +596,12 @@
 	export_constant(MF_NOUSEITEM);
 	export_constant(MF_NOITEMFUNC);
 	export_constant(MF_NOSLAVE);
-	export_constant(MF_MOBDMGRATE);
-	export_constant(MF_MOBDMGRATE2);
 	export_constant(MF_MOBATKRATE);
-	export_constant(MF_MOBATKRATE2);
+	export_constant(MF_MOBDMGRATE);
+	export_constant(MF_PCATKRATE);
+	export_constant(MF_PCDMGRATE);
+	export_constant(MF_OTHERATKRATE);
+	export_constant(MF_OTHERDMGRATE);
 	export_constant(MF_MOBDMGFIX);
 	export_constant(MF_MOBDMGMAX);
 	export_constant(MF_MAXDMG_NORMAL);
@@ -609,6 +611,7 @@
 	export_constant(MF_ATTACKEDEVENT);
 	export_constant(MF_HEALEVENT);
 	export_constant(MF_MAXASPD);
+	export_constant(MF_HIDEDAMAGE);
 
 	export_constant(PH_WALKBACK);
 	export_constant(PH_WARPBACK);

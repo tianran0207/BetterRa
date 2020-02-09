@@ -4243,10 +4243,6 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		case MF_MOBDROPRATE:
 		case MF_MVPDROPRATE:
 		case MF_PARTYLOCK2:
-		case MF_MOBDMGRATE:
-		case MF_MOBDMGRATE2:
-		case MF_MOBATKRATE:
-		case MF_MOBATKRATE2:
 		case MF_MOBDMGFIX:
 		case MF_MOBDMGMAX:
 		case MF_MAXDMG_NORMAL:
@@ -4265,18 +4261,21 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 				map_setmapflag(m, mapflag, false);
 			break;
 		}
-			
+		case MF_MOBDMGRATE:
+		case MF_MOBATKRATE:
+		case MF_PCATKRATE:
+		case MF_PCDMGRATE:
+		case MF_OTHERATKRATE:
+		case MF_OTHERDMGRATE:
 		case MF_MOBSPAWNBASE: {
 			union u_mapflag_args args = {};
 
 			if (state) {
-				if (sscanf(w4, "%u,%u,%u,%u", &args.mobspawnbase.hprate, &args.mobspawnbase.atkrate, &args.mobspawnbase.matkrate, &args.mobspawnbase.hitrate) == 4)
-					map_setmapflag_sub(m, MF_MOBSPAWNBASE, true, &args);
-				else
-					ShowWarning("npc_parse_mapflag: Zone value not set for the mapflag! Skipped flag from %s (file '%s', line '%d').\n", map_mapid2mapname(m), filepath, strline(buffer, start - buffer));
+				if (sscanf(w4, "%d,%d,%d,%d", &args.u.val, &args.u.val2, &args.u.val3, &args.u.val4) > 0)
+					map_setmapflag_sub(m, mapflag, true, &args);
 			}
 			else
-				map_setmapflag(m, MF_MOBSPAWNBASE, false);
+				map_setmapflag(m, mapflag, false);
 			break;
 		}
 

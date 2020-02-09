@@ -409,11 +409,6 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 	}
 	mapdata = map_getmapdata(src ? src->m : target ? target->m : -1);
 	if (mapdata && damage) {
-		if (src && src->type == BL_MOB && mapdata->flag[MF_MOBATKRATE2])
-			damage = damage * mapdata->flag[MF_MOBATKRATE2] / 100;
-		if (target && target->type == BL_MOB && mapdata->flag[MF_MOBDMGRATE2])
-			damage = damage * mapdata->flag[MF_MOBDMGRATE2] / 100;
-
 		int val = skill_id ? mapdata->flag[MF_MAXDMG_SKILL] : mapdata->flag[MF_MAXDMG_NORMAL];
 		if (val && damage > val)
 			damage = val;
@@ -8540,7 +8535,8 @@ static const struct _battle_data {
 	{ "skill_critical_damage",              &battle_config.skill_critical_damage,           150,    0,      INT_MAX,        },
 	{ "skill_critical_boss",                &battle_config.skill_critical_boss,             0,      0,      INT_MAX,        },
 	{ "skill_critical_luk",                 &battle_config.skill_critical_luk,              1,      0,      1,              },
-	{ "gm_perfect_hide",                    &battle_config.gm_perfect_hide,                 1,      0,      1,              },
+	{ "gm_perfect_hide",                    &battle_config.gm_perfect_hide,                 1,      0,      1,              }, 
+	{ "mobinfo_refresh_tick",               &battle_config.mobinfo_refresh_tick,            300,    0,      INT_MAX,        },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

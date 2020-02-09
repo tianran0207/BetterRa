@@ -4402,14 +4402,18 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " NoItemFunc |"); 
 	if (map_getmapflag(m_id, MF_NOSLAVE))
 		strcat(atcmd_output, " NoSlave |");
-	if (map_getmapflag(m_id, MF_MOBDMGRATE))
-		strcat(atcmd_output, " MobDmgRate |");
-	if (map_getmapflag(m_id, MF_MOBDMGRATE2))
-		strcat(atcmd_output, " MobDmgRate2 |");
 	if (map_getmapflag(m_id, MF_MOBATKRATE))
 		strcat(atcmd_output, " MobAtkRate |");
-	if (map_getmapflag(m_id, MF_MOBATKRATE2))
-		strcat(atcmd_output, " MobAtkRate2 |");
+	if (map_getmapflag(m_id, MF_MOBDMGRATE))
+		strcat(atcmd_output, " MobDmgRate |");
+	if (map_getmapflag(m_id, MF_PCATKRATE))
+		strcat(atcmd_output, " PcAtkRate |");
+	if (map_getmapflag(m_id, MF_PCDMGRATE))
+		strcat(atcmd_output, " PcDmgRate |");
+	if (map_getmapflag(m_id, MF_OTHERATKRATE))
+		strcat(atcmd_output, " OtherAtkRate |");
+	if (map_getmapflag(m_id, MF_OTHERDMGRATE))
+		strcat(atcmd_output, " OtherDmgRate |");
 	if (map_getmapflag(m_id, MF_MOBDMGFIX))
 		strcat(atcmd_output, " MobDmgFix |");
 	if (map_getmapflag(m_id, MF_MOBDMGMAX))
@@ -4428,6 +4432,8 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " HealEvent |");
 	if (map_getmapflag(m_id, MF_MAXASPD))
 		strcat(atcmd_output, " MaxASPD |");
+	if (map_getmapflag(m_id, MF_HIDEDAMAGE))
+		strcat(atcmd_output, " HideDamage |");
 	//-------------------------------------
 
 	clif_displaymessage(fd, atcmd_output);

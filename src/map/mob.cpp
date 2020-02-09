@@ -2424,11 +2424,17 @@ void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 		md->dmgtick = gettick();
 	}
 
-	if (battle_config.show_mob_info&3)
+	bool refresh = false;
+	if (DIFF_TICK(md->dmgtick, md->info_refresh) > battle_config.mobinfo_refresh_tick) {
+		refresh = true;
+		md->info_refresh = md->dmgtick;
+	}
+
+	if (battle_config.show_mob_info > 0 && refresh)
 		clif_name_area(&md->bl);
 
 #if PACKETVER >= 20120404
-	if (battle_config.monster_hp_bars_info && !map_getmapflag(md->bl.m, MF_HIDEMOBHPBAR)) {
+	if (battle_config.monster_hp_bars_info && !map_getmapflag(md->bl.m, MF_HIDEMOBHPBAR) && refresh) {
 		int i;
 		for(i = 0; i < DAMAGELOG_SIZE; i++){ // must show hp bar to all char who already hit the mob.
 			struct map_session_data *sd = map_charid2sd(md->dmglog[i].id);

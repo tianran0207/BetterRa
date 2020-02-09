@@ -2785,7 +2785,7 @@ void clif_item_sub_v5(unsigned char *buf, int n, int idx, struct item *it, struc
 		clif_addcards(WBUFP(buf, n+14), it); //EQUIPSLOTINFO 8B
 		WBUFL(buf,n+22) = it->expire_time;
 		WBUFW(buf,n+26) = it->bound ? BOUND_DISPYELLOW : id->flag.bindOnEquip ? BOUND_ONEQUIP : 0; //bindOnEquipType
-		WBUFW(buf,n+28) = (id->equip&EQP_VISIBLE) ? id->look : 0;
+		WBUFW(buf,n+28) = (id->equip&EQP_VISIBLE) ? (id->flag.equipwindow_nolook ? 0 : id->look) : 0;
 #if PACKETVER >= 20150225
 		//V6_ITEM_Option
 		WBUFB(buf,n+30) = 0;	// nRandomOptionCnt
@@ -2830,7 +2830,7 @@ void clif_item_sub(unsigned char *buf, int n, int idx, struct item *it, struct i
 		WBUFW(buf,n+24) = it->bound ? BOUND_DISPYELLOW : id->flag.bindOnEquip ? BOUND_ONEQUIP : 0;
 #endif
 #if PACKETVER >= 20100629
-		WBUFW(buf,n+26) = (id->equip&EQP_VISIBLE) ? id->look : 0;
+		WBUFW(buf,n+26) = (id->equip&EQP_VISIBLE) ? (id->flag.equipwindow_nolook ? 0 : id->look) : 0;
 #endif
 	} else { //Stackable item. 22.B
 		WBUFW(buf,n+6) = it->amount;
@@ -3944,7 +3944,7 @@ void clif_equipitemack(struct map_session_data *sd,int n,int pos,uint8 flag)
 	fd = sd->fd;
 
 	if (flag == ITEM_EQUIP_ACK_OK && sd->inventory_data[n]->equip&EQP_VISIBLE)
-		look = sd->inventory_data[n]->look;
+		look = (sd->inventory_data[n]->flag.equipwindow_nolook ? 0 : sd->inventory_data[n]->look);
 
 	WFIFOHEAD(fd, info->len);
 	WFIFOW(fd, 0) = cmd;
@@ -4890,6 +4890,41 @@ static int clif_hallucination_damage()
 	return (rnd() % 32767);
 }
 
+static void clif_damage_sub(struct block_list* src, struct block_list* dst, int div, int *damage, int *damage2)
+{
+	struct map_data *mapdata = map_getmapdata(src->m);
+	struct block_list *bl = src->type == BL_SKILL ? battle_get_master(src) : src;
+
+	int type, rate = 1000000;
+	if (!mapdata)
+		return;
+
+	if (mapdata->flag[MF_HIDEDAMAGE]) {
+		*damage  = damage ? div : 0;
+		if (damage2) *damage2 = div;
+	}
+	if (bl) {
+		switch (bl->type) {
+		case BL_MOB:	type = MF_MOBATKRATE;	break;
+		case BL_PC:		type = MF_PCATKRATE;	break;
+		default:		type = MF_OTHERATKRATE;	break;
+		}
+		rate = rate * (mapdata->flag[type] ? mapdata->flag_val[type].val2 : 10000) / 10000;
+	}
+	if (dst) {
+		switch (dst->type) {
+		case BL_MOB:	type = MF_MOBDMGRATE;	break;
+		case BL_PC:		type = MF_PCDMGRATE;	break;
+		default:		type = MF_OTHERDMGRATE;	break;
+		}
+		rate = rate * (mapdata->flag[type] ? mapdata->flag_val[type].val2 : 10000) / 10000;
+	}
+	if (rate != 10000) {
+		*damage = (int)cap_value((int64)*damage * rate / 1000000, INT_MIN, INT_MAX);
+		if (damage2) *damage2 = (int)cap_value((int64)*damage2 * rate / 1000000, INT_MIN, INT_MAX);
+	}
+}
+
 /// Sends a 'damage' packet (src performs action on dst)
 /// 008a <src ID>.L <dst ID>.L <server tick>.L <src speed>.L <dst speed>.L <damage>.W <div>.W <type>.B <damage2>.W (ZC_NOTIFY_ACT)
 /// 02e1 <src ID>.L <dst ID>.L <server tick>.L <src speed>.L <dst speed>.L <damage>.L <div>.W <type>.B <damage2>.L (ZC_NOTIFY_ACT2)
@@ -4962,6 +4997,7 @@ int clif_damage(struct block_list* src, struct block_list* dst, t_tick tick, int
 		WBUFW(buf,22) = min(damage, INT16_MAX);
 		WBUFW(buf,27+offset) = damage2;
 #else
+		clif_damage_sub(src, dst, div, &damage, &damage2);
 		WBUFL(buf,22) = damage;
 		WBUFL(buf,27+offset) = damage2;
 #endif
@@ -5744,6 +5780,7 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,t_tick tick,
 	if (battle_config.hide_woe_damage && map_flag_gvg(src->m)) {
 		WBUFL(buf,24)=damage?div:0;
 	} else {
+		clif_damage_sub(src, dst, div, &damage, NULL);
 		WBUFL(buf,24)=damage;
 	}
 	WBUFW(buf,28)=skill_lv;
@@ -9898,6 +9935,19 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 		return;
 	}
 
+#if PACKETVER >= 20171129
+	struct unit_data *ud = unit_bl2ud(bl);
+	if (ud != NULL && (ud->title || ud->groupicon)) {
+		char name[24];
+		WBUFW(buf, 0) = 0x0adf;
+		safestrncpy(name, WBUFCP(buf, 6), NAME_LENGTH);
+		WBUFL(buf, 6) = ud->groupicon;
+		safestrncpy(WBUFCP(buf, 10), name, NAME_LENGTH);
+		safestrncpy(WBUFCP(buf, 34), ud->title, NAME_LENGTH);
+		clif_send(buf, 58, src, target);
+		return;
+	}
+#endif
 	clif_send(buf, packet_len(cmd), src, target);
 }
 

@@ -860,6 +860,7 @@ struct item_data
 		unsigned costume_card : 1;
 		unsigned equip_invalid : 1;
 		unsigned item_ignore_autoloot : 1;
+		unsigned equipwindow_nolook : 1;
 		bool bindOnEquip; ///< Set item as bound when equipped
 		uint8 dropEffect; ///< Drop Effect Mode
 	} flag;
