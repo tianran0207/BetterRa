@@ -2,6 +2,97 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20200210  [添加] 地图标记 合并 pcatkrate 玩家的攻击伤害会被此标记按倍率修正
+* 20200210  [添加] 地图标记 合并 pcdmgrate  玩家所受到的伤害均会被此标记按倍率修正
+* 20200210  [添加] 地图标记 合并 otheratkrate 玩家的攻击伤害会被此标记按倍率修正
+* 20200210  [添加] 地图标记 合并 otherdmgrate 玩家所受到的伤害均会被此标记按倍率修正
+* 20200210  [优化] 地图标记 合并 mobatkrate 与 mobatkrate2 为 mobatkrate 魔物的攻击伤害会被此标记按倍率修正
+* 20200210  [优化] 地图标记 合并 mobdmgrate 与 mobdmgrate2 为 mobdmgrate 魔物所受到的伤害均会被此标记按倍率修正
+* 20200210  [优化] 地图标记 mobdmgrate 与 mobatkrate 修改为万分率
+* 20200210  [添加] 脚本指令 settitleicon 使某个GID显示图标和标题, 对任意单位都有效
+* 20200210  [添加] 战斗配置 mobinfo_refresh_tick 魔物名称和血条刷新频率, 减少服务器负担
+* 20200206  [添加] 脚本指令 skilllist 生成一个物品选择框, 当玩家选择完成后触发 OnPCSelectSkillEvent 事件
+* 20200206  [添加] 脚本事件 OnPCSelectSkillEvent 当玩家选择技能列表中的物品后执行该事件
+* 20200203  [添加] 脚本指令 unitdefratefixed 使对应的对象获得的伤害变为倍率后的伤害
+* 20200203  [添加] 战斗选项 gm_perfect_hide 当使用 @hide 指令后, 实现完美隐藏, 不会被外挂和内挂发现
+* 20200203  [添加] 脚本指令 next_dropitem_special 当下一次掉落在地上的物品, 会按照本次设定的特殊要求掉落
+* 20200202  [添加] 脚本指令 getconstantstr 通过数值获取常量的字符串, 加常量前缀可以增加获得常量字符串的准确度
+* 20200202  [添加] 物品附加 bonus3 bStatusAddBonus 当玩家拥有 sc 的时候, 会增加 bonus 参数为 n
+* 20200202  [添加] 物品附加 bonus4 bStatusAddBonus 当玩家拥有 sc 的时候, 会增加 bonus 参数为 r,n
+* 20200202  [添加] 物品附加 bonus5 bAddStatusVal 赋予状态时, 参数分别累加 val1, val2, val3, val4
+* 20200202  [添加] 物品标签 item_flag.txt 添加专属标记 &2 插有该物品的装备变为时装/影装装备属性会无效化
+* 20200202  [添加] 物品附加 bonus2 bAddSkillArea 增加 sk 技能 n 格范围, 可用于溅射或范围技能
+* 20200202  [添加] 物品附加 bonus2 bAddSkillRange 增加 sk 技能 n 格攻击距离
+* 20200202  [添加] 物品附加 bonus2 bSkillToAround 技能 sk 变为群体技能, 自动选择自身 n 格范围内的敌对目标进行攻击
+* 20200131  [优化] 自定义技能公式 db/skill_formula_db.yml
+* 20200131  [添加] 脚本指令 skf_src_status 获取攻击者的基础属性, 用于自定义技能公式
+* 20200131  [添加] 脚本指令 skf_target_status 获取目标(被攻击者)的基础属性, 用于自定义技能公式
+* 20200131  [添加] 脚本指令 skf_attr_fix 计算本次伤害的属性修正, 用于自定义技能公式
+* 20200131  [添加] 脚本指令 skf_card_fix 计算本次伤害的 BONUS 修正, 用于自定义技能公式
+* 20200131  [移除] 战斗选项 jro_formulas 日服公式分离已移至其他GIT库
+* 20200131  [添加] 战斗配置 skill_critical_enable 哪些单位可以使用全局技能暴击
+* 20200131  [添加] 战斗配置 skill_critical_rate 全局技能暴击概率
+* 20200131  [添加] 战斗配置 skill_critical_damage 全局技能暴击伤害倍率
+* 20200131  [添加] 战斗配置 skill_critical_boss 魔法暴击对 Boss级魔物的倍率
+* 20200131  [添加] 战斗配置 skill_critical_luk 魔法暴击概率是否受对方 LUK 的影响, LUK抵消暴击率同普通暴击
+* 20200131  [优化] 物品附加 bSkillCritical 参数 sk 支持 -1 对所有的技能可暴击
+* 20200129  [优化] 支持装备 equip_uid 以整数型输出 覆盖指令 getinventorylist getcartinventorylist getcartinventorylist getinventoryinfo
+* 20200129  [修复] 技能 太阳和月亮和星星的感觉 菜单取消的问题
+* 20200129  [修复] 在PVP时 GM隐藏玩家的问题
+* 20200129  [添加] 战斗配置 skill.conf devotion_standup_fix 是否修复玩家被攻击后仍然坐着的问题
+* 20200129  [修复] 宝宝职业最大属性点不正确的问题
+* 20200129  [修复] 技能 伪装炸弹 的攻击间隔问题
+* 20200129  [添加] 战斗配置 homunc.conf hom_idle_no_share 当玩家处于闲置状态时不分享经验掉落的配置
+* 20200129  [优化] 脚本指令 announce 支持 charid
+* 20200129  [修复] 玩家多余的状态计算导致的某些状态不能正常使用的问题
+* 20200129  [修复] 脚本指令 unitwalk 事件重复调用的问题
+* 20200129  [添加] 脚本引擎支持 int64 位
+* 20200129  [添加] 物品标记 item_flag.txt 添加专属标记 2 物品无视 autoloot 等自动拾取指令, 会直接掉到地上
+* 20200129  [添加] 脚本指令 itemlist 生成一个物品选择框, 当玩家选择完成后触发 OnPCSelectItemEvent 事件
+* 20200129  [添加] 脚本事件 OnPCSelectItemEvent 当玩家在物品选择框中选择物品列表中的物品后执行该事件
+* 20200128  [添加] 战斗配置 item_costume_card 是否开启插卡变时装/影装功能
+* 20200128  [添加] 物品标记 item_flag.txt 添加专属标记 1 插有该物品的普通装备变为时装/影装
+* 20200128  [添加] 战斗选项 attack_event 当实体攻击时哪种实体触发 OnPCAttackFilter 事件
+* 20200128  [添加] 战斗选项 attacked_event 当被实体攻击时哪种实体触发 OnPCAttackedFilter 事件
+* 20200128  [添加] 战斗选项 mob_drop_event 当魔物掉落哪些物品时, 那种物品会触发 OnMOBDropItemFilter 事件
+* 20200128  [修复] 脚本指令 bSkillAttribute 不生效的问题
+* 20200128  [添加] 新增 db/statcost.txt 数据库 定义每次升级素质所消耗的素质点数
+* 20200127  [添加] 脚本指令 instance_addmap 在副本中添加任意地图, 可以复制 NPC 到副本中
+* 20200127  [添加] 脚本指令 instance_delmap 删除副本中已存在的地图
+* 20200127  [修复] 脚本指令 equipinventory 和 unequipinventory 传入不存在的 idx 造成的宕机
+* 20200124  [添加] 物品附加 bSkillNoSpecial 移除技能 sk 的特殊条件
+* 20200124  [添加] 物品附加 bSkillNoRequire 移除技能 sk 的需求条件
+* 20200124  [添加] 物品附加 bSkillAttribute 技能 sk 变为 ele 属性, sk 为  0 时为普通攻击
+* 20200124  [添加] 物品附加 bReturnDefRate 受到反射伤害时, 伤害变为原来的 n%
+* 20200118  [修复]  脚本指令 NPC复制指令中不能获取gid的错误, 且优化DOC说明
+* 20200112  [修复] 修复宠物蛋作为邮件附件时的问题
+* 20200112  [添加] 战斗配置 monster.conf mob_nopc_move_rate 当魔物附近没有玩家时 魔物随机移动的概率
+* 20200112  [添加] 战斗配置 monster.conf boss_nopc_move_rate 当boss附近没有玩家时 boss随机移动的概率
+* 20200112  [添加] 战斗配置 monster.conf mob_nopc_idleskill_rate 当魔物附近没有玩家时 魔物使用技能的概率
+* 20200112  [添加] 战斗配置 monster.conf boss_nopc_idleskill_rate 当boss附近没有玩家时 boss使用技能的概率
+* 20200112  [修复] 格林机关枪狂热 受体型影响的问题
+* 20200112  [优化] 行为策略相关内容
+* 20200112  [添加] 脚本指令 battle_check 判断两个GID之间是否是所提供的敌对/友好关系
+* 20200112  [优化] 技能公式文件 db/skill_formula_db.yml
+* 20200111  [修复] 调整 conf/battle_athena.conf 中 BetterRa.conf的加载顺序 解决 import失效的问题
+* 20200110  [添加] 文件 conf/msg_conf/chat_msg.conf
+* 20200110  [添加] 脚本指令 getposrandomoption 获取装备编号指定道具的 Random Option 属性
+* 20200110  [添加] 脚本指令 setposrandomoption 设置装备编号指定道具的 Random Option 属性
+* 20200110  [添加] 战斗配置 guild_storage_official 是否使用官方的公会仓库容量计算方法
+* 20200110  [添加] 物品附加 bonus3 bSkillCritical 当玩家使用 sk 攻击时, 有 r/10% 的概率使伤害变为原来的 n% 倍
+* 20200110  [添加] 物品附加 bonus2 bSkillToGround 技能 sk 变为地面技能, 并攻击 n 格范围内的敌对目标
+* 20200107  [添加] 脚本指令 mapcutin 地图上的所有玩家都显示同一张照片
+* 20200107  [添加] 脚本指令 end2 只结束脚本不影响NPC对话和商店
+* 20200107  [修复] 脚本指令 getmobdmglog 不能获取MVP魔物伤害记录的问题
+* 20200105  [添加] 技能公式修正, 通过 db/skill_formula_db.yml 可调整伤害公式、吟唱公式、延迟公式和状态持续公式
+* 20200101  [添加] 脚本指令 addmobskill 给指定GID的魔物增加一个技能
+* 20200101  [添加] 脚本指令 delmobskill 给指定GID的魔物删除技能
+* 20200101  [优化] 玩家HP上限修改为21亿
+* 20200101  [优化] 玩家SP上限修改为21亿
+* 20191231  [修复] 物品附加 bRegenPercentHP bRegenPercentSP 不管用的问题
+* 20191231  [修复] 脚本事件 OnPCRefineUIFilter 返回变量 @refine_blessing 数量不对的问题
+* 20191231  [修复] 脚本事件 OnPCRefineUIFilter 打断时消耗材料的问题
+* 20191230  [修复] chat-server临时更新, 修复一些BUG
 * 20191215  [修复] 元素技能 黑洞 不能正常吸取玩家的问题
 * 20191215  [修改] 数据文件 mob_avail txt转yml setunitdata 和 getunitdata 支持外观数据 
 * 20191215  [修复] MySQL数据库结构优化, 老数据库依然可以用 
