@@ -27482,68 +27482,6 @@ BUILDIN_FUNC(is_attach)
 
 }
 
-static void buildin_bot_reset_sub(TBL_PC *sd) {
-
-	struct bot_data *bd;
-	struct item_data* id = NULL;
-	int i;
-
-	if (!(bd = map_id2bot(sd->bl.id)))
-		CREATE(bd, struct bot_data, 1);
-
-	memset(bd, 0, sizeof(struct bot_data));
-	
-	bd->sd = sd;
-	bd->info.item_hp_id = static_cast<uint16>(pc_readreg2(sd, "@item_hp_id"));
-	bd->info.item_sp_id = static_cast<uint16>(pc_readreg2(sd, "@item_sp_id"));
-	bd->info.item_heal_delay = static_cast<uint16>(pc_readreg2(sd, "@item_heal_delay"));
-	bd->info.item_fly_id = static_cast<uint16>(pc_readreg2(sd, "@item_fly_id"));
-	bd->info.item_fly_delay = static_cast<uint16>(pc_readreg2(sd, "@item_fly_delay"));
-	bd->info.loot_item_acttime = static_cast<uint16>(pc_readreg2(sd, "@loot_item_acttime"));
-	bd->info.choose_target_acttime = static_cast<uint16>(pc_readreg2(sd, "@choose_target_acttime"));
-
-	id = itemdb_exists(bd->info.item_hp_id);
-	if (!id || (id->type != 0 && id->type != 2 && id->type != 11 && id->type != 18))
-		bd->info.item_hp_id = 0;
-
-	id = itemdb_exists(bd->info.item_sp_id);
-	if (!id || (id->type != 0 && id->type != 2 && id->type != 11 && id->type != 18))
-		bd->info.item_sp_id = 0;
-
-	id = itemdb_exists(bd->info.item_fly_id);
-	if (!id || (id->type != 0 && id->type != 2 && id->type != 11 && id->type != 18))
-		bd->info.item_fly_id = 0;
-
-	bd->info.find_fail_fly = static_cast<int>(pc_readreg(sd, add_str("@find_fail_fly")));
-	bd->info.timeout_fly = static_cast<int>(pc_readreg(sd, add_str("@timeout_fly")));
-	sd->state.no_touch_warp = pc_readreg(sd, add_str("@ignore_warp")) != 0 ? 1 : 0;
-	sd->state.no_touch_script = pc_readreg(sd, add_str("@ignore_touch")) != 0 ? 1 : 0;
-
-	bd->info.always_attack_master = pc_readreg(sd, add_str("@always_attack_master")) != 0 ? 1 : 0;
-	bd->info.counterattack = pc_readreg(sd, add_str("@counterattack")) != 0 ? 1 : 0;
-	bd->info.ignore_same_ele = static_cast<int>(pc_readreg(sd, add_str("@ignore_same_ele")));
-	bd->state.offline = pc_readreg(sd, add_str("@offline")) != 0 ? 1 : 0;
-
-	bd->info.atktype = static_cast<int>((pc_readreg(sd, add_str("@atktype")) != 0 ? pc_readreg(sd, add_str("@atktype")) : BF_WEAPONMASK));
-
-	for (i = 0; i < MAX_BOT_MOB_COUNT; i++) {
-		bd->info.mob_id[i] = static_cast<uint16>(pc_readreg(sd, reference_uid(add_str("@mob_id"), i)));
-	}
-	for (i = 0; i < MAX_BOT_ITEM_COUNT; i++) {
-		bd->info.loot_item_id[i] = static_cast<uint16>(pc_readreg(sd, reference_uid(add_str("@loot_item_id"), i)));
-	}
-	for (i = 0; i < MAX_BOT_SKILL_COUNT; i++) {
-		bd->info.skill_id[i] = static_cast<uint16>(pc_readreg(sd, reference_uid(add_str("@skill_id"), i)));
-	}
-	for (i = 0; i < MAX_BOT_SKILL_COUNT; i++) {
-		bd->info.skill_lv[i] = static_cast<uint16>(pc_readreg(sd, reference_uid(add_str("@skill_lv"), i)));
-	}
-	for (i = 0; i < MAX_BOT_SKILL_COUNT; i++) {
-		bd->info.skill_delay[i] = static_cast<uint16>(pc_readreg(sd, reference_uid(add_str("@skill_delay"), i)));
-	}
-	map_addbot(bd);
-}
-
 BUILDIN_FUNC(bot_reset) {
 	TBL_PC *sd;
 	struct bot_data *bd;
@@ -27554,7 +27492,7 @@ BUILDIN_FUNC(bot_reset) {
 	if (!(bd = map_id2bot(sd->bl.id)))
 		return SCRIPT_CMD_SUCCESS;
 
-	buildin_bot_reset_sub(sd);
+	pcbot_reset_state(sd);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -27566,7 +27504,7 @@ BUILDIN_FUNC(bot_run)
 	if (!script_rid2sd(sd))
 		return SCRIPT_CMD_FAILURE;
 
-	buildin_bot_reset_sub(sd);
+	pcbot_reset_state(sd);
 
 	script_pushint(st, pcbot_run(sd, pc_readreg(sd, add_str("@run_time"))));
 
@@ -29141,11 +29079,11 @@ BUILDIN_FUNC(setequipedcard)
 		return SCRIPT_CMD_FAILURE;
 	}
 	clif_change_card(sd, equip_bitmask[pos], slot, card, card == 0 ? 2 : 1);
-	struct item_data*  it = itemdb_exists(sd->inventory.u.items_inventory[i].card[slot]);
+	int unequip = itemdb_search(sd->inventory.u.items_inventory[i].card[slot])->flag.costume_card + itemdb_search(card)->flag.costume_card;
 	log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[i]);
 	sd->inventory.u.items_inventory[i].card[slot] = card;
 	log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[i]);
-	if (it && it->flag.costume_card) {
+	if (unequip) {
 		pc_unequipitem(sd, i, 0);
 		clif_equiplist(sd);
 	}

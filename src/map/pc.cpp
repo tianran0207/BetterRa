@@ -14388,7 +14388,7 @@ static int pcbot_useitem(struct map_session_data *sd, unsigned short itemid)
 	if ((i = pc_search_inventory(sd, itemid)) == -1)
 		return 0;
 
-	if (pc_useitem(sd, i))
+	if (!pc_useitem(sd, i))
 		return 0;
 
 	if (sd->inventory.u.items_inventory[i].amount == 5) {
@@ -14659,7 +14659,8 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			bd->state.dir = 0;
 
 		if (bd->state.move_fail_count > 100) {
-			map_delbot(bd, true);
+			clif_displaymessage(sd->fd, msg_txt(sd, 2346));
+			map_delbot(bd, bd->state.offline > 0);
 			return 0;
 		}
 		return 1;
@@ -14672,6 +14673,64 @@ static int pcbot_ai_hard(int tid, t_tick tick, int id, intptr_t data)
 {
 	map_foreachbot(pcbot_ai_lazy, tick);
 	return 0;
+}
+
+void pcbot_reset_state(struct map_session_data *sd)
+{
+	struct bot_data *bd;
+	struct item_data* id = NULL;
+	int i;
+
+	if (!(bd = map_id2bot(sd->bl.id)))
+		CREATE(bd, struct bot_data, 1);
+
+	memset(bd, 0, sizeof(struct bot_data));
+	
+	bd->sd = sd;
+	bd->info.item_hp_id = static_cast<uint16>(pc_readreg2(sd, "@item_hp_id"));
+	bd->info.item_sp_id = static_cast<uint16>(pc_readreg2(sd, "@item_sp_id"));
+	bd->info.item_heal_delay = static_cast<uint16>(pc_readreg2(sd, "@item_heal_delay"));
+	bd->info.item_fly_id = static_cast<uint16>(pc_readreg2(sd, "@item_fly_id"));
+	bd->info.item_fly_delay = static_cast<uint16>(pc_readreg2(sd, "@item_fly_delay"));
+	bd->info.loot_item_acttime = static_cast<uint16>(pc_readreg2(sd, "@loot_item_acttime"));
+	bd->info.choose_target_acttime = static_cast<uint16>(pc_readreg2(sd, "@choose_target_acttime"));
+
+	id = itemdb_exists(bd->info.item_hp_id);
+	if (!id || (id->type != 0 && id->type != 2 && id->type != 11 && id->type != 18))
+		bd->info.item_hp_id = 0;
+
+	id = itemdb_exists(bd->info.item_sp_id);
+	if (!id || (id->type != 0 && id->type != 2 && id->type != 11 && id->type != 18))
+		bd->info.item_sp_id = 0;
+
+	id = itemdb_exists(bd->info.item_fly_id);
+	if (!id || (id->type != 0 && id->type != 2 && id->type != 11 && id->type != 18))
+		bd->info.item_fly_id = 0;
+
+	bd->info.find_fail_fly = static_cast<int>(pc_readreg(sd, add_str("@find_fail_fly")));
+	bd->info.timeout_fly = static_cast<int>(pc_readreg(sd, add_str("@timeout_fly")));
+	sd->state.no_touch_warp = pc_readreg(sd, add_str("@ignore_warp")) != 0 ? 1 : 0;
+	sd->state.no_touch_script = pc_readreg(sd, add_str("@ignore_touch")) != 0 ? 1 : 0;
+
+	bd->info.always_attack_master = pc_readreg(sd, add_str("@always_attack_master")) != 0 ? 1 : 0;
+	bd->info.counterattack = pc_readreg(sd, add_str("@counterattack")) != 0 ? 1 : 0;
+	bd->info.ignore_same_ele = static_cast<int>(pc_readreg(sd, add_str("@ignore_same_ele")));
+	bd->state.offline = pc_readreg(sd, add_str("@offline")) != 0 ? 1 : 0;
+
+	bd->info.atktype = static_cast<int>((pc_readreg(sd, add_str("@atktype")) != 0 ? pc_readreg(sd, add_str("@atktype")) : BF_WEAPONMASK));
+
+	for (i = 0; i < MAX_BOT_MOB_COUNT; i++)
+		bd->info.mob_id[i] = static_cast<uint16>(pc_readreg(sd, reference_uid(add_str("@mob_id"), i)));
+	for (i = 0; i < MAX_BOT_ITEM_COUNT; i++)
+		bd->info.loot_item_id[i] = static_cast<uint16>(pc_readreg(sd, reference_uid(add_str("@loot_item_id"), i)));
+	for (i = 0; i < MAX_BOT_SKILL_COUNT; i++)
+		bd->info.skill_id[i] = static_cast<uint16>(pc_readreg(sd, reference_uid(add_str("@skill_id"), i)));
+	for (i = 0; i < MAX_BOT_SKILL_COUNT; i++)
+		bd->info.skill_lv[i] = static_cast<uint16>(pc_readreg(sd, reference_uid(add_str("@skill_lv"), i)));
+	for (i = 0; i < MAX_BOT_SKILL_COUNT; i++)
+		bd->info.skill_delay[i] = static_cast<uint16>(pc_readreg(sd, reference_uid(add_str("@skill_delay"), i)));
+
+	map_addbot(bd);
 }
 
 int pcbot_run(struct map_session_data *sd, int64 timeout)

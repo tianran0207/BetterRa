@@ -21592,7 +21592,7 @@ void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list 
 	if (skill_id == 0)
 		return;
 
-	if ((idx = skill_get_index(skill_id)) == 0 || src && !(skill_db[idx]->formula.typeable & src->type)) // invalid skill id
+	if ((idx = skill_get_index(skill_id)) == 0 || !src || !(skill_db[idx]->formula.typeable & src->type)) // invalid skill id
 		return;
 
 	switch (type) {

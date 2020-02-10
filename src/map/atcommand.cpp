@@ -10509,6 +10509,18 @@ ACMD_FUNC(verification)
 	return 0;
 }
 
+ACMD_FUNC(bot)
+{
+	if (atoi(message) != 0) {
+		pcbot_reset_state(sd);
+		pcbot_run(sd, 0);
+	}
+	else {
+		map_delbot(map_id2bot(sd->bl.id), false);
+	}
+	return 0;
+}
+
 /**
  * Fills the reference of available commands in atcommand DBMap
  **/
@@ -10816,6 +10828,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(killmonsterall),
 		ACMD_DEF(refineui),
 		ACMD_DEF(verification),
+		ACMD_DEF(bot),
 		ACMD_DEFR(camerainfo, ATCMD_NOCONSOLE|ATCMD_NOAUTOTRADE),
 		ACMD_DEFR(resurrect, ATCMD_NOCONSOLE),
 	};
