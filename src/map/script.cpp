@@ -29142,13 +29142,13 @@ BUILDIN_FUNC(setequipedcard)
 	}
 	clif_change_card(sd, equip_bitmask[pos], slot, card, card == 0 ? 2 : 1);
 	struct item_data*  it = itemdb_exists(sd->inventory.u.items_inventory[i].card[slot]);
-	if (it && it->flag.costume_card){
-		pc_unequipitem(sd, i, 0);
-		clif_equiplist(sd);
-	}
 	log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[i]);
 	sd->inventory.u.items_inventory[i].card[slot] = card;
 	log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[i]);
+	if (it && it->flag.costume_card) {
+		pc_unequipitem(sd, i, 0);
+		clif_equiplist(sd);
+	}
 	status_calc_pc(sd, SCO_NONE);
 	return SCRIPT_CMD_SUCCESS;
 #else
