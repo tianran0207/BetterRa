@@ -4895,7 +4895,7 @@ static void clif_damage_sub(struct block_list* src, struct block_list* dst, int 
 	struct map_data *mapdata = map_getmapdata(src->m);
 	struct block_list *bl = src->type == BL_SKILL ? battle_get_master(src) : src;
 
-	int type, rate = 1000000;
+	unsigned int type, rate = 10000;
 	if (!mapdata)
 		return;
 
@@ -4920,8 +4920,8 @@ static void clif_damage_sub(struct block_list* src, struct block_list* dst, int 
 		rate = rate * (mapdata->flag[type] ? mapdata->flag_val[type].val2 : 10000) / 10000;
 	}
 	if (rate != 10000) {
-		*damage = (int)cap_value((int64)*damage * rate / 1000000, INT_MIN, INT_MAX);
-		if (damage2) *damage2 = (int)cap_value((int64)*damage2 * rate / 1000000, INT_MIN, INT_MAX);
+		*damage = (int)cap_value((int64)*damage * rate / 10000, INT_MIN, INT_MAX);
+		if (damage2) *damage2 = (int)cap_value((int64)*damage2 * rate / 10000, INT_MIN, INT_MAX);
 	}
 }
 
@@ -9937,7 +9937,7 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 
 #if PACKETVER >= 20171129
 	struct unit_data *ud = unit_bl2ud(bl);
-	if (ud != NULL && (ud->title || ud->groupicon)) {
+	if (ud != NULL && (ud->title[0] || ud->groupicon)) {
 		char name[24];
 		WBUFW(buf, 0) = 0x0adf;
 		safestrncpy(name, WBUFCP(buf, 6), NAME_LENGTH);
@@ -13221,7 +13221,7 @@ void clif_parse_AutoSpell(int fd,struct map_session_data *sd)
 {
 	if (sd->menuskill_id != SA_AUTOSPELL){
 		if (npc_script_event_check(sd, NPCE_SKILLSELECTEVENT)) {
-			pc_setreg(sd, add_str("@skilllist_param"), sd->menuskill_id);
+			pc_setreg(sd, add_str("@skilllist_param"), sd->menulist_data);
 			pc_setreg(sd, add_str("@skilllist_skillid"), RFIFOL(fd, packet_db[RFIFOW(fd, 0)].pos[0]));
 			npc_script_event_atonce(sd, NPCE_SKILLSELECTEVENT);
 		}

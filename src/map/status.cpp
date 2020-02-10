@@ -1704,7 +1704,7 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 
 	struct map_data *mapdata = map_getmapdata(src ? src->m : target ? target->m : -1);
 	if (hp > 0 && mapdata) {
-		int type, rate = 1000000;
+		unsigned int type, rate = 10000;
 		if (src) {
 			switch (src->type) {
 			case BL_MOB:	type = MF_MOBATKRATE;	break;
@@ -1721,7 +1721,7 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 			}
 			rate = rate * (mapdata->flag[type] ? mapdata->flag_val[type].val : 10000) / 10000;
 		}
-		hp = (int)cap_value((int64)hp * rate / 1000000, INT_MIN, INT_MAX);
+		hp = (int)cap_value((int64)hp * rate / 10000, INT_MIN, INT_MAX);
 		if (target && target->type == BL_MOB) {
 			if (mapdata->flag[MF_MOBDMGFIX])
 				hp = mapdata->flag[MF_MOBDMGFIX];

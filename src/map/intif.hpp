@@ -20,6 +20,7 @@ struct s_achievement_db;
 struct map_session_data;
 
 extern int chat_fd;
+void do_init_chat();
 void do_final_chat();
 int intif_chat_check(int account_id, char *name);
 int intif_chat_server_recv(int fd);

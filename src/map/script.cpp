@@ -29312,7 +29312,7 @@ BUILDIN_FUNC(itemlist)
 		item_id[i] = (unsigned short)get_val2_num(st, reference_uid(id, i), ref);
 
 	sd->menulist_data = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
-	if (!strcasecmp(command,"item"))
+	if (!strncasecmp(command,"item",4))
 		clif_itemlist(sd, item_id, array_size);
 	else
 		clif_skilllist(sd, item_id, array_size);

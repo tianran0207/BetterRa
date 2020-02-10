@@ -3861,6 +3861,11 @@ static int CheckForChatServer(void)
 	return ((chat_fd <= 0) || session[chat_fd] == NULL || session[chat_fd]->wdata == NULL);
 }
 
+void do_init_chat() 
+{
+	chat_server_data = uidb_alloc(DB_OPT_RELEASE_DATA);
+}
+
 void do_final_chat()
 {
 	if (chat_server_data)
@@ -3882,6 +3887,9 @@ int intif_chat_check(int account_id, char *name)
 {
 	struct s_chat_data *cd;
 	DBIterator *iter;
+
+	if (CheckForChatServer())
+		return 0;
 
 	if (account_id && uidb_exists(chat_server_data, account_id))
 		return 1;
@@ -3941,8 +3949,6 @@ int intif_chat_server_recv(int fd)
 			set_eof(fd);
 			return 0;
 		}
-		if (!chat_server_data)
-			chat_server_data = uidb_alloc(DB_OPT_RELEASE_DATA);
 
 		chat_server_data->clear(chat_server_data, NULL);
 		channel = channel_name2channel(chname, NULL, 3);
