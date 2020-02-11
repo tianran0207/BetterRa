@@ -3907,7 +3907,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 			while (j < combo->count) {
 				struct item_data *id = itemdb_exists(combo->nameid[j]);
 				// Don't run the script if at least one of combo's pair has restriction
-				if (id && !pc_has_permission(sd, PC_PERM_USE_ALL_EQUIPMENT) && (itemdb_isNoEquip(id, sd->bl.m) || itemdb_isNoFunc(sd, id, sd->combos.pos[i]))){
+				if (id && !pc_has_permission(sd, PC_PERM_USE_ALL_EQUIPMENT) && (itemdb_isNoEquip(id, sd->bl.m) || itemdb_isNoFunc(sd, id))){
 					no_run = true;
 					break;
 				}

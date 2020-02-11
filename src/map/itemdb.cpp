@@ -1865,7 +1865,7 @@ bool itemdb_isNoFunc(struct map_session_data *sd, struct item_data *id, int pos)
 	if (battle_config.item_noequip_deny_all && (type & 11) && itemdb_isNoEquip(id, sd->bl.m))
 		return true;
 
-	if (id->flag.equip_invalid || (sd->equip_index[pos] != -1 && sd->equip_invalid[pos]))
+	if (id->flag.equip_invalid || (pos >= -1 && pos < EQI_MAX && sd->equip_index[pos] != -1 && sd->equip_invalid[pos]))
 		return true;
 
 	flag = map_getmapflag(sd->bl.m, MF_NOITEMFUNC);
