@@ -12,14 +12,13 @@ prontera,132,125,3	script	机器人测试	123,{
 
 	@always_attack_master = 1;			// 是否不攻击MVP的小弟等
 	@counterattack = 1;					// 是否反击
-	@ignore_same_ele = 50;				// 如果武器属性修正小于 50% 则无视该魔物 
-	@ignore_warp = 1;					// 无视传送点 
-	@ignore_touch = 1;					// 无视范围触发
-	setarray @skill_id[0],30;           // 技能清单
-	setarray @skill_lv[0],1;			// 技能等级
-	setarray @skill_delay[0],10000;		// 技能延时
+	@ignore_same_ele = 50;				// 如果武器属性修正小于 50% 则无视该魔物 (不打相同属性和被克制属性的魔物)
+	@ignore_touch = 1;					// 无视NPC的范围触发, 包括 warp 传送点
+	setarray @skill_id[0],30;           // 技能清单, 最多配置10个技能
+	setarray @skill_lv[0],1;			// 技能等级, 最多配置10个技能
+	setarray @skill_delay[0],10000;		// 技能延时, 最多配置10个技能
 	//setarray @mob_id[0],1558,1002;	// 攻击魔物的清单, 只攻击蝎子(1001)和波利(1002), 最多配置10个魔物
-	//setarray @mob_id[0],0;			// 攻击所有魔物
+	//setarray @mob_id[0],0;			// 攻击所有魔物, 最多配置10个魔物
 	//setarray @loot_item_id[0],909;	// 拾取物品的清单, 拾取杰勒比结晶(909)最多配置10个魔物
 	//setarray @loot_item_id[0],0;      // 不拾取物品
 	@atktype = 0;						// 1为只是用普通攻击, 2为只使用技能攻击, 0为使用技能和普通攻击

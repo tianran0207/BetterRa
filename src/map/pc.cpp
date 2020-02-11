@@ -14709,7 +14709,6 @@ void pcbot_reset_state(struct map_session_data *sd)
 
 	bd->info.find_fail_fly = static_cast<int>(pc_readreg(sd, add_str("@find_fail_fly")));
 	bd->info.timeout_fly = static_cast<int>(pc_readreg(sd, add_str("@timeout_fly")));
-	sd->state.no_touch_warp = pc_readreg(sd, add_str("@ignore_warp")) != 0 ? 1 : 0;
 	sd->state.no_touch_script = pc_readreg(sd, add_str("@ignore_touch")) != 0 ? 1 : 0;
 
 	bd->info.always_attack_master = pc_readreg(sd, add_str("@always_attack_master")) != 0 ? 1 : 0;

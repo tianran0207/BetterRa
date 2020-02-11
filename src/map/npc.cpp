@@ -1075,6 +1075,9 @@ int npc_touch_areanpc(struct map_session_data* sd, int16 m, int16 x, int16 y)
 	if (sd->state.block_action & PCBLOCK_NPCCLICK)
 		return 0;
 
+	if (sd->state.no_touch_script)
+		return 0;
+
 	struct map_data *mapdata = map_getmapdata(m);
 
 	for (i = 0; i < mapdata->npc_num_area; i++) {

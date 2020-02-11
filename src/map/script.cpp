@@ -25312,6 +25312,7 @@ BUILDIN_FUNC(getinventoryinfo)
 		case 10:		script_pushint(st, storitem[idx].expire_time);		break;
 		case 11:		script_pushint(st, storitem[idx].bound);			break;
 		case 12:		script_pushint(st, storitem[idx].unique_id);		break;
+		case 13:		script_pushint(st, storitem[idx].equipSwitch);		break;
 		case 16:		script_pushint(st, storitem[idx].favorite);			break;
 		default:
 			ShowError("buildin_getinventoryinfo: Invalid type %d\n", script_getnum(st, 3));
@@ -25319,6 +25320,118 @@ BUILDIN_FUNC(getinventoryinfo)
 		}
 	}else
 		script_pushint(st, -1);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+struct s_setinventory {
+	struct item item;
+	struct item *it;
+	struct map_session_data *sd;
+}inv_info;
+/// setinventoryinfo(<idx>,<type>,<val>{,<char id>});
+/// setequipedinfo(<pos>,<type>,<val>{,<char id>});
+BUILDIN_FUNC(setinventoryinfo)
+{
+	TBL_PC *sd;
+	int idx, pos;
+	const char *command = script_getfuncname(st);
+
+	if (script_hasdata(st, 6)) {
+		if (!script_charid2sd(7, sd))
+			return SCRIPT_CMD_FAILURE;
+	}
+	else if (!script_charid2sd(5, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (strstr(command, "equiped")) {
+		pos = script_getnum(st, 2);
+		if (equip_index_check(pos))
+			idx = pc_checkequip(sd, equip_bitmask[pos]);
+		else {
+			ShowError("%s: Unknown equip index '%d'\n", command, pos);
+			return SCRIPT_CMD_FAILURE;
+		}
+	}
+	else
+		idx = script_getnum(st, 2);
+
+	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+		int type = script_hasdata(st, 6) ? -1 : script_getnum(st, 3), opt_id;
+		if (inv_info.sd != sd || inv_info.it != &sd->inventory.u.items_inventory[idx]) {
+			memcpy(&inv_info.item, &sd->inventory.u.items_inventory[idx], sizeof(struct item));
+			inv_info.it = &sd->inventory.u.items_inventory[idx];
+			inv_info.sd = sd;
+		}
+		switch (type) {
+		case 0:			inv_info.item.nameid = script_getnum(st, 4);		break;
+		case 1:			inv_info.item.amount = script_getnum(st, 4);		break;
+		case 2:			inv_info.item.equip = script_getnum(st, 4);			break;
+		case 3:			inv_info.item.refine = script_getnum(st, 4);		break;
+		case 4:			inv_info.item.identify = script_getnum(st, 4);		break;
+		case 5:			inv_info.item.attribute = script_getnum(st, 4);		break;
+		case 6:			inv_info.item.card[0] = script_getnum(st, 4);		break;
+		case 7:			inv_info.item.card[1] = script_getnum(st, 4);		break;
+		case 8:			inv_info.item.card[2] = script_getnum(st, 4);		break;
+		case 9:			inv_info.item.card[3] = script_getnum(st, 4);		break;
+		case 10:		inv_info.item.expire_time = script_getnum(st, 4);	break;
+		case 11:		inv_info.item.bound = script_getnum(st, 4);			break;
+		case 12:		inv_info.item.unique_id = script_getnum(st, 4);		break;
+		case 13:		inv_info.item.equipSwitch = script_getnum(st, 4);	break;
+		case 16:		inv_info.item.favorite = script_getnum(st, 4);		break;
+		case -1:
+			opt_id = script_getnum(st, 4);
+			inv_info.item.option[opt_id].id = script_getnum(st, 5);
+			inv_info.item.option[opt_id].value = script_getnum(st, 6);
+			inv_info.item.option[opt_id].param = script_getnum(st, 7);
+			break;
+		default:
+			ShowError("%s: Invalid type %d\n", command, script_getnum(st, 3));
+			return SCRIPT_CMD_FAILURE;
+		}
+		script_pushint(st, 1);
+	}
+	else
+		script_pushint(st, 0);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(refreshinventory)
+{
+	TBL_PC *sd;
+	int idx = -1, pos;
+	const char *command = script_getfuncname(st);
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (strstr(command, "equiped") && script_hasdata(st, 2)) {
+		pos = script_getnum(st, 2);
+		if (equip_index_check(pos))
+			idx = pc_checkequip(sd, equip_bitmask[pos]);
+		else {
+			ShowError("%s: Unknown equip index '%d'\n", command, pos);
+			return SCRIPT_CMD_FAILURE;
+		}
+	}
+	else
+		idx = script_hasdata(st, 2) ? script_getnum(st, 2) : -1;
+
+	if (idx > -1 && idx < MAX_INVENTORY && inv_info.sd == sd && inv_info.it == &sd->inventory.u.items_inventory[idx]) {
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
+		memcpy(&sd->inventory.u.items_inventory[idx], &inv_info.item, sizeof(struct item));
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[idx]);
+		if (inv_info.item.id != sd->inventory.u.items_inventory[idx].nameid)
+			clif_inventorylist(sd);
+		else if (itemdb_search(inv_info.item.id)->equip)
+			clif_equiplist(sd);
+		memset(&inv_info, 0, sizeof(struct s_setinventory));
+	}
+	else if (strstr(command, "equiped"))
+		clif_equiplist(sd);
+	else
+		clif_inventorylist(sd);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -30168,6 +30281,10 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getinventoryinfo, "ii?"),
 	BUILDIN_DEF2(getinventoryinfo, "getstorageinfo", "ii??"),
 	BUILDIN_DEF2(getinventoryinfo, "getguildstorageinfo", "ii?"),
+	BUILDIN_DEF(setinventoryinfo, "iii???"),
+	BUILDIN_DEF2(setinventoryinfo, "setequipedinfo", "iii???"),
+	BUILDIN_DEF(refreshinventory, "??"),
+	BUILDIN_DEF2(refreshinventory, "refreshequip", "??"),
 	BUILDIN_DEF(delinventory, "ii?"),
 	BUILDIN_DEF(setchartitle, "i?"),
 	BUILDIN_DEF2(warpparty, "warpparty2", "siii???"),
