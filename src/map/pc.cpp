@@ -14388,8 +14388,7 @@ static int pcbot_useitem(struct map_session_data *sd, unsigned short itemid)
 	if ((i = pc_search_inventory(sd, itemid)) == -1)
 		return 0;
 
-	if (!pc_useitem(sd, i))
-		return 0;
+	pc_useitem(sd, i);
 
 	if (sd->inventory.u.items_inventory[i].amount == 5) {
 		pc_setreg(sd, add_str("@lack_itemid"), sd->inventory.u.items_inventory[i].nameid);

@@ -25406,7 +25406,7 @@ BUILDIN_FUNC(refreshinventory)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	if (strstr(command, "equiped") && script_hasdata(st, 2)) {
+	if (strstr(command, "equip") && script_hasdata(st, 2)) {
 		pos = script_getnum(st, 2);
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
@@ -25422,13 +25422,13 @@ BUILDIN_FUNC(refreshinventory)
 		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
 		memcpy(&sd->inventory.u.items_inventory[idx], &inv_info.item, sizeof(struct item));
 		log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[idx]);
-		if (inv_info.item.id != sd->inventory.u.items_inventory[idx].nameid)
+		if (inv_info.item.nameid != sd->inventory.u.items_inventory[idx].nameid || itemdb_search(inv_info.item.nameid)->equip == 0)
 			clif_inventorylist(sd);
-		else if (itemdb_search(inv_info.item.id)->equip)
+		else
 			clif_equiplist(sd);
 		memset(&inv_info, 0, sizeof(struct s_setinventory));
 	}
-	else if (strstr(command, "equiped"))
+	else if (strstr(command, "equip"))
 		clif_equiplist(sd);
 	else
 		clif_inventorylist(sd);
@@ -29168,6 +29168,7 @@ BUILDIN_FUNC(setequipedcard)
 #if PACKETVER >= 20151118
 	struct map_session_data *sd;
 	int card, slot, pos, flag = 1, i;
+	int unequip = 0;
 
 	if (!script_charid2sd(5, sd))
 		return SCRIPT_CMD_FAILURE;
@@ -29192,14 +29193,16 @@ BUILDIN_FUNC(setequipedcard)
 		return SCRIPT_CMD_FAILURE;
 	}
 	clif_change_card(sd, equip_bitmask[pos], slot, card, card == 0 ? 2 : 1);
-	int unequip = itemdb_search(sd->inventory.u.items_inventory[i].card[slot])->flag.costume_card + itemdb_search(card)->flag.costume_card;
+	if (sd->inventory.u.items_inventory[i].card[slot])
+		unequip += itemdb_search(sd->inventory.u.items_inventory[i].card[slot])->flag.costume_card;
+	if (card)
+		unequip += itemdb_search(card)->flag.costume_card;
 	log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[i]);
 	sd->inventory.u.items_inventory[i].card[slot] = card;
 	log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[i]);
-	if (unequip) {
+	if (unequip)
 		pc_unequipitem(sd, i, 0);
-		clif_equiplist(sd);
-	}
+	clif_equiplist(sd);
 	status_calc_pc(sd, SCO_NONE);
 	return SCRIPT_CMD_SUCCESS;
 #else
