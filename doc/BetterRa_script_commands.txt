@@ -2250,6 +2250,60 @@ Example:
 如果刷新 setinventoryinfo 设置的物品时, 必须提供 <背包位置序号>, 否则刷新无效
 如果刷新 setequipedinfo 设置的装备时, 必须提供 <装备位置编号>, 否则刷新无效
 
+---------------------------------------
+
+*getskillinfo <类型>,<技能ID>{,<其他参数>};
+
+获取技能信息
+
+类型:
+	1 	- 返回技能施放类型 0 为地面技能, 1 为伤害技能, 2 为无伤害技能
+	2	- 返回技能名称 skill_db 中的 name
+	3	- 返回技能说明 skill_db 中的 desc
+	4	- 返回技能树种的最大等级 <其他参数> 传入职业代码
+	5	- 返回技能攻击类型 返回 BF_WEAPON BF_MAGIC BF_MISC skill_db 中的 attack type
+	6	- 返回打击类型 skill_db 中的 hit
+	7	- 返回技能类型1 skill_db 中的 inf
+	8	- 返回技能属性 skill_db 中的 element <其他参数> 传入技能等级
+	9	- 返回技能伤害类型 skill_db 中的 nk
+	10	- 返回技能最大等级 skill_db 中的 max
+	11	- 返回技能攻击距离 skill_db 中的 range <其他参数> 传入技能等级
+	12	- 返回技能溅射范围 skill_db 中的 splash <其他参数> 传入技能等级
+	13	- 返回技能打击次数 skill_db 中的 list_num <其他参数> 传入技能等级
+	14	- 返回技能吟唱时间 skill_cast_db 中的 CastingTime <其他参数> 传入技能等级
+	15	- 返回技能公共延迟 skill_cast_db 中的 AfterCastActDelay <其他参数> 传入技能等级
+	16	- 返回技能攻击僵直 skill_cast_db 中的 AfterCastWalkDelay <其他参数> 传入技能等级
+	17	- 返回技能时刻参数 skill_cast_db 中的 Duration1 <其他参数> 传入技能等级
+	18	- 返回技能时刻参数 skill_cast_db 中的 Duration2 <其他参数> 传入技能等级
+	19	- 返回技能吟唱计算 skill_castnodex_db 中的 Cast
+	20	- 返回技能延迟计算 skill_castnodex_db 中的 Delay
+	21	- 返回技能施法期间防御降低倍率 skill_db 中的 cast_def_rate
+	22	- 返回技能使用限制 skill_nocast_db 中的 Flag
+	23	- 返回地面技能单位ID skill_unit_db 中的 Unit id  <其他参数> 传入 Flag
+	24	- 返回技能类型2 skill_db 中的 inf2
+	25	- 返回技能是否可被打断 skill_db 中的 castcancel
+	26	- 返回技能最大数量 skill_db 中的 maxcount <其他参数> 传入技能等级
+	27	- 返回技能击退距离 skill_db 中的 Blowcount <其他参数> 传入技能等级
+	28	- 返回地面技能标记 skill_unit_db 中的 Flag
+	29	- 返回技能冷却 skill_cast_db 中的 Cool Down <其他参数> 传入技能等级
+	30	- 返回地面技能目标 skill_unit_db 中的 Target
+	31	- 返回技能类型3 skill_db 中的 inf3
+	32	- 返回技能消耗的HP skill_require_db 中的 HPCost <其他参数> 传入技能等级
+	33	- 返回技能有多少HP才可能使用 skill_require_db 中的 MaxHPTrigger <其他参数> 传入技能等级
+	34	- 返回技能消耗的SP skill_require_db 中的 SPCost <其他参数> 传入技能等级
+	35	- 返回技能消耗的百分比HP skill_require_db 中的 HPRateCost <其他参数> 传入技能等级
+	36	- 返回技能消耗的百分比SP skill_require_db 中的 SPRateCost <其他参数> 传入技能等级
+	37	- 返回技能消耗的Zeny skill_require_db 中的 ZenyCost <其他参数> 传入技能等级
+	38	- 返回技能所需的武器类型 skill_require_db 中的 RequiredWeapons
+	39	- 返回技能所需的弹药类型 skill_require_db 中的 RequiredAmmoTypes
+	40	- 返回技能所需的弹药数量 skill_require_db 中的 RequiredAmmoAmount <其他参数> 传入技能等级
+	41	- 返回技能所需的特殊状态 skill_require_db 中的 RequiredState
+	42	- 预留
+	43	- 返回技能所需的一般状态个数 skill_require_db 中的 RequiredStatuses 个数
+	44	- 返回技能所需气球个数 skill_require_db 中的 SpiritSphereCost
+	45	- 返回技能所需物品ID skill_require_db 中的 RequiredItemID <其他参数> 传入第几项消耗品
+	46	- 返回技能所需物品数量 skill_require_db 中的 RequiredItemAmount <其他参数> 传入第几项消耗品
+	
 ----------------------------------------
 --         以下功能为付费功能         --
 -- 收费功能可在官网直接下载测试端测试 --

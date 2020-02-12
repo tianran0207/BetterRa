@@ -29435,6 +29435,65 @@ BUILDIN_FUNC(settitleicon)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(getskillinfo)
+{
+	uint16 skill_id = script_getnum(st, 3);
+	uint16 skill_parma = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
+	
+	switch (script_getnum(st, 2)) {
+	case 1: script_pushint(st, skill_get_casttype(skill_id));		break;
+	case 2: script_pushconststr(st, skill_get_name(skill_id));		break;
+	case 3: script_pushconststr(st, skill_get_desc(skill_id));		break;
+	case 4: script_pushint(st, skill_tree_get_max(skill_id, skill_parma));	break;
+	case 5: script_pushint(st, skill_get_type(skill_id));			break;
+	case 6: script_pushint(st, skill_get_hit(skill_id));			break;
+	case 7: script_pushint(st, skill_get_inf(skill_id));			break;
+	case 8: script_pushint(st, skill_get_ele(skill_id, skill_parma));	break;
+	case 9: script_pushint(st, skill_get_nk(skill_id));				break;
+	case 10: script_pushint(st, skill_get_max(skill_id));			break;
+	case 11: script_pushint(st, skill_get_range(skill_id, skill_parma));	break;
+	case 12: script_pushint(st, skill_get_splash(skill_id, skill_parma));	break;
+	case 13: script_pushint(st, skill_get_num(skill_id, skill_parma));	break;
+	case 14: script_pushint(st, skill_get_cast(skill_id, skill_parma));	break;
+	case 15: script_pushint(st, skill_get_delay(skill_id, skill_parma));	break;
+	case 16: script_pushint(st, skill_get_walkdelay(skill_id, skill_parma));break;
+	case 17: script_pushint(st, skill_get_time(skill_id, skill_parma));		break;
+	case 18: script_pushint(st, skill_get_time2(skill_id, skill_parma));	break;
+	case 19: script_pushint(st, skill_get_castnodex(skill_id));		break;
+	case 20: script_pushint(st, skill_get_delaynodex(skill_id));	break;
+	case 21: script_pushint(st, skill_get_castdef(skill_id));		break;
+	case 22: script_pushint(st, skill_get_nocast(skill_id));		break;
+	case 23: script_pushint(st, skill_get_unit_id(skill_id, skill_parma));	break;
+	case 24: script_pushint(st, skill_get_inf2(skill_id));			break;
+	case 25: script_pushint(st, skill_get_castcancel(skill_id));	break;
+	case 26: script_pushint(st, skill_get_maxcount(skill_id, skill_parma));	break;
+	case 27: script_pushint(st, skill_get_blewcount(skill_id, skill_parma));break;
+	case 28: script_pushint(st, skill_get_unit_flag(skill_id));		break;
+	case 29: script_pushint(st, skill_get_cooldown(skill_id, skill_parma));	break;
+	case 30: script_pushint(st, skill_get_unit_target(skill_id));	break;
+	case 31: script_pushint(st, skill_get_inf3(skill_id));			break;
+	case 32: script_pushint(st, skill_get_hp(skill_id, skill_parma));	break;
+	case 33: script_pushint(st, skill_get_mhp(skill_id, skill_parma));	break;
+	case 34: script_pushint(st, skill_get_sp(skill_id, skill_parma));	break;
+	case 35: script_pushint(st, skill_get_hp_rate(skill_id, skill_parma));	break;
+	case 36: script_pushint(st, skill_get_sp_rate(skill_id, skill_parma));	break;
+	case 37: script_pushint(st, skill_get_zeny(skill_id, skill_parma));	break;
+	case 38: script_pushint(st, skill_get_weapontype(skill_id));	break;
+	case 39: script_pushint(st, skill_get_ammotype(skill_id));		break;
+	case 40: script_pushint(st, skill_get_ammo_qty(skill_id, skill_parma));	break;
+	case 41: script_pushint(st, skill_get_state(skill_id));			break;
+	case 43: script_pushint(st, skill_get_status_count(skill_id));	break;
+	case 44: script_pushint(st, skill_get_spiritball(skill_id, skill_parma));	break;
+	case 45: script_pushint(st, skill_get_itemid(skill_id, skill_parma));	break;
+	case 46: script_pushint(st, skill_get_itemqty(skill_id, skill_parma));	break;
+	default:
+		ShowError("buildin_getskillinfo: invalid parameter (%d).\n", script_getnum(st, 2));
+		script_pushint(st, 0);
+		break;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -30406,6 +30465,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(next_dropitem_special, "iii"),
 	BUILDIN_DEF(unitdefratefixed, "ii???"),
 	BUILDIN_DEF(settitleicon, "iis"),
+	BUILDIN_DEF(getskillinfo, "ii?"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
