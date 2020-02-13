@@ -4478,9 +4478,9 @@ static void script_detach_state(struct script_state* st, bool dequeue_event)
 	if(st->rid && (sd = map_id2sd(st->rid))!=NULL) {
 		sd->st = st->bk_st;
 		sd->npc_id = st->bk_npcid;
-		sd->state.using_fake_npc = st->bk_using_fake_npc;
-		sd->state.menu_or_input = st->bk_menu_or_input;
-		sd->npc_menu = st->bk_npc_menu;
+		sd->state.using_fake_npc = st->bk.using_fake_npc;
+		sd->state.menu_or_input = st->bk.menu_or_input;
+		sd->npc_menu = st->bk.npc_menu;
 		sd->state.disable_atcommand_on_npc = 0;
 		if(st->bk_st) {
 			//Remove tag for removal.
@@ -4538,12 +4538,22 @@ void script_attach_state(struct script_state* st){
 #endif
 			st->bk_st = sd->st;
 			st->bk_npcid = sd->npc_id;
-			st->bk_using_fake_npc = sd->state.using_fake_npc;
-			st->bk_menu_or_input = sd->state.menu_or_input;
-			st->bk_npc_menu = sd->npc_menu;
-			sd->state.using_fake_npc = 0;
-			sd->state.menu_or_input = 0;
-			sd->npc_menu = 0;
+			st->bk.using_fake_npc = sd->state.using_fake_npc;
+			st->bk.menu_or_input = sd->state.menu_or_input;
+			st->bk.npc_menu = sd->npc_menu;
+			if (st->detach.rid == st->rid) {
+				sd->state.using_fake_npc = st->detach.using_fake_npc;
+				sd->state.menu_or_input = st->detach.menu_or_input;
+				sd->npc_menu = st->detach.npc_menu;
+				st->detach.using_fake_npc = 0;
+				st->detach.menu_or_input = 0;
+				st->detach.npc_menu = 0;
+			}
+			else {
+				sd->state.using_fake_npc = 0;
+				sd->state.menu_or_input = 0;
+				sd->npc_menu = 0;
+			}
 #ifdef BRA_STATE_FIX
 			if (previous_st)
 				st->bk_st ? st->bk_st->bk_st = previous_st : st->bk_st = previous_st;
@@ -12949,6 +12959,13 @@ void script_detach_rid(struct script_state* st)
 {
 	if(st->rid)
 	{
+		struct map_session_data* sd;
+		if ((sd = map_id2sd(st->rid))!=NULL) {
+			st->detach.using_fake_npc = sd->state.using_fake_npc;
+			st->detach.menu_or_input = sd->state.menu_or_input;
+			st->detach.npc_menu = sd->npc_menu;
+			st->detach.rid = st->rid;
+		}
 		script_detach_state(st, false);
 		st->rid = 0;
 	}
