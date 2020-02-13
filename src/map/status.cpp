@@ -2923,8 +2923,8 @@ int status_calc_mob_(struct mob_data* md, enum e_status_calc_opt opt)
 		}
 		if (map_getmapflag(md->bl.m, MF_MOBSPAWNBASE)) {
 			struct s_mapflag_val *spawn = &map_getmapdata(md->bl.m)->flag_val[MF_MOBSPAWNBASE];
+			memcpy(&md->status, &md->db->status, sizeof(struct status_data));
 			status = &md->status;
-			memcpy(status, &md->db->status, sizeof(struct status_data));
 			status->max_hp = cap_value(apply_rate((int64)status->max_hp, spawn->val), 1, UINT_MAX);
 			status->rhw.atk = cap_value(apply_rate((int64)status->rhw.atk, spawn->val2), 1, UINT_MAX);
 			status->rhw.atk2 = cap_value(apply_rate((int64)status->rhw.atk2, spawn->val2), 1, UINT_MAX);
@@ -3095,7 +3095,6 @@ int status_calc_mob_(struct mob_data* md, enum e_status_calc_opt opt)
 
 	if (map_getmapflag(md->bl.m, MF_MOBSPAWNBASE)) {
 		struct s_mapflag_val *spawn = &map_getmapdata(md->bl.m)->flag_val[MF_MOBSPAWNBASE];
-		status = &md->status;
 		status->max_hp = cap_value(apply_rate((int64)status->max_hp, spawn->val), 1, UINT_MAX);
 		status->rhw.atk = cap_value(apply_rate((int64)status->rhw.atk, spawn->val2), 1, UINT_MAX);
 		status->rhw.atk2 = cap_value(apply_rate((int64)status->rhw.atk2, spawn->val2), 1, UINT_MAX);
