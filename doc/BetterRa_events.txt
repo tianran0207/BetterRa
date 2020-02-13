@@ -924,7 +924,7 @@ BetterRa 在官方的基础上做了以下改进:
 参数说明:
 如果关闭了物品选择窗口
 	@skilllist_param 事件参数, 即 skilllist 指令的第二个参数
-	@skilllist_itemid 为选中的物品ID, 如果取消则返回 0
+	@skilllist_skillid 为选中的物品ID, 如果取消则返回 0
 	
 ---------------------------------------
 

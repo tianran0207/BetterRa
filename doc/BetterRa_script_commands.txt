@@ -2147,6 +2147,16 @@ Example:
 事件参数不能填写 12548, 除此之外都可
 事件参数为 OnPCSelectItemEvent 返回参数 @itemlist_param
 
+例:
+	prontera,153,113,5	script	物品清单测试	56,{
+		setarray .@items,501,502,503,504;
+		itemlist .@items,111111;
+		end;
+	OnPCSelectItemEvent:
+		dispbottom "@itemlist_param: "+@itemlist_param; // 111111
+		dispbottom "@itemlist_itemid: "+@itemlist_itemid;
+	}
+
 ----------------------------------------
 
 *skilllist <技能数组>{,<事件参数>{,<角色ID>}};
@@ -2155,6 +2165,16 @@ Example:
 事件参数不能填写 279, 除此之外都可, 最多显示 7个技能
 事件参数为 OnPCSelectSkillEvent 返回参数 @skilllist_param
 
+例:
+	prontera,153,113,5	script	物品清单测试	56,{
+		setarray .@skills,501,502,503,504;
+		skilllist .@skills,111111;
+		end;
+	OnPCSelectSkillEvent:
+		dispbottom "@skilllist_param: "+@skilllist_param; // 111111
+		dispbottom "@skilllist_skillid: "+@skilllist_skillid;
+	}
+	
 ----------------------------------------
 
 *getconstantstr <"常量前缀">,<常量值>;

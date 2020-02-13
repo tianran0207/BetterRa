@@ -8291,8 +8291,8 @@ int clif_skilllist(struct map_session_data *sd, unsigned short skill_id[], unsig
 	WFIFOHEAD(fd, packet_len(0x1cd));
 	WFIFOW(fd, 0) = 0x1cd;
 
-	for (int i = 0; i < count && i < 7; i++)
-		WFIFOL(fd, 2+i*4) = skill_id[i];
+	for (int i = 0; i < 7; i++)
+		WFIFOL(fd, 2+i*4) = i < count ? skill_id[i] : 0;
 
 	WFIFOSET(fd, packet_len(0x1cd));
 	return 1;
