@@ -2662,7 +2662,7 @@ unsigned short status_base_matk_max(const struct status_data* status) { return s
 * Calculates minimum attack variance 80% from db's ATK1 for non BL_PC
 * status->batk (base attack) will be added in battle_calc_base_damage
 */
-unsigned short status_base_atk_min(struct block_list *bl, const struct status_data* status, int level)
+unsigned int status_base_atk_min(struct block_list *bl, const struct status_data* status, int level)
 {
 	switch (bl->type) {
 		case BL_PET:
@@ -2681,7 +2681,7 @@ unsigned short status_base_atk_min(struct block_list *bl, const struct status_da
 * Calculates maximum attack variance 120% from db's ATK1 for non BL_PC
 * status->batk (base attack) will be added in battle_calc_base_damage
 */
-unsigned short status_base_atk_max(struct block_list *bl, const struct status_data* status, int level)
+unsigned int status_base_atk_max(struct block_list *bl, const struct status_data* status, int level)
 {
 	switch (bl->type) {
 		case BL_PET:
@@ -2699,7 +2699,7 @@ unsigned short status_base_atk_max(struct block_list *bl, const struct status_da
 /*
 * Calculates minimum magic attack
 */
-unsigned short status_base_matk_min(struct block_list *bl, const struct status_data* status, int level)
+unsigned int status_base_matk_min(struct block_list *bl, const struct status_data* status, int level)
 {
 	switch (bl->type) {
 		case BL_PET:
@@ -2718,7 +2718,7 @@ unsigned short status_base_matk_min(struct block_list *bl, const struct status_d
 /*
 * Calculates maximum magic attack
 */
-unsigned short status_base_matk_max(struct block_list *bl, const struct status_data* status, int level)
+unsigned int status_base_matk_max(struct block_list *bl, const struct status_data* status, int level)
 {
 	switch (bl->type) {
 		case BL_PET:
