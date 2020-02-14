@@ -263,7 +263,8 @@ static int storage_addevent(struct map_session_data* sd, struct s_storage *stor,
 	pc_setreg(sd, add_str("@recv_itemid"), it->nameid);
 	pc_setreg(sd, add_str("@recv_amount"), amount);
 	pc_setreg(sd, add_str("@recv_source"), source);
-	pc_setreg(sd, add_str("@recv_storid"), stor->type != TABLE_STORAGE ? -1 : stor->stor_id);
+	pc_setreg(sd, add_str("@recv_stortype"), stor->type);
+	pc_setreg(sd, add_str("@recv_storid"), stor->type != TABLE_STORAGE && stor->type != TABLE_GUILD_STORAGE ? -1 : stor->stor_id);
 	pc_setreg(sd, add_str("@recv_idx"), i);
 	npc_script_event_atonce(sd, NPCE_STORAGEADDFILTER);
 
@@ -830,6 +831,9 @@ bool storage_guild_additem(struct map_session_data* sd, struct s_storage* stor, 
 				if( amount > MAX_AMOUNT - stor->u.items_guild[i].amount || ( id->stack.guildstorage && amount > id->stack.amount - stor->u.items_guild[i].amount ) )
 					return false;
 
+				if (!storage_addevent(sd, stor, item_data, amount))
+					return false;
+
 				stor->u.items_guild[i].amount += amount;
 				clif_storageitemadded(sd,&stor->u.items_guild[i],i,amount);
 				stor->dirty = true;
@@ -844,6 +848,9 @@ bool storage_guild_additem(struct map_session_data* sd, struct s_storage* stor, 
 	//Add item
 	for(i = 0; i < stor->max_amount && stor->u.items_guild[i].nameid; i++);
 	if(i >= stor->max_amount)
+		return false;
+
+	if (!storage_addevent(sd, stor, item_data, amount))
 		return false;
 
 	memcpy(&stor->u.items_guild[i],item_data,sizeof(stor->u.items_guild[0]));
