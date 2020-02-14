@@ -328,8 +328,8 @@ struct bot_data {
 		unsigned short skill_id[MAX_BOT_SKILL_COUNT];
 		unsigned short skill_lv[MAX_BOT_SKILL_COUNT];
 		unsigned short skill_delay[MAX_BOT_SKILL_COUNT];
-		t_tick skill_cooldown[MAX_BOT_SKILL_COUNT];
 		unsigned short skill_type[MAX_BOT_SKILL_COUNT];
+		t_tick skill_cooldown[MAX_BOT_SKILL_COUNT];
 
 		unsigned short mob_id[MAX_BOT_MOB_COUNT];
 
@@ -391,7 +391,8 @@ struct map_session_data {
 	struct s_state {
 		unsigned char halt[NPCE_MAX];//processhalt
 		unsigned char processhalt;
-		unsigned bot : 1;
+		unsigned bot_data : 1;
+		unsigned bot_running : 1;
 		unsigned hombot : 3;
 		unsigned disable_skill_delay : 1;
 		unsigned event_now : 1;

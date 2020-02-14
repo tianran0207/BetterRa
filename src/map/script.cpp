@@ -27650,7 +27650,7 @@ BUILDIN_FUNC(is_bot)
 	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	script_pushint(st, sd->state.bot);
+	script_pushint(st, sd->state.bot_running);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -27676,7 +27676,7 @@ static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data){
 		add_timer(gettick() + 3000, buildin_bot_login_sub, sd->bl.id, 0);
 	}
 	else if ((sd = map_id2sd(id)) != NULL) {
-		sd->state.bot = 1;
+		sd->state.bot_running = 1;
 		clif_parse_LoadEndAck(0, sd);
 	}
 	return 1;

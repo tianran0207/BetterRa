@@ -22041,7 +22041,7 @@ static int clif_parse(int fd)
 
 	if (session[fd]->flag.eof) {
 		if (sd) {
-			if (sd->state.autotrade || sd->state.bot) {
+			if (sd->state.autotrade || sd->state.bot_running) {
 				//Disassociate character from the socket connection.
 				session[fd]->session_data = NULL;
 				sd->fd = 0;

@@ -3047,7 +3047,7 @@ ACMD_FUNC(recall) {
 		return -1;
 	}
 
-	if(pl_sd->state.bot || pc_setpos(pl_sd, sd->mapindex, sd->bl.x, sd->bl.y, CLR_RESPAWN) == SETPOS_AUTOTRADE){
+	if(pl_sd->state.bot_running || pc_setpos(pl_sd, sd->mapindex, sd->bl.x, sd->bl.y, CLR_RESPAWN) == SETPOS_AUTOTRADE){
 		uint8 info[3];
 		info[0] = pl_sd->ud.dir;
 		info[1] = pl_sd->head_dir;

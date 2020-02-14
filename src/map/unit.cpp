@@ -756,7 +756,7 @@ bool unit_check_around(struct block_list *bl)
 		return false;
 
 	struct map_session_data *sd = BL_CAST(BL_PC, bl);
-	if (sd && sd->state.bot)
+	if (sd && sd->state.bot_running)
 		return false;
 
 	return true;

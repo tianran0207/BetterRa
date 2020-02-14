@@ -2121,7 +2121,7 @@ int map_quit(struct map_session_data *sd) {
 		return 0;
 	}
 
-	if (sd->state.bot)
+	if (sd->state.bot_data)
 		map_delbot(map_id2bot(sd->bl.id), false);
 
 	if (sd->state.hombot)
@@ -5797,7 +5797,6 @@ void map_addbot(struct bot_data *bd) {
 void map_delbot(struct bot_data *bd, bool logout)
 {
 	struct map_session_data* sd = NULL;
-	bool offline;
 
 	if (bd == NULL)
 		return;
@@ -5808,14 +5807,14 @@ void map_delbot(struct bot_data *bd, bool logout)
 		ShowError("map_delbot: src sd is not bot sd");
 		return;
 	}
-	offline = bd->state.offline != 0;
-	sd->state.bot = offline ? 1 : 0;
+	sd->state.bot_data = 0;
+	sd->state.bot_running = 0;
+	sd->state.no_touch_script = 0;
 
 	idb_remove(bot_db, sd->bl.id);
 
 	if (logout)
 		map_quit(sd);
-
 }
 
 int map_checknear_sub(struct block_list* bl, va_list args) {
