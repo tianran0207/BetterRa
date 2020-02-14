@@ -16117,8 +16117,10 @@ BUILDIN_FUNC(summon)
 		mob_spawn (md); //Now it is ready for spawning.
 		clif_specialeffect(&md->bl,EF_ENTRY2,AREA);
 		sc_start4(NULL,&md->bl, SC_MODECHANGE, 100, 1, 0, MD_AGGRESSIVE, 0, 60000);
+		script_pushint(st, md->bl.id);
 	}
-	script_pushint(st, md->bl.id);
+	else
+		script_pushint(st, 0);
 
 	return SCRIPT_CMD_SUCCESS;
 }
