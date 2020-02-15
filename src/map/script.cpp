@@ -29434,11 +29434,12 @@ BUILDIN_FUNC(unitdefratefixed)
 	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_FAILURE;
 
-	ud = unit_bl2ud(bl);
-	ud->def_fix.rate1 = script_getnum(st, 3);
-	ud->def_fix.rate2 = script_hasdata(st, 4) ? script_getnum(st, 4) : 100;
-	ud->def_fix.min_dmg = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
-	ud->def_fix.max_dmg = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+	if ((ud = unit_bl2ud(bl)) != NULL) {
+		ud->def_fix.rate1 = script_getnum(st, 3);
+		ud->def_fix.rate2 = script_hasdata(st, 4) ? script_getnum(st, 4) : 100;
+		ud->def_fix.min_dmg = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
+		ud->def_fix.max_dmg = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+	}
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -29450,10 +29451,11 @@ BUILDIN_FUNC(settitleicon)
 	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_FAILURE;
 
-	ud = unit_bl2ud(bl);
-	ud->groupicon = script_getnum(st, 3);
-	safestrncpy(ud->title, script_getstr(st, 4), NAME_LENGTH);
-	clif_name_area(bl);
+	if ((ud = unit_bl2ud(bl)) != NULL) {
+		ud->groupicon = script_getnum(st, 3);
+		safestrncpy(ud->title, script_getstr(st, 4), NAME_LENGTH);
+		clif_name_area(bl);
+	}
 	return SCRIPT_CMD_SUCCESS;
 }
 
