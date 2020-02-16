@@ -14335,7 +14335,6 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap)
 			return 0;
 
 		(*target) = bl;
-		bd->target_id = bl->id;
 	}
 	return 1;
 }
@@ -14367,7 +14366,6 @@ static int pcbot_ai_sub_hard_lootsearch(struct block_list *bl, va_list ap)
 			return 0;
 
 		(*target) = bl;
-		bd->target_id = bl->id;
 	}
 	return 1;
 }
@@ -14516,12 +14514,14 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 	if (sd->ud.walktimer != INVALID_TIMER ) {
 		if (bd->info.counterattack && sd->enemy_id && sd->enemy_id != bd->target_id) {
 			tbl = map_id2bl(sd->enemy_id);
+			sd->enemy_id = 0;
 			//检查属性修正是否小于50
 			if (tbl && bd->info.ignore_same_ele && !pcbot_check_ele(sd, tbl, bd))
 				return 0;
 			//反击目标
-			if (tbl && pc_can_attack(sd, sd->enemy_id)) {
+			if (tbl && pc_can_attack(sd, tbl->id)) {
 				bd->target_id = tbl->id;
+				bd->target_type = tbl->type;
 				return 1;
 			}
 		}
@@ -14531,46 +14531,49 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 	//如果正在攻击, 检查目标的有效性
 	if (bd->target_id)
 	{
-		if ((tbl = map_id2bl(bd->target_id)) != NULL && tbl->m == sd->bl.m) {
-			if ((tbl->type & BL_CHAR) && !status_isdead(tbl)) {	//有效攻击目标
-				if (bd->sd->ud.canact_tick > tick)
-					return 0;
-				if (!pc_can_attack(sd, tbl->id)) {
-					bd->state.next_acttime = tick + 500;
-					return 0;
-				}
-				//满足条件则技能攻击目标
-				if ((bd->info.atktype & BF_MAGIC) && sd->ud.skilltimer == INVALID_TIMER && check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
-					if (pcbot_skill(bd, tbl, tick))
-						return 1;
-				}
-				//满足条件则普通攻击目标
-				if ((bd->info.atktype & BF_WEAPON) && sd->ud.attacktimer == INVALID_TIMER && !check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
-					if (!unit_attack(&sd->bl, tbl->id, 1))
-						return 1;
-				}
+		if ((bd->target_type & BL_CHAR)) {	//有效攻击目标
+			if (bd->sd->ud.canact_tick > tick)
+				return 0;
+			if (!pc_can_attack(sd, bd->target_id)) {
 				bd->state.next_acttime = tick + 500;
-				if (sd->ud.skilltimer != INVALID_TIMER || sd->ud.attacktimer != INVALID_TIMER)
-					return 0;
-
-				if (bd->skill_idx >= 0 && sd->ud.skilltimer == INVALID_TIMER) {
-					//攻击或释放技能失败, 则走的更近一些.
-					bd->min_chase /= 2;
-					//走到目标, 由于上次走路失败, 所以直接用A* 走. 如果还是失败则放弃这个目标.
-					if (unit_walktobl(&sd->bl, tbl, bd->min_chase, 0))
-						return 1;
-				}
+				return 0;
 			}
-			else if (tbl->type == BL_ITEM && check_distance_bl(&sd->bl, tbl, 1)){   //有效物品目标
-				struct flooritem_data *fitem = (struct flooritem_data*)tbl;
-				pc_takeitem(sd, fitem);
-				bd->state.next_acttime = tick + bd->info.loot_item_acttime / 2;
-				bd->target_id = 0;
-				return 1;
+			if ((tbl = map_id2bl(bd->target_id)) == NULL || tbl->type != bd->target_type || status_isdead(tbl)) {
+				bd->target_id = bd->target_type = 0;
+				return 0;
+			}
+			//满足条件则技能攻击目标
+			if ((bd->info.atktype & BF_MAGIC) && sd->ud.skilltimer == INVALID_TIMER && check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
+				if (pcbot_skill(bd, tbl, tick))
+					return 1;
+			}
+			//满足条件则普通攻击目标
+			if ((bd->info.atktype & BF_WEAPON) && sd->ud.attacktimer == INVALID_TIMER && check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
+				if (!unit_attack(&sd->bl, tbl->id, 1))
+					return 1;
+			}
+			//攻击失败 则判断是否需要靠近目标
+			bd->state.next_acttime = tick + 500;
+			if (bd->min_chase > 1) {
+				//攻击距离缩小一半走的更近一些
+				bd->min_chase /= 2;
+				//由于上次走路失败, 所以直接用A* 走. 如果还是失败则放弃这个目标.
+				if (unit_walktobl(&sd->bl, tbl, bd->min_chase, 0))
+					return 1;
 			}
 		}
-		tbl = NULL;
-		bd->target_id = 0;
+		else if (bd->target_type == BL_ITEM){   //有效物品目标
+			if ((tbl = map_id2bl(bd->target_id)) == NULL || tbl->type != bd->target_type || !check_distance_bl(&sd->bl, tbl, 1)) {
+				bd->target_id = bd->target_type = 0;
+				return 0;
+			}
+			pc_takeitem(sd, (struct flooritem_data *)tbl);
+			bd->state.next_acttime = tick + bd->info.loot_item_acttime / 2;
+			bd->target_id = bd->target_type = 0;
+			return 1;
+		}
+
+		bd->target_id = bd->target_type = 0;
 		target_dead = 1;
 	}
 
@@ -14584,11 +14587,11 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			if (check_distance_bl(&sd->bl, tbl, 1) || unit_walktobl(&sd->bl, tbl, 1, 1)) {
 				bd->state.next_acttime = tick + bd->info.loot_item_acttime / 2;
 				bd->target_id = tbl->id;
+				bd->target_type = tbl->type;
 				return 1;
 			}
 		}
-		tbl = NULL;
-		bd->target_id = 0;
+		bd->target_id = bd->target_type = 0;
 	}
 
 	if (target_dead == 1) {
@@ -14596,10 +14599,12 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		return 1;
 	}
 
+	tbl = NULL;
 	map_foreachinallrange(pcbot_ai_sub_hard_activesearch, &sd->bl, 13, BL_CHAR, bd, &tbl);
 
 	if (tbl) {
 		bd->target_id = tbl->id;
+		bd->target_type = tbl->type;
 		if (!pc_can_attack(sd, tbl->id)) {
 			bd->state.next_acttime = tick + 500;
 			return 0;
