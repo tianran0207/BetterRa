@@ -310,6 +310,7 @@ extern struct policies policie[MAX_POLICIES];
 #define MAX_BOT_MOB_COUNT 10
 #define MAX_BOT_SKILL_COUNT 10
 #define MAX_BOT_ITEM_COUNT 10
+#define MAX_BOT_SC_COUNT 10
 
 struct bot_data {
 	unsigned running : 1;
@@ -328,8 +329,10 @@ struct bot_data {
 		unsigned short skill_id[MAX_BOT_SKILL_COUNT];
 		unsigned short skill_lv[MAX_BOT_SKILL_COUNT];
 		unsigned short skill_delay[MAX_BOT_SKILL_COUNT];
-		unsigned short skill_type[MAX_BOT_SKILL_COUNT];
-		t_tick skill_cooldown[MAX_BOT_SKILL_COUNT];
+		unsigned short sc_data[MAX_BOT_SC_COUNT];
+		unsigned short sc_skill_id[MAX_BOT_SC_COUNT];
+		unsigned short sc_skill_lv[MAX_BOT_SC_COUNT];
+		t_tick skill_cooldown[MAX_BOT_SKILL_COUNT+MAX_BOT_SC_COUNT];
 
 		unsigned short mob_id[MAX_BOT_MOB_COUNT];
 
@@ -345,7 +348,9 @@ struct bot_data {
 	struct bot_state {
 		short dir;
 		unsigned offline : 1; //¿Îœﬂ
+		unsigned skill_order : 1;
 		t_tick next_acttime;
+		t_tick next_check_sc;
 		t_tick next_heal_delay;
 		t_tick next_fly_delay;
 		t_tick next_flytime;
@@ -353,6 +358,7 @@ struct bot_data {
 		int move_count;
 	} state;
 	int target_id, target_type;
+	int target_dead;
 	int min_chase;            //π•ª˜æ‡¿Î
 	int skill_idx;
 };
