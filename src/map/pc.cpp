@@ -14395,6 +14395,7 @@ static int pcbot_fly_away(struct bot_data *bd, t_tick tick)
 		bd->info.timeout_fly = 0;
 		return 0;
 	}
+	bd->state.next_acttime = tick + 1000;
 	bd->state.move_count = 0;
 	bd->state.next_flytime = tick + bd->info.timeout_fly * 1000;
 	bd->state.next_fly_delay = tick + bd->info.item_fly_delay;
@@ -14410,7 +14411,7 @@ static int pcbot_check_skill(struct bot_data *bd, t_tick tick)
 		return 1;
 
 	if (bd->state.skill_order && bd->skill_idx < 0)
-		idx = abs(bd->skill_idx);
+		idx = abs(bd->skill_idx)-1;
 	if (idx >= MAX_BOT_SKILL_COUNT || bd->info.skill_id[idx] == 0)
 		idx = 0;
 
@@ -14471,7 +14472,7 @@ static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, t_tick tick
 	//计算下一次使用这个技能的延时
 	int cooldown = max(skill_delayfix(src, skill_id, skill_lv), pc_get_skillcooldown(bd->sd, skill_id, skill_lv));
 	bd->info.skill_cooldown[bd->skill_idx] = (cooldown > bd->info.skill_delay[bd->skill_idx] ? cooldown : bd->info.skill_delay[bd->skill_idx]) + tick + 100;
-	bd->skill_idx = -bd->skill_idx-1;
+	bd->skill_idx = -bd->skill_idx-2;
 	return true;
 }
 
