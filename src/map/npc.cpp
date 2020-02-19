@@ -297,7 +297,7 @@ TIMER_FUNC(npc_secure_timeout_timer){
 	unsigned int timeout = NPC_SECURE_TIMEOUT_NEXT;
 	t_tick cur_tick = gettick(); //ensure we are on last tick
 
-	if ((sd = map_id2sd(id)) == NULL || !sd->npc_id || sd->state.ignoretimeout || battle_config.npc_timeout) {
+	if ((sd = map_id2sd(id)) == NULL || !sd->npc_id || sd->state.ignoretimeout || !battle_config.npc_timeout) {
 		if (sd)
 			sd->npc_idle_timer = INVALID_TIMER;
 		return 0; // Not logged in anymore OR no longer attached to a NPC OR using 'ignoretimeout' script command
