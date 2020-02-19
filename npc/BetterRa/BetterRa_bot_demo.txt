@@ -14,9 +14,13 @@ prontera,132,125,3	script	机器人测试	123,{
 	@counterattack = 1;					// 是否反击
 	@ignore_same_ele = 50;				// 如果武器属性修正小于 50% 则无视该魔物 (不打相同属性和被克制属性的魔物)
 	@ignore_touch = 1;					// 无视NPC的范围触发, 包括 warp 传送点
-	setarray @skill_id[0],30;           // 技能清单, 最多配置10个技能
-	setarray @skill_lv[0],1;			// 技能等级, 最多配置10个技能
-	setarray @skill_delay[0],10000;		// 技能延时, 最多配置10个技能
+	@skill_order = 1;					// 技能是否按照清单顺序释放, 主要用于连击技能
+	setarray @skill_id[0],20,19;        // 技能清单, 最多配置10个技能
+	setarray @skill_lv[0],5,5;			// 技能等级, 最多配置10个技能
+	//setarray @skill_delay[0],200,200;	// 技能延时, 最多配置10个技能
+	//setarray @sc_skill_data[0],0,55;	// 保持的状态, 如果是技能状态填0(例: 神威祈福(填0)); 如果是物品状态则填写状态ID(例:集中药水(填55))
+	//setarray @sc_skill_id[0],66,645;	// 保持状态的ID, 如果是技能填技能ID(例: 神威祈福(填66)), 如果是物品状态则填物品ID(例:集中药水(填645))
+	//setarray @sc_skill_lv[0],5,0;		// 如果对应ID为技能ID则填写技能等级,如果对应为物品ID则填写 0
 	//setarray @mob_id[0],1558,1002;	// 攻击魔物的清单, 只攻击蝎子(1001)和波利(1002), 最多配置10个魔物
 	//setarray @mob_id[0],0;			// 攻击所有魔物, 最多配置10个魔物
 	//setarray @loot_item_id[0],909;	// 拾取物品的清单, 拾取杰勒比结晶(909)最多配置10个魔物
