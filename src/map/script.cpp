@@ -28192,7 +28192,7 @@ BUILDIN_FUNC(sortarray)
 	if (not_server_variable(*name) && !script_rid2sd(sd))
 		return SCRIPT_CMD_FAILURE;
 
-	if (sortdata){
+	if (sortdata && script_hasdata(st, 4)){
 		const char *sortname = data_isreference(sortdata) ? reference_getname(sortdata) : NULL;
 		if (!sortname || is_string_variable(sortname)) {
 			ShowError("buildin_sortarray: second array is not a int variable\n");
@@ -28268,7 +28268,7 @@ BUILDIN_FUNC(sortarray)
 	for (i = 0; i < array_size; i++)
 		set_reg_num(st, sd, reference_uid(id, i), name, array_vars[i].val1, ref);
 
-	if (sortdata) {
+	if (sortdata && data_isreference(sortdata)) {
 		name = reference_getname(sortdata);
 		if ((src = script_array_src(st, sd, name, sortref)) && src->arrays &&
 			(sa = static_cast<script_array *>(idb_get(src->arrays, search_str(name)))))
