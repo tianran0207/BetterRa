@@ -22041,11 +22041,16 @@ static int clif_parse(int fd)
 
 	if (session[fd]->flag.eof) {
 		if (sd) {
-			if (sd->state.autotrade || sd->state.bot_running) {
+			if (sd->state.bot_data && map_id2bot(sd->bl.id)->state.offline) {
+				session[fd]->session_data = NULL;
+				sd->fd = 0;
+				ShowInfo("Character '" CL_WHITE "%s" CL_RESET "' logged off (bot was still running).\n", sd->status.name);
+			}else
+			if (sd->state.autotrade) {
 				//Disassociate character from the socket connection.
 				session[fd]->session_data = NULL;
 				sd->fd = 0;
-				ShowInfo("Character '" CL_WHITE "%s" CL_RESET "' logged off (using @autotrade or @bot).\n", sd->status.name);
+				ShowInfo("Character '" CL_WHITE "%s" CL_RESET "' logged off (using @autotrade).\n", sd->status.name);
 			} else
 			if (sd->state.active) {
 				// Player logout display [Valaris]

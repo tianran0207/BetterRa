@@ -27663,7 +27663,7 @@ BUILDIN_FUNC(bot_stop)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	map_delbot(map_id2bot(sd->bl.id), (script_hasdata(st,2) && script_hasdata(st, 2) == 1 ? true : false));
+	map_delbot(map_id2bot(sd->bl.id), script_hasdata(st,2) ? script_getnum(st, 2) : 0);
 
 	return SCRIPT_CMD_SUCCESS;
 }

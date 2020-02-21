@@ -14728,7 +14728,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 
 		if (bd->state.move_fail_count > 100) {
 			clif_displaymessage(sd->fd, msg_txt(sd, 2346));
-			map_delbot(bd, bd->state.offline > 0);
+			map_delbot(bd, -1);
 			return 0;
 		}
 		return 1;

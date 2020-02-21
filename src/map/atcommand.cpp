@@ -10516,7 +10516,7 @@ ACMD_FUNC(bot)
 		pcbot_run(sd, 0);
 	}
 	else {
-		map_delbot(map_id2bot(sd->bl.id), false);
+		map_delbot(map_id2bot(sd->bl.id), 0);
 	}
 	return 0;
 }
