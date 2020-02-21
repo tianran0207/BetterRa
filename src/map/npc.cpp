@@ -5059,6 +5059,8 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.heal_filter_name;
 	case NPCE_BONUSFILTER:
 		return script_config.bonus_filter_name;
+	case NPCE_PRODUCEFILTER:
+		return script_config.produce_filter_name;
 	case NPCE_HOOKDLLEVENT:
 		return script_config.hook_dll_event_name;
 	case NPCE_ANYONESKILLEVENT:

@@ -376,6 +376,7 @@ struct Script_Config script_config = {
 	"OnPCAttackedFilter", //attacked_filter_name
 	"OnPCHealFilter", //heal_filter_name
 	"OnPCBonusFilter", //bonus_filter_name
+	"OnPCProduceFilter", // produce_filter_name
 	"OnPCHookDllEvent", //hook_dll_event_name
 	"OnAnyoneUseSkillEvent" //anyone_skill_event_name
 };
