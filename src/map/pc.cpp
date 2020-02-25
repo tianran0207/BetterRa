@@ -1597,6 +1597,21 @@ bool pc_authok(struct map_session_data *sd, uint32 login_id2, time_t expiration_
 
 	// Request all registries (auth is considered completed whence they arrive)
 	intif_request_registry(sd,7);
+
+#ifdef C_SOCKET_ENCRYPT
+	char* data = NULL;
+	if (SQL_ERROR == Sql_Query(qsmysql_handle, "SELECT `last_ip` FROM `%s` WHERE `account_id` = %d LIMIT 1", "login", sd->status.account_id)) {
+		Sql_ShowDebug(qsmysql_handle);
+	}
+	else if (SQL_SUCCESS == Sql_NextRow(qsmysql_handle)) {
+		Sql_GetData(qsmysql_handle, 0, &data, NULL);
+		if (sscanf(data, "%*[^:]:%33s", sd->mac) != 1)
+			safestrncpy(sd->mac, data, sizeof(sd->mac));
+
+		Sql_FreeResult(qsmysql_handle);
+	}
+#endif
+
 	return true;
 }
 
