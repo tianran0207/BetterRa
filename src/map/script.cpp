@@ -12475,14 +12475,13 @@ BUILDIN_FUNC(checkhomcall)
 //These two functions bring the eA MAPID_* class functionality to scripts.
 BUILDIN_FUNC(eaclass)
 {
-	int class_;
-	if( script_hasdata(st,2) )
-		class_ = script_getnum(st,2);
-	else {
+	int class_ = script_getnum(st, 2);
+
+	if (script_hasdata(st, 3)) {
 		TBL_PC *sd;
 
-		if (!script_charid2sd(3,sd)) {
-			script_pushint(st,-1);
+		if (!script_charid2sd(3, sd)) {
+			script_pushint(st, -1);
 			return SCRIPT_CMD_SUCCESS;
 		}
 		class_ = sd->status.class_;
