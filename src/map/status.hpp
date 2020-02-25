@@ -2043,6 +2043,7 @@ enum e_joint_break : uint8 {
 
 extern short current_equip_item_index;
 extern unsigned int current_equip_combo_pos;
+extern int current_equip_card_index;
 extern int current_equip_card_id;
 extern bool running_npc_stat_calc_event;
 extern short current_equip_opt_index;

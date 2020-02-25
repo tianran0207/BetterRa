@@ -376,6 +376,7 @@ struct Script_Config script_config = {
 	"OnPCAttackedFilter", //attacked_filter_name
 	"OnPCHealFilter", //heal_filter_name
 	"OnPCBonusFilter", //bonus_filter_name
+	"OnPCProduceFilter", // produce_filter_name
 	"OnPCHookDllEvent", //hook_dll_event_name
 	"OnAnyoneUseSkillEvent" //anyone_skill_event_name
 };
@@ -26263,6 +26264,44 @@ BUILDIN_FUNC(getequipidx)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(getequipinfo)
+{
+	TBL_PC *sd;
+	int req = 0;
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+	int type = script_hasdata(st, 2) ? script_getnum(st, 2) : INV_IDX;
+	switch(type) {
+	case INV_IDX:
+		req = current_equip_item_index;
+		break;
+	case INV_ID:
+		req = sd->inventory.u.items_inventory[current_equip_item_index].nameid;
+		break;
+	}
+	script_pushint(st, req);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getcardinfo)
+{
+	TBL_PC *sd;
+	int req = 0;
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+	int type = script_hasdata(st, 2) ? script_getnum(st, 2) : INV_IDX;
+	switch (type) {
+	case INV_IDX:
+		req = current_equip_card_index;
+		break;
+	case INV_ID:
+		req = current_equip_card_id;
+		break;
+	}
+	script_pushint(st, req);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(resetoptionbyidx)
 {
 	TBL_PC *sd;
@@ -27661,7 +27700,7 @@ BUILDIN_FUNC(bot_stop)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	map_delbot(map_id2bot(sd->bl.id), (script_hasdata(st,2) && script_hasdata(st, 2) == 1 ? true : false));
+	map_delbot(map_id2bot(sd->bl.id), script_hasdata(st,2) ? script_getnum(st, 2) : 0);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -30489,6 +30528,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unitdefratefixed, "ii???"),
 	BUILDIN_DEF(settitleicon, "iis"),
 	BUILDIN_DEF(getskillinfo, "ii?"),
+	BUILDIN_DEF(getequipinfo, "?"),
+	BUILDIN_DEF(getcardinfo, "?"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),

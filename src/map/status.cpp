@@ -61,6 +61,7 @@ static struct status_data dummy_status;
 
 short current_equip_item_index; /// Contains inventory index of an equipped item. To pass it into the EQUP_SCRIPT [Lupus]
 unsigned int current_equip_combo_pos; /// For combo items we need to save the position of all involved items here
+int current_equip_card_index;
 int current_equip_card_id; /// To prevent card-stacking (from jA) [Skotlex]
 bool running_npc_stat_calc_event; /// Indicate if OnPCStatCalcEvent is running.
 // We need it for new cards 15 Feb 2005, to check if the combo cards are insrerted into the CURRENT weapon only to avoid cards exploits
@@ -3930,6 +3931,8 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	for (i = 0; i < EQI_MAX; i++) {
 		current_equip_item_index = index = sd->equip_index[i]; // We pass INDEX to current_equip_item_index - for EQUIP_SCRIPT (new cards solution) [Lupus]
 		current_equip_combo_pos = 0;
+		current_equip_card_index = -1;
+		current_equip_card_id = 0; // Clear stored card ID [Secret]
 		if (index < 0)
 			continue;
 		if (i == EQI_AMMO)
@@ -3946,6 +3949,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 				continue;
 			for (j = 0; j < MAX_SLOTS; j++) { // Uses MAX_SLOTS to support Soul Bound system [Inkfish]
 				int c = sd->inventory.u.items_inventory[index].card[j];
+				current_equip_card_index= j;
 				current_equip_card_id= c;
 				if(!c)
 					continue;
@@ -3972,6 +3976,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 			}
 		}
 	}
+	current_equip_card_index = -1;
 	current_equip_card_id = 0; // Clear stored card ID [Secret]
 
 	// Parse random options
@@ -12802,6 +12807,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_BOT:
 			if (tid == INVALID_TIMER)
 				break;
+			clif_authfail_fd(sd->fd, 15);
 			map_quit(sd);
 			return 1;
 			break;

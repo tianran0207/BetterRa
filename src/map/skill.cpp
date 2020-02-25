@@ -19935,6 +19935,18 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 
 	if (make_per < 1) make_per = 1;
 
+	if (npc_script_event_check(sd, NPCE_PRODUCEFILTER)) {
+		pc_setreg(sd, add_str("@produce_skill"), skill_id);
+		pc_setreg(sd, add_str("@produce_nameid"), nameid);
+		pc_setreg(sd, add_str("@produce_per"), make_per);
+		pc_setreg(sd, add_str("@produce_qty"), qty);
+		npc_script_event_atonce(sd, NPCE_PRODUCEFILTER);
+		if (sd->state.processhalt) {
+			qty = static_cast<int>(pc_readreg(sd, add_str("@produce_qty")));
+			make_per = static_cast<int>(pc_readreg(sd, add_str("@produce_per")));
+		}
+	}
+
 	if (qty > 1 || rnd()%10000 < make_per){ //Success, or crafting multiple items.
 		struct item tmp_item;
 		memset(&tmp_item,0,sizeof(tmp_item));
