@@ -2323,7 +2323,34 @@ Example:
 	44	- 返回技能所需气球个数 skill_require_db 中的 SpiritSphereCost
 	45	- 返回技能所需物品ID skill_require_db 中的 RequiredItemID <其他参数> 传入第几项消耗品
 	46	- 返回技能所需物品数量 skill_require_db 中的 RequiredItemAmount <其他参数> 传入第几项消耗品
-	
+
+---------------------------------------
+
+*getequipinfo {<获取类型>};
+
+ 在装备的 item_script 中使用可以获得装备在背包中的IDX 和 装备ID
+
+<获取类型>:
+
+	- INV_ID   装备ID
+	- INV_IDX  装备在背包中的IDX(默认)
+
+---------------------------------------
+
+*getcardinfo {<获取类型>};
+
+ 在卡片的 item_script 中使用可以获得卡片在装备卡槽中的IDX 和 卡片ID
+
+<获取类型>:
+	- INV_ID   卡片ID
+	- INV_IDX  卡片在装备卡槽中的IDX(默认)
+
+---------------------------------------
+
+*getrandomoptinfo(<获取类型>);
+
+官方指令, 请查看 doc\script_commands.txt
+
 ----------------------------------------
 --         以下功能为付费功能         --
 -- 收费功能可在官网直接下载测试端测试 --
