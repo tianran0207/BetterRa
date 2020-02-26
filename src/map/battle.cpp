@@ -340,23 +340,11 @@ void battle_damage_casttime_fix(struct block_list* bl, uint16 skill_id, int64 *d
 }
 
 struct s_battle_display battle_display;
-int64 battle_damage_event(struct block_list* src, struct block_list* target, struct Damage *wd, uint16 skill_id, uint16 skill_lv, t_tick tick)
+int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target, uint16 skill_id, uint16 skill_lv, int64 *dmg, int flag)
 {
+	int64 damage = *dmg;
 	struct map_session_data* sd = BL_CAST(BL_PC, src);
-	struct unit_data *ud = unit_bl2ud(target);
-	struct map_data *mapdata;
-	int64 damage = wd->damage + wd->damage2, ddamage = 0;
-	battle_display.block_id = 0;
-	if (damage <= 0)
-		return damage;
-	battle_display.block_id = target ? target->id : 0;
-	battle_display.tick = tick;
-	battle_display.critical = false;
-	battle_display.damage = battle_display.damage2 = 0;
-
-	battle_damage_casttime_fix(src, skill_id, &damage, NULL, tick);
-
-	if (sd && (wd->flag & BF_SKILL)) {
+	if (sd && (flag & BF_SKILL) && !battle_display.critical) {
 		for (auto &it : sd->skilldamage) {
 			if (it.sk != skill_id)
 				continue;
@@ -389,7 +377,7 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 		}
 	}
 	if (src && (battle_config.skill_critical_enable & src->type) && !battle_display.critical) {
-		struct status_data *status ;
+		struct status_data *status;
 		int cri;
 		if (!battle_config.skill_critical_rate) {
 			status = status_get_status_data(src);
@@ -407,6 +395,27 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 			battle_display.critical = true;
 		}
 	}
+	*dmg = damage;
+	return (int)cap_value(damage, INT_MIN, INT_MAX);
+}
+
+int64 battle_damage_event(struct block_list* src, struct block_list* target, struct Damage *wd, uint16 skill_id, uint16 skill_lv, t_tick tick)
+{
+	struct map_session_data* sd = BL_CAST(BL_PC, src);
+	struct unit_data *ud = unit_bl2ud(target);
+	struct map_data *mapdata;
+	int64 damage = wd->damage + wd->damage2, ddamage = 0;
+	battle_display.block_id = 0;
+	if (damage <= 0)
+		return damage;
+	battle_display.block_id = target ? target->id : 0;
+	battle_display.tick = tick;
+	battle_display.critical = false;
+	battle_display.damage = battle_display.damage2 = 0;
+
+	battle_damage_casttime_fix(src, skill_id, &damage, NULL, tick);
+	battle_calc_skill_cardfix(src, target, skill_id, skill_lv, &damage, wd->flag);
+
 	mapdata = map_getmapdata(src ? src->m : target ? target->m : -1);
 	if (mapdata && damage) {
 		int val = skill_id ? mapdata->flag[MF_MAXDMG_SKILL] : mapdata->flag[MF_MAXDMG_NORMAL];
@@ -9386,8 +9395,8 @@ int64 SkillFormulaDatabase::script_card_fix(int64 damage, int attack_type, int n
 		struct map_session_data *sd = (struct map_session_data *)skf_db.src;
 		damage = damage * sd->bonus.long_attack_atk_rate / 100;
 	}
-	if (nk & 0x100)
-		battle_display.critical = true;
+	battle_display.critical = false;
+	battle_calc_skill_cardfix(skf_db.src, skf_db.target, skill_id, skill_lv, &damage, skf_db.wd->flag);
 	
 	return damage;
 }

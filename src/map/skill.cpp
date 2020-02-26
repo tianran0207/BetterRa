@@ -21610,7 +21610,6 @@ void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list 
 	switch (type) {
 	case 1:
 		script = skill_db[idx]->formula.formula;
-		if (script)	battle_display.critical = false;
 		break;
 	case 2:
 		script = skill_db[idx]->formula.casting;

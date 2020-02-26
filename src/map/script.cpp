@@ -25285,7 +25285,7 @@ BUILDIN_FUNC(getinventoryinfo)
 	int idx, max;
 	const char *command = script_getfuncname(st);
 
-	if (!script_charid2sd(4, sd))
+	if (!script_charid2sd(5, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	if (strstr(command, "inventory")) {
