@@ -14410,7 +14410,7 @@ static int pcbot_fly_away(struct bot_data *bd, t_tick tick)
 		bd->info.timeout_fly = 0;
 		return 0;
 	}
-	bd->state.next_acttime = tick + 1000;
+	bd->state.next_acttime = tick + 2000;
 	bd->state.move_count = 0;
 	bd->state.next_flytime = tick + bd->info.timeout_fly * 1000;
 	bd->state.next_fly_delay = tick + bd->info.item_fly_delay;
@@ -14500,23 +14500,33 @@ static int pcbot_check_sc(struct bot_data *bd, t_tick tick)
 		return 0;
 
 	for (idx = 0; idx < MAX_BOT_SC_COUNT; idx++) {
-		if (!bd->info.sc_data[idx])
-			break;
-		if (bd->info.sc_skill_lv[idx] == -1)
-			continue;
-		if (sd->sc.data[bd->info.sc_data[idx]])
+		sc_type sc_data;
+		if (bd->info.sc_skill_id[idx] == 0)
 			break;
 		if (bd->info.sc_skill_lv[idx] == 0)
-			result = pcbot_useitem(sd, bd->info.sc_skill_id[idx]);
-		else {
-			uint16 skill_id = bd->info.sc_skill_id[idx], skill_lv = bd->info.sc_skill_lv[idx];
-			if (bd->info.skill_cooldown[MAX_BOT_SC_COUNT+idx] > tick)
-				continue;
-			bd->info.skill_cooldown[MAX_BOT_SC_COUNT+idx] = max(skill_delayfix(&sd->bl, skill_id, skill_lv), pc_get_skillcooldown(bd->sd, skill_id, skill_lv)) + 100;
-			result = pcbot_skill_sub(bd, &sd->bl, skill_id, skill_lv);
-		}
-		if (result) return 1;
-		bd->info.sc_skill_lv[idx] = -1;
+			continue;
+		if ((sc_data = status_skill2sc(bd->info.sc_skill_id[idx])) <= SC_NONE || sc_data >= SC_MAX)
+			continue;
+		if (sd->sc.data[sc_data])
+			continue;
+		if (bd->info.skill_cooldown[MAX_BOT_SC_COUNT + idx] > tick)
+			continue;
+		uint16 skill_id = bd->info.sc_skill_id[idx], skill_lv = bd->info.sc_skill_lv[idx];
+		bd->info.skill_cooldown[MAX_BOT_SC_COUNT+idx] = max(skill_delayfix(&sd->bl, skill_id, skill_lv), pc_get_skillcooldown(bd->sd, skill_id, skill_lv)) + 100;
+		if (pcbot_skill_sub(bd, &sd->bl, skill_id, skill_lv))
+			return 1;
+		bd->info.sc_skill_lv[idx] = 0;
+	}
+	for (idx = 0; idx < MAX_BOT_SC_COUNT; idx++) {
+		if (bd->info.sc_item_id[idx] == 0)
+			break;
+		if (bd->info.sc_item_sc[idx] <= SC_NONE || bd->info.sc_item_sc[idx] >= SC_MAX)
+			continue;
+		if (sd->sc.data[bd->info.sc_item_sc[idx]])
+			continue;
+		if (pcbot_useitem(sd, bd->info.sc_item_id[idx]))
+			return 1;
+		bd->info.sc_item_sc[idx] = SC_NONE;
 	}
 	bd->state.next_check_sc = tick + 1000;
 	return 0;
@@ -14815,11 +14825,10 @@ void pcbot_reset_state(struct map_session_data *sd)
 		bd->info.skill_delay[i] = pcbot_readparameter(uint16, "@skill_delay", i);
 	}
 	for (i = 0; i < MAX_BOT_SC_COUNT; i++) {
-		bd->info.sc_data[i] = pcbot_readparameter(uint16, "@sc_data", i);
+		bd->info.sc_item_id[i] = pcbot_readparameter(uint16, "@sc_item_id", i);
+		bd->info.sc_item_sc[i] = pcbot_readparameter(uint16, "@sc_item_sc", i);
 		bd->info.sc_skill_id[i] = pcbot_readparameter(uint16, "@sc_skill_id", i);
 		bd->info.sc_skill_lv[i] = pcbot_readparameter(uint16, "@sc_skill_lv", i);
-		if (bd->info.sc_skill_lv[i])
-			bd->info.sc_data[i] = status_skill2sc(bd->info.sc_skill_id[i]);
 	}
 #undef pcbot_readparameter
 	bd->info.item_heal_delay = bd->info.item_heal_delay > 200 ? bd->info.item_heal_delay : 200;

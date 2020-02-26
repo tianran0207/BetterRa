@@ -329,7 +329,8 @@ struct bot_data {
 		unsigned short skill_id[MAX_BOT_SKILL_COUNT];
 		unsigned short skill_lv[MAX_BOT_SKILL_COUNT];
 		unsigned short skill_delay[MAX_BOT_SKILL_COUNT];
-		unsigned short sc_data[MAX_BOT_SC_COUNT];
+		unsigned short sc_item_id[MAX_BOT_SC_COUNT];
+		int sc_item_sc[MAX_BOT_SC_COUNT];
 		unsigned short sc_skill_id[MAX_BOT_SC_COUNT];
 		unsigned short sc_skill_lv[MAX_BOT_SC_COUNT];
 		t_tick skill_cooldown[MAX_BOT_SKILL_COUNT+MAX_BOT_SC_COUNT];
