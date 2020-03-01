@@ -12659,7 +12659,7 @@ void clif_parse_skill_toid( struct map_session_data* sd, uint16 skill_id, uint16
 
 	if( skill_lv < 1 ) skill_lv = 1; //No clue, I have seen the client do this with guild skills :/ [Skotlex]
 
-	int inf = skill_get_pc_inf(sd, skill_id);
+	int inf = skill_get_pc_inf(sd, skill_id, NULL, 0xFF&~INF_GROUND_SKILL);
 	if (inf&INF_GROUND_SKILL || !inf)
 		return; //Using a ground/passive skill on a target? WRONG.
 
@@ -12780,7 +12780,7 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, uin
 {
 	t_tick tick = gettick();
 
-	if(!(skill_get_pc_inf(sd, skill_id)&INF_GROUND_SKILL) )
+	if(!(skill_get_pc_inf(sd, skill_id, NULL, INF_GROUND_SKILL)&INF_GROUND_SKILL) )
 		return; //Using a target skill on the ground? WRONG.
 
 	if (sd->state.block_action & PCBLOCK_SKILL) {

@@ -19,6 +19,7 @@
 #include "npc.hpp"
 #include "pc.hpp"
 #include "pet.hpp"
+#include "storage.hpp"
 
 static char log_timestamp_format[20];
 
@@ -260,6 +261,32 @@ void log_pick(int id, int16 m, e_log_pick_type type, int amount, struct item* it
 void log_pick_pc(struct map_session_data* sd, e_log_pick_type type, int amount, struct item* itm)
 {
 	nullpo_retv(sd);
+	if (npc_script_event_check(sd, NPCE_PICKLOGEVENT)) {
+		struct s_storage *stor= NULL;
+		int idx = -1;
+		if (itm >= &sd->inventory.u.items_inventory[0] && itm <= &sd->inventory.u.items_inventory[MAX_INVENTORY-1])
+			stor = &sd->inventory;
+		else if (itm >= &sd->cart.u.items_cart[0] && itm <= &sd->cart.u.items_cart[MAX_CART - 1])
+			stor = &sd->cart;
+		else if (itm >= &sd->storage.u.items_storage[0] && itm <= &sd->storage.u.items_storage[MAX_STORAGE-1])
+			stor = &sd->storage;
+		else if (itm >= &sd->premiumStorage.u.items_storage[0] && itm <= &sd->premiumStorage.u.items_storage[MAX_STORAGE-1])
+			stor = &sd->premiumStorage;
+		else
+			stor = guild2storage2(sd->status.guild_id);
+
+		if (stor) {
+			ARR_FIND(0, stor->max_amount, idx, &stor->u.items_inventory[idx] == itm);
+			if (idx == stor->max_amount)
+				idx = -1;
+		}
+		pc_setreg(sd, add_str("@pick_itemid"), itm->id);
+		pc_setreg(sd, add_str("@pick_amount"), itm->amount);
+		pc_setreg(sd, add_str("@pick_stortype"), stor ? stor->type : 0);
+		pc_setreg(sd, add_str("@pick_storid"), stor ? stor->id : 0);
+		pc_setreg(sd, add_str("@pick_idx"), idx);
+		npc_script_event_atonce(sd, NPCE_PICKLOGEVENT);
+	}
 	log_pick(sd->status.char_id, sd->bl.m, type, amount, itm);
 }
 

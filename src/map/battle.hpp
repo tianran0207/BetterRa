@@ -249,6 +249,7 @@ struct Battle_Config
 	int skill_critical_luk;
 	int gm_perfect_hide;
 	int mobinfo_refresh_tick;
+	int enable_delitem_event;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

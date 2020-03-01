@@ -5479,9 +5479,11 @@ short pc_search_inventory(struct map_session_data *sd, unsigned short nameid) {
 }
 
 static int pc_additem_event(struct map_session_data *sd, enum npce_event ent, struct item *item, int amount, e_log_pick_type log_type) {
-	int idx = -1, source = 0, storid = -1, max;
+	int idx = -1, source = 0, storid = -1, stormax;
 	struct item *storitem = NULL;
 
+	if (!battle_config.enable_delitem_event && amount < 0)
+		return 1;
 	if (!npc_script_event_check(sd, ent))
 		return 1;
 
@@ -5489,12 +5491,12 @@ static int pc_additem_event(struct map_session_data *sd, enum npce_event ent, st
 		case LOG_TYPE_NONE:
 			if (ent != NPCE_INVENTORYADDFILTER) {
 				storitem = sd->inventory.u.items_inventory;
-				max = MAX_INVENTORY;
+				stormax = MAX_INVENTORY;
 				source = 1;
 			}
 			else if (ent != NPCE_CARTADDFILTER) {
 				storitem = sd->cart.u.items_cart;
-				max = MAX_CART;
+				stormax = MAX_CART;
 				source = 2;
 			}
 		case LOG_TYPE_STORAGE:
@@ -5504,25 +5506,25 @@ static int pc_additem_event(struct map_session_data *sd, enum npce_event ent, st
 			else if (sd->state.storage_flag == 1) {
 				storitem = sd->storage.u.items_storage;
 				storid = sd->storage.stor_id;
-				max = MAX_STORAGE;
+				stormax = MAX_STORAGE;
 				source = 3;
 			}
 			else if (sd->state.storage_flag == 3) {
 				storitem = sd->premiumStorage.u.items_storage;
 				storid = sd->premiumStorage.stor_id;
-				max = MAX_STORAGE;
+				stormax = MAX_STORAGE;
 				source = 3;
 			}
 			else if (sd->state.storage_flag == 2) {
 				struct s_storage *stor = guild2storage(sd->status.guild_id);
 				if (stor)
 					storitem = stor->u.items_storage;
-				max = MAX_GUILD_STORAGE;
+				stormax = MAX_GUILD_STORAGE;
 				source = 4;
 			}
 			if (storitem)
-				ARR_FIND(0, max, idx, storitem[idx].nameid == item->nameid && &storitem[idx] == item);
-			if (idx == max)
+				ARR_FIND(0, stormax, idx, storitem[idx].nameid == item->nameid && &storitem[idx] == item);
+			if (idx == stormax)
 				idx = -1;
 			break;
 		case LOG_TYPE_PICKDROP_PLAYER:	source = 5;		break;
@@ -5688,6 +5690,8 @@ char pc_delitem(struct map_session_data *sd,int n,int amount,int type, short rea
 
 	if(n < 0 || sd->inventory.u.items_inventory[n].nameid == 0 || amount <= 0 || sd->inventory.u.items_inventory[n].amount<amount || sd->inventory_data[n] == NULL)
 		return 1;
+
+	pc_additem_event(sd, NPCE_INVENTORYADDFILTER, &sd->inventory.u.items_inventory[n], -amount, log_type);
 
 	log_pick_pc(sd, log_type, -amount, &sd->inventory.u.items_inventory[n]);
 
@@ -6275,6 +6279,8 @@ void pc_cart_delitem(struct map_session_data *sd,int n,int amount,int type,e_log
 	if(sd->cart.u.items_cart[n].nameid == 0 ||
 		sd->cart.u.items_cart[n].amount < amount)
 		return;
+
+	pc_additem_event(sd, NPCE_CARTADDFILTER, &sd->cart.u.items_cart[n], -amount, log_type);
 
 	log_pick_pc(sd, log_type, -amount, &sd->cart.u.items_cart[n]);
 

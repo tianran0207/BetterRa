@@ -641,9 +641,8 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 		for (const auto &it : sd->skillattribute) {
 			static int seven_ele[] = { ELE_EARTH,ELE_WIND,ELE_WATER,ELE_FIRE,ELE_GHOST,ELE_DARK,ELE_HOLY };
 			static sc_type seven_sc[] = { SC_EARTHWEAPON,SC_WINDWEAPON,SC_WATERWEAPON,SC_FIREWEAPON,SC_GHOSTWEAPON,SC_SHADOWWEAPON,SC_ASPERSIO };
-			if (it.sk != sd->skill_attr && it.sk != -1)
+			if (it.sk != sd->skill_id && it.sk != -1)
 				continue;
-			sd->skill_attr = 0;
 			if (it.attr == -3) {
 #ifdef RENEWAL
 				damage = damage - (int64)((damage * (100 - it.n)) / 100);
@@ -8545,7 +8544,8 @@ static const struct _battle_data {
 	{ "skill_critical_boss",                &battle_config.skill_critical_boss,             0,      0,      INT_MAX,        },
 	{ "skill_critical_luk",                 &battle_config.skill_critical_luk,              1,      0,      1,              },
 	{ "gm_perfect_hide",                    &battle_config.gm_perfect_hide,                 1,      0,      1,              }, 
-	{ "mobinfo_refresh_tick",               &battle_config.mobinfo_refresh_tick,            300,    0,      INT_MAX,        },
+	{ "mobinfo_refresh_tick",               &battle_config.mobinfo_refresh_tick,            300,    0,      INT_MAX,        }, 
+	{ "enable_delitem_event",               &battle_config.enable_delitem_event,            0,      1,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

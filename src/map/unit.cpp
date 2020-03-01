@@ -2222,7 +2222,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 				sd->canequip_tick = tick + casttime;
 				break;
 		}
-		sd->skill_attr = skill_id;
+		sd->skill_id = skill_id;
 	}
 
 	ud->skilltarget  = target_id;
@@ -2258,6 +2258,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	if( sd && battle_config.prevent_logout_trigger&PLT_SKILL )
 		sd->canlog_tick = gettick();
 
+	sd->skill_id = 0;
 	return 1;
 }
 
@@ -2418,7 +2419,7 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 // 		case ????:
 // 			sd->canequip_tick = tick + casttime;
 // 		}
-		sd->skill_attr = skill_id;
+		sd->skill_id = skill_id;
  	}
 
 	ud->skill_id    = skill_id;
@@ -2463,6 +2464,7 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 	if( sd && battle_config.prevent_logout_trigger&PLT_SKILL )
 		sd->canlog_tick = gettick();
 
+	sd->skill_id = 0;
 	return 1;
 }
 

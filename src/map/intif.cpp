@@ -1502,6 +1502,14 @@ int intif_parse_LoadGuildStorage(int fd)
 	}
 
 	memcpy(gstor,RFIFOP(fd,13),sizeof(struct s_storage));
+
+	if (sd->refresh_storage && sd->st && sd->st->state == RERUNLINE) {
+		storage_sortitem(gstor->u.items_guild, ARRAYLENGTH(gstor->u.items_guild));
+		sd->refresh_storage = false;
+		sd->st->state = RUN;
+		run_script_main(sd->st);
+		return 1;
+	}
 	if( flag )
 		storage_guild_storageopen(sd);
 
@@ -3487,6 +3495,13 @@ static bool intif_parse_StorageReceived(int fd)
 			break;
 
 		case TABLE_STORAGE:
+			if (sd->refresh_storage && sd->st && sd->st->state == RERUNLINE) {
+				storage_sortitem(stor->u.items_storage, ARRAYLENGTH(stor->u.items_storage));
+				sd->refresh_storage = false;
+				sd->st->state = RUN;
+				run_script_main(sd->st);
+				break;
+			}
 			if (stor->stor_id)
 				storage_premiumStorage_open(sd);
 			else {

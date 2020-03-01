@@ -313,6 +313,18 @@ int skill_get_itemid( uint16 skill_id, int idx )                   { skill_get3 
 int skill_get_itemqty( uint16 skill_id, int idx )                  { skill_get3 (skill_id, idx, skill_db[skill_id]->require.amount[idx]); }
 int skill_get_itemeq( uint16 skill_id, int idx )                   { skill_get3 (skill_id, idx, skill_db[skill_id]->require.eqItem[idx]); }
 
+int skill_get_pc_splash(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv) {
+	int splash = skill_get_splash(skill_id, skill_lv);
+	if (sd) {
+		for (auto &it : sd->skillarea) {
+			if (it.sk != skill_id)
+				continue;
+			splash += it.val;
+		}
+	}
+	return splash <= 0 ? 0 : splash;
+}
+
 int skill_get_splash( uint16 skill_id , uint16 skill_lv ) {
 	int splash = skill_get_splash_(skill_id, skill_lv);
 	if (splash < 0)
@@ -332,10 +344,12 @@ int skill_tree_get_max(uint16 skill_id, int b_class)
 		return skill_get_max(skill_id);
 }
 
-int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range)
+int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range, int infcmp)
 {
+	int inf = skill_get_inf(skill_id);
+
 	if (sd == NULL)
-		return skill_get_inf(skill_id);
+		return inf;
 
 	for (auto &it : sd->skilltoground) {
 		if (it.sk != skill_id)
@@ -349,10 +363,10 @@ int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range)
 		if (range) *range = it.val;
 		return INF_SELF_SKILL;
 	}
-	if (range && (skill_id == *range || (sd->bl.id == *range && skill_get_inf(skill_id) == INF_ATTACK_SKILL)))
-		clif_skillinfo(sd, skill_id, skill_get_inf(skill_id));
+	if (infcmp && !(infcmp&inf))
+		clif_skillinfo(sd, skill_id, inf);
 
-	return skill_get_inf(skill_id);
+	return inf;
 }
 
 int skill_frostjoke_scream(struct block_list *bl,va_list ap);
@@ -4795,6 +4809,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 
 	map_freeblock_lock();
 
+#define skill_get_splash(skid_, sklv_) skill_get_pc_splash(sd, skid_, sklv_)
+
 	switch(skill_id) {
 	case MER_CRASH:
 	case SM_BASH:
@@ -5241,25 +5257,14 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 					break;
 			}
 
-			int splash = skill_get_splash(skill_id, skill_lv);
-			if (sd) {
-				for (auto &it : sd->skillarea) {
-					if (it.sk != skill_id)
-						continue;
-					splash += it.val;
-				}
-				if (splash <= 0)
-					break;
-			}
-
 			// if skill damage should be split among targets, count them
 			//SD_LEVEL -> Forced splash damage for Auto Blitz-Beat -> count targets
 			//special case: Venom Splasher uses a different range for searching than for splashing
 			if( flag&SD_LEVEL || skill_get_nk(skill_id)&NK_SPLASHSPLIT )
-				skill_area_temp[0] = map_foreachinallrange(skill_area_sub, bl, (skill_id == AS_SPLASHER)?1:splash, BL_CHAR, src, skill_id, skill_lv, tick, BCT_ENEMY, skill_area_sub_count);
+				skill_area_temp[0] = map_foreachinallrange(skill_area_sub, bl, (skill_id == AS_SPLASHER)?1:skill_get_splash(skill_id, skill_lv), BL_CHAR, src, skill_id, skill_lv, tick, BCT_ENEMY, skill_area_sub_count);
 
 			// recursive invocation of skill_castend_damage_id() with flag|1
-			map_foreachinrange(skill_area_sub, bl, splash, starget, src, skill_id, skill_lv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skill_id, skill_lv), starget, src, skill_id, skill_lv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
 
 			if (skill_id == RA_ARROWSTORM)
 				status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER);
@@ -6269,7 +6274,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 		// perform skill requirement consumption
 		skill_consume_requirement(sd,skill_id,skill_lv,2);
 	}
-
+#undef skill_get_splash
 	return 0;
 }
 
@@ -6345,6 +6350,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 
 	tstatus = status_get_status_data(bl);
 	sstatus = status_get_status_data(src);
+
+#define skill_get_splash(skid_, sklv_) skill_get_pc_splash(sd, skid_, sklv_)
 
 	//Check for undead skills that convert a no-damage skill into a damage one. [Skotlex]
 	switch (skill_id) {
@@ -11290,6 +11297,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 	}
 
 	map_freeblock_unlock();
+
+#undef skill_get_splash
+
 	return 0;
 }
 

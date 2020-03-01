@@ -368,6 +368,7 @@ struct Script_Config script_config = {
 	"OnPCStorageAddFilter", //storage_add_filter_name
 	"OnPCCartAddFilter", //cart_add_filter_name
 	"OnPCInventoryAddFilter", //inventory_add_filter_name
+	"OnPCPickLogEvent", //pick_log_event_name
 	"OnPCDropItemFilter", //drop_item_filter_name
 	"OnPCSelectItemEvent", //select_item_event_name
 	"OnPCSelectSkillEvent", //select_skill_event_name
@@ -14649,73 +14650,6 @@ BUILDIN_FUNC(getstorageinventorylist)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-static int buildin_searchinventory_sub(struct map_session_data *sd, struct item *inventory, int max_invertory, unsigned short nameid, int flag)
-{
-	int i, j = 0, amount = 0;
-	struct item it;
-	memcpy(&it, 0, sizeof(struct item));
-	for (i = 0; i<max_invertory; i++) {
-		if (inventory[i].nameid != nameid)
-			continue;
-		if (inventory[i].amount <= 0)
-			continue;
-		if (flag) {
-			if ((flag & 1) && inventory[i].refine)
-				continue;
-			if ((flag & 2) && inventory[i].expire_time)
-				continue;
-			if ((flag & 4) && inventory[i].bound)
-				continue;
-			if ((flag & 8) && memcmp(inventory[i].card, it.card, sizeof(inventory[i].card)))
-				continue;
-			if ((flag & 16) && memcmp(inventory[i].option, it.option, sizeof(inventory[i].option)))
-				continue;
-		}
-		pc_setreg(sd, reference_uid(add_str("@inventorylist_idx"), j), i);
-		pc_setreg(sd, reference_uid(add_str("@inventorylist_amount"), j), inventory[i].amount);
-		amount += inventory[i].amount;
-		j++;
-	}
-	pc_setreg(sd, add_str("@inventorylist_count"), j);
-	return amount;
-}
-
-BUILDIN_FUNC(searchinventory)
-{
-	TBL_PC *sd;
-	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0xFFFF;
-
-	if (!script_charid2sd(4, sd))
-		return SCRIPT_CMD_FAILURE;
-
-	script_pushint(st, buildin_searchinventory_sub(sd, sd->inventory.u.items_inventory, MAX_INVENTORY, script_getnum(st, 2), flag));
-	return SCRIPT_CMD_SUCCESS;
-}
-
-BUILDIN_FUNC(searchcartinventory)
-{
-	TBL_PC *sd;
-	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0xFFFF;
-
-	if (!script_charid2sd(4, sd))
-		return SCRIPT_CMD_FAILURE;
-
-	script_pushint(st, buildin_searchinventory_sub(sd, sd->cart.u.items_cart, MAX_CART, script_getnum(st, 2), flag));
-	return SCRIPT_CMD_SUCCESS;
-}
-
-BUILDIN_FUNC(searchstorageinventory)
-{
-	TBL_PC *sd;
-	int flag = script_hasdata(st, 3) ? script_getnum(st, 3) : 0xFFFF;
-
-	if (!script_charid2sd(4, sd))
-		return SCRIPT_CMD_FAILURE;
-
-	script_pushint(st, buildin_searchinventory_sub(sd, sd->storage.u.items_storage, MAX_STORAGE, script_getnum(st, 2), flag));
-	return SCRIPT_CMD_SUCCESS;
-}
-
 /**
  * getskilllist ({<char_id>});
  **/
@@ -25278,45 +25212,117 @@ BUILDIN_FUNC(processhalt)
 }
 
 /// *getinventoryinfo(<idx>,<type>{,<char id>});
+struct item *build_getstorage_sub(struct script_state* st, struct map_session_data *sd, const char *command, int *stor_max, int *stor_type)
+{
+	uint8 stor_id = static_cast<uint8>(*stor_type);
+	if (strstr(command, "inventory")) {
+		*stor_max = MAX_INVENTORY;
+		*stor_type = TABLE_INVENTORY;
+		return sd->inventory.u.items_inventory;
+	}else if (strstr(command, "cart")) {
+		*stor_max = MAX_CART;
+		*stor_type = TABLE_CART;
+		return sd->cart.u.items_cart;
+	}
+	else if (strstr(command, "guild")) {
+		struct s_storage *gstor = guild2storage2(sd->status.guild_id);
+		*stor_max = MAX_GUILD_STORAGE;
+		*stor_type = TABLE_GUILD_STORAGE;
+		if (gstor != NULL && (gstor->dirty = true))
+			return (gstor->status || gstor->lock) ? NULL : gstor->u.items_storage;
+		intif_request_guild_storage(sd->status.account_id, sd->status.guild_id);
+	}
+	else {
+		*stor_max = MAX_STORAGE;
+		*stor_type = TABLE_STORAGE;
+		if (stor_id == sd->storage.stor_id && (sd->storage.dirty = true))
+			return sd->storage.u.items_storage;
+		else if (stor_id == sd->premiumStorage.stor_id && (sd->storage.dirty = true))
+			return sd->premiumStorage.u.items_storage;
+		else if (!storage_exists(stor_id))
+			return NULL;
+		intif_storage_request(sd, TABLE_STORAGE, stor_id, STOR_MODE_ALL);
+	}
+	sd->refresh_storage = true;
+	st->state = RERUNLINE;
+	return NULL;
+}
+
+static int buildin_searchinventory_sub(struct map_session_data *sd, struct item *inventory, int max_invertory, unsigned short nameid, int flag)
+{
+	int i, j = 0, amount = 0;
+	struct item it;
+	memset(&it, 0, sizeof(struct item));
+	for (i = 0; i < max_invertory; i++) {
+		if (inventory[i].nameid != nameid)
+			continue;
+		if (inventory[i].amount <= 0)
+			continue;
+		if (flag) {
+			if ((flag & 1) && inventory[i].refine)
+				continue;
+			if ((flag & 2) && inventory[i].expire_time)
+				continue;
+			if ((flag & 4) && inventory[i].bound)
+				continue;
+			if ((flag & 8) && memcmp(inventory[i].card, it.card, sizeof(inventory[i].card)))
+				continue;
+			if ((flag & 16) && memcmp(inventory[i].option, it.option, sizeof(inventory[i].option)))
+				continue;
+		}
+		pc_setreg(sd, reference_uid(add_str("@inventorylist_idx"), j), i);
+		pc_setreg(sd, reference_uid(add_str("@inventorylist_amount"), j), inventory[i].amount);
+		amount += inventory[i].amount;
+		j++;
+	}
+	pc_setreg(sd, add_str("@inventorylist_count"), j);
+	return amount;
+}
+
+BUILDIN_FUNC(searchinventory)
+{
+	TBL_PC *sd;
+	struct item *storitem = NULL;
+	int stor_max = 0;
+	const char *command = script_getfuncname(st);
+	int extra = !strncmp(command, "searchstor", 10) ? 1 : 0;
+
+	if (!script_charid2sd(4+extra, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	int stor_id = (extra == 1 && script_hasdata(st, 4)) ? script_getnum(st, 4) : sd->storage.stor_id;
+
+	storitem = build_getstorage_sub(st, sd, command, &stor_max, &stor_id);
+	if (st->state == RERUNLINE)
+		return SCRIPT_CMD_SUCCESS;
+	if (!storitem){
+		script_pushint(st, -1);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	int flag = script_hasdata(st, 3+extra) ? script_getnum(st, 3+extra) : 0xFFFF;
+
+	script_pushint(st, buildin_searchinventory_sub(sd, storitem, stor_max, script_getnum(st, 2), flag));
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(getinventoryinfo)
 {
 	TBL_PC *sd;
 	struct item *storitem = NULL;
-	int idx, max;
+	int idx, stor_max = 0;
 	const char *command = script_getfuncname(st);
 
 	if (!script_charid2sd(5, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	if (strstr(command, "inventory")) {
-		storitem = sd->inventory.u.items_inventory;
-		max = MAX_INVENTORY;
-	}
-	else if (strstr(command, "guild")) {
-		struct s_storage *stor = NULL;
-		stor = guild2storage(sd->status.guild_id);
-		if (!stor || stor->lock) {
-			script_pushint(st, -1);
-			return SCRIPT_CMD_SUCCESS;
-		}
-		storitem = sd->storage.u.items_guild;
-		max = MAX_GUILD_STORAGE;
-	}
-	else{
-		int storid = script_hasdata(st,4) ? script_getnum(st, 4) : sd->storage.stor_id;
-		if (storid == sd->storage.stor_id)
-			storitem = sd->storage.u.items_storage;
-		else if (storid == sd->premiumStorage.stor_id)
-			storitem = sd->premiumStorage.u.items_storage;
-		else {
-			script_pushint(st, -1);
-			return SCRIPT_CMD_SUCCESS;
-		}
-		max = MAX_STORAGE;
-	}
+	int stor_id = script_hasdata(st, 4) ? script_getnum(st, 4) : sd->storage.stor_id;
+
+	storitem = build_getstorage_sub(st, sd, command, &stor_max, &stor_id);
+	if (st->state == RERUNLINE)
+		return SCRIPT_CMD_SUCCESS;
 
 	idx = script_getnum(st, 2);
-	if (idx > -1 && idx < max && storitem[idx].nameid > 0 && storitem[idx].amount > 0) {
+	if ((idx > -1 && idx < stor_max) && storitem && storitem[idx].nameid > 0 && storitem[idx].amount > 0) {
 		switch (script_getnum(st, 3)) {
 		case 0:			script_pushint(st, storitem[idx].nameid);			break;
 		case 1:			script_pushint(st, storitem[idx].amount);			break;
@@ -25340,6 +25346,149 @@ BUILDIN_FUNC(getinventoryinfo)
 	}else
 		script_pushint(st, -1);
 
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(putstoragebyidx)
+{
+	TBL_PC *sd;
+	struct item *storitem = NULL;
+	int idx, stor_max = 0, amount, type;
+	const char *command = script_getfuncname(st);
+	int extra = !strncmp(command, "putstor", 7) ? 1 : 0;
+
+	if (!script_charid2sd(4+extra, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	int stor_id = type = (extra == 1 && script_hasdata(st, 4)) ? script_getnum(st, 4) : sd->storage.stor_id;
+	int do_event = script_hasdata(st, 4+extra) ? script_getnum(st, 4+extra) : 0;
+
+	storitem = build_getstorage_sub(st, sd, command, &stor_max, &type);
+	if (st->state == RERUNLINE || !storitem)
+		return SCRIPT_CMD_SUCCESS;
+
+	idx = script_getnum(st, 2); amount = script_getnum(st, 3);
+	if (idx < 0 || idx >= stor_max || !amount || !storitem ||
+		sd->inventory.u.items_inventory[idx].amount < amount ||
+		sd->inventory.u.items_inventory[idx].equipSwitch) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	sd->runing_event[NPCE_CARTADDFILTER] = sd->runing_event[NPCE_STORAGEADDFILTER] = do_event;
+	switch (type) {
+	case TABLE_CART:
+		pc_putitemtocart(sd, idx, amount);
+		break;
+	case TABLE_STORAGE:
+		if (stor_id == sd->storage.stor_id)
+			storage_storageadd(sd, &sd->storage, idx, amount);
+		else if (stor_id == sd->premiumStorage.stor_id)
+			storage_storageadd(sd, &sd->premiumStorage, idx, amount);
+		break;
+	case TABLE_GUILD_STORAGE:
+		storage_guild_storageadd(sd, idx, amount);
+		break;
+	}
+	sd->runing_event[NPCE_CARTADDFILTER] = sd->runing_event[NPCE_STORAGEADDFILTER] = 0;
+	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getstoragebyidx)
+{
+	TBL_PC *sd;
+	struct item *storitem = NULL;
+	int idx, stor_max = 0, amount, type;
+	const char *command = script_getfuncname(st);
+	int extra = !strncmp(command, "getstor", 7) ? 1 : 0;
+
+	if (!script_charid2sd(4+extra, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	int stor_id = type = (extra == 1 && script_hasdata(st, 4)) ? script_getnum(st, 4) : sd->storage.stor_id;
+	int do_event = script_hasdata(st, 4+extra) ? script_getnum(st, 4+extra) : 0;
+
+	storitem = build_getstorage_sub(st, sd, command, &stor_max, &type);
+	if (st->state == RERUNLINE)
+		return SCRIPT_CMD_SUCCESS;
+
+	idx = script_getnum(st, 2); amount = script_getnum(st, 3);
+	if (idx < 0 || idx >= stor_max || !amount || !storitem || storitem[idx].amount < amount) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	sd->runing_event[NPCE_INVENTORYADDFILTER] = do_event;
+	switch (type) {
+	case TABLE_CART:
+		pc_getitemfromcart(sd, idx, amount);
+		break;
+	case TABLE_STORAGE:
+		if (stor_id == sd->storage.stor_id)
+			storage_storageget(sd, &sd->storage, idx, amount);
+		else if (stor_id == sd->premiumStorage.stor_id)
+			storage_storageget(sd, &sd->premiumStorage, idx, amount);
+		break;
+	case TABLE_GUILD_STORAGE:
+		storage_guild_storageget(sd, idx, amount);
+		break;
+	}
+	sd->runing_event[NPCE_INVENTORYADDFILTER] = 0;
+	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(delinventorybyidx)
+{
+	TBL_PC *sd;
+	struct s_storage *gstor = NULL;
+	struct item *storitem = NULL;
+	int idx, stor_max = 0, amount, type;
+	const char *command = script_getfuncname(st);
+	int extra = !strncmp(command, "delstor", 7) ? 1 : 0;
+
+	if (!script_charid2sd(4 + extra, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	int stor_id = type = (extra == 1 && script_hasdata(st, 4)) ? script_getnum(st, 4) : sd->storage.stor_id;
+	int do_event = script_hasdata(st, 4+extra) ? script_getnum(st, 4+extra) : 0;
+
+	storitem = build_getstorage_sub(st, sd, command, &stor_max, &type);
+	if (st->state == RERUNLINE)
+		return SCRIPT_CMD_SUCCESS;
+
+	idx = script_getnum(st, 2); amount = script_getnum(st, 3);
+	if (idx < 0 || idx >= stor_max || !amount || !storitem || storitem[idx].amount < amount) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	sd->runing_event[NPCE_INVENTORYADDFILTER] = sd->runing_event[NPCE_CARTADDFILTER] = sd->runing_event[NPCE_STORAGEADDFILTER] = do_event;
+	switch (type) {
+	case TABLE_INVENTORY:
+		pc_delitem(sd, idx, amount, 0, 0, LOG_TYPE_SCRIPT);
+		break;
+	case TABLE_CART:
+		pc_cart_delitem(sd, idx, amount, 0, LOG_TYPE_SCRIPT);
+		break;
+	case TABLE_STORAGE:
+		if (stor_id == sd->storage.stor_id){
+			storage_delitem(sd, &sd->storage, idx, amount);
+			log_pick_pc(sd, LOG_TYPE_SCRIPT, -amount, &storitem[idx]);
+		}
+		else if (stor_id == sd->premiumStorage.stor_id) {
+			storage_delitem(sd, &sd->premiumStorage, idx, amount);
+			log_pick_pc(sd, LOG_TYPE_SCRIPT, -amount, &storitem[idx]);
+		}
+		break;
+	case TABLE_GUILD_STORAGE:
+		storage_guild_delitem(sd, guild2storage2(sd->status.guild_id), idx, amount);
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, -amount, &storitem[idx]);
+		break;
+	}
+	sd->runing_event[NPCE_INVENTORYADDFILTER] = sd->runing_event[NPCE_CARTADDFILTER] = sd->runing_event[NPCE_STORAGEADDFILTER] = 0;
+	script_pushint(st, 1);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -25452,24 +25601,6 @@ BUILDIN_FUNC(refreshinventory)
 	else
 		clif_inventorylist(sd);
 
-	return SCRIPT_CMD_SUCCESS;
-}
-
-BUILDIN_FUNC(delinventory)
-{
-	TBL_PC *sd;
-	int idx, count;
-	if (!script_charid2sd(4, sd))
-		return SCRIPT_CMD_FAILURE;
-	idx = script_getnum(st, 2);
-	count = script_getnum(st, 3);
-	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount >= count) {
-		pc_delitem(sd, idx, count, 0, 0, LOG_TYPE_SCRIPT);
-	}
-	else {
-		ShowError("buildin_delinventory: Unknow inventory idx '%d' or invalid amount '%d', can not del it.\n", idx, count);
-		return SCRIPT_CMD_FAILURE;
-	}
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -30400,13 +30531,13 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(processhalt, ""),
 	BUILDIN_DEF2(processhalt, "halt", ""),
 	BUILDIN_DEF(getinventoryinfo, "ii?"),
+	BUILDIN_DEF2(getinventoryinfo, "getcartinfo", "ii??"),
 	BUILDIN_DEF2(getinventoryinfo, "getstorageinfo", "ii??"),
 	BUILDIN_DEF2(getinventoryinfo, "getguildstorageinfo", "ii?"),
 	BUILDIN_DEF(setinventoryinfo, "iii???"),
 	BUILDIN_DEF2(setinventoryinfo, "setequipedinfo", "iii???"),
 	BUILDIN_DEF(refreshinventory, "??"),
 	BUILDIN_DEF2(refreshinventory, "refreshequip", "??"),
-	BUILDIN_DEF(delinventory, "ii?"),
 	BUILDIN_DEF(setchartitle, "i?"),
 	BUILDIN_DEF2(warpparty, "warpparty2", "siii???"),
 	BUILDIN_DEF2(setdir, "setheaddir", "i?"),
@@ -30501,9 +30632,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mobattached, ""),
 	BUILDIN_DEF(getcartinventorylist, "??"),
 	BUILDIN_DEF(getstorageinventorylist, "??"),
-	BUILDIN_DEF(searchinventory, "i??"),
-	BUILDIN_DEF(searchcartinventory, "i??"),
-	BUILDIN_DEF(searchstorageinventory, "i??"),
 	BUILDIN_DEF(getunitstatus, "ii"),
 	BUILDIN_DEF(skf_src_status, "i"),
 	BUILDIN_DEF(skf_target_status, "i"),
@@ -30530,6 +30658,20 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getskillinfo, "ii?"),
 	BUILDIN_DEF(getequipinfo, "?"),
 	BUILDIN_DEF(getcardinfo, "?"),
+	BUILDIN_DEF(searchinventory, "i??"),
+	BUILDIN_DEF2(searchinventory, "searchcart", "i??"),
+	BUILDIN_DEF2(searchinventory, "searchstorage", "i???"),
+	BUILDIN_DEF2(searchinventory, "searchguildstorage", "i??"),
+	BUILDIN_DEF(putstoragebyidx, "ii??"),
+	BUILDIN_DEF2(putstoragebyidx, "putcartbyidx", "ii??"),
+	BUILDIN_DEF2(putstoragebyidx, "putguildstoragebyidx", "ii??"),
+	BUILDIN_DEF(getstoragebyidx, "ii??"),
+	BUILDIN_DEF2(getstoragebyidx, "getcartbyidx", "ii??"),
+	BUILDIN_DEF2(getstoragebyidx, "getguildstoragebyidx", "ii??"),
+	BUILDIN_DEF(delinventorybyidx, "ii??"),
+	BUILDIN_DEF2(delinventorybyidx, "delcartbyidx", "ii??"),
+	BUILDIN_DEF2(delinventorybyidx, "delstoragebyidx", "ii???"),
+	BUILDIN_DEF2(delinventorybyidx, "delguildstorageidx", "ii??"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
@@ -30601,5 +30743,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(roulette_iteminfo, "iii?"),
 	BUILDIN_DEF(roulette_open, "????"),
 	BUILDIN_DEF(roulette_generate, "iii??"),
+	// ºÊ»›æ…÷∏¡Ó
+	BUILDIN_DEF2(searchinventory, "searchcartinventory", "i??"),
+	BUILDIN_DEF2(searchinventory, "searchstorageinventory", "i???"),
+	BUILDIN_DEF2(delinventorybyidx, "delinventory", "ii??"),
 	{NULL,NULL,NULL},
 };

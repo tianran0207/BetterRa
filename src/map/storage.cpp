@@ -249,16 +249,15 @@ static enum e_storage_add storage_canGetItem(struct s_storage *stor, int idx, in
 static int storage_addevent(struct map_session_data* sd, struct s_storage *stor, struct item *it, int amount) {
 	int i = 0, source;
 
+	if (!battle_config.enable_delitem_event && amount < 0)
+		return 1;
 	if (!npc_script_event_check(sd, NPCE_STORAGEADDFILTER))
 		return 1;
 
-	ARR_FIND(0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].nameid == it->nameid && &sd->inventory.u.items_inventory[i] == it);
-	if (i < MAX_INVENTORY) {
+	if (it >= &sd->inventory.u.items_inventory[0] && it <= &sd->inventory.u.items_inventory[MAX_INVENTORY-1])
 		source = TABLE_INVENTORY;
-	} else {
-		ARR_FIND(0, MAX_CART, i, sd->cart.u.items_cart[i].nameid == it->nameid && &sd->cart.u.items_cart[i] == it);
+	else if (it >= &sd->cart.u.items_cart[0] && it <= &sd->cart.u.items_cart[MAX_CART-1])
 		source = TABLE_CART;
-	}
 
 	pc_setreg(sd, add_str("@recv_itemid"), it->nameid);
 	pc_setreg(sd, add_str("@recv_amount"), amount);
@@ -353,6 +352,8 @@ int storage_delitem(struct map_session_data* sd, struct s_storage *stor, int ind
 {
 	if( stor->u.items_storage[index].nameid == 0 || stor->u.items_storage[index].amount < amount )
 		return 1;
+
+	storage_addevent(sd, stor, &stor->u.items_storage[index], -amount);
 
 	stor->u.items_storage[index].amount -= amount;
 	stor->dirty = true;
@@ -926,6 +927,8 @@ bool storage_guild_delitem(struct map_session_data* sd, struct s_storage* stor, 
 
 	if(!stor->u.items_guild[n].nameid || stor->u.items_guild[n].amount < amount)
 		return false;
+
+	storage_addevent(sd, stor, &stor->u.items_guild[n], -amount);
 
 	// Log before removing it
 	storage_guild_log( sd, &stor->u.items_guild[n], -amount );
