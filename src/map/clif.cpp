@@ -5916,10 +5916,10 @@ bool clif_skill_nodamage(struct block_list *src,struct block_list *dst, uint16 s
 			WBUFL(buf,6+offset) = dst->id;
 		clif_send(buf, packet_len(cmd), src, SELF);
 	}
-	if (src->type == BL_PC && heal < MAX_SKILL_LEVEL) { //Cooldown application
+	if (success && src->type == BL_PC && heal < MAX_SKILL_LEVEL) { //Cooldown application
 		struct map_session_data *sd = BL_CAST(BL_PC, src);
-		int cooldown = pc_get_skillcooldown(sd, skill_id, heal, -1); // Increases/Decreases cooldown of a skill by item/card bonuses.
-		if (cooldown) skill_blockpc_start(sd, skill_id, cooldown);
+		int cooldown = pc_get_skillcooldown(sd, sd->ud.skill_id, sd->ud.skill_lv, -1); // Increases/Decreases cooldown of a skill by item/card bonuses.
+		if (cooldown) skill_blockpc_start(sd, sd->ud.skill_id, cooldown);
 	}
 	return success;
 }
