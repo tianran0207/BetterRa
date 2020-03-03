@@ -12056,7 +12056,7 @@ void pc_regen (struct map_session_data *sd, t_tick diff_tick)
 {
 	int hp = 0, sp = 0;
 
-	if (sd->hp_regen.value) {
+	if (sd->hp_regen.value && sd->hp_regen.rate > 0) {
 		sd->hp_regen.tick += diff_tick;
 		while (sd->hp_regen.tick >= sd->hp_regen.rate) {
 			hp += sd->hp_regen.value;
@@ -12064,7 +12064,7 @@ void pc_regen (struct map_session_data *sd, t_tick diff_tick)
 		}
 	}
 
-	if (sd->sp_regen.value) {
+	if (sd->sp_regen.value && sd->sp_regen.rate > 0) {
 		sd->sp_regen.tick += diff_tick;
 		while (sd->sp_regen.tick >= sd->sp_regen.rate) {
 			sp += sd->sp_regen.value;
@@ -12072,7 +12072,7 @@ void pc_regen (struct map_session_data *sd, t_tick diff_tick)
 		}
 	}
 
-	if (sd->percent_hp_regen.value) {
+	if (sd->percent_hp_regen.value && sd->percent_hp_regen.rate > 0) {
 		sd->percent_hp_regen.tick += diff_tick;
 		while (sd->percent_hp_regen.tick >= sd->percent_hp_regen.rate) {
 			hp += sd->status.max_hp * sd->percent_hp_regen.value / 100;
@@ -12080,7 +12080,7 @@ void pc_regen (struct map_session_data *sd, t_tick diff_tick)
 		}
 	}
 
-	if (sd->percent_sp_regen.value) {
+	if (sd->percent_sp_regen.value && sd->percent_sp_regen.rate > 0) {
 		sd->percent_sp_regen.tick += diff_tick;
 		while (sd->percent_sp_regen.tick >= sd->percent_sp_regen.rate) {
 			sp += sd->status.max_sp * sd->percent_sp_regen.value / 100;
