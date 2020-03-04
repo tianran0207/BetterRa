@@ -254,10 +254,18 @@ static int storage_addevent(struct map_session_data* sd, struct s_storage *stor,
 	if (!npc_script_event_check(sd, NPCE_STORAGEADDFILTER))
 		return 1;
 
-	if (it >= &sd->inventory.u.items_inventory[0] && it <= &sd->inventory.u.items_inventory[MAX_INVENTORY-1])
+	if (it >= &sd->inventory.u.items_inventory[0] && it <= &sd->inventory.u.items_inventory[MAX_INVENTORY-1]) {
 		source = TABLE_INVENTORY;
-	else if (it >= &sd->cart.u.items_cart[0] && it <= &sd->cart.u.items_cart[MAX_CART-1])
+		ARR_FIND(0, MAX_INVENTORY, i, &sd->inventory.u.items_inventory[i] == it);
+		if (i == MAX_INVENTORY)
+			return 0;
+	}
+	else if (it >= &sd->cart.u.items_cart[0] && it <= &sd->cart.u.items_cart[MAX_CART-1]) {
 		source = TABLE_CART;
+		ARR_FIND(0, MAX_CART, i, &sd->cart.u.items_cart[i] == it);
+		if (i == MAX_CART)
+			return 0;
+	}
 
 	pc_setreg(sd, add_str("@recv_itemid"), it->nameid);
 	pc_setreg(sd, add_str("@recv_amount"), amount);
