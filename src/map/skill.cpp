@@ -11693,6 +11693,7 @@ TIMER_FUNC(skill_castend_id){
 		if (ud->walktimer != INVALID_TIMER && ud->skill_id != TK_RUN && ud->skill_id != RA_WUGDASH)
 			unit_stop_walking(src,1);
 
+		/*
 		if (!sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id, ud->skill_lv))
 			ud->canact_tick = i64max(tick + skill_delayfix(src, ud->skill_id, ud->skill_lv), ud->canact_tick - SECURITY_CASTTIME);
 		if (sd) { //Cooldown application
@@ -11701,6 +11702,7 @@ TIMER_FUNC(skill_castend_id){
 		}
 		if( battle_config.display_status_timers && sd )
 			clif_status_change(src, EFST_POSTDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
+		*/
 		if( sd )
 		{
 			switch( ud->skill_id )
@@ -11730,12 +11732,24 @@ TIMER_FUNC(skill_castend_id){
 
 		map_freeblock_lock();
 
+		if (sd) sd->skill_failure = false;
 		if (sd && skilltoaround) { int count = 0; map_foreachinrange(skill_castend_for_AOE, src, skilltoaround, BL_CHAR, src, tick, &count, 0); } else
 
 		if (skill_get_casttype(ud->skill_id) == CAST_NODAMAGE)
 			skill_castend_nodamage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
 		else
 			skill_castend_damage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
+
+		if (!(skill_get_delaynodex(ud->skill_id)&1024) || !sd || !sd->skill_failure){
+			if (!sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id, ud->skill_lv))
+				ud->canact_tick = i64max(tick + skill_delayfix(src, ud->skill_id, ud->skill_lv), ud->canact_tick);
+			if (battle_config.display_status_timers && sd)
+				clif_status_change(src, EFST_POSTDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
+		}
+		if (sd && (!(skill_get_castnodex(ud->skill_id)&1024) || !sd->skill_failure)) {
+			int cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv); // Increases/Decreases cooldown of a skill by item/card bonuses.
+			if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
+		}
 
 		if (sd && !skilltoaround) {
 			int count = 0;
@@ -11925,7 +11939,7 @@ TIMER_FUNC(skill_castend_pos){
 
 		if (ud->walktimer != INVALID_TIMER)
 			unit_stop_walking(src,1);
-
+		/*
 		if (!sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id, ud->skill_lv))
 			ud->canact_tick = i64max(tick + skill_delayfix(src, ud->skill_id, ud->skill_lv), ud->canact_tick - SECURITY_CASTTIME);
 		if (sd) { //Cooldown application
@@ -11934,6 +11948,7 @@ TIMER_FUNC(skill_castend_pos){
 		}
 		if( battle_config.display_status_timers && sd )
 			clif_status_change(src, EFST_POSTDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
+		*/
 //		if( sd )
 //		{
 //			switch( ud->skill_id )
@@ -11945,7 +11960,20 @@ TIMER_FUNC(skill_castend_pos){
 //		}
 		unit_set_walkdelay(src, tick, battle_config.default_walk_delay+skill_get_walkdelay(ud->skill_id, ud->skill_lv), 1);
 		map_freeblock_lock();
+
+		if (sd) sd->skill_failure = false;
 		skill_castend_pos2(src,ud->skillx,ud->skilly,ud->skill_id,ud->skill_lv,tick,0);
+
+		if (!(skill_get_delaynodex(ud->skill_id)&1024) || !sd || !sd->skill_failure) {
+			if (!sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id, ud->skill_lv))
+				ud->canact_tick = i64max(tick + skill_delayfix(src, ud->skill_id, ud->skill_lv), ud->canact_tick - SECURITY_CASTTIME);
+			if( battle_config.display_status_timers && sd )
+				clif_status_change(src, EFST_POSTDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
+		}
+		if (sd && (!(skill_get_castnodex(ud->skill_id) & 1024) || !sd->skill_failure)) {
+			int cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv); // Increases/Decreases cooldown of a skill by item/card bonuses.
+			if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
+		}
 
 		if (ud->skill_id != RA_CAMOUFLAGE)
 			status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER); // Applies to the first skill if active

@@ -6868,14 +6868,13 @@ bool pc_memo(struct map_session_data* sd, int pos)
  * @param lv : skill lv
  * @return player skill cooldown
  */
-int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv, int flag) {
+int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv) {
 	uint16 idx = skill_get_index(skill_id);
 	int cooldown = 0;
 	
 	if (!idx) return 0;
 	if (skill_db[idx]->cooldown[skill_lv - 1])
-		cooldown = skill_db[idx]->cooldown[skill_lv - 1] * flag;
-	if (cooldown < 0) return 0;
+		cooldown = skill_db[idx]->cooldown[skill_lv - 1];
 	if (skill_id == SU_TUNABELLY && pc_checkskill(sd, SU_SPIRITOFSEA))
 		cooldown -= skill_get_time(SU_TUNABELLY, skill_lv);
 

@@ -387,6 +387,7 @@ struct map_session_data {
 		int heal_all, heal_real, heal_targetgid;
 	}eventparam;
 	uint16 skill_id;
+	bool skill_failure;
 	bool perfect_hide;
 	bool refresh_storage;
 	short equip_invalid[EQI_MAX];
@@ -1243,7 +1244,7 @@ int pc_equippoint(struct map_session_data *sd,int n);
 int pc_equippoint_sub(struct map_session_data *sd, struct item_data* id);
 void pc_setinventorydata(struct map_session_data *sd);
 
-int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv, int flag = 1);
+int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv);
 uint8 pc_checkskill(struct map_session_data *sd,uint16 skill_id);
 short pc_checkequip(struct map_session_data *sd,int pos,bool checkall=false);
 bool pc_checkequip2(struct map_session_data *sd, unsigned short nameid, int min, int max);
