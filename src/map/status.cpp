@@ -12807,9 +12807,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_BOT:
 			if (tid == INVALID_TIMER)
 				break;
-			clif_authfail_fd(sd->fd, 15);
-			map_quit(sd);
-			return 1;
+			map_delbot(map_id2bot(bl->id), -1);
 			break;
 		case SC_STOP:
 			if( sce->val2 ) {
