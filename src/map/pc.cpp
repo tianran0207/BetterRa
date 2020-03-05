@@ -14416,7 +14416,7 @@ static int pcbot_fly_away(struct bot_data *bd, t_tick tick)
 		bd->info.timeout_fly = 0;
 		return 0;
 	}
-	bd->state.next_acttime = tick + 2000;
+	bd->state.next_acttime = tick + 100;
 	bd->state.move_count = 0;
 	bd->state.next_flytime = tick + bd->info.timeout_fly * 1000;
 	bd->state.next_fly_delay = tick + bd->info.item_fly_delay;
@@ -14553,8 +14553,12 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 	tick = va_arg(args, t_tick);
 
 
-	if (sd->bl.prev == NULL && sd->fd == 0)
-		clif_parse_LoadEndAck(0, sd);
+	if (sd->bl.prev == NULL) {
+		if (sd->fd == 0)
+			clif_parse_LoadEndAck(0, sd);
+		bd->state.next_acttime = tick + 1000;
+		return 0;
+	}
 
 	if (pc_isdead(sd))
 		return 0;

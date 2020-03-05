@@ -5814,6 +5814,7 @@ void map_delbot(struct bot_data *bd, int logout)
 		logout = bd->state.offline;
 
 	idb_remove(bot_db, sd->bl.id);
+	status_change_end(&sd->bl, SC_BOT, INVALID_TIMER);
 
 	if (logout) {
 		clif_authfail_fd(sd->fd, 15);
