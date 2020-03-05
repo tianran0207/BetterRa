@@ -4589,7 +4589,8 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
 			sv_readdb_line(filepath, lines, line,',',2,12,&mob_readdb_mobavail);
 			continue;
 		case 7:
-			sv_readdb_line(filepath,lines,line,',',19,19,&mob_parse_row_mobskilldb);
+			sv_readdb_line(filepath,lines,line,',',2,19,&mob_parse_row_mobskilldb);
+			mob_skill_db_set();
 			continue;
 		case 8:
 			sv_readdb_line(filepath,lines,line,',',7,7+MAX_MAP_PER_INSTANCE,&instance_readdb_sub);

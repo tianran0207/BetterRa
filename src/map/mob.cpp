@@ -3660,7 +3660,7 @@ void mobskill_add(struct mob_data *md, char *mobskill)
 		md->skill = skill;
 	}
 	idb_put(mob_skill_db, md->mob_id, skill);
-	sv_readdb_line("FROMSCRIPT", 0, mobskill, ',', 19, 19, &mob_parse_row_mobskilldb);
+	sv_readdb_line("FROMSCRIPT", 0, mobskill, ',', 2, 19, &mob_parse_row_mobskilldb);
 	idb_remove(mob_skill_db, md->mob_id);
 }
 
@@ -5257,7 +5257,7 @@ static void mob_readskilldb(const char* basedir, bool silent) {
 		ShowStatus("Mob skill use disabled. Not reading mob skills.\n");
 		return;
 	}
-	sv_readdb(basedir, "mob_skill_db.txt", ',', 19, 19, -1, &mob_parse_row_mobskilldb, silent);
+	sv_readdb(basedir, "mob_skill_db.txt", ',', 2, 19, -1, &mob_parse_row_mobskilldb, silent);
 }
 
 /**
@@ -5754,7 +5754,7 @@ static int mob_summon_db_free(DBKey key, DBData *data, va_list ap) {
 /**
  * Set monster skills
  **/
-static void mob_skill_db_set(void) {
+void mob_skill_db_set(void) {
 	DBIterator *iter = db_iterator(mob_skill_db);
 	struct s_mob_skill *skill = NULL;
 

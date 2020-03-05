@@ -4245,6 +4245,7 @@ int skill_area_sub_count (struct block_list *src, struct block_list *target, uin
  *------------------------------------------*/
 static TIMER_FUNC(skill_timerskill){
 	struct block_list *src = map_id2bl(id),*target;
+	struct map_session_data *sd = BL_CAST(BL_PC, src);
 	struct unit_data *ud = unit_bl2ud(src);
 	struct skill_timerskill *skl;
 	struct skill_unit *unit = NULL;
@@ -4259,6 +4260,10 @@ static TIMER_FUNC(skill_timerskill){
 	do {
 		if(src->prev == NULL)
 			break; // Source not on Map
+		if (sd) {
+			sd->skill_id = skl->skill_id;
+			sd->skill_failure = false;
+		}
 		if(skl->target_id) {
 			target = map_id2bl(skl->target_id);
 			if( ( skl->skill_id == RG_INTIMIDATE || skl->skill_id == SC_FATALMENACE ) && (!target || target->prev == NULL || !check_distance_bl(src,target,AREA_SIZE)) )
@@ -4519,6 +4524,7 @@ static TIMER_FUNC(skill_timerskill){
 			}
 		}
 	} while (0);
+	if (sd) sd->skill_id = 0;
 	//Free skl now that it is no longer needed.
 	ers_free(skill_timer_ers, skl);
 	return 0;
@@ -11732,7 +11738,10 @@ TIMER_FUNC(skill_castend_id){
 
 		map_freeblock_lock();
 
-		if (sd) sd->skill_failure = false;
+		if (sd) {
+			sd->skill_id = ud->skill_id;
+			sd->skill_failure = false;
+		}
 		if (sd && skilltoaround) { int count = 0; map_foreachinrange(skill_castend_for_AOE, src, skilltoaround, BL_CHAR, src, tick, &count, 0); } else
 
 		if (skill_get_casttype(ud->skill_id) == CAST_NODAMAGE)
@@ -11750,6 +11759,7 @@ TIMER_FUNC(skill_castend_id){
 			int cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv); // Increases/Decreases cooldown of a skill by item/card bonuses.
 			if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
 		}
+		if (sd) sd->skill_id = 0;
 
 		if (sd && !skilltoaround) {
 			int count = 0;
@@ -11961,7 +11971,10 @@ TIMER_FUNC(skill_castend_pos){
 		unit_set_walkdelay(src, tick, battle_config.default_walk_delay+skill_get_walkdelay(ud->skill_id, ud->skill_lv), 1);
 		map_freeblock_lock();
 
-		if (sd) sd->skill_failure = false;
+		if (sd) {
+			sd->skill_id = ud->skill_id;
+			sd->skill_failure = false;
+		}
 		skill_castend_pos2(src,ud->skillx,ud->skilly,ud->skill_id,ud->skill_lv,tick,0);
 
 		if (!(skill_get_delaynodex(ud->skill_id)&1024) || !sd || !sd->skill_failure) {
@@ -11974,6 +11987,7 @@ TIMER_FUNC(skill_castend_pos){
 			int cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv); // Increases/Decreases cooldown of a skill by item/card bonuses.
 			if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
 		}
+		if (sd) sd->skill_id = 0;
 
 		if (ud->skill_id != RA_CAMOUFLAGE)
 			status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER); // Applies to the first skill if active

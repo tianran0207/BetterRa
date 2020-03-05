@@ -377,6 +377,7 @@ int mob_linksearch(struct block_list *bl,va_list ap);
 
 void mobskill_add(struct mob_data *md, char *mobskill);
 void mobskill_del(struct mob_data *md, uint16 skill_id);
+void mob_skill_db_set(void);
 int mobskill_use(struct mob_data *md,t_tick tick,int event);
 int mobskill_event(struct mob_data *md,struct block_list *src,t_tick tick, int flag);
 int mob_summonslave(struct mob_data *md2,int *value,int amount,uint16 skill_id);

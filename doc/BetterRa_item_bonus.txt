@@ -76,7 +76,7 @@ bonus3 bSkillAttribute,sk,ele,n;		技能 sk 变为 ele 属性,
 										ele 为 -2 时变为最接近属性(n 为是否显示温暖的风特效), 
 										ele 为 -3 时无视属性克制(伤害倍率修正为 n%, 优先度最高), 
 
-bonus bReturnDefRate,n;					受到反射伤害时, 伤害变为原来的 n%
+bonus bReturnRate,n;					受到反射伤害时, 伤害变为原来的 n%(n 为 -1 为免疫反射)
 
 bonus3 bStatusAddBonus,sc,bonus,n;		当自己拥有 sc 状态的时候, 会增加 bonus 参数为 n 
 										例: bonus3 bStatusAddBonus,SC_BLESSING,bStr,20;

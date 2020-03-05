@@ -2927,9 +2927,9 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 	status = &sd->base_status;
 
 	switch(type){
-		case SP_RETURN_DEF_RATE:  // bonus bReturnDefRate,n;
+		case SP_RETURN_RATE:  // bonus bReturnDefRate,n;
 			if (sd->state.lr_flag != 2)
-				sd->c_bonus.return_def = val;
+				sd->c_bonus.return_rate = val;
 			break;
 		case SP_IGNORE_IMPRISON:  // bonus bIgnoreWhiteImprison,n;
 			if (sd->state.lr_flag != 2)

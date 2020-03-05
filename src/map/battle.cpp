@@ -643,13 +643,8 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 			static sc_type seven_sc[] = { SC_EARTHWEAPON,SC_WINDWEAPON,SC_WATERWEAPON,SC_FIREWEAPON,SC_GHOSTWEAPON,SC_SHADOWWEAPON,SC_ASPERSIO };
 			if (it.sk != sd->skill_id && it.sk != -1)
 				continue;
-			if (it.attr == -3) {
-#ifdef RENEWAL
-				damage = damage - (int64)((damage * (100 - it.n)) / 100);
-#else
-				damage = (int64)((damage*ratio) / 100);
-#endif
-			}
+			if (it.attr == -3)
+				return damage = (int64)((damage*it.n) / 100);
 			int attr = attr_fix_table[def_lv - 1][atk_elem][def_type];
 			int max = attr, min = attr, max_attr = atk_elem, min_attr = atk_elem, now_attr = attr, n;
 			for (int i = 0; i < ELE_MAX; i++) {
@@ -7385,8 +7380,8 @@ int64 battle_calc_return_damage(struct block_list* bl, struct block_list *src, i
 		status_change_end(bl, SC_EXEEDBREAK, INVALID_TIMER);
 	}
 
-	if (sd && sd->c_bonus.return_def && rdamage)
-		rdamage *= sd->c_bonus.return_def / 100;
+	if (rdamage && (sd = BL_CAST(BL_PC, src)) && sd->c_bonus.return_rate)
+		rdamage = sd->c_bonus.return_rate > 0 ? rdamage * sd->c_bonus.return_rate / 100 : 0;
 
 	return cap_value(min(rdamage,max_damage),INT_MIN,INT_MAX);
 }
