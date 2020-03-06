@@ -11506,6 +11506,28 @@ int skill_castend_for_AOE(struct block_list *bl, va_list ap)
 	return 1;
 }
 
+static void skill_castend_delay_cooldown(struct block_list *src, t_tick tick, bool skill_begin) {
+	struct map_session_data *sd = BL_CAST(BL_PC, src);
+	struct unit_data *ud = unit_bl2ud(src);
+	bool nodex;
+	nodex = (skill_get_delaynodex(ud->skill_id) & 1024);
+	if (skill_begin && !nodex || !skill_begin && (nodex && sd && !sd->skill_failure)) {
+		if (!sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id, ud->skill_lv))
+			ud->canact_tick = i64max(tick + skill_delayfix(src, ud->skill_id, ud->skill_lv), ud->canact_tick - SECURITY_CASTTIME);
+		if (battle_config.display_status_timers && sd)
+			clif_status_change(src, EFST_POSTDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
+	}
+	nodex = (skill_get_castnodex(ud->skill_id) & 1024);
+	if (sd && (skill_begin && !nodex || !skill_begin && (nodex && !sd->skill_failure))) {
+		int cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv); // Increases/Decreases cooldown of a skill by item/card bonuses.
+		if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
+	}
+	if (sd) {
+		sd->skill_id = skill_begin ? ud->skill_id : 0;
+		sd->skill_failure = false;
+	}
+}
+
 /**
  * Check & process skill to target on castend. Determines if skill is 'damage' or 'nodamage'
  * @param tid
@@ -11709,6 +11731,7 @@ TIMER_FUNC(skill_castend_id){
 		if( battle_config.display_status_timers && sd )
 			clif_status_change(src, EFST_POSTDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
 		*/
+		skill_castend_delay_cooldown(src, tick, true);
 		if( sd )
 		{
 			switch( ud->skill_id )
@@ -11738,10 +11761,6 @@ TIMER_FUNC(skill_castend_id){
 
 		map_freeblock_lock();
 
-		if (sd) {
-			sd->skill_id = ud->skill_id;
-			sd->skill_failure = false;
-		}
 		if (sd && skilltoaround) { int count = 0; map_foreachinrange(skill_castend_for_AOE, src, skilltoaround, BL_CHAR, src, tick, &count, 0); } else
 
 		if (skill_get_casttype(ud->skill_id) == CAST_NODAMAGE)
@@ -11749,17 +11768,7 @@ TIMER_FUNC(skill_castend_id){
 		else
 			skill_castend_damage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
 
-		if (!(skill_get_delaynodex(ud->skill_id)&1024) || !sd || !sd->skill_failure){
-			if (!sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id, ud->skill_lv))
-				ud->canact_tick = i64max(tick + skill_delayfix(src, ud->skill_id, ud->skill_lv), ud->canact_tick);
-			if (battle_config.display_status_timers && sd)
-				clif_status_change(src, EFST_POSTDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
-		}
-		if (sd && (!(skill_get_castnodex(ud->skill_id)&1024) || !sd->skill_failure)) {
-			int cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv); // Increases/Decreases cooldown of a skill by item/card bonuses.
-			if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
-		}
-		if (sd) sd->skill_id = 0;
+		skill_castend_delay_cooldown(src, tick, false);
 
 		if (sd && !skilltoaround) {
 			int count = 0;
@@ -11968,26 +11977,13 @@ TIMER_FUNC(skill_castend_pos){
 //				break;
 //			}
 //		}
+		skill_castend_delay_cooldown(src, tick, true);
 		unit_set_walkdelay(src, tick, battle_config.default_walk_delay+skill_get_walkdelay(ud->skill_id, ud->skill_lv), 1);
 		map_freeblock_lock();
 
-		if (sd) {
-			sd->skill_id = ud->skill_id;
-			sd->skill_failure = false;
-		}
 		skill_castend_pos2(src,ud->skillx,ud->skilly,ud->skill_id,ud->skill_lv,tick,0);
 
-		if (!(skill_get_delaynodex(ud->skill_id)&1024) || !sd || !sd->skill_failure) {
-			if (!sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id, ud->skill_lv))
-				ud->canact_tick = i64max(tick + skill_delayfix(src, ud->skill_id, ud->skill_lv), ud->canact_tick - SECURITY_CASTTIME);
-			if( battle_config.display_status_timers && sd )
-				clif_status_change(src, EFST_POSTDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
-		}
-		if (sd && (!(skill_get_castnodex(ud->skill_id) & 1024) || !sd->skill_failure)) {
-			int cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv); // Increases/Decreases cooldown of a skill by item/card bonuses.
-			if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
-		}
-		if (sd) sd->skill_id = 0;
+		skill_castend_delay_cooldown(src, tick, false);
 
 		if (ud->skill_id != RA_CAMOUFLAGE)
 			status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER); // Applies to the first skill if active
