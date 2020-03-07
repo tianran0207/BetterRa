@@ -27112,11 +27112,12 @@ BUILDIN_FUNC(setpolicyid)
 	if (val == 0) {
 		if (!sd->policies)
 			return SCRIPT_CMD_SUCCESS;
-		if (policie[val].bind_group_id != -1) {
+		if (policie[sd->policies].bind_group_id != -1) {
 			sd->group_id = sd->group_id_old;
 			pc_group_pc_load(sd);
 		}
 		sd->policies = 0;
+		clif_changelook(&sd->bl, LOOK_HEAD_TOP, sd->status.head_top);
 		return SCRIPT_CMD_SUCCESS;
 	}
 	if (policie[val].policy_id == 0)
