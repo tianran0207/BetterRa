@@ -14633,24 +14633,26 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			//满足条件则技能攻击目标
 			if ((bd->info.atktype & BF_MAGIC) && sd->ud.skilltimer == INVALID_TIMER && check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
 				if (pcbot_skill(bd, tbl, tick)){
-					if (bd->state.skill_fail_count++ > 20) {
-						clif_displaymessage(sd->fd, msg_txt(sd, 2347));
-						pcbot_stop(bd->sd, -1);
-					}
+					bd->state.next_acttime = tick + 500;
+					bd->state.skill_fail_count = 0;
 					return 1;
 				}
-				bd->state.skill_fail_count = 0;
+				if (++bd->state.skill_fail_count > 20) {
+					clif_displaymessage(sd->fd, msg_txt(sd, 2347));
+					pcbot_stop(bd->sd, -1);
+				}
 			}
 			//满足条件则普通攻击目标
 			if ((bd->info.atktype & BF_WEAPON) && sd->ud.attacktimer == INVALID_TIMER && check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
-				if (!unit_attack(&sd->bl, tbl->id, 1)) {
-					if (bd->state.atk_fail_count++ > 20) {
-						clif_displaymessage(sd->fd, msg_txt(sd, 2347));
-						pcbot_stop(bd->sd, -2);
-					}
+				if (!unit_attack(&sd->bl, tbl->id, 1) && sd->ud.attacktimer != INVALID_TIMER) {
+					bd->state.next_acttime = tick + 500;
+					bd->state.atk_fail_count = 0;
 					return 1;
 				}
-				bd->state.atk_fail_count = 0;
+				if (++bd->state.atk_fail_count > 20) {
+					clif_displaymessage(sd->fd, msg_txt(sd, 2347));
+					pcbot_stop(bd->sd, -2);
+				}
 			}
 			//攻击失败 则判断是否需要靠近目标
 			bd->state.next_acttime = tick + 500;
