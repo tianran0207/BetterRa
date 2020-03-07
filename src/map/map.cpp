@@ -2122,7 +2122,7 @@ int map_quit(struct map_session_data *sd) {
 	}
 
 	if (sd->state.bot_data)
-		map_delbot(map_id2bot(sd->bl.id), 0);
+		pcbot_stop(sd, 0);
 
 	if (sd->state.hombot)
 		map_delhombot(sd);
@@ -5793,33 +5793,11 @@ void map_addbot(struct bot_data *bd) {
 	idb_put(bot_db, bd->sd->bl.id, bd);
 }
 
-void map_delbot(struct bot_data *bd, int logout)
+void map_delbot(struct bot_data *bd)
 {
-	struct map_session_data* sd = NULL;
-
-	if (bd == NULL)
-		return;
-
+	nullpo_retv(bd);
 	nullpo_retv(bd->sd);
-
-	if ((sd = bd->sd) != map_id2sd(bd->sd->bl.id)) {
-		ShowError("map_delbot: src sd is not bot sd");
-		return;
-	}
-	sd->state.bot_data = 0;
-	sd->state.bot_running = 0;
-	sd->state.no_touch_script = 0;
-
-	if (logout == -1)
-		logout = bd->state.offline;
-
-	idb_remove(bot_db, sd->bl.id);
-	status_change_end(&sd->bl, SC_BOT, INVALID_TIMER);
-
-	if (logout) {
-		clif_authfail_fd(sd->fd, 15);
-		map_quit(sd);
-	}
+	idb_remove(bot_db, bd->sd->bl.id);
 }
 
 int map_checknear_sub(struct block_list* bl, va_list args) {

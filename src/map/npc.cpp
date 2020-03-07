@@ -5010,8 +5010,12 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.roulette_get_filter_name;
 	case NPCE_ROULETTECLOSEEVENT:
 		return script_config.roulette_colse_event_name;
+	case NPCE_BOTSTARTFILTER:
+		return script_config.bot_start_filter_name;
 	case NPCE_BOTITEMLACKEVENT:
 		return script_config.bot_lack_item_event_name;
+	case NPCE_BOTSTOPEVENT:
+		return script_config.bot_stop_event_name;
 	case NPCE_CARDINSERTFILTER:
 		return script_config.card_insert_filter_name;
 	case NPCE_CARDINSERTEVENT:

@@ -566,7 +566,7 @@
 	export_constant2("bSkillNoSpecial", SP_SKILL_NO_SPECIAL);
 	export_constant2("bSkillNoRequire", SP_SKILL_NO_CAST);
 	export_constant2("bSkillAttribute", SP_SKILL_ATTR);
-	export_constant2("bReturnRate", SP_RETURN_RATE);
+	export_constant2("bReturnDefRate", SP_RETURN_DEF_RATE);
 	export_constant2("bStatusAddBonus", SP_STATUS_ADD_BONUS);
 	export_constant2("bAddStatusVal", SP_ADD_STATUS_VAL);
 	export_constant2("bSubResEff", SP_SUBRESEFF);

@@ -350,7 +350,9 @@ struct Script_Config script_config = {
 	"OnPCStartRouletteFilter", //roulette_start_filter_name
 	"OnPCGetRouletteFilter", //roulette_get_filter_name
 	"OnPCCloseRouletteEvent", //roulette_colse_event_name
+	"OnBOTStartFilter", //bot_start_filter_name
 	"OnBOTLackItemEvent", //bot_lack_item_event_name
+	"OnBOTStopEvent", //bot_stop_event_name
 	"OnHTTPReceivedEvent", //http_received_event_name
 	"OnPCInsertCardFilter", //card_insert_filter_name
 	"OnPCInsertCardEvent", //card_insert_event_name
@@ -27837,7 +27839,7 @@ BUILDIN_FUNC(bot_stop)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	map_delbot(map_id2bot(sd->bl.id), script_hasdata(st,2) ? script_getnum(st, 2) : 0);
+	pcbot_stop(sd, script_hasdata(st, 2) ? script_getnum(st, 2) : 0);
 
 	return SCRIPT_CMD_SUCCESS;
 }

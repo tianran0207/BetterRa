@@ -12807,7 +12807,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_BOT:
 			if (tid == INVALID_TIMER)
 				break;
-			map_delbot(map_id2bot(bl->id), -1);
+			if (sd) pcbot_stop(sd, -4);
 			break;
 		case SC_STOP:
 			if( sce->val2 ) {

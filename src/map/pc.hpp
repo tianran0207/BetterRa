@@ -355,6 +355,8 @@ struct bot_data {
 		t_tick next_heal_delay;
 		t_tick next_fly_delay;
 		t_tick next_flytime;
+		int skill_fail_count;
+		int atk_fail_count;
 		int move_fail_count;
 		int move_count;
 	} state;
@@ -690,7 +692,7 @@ struct map_session_data {
 		int ignore_mdef_by_class[CLASS_MAX];
 		int ignore_def_by_race[RC_MAX];
 		int ignore_def_by_class[CLASS_MAX];
-		int return_rate;
+		int return_def_rate;
 	}c_bonus;
 
 	std::vector<s_bonus_limit> bonus_limit;
@@ -1560,5 +1562,6 @@ void pc_attendance_claim_reward( struct map_session_data* sd );
 
 void pcbot_reset_state(struct map_session_data *sd);
 int pcbot_run(struct map_session_data *sd, int64 timeout);
+int pcbot_stop(struct map_session_data *sd, int logout);
 bool pc_manner_check(struct map_session_data* sd, char *mes);
 #endif /* PC_HPP */

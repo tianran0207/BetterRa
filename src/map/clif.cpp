@@ -3855,7 +3855,7 @@ void clif_arrow_fail(struct map_session_data *sd,int type) {
 	int fd;
 
 	nullpo_retv(sd);
-
+	sd->skill_failure = true;
 	fd=sd->fd;
 	WFIFOHEAD(fd, packet_len(0x013b));
 	WFIFOW(fd,0) = 0x013b;

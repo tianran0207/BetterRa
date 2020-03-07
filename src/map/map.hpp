@@ -477,7 +477,7 @@ enum _sp {
 	SP_FIXCASTADDRATE, SP_MULTIDAMAGERATE, SP_SKILLCRITICAL, SP_IGNORE_MDEF_RACE_VAL, SP_IGNORE_MDEF_CLASS_VAL, SP_IGNORE_DEF_RACE_VAL, SP_IGNORE_DEF_CLASS_VAL,
 	SP_IGNORE_IMPRISON, SP_DMG_TYPE, SP_DMG_VAL, SP_DMG_DISP_VAL, SP_DMG_SKILLID, SP_DMG_SKILLLV, SP_DMG_TARGETTYPE, SP_DMG_TARGETRID, SP_DMG_MOBID, SP_DMG_MARK,
 	SP_HEAL_ALL, SP_HEAL_REAL, SP_HEAL_TARGETRID, SP_SKF_SGID, SP_SKF_SCID, SP_SKF_TGID, SP_SKF_SKID, SP_SKF_SKLV, SP_SKF_DMG, SP_SKF_TIM, SP_ADD_SKILL_AREA, SP_ADD_SKILL_RANGE,
-	SP_SKILL_TO_AROUND, SP_SKILL_TO_GROUND, SP_SKILL_NO_SPECIAL, SP_SKILL_ATTR, SP_SKILL_NO_CAST, SP_RETURN_RATE, SP_STATUS_ADD_BONUS, SP_ADD_STATUS_VAL, SP_SUBRESEFF,
+	SP_SKILL_TO_AROUND, SP_SKILL_TO_GROUND, SP_SKILL_NO_SPECIAL, SP_SKILL_ATTR, SP_SKILL_NO_CAST, SP_RETURN_DEF_RATE, SP_STATUS_ADD_BONUS, SP_ADD_STATUS_VAL, SP_SUBRESEFF,
 	// original 1000-
 	SP_ATTACKRANGE=1000,	SP_ATKELE,SP_DEFELE,	// 1000-1002
 	SP_CASTRATE, SP_MAXHPRATE, SP_MAXSPRATE, SP_SPRATE, // 1003-1006
@@ -1151,7 +1151,7 @@ int map_eraseallipport(void);
 void map_addiddb(struct block_list *);
 void map_deliddb(struct block_list *bl);
 void map_addbot(struct bot_data *bd);
-void map_delbot(struct bot_data *bd, int logout);
+void map_delbot(struct bot_data *bd);
 void map_addhombot(struct map_session_data *sd, int type);
 void map_delhombot(struct map_session_data *sd);
 void map_foreachpc(int (*func)(struct map_session_data* sd, va_list args), ...);

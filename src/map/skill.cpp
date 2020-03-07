@@ -11524,7 +11524,7 @@ static void skill_castend_delay_cooldown(struct block_list *src, t_tick tick, bo
 	}
 	if (sd) {
 		sd->skill_id = skill_begin ? ud->skill_id : 0;
-		sd->skill_failure = false;
+		sd->skill_failure = skill_begin ? false : sd->skill_failure;
 	}
 }
 
