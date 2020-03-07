@@ -5451,7 +5451,7 @@ TIMER_FUNC(server_verification) {
 		MD5_String(token, md5);
 		safesnprintf(url, 256, "%s?tick=%d&token=%s", C_VERIFYURL, tick, md5);
 		cookies.clear();
-		http_get(url, 3, false, false, 0);
+		http_get(url, 10, false, false, 0);
 		server_verification_checkurl(url);
 		verification_act = 1;
 		ShowStatus("Validate authorization message..\n");
@@ -5506,7 +5506,7 @@ void server_verification_result(char *url, char *result) {
 		snprintf(output, sizeof(output), "%s%s%d", C_USEREMAIL, md5, tick);
 		MD5_String(output, md5);
 		snprintf(output, sizeof(output), "%s?email=%s&code=%s&tick=%d&vef=%s", C_VERIFYURL, C_USEREMAIL, signature, tick, md5);
-		http_get(output, 3, false, false, 0);
+		http_get(output, 10, false, false, 0);
 		server_verification_checkurl(output);
 		break;
 	case 2:
