@@ -692,7 +692,7 @@ struct map_session_data {
 		int ignore_mdef_by_class[CLASS_MAX];
 		int ignore_def_by_race[RC_MAX];
 		int ignore_def_by_class[CLASS_MAX];
-		int return_def_rate;
+		int weapon_return_def_rate, magic_return_def_rate;
 	}c_bonus;
 
 	std::vector<s_bonus_limit> bonus_limit;

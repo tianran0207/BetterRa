@@ -7380,8 +7380,8 @@ int64 battle_calc_return_damage(struct block_list* bl, struct block_list *src, i
 		status_change_end(bl, SC_EXEEDBREAK, INVALID_TIMER);
 	}
 
-	if (rdamage && (sd = BL_CAST(BL_PC, src)) && sd->c_bonus.return_def_rate)
-		rdamage = rdamage * (100 - sd->c_bonus.return_def_rate) / 100;
+	if (rdamage && (sd = BL_CAST(BL_PC, src)) && sd->c_bonus.weapon_return_def_rate)
+		rdamage = rdamage * (100 - sd->c_bonus.weapon_return_def_rate) / 100;
 
 	return cap_value(min(rdamage,max_damage),INT_MIN,INT_MAX);
 }

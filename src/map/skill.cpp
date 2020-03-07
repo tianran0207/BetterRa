@@ -3484,6 +3484,8 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			} else if( type != 2 ) /* Kaite bypasses */
 				additional_effects = false;
 
+			if (dmg.damage && tsd && tsd->c_bonus.magic_return_def_rate)
+				dmg.damage = dmg.damage * (100 - tsd->c_bonus.magic_return_def_rate) / 100;
 			// Official Magic Reflection Behavior : damage reflected depends on gears caster wears, not target
 #if MAGIC_REFLECTION_TYPE
 #ifdef RENEWAL
