@@ -9873,6 +9873,7 @@ BUILDIN_FUNC(bonus)
 
 	switch( type ) {
 		case SP_SKILL_NO_SPECIAL:
+		case SP_SKILL_NO_CAST:
 		case SP_ADD_SKILL_AREA:
 		case SP_ADD_SKILL_RANGE:
 		case SP_SKILL_TO_AROUND:
