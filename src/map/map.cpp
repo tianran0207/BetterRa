@@ -6002,16 +6002,14 @@ DWORD WINAPI http_connect(LPVOID lpParameter) {
 
 	struct http_session_data* http_data = (struct http_session_data*)lpParameter;
 	char header[2048], *str_p = header;
-	int len;
+	int http_fd, len;
 
-	int http_fd = make_connection(host2ip(http_data->host), http_data->post, true, http_data->timeout);
+	while (http_data->connect_retry-- > 0) {
+		http_fd = make_connection(host2ip(http_data->host), http_data->post, true, http_data->timeout);
+		if (http_fd != -1)
+			break;
+	}
 	if (http_fd == -1) {
-		while (http_data->connect_retry-- > 0) {
-			if (http_connect(lpParameter) == 0) {
-				CloseHandle(http_data->Thread);
-				return 0;
-			}
-		}
 		ShowError("http_connect: connection failed, url '%s/%s' no response.\n", http_data->host, http_data->folder);
 		aFree(http_data);
 		CloseHandle(http_data->Thread);
