@@ -5451,7 +5451,7 @@ TIMER_FUNC(server_verification) {
 		MD5_String(token, md5);
 		safesnprintf(url, 256, "%s?tick=%d&token=%s", C_VERIFYURL, tick, md5);
 		cookies.clear();
-		http_get(url, 10, false, false, 0);
+		http_get(url, 20, false, false, 0);
 		server_verification_checkurl(url);
 		verification_act = 1;
 		ShowStatus("Validate authorization message..\n");
@@ -5485,19 +5485,18 @@ TIMER_FUNC(server_verification) {
 void server_verification_result(char *url, char *result) {
 	
 	char output[256], md5[64], *tmp, *tmp2, signature[24];;
-	unsigned int tick = (unsigned int)time(NULL), tick2;
+	unsigned int tick, tick2;
 	
-	if (!strcmp(result, "false")) {
-		ShowError("Authentication failed, mapserver will exit affter 5 minus..\n");
-		verification_act = -1;
-		return;
-	}
-
 	switch (verification_act) {
 	case 1:
+		if (!strcmp(result, "false")) {
+			ShowError("Authentication failed, mapserver will exit affter 5 minus..\n");
+			verification_act = -1;
+			return;
+		}
 		if (strlen(result) != 12)
 			return;
-
+		tick = (unsigned int)time(NULL);
 		verification_act = 2;
 		server_machine_code(signature, 24);
 		safestrncpy(verification_token, result, sizeof(verification_token));
@@ -5506,11 +5505,11 @@ void server_verification_result(char *url, char *result) {
 		snprintf(output, sizeof(output), "%s%s%d", C_USEREMAIL, md5, tick);
 		MD5_String(output, md5);
 		snprintf(output, sizeof(output), "%s?email=%s&code=%s&tick=%d&vef=%s", C_VERIFYURL, C_USEREMAIL, signature, tick, md5);
-		http_get(output, 10, false, false, 0);
+		http_get(output, 20, false, false, 0);
 		server_verification_checkurl(output);
 		break;
 	case 2:
-		if ((tmp = strstr(url, "tick=")) == NULL || sscanf(tmp, "tick=%d&vef=%s", &tick, md5) != 2) {
+		if (!strcmp(result, "false") || (tmp = strstr(url, "tick=")) == NULL || sscanf(tmp, "tick=%d&vef=%s", &tick, md5) != 2) {
 			ShowError("Authentication failed, mapserver will exit affter 5 minus..\n");
 			verification_act = -1;
 			return;
