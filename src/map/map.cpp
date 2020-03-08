@@ -5451,7 +5451,7 @@ TIMER_FUNC(server_verification) {
 		MD5_String(token, md5);
 		safesnprintf(url, 256, "%s?tick=%d&token=%s", C_VERIFYURL, tick, md5);
 		cookies.clear();
-		http_get(url, 20, false, false, 0);
+		http_get(url, 10, false, false, 0, 5);
 		server_verification_checkurl(url);
 		verification_act = 1;
 		ShowStatus("Validate authorization message..\n");
@@ -5505,7 +5505,7 @@ void server_verification_result(char *url, char *result) {
 		snprintf(output, sizeof(output), "%s%s%d", C_USEREMAIL, md5, tick);
 		MD5_String(output, md5);
 		snprintf(output, sizeof(output), "%s?email=%s&code=%s&tick=%d&vef=%s", C_VERIFYURL, C_USEREMAIL, signature, tick, md5);
-		http_get(output, 20, false, false, 0);
+		http_get(output, 10, false, false, 0, 5);
 		server_verification_checkurl(output);
 		break;
 	case 2:
@@ -5876,6 +5876,7 @@ struct http_session_data {
 	int num;
 	bool forscript;
 	bool load_file;
+	int connect_retry;
 	HANDLE Thread;
 };
 
@@ -6005,10 +6006,16 @@ DWORD WINAPI http_connect(LPVOID lpParameter) {
 
 	int http_fd = make_connection(host2ip(http_data->host), http_data->post, true, http_data->timeout);
 	if (http_fd == -1) {
+		while (http_data->connect_retry-- > 0) {
+			if (http_connect(lpParameter) == 0) {
+				CloseHandle(http_data->Thread);
+				return 0;
+			}
+		}
 		ShowError("http_connect: connection failed, url '%s/%s' no response.\n", http_data->host, http_data->folder);
 		aFree(http_data);
 		CloseHandle(http_data->Thread);
-		return false;
+		return 1;
 	}
 	
 	session[http_fd]->session_data = http_data;
@@ -6031,7 +6038,7 @@ DWORD WINAPI http_connect(LPVOID lpParameter) {
 	return 0;
 }
 
-bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int num)
+bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int num, int retry)
 {
 	struct http_session_data* http_data;
 	char host[64], folder[512] = {};
@@ -6052,6 +6059,7 @@ bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int n
 	http_data->num = num;
 	http_data->forscript = loadfile ? false : forscript;
 	http_data->load_file = loadfile;
+	http_data->connect_retry = retry;
 
 	http_data->Thread = CreateThread(NULL, 0, http_connect, http_data, 0, NULL);
 

@@ -27973,7 +27973,7 @@ BUILDIN_FUNC(http_get)
 {
 	int rev, cid;
 	cid = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
-	rev = http_get(script_getstr(st, 2), script_getnum(st, 3), true, script_getnum(st, 4) != 0, cid) == true ? 1 : 0;
+	rev = http_get(script_getstr(st, 2), script_getnum(st, 3), true, script_getnum(st, 4) != 0, cid, 0) == true ? 1 : 0;
 	script_pushint(st, rev);
 	return SCRIPT_CMD_SUCCESS;
 }
