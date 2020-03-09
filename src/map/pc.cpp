@@ -4907,7 +4907,8 @@ void pc_bonus_limit(struct map_session_data *sd) {
 	nullpo_retv(sd);
 	int i;
 
-#define BONUS_LIMIT(__var) if ((__var) > limit) ((__var) = limit)
+#define BONUS_LIMIT(__var) if ((__var) > limit) ((__var) = limit);
+#define BONUS_LIMIT2(__var1, __val2) if ((__var1) + (__val2) > limit) (__var1 = (limit - __val2));
 #define BONUS_VECTOR_LIMIT(__vector, __var) for (auto &it : __vector) BONUS_LIMIT(it. ## __var)
 #define BONUS_LOOP(__start, __end, __var, __func) \
 	for( (__var) = (__start); (__var) < (__end); ++(__var) ) \
@@ -4917,54 +4918,59 @@ void pc_bonus_limit(struct map_session_data *sd) {
 		int type = it.type, limit = it.limit;
 		switch (type) {
 		case SP_ADDELE: // ELE_MAX
-			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->right_weapon.addele[i]); BONUS_LIMIT(sd->left_weapon.addele[i]); BONUS_LIMIT(sd->arrow_addele[i]););
+			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->right_weapon.addele[i]); BONUS_LIMIT(sd->left_weapon.addele[i]); BONUS_LIMIT(sd->arrow_addele[i]));
 			BONUS_VECTOR_LIMIT(sd->state.lr_flag ? sd->left_weapon.addele2 : sd->right_weapon.addele2, rate);
 			break;
 		case SP_MAGIC_ADDELE:
-			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->magic_addele_script[i]););
+			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->magic_addele_script[i]));
 			break;
 		case SP_SUBELE:
-			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->subele_script[i]););
+			BONUS_LIMIT(sd->subele_script[ELE_ALL]);
+			BONUS_LOOP(0, ELE_ALL, i, BONUS_LIMIT2(sd->subele_script[i], sd->subele_script[ELE_ALL]));
 			BONUS_VECTOR_LIMIT(sd->subele2, rate);
 			break;
 		case SP_SUBDEF_ELE:
-			BONUS_LOOP(0, ELE_MAX, i, BONUS_LIMIT(sd->subdefele[i]););
+			BONUS_LIMIT(sd->subdefele[ELE_ALL]);
+			BONUS_LOOP(0, ELE_ALL, i, BONUS_LIMIT2(sd->subdefele[i], sd->subdefele[ELE_ALL]));
 			break;
 		case SP_ADDRACE: // RC_MAX
-			BONUS_LOOP(0, RC_MAX, i, BONUS_LIMIT(sd->right_weapon.addrace[i]); BONUS_LIMIT(sd->left_weapon.addrace[i]); BONUS_LIMIT(sd->arrow_addrace[i]););
+			BONUS_LOOP(0, RC_MAX, i, BONUS_LIMIT(sd->right_weapon.addrace[i]); BONUS_LIMIT(sd->left_weapon.addrace[i]); BONUS_LIMIT(sd->arrow_addrace[i]));
 			break;
 		case SP_SUBRACE:
-			BONUS_LOOP(0, RC_MAX, i, BONUS_LIMIT(sd->subrace[i]););
+			BONUS_LIMIT(sd->subrace[RC_ALL]);
+			BONUS_LOOP(0, RC_ALL, i, BONUS_LIMIT2(sd->subrace[i], sd->subrace[RC_ALL]));
 			break;
 		case SP_MAGIC_ADDRACE:
-			BONUS_LOOP(0, RC_MAX, i, BONUS_LIMIT(sd->magic_addrace[i]););
+			BONUS_LOOP(0, RC_MAX, i, BONUS_LIMIT(sd->magic_addrace[i]));
 			break;
 		case SP_ADDCLASS: // CLASS_MAX
-			BONUS_LOOP(0, CLASS_MAX, i, BONUS_LIMIT(sd->right_weapon.addclass[i]); BONUS_LIMIT(sd->left_weapon.addclass[i]); BONUS_LIMIT(sd->arrow_addclass[i]););
+			BONUS_LOOP(0, CLASS_MAX, i, BONUS_LIMIT(sd->right_weapon.addclass[i]); BONUS_LIMIT(sd->left_weapon.addclass[i]); BONUS_LIMIT(sd->arrow_addclass[i]));
 			break;
 		case SP_MAGIC_ADDCLASS:
-			BONUS_LOOP(0, CLASS_MAX, i, BONUS_LIMIT(sd->magic_addclass[i]););
+			BONUS_LOOP(0, CLASS_MAX, i, BONUS_LIMIT(sd->magic_addclass[i]));
 			break;
 		case SP_SUBCLASS:
-			BONUS_LOOP(0, CLASS_MAX, i, BONUS_LIMIT(sd->subclass[i]););
+			BONUS_LIMIT(sd->subclass[CLASS_ALL]);
+			BONUS_LOOP(0, CLASS_ALL, i, BONUS_LIMIT2(sd->subclass[i], sd->subclass[CLASS_ALL]));
 			break;
 		case SP_ADDSIZE: // SZ_SIZE
-			BONUS_LOOP(0, SZ_MAX, i, BONUS_LIMIT(sd->right_weapon.addsize[i]); BONUS_LIMIT(sd->left_weapon.addsize[i]); BONUS_LIMIT(sd->arrow_addsize[i]););
+			BONUS_LOOP(0, SZ_MAX, i, BONUS_LIMIT(sd->right_weapon.addsize[i]); BONUS_LIMIT(sd->left_weapon.addsize[i]); BONUS_LIMIT(sd->arrow_addsize[i]));
 			break;
 		case SP_MAGIC_ADDSIZE:
-			BONUS_LOOP(0, SZ_MAX, i, BONUS_LIMIT(sd->magic_addsize[i]););
+			BONUS_LOOP(0, SZ_MAX, i, BONUS_LIMIT(sd->magic_addsize[i]));
 			break;
 		case SP_SUBSIZE:
-			BONUS_LOOP(0, SZ_MAX, i, BONUS_LIMIT(sd->subsize[i]););
+			BONUS_LIMIT(sd->subsize[SZ_ALL]);
+			BONUS_LOOP(0, SZ_ALL, i, BONUS_LIMIT2(sd->subsize[i], sd->subsize[SZ_ALL]));
 			break;
 		case SP_ADDRACE2: // RC2_MAX
-			BONUS_LOOP(0, RC2_MAX, i, BONUS_LIMIT(sd->right_weapon.addrace2[i]); BONUS_LIMIT(sd->left_weapon.addrace2[i]););
+			BONUS_LOOP(0, RC2_MAX, i, BONUS_LIMIT(sd->right_weapon.addrace2[i]); BONUS_LIMIT(sd->left_weapon.addrace2[i]));
 			break;
 		case SP_SUBRACE2:
-			BONUS_LOOP(0, RC2_MAX, i, BONUS_LIMIT(sd->subrace2[i]););
+			BONUS_LOOP(0, RC2_MAX, i, BONUS_LIMIT(sd->subrace2[i]));
 			break;
 		case SP_MAGIC_ADDRACE2:
-			BONUS_LOOP(0, RC2_MAX, i, BONUS_LIMIT(sd->magic_addrace2[i]););
+			BONUS_LOOP(0, RC2_MAX, i, BONUS_LIMIT(sd->magic_addrace2[i]));
 			break;
 		case SP_ADD_DAMAGE_CLASS: // OTHER
 			BONUS_VECTOR_LIMIT(sd->state.lr_flag ? sd->left_weapon.add_dmg : sd->right_weapon.add_dmg, val);
@@ -5007,6 +5013,7 @@ void pc_bonus_limit(struct map_session_data *sd) {
 	sd->bonus_limit.clear();
 
 #undef BONUS_LIMIT
+#undef BONUS_LIMIT2
 #undef BONUS_VECTOR_LIMIT
 #undef BONUS_LOOP
 }
