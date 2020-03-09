@@ -559,6 +559,10 @@ bool itemdb_cantrade_sub(struct item_data* item, int gmlv, int gmlv2) {
 	return (item && (!(item->flag.trade_restriction&2) || gmlv >= item->gm_lv_trade_override || gmlv2 >= item->gm_lv_trade_override));
 }
 
+bool itemdb_canvend_sub(struct item_data* item, int gmlv, int gmlv2) {
+	return (item && (!(item->flag.trade_restriction&2) || (item->flag.trade_restriction&4096) || gmlv >= item->gm_lv_trade_override || gmlv2 >= item->gm_lv_trade_override));
+}
+
 bool itemdb_canpartnertrade_sub(struct item_data* item, int gmlv, int gmlv2) {
 	return (item && (item->flag.trade_restriction&4 || gmlv >= item->gm_lv_trade_override || gmlv2 >= item->gm_lv_trade_override));
 }
@@ -886,7 +890,7 @@ bool itemdb_read_itemtrade(char* str[], int columns, int current) {
 	flag = atoi(str[1]);
 	gmlv = atoi(str[2]);
 
-	if( flag > 511 ) {//Check range
+	if( flag > 8191 ) {//Check range
 		ShowWarning("itemdb_read_itemtrade: Invalid trading mask %hu for item id %hu.\n", flag, nameid);
 		return false;
 	}

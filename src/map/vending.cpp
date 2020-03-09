@@ -509,7 +509,7 @@ int8 vending_openvending(struct map_session_data* sd, const char* message, const
 		||  sd->cart.u.items_cart[index].attribute == 1 // broken item
 		||  sd->cart.u.items_cart[index].expire_time // It should not be in the cart but just in case
 		||  (sd->cart.u.items_cart[index].bound && !pc_can_give_bounded_items(sd)) // can't trade account bound items and has no permission
-		||  !itemdb_cantrade(&sd->cart.u.items_cart[index], pc_get_group_level(sd), pc_get_group_level(sd)) ) // untradeable item
+		||  !itemdb_canvend(&sd->cart.u.items_cart[index], pc_get_group_level(sd), pc_get_group_level(sd)) ) // untradeable item
 			continue;
 
 		sd->vending[i].index = index;
@@ -531,7 +531,21 @@ int8 vending_openvending(struct map_session_data* sd, const char* message, const
 		if (!vending_extended_vending_check(sd))
 			return 6;
 	}
-
+	if (npc_script_event_check(sd, NPCE_OPENVENDFILTER)) {
+		for (j = 0; j < i; j++) {
+			pc_setreg(sd, reference_uid(add_str("@vend_idx"), j), sd->vending[j].index);
+			pc_setreg(sd, reference_uid(add_str("@vend_amount"), j), sd->vending[j].amount);
+			pc_setreg(sd, reference_uid(add_str("@vend_price"), j), sd->vending[j].value);
+		}
+		pc_setreg(sd, add_str("@vend_count"), i);
+		npc_script_event_atonce(sd, NPCE_OPENVENDFILTER);
+		for (j = 0; j < i; j++) {
+			sd->vending[j].amount = static_cast<short>(pc_readreg(sd, reference_uid(add_str("@vend_amount"), j)));
+			sd->vending[j].value = static_cast<unsigned int>(pc_readreg(sd, reference_uid(add_str("@vend_price"), j)));
+		}
+		if (sd->state.processhalt)
+			return 7;
+	}
 	sd->state.prevend = 0;
 	sd->state.vending = true;
 	sd->state.workinprogress = WIP_DISABLE_NONE;

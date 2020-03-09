@@ -290,6 +290,7 @@ struct Script_Config {
 	// Move related
 	const char* move_filter_name;
 	// Trade_add_related
+	const char* open_vend_filter_name;
 	const char* trade_add_filter_name;
 	const char* mail_add_filter_name;
 	const char* storage_add_filter_name;
