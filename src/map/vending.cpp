@@ -522,7 +522,8 @@ int8 vending_openvending(struct map_session_data* sd, const char* message, const
 		clif_displaymessage (sd->fd, msg_txt(sd,266)); //"Some of your items cannot be vended and were removed from the shop."
 
 	if( i == 0 ) { // no valid item found
-		clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0); // custom reply packet
+		sd->state.prevend = 0;
+		clif_openvending_ack(sd, 1);
 		return 5;
 	}
 
@@ -538,13 +539,17 @@ int8 vending_openvending(struct map_session_data* sd, const char* message, const
 			pc_setreg(sd, reference_uid(add_str("@vend_price"), j), sd->vending[j].value);
 		}
 		pc_setreg(sd, add_str("@vend_count"), i);
+		pc_setreg(sd, add_str("@vend_loot"), sd->vend_loot);
 		npc_script_event_atonce(sd, NPCE_OPENVENDFILTER);
 		for (j = 0; j < i; j++) {
 			sd->vending[j].amount = static_cast<short>(pc_readreg(sd, reference_uid(add_str("@vend_amount"), j)));
 			sd->vending[j].value = static_cast<unsigned int>(pc_readreg(sd, reference_uid(add_str("@vend_price"), j)));
 		}
-		if (sd->state.processhalt)
+		if (sd->state.processhalt) {
+			sd->state.prevend = 0;
+			clif_openvending_ack(sd, 1);
 			return 7;
+		}
 	}
 	sd->state.prevend = 0;
 	sd->state.vending = true;

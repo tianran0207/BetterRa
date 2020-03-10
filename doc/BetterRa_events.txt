@@ -708,6 +708,7 @@ BetterRa 在官方的基础上做了以下改进:
 	@vend_idx		物品在手推车中的位置序号(数组)
 	@vend_amount	物品出售的数量 (数组 可通过修改实际出售数量)
 	@vend_price		物品出售的单价 (数组 可通过修改实际出售单价)
+	@vend_loot		使用货币的物品ID
 	@vend_count		一共出售多少种物品
 	
 中断说明: 
