@@ -4625,6 +4625,9 @@ void clif_updatestorageamount(struct map_session_data* sd, int amount, int max_a
 
 	nullpo_retv(sd);
 
+	if (!sd->state.storage_flag)
+		return;
+
 	fd=sd->fd;
 	WFIFOHEAD(fd,packet_len(0xf2));
 	WFIFOW(fd,0) = 0xf2;
@@ -4652,6 +4655,10 @@ void clif_storageitemadded(struct map_session_data* sd, struct item* i, int inde
 
 	nullpo_retv(sd);
 	nullpo_retv(i);
+
+	if (!sd->state.storage_flag)
+		return;
+
 	fd=sd->fd;
 	view = itemdb_viewid(i->nameid);
 
@@ -4682,6 +4689,9 @@ void clif_storageitemremoved(struct map_session_data* sd, int index, int amount)
 	int fd;
 
 	nullpo_retv(sd);
+
+	if (!sd->state.storage_flag)
+		return;
 
 	fd=sd->fd;
 	WFIFOHEAD(fd,packet_len(0xf6));

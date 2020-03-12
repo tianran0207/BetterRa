@@ -2903,7 +2903,13 @@ struct script_data *get_val_(struct script_state* st, struct script_data* data, 
 					break;
 				}
 			default:
-				data->u.str = pc_readglobalreg_str(sd, data->u.num);
+				if (data->ref) {
+					struct script_reg_str *p = (struct script_reg_str *)i64db_get(data->ref->vars, data->u.num);
+					data->u.str = p ? p->value : NULL;
+				}
+				else {
+					data->u.str = pc_readglobalreg_str(sd, data->u.num);
+				}
 				break;
 		}
 
@@ -2970,7 +2976,13 @@ struct script_data *get_val_(struct script_state* st, struct script_data* data, 
 						break;
 					}
 				default:
-					data->u.num = pc_readglobalreg(sd, data->u.num);
+					if (data->ref) {
+						struct script_reg_num *p = (struct script_reg_num *)i64db_get(data->ref->vars, data->u.num);
+						data->u.num = p ? p->value : 0;
+					}
+					else {
+						data->u.num = pc_readglobalreg(sd, data->u.num);
+					}
 					break;
 			}
 

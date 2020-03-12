@@ -900,6 +900,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 	s_defele = (tsd) ? (enum e_element)status_get_element(src) : ELE_NONE;
 
 //Official servers apply the cardfix value on a base of 1000 and round down the reduction/increase
+#define APPLY_MAXFIX(fix, maxfix) (maxfix) && (maxfix) > (fix) ? (maxfix) : (fix)
 #define APPLY_CARDFIX(damage, fix) { (damage) = (damage) - (int64)(((damage) * (1000 - (fix))) / 1000); }
 
 	switch( attack_type ) {
@@ -920,7 +921,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 						break;
 					}
 				}
-				APPLY_CARDFIX(damage, cardfix);
+				APPLY_CARDFIX(damage, APPLY_MAXFIX(cardfix, battle_config.bonus_addmax));
 			}
 
 			// Affected by target DEF bonuses
@@ -965,7 +966,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 
 				if( tsd->sc.data[SC_MDEF_RATE] )
 					cardfix = cardfix * (100 - tsd->sc.data[SC_MDEF_RATE]->val1) / 100;
-				APPLY_CARDFIX(damage, cardfix);
+				APPLY_CARDFIX(damage, APPLY_MAXFIX(cardfix, battle_config.bonus_submax));
 			}
 			break;
 
@@ -1102,9 +1103,9 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 					cardfix = cardfix * (100 + sd->bonus.long_attack_atk_rate) / 100;
 #endif
 				if (left&1) {
-					APPLY_CARDFIX(damage, cardfix_);
+					APPLY_CARDFIX(damage, APPLY_MAXFIX(cardfix_, battle_config.bonus_addmax));
 				} else {
-					APPLY_CARDFIX(damage, cardfix);
+					APPLY_CARDFIX(damage, APPLY_MAXFIX(cardfix, battle_config.bonus_addmax));
 				}
 			}
 			// Affected by target DEF bonuses
@@ -1156,7 +1157,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 					cardfix = cardfix * (100 - tsd->bonus.long_attack_def_rate) / 100;
 				if( tsd->sc.data[SC_DEF_RATE] )
 					cardfix = cardfix * (100 - tsd->sc.data[SC_DEF_RATE]->val1) / 100;
-				APPLY_CARDFIX(damage, cardfix);
+				APPLY_CARDFIX(damage, APPLY_MAXFIX(cardfix, battle_config.bonus_submax));
 			}
 			break;
 
@@ -1188,11 +1189,12 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 					cardfix = cardfix * (100 - tsd->bonus.near_attack_def_rate) / 100;
 				else	// BF_LONG (there's no other choice)
 					cardfix = cardfix * (100 - tsd->bonus.long_attack_def_rate) / 100;
-				APPLY_CARDFIX(damage, cardfix);
+				APPLY_CARDFIX(damage, APPLY_MAXFIX(cardfix, battle_config.bonus_submax));
 			}
 			break;
 	}
 
+#undef APPLY_MAXFIX
 #undef APPLY_CARDFIX
 
 	return (int)cap_value(damage - original_damage, INT_MIN, INT_MAX);
@@ -8490,6 +8492,8 @@ static const struct _battle_data {
 	{ "dropeffect_card",                    &battle_config.dropeffect_card,                 0,      0,      6,              },
 	{ "dropeffect_shadowgear",              &battle_config.dropeffect_shadowgear,           0,      0,      6,              },
 	{ "bonus_ratefix",                      &battle_config.bonus_ratefix,                   0,      0,      100,            },
+	{ "bonus_addmax",                       &battle_config.bonus_addmax,                    0,      0,      1000,           },
+	{ "bonus_submax",                       &battle_config.bonus_submax,                    0,      0,      1000,           },
 	{ "always_npc_kill_event",              &battle_config.always_npc_kill_event,           0,      0,      1,              },
 	{ "always_mvp_kill_event",              &battle_config.always_mvp_kill_event,           0,      0,      1,              },
 	{ "overlay_back_stack",                 &battle_config.overlay_back_stack,              0,      0,      1,              },
