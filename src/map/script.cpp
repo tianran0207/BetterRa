@@ -3372,7 +3372,20 @@ bool set_reg_str( struct script_state* st, struct map_session_data* sd, int64 nu
 				return true;
 			}
 		default:
-			return pc_setglobalreg_str( sd, num, value );
+			if (ref) {
+				struct s_mapiterator *iter = mapit_getallusers();
+				for (TBL_PC *pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter))
+				{
+					if (ref != &pl_sd->regs)
+						continue;
+					mapit_free(iter);
+					return pc_setglobalreg_str(pl_sd, num, value);
+				}
+				mapit_free(iter);
+				return false;
+			} else {
+				return pc_setglobalreg_str( sd, num, value );
+			}
 	}
 }
 
@@ -3467,7 +3480,21 @@ bool set_reg_num( struct script_state* st, struct map_session_data* sd, int64 nu
 				return true;
 			}
 		default:
-			return pc_setglobalreg( sd, num, value );
+			if (ref) {
+				struct s_mapiterator *iter = mapit_getallusers();
+				for (TBL_PC *pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter))
+				{
+					if (ref != &pl_sd->regs)
+						continue;
+					mapit_free(iter);
+					return pc_setglobalreg(pl_sd, num, value);
+				}
+				mapit_free(iter);
+				return false;
+			}
+			else {
+				return pc_setglobalreg( sd, num, value );
+			}
 	}
 }
 
