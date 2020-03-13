@@ -252,6 +252,10 @@ struct Battle_Config
 	int gm_perfect_hide;
 	int mobinfo_refresh_tick;
 	int enable_delitem_event;
+	int mvp_skill_rate;
+	int mvp_skill_delay;
+	int boss_skill_rate;
+	int boss_skill_delay;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

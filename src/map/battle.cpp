@@ -8545,6 +8545,10 @@ static const struct _battle_data {
 	{ "gm_perfect_hide",                    &battle_config.gm_perfect_hide,                 1,      0,      1,              }, 
 	{ "mobinfo_refresh_tick",               &battle_config.mobinfo_refresh_tick,            300,    0,      INT_MAX,        }, 
 	{ "enable_delitem_event",               &battle_config.enable_delitem_event,            0,      0,      1,              },
+	{ "mvp_skill_rate",                     &battle_config.mvp_skill_rate,                  100,    0,      INT_MAX,        },
+	{ "mvp_skill_delay",                    &battle_config.mvp_skill_delay,                 100,    0,      INT_MAX,        },
+	{ "boss_skill_rate",                    &battle_config.boss_skill_rate,                 100,    0,      INT_MAX,        },
+	{ "boss_skill_delay",                   &battle_config.boss_skill_delay,                100,    0,      INT_MAX,        },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

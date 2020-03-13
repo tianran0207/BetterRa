@@ -26721,7 +26721,7 @@ BUILDIN_FUNC(duplicate)
 	instance_id = script_instancegetid(st);
 	safestrncpy(npcname, w3, NPC_NAME_LENGTH);
 
-	if (!instance_id || (m = map_mapname2mapid(mapname)) < 0 || (m = instance_mapname2mapid(map[m].name, instance_id)) < 0)
+	if (!instance_id || (m = map_mapname2mapid(npcname)) < 0 || !map[m].instance_src_map)
 		npc_parse_duplicate(w1, w2, w3, w4, dup_str, dup_str, "FROMSCRIPT");
 
 	else {
@@ -26732,8 +26732,10 @@ BUILDIN_FUNC(duplicate)
 		if (w2[length - 1] == ')' && length > 11 && length - 11 < sizeof(srcname)) {
 			safestrncpy(srcname, w2 + 10, length - 10);
 
-			if ((p = strstr(w3, "::")) == NULL || strlen(p) < 3)
+			if ((p = strstr(w3, "::")) == NULL || strlen(p) < 3) {
+				script_pushint(st, 0);
 				return SCRIPT_CMD_SUCCESS;
+			}
 			*(p = p + 2);
 
 			if ((nd = npc_name2id(srcname)) != NULL) {

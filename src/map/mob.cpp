@@ -5147,20 +5147,34 @@ bool mob_parse_row_mobskilldb(char** str, int columns, int current)
 	j = atoi(str[4]) <= 0 ? 1 : atoi(str[4]);
 	ms->skill_lv = j > battle_config.mob_max_skilllvl ? battle_config.mob_max_skilllvl : j; //we strip max skill level
 
+	int mob_skill_rate, mob_skill_delay;
+	if (status_has_mode(&mob->status, MD_MVP)) {
+		mob_skill_rate = battle_config.mvp_skill_rate;
+		mob_skill_delay = battle_config.mvp_skill_delay;
+	}
+	else if (mob->status.class_ == CLASS_BOSS) {
+		mob_skill_rate = battle_config.boss_skill_rate;
+		mob_skill_delay = battle_config.boss_skill_delay;
+	}
+	else {
+		mob_skill_rate = battle_config.mob_skill_rate;
+		mob_skill_delay = battle_config.mob_skill_delay;
+	}
+
 	//Apply battle_config modifiers to rate (permillage) and delay [Skotlex]
 	tmp = atoi(str[5]);
-	if (battle_config.mob_skill_rate != 100)
-		tmp = tmp*battle_config.mob_skill_rate/100;
+	if (mob_skill_rate != 100)
+		tmp = tmp*mob_skill_rate/100;
 	if (tmp > 10000)
 		ms->permillage = 10000;
-	else if (!tmp && battle_config.mob_skill_rate)
+	else if (!tmp && mob_skill_rate)
 		ms->permillage = 1;
 	else
 		ms->permillage = tmp;
 	ms->casttime = atoi(str[6]);
 	ms->delay = atoi(str[7]);
-	if (battle_config.mob_skill_delay != 100)
-		ms->delay = ms->delay*battle_config.mob_skill_delay/100;
+	if (mob_skill_delay != 100)
+		ms->delay = ms->delay*mob_skill_delay/100;
 	if (ms->delay < 0 || ms->delay > MOB_MAX_DELAY) //time overflow?
 		ms->delay = MOB_MAX_DELAY;
 	ms->cancel = atoi(str[8]);
