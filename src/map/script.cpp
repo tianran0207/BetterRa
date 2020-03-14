@@ -26721,7 +26721,7 @@ BUILDIN_FUNC(duplicate)
 	instance_id = script_instancegetid(st);
 	safestrncpy(npcname, w3, NPC_NAME_LENGTH);
 
-	if (!instance_id || (m = map_mapname2mapid(npcname)) < 0 || !map[m].instance_src_map)
+	if (!instance_id || (m = map_mapname2mapid(mapname)) < 0 || !map[m].instance_src_map)
 		npc_parse_duplicate(w1, w2, w3, w4, dup_str, dup_str, "FROMSCRIPT");
 
 	else {
