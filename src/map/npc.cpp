@@ -1647,7 +1647,7 @@ static enum e_CASHSHOP_ACK npc_cashshop_process_payment(struct npc_data *nd, int
 					clif_messagecolor(&sd->bl, color_table[COLOR_RED], output, false, SELF);
 					return ERROR_TYPE_PURCHASE_FAIL;
 				}
-				pc_setreg2(sd, nd->u.shop.pointshop_val, cost[0] - (price - points));
+				set_reg_num(NULL, sd, add_str(nd->u.shop.pointshop_val), nd->u.shop.pointshop_val, cost[0] - (price - points), NULL);
 				sprintf(output, msg_txt(sd, 716), nd->u.shop.pointshop_str, cost[0] - (price - points)); // Your '%s' is now: %d
 				clif_messagecolor(&sd->bl, color_table[COLOR_LIGHT_GREEN], output, false, SELF);
 			}
