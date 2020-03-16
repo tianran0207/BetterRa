@@ -4358,7 +4358,7 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 				break;
 			}
 			struct s_skill_attr entry = {};
-			entry.sk = type2 != 0 ? type2 : -1;
+			entry.sk = type2;
 			entry.attr = type3;
 			entry.n = val;
 			sd->skillattribute.push_back(entry);

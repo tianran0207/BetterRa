@@ -636,38 +636,48 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 		return damage;
 	}
 
-	if (src && src->type == BL_PC) {
+	if (damage > 0 && src && src->type == BL_PC) {
 		struct map_session_data *sd = (struct map_session_data *)src;
-		for (const auto &it : sd->skillattribute) {
-			static int seven_ele[] = { ELE_EARTH,ELE_WIND,ELE_WATER,ELE_FIRE,ELE_GHOST,ELE_DARK,ELE_HOLY };
-			static sc_type seven_sc[] = { SC_EARTHWEAPON,SC_WINDWEAPON,SC_WATERWEAPON,SC_FIREWEAPON,SC_GHOSTWEAPON,SC_SHADOWWEAPON,SC_ASPERSIO };
-			if (it.sk != sd->skill_id && it.sk != -1)
+		for (auto &it : sd->skillattribute) {
+			static const int seven_ele[] = { ELE_EARTH,ELE_WIND,ELE_WATER,ELE_FIRE,ELE_GHOST,ELE_DARK,ELE_HOLY };
+			static const int seven_ele_count = ARRAYLENGTH(seven_ele);
+			static const sc_type seven_sc[] = { SC_EARTHWEAPON,SC_WINDWEAPON,SC_WATERWEAPON,SC_FIREWEAPON,SC_GHOSTWEAPON,SC_SHADOWWEAPON,SC_ASPERSIO };
+			unsigned char right_ele = status_get_status_data(src)->rhw.ele;
+			if (def_type == ELE_NEUTRAL && atk_elem != ELE_GHOST)
 				continue;
+			if (it.sk != 0 && it.sk != sd->skill_id)
+				continue;
+			if (it.sk == 0 && it.target_id == target->id && it.target_ele == right_ele * 10 + def_type)
+				continue;
+			else {
+				it.target_ele = right_ele * 10 + def_type;
+				it.target_id = target->id;
+			}
 			if (it.attr == -3)
 				return damage = (int64)((damage*it.n) / 100);
 			int attr = attr_fix_table[def_lv - 1][atk_elem][def_type];
-			int max = attr, min = attr, max_attr = atk_elem, min_attr = atk_elem, now_attr = attr, n;
-			for (int i = 0; i < ELE_MAX; i++) {
-				int attr = attr_fix_table[def_lv - 1][i][def_type];
-				if (attr > max) { max = attr; max_attr = i; }
-				if (attr < min) { min = attr; min_attr = i; }
+			int max = attr, min = attr, max_attr = atk_elem, min_attr = atk_elem, old_attr = atk_elem, n;
+			for (n = 0; n < ELE_MAX; n++) {
+				attr = attr_fix_table[def_lv - 1][n][def_type];
+				if (attr > max) { max = attr; max_attr = n; }
+				if (attr < min) { min = attr; min_attr = n; }
 			}
-			if (it.attr == -1 && atk_elem != max_attr)
-				now_attr = max_attr;
-			if (it.attr == -2 && atk_elem != min_attr)
-				now_attr = min_attr;
-			if (it.attr != atk_elem && CHK_ELEMENT(it.attr))
-				now_attr = it.attr;
-			if (it.n) {
-				ARR_FIND(0, ARRAYLENGTH(seven_ele), n, seven_ele[n] == now_attr);
-				if (n < ARRAYLENGTH(seven_ele))
-					if (it.sk == -1)
+			switch (it.attr) {
+			case -1: atk_elem = (it.sk == 0 && max_attr != right_ele || it.sk != 0) ? max_attr : atk_elem; break;
+			case -2: atk_elem = min_attr; break;
+			default: atk_elem = it.attr;  break;
+			}
+			if (it.n && atk_elem != old_attr) {
+				for (n = 0; n < seven_ele_count; n++) {
+					if (seven_ele[n] != atk_elem)
+						continue;
+					if (it.sk == 0)
 						clif_skill_nodamage(src, src, TK_SEVENWIND, n + 1, sc_start(src, src, seven_sc[n], 100, n + 1, it.n));
 					else
 						clif_skill_nodamage(src, src, TK_SEVENWIND, n + 1, -1);
+					break;
+				}
 			}
-
-			atk_elem = now_attr != atk_elem ? now_attr : atk_elem;
 			break;
 		}
 	}
