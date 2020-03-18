@@ -72,8 +72,8 @@ void vending_closevending(struct map_session_data* sd)
 	}
 }
 
-bool vending_extended_vending_check(struct map_session_data *sd) {
-
+bool vending_extended_vending_check(struct map_session_data *sd)
+{
 	nullpo_retr(false, sd);
 
 	char vend_loot_str[MESSAGE_SIZE];
@@ -135,7 +135,8 @@ void vending_vendinglistreq(struct map_session_data* sd, int id)
 	/**
 	* Extended Vending system [Lilith]
 	**/
-	if (battle_config.extended_vending && battle_config.ex_vending_info) {
+	if (battle_config.extended_vending && battle_config.ex_vending_info)
+	{
 		char output[1024];
 		if (!vending_extended_vending_check(vsd))
 			return;
@@ -254,9 +255,11 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		/**
 		* Extended Vending system [Lilith]
 		**/
-		if (battle_config.extended_vending) {
-
-			if (vsd->vend_loot == battle_config.item_zeny || !vsd->vend_loot) {
+		if (battle_config.extended_vending)
+		{
+			if (!vending_extended_vending_check(vsd))
+				return;
+			if (vsd->vend_loot == battle_config.item_zeny) {
 				if (z > (double)sd->status.zeny || z < 0. || z >(double)MAX_ZENY){
 					clif_buyvending(sd, idx, amount, 1);
 					return;
@@ -338,11 +341,10 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 	/**
 	* Extended Vending system [Lilith]
 	**/
-	if (battle_config.extended_vending) {
-
+	if (battle_config.extended_vending)
+	{
 		if (!vending_extended_vending_check(vsd))
 			return;
-
 		if (vsd->vend_loot == battle_config.item_zeny) {
 			pc_payzeny(sd, (int)z, LOG_TYPE_VENDING, vsd);
 			achievement_update_objective(sd, AG_SPEND_ZENY, 1, (int)z);
@@ -403,7 +405,8 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		
 	}
 
-	if (battle_config.extended_vending && battle_config.ex_vending_info && vending_extended_vending_check(vsd)) {
+	if (battle_config.extended_vending && battle_config.ex_vending_info)
+	{
 		char output[256];
 		int idx;
 		z = 0;

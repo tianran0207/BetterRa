@@ -403,8 +403,7 @@ struct map_session_data {
 	struct s_state {
 		unsigned char halt[NPCE_MAX];//processhalt
 		unsigned char processhalt;
-		unsigned bot_data : 1;
-		unsigned bot_running : 1;
+		unsigned bot : 1;
 		unsigned hombot : 3;
 		unsigned disable_skill_delay : 1;
 		unsigned event_now : 1;

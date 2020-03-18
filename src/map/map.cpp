@@ -2121,7 +2121,7 @@ int map_quit(struct map_session_data *sd) {
 		return 0;
 	}
 
-	if (sd->state.bot_data)
+	if (sd->state.bot)
 		pcbot_stop(sd, 0);
 
 	if (sd->state.hombot)
@@ -2156,7 +2156,6 @@ int map_quit(struct map_session_data *sd) {
 		//Status that are not saved...
 		status_change_end(&sd->bl, SC_BOSSMAPINFO, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_AUTOTRADE, INVALID_TIMER);
-		status_change_end(&sd->bl, SC_BOT, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_SPURT, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_BERSERK, INVALID_TIMER);
 		status_change_end(&sd->bl, SC__BLOODYLUST, INVALID_TIMER);

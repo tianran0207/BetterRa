@@ -14816,7 +14816,6 @@ void pcbot_reset_state(struct map_session_data *sd)
 	if (!(bd = map_id2bot(sd->bl.id)))
 		CREATE(bd, struct bot_data, 1);
 
-	sd->state.bot_data = 1;
 	memset(bd, 0, sizeof(struct bot_data));
 	
 #define pcbot_readparameter(type__,str__, idx__) static_cast< ## type__ >(pc_readreg(sd, reference_uid(add_str(str__), idx__)));
@@ -14906,7 +14905,7 @@ int pcbot_run(struct map_session_data *sd, int64 timeout)
 		clif_authfail_fd(sd->fd, 15);
 		chrif_save(sd, SC_AUTOTRADE);
 	}
-	sd->state.bot_running = bd->running = 1;
+	sd->state.bot = bd->running = 1;
 	return 0;
 }
 
@@ -14924,8 +14923,7 @@ int pcbot_stop(struct map_session_data *sd, int logout)
 		npc_script_event_atonce(sd, NPCE_BOTSTOPEVENT);
 		logout = logout < 0 ? static_cast<int>(pc_readreg2(sd, "@offline")) : logout;
 	}
-	sd->state.bot_data = 0;
-	sd->state.bot_running = 0;
+	sd->state.bot = bd->running = 0;
 	sd->state.no_touch_script = 0;
 
 	if (logout < 0)
