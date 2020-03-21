@@ -3285,7 +3285,7 @@ int map_getcellp(struct map_data* m,int16 x,int16 y,cell_chk cellchk)
 	nullpo_ret(m);
 
 	//NOTE: this intentionally overrides the last row and column
-	if(x<0 || x>=m->xs-1 || y<0 || y>=m->ys-1)
+	if(!m->cell || x<0 || x>=m->xs-1 || y<0 || y>=m->ys-1)
 		return( cellchk == CELL_CHKNOPASS );
 
 	cell = m->cell[x + y*m->xs];
