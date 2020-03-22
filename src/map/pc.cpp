@@ -14455,6 +14455,12 @@ static int pcbot_check_skill(struct bot_data *bd, t_tick tick)
 		if (sd->battle_status.sp < skill_get_sp(bd->info.skill_id[idx], bd->info.skill_lv[idx]))
 			continue;
 		bd->skill_idx = idx;
+		if (skill_get_pc_inf(sd, bd->info.skill_id[idx]) & INF_SELF_SKILL)
+			bd->min_chase = skill_get_pc_splash(sd, bd->info.skill_id[idx], bd->info.skill_lv[idx]);
+		else
+			bd->min_chase = skill_get_range2(&sd->bl, bd->info.skill_id[idx], bd->info.skill_lv[idx], true);
+
+		bd->min_chase = !bd->min_chase ? 1 : bd->min_chase;
 		return 1;
 	}
 
@@ -14479,7 +14485,10 @@ static int pcbot_skill_sub(struct bot_data *bd, struct block_list *bl, uint16 sk
 	else
 		result = unit_skilluse_id(src, bl->id, skill_id, skill_lv);
 
-	result = bd->sd->skill_failure ? 1 : result;
+	if (bd->sd->skill_failure)
+		bd->state.skill_fail_count++;
+	else
+		bd->state.skill_fail_count = 0;
 
 	bd->skill_idx = !result ? -1 : bd->skill_idx;
 	return result;
@@ -14494,6 +14503,8 @@ static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, t_tick tick
 		return false;
 	if (!pcbot_check_skill(bd, tick))
 		return false;
+	if (!check_distance_bl(&bd->sd->bl, bl, bd->min_chase))
+		return false;
 	if (bd->info.skill_cooldown[bd->skill_idx] > tick)
 		return false;
 
@@ -14507,6 +14518,23 @@ static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, t_tick tick
 	int cooldown = max(skill_delayfix(src, skill_id, skill_lv), pc_get_skillcooldown(bd->sd, skill_id, skill_lv));
 	bd->info.skill_cooldown[bd->skill_idx] = (cooldown > bd->info.skill_delay[bd->skill_idx] ? cooldown : bd->info.skill_delay[bd->skill_idx]) + tick + 100;
 	bd->skill_idx = -bd->skill_idx-2;
+	return true;
+}
+
+static bool pcbot_attack(struct bot_data *bd, struct block_list *tbl, t_tick tick)
+{
+	struct map_session_data *sd = bd->sd;
+
+	bd->min_chase = status_get_status_data(&sd->bl)->rhw.range;
+	if (!check_distance_bl(&sd->bl, tbl, bd->min_chase))
+		return false;
+
+	if (!unit_attack(&sd->bl, tbl->id, 1) && sd->ud.attacktimer != INVALID_TIMER) {
+		
+		bd->state.atk_fail_count++;
+		return false;
+	}
+	bd->state.atk_fail_count = 0;
 	return true;
 }
 
@@ -14642,32 +14670,31 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				return 0;
 			}
 			//满足条件则技能攻击目标
-			if ((bd->info.atktype & BF_MAGIC) && sd->ud.skilltimer == INVALID_TIMER && check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
+			if ((bd->info.atktype & BF_MAGIC) && sd->ud.skilltimer == INVALID_TIMER) {
 				if (pcbot_skill(bd, tbl, tick)){
 					bd->state.next_acttime = tick + 500;
-					bd->state.skill_fail_count = 0;
 					return 1;
 				}
-				if (++bd->state.skill_fail_count > 20) {
+				if (bd->state.skill_fail_count > 20) {
 					clif_displaymessage(sd->fd, msg_txt(sd, 2347));
 					pcbot_stop(bd->sd, -1);
 				}
 			}
 			//满足条件则普通攻击目标
-			if ((bd->info.atktype & BF_WEAPON) && sd->ud.attacktimer == INVALID_TIMER && check_distance_bl(&sd->bl, tbl, bd->min_chase)) {
-				if (!unit_attack(&sd->bl, tbl->id, 1) && sd->ud.attacktimer != INVALID_TIMER) {
+			if ((bd->info.atktype & BF_WEAPON) && sd->ud.attacktimer == INVALID_TIMER) {
+				if (pcbot_attack(bd, tbl, tick)) {
 					bd->state.next_acttime = tick + 500;
-					bd->state.atk_fail_count = 0;
 					return 1;
 				}
-				if (++bd->state.atk_fail_count > 20) {
+				if (bd->state.atk_fail_count > 20) {
 					clif_displaymessage(sd->fd, msg_txt(sd, 2347));
 					pcbot_stop(bd->sd, -2);
 				}
 			}
-			//攻击失败 则判断是否需要靠近目标
 			bd->state.next_acttime = tick + 500;
-			if (bd->min_chase > 1) {
+
+			//攻击失败 则判断是否需要靠近目标
+			if (!battle_check_range(&sd->bl, tbl, bd->min_chase + 1) && bd->min_chase > 1) {
 				//攻击距离缩小一半走的更近一些
 				bd->min_chase /= 2;
 				//由于上次走路失败, 所以直接用A* 走. 如果还是失败则放弃这个目标.
@@ -14724,9 +14751,6 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			return 0;
 		}
 		if ((bd->info.atktype & BF_MAGIC) && pcbot_check_skill(bd, tick)){
-			int idx = bd->skill_idx;
-			//计算攻击距离
-			bd->min_chase = skill_get_range2(&sd->bl, bd->info.skill_id[idx], bd->info.skill_lv[idx], true);
 			//如果够不到则走近魔物
 			if (unit_can_move(&sd->bl) && !check_distance_bl(&sd->bl, tbl, bd->min_chase))
 				unit_walktobl(&sd->bl, tbl, bd->min_chase, 1);
@@ -14740,7 +14764,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			if (unit_can_move(&sd->bl) && !check_distance_bl(&sd->bl, tbl, bd->min_chase))
 				unit_walktobl(&sd->bl, tbl, bd->min_chase, 3);
 			else
-				unit_attack(&sd->bl, tbl->id, 1);
+				pcbot_attack(bd, tbl, tick);
 		}
 		return 1;
 	}
