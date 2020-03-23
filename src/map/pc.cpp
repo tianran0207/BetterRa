@@ -14529,7 +14529,7 @@ static bool pcbot_attack(struct bot_data *bd, struct block_list *tbl, t_tick tic
 	if (!check_distance_bl(&sd->bl, tbl, bd->min_chase))
 		return false;
 
-	if (!unit_attack(&sd->bl, tbl->id, 1) && sd->ud.attacktimer != INVALID_TIMER) {
+	if (!unit_attack(&sd->bl, tbl->id, 1) && sd->ud.attacktimer == INVALID_TIMER) {
 		
 		bd->state.atk_fail_count++;
 		return false;
