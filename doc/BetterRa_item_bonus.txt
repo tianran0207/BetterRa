@@ -71,10 +71,10 @@ bonus2 bSkillNoRequire,sk,bitmask;		移除技能 sk 的需求条件, bitmask 为 掩码类型(
 										4096 = equipments
 										
 bonus3 bSkillAttribute,sk,ele,n;		技能 sk 变为 ele 属性,
-										 sk 为  0 时为普通攻击(n为属性附加持续时长(毫秒))
+										 sk 为  0 时为普通攻击(n为属性附加持续时长(毫秒) n=0关闭温暖的风特效)
 										ele 为 -1 时变为最克制属性(n 为是否显示温暖的风特效), 
 										ele 为 -2 时变为最接近属性(n 为是否显示温暖的风特效), 
-										ele 为 -3 时无视属性克制(伤害倍率修正为 n%, 优先度最高), 
+										ele 为 -3 时无视属性克制(伤害倍率修正为 n%, 优先度最高),
 
 bonus bWeaponReturnDefRate,n;			受到物理反射伤害时, 伤害减少原来的 n%
 bonus bMagicReturnDefRate,n;			受到魔法反射伤害时, 伤害减少原来的 n%
