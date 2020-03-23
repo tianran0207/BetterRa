@@ -8560,6 +8560,7 @@ static const struct _battle_data {
 	{ "mvp_skill_delay",                    &battle_config.mvp_skill_delay,                 100,    0,      INT_MAX,        },
 	{ "boss_skill_rate",                    &battle_config.boss_skill_rate,                 100,    0,      INT_MAX,        },
 	{ "boss_skill_delay",                   &battle_config.boss_skill_delay,                100,    0,      INT_MAX,        },
+	{ "expire_trade_gmlv",                  &battle_config.expire_trade_gmlv,               100,    0,      100,            },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },
