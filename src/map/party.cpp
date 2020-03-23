@@ -473,16 +473,6 @@ int party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 	if (party_change_lock2(sd, 1))
 		return 0;
 
-#ifdef  EVENT_PARTYJOINFILTER
-	if (npc_script_event_check(sd, NPCE_PARTYJOINFILTER)) {
-		pc_setreg(sd, add_str("@join_party_id"), sd->status.party_id);
-		pc_setreg(sd, add_str("@join_party_aid"), tsd->status.account_id);
-		npc_script_event_atonce(sd, NPCE_PARTYJOINFILTER);
-		if (sd->state.processhalt)
-			return false;
-	}
-#endif //  EVENT_PARTYJOINFILTER
-
 	tsd->party_invite=sd->status.party_id;
 	tsd->party_invite_account=sd->status.account_id;
 
@@ -512,6 +502,15 @@ int party_reply_invite(struct map_session_data *sd,int party_id,int flag)
 	tsd = map_id2sd(sd->party_invite_account);
 
 	if( flag == 1 && !sd->party_creating && !sd->party_joining ) { // accepted and allowed
+#ifdef  EVENT_PARTYJOINFILTER
+		if (npc_script_event_check(sd, NPCE_PARTYJOINFILTER)) {
+			pc_setreg(sd, add_str("@join_party_id"), tsd ? tsd->status.party_id : 0);
+			pc_setreg(sd, add_str("@join_party_aid"), tsd ? tsd->status.account_id : 0);
+			npc_script_event_atonce(sd, NPCE_PARTYJOINFILTER);
+			if (sd->state.processhalt)
+				return 0;
+		}
+#endif //  EVENT_PARTYJOINFILTER
 		sd->party_joining = true;
 		party_fill_member(&member, sd, 0);
 		intif_party_addmember(sd->party_invite, &member);
@@ -638,6 +637,7 @@ int party_removemember(struct map_session_data* sd, uint32 account_id, char* nam
 #ifdef  EVENT_PARTYLEAVEFILTER
 	if (npc_script_event_check(sd, NPCE_PARTYLEAVEFILTER)) {
 		pc_setreg(sd, add_str("@left_party_id"), p->party.party_id);
+		pc_setreg(sd, add_str("@left_party_kick"), 1);
 		pc_setregstr(sd, add_str("@left_party_name$"), p->party.name);
 		npc_script_event_atonce(sd, NPCE_PARTYLEAVEFILTER);
 		if (sd->state.processhalt)
@@ -696,6 +696,7 @@ int party_leave(struct map_session_data *sd)
 #ifdef  EVENT_PARTYLEAVEFILTER
 	if (npc_script_event_check(sd, NPCE_PARTYLEAVEFILTER)) {
 		pc_setreg(sd, add_str("@left_party_id"), p->party.party_id);
+		pc_setreg(sd, add_str("@left_party_kick"), 0);
 		pc_setregstr(sd, add_str("@left_party_name$"), p->party.name);
 		npc_script_event_atonce(sd, NPCE_PARTYLEAVEFILTER);
 		if (sd->state.processhalt)
