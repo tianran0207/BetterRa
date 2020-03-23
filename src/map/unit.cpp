@@ -3745,6 +3745,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 			if( md->tomb_nid )
 				mvptomb_destroy(md);
 
+			mob_aggro_free(md);
 			mobskill_del(md, 0);
 			break;
 		}

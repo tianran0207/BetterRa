@@ -389,6 +389,9 @@ struct map_session_data {
 		int dmg_val, dmg_disp_val, dmg_targetgid;
 		int heal_all, heal_real, heal_targetgid;
 	}eventparam;
+	struct s_aggro {
+		struct linkdb_node *head;
+	} aggro;
 	uint16 skill_id;
 	bool skill_failure;
 	bool perfect_hide;

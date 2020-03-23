@@ -256,6 +256,15 @@ struct Battle_Config
 	int mvp_skill_delay;
 	int boss_skill_rate;
 	int boss_skill_delay;
+	int mob_aggro_enable;
+	int mob_aggro_all_mob;
+	int mob_aggro_ot_tick;
+	int mob_aggro_ot_emotion;
+	int mob_aggro_damge_rate;
+	int mob_aggro_heal_rate;
+	int mob_aggro_heal_range;
+	int mob_aggro_disengage;
+	int mob_aggro_logout_clear;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

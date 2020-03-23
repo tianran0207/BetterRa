@@ -2124,6 +2124,9 @@ int map_quit(struct map_session_data *sd) {
 	if (sd->state.bot_data)
 		pcbot_stop(sd, 0);
 
+	if (sd->aggro.head)
+		mob_aggro_clear(sd);
+
 	if (sd->state.hombot)
 		map_delhombot(sd);
 

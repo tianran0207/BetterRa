@@ -176,6 +176,17 @@ struct mob_db {
 	struct mob_skill skill[MAX_MOBSKILL];
 };
 
+#define MAX_AGGRO_RATE 2
+struct s_aggro_entry {
+	int src_id;
+	int64 aggro;
+	int64 damage;
+	int heal;
+	uint16 sc_id[MAX_AGGRO_RATE], sc_rate[MAX_AGGRO_RATE];
+	t_tick disengage_tick;
+	struct map_session_data *sd;
+};
+
 struct mob_data {
 	struct block_list bl;
 	struct unit_data  ud;
@@ -225,6 +236,12 @@ struct mob_data {
 	struct s_staypos {
 		int16 m, x, y, range; 
 	} staypos;
+	struct s_aggro {
+		struct linkdb_node *head;
+		int flag;
+		int force_id, ot_id;
+		t_tick force_tick, last_thinktime, ot_time;
+	} aggro;
 
 	t_tick next_walktime,last_thinktime,last_linktime,last_pcneartime,dmgtick;
 	short move_fail_count;
@@ -378,6 +395,13 @@ int mob_linksearch(struct block_list *bl,va_list ap);
 void mobskill_add(struct mob_data *md, char *mobskill);
 void mobskill_del(struct mob_data *md, uint16 skill_id);
 void mob_skill_db_set(void);
+int mob_aggro_skill(struct mob_data *md, struct map_session_data *sd, uint16 skill_id, t_tick tick, int x, int y);
+int mob_aggro_damage(struct mob_data *md, struct map_session_data *sd, int64 damage, t_tick tick);
+int mob_aggro_heal(struct map_session_data *sd, uint16 skill_id, int heal, t_tick tick);
+int mob_aggro_free_single(struct mob_data *md, struct s_aggro_entry *entry);
+struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick);
+void mob_aggro_free(struct mob_data *md);
+void mob_aggro_clear(struct map_session_data *sd);
 int mobskill_use(struct mob_data *md,t_tick tick,int event);
 int mobskill_event(struct mob_data *md,struct block_list *src,t_tick tick, int flag);
 int mob_summonslave(struct mob_data *md2,int *value,int amount,uint16 skill_id);

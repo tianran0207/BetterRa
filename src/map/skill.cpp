@@ -792,6 +792,9 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, uint16 sk
 				hp = static_cast<uint16>(pc_readparam(sd, SP_HEAL_ALL));
 		}
 	}
+	if (sd && heal) {
+		mob_aggro_heal(sd, skill_id, max(1, hp), gettick());
+	}
 
 	return (heal) ? max(1, hp) : hp;
 #else
@@ -4242,6 +4245,23 @@ int skill_area_sub_count (struct block_list *src, struct block_list *target, uin
 	return 1;
 }
 
+static inline void skill_castend_begin(struct map_session_data *sd, uint16 skill_id)
+{
+	if (sd) {
+		sd->skill_id = skill_id;
+		sd->skill_failure = false;
+	}
+}
+
+static inline void skill_castend_end(struct map_session_data *sd, struct block_list *target, short x, short y, uint16 skill_id, t_tick tick)
+{
+	if (sd) {
+		if (!sd->skill_failure)
+			mob_aggro_skill(BL_CAST(BL_MOB, target), sd, sd->skill_id, tick, x, y);
+		sd->skill_id = 0;
+	}
+}
+
 /*==========================================
  *
  *------------------------------------------*/
@@ -4258,14 +4278,10 @@ static TIMER_FUNC(skill_timerskill){
 	skl = ud->skilltimerskill[data];
 	nullpo_ret(skl);
 	ud->skilltimerskill[data] = NULL;
-
+	skill_castend_begin(sd, skl->skill_id);
 	do {
 		if(src->prev == NULL)
 			break; // Source not on Map
-		if (sd) {
-			sd->skill_id = skl->skill_id;
-			sd->skill_failure = false;
-		}
 		if(skl->target_id) {
 			target = map_id2bl(skl->target_id);
 			if( ( skl->skill_id == RG_INTIMIDATE || skl->skill_id == SC_FATALMENACE ) && (!target || target->prev == NULL || !check_distance_bl(src,target,AREA_SIZE)) )
@@ -4526,7 +4542,7 @@ static TIMER_FUNC(skill_timerskill){
 			}
 		}
 	} while (0);
-	if (sd) sd->skill_id = 0;
+	skill_castend_end(sd, target, skl->x, skl->y, skl->skill_id, tick);
 	//Free skl now that it is no longer needed.
 	ers_free(skill_timer_ers, skl);
 	return 0;
@@ -11508,7 +11524,7 @@ int skill_castend_for_AOE(struct block_list *bl, va_list ap)
 	return 1;
 }
 
-static void skill_castend_delay_cooldown(struct block_list *src, t_tick tick, bool skill_begin) {
+static void skill_castend_delay_cooldown(struct block_list *src, struct block_list *target, t_tick tick, bool skill_begin) {
 	struct map_session_data *sd = BL_CAST(BL_PC, src);
 	struct unit_data *ud = unit_bl2ud(src);
 	bool nodex;
@@ -11524,10 +11540,10 @@ static void skill_castend_delay_cooldown(struct block_list *src, t_tick tick, bo
 		int cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv); // Increases/Decreases cooldown of a skill by item/card bonuses.
 		if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
 	}
-	if (sd) {
-		sd->skill_id = skill_begin ? ud->skill_id : 0;
-		sd->skill_failure = skill_begin ? false : sd->skill_failure;
-	}
+	if (skill_begin)
+		skill_castend_begin(sd, ud->skill_id);
+	else
+		skill_castend_end(sd, target, ud->skillx, ud->skilly, ud->skill_id, tick);
 }
 
 /**
@@ -11733,7 +11749,7 @@ TIMER_FUNC(skill_castend_id){
 		if( battle_config.display_status_timers && sd )
 			clif_status_change(src, EFST_POSTDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
 		*/
-		skill_castend_delay_cooldown(src, tick, true);
+		skill_castend_delay_cooldown(src, target, tick, true);
 		if( sd )
 		{
 			switch( ud->skill_id )
@@ -11770,7 +11786,7 @@ TIMER_FUNC(skill_castend_id){
 		else
 			skill_castend_damage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
 
-		skill_castend_delay_cooldown(src, tick, false);
+		skill_castend_delay_cooldown(src, target, tick, false);
 
 		if (sd && !skilltoaround) {
 			int count = 0;
@@ -11979,13 +11995,13 @@ TIMER_FUNC(skill_castend_pos){
 //				break;
 //			}
 //		}
-		skill_castend_delay_cooldown(src, tick, true);
+		skill_castend_delay_cooldown(src, NULL, tick, true);
 		unit_set_walkdelay(src, tick, battle_config.default_walk_delay+skill_get_walkdelay(ud->skill_id, ud->skill_lv), 1);
 		map_freeblock_lock();
 
 		skill_castend_pos2(src,ud->skillx,ud->skilly,ud->skill_id,ud->skill_lv,tick,0);
 
-		skill_castend_delay_cooldown(src, tick, false);
+		skill_castend_delay_cooldown(src, NULL, tick, false);
 
 		if (ud->skill_id != RA_CAMOUFLAGE)
 			status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER); // Applies to the first skill if active
@@ -21699,6 +21715,19 @@ void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list 
 	skf_db.wd = NULL;
 }
 
+static bool skill_parse_row_aggrodb(char* split[], int columns, int current)
+{
+	uint16 idx = skill_db_isset(atoi(split[0]), __FUNCTION__);
+	skill_db[idx]->aggro.extra = atoi(split[1]);
+	skill_db[idx]->aggro.force = atoi(split[2]);
+	skill_db[idx]->aggro.rate = atoi(split[3]);
+	if (columns >= 5)
+		skill_db[idx]->aggro.flag = atoi(split[4]);
+	if (columns >= 6)
+		skill_db[idx]->aggro.range = atoi(split[5]);
+	return true;
+}
+
 /*==========================================
  * sub-function of DB reading.
  * skill_db.txt
@@ -22588,7 +22617,8 @@ static void skill_readdb(void)
 			safesnprintf(dbsubpath1,n1,"%s%s",db_path,dbsubpath[i]);
 			safesnprintf(dbsubpath2,n1,"%s%s",db_path,dbsubpath[i]);
 		}
-		
+
+		sv_readdb(dbsubpath1, "skill_aggro_db.txt"    , ',',   3,  6, -1, skill_parse_row_aggrodb, i > 0);
 		sv_readdb(dbsubpath2, "skill_db.txt"          , ',',  18, 18, -1, skill_parse_row_skilldb, i > 0);
 		sv_readdb(dbsubpath2, "skill_require_db.txt"  , ',',  34, 34, -1, skill_parse_row_requiredb, i > 0);
 		sv_readdb(dbsubpath2, "skill_cast_db.txt"     , ',',   7,  8, -1, skill_parse_row_castdb, i > 0);

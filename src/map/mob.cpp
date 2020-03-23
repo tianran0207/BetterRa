@@ -1722,6 +1722,30 @@ static bool mob_ai_sub_hard(struct mob_data *md, t_tick tick)
 
 	can_move = (mode&MD_CANMOVE) && unit_can_move(&md->bl);
 
+	if (battle_config.mob_aggro_enable && DIFF_TICK(tick, md->aggro.last_thinktime) > 1000 && (mode&MD_CANATTACK)) {
+		tbl = mob_aggro_search(md, view_range, tick);
+		md->aggro.last_thinktime = tick;
+		if (tbl && tbl->id != md->target_id)
+		{
+			if (!md->target_id || md->aggro.force_id == tbl->id || md->aggro.ot_id == tbl->id && DIFF_TICK(tick, md->aggro.ot_time) > battle_config.mob_aggro_ot_tick) {
+				md->aggro.ot_id = 0;
+				md->aggro.ot_time = 0;
+				if (unit_walktobl(&md->bl, tbl, md->status.rhw.range, 2))
+					md->target_id = tbl->id;
+				else
+					mob_unlocktarget(md, tick);
+				return true;
+			}
+			else {
+				clif_emotion(&md->bl, battle_config.mob_aggro_ot_emotion);
+				if (DIFF_TICK(tick, md->aggro.ot_time) > battle_config.mob_aggro_ot_tick)
+					md->aggro.ot_time = tick;
+				md->aggro.ot_id = tbl->id;
+			}
+		}
+		tbl = NULL;
+	}
+
 	if (md->target_id)
 	{	//Check validity of current target. [Skotlex]
 		tbl = map_id2bl(md->target_id);
@@ -2422,6 +2446,9 @@ void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 		//Log damage
 		mob_log_damage(md, src, damage);
 		md->dmgtick = gettick();
+		if (src->type == BL_PC) {
+			mob_aggro_damage(md, BL_CAST(BL_PC, src), damage, md->dmgtick);
+		}
 	}
 
 	bool refresh = false;
@@ -6008,4 +6035,215 @@ void do_final_mob(bool is_reload){
 		ers_destroy(item_drop_ers);
 		ers_destroy(item_drop_list_ers);
 	}
+}
+
+static struct s_aggro_entry *mob_aggro_exists(struct mob_data *md, struct map_session_data *sd) {
+	struct s_aggro_entry *entry = (struct s_aggro_entry *)linkdb_search(&md->aggro.head, (void *)(sd->status.account_id));
+	if (entry == NULL) {
+		CREATE(entry, struct s_aggro_entry, 1);
+		entry->src_id = sd->status.char_id;
+		linkdb_insert(&md->aggro.head, (void *)(sd->status.account_id), entry);
+		linkdb_insert(&sd->aggro.head, (void *)(md->bl.id), md);
+	}
+	if (!entry->sd)
+		entry->sd = sd;
+	return entry;
+}
+
+static int mob_aggro_skill_sub(struct block_list *bl, va_list ap)
+{
+	struct map_session_data *sd = va_arg(ap, struct map_session_data *);
+	struct mob_data *md = (struct mob_data *)bl;
+	struct s_aggro_entry *entry;
+	if (!battle_config.mob_aggro_all_mob && !md->aggro.flag)
+		return 0;
+	if (battle_check_target(bl, &sd->bl, BCT_ENEMY) <= 0 || (entry = mob_aggro_exists(md, sd)) == NULL)
+		return 0;
+	int skill_id = va_arg(ap, int);
+	t_tick tick = va_arg(ap, t_tick);
+	int heal = va_arg(ap, int);
+
+	if (heal > 0) {
+		entry->aggro += heal*battle_config.mob_aggro_heal_rate/100;
+		entry->heal += heal;
+		entry->disengage_tick = tick;
+		return 0;
+	}
+	sc_type type;
+	int idx = skill_get_index(skill_id);
+	entry->aggro += skill_db[idx]->aggro.extra;
+	if (skill_db[idx]->aggro.force) {
+		md->aggro.force_id = sd->status.char_id;
+		md->aggro.force_tick = tick + skill_db[idx]->aggro.force;
+	}
+	if (skill_db[idx]->aggro.rate && (type = status_skill2sc(skill_id)) != SC_NONE) {
+		int n;
+		ARR_FIND(0, MAX_AGGRO_RATE, n, sd->sc.data[type] == 0);
+		if (n < MAX_AGGRO_RATE) {
+			entry->sc_id[n] = type;
+			entry->sc_rate[n] = skill_db[idx]->aggro.rate;
+		}
+	}
+	entry->disengage_tick = tick;
+	return 1;
+}
+
+int mob_aggro_skill(struct mob_data *md, struct map_session_data *sd, uint16 skill_id, t_tick tick, int x, int y)
+{
+	int idx, range;
+
+	nullpo_ret(sd);
+
+	if (!battle_config.mob_aggro_enable)
+		return 0;
+	if (!skill_id || !(idx = skill_get_index(skill_id)))
+		return 0;
+	if (!skill_db[idx]->aggro.extra && !skill_db[idx]->aggro.force && !skill_db[idx]->aggro.rate)
+		return 0;
+
+	switch(skill_db[idx]->aggro.flag) {
+	case 1:
+		range = skill_db[idx]->aggro.range;
+		if (md)
+			map_foreachinrange(mob_aggro_skill_sub, &md->bl, range, BL_MOB, sd, skill_id, tick, 0);
+		else if (x > 0 && y > 0)
+			map_foreachinarea(mob_aggro_skill_sub, sd->bl.m, x-range,y-range,x+range,y+range, BL_MOB, sd, skill_id, tick, 0);
+		break;
+	case 2:
+		range = skill_db[idx]->aggro.range;
+		map_foreachinrange(mob_aggro_skill_sub, &sd->bl, range, BL_MOB, sd, skill_id, tick, 0);
+		break;
+	default:
+		if (md && x == 0 && y == 0){
+			va_list ap;
+			va_start(ap, md);
+			mob_aggro_skill_sub(&md->bl, ap);
+			va_end(ap);
+		}
+		break;
+	}
+	return 1;
+}
+
+int mob_aggro_heal(struct map_session_data *sd, uint16 skill_id, int heal, t_tick tick)
+{
+	nullpo_ret(sd);
+
+	if (!battle_config.mob_aggro_enable)
+		return 0;
+
+	map_foreachinrange(mob_aggro_skill_sub, &sd->bl, battle_config.mob_aggro_heal_range, BL_MOB, sd, 0, tick, heal);
+	return 1;
+}
+
+int mob_aggro_damage(struct mob_data *md, struct map_session_data *sd, int64 damage, t_tick tick)
+{
+	struct s_aggro_entry *entry;
+
+	nullpo_ret(md);
+	nullpo_ret(sd);
+
+	if (!battle_config.mob_aggro_enable)
+		return 0;
+	if (!battle_config.mob_aggro_all_mob && !md->aggro.flag)
+		return 0;
+	if (damage <= 0)
+		return 0;
+	if ((entry = mob_aggro_exists(md, sd)) == NULL)
+		return 0;
+
+	if (damage) {
+		entry->damage += damage;
+		entry->aggro += static_cast<uint32>(damage * battle_config.mob_aggro_damge_rate / 10000);
+	}
+	entry->disengage_tick = tick;
+	return 1;
+}
+
+static int mob_aggro_search_sub(struct block_list *bl, ...) {
+	va_list ap;
+	va_start(ap, bl);
+	int result = mob_ai_sub_hard_activesearch(bl, ap);
+	va_end(ap);
+	return result;
+}
+
+struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
+{
+	struct linkdb_node *node = md->aggro.head;
+	struct s_aggro_entry *result = node ? (struct s_aggro_entry *)node->data : NULL;
+	struct block_list *target = NULL, *bl;
+	int target_id = md->target_id;
+	if (md->aggro.force_tick > tick) {
+		struct map_session_data *sd = map_charid2sd(md->aggro.force_id);
+		if ((bl = &sd->bl)->m == md->bl.m && distance_bl(bl, &md->bl) < AREA_SIZE && mob_aggro_search_sub(bl, md, &(target = NULL), 0))
+			return bl;
+		md->aggro.force_id = 0;
+		md->aggro.force_tick = 0;
+	}
+
+	while (node)
+	{
+		struct s_aggro_entry *entry = ((struct s_aggro_entry *)node->data);
+		node = node->next;
+		if (entry->disengage_tick + battle_config.mob_aggro_disengage < tick && mob_aggro_free_single(md, entry))
+			continue;
+		if (!entry->sd)
+			continue;
+		if ((bl= &entry->sd->bl)->m != md->bl.m || distance_bl(bl, &md->bl) >= range || !mob_aggro_search_sub(bl, md, &(target = NULL), 0))
+			continue;
+
+		for (int n = 0; n < MAX_AGGRO_RATE; n++) {
+			if (!entry->sd->sc.data[entry->sc_id[n]])
+				continue;
+			entry->aggro = entry->aggro * entry->sc_rate[n] / 100;
+		}
+		if (entry->aggro > result->aggro)
+			result = entry;
+	}
+	md->target_id = target_id;
+
+	return result ? &result->sd->bl : NULL;
+}
+
+int mob_aggro_free_single(struct mob_data *md, struct s_aggro_entry *entry)
+{
+	if (entry != NULL) {
+		if (entry->sd) {
+			if (md->aggro.force_id == entry->sd->status.char_id)
+				md->aggro.force_id = 0;
+			linkdb_erase(&entry->sd->aggro.head, (void *)(md->bl.id));
+		}
+		linkdb_erase(&md->aggro.head, (void *)(entry->sd->status.account_id));
+		aFree(entry);
+	}
+	return 1;
+}
+
+void mob_aggro_free(struct mob_data *md)
+{
+	struct linkdb_node *node = md->aggro.head;
+	while (node) {
+		struct s_aggro_entry *entry = ((struct s_aggro_entry *)node->data);
+		node = node->next;
+		mob_aggro_free_single(md, entry);
+	}
+	linkdb_final(&md->aggro.head);
+}
+
+void mob_aggro_clear(struct map_session_data *sd)
+{
+	struct linkdb_node *node = sd->aggro.head;
+	while (node) {
+		struct mob_data *md = ((struct mob_data *)node->data);
+		node = node->next;
+		if (battle_config.mob_aggro_logout_clear) {
+			linkdb_erase(&md->aggro.head, (void *)(sd->status.account_id));
+		}
+		else {
+			struct s_aggro_entry *entry = (struct s_aggro_entry *)linkdb_search(&md->aggro.head, (void *)(sd->status.account_id));
+			entry->sd = NULL;
+		}
+	}
+	linkdb_final(&sd->aggro.head);
 }

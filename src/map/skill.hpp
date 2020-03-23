@@ -251,8 +251,14 @@ struct s_skill_db {
 			int target;
 			struct script_code* script;
 		}onplace;
-		
 	} formula;
+
+	struct s_aggro {
+		int extra;
+		int force;
+		uint16 rate;
+		uint16 flag, range;
+	}aggro;
 };
 extern struct s_skill_db **skill_db;
 
