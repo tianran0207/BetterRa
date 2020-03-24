@@ -22628,8 +22628,8 @@ static void skill_readdb(void)
 			safesnprintf(dbsubpath2,n1,"%s%s",db_path,dbsubpath[i]);
 		}
 
-		sv_readdb(dbsubpath1, "skill_aggro_db.txt"    , ',',   3,  6, -1, skill_parse_row_aggrodb, i > 0);
 		sv_readdb(dbsubpath2, "skill_db.txt"          , ',',  18, 18, -1, skill_parse_row_skilldb, i > 0);
+		sv_readdb(dbsubpath1, "skill_aggro_db.txt"    , ',',   3,  6, -1, skill_parse_row_aggrodb, i > 0);
 		sv_readdb(dbsubpath2, "skill_require_db.txt"  , ',',  34, 34, -1, skill_parse_row_requiredb, i > 0);
 		sv_readdb(dbsubpath2, "skill_cast_db.txt"     , ',',   7,  8, -1, skill_parse_row_castdb, i > 0);
 		sv_readdb(dbsubpath2, "skill_castnodex_db.txt", ',',   2,  3, -1, skill_parse_row_castnodexdb, i > 0);
