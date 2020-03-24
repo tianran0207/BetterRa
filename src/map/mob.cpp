@@ -1722,7 +1722,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, t_tick tick)
 
 	can_move = (mode&MD_CANMOVE) && unit_can_move(&md->bl);
 
-	if (battle_config.mob_aggro_enable && DIFF_TICK(tick, md->aggro.last_thinktime) > 1000 && (mode&MD_CANATTACK)) {
+	if (battle_config.mob_aggro_enable && (battle_config.mob_aggro_all_mob || md->aggro.flag) && DIFF_TICK(tick, md->aggro.last_thinktime) > 1000 && (mode&MD_CANATTACK)) {
 		tbl = mob_aggro_search(md, view_range, tick);
 		md->aggro.last_thinktime = tick;
 		if (tbl && tbl->id != md->target_id)

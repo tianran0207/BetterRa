@@ -29743,6 +29743,24 @@ BUILDIN_FUNC(getskillinfo)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(mobaggroswitch)
+{
+	struct block_list *bl;
+	struct mob_data *md;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	md = BL_CAST(BL_MOB, bl);
+	if (md == NULL) {
+		ShowError("buildin_mobaggroswitch: this unit '%d' is not monster.\n", bl->id);
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	md->aggro.flag = script_getnum(st, 3);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -30728,6 +30746,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(delinventorybyidx, "delcartbyidx", "ii??"),
 	BUILDIN_DEF2(delinventorybyidx, "delstoragebyidx", "ii???"),
 	BUILDIN_DEF2(delinventorybyidx, "delguildstorageidx", "ii??"),
+	BUILDIN_DEF(mobaggroswitch, "ii"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
