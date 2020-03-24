@@ -5860,7 +5860,6 @@ static void mob_load(void)
 			mob_readskilldb(dbsubpath2, silent);
 		}
 
-		sv_readdb(dbsubpath1, "mob_avail.txt", ',', 2, 12, -1, &mob_readdb_mobavail, false);
 		sv_readdb(dbsubpath2, "mob_race2_db.txt", ',', 2, MAX_RACE2_MOBS, -1, &mob_readdb_race2, silent);
 		sv_readdb(dbsubpath1, "mob_item_ratio.txt", ',', 2, 2+MAX_ITEMRATIO_MOBS, -1, &mob_readdb_itemratio, silent);
 		sv_readdb(dbsubpath1, "mob_item_ratefix.txt", ',', 2, 2+MAX_ITEMRATIO_MOBS, -1, &mob_readdb_itemratefix, silent);
@@ -5877,6 +5876,7 @@ static void mob_load(void)
 		aFree(dbsubpath1);
 		aFree(dbsubpath2);
 	}
+	sv_readdb(old_db_path, "mob_avail.txt", ',', 2, 12, -1, &mob_readdb_mobavail, true);
 
 	mob_avail_db.load();
 

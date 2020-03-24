@@ -2300,6 +2300,8 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 			return false;
 		if(skill_id == PR_LEXAETERNA && (tsc->data[SC_FREEZE] || (tsc->data[SC_STONE] && tsc->opt1 == OPT1_STONE)))
 			return false;
+		if(skill_id == SA_DISPELL && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING]))
+			return false;
 		if (tsc->data[SC__MANHOLE] && !(skill_get_inf3(skill_id)&INF3_USABLE_MANHOLE))
 			return false;
 	}

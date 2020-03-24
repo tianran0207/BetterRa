@@ -472,17 +472,15 @@ int party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 
 	if (party_change_lock2(sd, 1))
 		return 0;
-
 #ifdef  EVENT_PARTYJOINFILTER
-	if (npc_script_event_check(sd, NPCE_PARTYJOINFILTER)) {
-		pc_setreg(sd, add_str("@join_party_id"), sd->status.party_id);
-		pc_setreg(sd, add_str("@join_party_aid"), tsd->status.account_id);
-		npc_script_event_atonce(sd, NPCE_PARTYJOINFILTER);
-		if (sd->state.processhalt)
-			return false;
+	if (npc_script_event_check(tsd, NPCE_PARTYJOINFILTER)) {
+		pc_setreg(tsd, add_str("@join_party_id"), sd ? sd->status.party_id : 0);
+		pc_setreg(tsd, add_str("@join_party_aid"), sd ? sd->status.account_id : 0);
+		npc_script_event_atonce(tsd, NPCE_PARTYJOINFILTER);
+		if (tsd->state.processhalt)
+			return 0;
 	}
 #endif //  EVENT_PARTYJOINFILTER
-
 	tsd->party_invite=sd->status.party_id;
 	tsd->party_invite_account=sd->status.account_id;
 
@@ -638,6 +636,7 @@ int party_removemember(struct map_session_data* sd, uint32 account_id, char* nam
 #ifdef  EVENT_PARTYLEAVEFILTER
 	if (npc_script_event_check(sd, NPCE_PARTYLEAVEFILTER)) {
 		pc_setreg(sd, add_str("@left_party_id"), p->party.party_id);
+		pc_setreg(sd, add_str("@left_party_kick"), 1);
 		pc_setregstr(sd, add_str("@left_party_name$"), p->party.name);
 		npc_script_event_atonce(sd, NPCE_PARTYLEAVEFILTER);
 		if (sd->state.processhalt)
@@ -696,6 +695,7 @@ int party_leave(struct map_session_data *sd)
 #ifdef  EVENT_PARTYLEAVEFILTER
 	if (npc_script_event_check(sd, NPCE_PARTYLEAVEFILTER)) {
 		pc_setreg(sd, add_str("@left_party_id"), p->party.party_id);
+		pc_setreg(sd, add_str("@left_party_kick"), 0);
 		pc_setregstr(sd, add_str("@left_party_name$"), p->party.name);
 		npc_script_event_atonce(sd, NPCE_PARTYLEAVEFILTER);
 		if (sd->state.processhalt)

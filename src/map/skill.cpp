@@ -321,6 +321,11 @@ int skill_get_pc_splash(struct map_session_data *sd, uint16 skill_id, uint16 ski
 				continue;
 			splash += it.val;
 		}
+		for (auto &it : sd->skilltoaround) {
+			if (it.sk != skill_id)
+				continue;
+			splash += it.val;
+		}
 	}
 	return splash <= 0 ? 0 : splash;
 }
@@ -438,6 +443,11 @@ int skill_get_range2(struct block_list *bl, uint16 skill_id, uint16 skill_lv, bo
 			if (it.sk != skill_id || it.sk == -1)
 				continue;
 			range += it.val;
+		}
+		for (auto &it : sd->skilltoaround) {
+			if (it.sk != skill_id)
+				continue;
+			range = 0;
 		}
 	}
 

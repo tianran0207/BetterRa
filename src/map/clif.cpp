@@ -13934,7 +13934,8 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd){
 	if( message[0] == '\0' ) // invalid input
 		return;
 
-	if (battle_config.extended_vending) {
+	if (battle_config.extended_vending)
+	{
 		if (!itemdb_exists(sd->vend_loot))
 			return;
 		if (battle_config.show_item_vending) {
@@ -22051,7 +22052,7 @@ static int clif_parse(int fd)
 
 	if (session[fd]->flag.eof) {
 		if (sd) {
-			if (sd->state.bot_data && map_id2bot(sd->bl.id)->state.offline) {
+			if (sd->state.bot && map_id2bot(sd->bl.id)->state.offline) {
 				session[fd]->session_data = NULL;
 				sd->fd = 0;
 				ShowInfo("Character '" CL_WHITE "%s" CL_RESET "' logged off (bot was still running).\n", sd->status.name);

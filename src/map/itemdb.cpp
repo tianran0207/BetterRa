@@ -352,7 +352,8 @@ char itemdb_pc_get_itemgroup(uint16 group_id, bool identify, struct map_session_
 * @param nameid
 * @return *item_data if item is exist, or NULL if not
 */
-struct item_data* itemdb_exists(unsigned short nameid) {
+struct item_data* itemdb_exists(int nameid) {
+	if (nameid < 0) return NULL;
 	return ((struct item_data*)uidb_get(itemdb,nameid));
 }
 
@@ -510,9 +511,9 @@ static struct item_data *itemdb_create_item(unsigned short nameid) {
  * @param nameid
  * @return *item_data or *dummy_item if item not found
  *------------------------------------------*/
-struct item_data* itemdb_search_sub(unsigned short nameid, const char* func) {
+struct item_data* itemdb_search_sub(int nameid, const char* func) {
 	struct item_data* id = NULL;
-	if (nameid == dummy_item->nameid)
+	if (nameid < 0 || nameid == dummy_item->nameid)
 		id = dummy_item;
 	else if (!(id = (struct item_data*)uidb_get(itemdb, nameid))) {
 		ShowWarning("itemdb_search: Item ID %hu does not exists in the item_db. Using dummy data.(source: %s)\n", nameid, func);
@@ -552,7 +553,7 @@ bool itemdb_isstackable2(struct item_data *id)
  * Trade Restriction functions [Skotlex]
  *------------------------------------------*/
 bool itemdb_isdropable_sub(struct item_data *item, int gmlv, int unused) {
-	return (item && (!(item->flag.trade_restriction&1) || gmlv >= item->gm_lv_trade_override));
+	return (item && (!(item->flag.trade_restriction&1) || gmlv >= item->gm_lv_trade_override || gmlv >= battle_config.item_drop_gmlv));
 }
 
 bool itemdb_cantrade_sub(struct item_data* item, int gmlv, int gmlv2) {

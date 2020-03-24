@@ -357,7 +357,7 @@ int chlogif_parse_reqaccdata(int fd, struct char_session_data* sd){
 		sd->isvip = RFIFOB(fd,72);
 		sd->chars_vip = RFIFOB(fd,73);
 		sd->chars_billing = RFIFOB(fd,74);
-		ARR_FIND( 0, ARRAYLENGTH(map_server), server_id, map_server[server_id].fd > 0 && map_server[server_id].map[0] );
+		ARR_FIND( 0, ARRAYLENGTH(map_server), server_id, map_server[server_id].fd > 0 && !map_server[server_id].map.empty() );
 		// continued from char_auth_ok...
 		if( server_id == ARRAYLENGTH(map_server) || //server not online, bugreport:2359
 			(((charserv_config.max_connect_user == 0 || charserv_config.char_maintenance == 1) ||
@@ -844,7 +844,7 @@ void chlogif_on_ready(void)
 	chlogif_send_acc_tologin(INVALID_TIMER, gettick(), 0, 0);
 
 	// if no map-server already connected, display a message...
-	ARR_FIND( 0, ARRAYLENGTH(map_server), i, map_server[i].fd > 0 && map_server[i].map[0] );
+	ARR_FIND( 0, ARRAYLENGTH(map_server), i, map_server[i].fd > 0 && !map_server[i].map.empty() );
 	if( i == ARRAYLENGTH(map_server) )
 		ShowStatus("Awaiting maps from map-server.\n");
 }

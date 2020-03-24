@@ -3047,7 +3047,7 @@ ACMD_FUNC(recall) {
 		return -1;
 	}
 
-	if(pl_sd->state.bot_running || pc_setpos(pl_sd, sd->mapindex, sd->bl.x, sd->bl.y, CLR_RESPAWN) == SETPOS_AUTOTRADE){
+	if(pl_sd->state.bot || pc_setpos(pl_sd, sd->mapindex, sd->bl.x, sd->bl.y, CLR_RESPAWN) == SETPOS_AUTOTRADE){
 		uint8 info[3];
 		info[0] = pl_sd->ud.dir;
 		info[1] = pl_sd->head_dir;
@@ -6188,17 +6188,19 @@ ACMD_FUNC(autotrade) {
 		return -1;
 	}
 
-	if( !sd->state.vending && !sd->state.buyingstore ) { //check if player is vending or buying
+	if(strcmp(command, "autotrade") == 0 && !sd->state.vending && !sd->state.buyingstore ) { //check if player is vending or buying
 		clif_displaymessage(fd, msg_txt(sd,549)); // "You should have a shop open to use @autotrade."
 		return -1;
 	}
 
-	if (battle_config.extended_vending || battle_config.extended_buying) {
+	if (sd->state.vending && battle_config.extended_vending || sd->state.buyingstore && battle_config.extended_buying) {
 		struct item_data* item_data = itemdb_searchname(itemdb_jname(sd->vend_loot));
-		if (item_data->nameid != sd->vend_loot)
-			ShowError("autotrade: Repetition of currency names with itemID '%d' and '%d'\n", item_data->nameid, sd->vend_loot);
-
-		if (item_data->nameid != sd->vend_loot || !battle_config.show_item_vending && sd->vend_loot != battle_config.item_zeny) {
+		if (!item_data || item_data->nameid != sd->vend_loot) {
+			ShowError("autotrade: Repetition of currency names with itemID '%d' and '%d'\n", item_data ? item_data->nameid : 0, sd->vend_loot);
+			clif_displaymessage(fd, msg_txt(sd, 2360));
+			return -1;
+		}
+		if (!battle_config.show_item_vending && sd->vend_loot != battle_config.item_zeny) {
 			clif_displaymessage(fd, msg_txt(sd, 2360));
 			return -1;
 		}
@@ -6224,58 +6226,6 @@ ACMD_FUNC(autotrade) {
 	}
 
 	channel_pcquit(sd,0xF); //leave all chan
-	clif_authfail_fd(sd->fd, 15);
-
-	chrif_save(sd, CSAVE_AUTOTRADE);
-
-	return 0;
-}
-
-ACMD_FUNC(autotrade2) {
-	nullpo_retr(-1, sd);
-
-	if ((sd->state.vending || sd->state.buyingstore) && map_getmapflag(sd->bl.m, MF_AUTOTRADE) != battle_config.autotrade_mapflag) {
-		clif_displaymessage(fd, msg_txt(sd, 1179)); // Autotrade is not allowed on this map.
-		return -1;
-	}
-
-	if ((sd->state.vending || sd->state.buyingstore) && pc_isdead(sd)) {
-		clif_displaymessage(fd, msg_txt(sd, 1180)); // You cannot autotrade when dead.
-		return -1;
-	}
-
-	if ((battle_config.extended_vending && sd->state.vending) || (battle_config.extended_buying && sd->state.buyingstore)) {
-		struct item_data* item_data = itemdb_searchname(itemdb_jname(sd->vend_loot));
-		if (item_data->nameid != sd->vend_loot)
-			ShowError("autotrade: Repetition of currency names with itemID '%d' and '%d'\n", item_data->nameid, sd->vend_loot);
-
-		if (item_data->nameid != sd->vend_loot || !battle_config.show_item_vending && sd->vend_loot != battle_config.item_zeny) {
-			clif_displaymessage(fd, msg_txt(sd, 2360));
-			return -1;
-		}
-	}
-
-	sd->state.autotrade = 1;
-	if (battle_config.autotrade_monsterignore)
-		sd->state.block_action |= PCBLOCK_IMMUNE;
-
-	if (sd->state.vending) {
-		if (Sql_Query(mmysql_handle, "UPDATE `%s` SET `autotrade` = 1 WHERE `id` = %d;", vendings_table, sd->vender_id) != SQL_SUCCESS) {
-			Sql_ShowDebug(mmysql_handle);
-		}
-	}
-	else if (sd->state.buyingstore) {
-		if (Sql_Query(mmysql_handle, "UPDATE `%s` SET `autotrade` = 1 WHERE `id` = %d;", buyingstores_table, sd->buyer_id) != SQL_SUCCESS) {
-			Sql_ShowDebug(mmysql_handle);
-		}
-	}
-
-	if (battle_config.at_timeout) {
-		int timeout = atoi(message);
-		status_change_start(NULL, &sd->bl, SC_AUTOTRADE, 10000, 0, 0, 0, 0, ((timeout > 0) ? min(timeout, battle_config.at_timeout) : battle_config.at_timeout) * 60000, SCSTART_NONE);
-	}
-
-	channel_pcquit(sd, 0xF); //leave all chan
 	clif_authfail_fd(sd->fd, 15);
 
 	chrif_save(sd, CSAVE_AUTOTRADE);
@@ -10747,7 +10697,8 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(showzeny),
 		ACMD_DEF(showdelay),
 		ACMD_DEF(autotrade),
-		ACMD_DEF(autotrade2),
+		ACMD_DEF2("autotrade2", autotrade),
+		ACMD_DEF2("offline", autotrade),
 		ACMD_DEF(changegm),
 		ACMD_DEF(changeleader),
 		ACMD_DEF(partyoption),

@@ -9071,7 +9071,7 @@ BUILDIN_FUNC(getpartyleader)
 		case 1: script_pushint(st,p->party.member[i].account_id); break;
 		case 2: script_pushint(st,p->party.member[i].char_id); break;
 		case 3: script_pushint(st,p->party.member[i].class_); break;
-		case 4: script_pushstrcopy(st,mapindex_id2name(p->party.member[i].map)); break;
+		case 4: script_pushstrcopy(st, p->data[i].sd ? map_getmapdata(p->data[i].sd->bl.m)->name : mapindex_id2name(p->party.member[i].map)); break;
 		case 5: script_pushint(st,p->party.member[i].lv); break;
 		default: script_pushstrcopy(st,p->party.member[i].name); break;
 	}
@@ -12205,6 +12205,7 @@ BUILDIN_FUNC(sc_end)
 			return SCRIPT_CMD_SUCCESS;
 
 		switch (type) {
+			case SC_BOT:
 			case SC_WEIGHT50:
 			case SC_WEIGHT90:
 			case SC_NOCHAT:
@@ -27871,7 +27872,7 @@ BUILDIN_FUNC(is_bot)
 	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	script_pushint(st, sd->state.bot_running);
+	script_pushint(st, sd->state.bot);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -27897,7 +27898,7 @@ static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data){
 		add_timer(gettick() + 3000, buildin_bot_login_sub, sd->bl.id, 0);
 	}
 	else if ((sd = map_id2sd(id)) != NULL) {
-		sd->state.bot_running = 1;
+		sd->state.bot = 1;
 		clif_parse_LoadEndAck(0, sd);
 	}
 	return 1;
@@ -28059,15 +28060,18 @@ BUILDIN_FUNC(unit_Astart_walkto)
 
 /**
  * 获取玩家当前副本的副本名
- * instance_name({<char ID>});
+ * instance_name({<instance_id>});
  */
 BUILDIN_FUNC(instance_name)
 {
 	struct instance_db *db;
-	unsigned short instance_id = script_instancegetid(st);
-	struct map_session_data *sd = NULL;
-	if (!script_charid2sd(2, sd))
-		return SCRIPT_CMD_FAILURE;
+	unsigned short instance_id;
+
+	if (script_hasdata(st, 2))
+		instance_id = script_getnum(st, 2);
+	else
+		instance_id = script_instancegetid(st);
+
 	if (instance_data[instance_id].state == INSTANCE_FREE) {
 		script_pushconststr(st, "");  //副本不存在
 		return SCRIPT_CMD_SUCCESS;

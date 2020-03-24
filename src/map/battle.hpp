@@ -256,6 +256,8 @@ struct Battle_Config
 	int mvp_skill_delay;
 	int boss_skill_rate;
 	int boss_skill_delay;
+	int item_trade_expire_gmlv;
+	int item_drop_gmlv;
 	int mob_aggro_enable;
 	int mob_aggro_all_mob;
 	int mob_aggro_ot_tick;

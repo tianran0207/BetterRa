@@ -2121,7 +2121,7 @@ int map_quit(struct map_session_data *sd) {
 		return 0;
 	}
 
-	if (sd->state.bot_data)
+	if (sd->state.bot)
 		pcbot_stop(sd, 0);
 
 	if (sd->aggro.head)
@@ -2159,7 +2159,6 @@ int map_quit(struct map_session_data *sd) {
 		//Status that are not saved...
 		status_change_end(&sd->bl, SC_BOSSMAPINFO, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_AUTOTRADE, INVALID_TIMER);
-		status_change_end(&sd->bl, SC_BOT, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_SPURT, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_BERSERK, INVALID_TIMER);
 		status_change_end(&sd->bl, SC__BLOODYLUST, INVALID_TIMER);
@@ -3289,7 +3288,7 @@ int map_getcellp(struct map_data* m,int16 x,int16 y,cell_chk cellchk)
 	nullpo_ret(m);
 
 	//NOTE: this intentionally overrides the last row and column
-	if(x<0 || x>=m->xs-1 || y<0 || y>=m->ys-1)
+	if(!m->cell || x<0 || x>=m->xs-1 || y<0 || y>=m->ys-1)
 		return( cellchk == CELL_CHKNOPASS );
 
 	cell = m->cell[x + y*m->xs];
@@ -5584,6 +5583,8 @@ int do_init(int argc, char *argv[])
 	MSG_CONF_NAME_POR = CONF_PATH "/msg_conf/map_msg_por.conf";	// Brazilian Portuguese
 	MSG_CONF_NAME_THA = CONF_PATH "/msg_conf/map_msg_tha.conf";	// Thai
 	/* Multilanguage */
+
+	sprintf(old_db_path, "%s/" DBIMPORT "/old_db_version", db_path);
 
 	// Default map
 	safestrncpy(map_default.mapname, "prontera", MAP_NAME_LENGTH);
