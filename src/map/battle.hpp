@@ -256,7 +256,8 @@ struct Battle_Config
 	int mvp_skill_delay;
 	int boss_skill_rate;
 	int boss_skill_delay;
-	int expire_trade_gmlv;
+	int item_trade_expire_gmlv;
+	int item_drop_gmlv;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

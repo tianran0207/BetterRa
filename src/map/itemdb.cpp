@@ -553,7 +553,7 @@ bool itemdb_isstackable2(struct item_data *id)
  * Trade Restriction functions [Skotlex]
  *------------------------------------------*/
 bool itemdb_isdropable_sub(struct item_data *item, int gmlv, int unused) {
-	return (item && (!(item->flag.trade_restriction&1) || gmlv >= item->gm_lv_trade_override));
+	return (item && (!(item->flag.trade_restriction&1) || gmlv >= item->gm_lv_trade_override || gmlv >= battle_config.item_drop_gmlv));
 }
 
 bool itemdb_cantrade_sub(struct item_data* item, int gmlv, int gmlv2) {

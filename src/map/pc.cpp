@@ -5769,7 +5769,7 @@ bool pc_dropitem(struct map_session_data *sd,int n,int amount)
 		return false;
 	}
 
-	if (!map_addflooritem(&sd->inventory.u.items_inventory[n], amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 2, 0))
+	if (!map_addflooritem(&sd->inventory.u.items_inventory[n], amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, pc_get_group_level(sd) < battle_config.item_drop_gmlv ? 2 : 4, 0))
 		return false;
 
 	if (npc_script_event_check(sd, NPCE_DROPITEMFILTER)) {
