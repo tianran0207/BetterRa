@@ -5581,6 +5581,8 @@ int do_init(int argc, char *argv[])
 	MSG_CONF_NAME_THA = CONF_PATH "/msg_conf/map_msg_tha.conf";	// Thai
 	/* Multilanguage */
 
+	sprintf(old_db_path, "%s/" DBIMPORT "/old_db_version", db_path);
+
 	// Default map
 	safestrncpy(map_default.mapname, "prontera", MAP_NAME_LENGTH);
 	map_default.x = 156;
