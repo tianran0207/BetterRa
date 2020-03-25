@@ -373,6 +373,7 @@ int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target,
 			if (rnd() % 1000 >= (it.crirate * cri_rate / 100) - cri_def)
 				continue;
 			damage = damage * it.dmgrate / 100;
+			damage = damage * (100 + sd->c_bonus.skill_crit_atk_rate) / 100;
 			battle_display.critical = true;
 		}
 	}

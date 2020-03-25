@@ -3749,6 +3749,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	sd->skilltoground.clear();
 	sd->skillnospecial.clear();
 	sd->skillnorequire.clear();
+	sd->skilladddiv.clear();
 	sd->skillattribute.clear();
 	sd->statusbonus.clear();
 	sd->addstatusval.clear();

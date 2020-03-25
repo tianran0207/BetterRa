@@ -282,6 +282,10 @@ struct s_skill_val {
 	int sk, val;
 };
 
+struct s_skill_div {
+	uint16 sk, div, rate;
+};
+
 struct s_skill_attr {
 	int sk;
 	int16 attr;
@@ -696,6 +700,7 @@ struct map_session_data {
 		int ignore_def_by_race[RC_MAX];
 		int ignore_def_by_class[CLASS_MAX];
 		int weapon_return_def_rate, magic_return_def_rate;
+		int skill_crit_atk_rate;
 	}c_bonus;
 
 	std::vector<s_bonus_limit> bonus_limit;
@@ -710,6 +715,7 @@ struct map_session_data {
 	std::vector<s_skill_val> skilltoground;
 	std::vector<s_skill_val> skillnospecial;
 	std::vector<s_skill_val> skillnorequire;
+	std::vector<s_skill_div> skilladddiv;
 	std::vector<s_skill_attr> skillattribute;
 	std::vector<s_status_bonus> statusbonus;
 	std::vector<s_status_val> addstatusval;

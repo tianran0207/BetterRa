@@ -2927,6 +2927,10 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 	status = &sd->base_status;
 
 	switch(type){
+		case SP_SKILL_CRIT_ATK_RATE:
+			if (sd->state.lr_flag != 2)
+				sd->c_bonus.skill_crit_atk_rate += val;
+			break;
 		case SP_WEAPON_RETURN_DEF_RATE:  // bonus bReturnDefRate,n;
 			if (sd->state.lr_flag != 2)
 				sd->c_bonus.weapon_return_def_rate += val;
@@ -4334,6 +4338,29 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_SKILL_ADD_DIV:
+		if (sd->state.lr_flag != 2) {
+			bool hasentry = false;
+			for (auto &it : sd->skilladddiv) {
+				if (it.sk != type2)
+					continue;
+				it.div += type3;
+				it.rate += val;
+				hasentry = true;
+				break;
+			}
+			if (hasentry) break;
+			if (sd->skilladddiv.size() == MAX_PC_BONUS) {
+				ShowError("pc_bonus3: SP_SKILL_ADD_DIV: Reached max (%d) number of skills per character, (sk: %d div: %d r: %d).\n", MAX_PC_BONUS, type2, type3, val);
+				break;
+			}
+			struct s_skill_div entry = {};
+			entry.sk = type2;
+			entry.div = type3;
+			entry.rate = val;
+			sd->skilladddiv.push_back(entry);
+		}
+		break;
 	case SP_STATUS_ADD_BONUS: // bonus3 bStatusAddBonus,sc,bonus,n;
 		if (sd->state.lr_flag != 2) {
 			if (sd->statusbonus.size() == MAX_PC_BONUS) {

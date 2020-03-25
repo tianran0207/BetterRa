@@ -3438,6 +3438,15 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	dmg = battle_calc_attack(attack_type,src,bl,skill_id,skill_lv,flag&0xFFF);
 
+	if (sd) {
+		for (auto &it : sd->skilladddiv) {
+			if (it.sk != skill_id)
+				continue;
+			dmg.div_ += it.div;
+			dmg.damage = dmg.damage * (100 + it.rate) / 100;
+		}
+	}
+
 	//If the damage source is a unit, the damage is not delayed
 	if (src != dsrc && skill_id != GS_GROUNDDRIFT)
 		dmg.amotion = 0;
