@@ -1313,7 +1313,7 @@ ACMD_FUNC(heal)
 	}
 
 	if ( hp < 0 && sp <= 0 ) {
-		status_damage(NULL, &sd->bl, -hp, -sp, 0, 0);
+		status_damage(NULL, &sd->bl, -hp, -sp, 0, 0, 0);
 		clif_damage(&sd->bl,&sd->bl, gettick(), 0, 0, -hp, 0, DMG_ENDURE, 0, false);
 		clif_displaymessage(fd, msg_txt(sd,156)); // HP or/and SP modified.
 		return 0;
@@ -1324,7 +1324,7 @@ ACMD_FUNC(heal)
 		if (hp > 0)
 			status_heal(&sd->bl, hp, 0, 0);
 		else {
-			status_damage(NULL, &sd->bl, -hp, 0, 0, 0);
+			status_damage(NULL, &sd->bl, -hp, 0, 0, 0, 0);
 			clif_damage(&sd->bl,&sd->bl, gettick(), 0, 0, -hp, 0, DMG_ENDURE, 0, false);
 		}
 	}
@@ -1333,7 +1333,7 @@ ACMD_FUNC(heal)
 		if (sp > 0)
 			status_heal(&sd->bl, 0, sp, 0);
 		else
-			status_damage(NULL, &sd->bl, 0, -sp, 0, 0);
+			status_damage(NULL, &sd->bl, 0, -sp, 0, 0, 0);
 	}
 
 	clif_displaymessage(fd, msg_txt(sd,156)); // HP or/and SP modified.
@@ -3459,7 +3459,7 @@ ACMD_FUNC(questskill)
 		clif_displaymessage(fd, msg_txt(sd,198)); // This skill number doesn't exist.
 		return -1;
 	}
-	if (!(skill_get_inf2(skill_id) & INF2_QUEST_SKILL)) {
+	if (!skill_get_inf2(skill_id, INF2_ISQUEST)) {
 		clif_displaymessage(fd, msg_txt(sd,197)); // This skill number doesn't exist or isn't a quest skill.
 		return -1;
 	}
@@ -3503,7 +3503,7 @@ ACMD_FUNC(lostskill)
 		clif_displaymessage(fd, msg_txt(sd,198)); // This skill number doesn't exist.
 		return -1;
 	}
-	if (!(skill_get_inf2(skill_id) & INF2_QUEST_SKILL)) {
+	if (!skill_get_inf2(skill_id, INF2_ISQUEST)) {
 		clif_displaymessage(fd, msg_txt(sd,197)); // This skill number doesn't exist or isn't a quest skill.
 		return -1;
 	}
@@ -3544,6 +3544,28 @@ ACMD_FUNC(spiritball)
 	sd->spiritball = number;
 	clif_spiritball(&sd->bl);
 	// no message, player can look the difference
+
+	return 0;
+}
+
+ACMD_FUNC(soulball)
+{
+	uint32 max_soulballs = min(ARRAYLENGTH(sd->soul_timer), 0x7FFF);
+	int number;
+	nullpo_retr(-1, sd);
+
+	if (!message || !*message || (number = atoi(message)) < 0 || number > max_soulballs) {
+		char msg[CHAT_SIZE_MAX];
+		safesnprintf(msg, sizeof(msg), "Usage: @soulball <number: 0-%d>", max_soulballs);
+		clif_displaymessage(fd, msg);
+		return -1;
+	}
+
+	if (sd->soulball > 0)
+		pc_delsoulball(sd, sd->soulball, 1);
+	sd->soulball = number;
+	clif_soulball(sd);
+	// no message, player can see the difference
 
 	return 0;
 }
@@ -4082,6 +4104,9 @@ ACMD_FUNC(reload) {
 	} else if (strstr(command, "achievementdb") || strncmp(message, "achievementdb", 4) == 0) {
 		achievement_db_reload();
 		clif_displaymessage(fd, msg_txt(sd,771)); // Achievement database has been reloaded.
+	} else if (strstr(command, "attendancedb") || strncmp(message, "attendancedb", 4) == 0) {
+		attendance_db.reload();
+		clif_displaymessage(fd, msg_txt(sd, 795)); // Attendance database has been reloaded.
 	}
 
 	return 0;
@@ -5899,9 +5924,6 @@ ACMD_FUNC(clearcart)
 #define MAX_SKILLID_PARTIAL_RESULTS_LEN 74 // "skill " (6) + "%d:" (up to 5) + "%s" (up to 30) + " (%s)" (up to 33)
 ACMD_FUNC(skillid) {
 	int skillen, i, found = 0;
-	DBIterator* iter;
-	DBKey key;
-	DBData *data;
 	char partials[MAX_SKILLID_PARTIAL_RESULTS][MAX_SKILLID_PARTIAL_RESULTS_LEN];
 
 	nullpo_retr(-1, sd);
@@ -5913,19 +5935,19 @@ ACMD_FUNC(skillid) {
 
 	skillen = strlen(message);
 
-	iter = db_iterator(skilldb_name2id);
+	for(const auto & skill : skill_db) {
+		uint16 skill_id = skill.second->nameid;
+		uint16 idx = skill_get_index(skill_id);
+		const char *name = skill.second->name;
+		const char *desc = skill.second->desc;
 
-	for( data = iter->first(iter,&key); iter->exists(iter); data = iter->next(iter,&key) ) {
-		int idx = skill_get_index(db_data2i(data));
-		if (strnicmp(key.str, message, skillen) == 0 || strnicmp(skill_db[idx]->desc, message, skillen) == 0) {
-			sprintf(atcmd_output, msg_txt(sd,1164), db_data2i(data), skill_db[idx]->desc, key.str); // skill %d: %s (%s)
+		if (strnicmp(name, message, skillen) == 0 || strnicmp(desc, message, skillen) == 0) {
+			sprintf(atcmd_output, msg_txt(sd,1164), skill_id, desc, name); // skill %d: %s (%s)
 			clif_displaymessage(fd, atcmd_output);
-		} else if ( found < MAX_SKILLID_PARTIAL_RESULTS && ( stristr(key.str,message) || stristr(skill_db[idx]->desc,message) ) ) {
-			snprintf(partials[found++], MAX_SKILLID_PARTIAL_RESULTS_LEN, msg_txt(sd,1164), db_data2i(data), skill_db[idx]->desc, key.str); // // skill %d: %s (%s)
+		} else if ( found < MAX_SKILLID_PARTIAL_RESULTS && ( stristr(name,message) || stristr(desc,message) ) ) {
+			snprintf(partials[found++], MAX_SKILLID_PARTIAL_RESULTS_LEN, msg_txt(sd,1164), skill_id, desc, name); // // skill %d: %s (%s)
 		}
 	}
-
-	dbi_destroy(iter);
 
 	if( found ) {
 		sprintf(atcmd_output, msg_txt(sd,1398), found); // -- Displaying first %d partial matches
@@ -6057,7 +6079,7 @@ ACMD_FUNC(skilltree)
 	{
 		if( ent->need[j].skill_id && pc_checkskill(sd,ent->need[j].skill_id) < ent->need[j].skill_lv)
 		{
-			sprintf(atcmd_output, msg_txt(sd,1170), ent->need[j].skill_lv, skill_db[skill_get_index(ent->need[j].skill_id)]->desc); // Player requires level %d of skill %s.
+			sprintf(atcmd_output, msg_txt(sd,1170), ent->need[j].skill_lv, skill_get_desc(ent->need[j].skill_id)); // Player requires level %d of skill %s.
 			clif_displaymessage(fd, atcmd_output);
 			meets = 0;
 		}
@@ -10320,6 +10342,66 @@ ACMD_FUNC(resurrect) {
 	return 0;
 }
 
+ACMD_FUNC(quest) {
+	uint8 i;
+	int quest_id = 0;
+	nullpo_retr(-1, sd);
+	memset(atcmd_output, '\0', sizeof(atcmd_output));
+
+	if (!message || !*message || sscanf(message, "%11d", &quest_id) < 1 || quest_id == 0) {
+		sprintf(atcmd_output, msg_txt(sd,1505), command); // Usage: %s <quest ID>
+		clif_displaymessage(fd, atcmd_output);
+		return -1;
+	}
+	if (!quest_search(quest_id)) {
+		sprintf(atcmd_output,  msg_txt(sd,1506), quest_id); // Quest %d not found in DB.
+		clif_displaymessage(fd, atcmd_output);
+		return -1;
+	}
+
+	const char* type[] = { "setquest", "erasequest", "completequest", "checkquest" };
+	ARR_FIND( 0, ARRAYLENGTH(type), i, strcmpi(command+1, type[i]) == 0 );
+
+	switch(i) {
+	case 0:
+		if (quest_check(sd, quest_id, HAVEQUEST) >= 0) {
+			sprintf(atcmd_output,  msg_txt(sd,1507), quest_id); // Character already has quest %d.
+			clif_displaymessage(fd, atcmd_output);
+			return -1;
+		}
+		quest_add(sd, quest_id);
+		pc_show_questinfo(sd);
+		break;
+	case 1:
+		if (quest_check(sd, quest_id, HAVEQUEST) < 0) {
+			sprintf(atcmd_output,  msg_txt(sd,1508), quest_id); // Character doesn't have quest %d.
+			clif_displaymessage(fd, atcmd_output);
+			return -1;
+		}
+		quest_delete(sd, quest_id);
+		pc_show_questinfo(sd);
+		break;
+	case 2:
+		if (quest_check(sd, quest_id, HAVEQUEST) < 0)
+			quest_add(sd, quest_id);
+		if (quest_check(sd, quest_id, HAVEQUEST) < 2)
+			quest_update_status(sd, quest_id, Q_COMPLETE);
+		pc_show_questinfo(sd);
+		break;
+	case 3:
+		sprintf(atcmd_output, msg_txt(sd,1509), quest_id); // Checkquest value for quest %d
+		clif_displaymessage(fd, atcmd_output);
+		sprintf(atcmd_output, msg_txt(sd,1510), quest_check(sd, quest_id, HAVEQUEST));	// HAVEQUEST : %d
+		clif_displaymessage(fd, atcmd_output);
+		sprintf(atcmd_output, msg_txt(sd,1511), quest_check(sd, quest_id, HUNTING));	// HUNTING   : %d
+		clif_displaymessage(fd, atcmd_output);
+		sprintf(atcmd_output, msg_txt(sd,1512), quest_check(sd, quest_id, PLAYTIME));	// PLAYTIME  : %d
+		clif_displaymessage(fd, atcmd_output);
+		break;
+	}
+	return 0;
+}
+
 #include "../custom/atcommand.inc"
 
 ACMD_FUNC(followpacket)
@@ -10567,6 +10649,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(questskill),
 		ACMD_DEF(lostskill),
 		ACMD_DEF(spiritball),
+		ACMD_DEF(soulball),
 		ACMD_DEF(party),
 		ACMD_DEF(guild),
 		ACMD_DEF(breakguild),
@@ -10592,6 +10675,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF2("reloadmsgconf", reload),
 		ACMD_DEF2("reloadinstancedb", reload),
 		ACMD_DEF2("reloadachievementdb",reload),
+		ACMD_DEF2("reloadattendancedb",reload),
 		ACMD_DEF(partysharelvl),
 		ACMD_DEF(mapinfo),
 		ACMD_DEF(dye),
@@ -10782,6 +10866,10 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(bot),
 		ACMD_DEFR(camerainfo, ATCMD_NOCONSOLE|ATCMD_NOAUTOTRADE),
 		ACMD_DEFR(resurrect, ATCMD_NOCONSOLE),
+		ACMD_DEF2("setquest", quest),
+		ACMD_DEF2("erasequest", quest),
+		ACMD_DEF2("completequest", quest),
+		ACMD_DEF2("checkquest", quest),
 	};
 	AtCommandInfo* atcommand;
 	int i;
