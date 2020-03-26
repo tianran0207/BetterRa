@@ -479,7 +479,7 @@ public:
 		int time;
 	}info;
 	int64 script_attr_fix(int64 damage);
-	int64 script_card_fix(int64 damage, int attack_type, int nk, int hand);
+	int64 script_card_fix(int64 damage, int attack_type, std::bitset<NK_MAX> nk, int hand);
 	void script_run(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int type, struct Damage *wd, int64 *damage, int *time);
 };
 extern SkillFormulaDatabase skf_db;

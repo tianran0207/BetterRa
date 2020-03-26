@@ -28281,7 +28281,7 @@ BUILDIN_FUNC(getareamember)
 	TBL_PC *sd = NULL, *tsd = NULL;
 	struct party_data *p = NULL;
 	struct guild *g = NULL;
-	struct battleground_data *bg = NULL;
+	std::shared_ptr<s_battleground_data> bg;
 	int x0 = 0, x1 = 0, y0 = 0, y1 = 0, size = 0, i, j = 0;
 
 	if (!script_charid2sd(4, sd))
@@ -28322,16 +28322,15 @@ BUILDIN_FUNC(getareamember)
 		}
 		break;
 	case BG_AREA:
-		if (sd && sd->bg_id)
-			bg = bg_team_search(sd->bg_id);
-		if (!bg) break;
-		for (i = 0; i < MAX_BG_MEMBERS; i++){
-			if ((tsd = bg->members[i].sd) == NULL)
-				continue;
-			if (tsd->bl.x < x0 || tsd->bl.y < y0 || tsd->bl.x > x1 || tsd->bl.y > y1)
-				continue;
-			pc_setreg(sd, reference_uid(add_str("@member_aid"), j), tsd->status.account_id);
-			j++;
+		if (sd && sd->bg_id && (bg = util::umap_find(bg_team_db, sd->bg_id))) {
+			for (i = 0; i < bg->members.size(); i++) {
+				if ((tsd = bg->members[i].sd) == NULL)
+					continue;
+				if (tsd->bl.x < x0 || tsd->bl.y < y0 || tsd->bl.x > x1 || tsd->bl.y > y1)
+					continue;
+				pc_setreg(sd, reference_uid(add_str("@member_aid"), j), tsd->status.account_id);
+				j++;
+			}
 		}
 		break;
 	default:
@@ -28983,7 +28982,7 @@ int buildin_killaroundmonster_sub(struct block_list *bl, va_list ap)
 		return 0;
 	}
 
-	status_damage(src, bl, md->status.hp, 0, 0, 1);
+	status_damage(src, bl, md->status.hp, 0, 0, 1, 0);
 	return 1;
 }
 
@@ -29250,7 +29249,7 @@ BUILDIN_FUNC(unitdamage)
 	type = div > 1 ? DMG_MULTI_HIT : DMG_NORMAL;
 
 	clif_damage(src, src, tick, 0, 0, damage, div, type, 0, false);
-	status_damage(src, src, damage, 0, 0, 1);
+	status_damage(src, src, damage, 0, 0, 1, 0);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -29846,7 +29845,7 @@ BUILDIN_FUNC(getskillinfo)
 	case 6: script_pushint(st, skill_get_hit(skill_id));			break;
 	case 7: script_pushint(st, skill_get_inf(skill_id));			break;
 	case 8: script_pushint(st, skill_get_ele(skill_id, skill_parma));	break;
-	case 9: script_pushint(st, skill_get_nk(skill_id));				break;
+	case 9: script_pushint(st, skill_get_nk(skill_id, (std::vector<e_skill_nk>)skill_parma));	break;
 	case 10: script_pushint(st, skill_get_max(skill_id));			break;
 	case 11: script_pushint(st, skill_get_range(skill_id, skill_parma));	break;
 	case 12: script_pushint(st, skill_get_splash(skill_id, skill_parma));	break;
@@ -29860,15 +29859,15 @@ BUILDIN_FUNC(getskillinfo)
 	case 20: script_pushint(st, skill_get_delaynodex(skill_id));	break;
 	case 21: script_pushint(st, skill_get_castdef(skill_id));		break;
 	case 22: script_pushint(st, skill_get_nocast(skill_id));		break;
-	case 23: script_pushint(st, skill_get_unit_id(skill_id, skill_parma));	break;
-	case 24: script_pushint(st, skill_get_inf2(skill_id));			break;
-	case 25: script_pushint(st, skill_get_castcancel(skill_id));	break;
+	case 23: script_pushint(st, skill_get_unit_id(skill_id));	break;
+	case 24: script_pushint(st, skill_get_inf2(skill_id, (std::vector<e_skill_inf2>)skill_parma));		break;
+	case 25: script_pushint(st, skill_get_castcancel(skill_id));			break;
 	case 26: script_pushint(st, skill_get_maxcount(skill_id, skill_parma));	break;
 	case 27: script_pushint(st, skill_get_blewcount(skill_id, skill_parma));break;
-	case 28: script_pushint(st, skill_get_unit_flag(skill_id));		break;
+	case 28: script_pushint(st, skill_get_unit_flag(skill_id, (std::vector<e_skill_unit_flag>)skill_parma));break;
 	case 29: script_pushint(st, skill_get_cooldown(skill_id, skill_parma));	break;
-	case 30: script_pushint(st, skill_get_unit_target(skill_id));	break;
-	case 31: script_pushint(st, skill_get_inf3(skill_id));			break;
+	case 30: script_pushint(st, skill_get_unit_target(skill_id));		break;
+	case 31: script_pushint(st, 0);										break;
 	case 32: script_pushint(st, skill_get_hp(skill_id, skill_parma));	break;
 	case 33: script_pushint(st, skill_get_mhp(skill_id, skill_parma));	break;
 	case 34: script_pushint(st, skill_get_sp(skill_id, skill_parma));	break;
@@ -29881,8 +29880,8 @@ BUILDIN_FUNC(getskillinfo)
 	case 41: script_pushint(st, skill_get_state(skill_id));			break;
 	case 43: script_pushint(st, skill_get_status_count(skill_id));	break;
 	case 44: script_pushint(st, skill_get_spiritball(skill_id, skill_parma));	break;
-	case 45: script_pushint(st, skill_get_itemid(skill_id, skill_parma));	break;
-	case 46: script_pushint(st, skill_get_itemqty(skill_id, skill_parma));	break;
+	case 45: script_pushint(st, !skill_get_index(skill_id) ? skill_db.find(skill_id)->require.itemid[skill_parma] : 0);	break;
+	case 46: script_pushint(st, !skill_get_index(skill_id) ? skill_db.find(skill_id)->require.amount[skill_parma] : 0);	break;
 	default:
 		ShowError("buildin_getskillinfo: invalid parameter (%d).\n", script_getnum(st, 2));
 		script_pushint(st, 0);

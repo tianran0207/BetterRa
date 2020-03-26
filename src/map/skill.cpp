@@ -216,14 +216,17 @@ static bool skill_check(uint16 id) {
 
 int skill_get_zone(struct block_list *bl, uint16 skill_id) {
 
-	skill_chk(&skill_id);
+	if (skill_id == 0)
+		return false;
 
-	if (!skill_id)
-		return 0;
+	std::shared_ptr<s_skill_db> skill = skill_db.find(skill_id);
 
-	if (bl->type & skill_db[skill_id]->nocast.type) {
+	if (!skill)
+		return false;
+
+	if (bl->type & skill->nocast.type) {
 		struct map_data *mapdata = map_getmapdata(bl->m);
-		uint32 zone = skill_db[skill_id]->nocast.zone;
+		uint32 zone = skill->nocast.zone;
 		if ((zone & 1 && !mapdata_flag_vs2(mapdata)) ||
 			(zone & 2 && mapdata->flag[MF_PVP]) ||
 			(zone & 4 && mapdata_flag_gvg2_no_te(mapdata)) ||
@@ -256,7 +259,7 @@ int skill_get_maxcount( uint16 skill_id ,uint16 skill_lv )         { skill_get_l
 int skill_get_blewcount( uint16 skill_id ,uint16 skill_lv )        { skill_get_lv(skill_id, skill_lv, skill_db.find(skill_id)->blewcount); }
 int skill_get_castnodex( uint16 skill_id )                         { skill_get(skill_id, skill_db.find(skill_id)->castnodex); }
 int skill_get_delaynodex( uint16 skill_id )                        { skill_get(skill_id, skill_db.find(skill_id)->delaynodex); }
-int skill_get_nocast ( uint16 skill_id )                           { if (!skill_check(id)) return 0; std::shared_ptr<s_skill_db> skill = skill_db.find(skill_id); return (skill->nocast.type&BL_PC) ? skill->nocast.zone : 0}
+int skill_get_nocast(uint16 skill_id)                              { if (!skill_check(skill_id)) return 0; std::shared_ptr<s_skill_db> skill = skill_db.find(skill_id); return (skill->nocast.type&BL_PC) ? skill->nocast.zone : 0; }
 int skill_get_type( uint16 skill_id )                              { skill_get(skill_id, skill_db.find(skill_id)->skill_type); }
 int skill_get_unit_id ( uint16 skill_id )                          { skill_get(skill_id, skill_db.find(skill_id)->unit_id); }
 int skill_get_unit_id2 ( uint16 skill_id )                         { skill_get(skill_id, skill_db.find(skill_id)->unit_id2); }
@@ -12019,7 +12022,7 @@ int skill_castend_for_AOE(struct block_list *bl, va_list ap)
 	struct block_list *src;
 	struct unit_data *ud;
 	int maxcount;
-	int *count, inf, inf2;
+	int *count, inf;
 	t_tick tick;
 
 	src = va_arg(ap, struct block_list *);
@@ -12030,22 +12033,22 @@ int skill_castend_for_AOE(struct block_list *bl, va_list ap)
 	if ((ud = unit_bl2ud(src)) == NULL || ud->target == bl->id)
 		return 0;
 
-	inf = skill_get_inf(ud->skill_id);
-	inf2 = skill_get_inf2(ud->skill_id);
+	std::shared_ptr<s_skill_db> skill = skill_db.find(ud->skill_id);
+	inf = skill->inf;
 
 	if (inf&INF_ATTACK_SKILL ||
-		(inf&INF_SELF_SKILL && skill_get_inf2(ud->skill_id)&INF2_NO_TARGET_SELF) //Combo skills
+		(inf&INF_SELF_SKILL && skill->inf2[INF2_NOTARGETSELF]) //Combo skills
 		) // Casted through combo.
 		inf = BCT_ENEMY; //Offensive skill.
-	else if (inf2&INF2_NO_ENEMY)
+	else if (skill->inf2[INF2_NOTARGETENEMY])
 		inf = BCT_NOENEMY;
 	else
 		inf = 0;
 
-	if (inf2 & (INF2_PARTY_ONLY | INF2_GUILD_ONLY) && src != bl) {
+	if ((skill->inf2[INF2_PARTYONLY] || skill->inf2[INF2_GUILDONLY]) && src != bl) {
 		inf |=
-			(inf2&INF2_PARTY_ONLY ? BCT_PARTY : 0) |
-			(inf2&INF2_GUILD_ONLY ? BCT_GUILD : 0);
+			(skill->inf2[INF2_PARTYONLY] ? BCT_PARTY : 0) |
+			(skill->inf2[INF2_GUILDONLY] ? BCT_GUILD : 0);
 		//Remove neutral targets (but allow enemy if skill is designed to be so)
 		inf &= ~BCT_NEUTRAL;
 	}
@@ -15748,6 +15751,7 @@ int skill_check_pc_partner(struct map_session_data *sd, uint16 skill_id, uint16 
 	static int p_sd[MAX_PARTY];
 	int i;
 	bool is_chorus = skill_get_inf2(skill_id, INF2_ISCHORUS);
+	bool is_ensemble = skill_get_inf2(skill_id, INF2_ISENSEMBLE);
 
 	if (!sd)
 		return 0;
@@ -15755,8 +15759,7 @@ int skill_check_pc_partner(struct map_session_data *sd, uint16 skill_id, uint16 
 	if (!battle_config.player_skill_partner_check || pc_has_permission(sd, PC_PERM_SKILL_UNCONDITIONAL))
 		return is_chorus ? MAX_PARTY : 99; //As if there were infinite partners.
 
-	int inf2 = skill_get_inf2(skill_id);
-	if ((inf2&INF2_CHORUS_SKILL) || (inf2&INF2_ENSEMBLE_SKILL)) {
+	if (is_chorus || is_ensemble) {
 		if (battle_config.skill_chorus_check)
 			return MAX_PARTY;
 	}
@@ -15783,7 +15786,7 @@ int skill_check_pc_partner(struct map_session_data *sd, uint16 skill_id, uint16 
 			default:
 				if( is_chorus )
 					break;//Chorus skills are not to be parsed as ensembles
-				if (skill_get_inf2(skill_id, INF2_ISENSEMBLE)) {
+				if ( is_ensemble ) {
 					if (c > 0 && sd->sc.data[SC_DANCING] && (tsd = map_id2sd(p_sd[0])) != NULL) {
 						sd->sc.data[SC_DANCING]->val4 = tsd->bl.id;
 						sc_start4(&sd->bl,&tsd->bl,SC_DANCING,100,skill_id,sd->sc.data[SC_DANCING]->val2,*skill_lv,sd->bl.id,skill_get_time(skill_id,*skill_lv)+1000);
@@ -17633,10 +17636,10 @@ struct s_skill_condition skill_get_requirement(struct map_session_data* sd, uint
 		if (it.val & 0x0040) req.weapon = 0;
 		if (it.val & 0x0080) { req.ammo = 0; req.ammo_qty = 0; }
 		if (it.val & 0x0100) req.state = ST_NONE;
-		if (it.val & 0x0200) req.status_count = 0;
+		if (it.val & 0x0200) { req.status.clear(); req.eqItem.shrink_to_fit(); }
 		if (it.val & 0x0400) req.spiritball = 0;
 		if (it.val & 0x0800) { memset(req.itemid, 0, sizeof(req.itemid)); memset(req.amount, 0, sizeof(req.amount)); }
-		if (it.val & 0x1000) req.eqItem_count = 0;
+		if (it.val & 0x1000) { req.eqItem.clear(); req.status.shrink_to_fit(); }
 	}
 
 	return req;
@@ -19974,10 +19977,11 @@ static int skill_unit_timer_sub(DBKey key, DBData *data, va_list ap)
 		return 0;
 
 	uint16 idx;
-	if (group->skill_id && (idx = skill_get_index(group->skill_id)) != 0 && skill_db[idx]->formula.onplace.pertick && DIFF_TICK(tick, unit->pertick) >= skill_db[idx]->formula.onplace.pertick) {
+	std::shared_ptr<s_skill_db> skill = skill_db.find(group->skill_id);
+	if (group->skill_id && (idx = skill_get_index(group->skill_id)) != 0 && skill->formula.onplace.pertick && DIFF_TICK(tick, unit->pertick) >= skill->formula.onplace.pertick) {
 		struct block_list* src = battle_get_master(&unit->bl);
 		unit->pertick = tick;
-		map_foreachinrange(skill_onplace_script, bl, unit->range, BL_CHAR, src, bl, skill_db[idx]->formula.onplace.target);
+		map_foreachinrange(skill_onplace_script, bl, unit->range, BL_CHAR, src, bl, skill->formula.onplace.target);
 	}
 
 	dissonance = skill_dance_switch(unit, 0);
@@ -22276,9 +22280,8 @@ const std::string SkillFormulaDatabase::getDefaultLocation() {
 	return std::string(db_path) + "/skill_formula_db.yml";
 }
 
-static void skill_destroy_formula(uint16 skill_id)
+static void skill_destroy_formula(struct s_skill_db::s_formula *formula)
 {
-	struct s_skill_db::s_formula *formula = &skill_db[skill_id]->formula;
 	if (formula->formula)
 		script_free_code(formula->formula);
 	if (formula->casting)
@@ -22297,22 +22300,23 @@ static void skill_destroy_formula(uint16 skill_id)
 }
 
 uint64 SkillFormulaDatabase::parseBodyNode(const YAML::Node &node) {
-	uint16 Skill;
+	uint16 skill_id;
 	uint32 Typeable;
 	std::string script;
+	struct s_skill_db::s_formula *formula;
 
-	if (!this->asUInt16(node, "Skill", Skill))
+	if (!this->asUInt16(node, "Skill", skill_id))
+		return 0;
+	std::shared_ptr<s_skill_db> skill = skill_db.find(skill_id);
+	if (!skill)
 		return 0;
 
-	Skill = skill_db_isset(Skill, __FUNCTION__);
-	struct s_skill_db::s_formula *formula = &skill_db[Skill]->formula;
+	skill_destroy_formula(formula = &skill->formula);
 
 	if (this->asUInt32(node, "Typeable", Typeable))
 		formula->typeable = Typeable;
 	else
 		formula->typeable = BL_ALL;
-
-	skill_destroy_formula(Skill);
 
 	if (this->nodeExists(node, "Formula") && this->asString(node, "Formula", script))
 		formula->formula = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Formula"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
@@ -22347,25 +22351,28 @@ void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list 
 
 	if (skill_id == 0)
 		return;
+	std::shared_ptr<s_skill_db> skill = skill_db.find(skill_id);
 
-	if ((idx = skill_get_index(skill_id)) == 0 || !src || !(skill_db[idx]->formula.typeable & src->type)) // invalid skill id
+	if (!skill)
+		return;
+	if ((idx = skill_get_index(skill_id)) == 0 || !src || !(skill->formula.typeable & src->type)) // invalid skill id
 		return;
 
 	switch (type) {
 	case 1:
-		script = skill_db[idx]->formula.formula;
+		script = skill->formula.formula;
 		break;
 	case 2:
-		script = skill_db[idx]->formula.casting;
+		script = skill->formula.casting;
 		break;
 	case 3:
-		script = skill_db[idx]->formula.delay;
+		script = skill->formula.delay;
 		break;
 	case 4:
-		script = skill_db[idx]->formula.duration;
+		script = skill->formula.duration;
 		break;
 	case 5:
-		script = skill_db[idx]->formula.onplace.script;
+		script = skill->formula.onplace.script;
 		break;
 	}
 	if (script == NULL)
@@ -22395,14 +22402,18 @@ void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list 
 
 static bool skill_parse_row_aggrodb(char* split[], int columns, int current)
 {
-	uint16 idx = skill_db_isset(atoi(split[0]), __FUNCTION__);
-	skill_db[idx]->aggro.extra = atoi(split[1]);
-	skill_db[idx]->aggro.force = atoi(split[2]);
-	skill_db[idx]->aggro.rate = atoi(split[3]);
+	std::shared_ptr<s_skill_db> skill = skill_db.find(atoi(split[0]));
+
+	if (!skill)
+		return false;
+
+	skill->aggro.extra = atoi(split[1]);
+	skill->aggro.force = atoi(split[2]);
+	skill->aggro.rate = atoi(split[3]);
 	if (columns >= 5)
-		skill_db[idx]->aggro.flag = atoi(split[4]);
+		skill->aggro.flag = atoi(split[4]);
 	if (columns >= 6)
-		skill_db[idx]->aggro.range = atoi(split[5]);
+		skill->aggro.range = atoi(split[5]);
 	return true;
 }
 
@@ -23326,6 +23337,10 @@ uint64 SkillDatabase::parseBodyNode(const YAML::Node &node) {
 }
 
 void SkillDatabase::clear() {
+
+	for (const auto &it : skill_db)
+		skill_destroy_formula(&it.second->formula);
+
 	TypesafeCachedYamlDatabase::clear();
 	memset(skilldb_id2idx, 0, sizeof(skilldb_id2idx));
 	skill_num = 1;
@@ -23522,8 +23537,8 @@ static bool skill_parse_row_nocastdb(char* split[], int columns, int current)
 	if (!skill)
 		return false;
 
-	skill_db[idx]->nocast.zone |= atoi(split[1]);
-	skill_db[idx]->nocast.type = (columns == 2 ? BL_PC : (enum bl_type)atoi(split[2]));
+	skill->nocast.zone |= atoi(split[1]);
+	skill->nocast.type = (columns == 2 ? BL_PC : (enum bl_type)atoi(split[2]));
 
 	return true;
 }
@@ -23809,8 +23824,6 @@ static bool skill_parse_row_skilldamage(char* split[], int columns, int current)
 
 	return true;
 }
-
-skill_destroy_formula(i);
 
 /*===============================
  * DB reading.

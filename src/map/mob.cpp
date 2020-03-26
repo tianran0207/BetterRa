@@ -6075,7 +6075,7 @@ static int mob_aggro_skill_sub(struct block_list *bl, va_list ap)
 		return 0;
 	if (battle_check_target(bl, &sd->bl, BCT_ENEMY) <= 0 || (entry = mob_aggro_exists(md, sd)) == NULL)
 		return 0;
-	int skill_id = va_arg(ap, int);
+	std::shared_ptr<s_skill_db> skill = va_arg(ap, std::shared_ptr<s_skill_db>);
 	t_tick tick = va_arg(ap, t_tick);
 	int heal = va_arg(ap, int);
 
@@ -6086,18 +6086,17 @@ static int mob_aggro_skill_sub(struct block_list *bl, va_list ap)
 		return 0;
 	}
 	sc_type type;
-	int idx = skill_get_index(skill_id);
-	entry->aggro += skill_db[idx]->aggro.extra;
-	if (skill_db[idx]->aggro.force) {
+	entry->aggro += skill->aggro.extra;
+	if (skill->aggro.force) {
 		md->aggro.force_id = sd->status.char_id;
-		md->aggro.force_tick = tick + skill_db[idx]->aggro.force;
+		md->aggro.force_tick = tick + skill->aggro.force;
 	}
-	if (skill_db[idx]->aggro.rate && (type = status_skill2sc(skill_id)) != SC_NONE) {
+	if (skill->aggro.rate && (type = status_skill2sc(skill->nameid)) != SC_NONE) {
 		int n;
 		ARR_FIND(0, MAX_AGGRO_RATE, n, sd->sc.data[type] == 0);
 		if (n < MAX_AGGRO_RATE) {
 			entry->sc_id[n] = type;
-			entry->sc_rate[n] = skill_db[idx]->aggro.rate;
+			entry->sc_rate[n] = skill->aggro.rate;
 		}
 	}
 	entry->disengage_tick = tick;
@@ -6114,19 +6113,21 @@ int mob_aggro_skill(struct mob_data *md, struct map_session_data *sd, uint16 ski
 		return 0;
 	if (!skill_id || !(idx = skill_get_index(skill_id)))
 		return 0;
-	if (!skill_db[idx]->aggro.extra && !skill_db[idx]->aggro.force && !skill_db[idx]->aggro.rate)
+
+	std::shared_ptr<s_skill_db> skill = skill_db.find(skill_id);
+	if (!skill->aggro.extra && !skill->aggro.force && !skill->aggro.rate)
 		return 0;
 
-	switch(skill_db[idx]->aggro.flag) {
+	switch(skill->aggro.flag) {
 	case 1:
-		range = skill_db[idx]->aggro.range;
+		range = skill->aggro.range;
 		if (md)
 			map_foreachinrange(mob_aggro_skill_sub, &md->bl, range, BL_MOB, sd, skill_id, tick, 0);
 		else if (x > 0 && y > 0)
 			map_foreachinarea(mob_aggro_skill_sub, sd->bl.m, x-range,y-range,x+range,y+range, BL_MOB, sd, skill_id, tick, 0);
 		break;
 	case 2:
-		range = skill_db[idx]->aggro.range;
+		range = skill->aggro.range;
 		map_foreachinrange(mob_aggro_skill_sub, &sd->bl, range, BL_MOB, sd, skill_id, tick, 0);
 		break;
 	default:

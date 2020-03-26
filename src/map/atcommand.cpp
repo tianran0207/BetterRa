@@ -2304,7 +2304,7 @@ static int killmonsterall_sub(struct block_list *bl, va_list ap)
 	if (md->guardian_data)
 		return 0; //Do not touch WoE mobs!
 
-	status_damage(&sd->bl, bl, md->status.hp, 0, 0, 1);
+	status_damage(&sd->bl, bl, md->status.hp, 0, 0, 1, 0);
 
 	return 1;
 }

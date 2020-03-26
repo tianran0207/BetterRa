@@ -315,7 +315,7 @@ void battle_damage_casttime_fix(struct block_list* bl, uint16 skill_id, int64 *d
 				*casttime = 0;
 
 			if (!ud->atk_fix.keeptime) {
-				if (skill_get_nk(skill_id) & NK_NO_DAMAGE) {
+				if (skill_get_nk(skill_id, NK_NODAMAGE)) {
 					ud->atk_fix.skill_id = 0;
 					return;
 				}
@@ -2167,8 +2167,8 @@ int64 battle_calc_pvp_damage(struct block_list *src, struct block_list *bl, int6
 	if (!damage)
 		return 0;
 
-	if (skill_get_inf2(skill_id)&INF2_NO_BG_DMG)
-		return damage; //skill that ignore bg map reduction
+	if (skill_get_inf2(skill_id, INF2_IGNOREGVGREDUCTION)) //Skills with no gvg damage reduction.
+		return damage;
 
 	if (flag&BF_SKILL) { //Skills get a different reduction than non-skills. [Skotlex]
 		if (flag&BF_WEAPON)
@@ -9722,14 +9722,14 @@ int64 SkillFormulaDatabase::script_attr_fix(int64 damage)
 	return wd_tmp.damage + wd_tmp.damage2;
 }
 
-int64 SkillFormulaDatabase::script_card_fix(int64 damage, int attack_type, int nk, int hand)
+int64 SkillFormulaDatabase::script_card_fix(int64 damage, int attack_type, std::bitset<NK_MAX> nk, int hand)
 {
 	if (!skf_db.src || !skf_db.target || !skf_db.wd)
 		return damage;
 	uint16 skill_id = skf_db.info.skill_id, skill_lv = skf_db.info.skill_lv;
 	int right_element = battle_get_weapon_element(skf_db.wd, skf_db.src, skf_db.target, skill_id, skill_lv, EQI_HAND_R, false);
 	int left_element = battle_get_weapon_element(skf_db.wd, skf_db.src, skf_db.target, skill_id, skill_lv, EQI_HAND_L, false);
-	if (nk == -1)
+	if (nk == 0)
 		nk = skill_id ? battle_skill_get_damage_properties(skill_id, skf_db.wd->miscflag) : 0;
 	damage = battle_calc_cardfix(attack_type, skf_db.src, skf_db.target, nk, right_element, left_element, damage, hand, skf_db.wd->flag);
 	if (attack_type&BF_LONG && skf_db.src->type == BL_PC && (skill_id != RA_WUGBITE && skill_id != RA_WUGSTRIKE)) {
