@@ -4275,7 +4275,7 @@ static inline void skill_castend_begin(struct map_session_data *sd, uint16 skill
 static inline void skill_castend_end(struct map_session_data *sd, struct block_list *target, short x, short y, uint16 skill_id, t_tick tick)
 {
 	if (sd) {
-		if (!sd->skill_failure)
+		if (!sd->skill_failure && target)
 			mob_aggro_skill(BL_CAST(BL_MOB, target), sd, sd->skill_id, tick, x, y);
 		sd->skill_id = 0;
 	}
@@ -4285,7 +4285,7 @@ static inline void skill_castend_end(struct map_session_data *sd, struct block_l
  *
  *------------------------------------------*/
 static TIMER_FUNC(skill_timerskill){
-	struct block_list *src = map_id2bl(id),*target;
+	struct block_list *src = map_id2bl(id),*target = NULL;
 	struct map_session_data *sd = BL_CAST(BL_PC, src);
 	struct unit_data *ud = unit_bl2ud(src);
 	struct skill_timerskill *skl;
