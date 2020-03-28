@@ -472,15 +472,7 @@ int party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 
 	if (party_change_lock2(sd, 1))
 		return 0;
-#ifdef  EVENT_PARTYJOINFILTER
-	if (npc_script_event_check(tsd, NPCE_PARTYJOINFILTER)) {
-		pc_setreg(tsd, add_str("@join_party_id"), sd ? sd->status.party_id : 0);
-		pc_setreg(tsd, add_str("@join_party_aid"), sd ? sd->status.account_id : 0);
-		npc_script_event_atonce(tsd, NPCE_PARTYJOINFILTER);
-		if (tsd->state.processhalt)
-			return 0;
-	}
-#endif //  EVENT_PARTYJOINFILTER
+
 	tsd->party_invite=sd->status.party_id;
 	tsd->party_invite_account=sd->status.account_id;
 
@@ -510,6 +502,15 @@ int party_reply_invite(struct map_session_data *sd,int party_id,int flag)
 	tsd = map_id2sd(sd->party_invite_account);
 
 	if( flag == 1 && !sd->party_creating && !sd->party_joining ) { // accepted and allowed
+#ifdef  EVENT_PARTYJOINFILTER
+		if (npc_script_event_check(tsd, NPCE_PARTYJOINFILTER)) {
+			pc_setreg(tsd, add_str("@join_party_id"), sd ? sd->status.party_id : 0);
+			pc_setreg(tsd, add_str("@join_party_aid"), sd ? sd->status.account_id : 0);
+			npc_script_event_atonce(tsd, NPCE_PARTYJOINFILTER);
+			if (tsd->state.processhalt)
+				return 0;
+		}
+#endif //  EVENT_PARTYJOINFILTER
 		sd->party_joining = true;
 		party_fill_member(&member, sd, 0);
 		intif_party_addmember(sd->party_invite, &member);

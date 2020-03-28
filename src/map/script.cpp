@@ -18630,10 +18630,10 @@ BUILDIN_FUNC(setunitdata)
 				break;
 			case UMOB_DMGIMMUNE: md->ud.immune_attack = value > 0; break;
 			case UMOB_ATKRANGE: md->base_status->rhw.range = (unsigned short)value; calc_status = true; break;
-			case UMOB_ATKMIN: md->base_status->rhw.atk = (unsigned short)value; calc_status = true; break;
-			case UMOB_ATKMAX: md->base_status->rhw.atk2 = (unsigned short)value; calc_status = true; break;
-			case UMOB_MATKMIN: md->base_status->matk_min = (unsigned short)value; calc_status = true; break;
-			case UMOB_MATKMAX: md->base_status->matk_max = (unsigned short)value; calc_status = true; break;
+			case UMOB_ATKMIN: md->base_status->rhw.atk = value; calc_status = true; break;
+			case UMOB_ATKMAX: md->base_status->rhw.atk2 = value; calc_status = true; break;
+			case UMOB_MATKMIN: md->base_status->matk_min = value; calc_status = true; break;
+			case UMOB_MATKMAX: md->base_status->matk_max = value; calc_status = true; break;
 			case UMOB_DEF: md->base_status->def = (defType)value; calc_status = true; break;
 			case UMOB_MDEF: md->base_status->mdef = (defType)value; calc_status = true; break;
 			case UMOB_HIT: md->base_status->hit = (short)value; calc_status = true; break;
@@ -20688,6 +20688,29 @@ BUILDIN_FUNC(bg_get_data)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+static unsigned short script_instancegetid_sub(struct script_state* st, struct map_session_data *sd, enum instance_mode mode)
+{
+	struct party_data *pd = NULL;
+	struct guild *gd = NULL;
+	struct clan *cd = NULL;
+	struct npc_data *nd = NULL;
+	unsigned short instance_id = 0;
+
+	if (!mode && !sd && (nd = map_id2nd(st->oid)) && nd->instance_id > 0)
+		instance_id = nd->instance_id;
+	else if (sd || (sd = map_id2sd(st->rid))) {
+		if ((!mode || mode == IM_CHAR) && sd->instance_id)
+			instance_id = sd->instance_id;
+		else if ((!mode || mode == IM_PARTY) && (pd = party_search(sd->status.party_id)) != NULL && pd->instance_id)
+			instance_id = pd->instance_id;
+		else if ((!mode || mode == IM_GUILD) && (gd = guild_search(sd->status.guild_id)) != NULL && gd->instance_id)
+			instance_id = gd->instance_id;
+		else if ((!mode || mode == IM_CLAN) && (cd = clan_search(sd->status.clan_id)) != NULL && cd->instance_id)
+			instance_id = cd->instance_id;
+	}
+	return instance_id;
+}
+
 /*==========================================
  * Instancing System
  *------------------------------------------*/
@@ -20742,26 +20765,8 @@ unsigned short script_instancegetid(struct script_state* st, enum instance_mode 
 		}
 	}
 
-	if (battle_config.instance_activation && !instance_id) {
-		struct map_session_data *sd = NULL;
-		struct party_data *pd = NULL;
-		struct guild *gd = NULL;
-		struct clan *cd = NULL;
-		struct npc_data *nd = map_id2nd(st->oid);
-
-		if (nd && nd->instance_id > 0)
-			instance_id = nd->instance_id;
-		else if ((sd = map_id2sd(st->rid))) {
-			if (sd->instance_id)
-				instance_id = sd->instance_id;
-			if (instance_id == 0 && sd->status.party_id && (pd = party_search(sd->status.party_id)) != NULL && pd->instance_id)
-				instance_id = pd->instance_id;
-			if (instance_id == 0 && sd->status.guild_id && (gd = guild_search(sd->status.guild_id)) != NULL && gd->instance_id)
-				instance_id = gd->instance_id;
-			if (instance_id == 0 && sd->status.clan_id && (cd = clan_search(sd->status.clan_id)) != NULL && cd->instance_id)
-				instance_id = cd->instance_id;
-		}
-	}
+	if (battle_config.instance_activation && !instance_id)
+		instance_id = script_instancegetid_sub(st, NULL, mode);
 
 	return instance_id;
 }
@@ -20957,8 +20962,16 @@ BUILDIN_FUNC(instance_id)
 			return SCRIPT_CMD_SUCCESS;
 		}
 	}
+	
+	if (script_hasdata(st, 3)){
+		struct map_session_data *sd = NULL;
+		if (!script_charid2sd(3, sd))
+			return SCRIPT_CMD_FAILURE;
+		script_pushint(st, script_instancegetid_sub(st, sd, static_cast<instance_mode>(mode)));
+	}
+	else
+		script_pushint(st, script_instancegetid(st, static_cast<instance_mode>(mode)));
 
-	script_pushint(st, script_instancegetid(st, static_cast<instance_mode>(mode)));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -30434,7 +30447,7 @@ struct script_function buildin_func[] = {
 	// Instancing
 	BUILDIN_DEF(instance_create,"s??"),
 	BUILDIN_DEF(instance_destroy,"?"),
-	BUILDIN_DEF(instance_id,"?"),
+	BUILDIN_DEF(instance_id,"??"),
 	BUILDIN_DEF(instance_enter,"s????"),
 	BUILDIN_DEF(instance_npcname,"s?"),
 	BUILDIN_DEF(instance_mapname,"s?"),
