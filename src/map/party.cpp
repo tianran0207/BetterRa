@@ -503,11 +503,11 @@ int party_reply_invite(struct map_session_data *sd,int party_id,int flag)
 
 	if( flag == 1 && !sd->party_creating && !sd->party_joining ) { // accepted and allowed
 #ifdef  EVENT_PARTYJOINFILTER
-		if (npc_script_event_check(tsd, NPCE_PARTYJOINFILTER)) {
-			pc_setreg(tsd, add_str("@join_party_id"), sd ? sd->status.party_id : 0);
-			pc_setreg(tsd, add_str("@join_party_aid"), sd ? sd->status.account_id : 0);
-			npc_script_event_atonce(tsd, NPCE_PARTYJOINFILTER);
-			if (tsd->state.processhalt)
+		if (npc_script_event_check(sd, NPCE_PARTYJOINFILTER)) {
+			pc_setreg(sd, add_str("@join_party_id"), tsd ? tsd->status.party_id : 0);
+			pc_setreg(sd, add_str("@join_party_aid"), tsd ? tsd->status.account_id : 0);
+			npc_script_event_atonce(sd, NPCE_PARTYJOINFILTER);
+			if (sd->state.processhalt)
 				return 0;
 		}
 #endif //  EVENT_PARTYJOINFILTER
