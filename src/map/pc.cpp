@@ -14482,8 +14482,9 @@ static int pcbot_check_skill(struct bot_data *bd, t_tick tick)
 		if (sd->battle_status.sp < skill_get_sp(bd->info.skill_id[idx], bd->info.skill_lv[idx]))
 			continue;
 		bd->skill_idx = idx;
-		if (skill_get_pc_inf(sd, bd->info.skill_id[idx]) & INF_SELF_SKILL)
-			bd->min_chase = skill_get_pc_splash(sd, bd->info.skill_id[idx], bd->info.skill_lv[idx]);
+		bd->skill_inf = skill_get_pc_inf(sd, bd->info.skill_id[idx]);
+		if (bd->skill_inf & INF_SELF_SKILL)
+			bd->min_chase = skill_get_pc_splash(sd, bd->info.skill_id[idx], bd->info.skill_lv[idx]) / 2;
 		else
 			bd->min_chase = skill_get_range2(&sd->bl, bd->info.skill_id[idx], bd->info.skill_lv[idx], true);
 
@@ -14510,7 +14511,7 @@ static int pcbot_skill_sub(struct bot_data *bd, struct block_list *bl, uint16 sk
 	if (inf&INF_GROUND_SKILL)
 		result = unit_skilluse_pos(src, bl->x, bl->y, skill_id, skill_lv);
 	else
-		result = unit_skilluse_id(src, bl->id, skill_id, skill_lv);
+		result = unit_skilluse_id(src, (bd->skill_inf&INF_SELF_SKILL)?src->id:bl->id, skill_id, skill_lv);
 
 	if (bd->sd->skill_failure)
 		bd->state.skill_fail_count++;

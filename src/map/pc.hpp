@@ -369,6 +369,7 @@ struct bot_data {
 	int target_dead;
 	int min_chase;            //¹¥»÷¾àÀë
 	int skill_idx;
+	int skill_inf;
 };
 
 struct map_session_data {
