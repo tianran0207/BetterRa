@@ -567,13 +567,13 @@ bool intif_send_guild_storage(uint32 account_id, struct s_storage *gstor)
 {
 	if (CheckForCharServer())
 		return false;
-	WFIFOHEAD(inter_fd,sizeof(struct s_storage)+12);
+	WFIFOHEAD(inter_fd,sizeof(struct s_storage)+14);
 	WFIFOW(inter_fd,0) = 0x3019;
-	WFIFOW(inter_fd,2) = (unsigned short)sizeof(struct s_storage)+12;
-	WFIFOL(inter_fd,4) = account_id;
-	WFIFOL(inter_fd,8) = gstor->id;
-	memcpy( WFIFOP(inter_fd,12),gstor, sizeof(struct s_storage) );
-	WFIFOSET(inter_fd,WFIFOW(inter_fd,2));
+	WFIFOL(inter_fd,2) = sizeof(struct s_storage)+14;
+	WFIFOL(inter_fd,6) = account_id;
+	WFIFOL(inter_fd,10) = gstor->id;
+	memcpy( WFIFOP(inter_fd,14),gstor, sizeof(struct s_storage) );
+	WFIFOSET(inter_fd,WFIFOL(inter_fd,2));
 	return true;
 }
 
@@ -1470,12 +1470,12 @@ int intif_parse_LoadGuildStorage(int fd)
 	struct map_session_data *sd;
 	int guild_id, flag;
 
-	guild_id = RFIFOL(fd,8);
-	flag = RFIFOL(fd,12);
+	guild_id = RFIFOL(fd,10);
+	flag = RFIFOL(fd,14);
 	if (guild_id <= 0)
 		return 0;
 
-	sd = map_id2sd( RFIFOL(fd,4) );
+	sd = map_id2sd( RFIFOL(fd,6) );
 	if (flag){ //If flag != 0, we attach a player and open the storage
 		if(sd == NULL){
 			ShowError("intif_parse_LoadGuildStorage: user not found (AID: %d)\n",RFIFOL(fd,4));
@@ -1495,13 +1495,13 @@ int intif_parse_LoadGuildStorage(int fd)
 		ShowWarning("intif_parse_LoadGuildStorage: received storage for an already modified non-saved storage! (User %d:%d)\n", flag?sd->status.account_id:1, flag?sd->status.char_id:1);
 		return 0;
 	}
-	if (RFIFOW(fd,2)-13 != sizeof(struct s_storage)) {
-		ShowError("intif_parse_LoadGuildStorage: data size error %d %" PRIuPTR "\n",RFIFOW(fd,2)-13 , sizeof(struct s_storage));
+	if (RFIFOL(fd,2)-15 != sizeof(struct s_storage)) {
+		ShowError("intif_parse_LoadGuildStorage: data size error %d %" PRIuPTR "\n",RFIFOL(fd,2)-15 , sizeof(struct s_storage));
 		gstor->status = false;
 		return 0;
 	}
 
-	memcpy(gstor,RFIFOP(fd,13),sizeof(struct s_storage));
+	memcpy(gstor,RFIFOP(fd,15),sizeof(struct s_storage));
 
 	if (sd->refresh_storage && sd->st && sd->st->state == RERUNLINE) {
 		storage_sortitem(gstor->u.items_guild, ARRAYLENGTH(gstor->u.items_guild));
@@ -3402,8 +3402,8 @@ void intif_parse_itembound_store2gstorage(int fd) {
  */
 static bool intif_parse_StorageReceived(int fd)
 {
-	char type =  RFIFOB(fd,4);
-	uint32 account_id = RFIFOL(fd, 5);
+	char type =  RFIFOB(fd,6);
+	uint32 account_id = RFIFOL(fd, 7);
 	struct map_session_data *sd = map_id2sd(account_id);
 	struct s_storage *stor, *p; //storage
 	size_t sz_stor = sizeof(struct s_storage);
@@ -3413,12 +3413,12 @@ static bool intif_parse_StorageReceived(int fd)
 		return false;
 	}
 
-	if (!RFIFOB(fd, 9)) {
+	if (!RFIFOB(fd, 11)) {
 		ShowError("intif_parse_StorageReceived: Failed to load! (AID: %d, type: %d)\n", account_id, type);
 		return false;
 	}
 
-	p = (struct s_storage *)RFIFOP(fd,10);
+	p = (struct s_storage *)RFIFOP(fd,12);
 
 	switch (type) { 
 		case TABLE_INVENTORY:
@@ -3447,8 +3447,8 @@ static bool intif_parse_StorageReceived(int fd)
 			return false;
 		}
 	}
-	if (RFIFOW(fd,2)-10 != sz_stor) {
-		ShowError("intif_parse_StorageReceived: data size error %d %" PRIuPTR "\n",RFIFOW(fd,2)-10 , sz_stor);
+	if (RFIFOL(fd,2)-12 != sz_stor) {
+		ShowError("intif_parse_StorageReceived: data size error %d %" PRIuPTR "\n",RFIFOL(fd,2)-12 , sz_stor);
 		stor->status = false;
 		return false;
 	}
@@ -3616,14 +3616,14 @@ bool intif_storage_save(struct map_session_data *sd, struct s_storage *stor)
 	if (CheckForCharServer())
 		return false;
 
-	WFIFOHEAD(inter_fd, stor_size+13);
+	WFIFOHEAD(inter_fd, stor_size+15);
 	WFIFOW(inter_fd, 0) = 0x308b;
-	WFIFOW(inter_fd, 2) = stor_size+13;
-	WFIFOB(inter_fd, 4) = stor->type;
-	WFIFOL(inter_fd, 5) = sd->status.account_id;
-	WFIFOL(inter_fd, 9) = sd->status.char_id;
-	memcpy(WFIFOP(inter_fd, 13), stor, stor_size);
-	WFIFOSET(inter_fd, stor_size+13);
+	WFIFOL(inter_fd, 2) = stor_size+15;
+	WFIFOB(inter_fd, 6) = stor->type;
+	WFIFOL(inter_fd, 7) = sd->status.account_id;
+	WFIFOL(inter_fd, 11) = sd->status.char_id;
+	memcpy(WFIFOP(inter_fd, 15), stor, stor_size);
+	WFIFOSET(inter_fd, stor_size+15);
 	return true;
 }
 
@@ -3732,7 +3732,15 @@ int intif_parse(int fd)
 	if(packet_len==-1){
 		if(RFIFOREST(fd)<4)
 			return 2;
-		packet_len = RFIFOW(fd,2);
+		switch (cmd) {
+		case 0x3818:
+		case 0x388a:
+			packet_len = RFIFOL(fd, 2);
+			break;
+		default:
+			packet_len = RFIFOW(fd, 2);
+			break;
+		}
 	}
 	if((int)RFIFOREST(fd)<packet_len){
 		return 2;

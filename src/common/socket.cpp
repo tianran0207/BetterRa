@@ -842,7 +842,7 @@ int WFIFOSET(int fd, size_t len)
 		exit(EXIT_FAILURE);
 	}
 
-	if( len > 0xFFFF )
+	if( !s->flag.server && len > 0xFFFF )
 	{
 		// dynamic packets allow up to UINT16_MAX bytes (<packet_id>.W <packet_len>.W ...)
 		// all known fixed-size packets are within this limit, so use the same limit

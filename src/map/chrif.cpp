@@ -1985,8 +1985,8 @@ void do_init_chrif(void) {
 		exit(EXIT_FAILURE);
 	}
 
-	if (sizeof(struct s_storage) > 0xFFFF) {
-		ShowError("s_storage size = %" PRIuPTR " is too big to be transmitted. (must be below 0xFFFF)\n", sizeof(struct s_storage));
+	if (sizeof(struct s_storage) > FIFOSIZE_SERVERLINK) {
+		ShowError("s_storage size = %" PRIuPTR " is too big to be transmitted. (must be below %" PRIuPTR ")\n", sizeof(struct s_storage), FIFOSIZE_SERVERLINK);
 		exit(EXIT_FAILURE);
 	}
 

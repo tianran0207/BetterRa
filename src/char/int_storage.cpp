@@ -199,24 +199,24 @@ bool mapif_load_guild_storage(int fd,uint32 account_id,int guild_id, char flag)
 		Sql_ShowDebug(sql_handle);
 	else if( Sql_NumRows(sql_handle) > 0 )
 	{// guild exists
-		WFIFOHEAD(fd, sizeof(struct s_storage)+13);
+		WFIFOHEAD(fd, sizeof(struct s_storage)+15);
 		WFIFOW(fd,0) = 0x3818;
-		WFIFOW(fd,2) = sizeof(struct s_storage)+13;
-		WFIFOL(fd,4) = account_id;
-		WFIFOL(fd,8) = guild_id;
-		WFIFOB(fd,12) = flag; //1 open storage, 0 don't open
-		guild_storage_fromsql(guild_id, (struct s_storage*)WFIFOP(fd,13));
-		WFIFOSET(fd, WFIFOW(fd,2));
+		WFIFOL(fd,2) = sizeof(struct s_storage)+15;
+		WFIFOL(fd,6) = account_id;
+		WFIFOL(fd,10) = guild_id;
+		WFIFOB(fd,14) = flag; //1 open storage, 0 don't open
+		guild_storage_fromsql(guild_id, (struct s_storage*)WFIFOP(fd,15));
+		WFIFOSET(fd, WFIFOL(fd,2));
 		return true;
 	}
 	// guild does not exist
 	Sql_FreeResult(sql_handle);
-	WFIFOHEAD(fd, 12);
+	WFIFOHEAD(fd, 14);
 	WFIFOW(fd,0) = 0x3818;
-	WFIFOW(fd,2) = 12;
-	WFIFOL(fd,4) = account_id;
-	WFIFOL(fd,8) = 0;
-	WFIFOSET(fd, 12);
+	WFIFOL(fd,2) = 14;
+	WFIFOL(fd,6) = account_id;
+	WFIFOL(fd,10) = 0;
+	WFIFOSET(fd, 14);
 	return false;
 }
 
@@ -250,12 +250,12 @@ bool mapif_parse_SaveGuildStorage(int fd)
 	int len;
 
 	RFIFOHEAD(fd);
-	guild_id = RFIFOL(fd,8);
-	len = RFIFOW(fd,2);
+	guild_id = RFIFOL(fd,10);
+	len = RFIFOL(fd,2);
 
-	if( sizeof(struct s_storage) != len - 12 )
+	if( sizeof(struct s_storage) != len - 14 )
 	{
-		ShowError("inter storage: data size error %" PRIuPTR " != %d\n", sizeof(struct s_storage), len - 12);
+		ShowError("inter storage: data size error %" PRIuPTR " != %d\n", sizeof(struct s_storage), len - 14);
 	}
 	else
 	{
@@ -264,13 +264,13 @@ bool mapif_parse_SaveGuildStorage(int fd)
 		else if( Sql_NumRows(sql_handle) > 0 )
 		{// guild exists
 			Sql_FreeResult(sql_handle);
-			guild_storage_tosql(guild_id, (struct s_storage*)RFIFOP(fd,12));
-			mapif_save_guild_storage_ack(fd, RFIFOL(fd,4), guild_id, 0);
+			guild_storage_tosql(guild_id, (struct s_storage*)RFIFOP(fd,14));
+			mapif_save_guild_storage_ack(fd, RFIFOL(fd,6), guild_id, 0);
 			return false;
 		}
 		Sql_FreeResult(sql_handle);
 	}
-	mapif_save_guild_storage_ack(fd, RFIFOL(fd,4), guild_id, 1);
+	mapif_save_guild_storage_ack(fd, RFIFOL(fd,6), guild_id, 1);
 	return true;
 }
 
@@ -469,15 +469,15 @@ bool mapif_parse_itembound_retrieve(int fd)
  * @param result
  */
 void mapif_storage_data_loaded(int fd, uint32 account_id, char type, struct s_storage* entries, bool result) {
-	uint16 size = sizeof(struct s_storage) + 10;
+	uint32 size = sizeof(struct s_storage) + 12;
 	
 	WFIFOHEAD(fd, size);
 	WFIFOW(fd, 0) = 0x388a;
-	WFIFOW(fd, 2) = size;
-	WFIFOB(fd, 4) = type;
-	WFIFOL(fd, 5) = account_id;
-	WFIFOB(fd, 9) = result;
-	memcpy(WFIFOP(fd, 10), entries, sizeof(struct s_storage));
+	WFIFOL(fd, 2) = size;
+	WFIFOB(fd, 6) = type;
+	WFIFOL(fd, 7) = account_id;
+	WFIFOB(fd, 11) = result;
+	memcpy(WFIFOP(fd, 12), entries, sizeof(struct s_storage));
 	WFIFOSET(fd, size);
 }
 
@@ -554,12 +554,12 @@ bool mapif_parse_StorageSave(int fd) {
 	struct s_storage stor;
 
 	RFIFOHEAD(fd);
-	type = RFIFOB(fd, 4);
-	aid = RFIFOL(fd, 5);
-	cid = RFIFOL(fd, 9);
+	type = RFIFOB(fd, 6);
+	aid = RFIFOL(fd, 7);
+	cid = RFIFOL(fd, 11);
 	
 	memset(&stor, 0, sizeof(struct s_storage));
-	memcpy(&stor, RFIFOP(fd, 13), sizeof(struct s_storage));
+	memcpy(&stor, RFIFOP(fd, 15), sizeof(struct s_storage));
 
 	//ShowInfo("Saving storage data for AID=%d.\n", aid);
 	switch(type){

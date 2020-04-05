@@ -1383,7 +1383,14 @@ int inter_check_length(int fd, int length)
 	{// variable-length packet
 		if( RFIFOREST(fd) < 4 )
 			return 0;
-		length = RFIFOW(fd,2);
+		switch (RFIFOW(fd, 0)) {
+		case 0x308b:
+		case 0x3019:
+			length = RFIFOL(fd, 2);
+			break;
+		default:
+			length = RFIFOW(fd, 2);
+		}
 	}
 
 	if( (int)RFIFOREST(fd) < length )
