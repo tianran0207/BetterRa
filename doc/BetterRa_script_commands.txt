@@ -1249,7 +1249,7 @@ OnHTTPReceivedEvent 事件返回变量:
 	BF_LONG:   远距离攻击
 	默认:   BF_SHORT+BF_LONG
 按攻击类型:
-	BF_WEAPON: 武器攻击
+	BF_WEAPON: 物理攻击
 	BF_MAGIC:  魔法攻击
 	BF_MISC:   混合攻击
 	默认:   BF_WEAPON
@@ -1880,7 +1880,7 @@ getunitstatus <GID>,<类型>;
 	BF_LONG:   远距离攻击
 	默认:   BF_SHORT+BF_LONG
 按攻击类型:
-	BF_WEAPON: 武器攻击
+	BF_WEAPON: 物理攻击
 	BF_MAGIC:  魔法攻击
 	BF_MISC:   混合攻击
 	默认:   BF_WEAPON

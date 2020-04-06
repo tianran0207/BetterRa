@@ -9420,7 +9420,7 @@ int64 SkillFormulaDatabase::script_card_fix(int64 damage, int attack_type, int n
 	int left_element = battle_get_weapon_element(skf_db.wd, skf_db.src, skf_db.target, skill_id, skill_lv, EQI_HAND_L, false);
 	if (nk == -1)
 		nk = skill_id ? battle_skill_get_damage_properties(skill_id, skf_db.wd->miscflag) : 0;
-	damage = battle_calc_cardfix(attack_type, skf_db.src, skf_db.target, nk, right_element, left_element, damage, hand, skf_db.wd->flag);
+	damage += battle_calc_cardfix(attack_type, skf_db.src, skf_db.target, nk, right_element, left_element, damage, hand, skf_db.wd->flag);
 	if (attack_type&BF_LONG && skf_db.src->type == BL_PC && (skill_id != RA_WUGBITE && skill_id != RA_WUGSTRIKE)) {
 		struct map_session_data *sd = (struct map_session_data *)skf_db.src;
 		damage = damage * sd->bonus.long_attack_atk_rate / 100;

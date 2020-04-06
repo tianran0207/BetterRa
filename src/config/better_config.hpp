@@ -128,6 +128,7 @@
 	#else
 		#define PLAYER_LIMIT 5
 	#endif
+	#define BRA_SKILL_FORMULA               // 自定义技能公式
 	#define BONUS_SKILL_AOE                 // 单体技能改为AOE
 	#define BONUS_MULTIDAMAGERATE           // 多倍伤害
 	#define BONUS_ADD_SKILL_AREA            // 增加技能范围
