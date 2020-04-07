@@ -344,6 +344,8 @@ int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target,
 {
 	int64 damage = *dmg;
 	struct map_session_data* sd = BL_CAST(BL_PC, src);
+	struct status_data *status = status_get_status_data(target);
+
 	if (sd && (flag & BF_SKILL) && !battle_display.critical) {
 		for (auto &it : sd->skilldamage) {
 			if (it.sk != skill_id)
@@ -361,7 +363,6 @@ int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target,
 			}
 		}
 		int cri_def = 0, cri_rate = 100;
-		struct status_data *status = status_get_status_data(target);
 		if (status && battle_config.skill_critical_luk)
 			cri_def = status->luk * 2;
 		if (status && status->class_ == CLASS_BOSS)
@@ -396,8 +397,7 @@ int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target,
 			battle_display.critical = true;
 		}
 	}
-	if (sd) {
-		struct status_data *status = status_get_status_data(target);
+	if (sd && status) {
 		for (auto &it : sd->finaladdrate) {
 			if (!(it.bf & flag))
 				continue;
