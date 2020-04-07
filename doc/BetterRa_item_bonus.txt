@@ -43,6 +43,9 @@ bonus2 bIgnoreDefClassVal,c,n;			无视 c 类别魔物 n 点魔法防御力
 
 bonus bIgnoreWhiteImprison,n;			无视白色监狱, n无意义
 
+bonus3 bFinalAddRace,r,x,bf;			使用 bf 攻击时, 增加 r 种族 x% 的伤害(在最终伤害上全段修正)
+bonus3 bFinalAddClass,c,n,bf;			使用 bf 攻击时, 增加 c 类别魔物 x% 的伤害(在最终伤害上全段修正)
+
 bonus2 bAddSkillArea,sk,n;				增加 sk 技能 n 格范围, 可用于溅射或范围技能
 bonus2 bAddSkillRange,sk,n;				增加 sk 技能 n 格攻击距离
 

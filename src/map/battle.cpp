@@ -396,6 +396,16 @@ int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target,
 			battle_display.critical = true;
 		}
 	}
+	if (sd) {
+		struct status_data *status = status_get_status_data(target);
+		for (auto &it : sd->finaladdrate) {
+			if (!(it.bf & flag))
+				continue;
+			if (it.class_ != status->class_ && it.class_ != CLASS_ALL && it.race != status->race && it.class_ != RC_ALL)
+				continue;
+			damage = damage * (100 + it.rate) / 100;
+		}
+	}
 	*dmg = damage;
 	return (int)cap_value(damage, INT_MIN, INT_MAX);
 }

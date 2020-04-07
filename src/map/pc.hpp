@@ -263,6 +263,12 @@ struct s_multidamagerate {
 	uint32 n;
 };
 
+struct s_finaladdrate {
+	short race; ///Target Race, bitwise value of 1<<x. if < 0 means Monster ID
+	unsigned short class_; ///Target Class, bitwise value of 1<<x
+	int rate, bf;
+};
+
 struct s_skillcritical {
 	int32 sk, crirate;
 	uint32 dmgrate;
@@ -707,6 +713,7 @@ struct map_session_data {
 	std::vector<s_bonus_limit> bonus_limit;
 	std::vector<s_skill_noconsume> skillitemfix;
 	std::vector<s_multidamagerate> multidamage;
+	std::vector<s_finaladdrate> finaladdrate;
 	std::vector<s_skillcritical> skillcritical;
 	std::vector<s_skillforaoe> skillforaoe; //custom;
 	std::vector<s_skilldamage> skilldamage;

@@ -4338,6 +4338,23 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_FINAL_ADD_RACE:
+	case SP_FINAL_ADD_CLASS:
+		if (sd->state.lr_flag != 2) {
+			if (sd->finaladdrate.size() == MAX_PC_BONUS) {
+				ShowError("pc_bonus3: SP_SKILL_ADD_DIV: Reached max (%d) number of skills per character, (sk: %d div: %d r: %d).\n", MAX_PC_BONUS, type2, type3, val);
+				break;
+			}
+			struct s_finaladdrate entry = {};
+			if (type == SP_FINAL_ADD_CLASS)
+				entry.class_ = type2 ;
+			else
+				entry.race = type2;
+			entry.rate = type3;
+			entry.bf = val;
+			sd->finaladdrate.push_back(entry);
+		}
+		break;
 	case SP_SKILL_ADD_DIV:
 		if (sd->state.lr_flag != 2) {
 			bool hasentry = false;
