@@ -16,7 +16,7 @@
 #define C_MAX_INVENTORY 100          //最大背包容量
 #define C_MIN_STORAGE 300            //玩家仓库容量
 #define C_MAX_CART 100               //玩家手推车容量
-#define C_MAX_STORAGE 600            //最大玩家仓库容量上限
+#define C_MAX_STORAGE 800            //最大玩家仓库容量上限
 #define C_DEFAULT_WALK_SPEED 150     //玩家默认移动速度
 #define C_AUTOLOOTITEM_SIZE 10       //自动拾取的物品清单
 
