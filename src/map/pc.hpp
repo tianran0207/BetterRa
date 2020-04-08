@@ -264,8 +264,7 @@ struct s_multidamagerate {
 };
 
 struct s_finaladdrate {
-	short race; ///Target Race, bitwise value of 1<<x. if < 0 means Monster ID
-	unsigned short class_; ///Target Class, bitwise value of 1<<x
+	short race, class_; ///Target Class, bitwise value of 1<<x
 	int rate, bf;
 };
 

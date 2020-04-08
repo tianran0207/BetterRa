@@ -4346,10 +4346,8 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 				break;
 			}
 			struct s_finaladdrate entry = {};
-			if (type == SP_FINAL_ADD_CLASS)
-				entry.class_ = type2 ;
-			else
-				entry.race = type2;
+			entry.class_ = (type == SP_FINAL_ADD_CLASS) ? type2 : CLASS_NONE;
+			entry.race = (type == SP_FINAL_ADD_RACE) ? type2 : RC_NONE_;
 			entry.rate = type3;
 			entry.bf = val;
 			sd->finaladdrate.push_back(entry);

@@ -3740,6 +3740,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	memset(&sd->c_bonus, 0, sizeof(sd->c_bonus)); //×Ô¶¨Òå
 	sd->skillitemfix.clear();
 	sd->multidamage.clear();
+	sd->finaladdrate.clear();
 	sd->skillcritical.clear();
 	sd->skilldamage.clear(); 
 	sd->skillforaoe.clear();
