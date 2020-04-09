@@ -10471,6 +10471,19 @@ ACMD_FUNC(bot)
 	return 0;
 }
 
+ACMD_FUNC(offline)
+{
+	nullpo_retr(-1, sd);
+
+	sd->state.offline = 1;
+
+	channel_pcquit(sd, 0xF); //leave all chan
+	clif_authfail_fd(sd->fd, 15);
+	chrif_save(sd, CSAVE_AUTOTRADE);
+
+	return 0;
+}
+
 /**
  * Fills the reference of available commands in atcommand DBMap
  **/
@@ -10698,7 +10711,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(showdelay),
 		ACMD_DEF(autotrade),
 		ACMD_DEF2("autotrade2", autotrade),
-		ACMD_DEF2("offline", autotrade),
+		ACMD_DEF(offline),
 		ACMD_DEF(changegm),
 		ACMD_DEF(changeleader),
 		ACMD_DEF(partyoption),

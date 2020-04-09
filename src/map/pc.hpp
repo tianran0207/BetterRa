@@ -422,6 +422,7 @@ struct map_session_data {
 		unsigned event_now : 1;
 		unsigned no_touch_script : 1;
 		unsigned move_event : 1;
+		unsigned offline : 1;
 		unsigned int active : 1; //Marks active player (not active is logging in/out, or changing map servers)
 		unsigned int menu_or_input : 1;// if a script is waiting for feedback from the player
 		unsigned int dead_sit : 2;
