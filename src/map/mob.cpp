@@ -6213,8 +6213,8 @@ int mob_aggro_free_single(struct mob_data *md, struct s_aggro_entry *entry)
 			if (md->aggro.force_id == entry->sd->status.char_id)
 				md->aggro.force_id = 0;
 			linkdb_erase(&entry->sd->aggro.head, (void *)(md->bl.id));
+			linkdb_erase(&md->aggro.head, (void *)(entry->sd->status.account_id));
 		}
-		linkdb_erase(&md->aggro.head, (void *)(entry->sd->status.account_id));
 		aFree(entry);
 	}
 	return 1;
