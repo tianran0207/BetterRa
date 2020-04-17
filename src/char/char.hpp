@@ -141,7 +141,7 @@ struct Char_Config {
 	bool char_rename_guild;	// Character renaming in a guild
 };
 
-#define TRIM_CHARS "\xA0\032\t\x0A\x0D " //The following characters are trimmed regardless because they cause confusion and problems on the servers. [Skotlex]
+#define TRIM_CHARS "\032\t\x0A\x0D " //The following characters are trimmed regardless because they cause confusion and problems on the servers. [Skotlex]
 struct CharServ_Config {
 	char userid[24];
 	char passwd[24];

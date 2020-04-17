@@ -6188,7 +6188,7 @@ ACMD_FUNC(autotrade) {
 		return -1;
 	}
 
-	if(strcmp(command, "autotrade") == 0 && !sd->state.vending && !sd->state.buyingstore ) { //check if player is vending or buying
+	if(!sd->state.vending && !sd->state.buyingstore ) { //check if player is vending or buying
 		clif_displaymessage(fd, msg_txt(sd,549)); // "You should have a shop open to use @autotrade."
 		return -1;
 	}
