@@ -3928,6 +3928,9 @@ static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *
 		case NPC_PULSESTRIKE:
 			skillratio += 100 * (skill_lv - 1);
 			break;
+		case NPC_EARTHQUAKE:
+			skillratio += 100 + 100 * skill_lv + 100 * (skill_lv / 2) + ((skill_lv > 4) ? 100 : 0);
+			break;
 		case NPC_REVERBERATION_ATK:
 			skillratio += 400 + 200 * skill_lv;
 			break;
@@ -6369,6 +6372,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += 100 * skill_lv;
 						break;
 					case NPC_EARTHQUAKE:
+						return battle_calc_weapon_attack(src, target, skill_id, skill_lv, mflag);
 						skillratio += 100 + 100 * skill_lv + 100 * (skill_lv / 2) + ((skill_lv > 4) ? 100 : 0);
 						break;
 #ifdef RENEWAL
@@ -8582,6 +8586,8 @@ static const struct _battle_data {
 	{ "mob_aggro_heal_range",               &battle_config.mob_aggro_heal_range,            24,     0,      INT_MAX,        },
 	{ "mob_aggro_disengage",                &battle_config.mob_aggro_disengage,             900,    0,      INT_MAX,        },
 	{ "mob_aggro_logout_clear",             &battle_config.mob_aggro_logout_clear,          0,      0,      1,              },
+	{ "mob_matk_equal_atk",                 &battle_config.mob_matk_equal_atk,              0,      0,      INT_MAX,        },
+	{ "zero_steal_rate",                    &battle_config.zero_steal_rate,                 0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

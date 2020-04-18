@@ -4433,6 +4433,10 @@ static bool mob_parse_dbrow(char** str)
 		status->matk_max = status->int_ + (status->int_ / 5) * (status->int_ / 5);
 #endif
 	}
+	if (battle_config.mob_matk_equal_atk && status_has_mode(status, battle_config.mob_matk_equal_atk)) {
+		status->matk_min = status->rhw.atk;
+		status->matk_max = status->rhw.atk2;
+	}
 
 	// MVP EXP Bonus: MEXP
 	// Some new MVP's MEXP multipled by high exp-rate cause overflow. [LuzZza]

@@ -6524,6 +6524,19 @@ bool pc_steal_item(struct map_session_data *sd,struct block_list *bl, uint16 ski
 #endif
 		)
 			break;
+
+	if (battle_config.zero_steal_rate && rate == 0 && rnd() % 10000 < battle_config.zero_steal_rate) {
+		int count = 0;
+		for (i = 0; i < MAX_STEAL_DROP; i++) {
+			if (md->db->dropitem[i].nameid <= 0 || md->db->dropitem[i].steal_protected)
+				continue;
+			if (itemdb_exists(md->db->dropitem[i].nameid))
+				continue;
+			count++;
+		}
+		i = rnd() % count;
+	}
+
 	if( i == MAX_STEAL_DROP )
 		return false;
 
