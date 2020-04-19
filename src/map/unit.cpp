@@ -2178,11 +2178,11 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	// In official this is triggered even if no cast time.
 	clif_skillcasting(src, src->id, target_id, 0,0, skill_id, skill_get_ele(skill_id, skill_lv), casttime);
 
-	if (src->type != BL_PC && battle_config.display_skill_name && skill_db.find(skill_id)->desc[0]) {
+	if (src->type != BL_PC && battle_config.display_skill_name && skill->desc[0]) {
 		// custom hack to make the mob display the skill, because these skills don't show the skill use text themselves
 		//NOTE: mobs don't have the sprite animation that is used when performing this skill (will cause glitches)
 		char temp[70];
-		snprintf(temp, sizeof(temp), "%s !!", skill_db.find(skill_id)->desc);
+		snprintf(temp, sizeof(temp), "%s !!", skill->desc);
 		clif_showscript(src, temp, AREA);
 	}
 

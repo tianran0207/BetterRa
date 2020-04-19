@@ -168,7 +168,6 @@ struct Battle_Config
 	int buff_for_tribe_member;
 	int enable_amulet;
 	int amulet_type;
-	int enable_coply;
 	int display_skill_name;
 	int pet_catch_rate_mode;
 	int instance_leave_record;
@@ -217,7 +216,6 @@ struct Battle_Config
 	int pvp_short_damage_rate;
 	int pvp_long_damage_rate;
 	int same_mapwarp_castcancel;
-	int backstap_overlap;
 	int disable_items_callfunc;
 	int disable_items_equip;
 	int disable_skill_delay;
@@ -239,7 +237,6 @@ struct Battle_Config
 	int instance_activation;
 	int support_old_mob_db;
 	int homunculus_killed_drop;
-	int homunculus_share_exp;
 	int remove_noinfo_pet;
 	int multiple_script_state;
 	int hidenpc_willbe_disable;

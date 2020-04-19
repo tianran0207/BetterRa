@@ -702,17 +702,6 @@
 	export_constant(MSG_DEBUG);
 	export_constant(MSG_ERROR);
 
-	export_constant(BCT_SELF);
-	export_constant(BCT_ENEMY);
-	export_constant(BCT_PARTY);
-	export_constant(BCT_GUILDALLY);
-	export_constant(BCT_NEUTRAL);
-	export_constant(BCT_SAMEGUILD);
-	export_constant(BCT_GUILD);
-	export_constant(BCT_NOGUILD);
-	export_constant(BCT_NOPARTY);
-	export_constant(BCT_NOENEMY);
-
 	export_parameter("skf_sgid", SP_SKF_SGID);
 	export_parameter("skf_scid", SP_SKF_SCID);
 	export_parameter("skf_tgid", SP_SKF_TGID);

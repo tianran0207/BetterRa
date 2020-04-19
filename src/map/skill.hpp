@@ -305,11 +305,6 @@ struct s_skill_db {
 		struct script_code* casting;
 		struct script_code* duration;
 		struct script_code* delay;
-		struct s_onplace {
-			int pertick;
-			int target;
-			struct script_code* script;
-		}onplace;
 	} formula;
 
 	struct s_aggro {

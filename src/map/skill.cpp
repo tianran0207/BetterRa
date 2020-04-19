@@ -19690,21 +19690,6 @@ struct skill_unit_group_tickset *skill_unitgrouptickset_search(struct block_list
 	return &set[j];
 }
 
-static int skill_onplace_script(struct block_list* bl, va_list ap) {
-	struct block_list* src = va_arg(ap, struct block_list *);
-	struct skill_unit* unit = va_arg(ap, struct skill_unit *);
-	struct skill_unit_group* group = NULL;
-	int flag = va_arg(ap, int);
-	nullpo_ret(unit);
-	nullpo_ret(group = unit->group);
-
-	if (battle_check_target(src, bl, flag) <= 0)
-		return 0;
-
-	skf_db.script_run(src, bl, group->skill_id, group->skill_lv, 5, NULL, NULL, NULL);
-	return 1;
-}
-
 /*==========================================
  * Check for validity skill unit that triggered by skill_unit_timer_sub
  * And trigger skill_unit_onplace_timer for object that maybe stands there (catched object is *bl)
@@ -19975,14 +19960,6 @@ static int skill_unit_timer_sub(DBKey key, DBData *data, va_list ap)
 	//Don't continue if unit or even group is expired and has been deleted.
 	if( !group || !unit->alive )
 		return 0;
-
-	uint16 idx;
-	std::shared_ptr<s_skill_db> skill = skill_db.find(group->skill_id);
-	if (group->skill_id && (idx = skill_get_index(group->skill_id)) != 0 && skill->formula.onplace.pertick && DIFF_TICK(tick, unit->pertick) >= skill->formula.onplace.pertick) {
-		struct block_list* src = battle_get_master(&unit->bl);
-		unit->pertick = tick;
-		map_foreachinrange(skill_onplace_script, bl, unit->range, BL_CHAR, src, bl, skill->formula.onplace.target);
-	}
 
 	dissonance = skill_dance_switch(unit, 0);
 
@@ -22290,13 +22267,10 @@ static void skill_destroy_formula(struct s_skill_db::s_formula *formula)
 		script_free_code(formula->delay);
 	if (formula->duration)
 		script_free_code(formula->duration);
-	if (formula->onplace.script)
-		script_free_code(formula->onplace.script);
 	formula->formula = nullptr;
 	formula->casting = nullptr;
 	formula->delay = nullptr;
 	formula->duration = nullptr;
-	formula->onplace.script = nullptr;
 }
 
 uint64 SkillFormulaDatabase::parseBodyNode(const YAML::Node &node) {
@@ -22330,16 +22304,6 @@ uint64 SkillFormulaDatabase::parseBodyNode(const YAML::Node &node) {
 	if (this->nodeExists(node, "Duration") && this->asString(node, "Duration", script))
 		formula->duration = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Duration"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
 
-	if (this->nodeExists(node, "OnPlace")) {
-		const YAML::Node& onplaceNode = node["OnPlace"];
-		if (!this->asInt32(onplaceNode, "PerTick", formula->onplace.pertick))
-			formula->onplace.pertick = 1000;
-		if (!this->asInt32(onplaceNode, "Target", formula->onplace.target))
-			formula->onplace.target = BCT_ENEMY;
-		if (this->asString(onplaceNode, "Script", script))
-			formula->onplace.script = parse_script(script.c_str(), this->getCurrentFile().c_str(), onplaceNode["Script"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
-	}
-
 	return 1;
 }
 
@@ -22370,9 +22334,6 @@ void SkillFormulaDatabase::script_run(struct block_list *src, struct block_list 
 		break;
 	case 4:
 		script = skill->formula.duration;
-		break;
-	case 5:
-		script = skill->formula.onplace.script;
 		break;
 	}
 	if (script == NULL)
