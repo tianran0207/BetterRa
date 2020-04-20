@@ -1640,7 +1640,10 @@ OnCast:
 in_moc_16,149,80,4	script	工会会长#ASN2	1_M_MOC_LORD,1,1,{
 	end;
 OnTouch_:
-	savepoint "morocc",100,100,1,1;
+	if (checkre(0))
+		savepoint "morocc",100,100,1,1;
+	else
+		savepoint "moc_ruins",79,99,1,1;
 	if (ASSIN_Q == 7 && BaseJob == Job_Thief) {
 		set ASSIN_Q,8;
 		mes "[工会会长]";
@@ -2092,11 +2095,10 @@ OnTouch_:
 				mes "给你, 拿好啦. 祝你成功!";
 				getitem 1220,1; //Gladius_
 			}
-			set ASSIN_Q,17;
-			set ASSIN_Q3,2;
+			ASSIN_Q3 = 2;
 			next;
 		}
-		else {
+		else if (ASSIN_Q3 != 2) {
 			mes "[工会会长]";
 			mes "好了, 我说的够多了.";
 			mes "这个先拿着吧.";
@@ -2117,7 +2119,7 @@ OnTouch_:
 			case 5:
 				getitem 1252,1; //Katar
 			}
-			set ASSIN_Q,17;
+			ASSIN_Q3 = 2;
 		}
 		mes "[工会会长]";
 		mes "好吧, 我会给你一个标记. 去找入口处那位看起来很凶的人.";
@@ -2127,8 +2129,12 @@ OnTouch_:
 		next;
 		mes "[工会会长]";
 		mes "你, " + strcharinfo(0) + ", 立志成为一名刺客. 愿你使用我们刺客的方式, 成为别人的榜样.";
-		savepoint "morocc",100,100,1,1;
+		if (checkre(0))
+			savepoint "morocc",100,100,1,1;
+		else
+			savepoint "moc_ruins",79,99,1,1;
 		getitem 1008,1; //Frozen_Heart
+		ASSIN_Q = 17;
 		changequest 8006,8007;
 		next;
 		mes "[工会会长]";

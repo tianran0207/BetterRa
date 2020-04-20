@@ -16,6 +16,7 @@
 #include "../common/showmsg.hpp"
 #include "../common/strlib.hpp"
 #include "../common/timer.hpp"
+#include "../common/utilities.hpp"
 #include "../common/utils.hpp"
 
 #include "battle.hpp"
@@ -32,6 +33,8 @@
 #include "pc.hpp"
 #include "pet.hpp"
 #include "script.hpp" // script_config
+
+using namespace rathena;
 
 struct npc_data* fake_nd;
 
@@ -157,9 +160,10 @@ int npc_isnear_sub(struct block_list* bl, va_list args) {
 			if (skill->unit_nonearnpc_type&SKILL_NONEAR_TOMB && nd->subtype == NPCTYPE_TOMB)
 				return 1;
 		}
+		return 0;
 	}
 
-    return 0;
+	return 1;
 }
 
 bool npc_isnear(struct block_list * bl) {
@@ -3634,7 +3638,7 @@ int npc_duplicate4instance(struct npc_data *snd, int16 m) {
 	char newname[NPC_NAME_LENGTH+1];
 	struct map_data *mapdata = map_getmapdata(m);
 
-	if( mapdata->instance_id == 0 )
+	if( mapdata->instance_id <= 0 )
 		return 1;
 
 	snprintf(newname, ARRAYLENGTH(newname), "dup_%d_%d", mapdata->instance_id, snd->bl.id);
@@ -3645,15 +3649,17 @@ int npc_duplicate4instance(struct npc_data *snd, int16 m) {
 
 	if( snd->subtype == NPCTYPE_WARP ) { // Adjust destination, if instanced
 		struct npc_data *wnd = NULL; // New NPC
-		struct instance_data *im = &instance_data[mapdata->instance_id];
-		int dm = map_mapindex2mapid(snd->u.warp.mapindex), imap = 0, i;
+		std::shared_ptr<s_instance_data> idata = util::umap_find(instances, mapdata->instance_id);
+		int dm = map_mapindex2mapid(snd->u.warp.mapindex), imap = 0;
+
 		if( dm < 0 ) return 1;
 
-		for(i = 0; i < im->cnt_map; i++)
-			if(im->map[i]->m && map_mapname2mapid(map_getmapdata(im->map[i]->src_m)->name) == dm) {
-				imap = map_mapname2mapid(map_getmapdata(im->map[i]->m)->name);
+		for (const auto &it : idata->map) {
+			if (it.m && map_mapname2mapid(map_getmapdata(it.src_m)->name) == dm) {
+				imap = map_mapname2mapid(map_getmapdata(it.m)->name);
 				break; // Instance map matches destination, update to instance map
 			}
+		}
 
 		if(!imap)
 			imap = map_mapname2mapid(map_getmapdata(dm)->name);
@@ -4703,7 +4709,7 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
 			mob_skill_db_set();
 			continue;
 		case 8:
-			sv_readdb_line(filepath,lines,line,',',7,7+MAX_MAP_PER_INSTANCE,&instance_readdb_sub);
+			//sv_readdb_line(filepath,lines,line,',',7,7+255,&instance_readdb_sub);
 			continue;
 		default:
 			return start;
