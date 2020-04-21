@@ -103,6 +103,8 @@ public:
 
 	const std::string getDefaultLocation();
 	uint64 parseBodyNode(const YAML::Node &node);
+	bool load();
+	bool reload();
 };
 
 extern InstanceDatabase instance_db;
@@ -125,6 +127,7 @@ int instance_addmap_name(int instance_id, const char *mapname, bool copynpc);
 int instance_delmap_name(int instance_id, const char *mapname);
 int instance_left_point(struct map_session_data *sd, int instance_id);
 enum e_instance_enter instance_enter_left(struct map_session_data *sd);
+bool instance_readdb_sub(char* str[], int columns, int current);
 
 void instance_addnpc(std::shared_ptr<s_instance_data> idata);
 

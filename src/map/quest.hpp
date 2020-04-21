@@ -50,9 +50,10 @@ public:
 	QuestDatabase() : TypesafeYamlDatabase("QUEST_DB", 1) {
 
 	}
-
+	
 	const std::string getDefaultLocation();
 	uint64 parseBodyNode(const YAML::Node& node);
+	bool load();
 	bool reload();
 };
 

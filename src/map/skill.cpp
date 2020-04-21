@@ -23927,3 +23927,394 @@ void do_final_skill(void)
 	ers_destroy(skill_unit_ers);
 	ers_destroy(skill_timer_ers);
 }
+
+static int skill_split_atoi (char *str, int *val)
+{
+	int i, j, step = 1;
+
+	for (i=0; i<MAX_SKILL_LEVEL; i++) {
+		if (!str) break;
+		val[i] = atoi(str);
+		str = strchr(str,':');
+		if (str)
+			*str++=0;
+	}
+	if(i==0) //No data found.
+		return 0;
+	if(i==1) {	//Single value, have the whole range have the same value.
+		for (; i < MAX_SKILL_LEVEL; i++)
+			val[i] = val[i-1];
+		return i;
+	}
+	//Check for linear change with increasing steps until we reach half of the data acquired.
+	for (step = 1; step <= i/2; step++) {
+		int diff = val[i-1] - val[i-step-1];
+		for(j = i-1; j >= step; j--)
+			if ((val[j]-val[j-step]) != diff)
+				break;
+
+		if (j>=step) //No match, try next step.
+			continue;
+
+		for(; i < MAX_SKILL_LEVEL; i++) { //Apply linear increase
+			val[i] = val[i-step]+diff;
+			if (val[i] < 1 && val[i-1] >=0) //Check if we have switched from + to -, cap the decrease to 0 in said cases.
+			{ val[i] = 1; diff = 0; step = 1; }
+		}
+		return i;
+	}
+	//Okay.. we can't figure this one out, just fill out the stuff with the previous value.
+	for (;i<MAX_SKILL_LEVEL; i++)
+		val[i] = val[i-1];
+	return i;
+}
+
+static uint8 skill_split_atoi2(char *str, int *val, const char *delim, int min_value, uint16 max) {
+	uint8 i = 0;
+	char *p = strtok(str, delim);
+
+	while (p != NULL) {
+		int64 n_tmp;
+		int n = min_value;
+
+		trim(p);
+
+		if (ISDIGIT(p[0])) // If using numeric
+			n = atoi(p);
+		else {
+			if (!script_get_constant(p, &n_tmp)) { // If using constant value
+				ShowError("skill_split_atoi2: Invalid value: '%s'\n", p);
+				p = strtok(NULL, delim);
+				continue;
+			}
+			n = static_cast<int>(n_tmp);
+		}
+
+		if (n > min_value) {
+			val[i] = n;
+			i++;
+			if (i >= max)
+				break;
+		}
+		p = strtok(NULL, delim);
+	}
+	return i;
+}
+
+static bool skill_parse_row_skilldb(char* split[], int columns, int current)
+{// id,range,hit,inf,element,nk,splash,max,list_num,castcancel,cast_defence_rate,inf2,maxcount,skill_type,blow_count,name,description
+	uint16 skill_id = atoi(split[0]);
+
+	std::shared_ptr<s_skill_db> skill = skill_db.find(skill_id);
+	std::string name;
+	unsigned int inf2_val, inf3_val, constant = 0;
+
+	bool exists = skill != nullptr;
+	if (!exists) {
+		skill = std::make_shared<s_skill_db>();
+		skill->nameid = skill_id;
+	}
+	else {
+		memset(skill->range, 0, sizeof(skill->range));
+		memset(skill->element, 0, sizeof(skill->element));
+		memset(skill->splash, 0, sizeof(skill->splash));
+		memset(skill->num, 0, sizeof(skill->num));
+		memset(skill->maxcount, 0, sizeof(skill->maxcount));
+		memset(skill->blewcount, 0, sizeof(skill->blewcount));
+		skill->inf2.reset();
+	}
+	
+
+	skill_split_atoi(split[1], skill->range);
+	skill->hit = static_cast<e_damage_type>(atoi(split[2]));
+	skill->inf = static_cast<uint16>(atoi(split[3]));
+	skill_split_atoi(split[4], (int *)&skill->element);
+	skill->nk = static_cast<uint16>(strtol(split[5], NULL, 0));
+	skill_split_atoi(split[6], skill->splash);
+	skill->max = atoi(split[7]);
+	skill_split_atoi(split[8], skill->num);
+
+	if (strcmpi(split[9], "yes") == 0)
+		skill->castcancel = true;
+	else
+		skill->castcancel = false;
+
+	skill->cast_def_rate = atoi(split[10]);
+	inf2_val = (unsigned int)strtol(split[11], NULL, 0);
+	skill_split_atoi(split[12], skill->maxcount);
+	if (strcmpi(split[13], "weapon") == 0)
+		skill->skill_type = BF_WEAPON;
+	else if (strcmpi(split[13], "magic") == 0)
+		skill->skill_type = BF_MAGIC;
+	else if (strcmpi(split[13], "misc") == 0)
+		skill->skill_type = BF_MISC;
+	else
+		skill->skill_type = BF_NONE;
+	skill_split_atoi(split[14], skill->blewcount);
+	inf3_val = (unsigned int)strtol(split[15], NULL, 0);
+	name = trim(split[16]);
+	name.resize(SKILL_NAME_LENGTH);
+	memcpy(skill->name, name.c_str(), sizeof(skill->name));
+	name = trim(split[17]);
+	name.resize(SKILL_DESC_LENGTH);
+	memcpy(skill->desc, name.c_str(), sizeof(skill->desc));
+
+	for (uint8 i = 0; i < 19; i++) {
+		if (inf2_val & (1>>i))
+			skill->inf2.set(static_cast<uint8>(constant));
+		constant++;
+	}
+	for (uint8 i = 0; i < 21; i++) {
+		if (i == 1)
+			continue;
+		if (inf3_val & (1>>i))
+			skill->inf2.set(static_cast<uint8>(constant));
+		constant++;
+	}
+
+	if (!exists) {
+		skill_db.put(skill_id, skill);
+		skilldb_id2idx[skill_id] = skill_num;
+		skill_num++;
+	}
+	return 1;
+}
+
+static bool skill_parse_row_unitdb(char* split[], int columns, int current)
+{
+	int constant = 0;
+	std::shared_ptr<s_skill_db> skill = skill_db.find(atoi(split[0]));
+
+	if (!skill) {
+		ShowWarning("skill_parse_row_unitdb: Skill '%d' isn't created in 'skill_db.yml' yet. Creating dummy value...\n", atoi(split[0]));
+		return false;
+	}
+	else {
+		memset(skill->unit_layout_type, 0, sizeof(skill->unit_layout_type));
+		memset(skill->unit_range, 0, sizeof(skill->unit_range));
+		skill->unit_flag.reset();
+	}
+	skill->unit_id = (uint16)strtol(split[1], NULL, 16);
+	skill->unit_id2 = (uint16)strtol(split[2], NULL, 16);
+	skill_split_atoi(split[3], skill->unit_layout_type);
+	skill_split_atoi(split[4], skill->unit_range);
+	skill->unit_interval = atoi(split[5]);
+
+	trim(split[6]);
+	if (strcmpi(split[6], "noenemy") == 0) skill->unit_target = BCT_NOENEMY;
+	else if (strcmpi(split[6], "friend") == 0) skill->unit_target = BCT_NOENEMY;
+	else if (strcmpi(split[6], "party") == 0) skill->unit_target = BCT_PARTY;
+	else if (strcmpi(split[6], "ally") == 0) skill->unit_target = BCT_PARTY | BCT_GUILD;
+	else if (strcmpi(split[6], "guild") == 0) skill->unit_target = BCT_GUILD;
+	else if (strcmpi(split[6], "all") == 0) skill->unit_target = BCT_ALL;
+	else if (strcmpi(split[6], "enemy") == 0) skill->unit_target = BCT_ENEMY;
+	else if (strcmpi(split[6], "self") == 0) skill->unit_target = BCT_SELF;
+	else if (strcmpi(split[6], "sameguild") == 0) skill->unit_target = BCT_GUILD | BCT_SAMEGUILD;
+	else if (strcmpi(split[6], "noone") == 0) skill->unit_target = BCT_NOONE;
+	else skill->unit_target = strtol(split[6], NULL, 16);
+
+	unsigned int unit_flag = strtol(split[7], NULL, 16);
+	for (uint8 i = 0; i < 18; i++) {
+		if (unit_flag & (1>>i))
+			skill->unit_flag.set(static_cast<uint8>(constant));
+		constant++;
+	}
+
+	if (skill->unit_flag[UF_NOENEMY] && battle_config.defnotenemy)
+		skill->unit_target = BCT_NOENEMY;
+
+	//By default, target just characters.
+	skill->unit_target |= BL_CHAR;
+	if (skill->unit_flag[UF_NOPC])
+		skill->unit_target &= ~BL_PC;
+	if (skill->unit_flag[UF_NOMOB])
+		skill->unit_target &= ~BL_MOB;
+	if (skill->unit_flag[UF_SKILL])
+		skill->unit_target |= BL_SKILL;
+
+	return true;
+}
+
+static bool skill_parse_row_castdb(char* split[], int columns, int current)
+{
+	std::shared_ptr<s_skill_db> skill = skill_db.find(atoi(split[0]));
+
+	if (!skill) {
+		ShowWarning("skill_parse_row_unitdb: Skill '%d' isn't created in 'skill_db.yml' yet. Creating dummy value...\n", atoi(split[0]));
+		return false;
+	}
+	else{
+		memset(skill->cast, 0, sizeof(skill->cast));
+		memset(skill->delay, 0, sizeof(skill->delay));
+		memset(skill->walkdelay, 0, sizeof(skill->walkdelay));
+		memset(skill->upkeep_time, 0, sizeof(skill->upkeep_time));
+		memset(skill->upkeep_time2, 0, sizeof(skill->upkeep_time2));
+		memset(skill->cooldown, 0, sizeof(skill->cooldown));
+		memset(skill->fixed_cast, 0, sizeof(skill->fixed_cast));
+	}
+
+	skill_split_atoi(split[1], skill->cast);
+	skill_split_atoi(split[2], skill->delay);
+	skill_split_atoi(split[3], skill->walkdelay);
+	skill_split_atoi(split[4], skill->upkeep_time);
+	skill_split_atoi(split[5], skill->upkeep_time2);
+	skill_split_atoi(split[6], skill->cooldown);
+#ifdef RENEWAL_CAST
+	skill_split_atoi(split[7], skill->fixed_cast);
+#endif
+	return true;
+}
+
+static bool skill_parse_row_castnodexdb(char* split[], int columns, int current)
+{
+	std::shared_ptr<s_skill_db> skill = skill_db.find(atoi(split[0]));
+
+	if (!skill) {
+		ShowWarning("skill_parse_row_unitdb: Skill '%d' isn't created in 'skill_db.yml' yet. Creating dummy value...\n", atoi(split[0]));
+		return false;
+	}
+	skill->castnodex = atoi(split[1]);
+	if (split[2]) // optional column
+		skill->delaynodex = atoi(split[2]);
+
+	return true;
+}
+
+static bool skill_parse_row_requiredb(char* split[], int columns, int current)
+{
+	char* p;
+	uint16 i;
+
+	std::shared_ptr<s_skill_db> skill = skill_db.find(atoi(split[0]));
+
+	if (!skill) {
+		ShowWarning("skill_parse_row_unitdb: Skill '%d' isn't created in 'skill_db.yml' yet. Creating dummy value...\n", atoi(split[0]));
+		return false;
+	}
+	else {
+		memset(skill->require.hp, 0, sizeof(skill->require.hp));
+		memset(skill->require.mhp, 0, sizeof(skill->require.mhp));
+		memset(skill->require.sp, 0, sizeof(skill->require.sp));
+		memset(skill->require.hp_rate, 0, sizeof(skill->require.hp_rate));
+		memset(skill->require.sp_rate, 0, sizeof(skill->require.sp_rate));
+		memset(skill->require.zeny, 0, sizeof(skill->require.zeny));
+		memset(skill->require.ammo_qty, 0, sizeof(skill->require.ammo_qty));
+		memset(skill->require.spiritball, 0, sizeof(skill->require.spiritball));
+		memset(skill->require.itemid, 0, sizeof(skill->require.itemid));
+		memset(skill->require.amount, 0, sizeof(skill->require.amount));
+		skill->require.status.clear();
+		skill->require.eqItem.clear();
+	}
+
+	skill_split_atoi(split[1], skill->require.hp);
+	skill_split_atoi(split[2], skill->require.mhp);
+	skill_split_atoi(split[3], skill->require.sp);
+	skill_split_atoi(split[4], skill->require.hp_rate);
+	skill_split_atoi(split[5], skill->require.sp_rate);
+	skill_split_atoi(split[6], skill->require.zeny);
+
+	//Witch weapon type are required, see doc/item_db for weapon types (View column)
+	p = split[7];
+	while (p) {
+		int l = atoi(p);
+		if (l == 99) { // Any weapon
+			skill->require.weapon = 0;
+			break;
+		}
+		else
+			skill->require.weapon |= 1 << l;
+		p = strchr(p, ':');
+		if (!p)
+			break;
+		p++;
+	}
+
+	//Ammo type that required, see doc/item_db for ammo types (View column)
+	p = split[8];
+	while (p) {
+		int l = atoi(p);
+		if (l == 99) { // Any ammo type
+			skill->require.ammo = AMMO_TYPE_ALL;
+			break;
+		}
+		else if (l) // 0 stands for no requirement
+			skill->require.ammo |= 1 << l;
+		p = strchr(p, ':');
+		if (!p)
+			break;
+		p++;
+	}
+	skill_split_atoi(split[9], skill->require.ammo_qty);
+
+	if (strcmpi(split[10], "hidden") == 0) skill->require.state = ST_HIDDEN;
+	else if (strcmpi(split[10], "riding") == 0) skill->require.state = ST_RIDING;
+	else if (strcmpi(split[10], "falcon") == 0) skill->require.state = ST_FALCON;
+	else if (strcmpi(split[10], "cart") == 0) skill->require.state = ST_CART;
+	else if (strcmpi(split[10], "shield") == 0) skill->require.state = ST_SHIELD;
+	else if (strcmpi(split[10], "recover_weight_rate") == 0) skill->require.state = ST_RECOVER_WEIGHT_RATE;
+	else if (strcmpi(split[10], "move_enable") == 0) skill->require.state = ST_MOVE_ENABLE;
+	else if (strcmpi(split[10], "water") == 0) skill->require.state = ST_WATER;
+	else if (strcmpi(split[10], "dragon") == 0) skill->require.state = ST_RIDINGDRAGON;
+	else if (strcmpi(split[10], "warg") == 0) skill->require.state = ST_WUG;
+	else if (strcmpi(split[10], "ridingwarg") == 0) skill->require.state = ST_RIDINGWUG;
+	else if (strcmpi(split[10], "mado") == 0) skill->require.state = ST_MADO;
+	else if (strcmpi(split[10], "elementalspirit") == 0) skill->require.state = ST_ELEMENTALSPIRIT;
+	else if (strcmpi(split[10], "elementalspirit2") == 0) skill->require.state = ST_ELEMENTALSPIRIT2;
+	else if (strcmpi(split[10], "peco") == 0) skill->require.state = ST_PECO;
+	else skill->require.state = ST_NONE;	// Unknown or no state
+
+	//Status requirements
+	//FIXME: Default entry should be -1/SC_ALL in skill_require_db.txt but it's 0/SC_STONE.
+	trim(split[11]);
+	if (split[11][0] != '\0' || atoi(split[11])) {
+		int require[MAX_SKILL_STATUS_REQUIRE];
+		int count = skill_split_atoi2(split[11], require, ":", SC_STONE, ARRAYLENGTH(require));
+		for (i = 0; i < count; i++)
+			skill->require.status.push_back(static_cast<sc_type>(require[i]));
+	}
+
+	skill_split_atoi(split[12], skill->require.spiritball);
+
+	for (i = 0; i < MAX_SKILL_ITEM_REQUIRE; i++) {
+		uint16 itemid = atoi(split[13 + 2 * i]);
+
+		if (itemid > 0 && !itemdb_exists(itemid)) {
+			ShowError("skill_parse_row_requiredb: Invalid item (in ITEM_REQUIRE list) %d for skill %d.\n", itemid, atoi(split[0]));
+			return false;
+		}
+		skill->require.itemid[i] = itemid;
+		skill->require.amount[i] = atoi(split[14 + 2 * i]);
+	}
+
+	//Equipped Item requirements.
+	trim(split[33]);
+	if (split[33][0] != '\0' || atoi(split[33])) {
+		int require[MAX_SKILL_EQUIP_REQUIRE];
+		int count = skill_split_atoi2(split[33], require, ":", 500, ARRAYLENGTH(require));
+		for (i = 0; i < count; i++)
+			skill->require.eqItem.push_back(require[i]);
+	}
+	return true;
+}
+
+static void skill_read_pre_db()
+{
+	sv_readdb(db_path_pre, "skill_db.txt", ',', 18, 18, -1, &skill_parse_row_skilldb, true);
+	sv_readdb(db_path_pre, "skill_unit_db.txt", ',', 8, 8, -1, skill_parse_row_unitdb, true);
+	sv_readdb(db_path_pre, "skill_cast_db.txt", ',', 7, 8, -1, skill_parse_row_castdb, true);
+	sv_readdb(db_path_pre, "skill_castnodex_db.txt", ',', 2, 3, -1, skill_parse_row_castnodexdb, true);
+	sv_readdb(db_path_pre, "skill_require_db.txt", ',', 34, 34, -1, skill_parse_row_requiredb, true);
+}
+
+bool SkillDatabase::load() {
+	if (!TypesafeYamlDatabase::load())
+		return false;
+	skill_read_pre_db();
+	return true;
+}
+bool SkillDatabase::reload() {
+	if (!TypesafeYamlDatabase::reload())
+		return false;
+	skill_read_pre_db();
+	return true;
+}

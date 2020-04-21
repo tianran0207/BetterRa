@@ -5892,7 +5892,6 @@ static void mob_load(void)
 		aFree(dbsubpath1);
 		aFree(dbsubpath2);
 	}
-	sv_readdb(old_db_path, "mob_avail.txt", ',', 2, 12, -1, &mob_readdb_mobavail, true);
 
 	mob_avail_db.load();
 
@@ -6051,6 +6050,13 @@ void do_final_mob(bool is_reload){
 		ers_destroy(item_drop_ers);
 		ers_destroy(item_drop_list_ers);
 	}
+}
+
+bool MobAvailDatabase::load() {
+	if (!YamlDatabase::load())
+		return false;
+	sv_readdb(db_path_pre, "mob_avail.txt", ',', 2, 12, -1, &mob_readdb_mobavail, true);
+	return true;
 }
 
 static struct s_aggro_entry *mob_aggro_exists(struct mob_data *md, struct map_session_data *sd) {

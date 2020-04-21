@@ -4709,7 +4709,7 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
 			mob_skill_db_set();
 			continue;
 		case 8:
-			//sv_readdb_line(filepath,lines,line,',',7,7+255,&instance_readdb_sub);
+			sv_readdb_line(filepath,lines,line,',',7,7+255,&instance_readdb_sub);
 			continue;
 		default:
 			return start;

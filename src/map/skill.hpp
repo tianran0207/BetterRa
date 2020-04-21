@@ -324,6 +324,8 @@ public:
 	const std::string getDefaultLocation();
 	template<typename T, size_t S> bool parseNode(std::string nodeName, std::string subNodeName, YAML::Node node, T (&arr)[S]);
 	uint64 parseBodyNode(const YAML::Node &node);
+	bool load();
+	bool reload();
 	void clear();
 };
 

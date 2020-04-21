@@ -277,6 +277,7 @@ public:
 	void clear() { };
 	const std::string getDefaultLocation();
 	uint64 parseBodyNode(const YAML::Node& node);
+	bool load();
 };
 
 enum e_mob_skill_target {

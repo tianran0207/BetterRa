@@ -714,9 +714,11 @@ static int quest_reload_check_sub(struct map_session_data *sd, va_list ap)
 	return 1;
 }
 
+static void quest_read_pre_db();
 bool QuestDatabase::reload() {
 	if (!TypesafeYamlDatabase::reload())
 		return false;
+	quest_read_pre_db();
 
 	// Update quest data for players, to ensure no entries about removed quests are left over.
 	map_foreachpc(&quest_reload_check_sub);
@@ -738,4 +740,84 @@ void do_init_quest(void)
  */
 void do_final_quest(void)
 {
+}
+
+static bool quest_parse_row_questdb(char* split[], int columns, int current)
+{
+	uint32 quest_id = atoi(split[0]);
+
+	std::shared_ptr<s_quest_db> quest = quest_db.find(quest_id);
+	bool exists = quest != nullptr;
+
+	if (!exists) {
+		quest = std::make_shared<s_quest_db>();
+		quest->id = quest_id;
+	}
+	else {
+		quest->time = 0;
+		quest->time_at = false;
+		quest->objectives.clear();
+		quest->dropitem.clear();
+	}
+	quest->name = std::string(split[17]);
+
+	if (strchr(split[1], ':') == NULL) {
+		quest->time = atoi(split[1]);
+		quest->time_at = false;
+	}
+	else {
+		unsigned char hour, minute;
+		if (sscanf(split[1], "%hhu:%hhu", &hour, &minute) == 2) {
+			quest->time = hour * 3600 + minute * 60;
+			quest->time_at = true;
+		}
+	}
+	for (int i = 0; i < MAX_QUEST_OBJECTIVES; i++) {
+		struct mob_db *mob;
+		std::shared_ptr<s_quest_objective> target;
+		uint16 mob_id = (uint16)atoi(split[2 * i + 2]);
+		if (!mob_id)
+			continue;
+		if ((mob = mob_db(mob_id)) == NULL) {
+			ShowWarning("quest_read_txtdb: Invalid monster as objective '%d' in line %d.\n", mob_id, current);
+			continue;
+		}
+		target = std::make_shared<s_quest_objective>();
+		target->mob_id = mob->vd.class_;
+		target->count = (uint16)atoi(split[2 * i + 3]);;
+		quest->objectives.push_back(target);
+	}
+	for (int i = 0; i < MAX_QUEST_OBJECTIVES; i++) {
+		std::shared_ptr<s_quest_dropitem> target;
+		uint16 mob_id = (uint16)atoi(split[3 * i + (2 * MAX_QUEST_OBJECTIVES + 2)]);
+		uint16 nameid = (uint16)atoi(split[3 * i + (2 * MAX_QUEST_OBJECTIVES + 3)]);
+		if (!nameid)
+			continue;
+		if (!itemdb_exists(nameid) || (mob_id && mob_db(mob_id) == NULL)) {
+			ShowWarning("quest_read_txtdb: Invalid item reward '%d' (mob %d, optional) in line %d.\n", nameid, mob_id, current);
+			continue;
+		}
+		target = std::make_shared<s_quest_dropitem>();
+		target->mob_id = mob_id;
+		target->nameid = nameid;
+		target->count = 1;
+		target->rate = atoi(split[3 * i + (2 * MAX_QUEST_OBJECTIVES + 4)]);
+		quest->dropitem.push_back(target);
+	}
+
+	if (!exists)
+		quest_db.put(quest_id, quest);
+
+	return 1;
+}
+
+static void quest_read_pre_db() {
+	sv_readdb(db_path_pre, "quest_db.txt", ',', 18, 18, -1, &quest_parse_row_questdb, true);
+}
+
+bool QuestDatabase::load() {
+	if (!TypesafeYamlDatabase::load())
+		return false;
+	quest_read_pre_db();
+	return true;
 }
