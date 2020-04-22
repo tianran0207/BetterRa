@@ -13997,6 +13997,7 @@ int clif_itemlist(struct map_session_data *sd, unsigned short itemid[], unsigned
 
 	int c, i, d = 0;
 	int fd;
+	struct item_data* id;
 
 	nullpo_ret(sd);
 
@@ -14009,10 +14010,10 @@ int clif_itemlist(struct map_session_data *sd, unsigned short itemid[], unsigned
 	WFIFOHEAD(fd, count * 2 + 4);
 	WFIFOW(fd, 0) = 0x1ad;
 	for (i = 0, c = 0; i < count; i++) {
-		if (!itemdb_exists(itemid[i]))
+		if (!(id = itemdb_exists(itemid[i])))
 			continue;
 
-		WFIFOW(fd, c * 2 + 4) = itemid[i];
+		WFIFOW(fd, c * 2 + 4) = (id->view_id > 0) ? id->view_id : itemid[i];
 		c++;
 	}
 	WFIFOW(fd, 2) = c * 2 + 4;
