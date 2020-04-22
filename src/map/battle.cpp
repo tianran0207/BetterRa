@@ -480,6 +480,9 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 		if (ud->def_fix.max_dmg && damage > ud->def_fix.max_dmg)
 			damage = ud->def_fix.max_dmg;
 	}
+	if (is_infinite_defense(target, wd->flag))
+		damage = 1;
+
 	if (damage != wd->damage + wd->damage2 || ddamage > 0) {
 		if (wd->damage2 == 0) {
 			wd->damage = damage;
