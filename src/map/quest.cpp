@@ -742,77 +742,118 @@ void do_final_quest(void)
 {
 }
 
-static bool quest_parse_row_questdb(char* split[], int columns, int current)
+static void quest_read_txtdb(void)
 {
-	uint32 quest_id = atoi(split[0]);
+	FILE *fp;
+	char line[1024];
+	uint32 ln = 0, count = 0;
+	char filename[256];
 
-	std::shared_ptr<s_quest_db> quest = quest_db.find(quest_id);
-	bool exists = quest != nullptr;
+	sprintf(filename, "%s/%s", db_path_pre, "quest_db.txt");
+	if ((fp = fopen(filename, "r")) == NULL)
+		return;
 
-	if (!exists) {
-		quest = std::make_shared<s_quest_db>();
-		quest->id = quest_id;
-	}
-	else {
-		quest->time = 0;
-		quest->time_at = false;
-		quest->objectives.clear();
-		quest->dropitem.clear();
-	}
-	quest->name = std::string(split[17]);
+	while (fgets_ex(line, sizeof(line), fp)) {
+		char *str[19], *p;
+		int quest_id = 0;
+		uint8 i;
 
-	if (strchr(split[1], ':') == NULL) {
-		quest->time = atoi(split[1]);
-		quest->time_at = false;
-	}
-	else {
-		unsigned char hour, minute;
-		if (sscanf(split[1], "%hhu:%hhu", &hour, &minute) == 2) {
-			quest->time = hour * 3600 + minute * 60;
-			quest->time_at = true;
-		}
-	}
-	for (int i = 0; i < MAX_QUEST_OBJECTIVES; i++) {
-		struct mob_db *mob;
-		std::shared_ptr<s_quest_objective> target;
-		uint16 mob_id = (uint16)atoi(split[2 * i + 2]);
-		if (!mob_id)
+		++ln;
+		if (line[0] == '\0' || (line[0] == '/' && line[1] == '/'))
 			continue;
-		if ((mob = mob_db(mob_id)) == NULL) {
-			ShowWarning("quest_read_txtdb: Invalid monster as objective '%d' in line %d.\n", mob_id, current);
+
+		p = trim(line);
+
+		if (*p == '\0')
+			continue; // empty line
+
+		memset(str, 0, sizeof(str));
+		for (i = 0, p = line; i < 18 && p; i++) {
+			str[i] = p;
+			p = strchr(p, ',');
+			if (p)
+				*p++ = 0;
+		}
+		if (str[0] == NULL)
+			continue;
+		if (i < 18) {
+			ShowError("quest_read_txtdb: Insufficient columns in '%s' line %d (%d of %d)\n", filename, ln, i, 18);
 			continue;
 		}
-		target = std::make_shared<s_quest_objective>();
-		target->mob_id = mob->vd.class_;
-		target->count = (uint16)atoi(split[2 * i + 3]);;
-		quest->objectives.push_back(target);
-	}
-	for (int i = 0; i < MAX_QUEST_OBJECTIVES; i++) {
-		std::shared_ptr<s_quest_dropitem> target;
-		uint16 mob_id = (uint16)atoi(split[3 * i + (2 * MAX_QUEST_OBJECTIVES + 2)]);
-		uint16 nameid = (uint16)atoi(split[3 * i + (2 * MAX_QUEST_OBJECTIVES + 3)]);
-		if (!nameid)
-			continue;
-		if (!itemdb_exists(nameid) || (mob_id && mob_db(mob_id) == NULL)) {
-			ShowWarning("quest_read_txtdb: Invalid item reward '%d' (mob %d, optional) in line %d.\n", nameid, mob_id, current);
-			continue;
+
+		quest_id = atoi(str[0]);
+
+		std::shared_ptr<s_quest_db> quest = quest_db.find(quest_id);
+		bool exists = quest != nullptr;
+
+		if (!exists) {
+			quest = std::make_shared<s_quest_db>();
+			quest->id = quest_id;
 		}
-		target = std::make_shared<s_quest_dropitem>();
-		target->mob_id = mob_id;
-		target->nameid = nameid;
-		target->count = 1;
-		target->rate = atoi(split[3 * i + (2 * MAX_QUEST_OBJECTIVES + 4)]);
-		quest->dropitem.push_back(target);
+		else {
+			quest->time = 0;
+			quest->time_at = false;
+			quest->objectives.clear();
+			quest->dropitem.clear();
+		}
+		quest->name = std::string(str[17]);
+
+		if (strchr(str[1], ':') == NULL) {
+			quest->time = atoi(str[1]);
+			quest->time_at = false;
+		}
+		else {
+			unsigned char hour, minute;
+			if (sscanf(str[1], "%hhu:%hhu", &hour, &minute) == 2) {
+				quest->time = hour * 3600 + minute * 60;
+				quest->time_at = true;
+			}
+		}
+		for (int i = 0; i < MAX_QUEST_OBJECTIVES; i++) {
+			struct mob_db *mob;
+			std::shared_ptr<s_quest_objective> target;
+			uint16 mob_id = (uint16)atoi(str[2 * i + 2]);
+			if (!mob_id)
+				continue;
+			if ((mob = mob_db(mob_id)) == NULL) {
+				ShowWarning("quest_read_txtdb: Invalid monster as objective '%d' in line %d.\n", mob_id, ln);
+				continue;
+			}
+			target = std::make_shared<s_quest_objective>();
+			target->mob_id = mob->vd.class_;
+			target->count = (uint16)atoi(str[2 * i + 3]);;
+			quest->objectives.push_back(target);
+		}
+		for (int i = 0; i < MAX_QUEST_OBJECTIVES; i++) {
+			std::shared_ptr<s_quest_dropitem> target;
+			uint16 mob_id = (uint16)atoi(str[3 * i + (2 * MAX_QUEST_OBJECTIVES + 2)]);
+			uint16 nameid = (uint16)atoi(str[3 * i + (2 * MAX_QUEST_OBJECTIVES + 3)]);
+			if (!nameid)
+				continue;
+			if (!itemdb_exists(nameid) || (mob_id && mob_db(mob_id) == NULL)) {
+				ShowWarning("quest_read_txtdb: Invalid item reward '%d' (mob %d, optional) in line %d.\n", nameid, mob_id, ln);
+				continue;
+			}
+			target = std::make_shared<s_quest_dropitem>();
+			target->mob_id = mob_id;
+			target->nameid = nameid;
+			target->count = 1;
+			target->rate = atoi(str[3 * i + (2 * MAX_QUEST_OBJECTIVES + 4)]);
+			quest->dropitem.push_back(target);
+		}
+
+		if (!exists)
+			quest_db.put(quest_id, quest);
+
+		count++;
 	}
 
-	if (!exists)
-		quest_db.put(quest_id, quest);
-
-	return 1;
+	fclose(fp);
+	ShowStatus("Done reading '" CL_WHITE "%d" CL_RESET "' entries in '" CL_WHITE "%s" CL_RESET "'.\n", count, filename);
 }
 
 static void quest_read_pre_db() {
-	sv_readdb(db_path_pre, "quest_db.txt", ',', 18, 18, -1, &quest_parse_row_questdb, true);
+	quest_read_txtdb();
 }
 
 bool QuestDatabase::load() {
