@@ -1233,8 +1233,11 @@ bool storage_premiumStorage_load(struct map_session_data *sd, uint8 num, uint8 m
 		return 0;
 	}
 
-	if (sd->premiumStorage.stor_id != num)
+	if (sd->premiumStorage.stor_id != num) {
+		if (sd->premiumStorage.dirty)
+			storage_premiumStorage_save(sd);
 		return intif_storage_request(sd, TABLE_STORAGE, num, mode);
+	}
 	else {
 		sd->premiumStorage.state.put = (mode&STOR_MODE_PUT) ? 1 : 0;
 		sd->premiumStorage.state.get = (mode&STOR_MODE_GET) ? 1 : 0;
