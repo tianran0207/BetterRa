@@ -1722,28 +1722,32 @@ static bool mob_ai_sub_hard(struct mob_data *md, t_tick tick)
 
 	can_move = (mode&MD_CANMOVE) && unit_can_move(&md->bl);
 
-	if (battle_config.mob_aggro_enable && (battle_config.mob_aggro_all_mob || md->aggro.flag) && DIFF_TICK(tick, md->aggro.last_thinktime) > 1000 && (mode&MD_CANATTACK)) {
-		tbl = mob_aggro_search(md, view_range, tick);
-		md->aggro.last_thinktime = tick;
-		if (tbl && tbl->id != md->target_id)
-		{
-			if (!md->target_id || md->aggro.force_id == tbl->id || md->aggro.ot_id == tbl->id && DIFF_TICK(tick, md->aggro.ot_time) > battle_config.mob_aggro_ot_tick) {
-				md->aggro.ot_id = 0;
-				md->aggro.ot_time = 0;
-				if (unit_walktobl(&md->bl, tbl, md->status.rhw.range, 2))
-					md->target_id = tbl->id;
-				else
-					mob_unlocktarget(md, tick);
-				return true;
+	if (battle_config.mob_aggro_enable && (battle_config.mob_aggro_all_mob || md->aggro.flag))
+	{
+		md->attacked_id = md->norm_attacked_id = 0;
+		if (DIFF_TICK(tick, md->aggro.last_thinktime) > 1000 && (mode&MD_CANATTACK)) {
+			tbl = mob_aggro_search(md, view_range, tick);
+			md->aggro.last_thinktime = tick;
+			if (tbl && tbl->id != md->target_id)
+			{
+				if (!md->target_id || md->aggro.force_id == tbl->id || md->aggro.ot_id == tbl->id && DIFF_TICK(tick, md->aggro.ot_time) > battle_config.mob_aggro_ot_tick) {
+					md->aggro.ot_id = 0;
+					md->aggro.ot_time = 0;
+					if (unit_walktobl(&md->bl, tbl, md->status.rhw.range, 2))
+						md->target_id = tbl->id;
+					else
+						mob_unlocktarget(md, tick);
+					return true;
+				}
+				else {
+					clif_emotion(&md->bl, battle_config.mob_aggro_ot_emotion);
+					if (DIFF_TICK(tick, md->aggro.ot_time) > battle_config.mob_aggro_ot_tick)
+						md->aggro.ot_time = tick;
+					md->aggro.ot_id = tbl->id;
+				}
 			}
-			else {
-				clif_emotion(&md->bl, battle_config.mob_aggro_ot_emotion);
-				if (DIFF_TICK(tick, md->aggro.ot_time) > battle_config.mob_aggro_ot_tick)
-					md->aggro.ot_time = tick;
-				md->aggro.ot_id = tbl->id;
-			}
+			tbl = NULL;
 		}
-		tbl = NULL;
 	}
 
 	if (md->target_id)
@@ -6188,15 +6192,16 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 
 	while (node)
 	{
+		struct linkdb_node *next = node->next;
 		struct s_aggro_entry *entry = ((struct s_aggro_entry *)node->data);
-		node = node->next;
-		if (battle_config.mob_aggro_disengage != 0 && entry->disengage_tick + battle_config.mob_aggro_disengage < tick && mob_aggro_free_single(md, entry))
+		if (battle_config.mob_aggro_disengage != 0 && entry->disengage_tick + battle_config.mob_aggro_disengage < tick && mob_aggro_free_single(md, entry)) {
+			node = next;
 			continue;
-		if (!entry->sd)
+		}
+		if (!entry->sd || (bl= &entry->sd->bl)->m != md->bl.m || distance_bl(bl, &md->bl) >= range || !mob_aggro_search_sub(bl, md, &(target = NULL), 0)) {
+			node = next;
 			continue;
-		if ((bl= &entry->sd->bl)->m != md->bl.m || distance_bl(bl, &md->bl) >= range || !mob_aggro_search_sub(bl, md, &(target = NULL), 0))
-			continue;
-
+		}
 		for (int n = 0; n < MAX_AGGRO_RATE; n++) {
 			if (!entry->sd->sc.data[entry->sc_id[n]])
 				continue;
@@ -6204,6 +6209,7 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 		}
 		if (!result || entry->aggro > result->aggro)
 			result = entry;
+		node = next;
 	}
 	md->target_id = target_id;
 
@@ -6228,9 +6234,10 @@ void mob_aggro_free(struct mob_data *md)
 {
 	struct linkdb_node *node = md->aggro.head;
 	while (node) {
+		struct linkdb_node *next = node->next;
 		struct s_aggro_entry *entry = ((struct s_aggro_entry *)node->data);
-		node = node->next;
 		mob_aggro_free_single(md, entry);
+		node = next;
 	}
 	linkdb_final(&md->aggro.head);
 }
@@ -6239,8 +6246,8 @@ void mob_aggro_clear(struct map_session_data *sd)
 {
 	struct linkdb_node *node = sd->aggro.head;
 	while (node) {
+		struct linkdb_node *next = node->next;
 		struct mob_data *md = ((struct mob_data *)node->data);
-		node = node->next;
 		if (battle_config.mob_aggro_logout_clear) {
 			linkdb_erase(&md->aggro.head, (void *)(sd->status.account_id));
 		}
@@ -6248,6 +6255,7 @@ void mob_aggro_clear(struct map_session_data *sd)
 			struct s_aggro_entry *entry = (struct s_aggro_entry *)linkdb_search(&md->aggro.head, (void *)(sd->status.account_id));
 			entry->sd = NULL;
 		}
+		node = next;
 	}
 	linkdb_final(&sd->aggro.head);
 }

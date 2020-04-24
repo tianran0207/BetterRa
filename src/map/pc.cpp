@@ -13815,6 +13815,7 @@ void pc_bonus_script_remove(struct map_session_data *sd, const char *script_str)
 		return;
 
 	while (node) {
+		struct linkdb_node *next = node->next;
 		struct s_bonus_script_entry *entry = (struct s_bonus_script_entry *)node->data;
 		if (entry && (strcmpi(script_str, StringBuf_Value(entry->script_buf)) == 0)) {
 			linkdb_erase(&sd->bonus_script.head, (void *)((intptr_t)entry));
@@ -13825,7 +13826,7 @@ void pc_bonus_script_remove(struct map_session_data *sd, const char *script_str)
 			pc_bonus_script_check_final(sd);
 			break;
 		}
-		node = node->next;
+		node = next;
 	}
 
 	if (count)
