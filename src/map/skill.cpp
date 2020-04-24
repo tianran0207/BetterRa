@@ -447,7 +447,7 @@ int skill_get_range2(struct block_list *bl, uint16 skill_id, uint16 skill_lv, bo
 		for (auto &it : sd->skilltoaround) {
 			if (it.sk != skill_id)
 				continue;
-			range = 0;
+			range = it.val;
 		}
 	}
 
