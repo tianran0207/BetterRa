@@ -6175,12 +6175,12 @@ static int mob_aggro_search_sub(struct block_list *bl, ...) {
 struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 {
 	struct linkdb_node *node = md->aggro.head;
-	struct s_aggro_entry *result = node ? (struct s_aggro_entry *)node->data : NULL;
+	struct s_aggro_entry *result = NULL;
 	struct block_list *target = NULL, *bl;
 	int target_id = md->target_id;
 	if (md->aggro.force_tick > tick) {
 		struct map_session_data *sd = map_charid2sd(md->aggro.force_id);
-		if ((bl = &sd->bl)->m == md->bl.m && distance_bl(bl, &md->bl) < AREA_SIZE && mob_aggro_search_sub(bl, md, &(target = NULL), 0))
+		if (sd && (bl = &sd->bl)->m == md->bl.m && distance_bl(bl, &md->bl) < AREA_SIZE && mob_aggro_search_sub(bl, md, &(target = NULL), 0))
 			return bl;
 		md->aggro.force_id = 0;
 		md->aggro.force_tick = 0;
@@ -6190,7 +6190,7 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 	{
 		struct s_aggro_entry *entry = ((struct s_aggro_entry *)node->data);
 		node = node->next;
-		if (entry->disengage_tick + battle_config.mob_aggro_disengage < tick && mob_aggro_free_single(md, entry))
+		if (battle_config.mob_aggro_disengage != 0 && entry->disengage_tick + battle_config.mob_aggro_disengage < tick && mob_aggro_free_single(md, entry))
 			continue;
 		if (!entry->sd)
 			continue;
@@ -6202,7 +6202,7 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 				continue;
 			entry->aggro = entry->aggro * entry->sc_rate[n] / 100;
 		}
-		if (entry->aggro > result->aggro)
+		if (!result || entry->aggro > result->aggro)
 			result = entry;
 	}
 	md->target_id = target_id;
