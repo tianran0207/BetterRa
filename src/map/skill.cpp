@@ -349,7 +349,7 @@ int skill_tree_get_max(uint16 skill_id, int b_class)
 		return skill_get_max(skill_id);
 }
 
-int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range, int infcmp)
+int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range, int infcmp, int target_id)
 {
 	int inf = skill_get_inf(skill_id);
 
@@ -369,6 +369,8 @@ int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range, i
 		return INF_SELF_SKILL;
 	}
 	if (infcmp && !(infcmp&inf))
+		clif_skillinfo(sd, skill_id, inf);
+	if (target_id && target_id == sd->bl.id)
 		clif_skillinfo(sd, skill_id, inf);
 
 	return inf;

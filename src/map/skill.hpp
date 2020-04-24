@@ -465,7 +465,7 @@ int skill_get_casttype(uint16 skill_id); //[Skotlex]
 const char*	skill_get_name( uint16 skill_id ); 	// [Skotlex]
 const char*	skill_get_desc( uint16 skill_id ); 	// [Skotlex]
 int skill_tree_get_max( uint16 skill_id, int b_class );	// Celest
-int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range = NULL, int infcmp = 0);
+int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range = NULL, int infcmp = 0, int target_id = 0);
 int skill_get_pc_splash(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv);
 
 // Accessor to the skills database

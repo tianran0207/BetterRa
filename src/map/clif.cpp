@@ -12669,7 +12669,7 @@ void clif_parse_skill_toid( struct map_session_data* sd, uint16 skill_id, uint16
 
 	if( skill_lv < 1 ) skill_lv = 1; //No clue, I have seen the client do this with guild skills :/ [Skotlex]
 
-	int inf = skill_get_pc_inf(sd, skill_id, NULL, 0xFF&~INF_GROUND_SKILL);
+	int inf = skill_get_pc_inf(sd, skill_id, NULL, 0xFF&~INF_GROUND_SKILL, target_id);
 	if (inf&INF_GROUND_SKILL || !inf)
 		return; //Using a ground/passive skill on a target? WRONG.
 
