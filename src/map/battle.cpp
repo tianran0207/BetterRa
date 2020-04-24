@@ -658,12 +658,12 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 			static const sc_type seven_sc[] = { SC_EARTHWEAPON,SC_WINDWEAPON,SC_WATERWEAPON,SC_FIREWEAPON,SC_GHOSTWEAPON,SC_SHADOWWEAPON,SC_ASPERSIO };
 			unsigned char right_ele = status_get_status_data(src)->rhw.ele;
 			int target_state = it.sk * 100 + right_ele * 10 + def_type;
-			if (it.attr == -3)
-				return damage = (int64)((damage*it.n) / 100);
 			if (def_type == ELE_NEUTRAL && atk_elem != ELE_GHOST)
 				continue;
 			if (it.sk != 0 && it.sk != sd->skill_id)
 				continue;
+			if (it.attr == -3)
+				return damage = (int64)((damage*it.n) / 100);
 			if (it.sk == 0 && it.target_id == target->id && target_state == it.target_state)
 				continue;
 			else {
