@@ -4082,10 +4082,6 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	pc_delautobonus(sd, sd->autobonus2, true);
 	pc_delautobonus(sd, sd->autobonus3, true);
 
-	running_npc_stat_calc_event = true;
-	npc_script_event(sd, NPCE_STATCALC);
-	running_npc_stat_calc_event = false;
-
 	// Parse amulet
 	if (battle_config.enable_amulet) {
 		for (i = 0; i < MAX_INVENTORY; i++) {
