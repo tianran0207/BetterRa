@@ -880,12 +880,21 @@ Body:
     Help: |
       指令参数: <角色名称>
       让某个玩家自爆, 伤害会波及到附近的魔物.
+  - Command: reloadachievementdb
+    Help: |
+      Reload achievement database.
   - Command: reloadatcommand
     Help: |
       重新加载指令配置文件.
+  - Command: reloadattendancedb
+    Help: |
+      Reload attendance database.
   - Command: reloadbattleconf
     Help: |
       重新加载战斗配置文件.
+  - Command: reloadinstancedb
+    Help: |
+      Reload instance database.
   - Command: reloaditemdb
     Help: |
       重新加载物品数据库.

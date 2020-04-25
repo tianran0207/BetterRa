@@ -231,7 +231,7 @@ struct mob_data {
 	int level;
 	int target_id,attacked_id,norm_attacked_id;
 	int areanpc_id; //Required in OnTouchNPC (to avoid multiple area touchs)
-	unsigned int bg_id; // BattleGround System
+	int bg_id; // BattleGround System
 	unsigned int tribe_id;
 	struct s_staypos {
 		int16 m, x, y, range; 
@@ -277,6 +277,7 @@ public:
 	void clear() { };
 	const std::string getDefaultLocation();
 	uint64 parseBodyNode(const YAML::Node& node);
+	bool load();
 };
 
 enum e_mob_skill_target {

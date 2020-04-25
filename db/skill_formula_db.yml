@@ -8,10 +8,6 @@
 #         Casting: > # 咏唱公式
 #         Delay: >   # 技能延迟公式
 #         Duration: > # 持续时间公式(如果技能无持续时间, 则无效果)
-#         OnPlace:    # 当玩家进入地面技能后触发
-#           PerTick:  # 每隔多少tick触发一次
-#           Target:   # 目标敌对情况
-#           Script:   # 触发后执行的脚本
 #
 # Typeable: (可以相加)
 #	   1 - 玩家单位
@@ -65,14 +61,4 @@ Body:
 #      skf_tim = skf_src_status(STATUS_DEX) > 100 ? 0 : skf_tim;
 #    Duration: >
 #      skf_tim = 1000;
-#
-#  - Skill: 288
-#    Typeable: 1
-#    Tips: 进入地领后可对敌对玩家造成 skill_lv * 100 的伤害
-#    OnPlace:    #当玩家进入技能后出发脚本
-#      PerTick: 500
-#      Target: 0x020000
-#      Script: >
-#          if (!pcisdead(skf_tgid))
-#              unitdamage(skf_tgid, 100 * skf_lv);
 #       

@@ -57,6 +57,9 @@ Thumbs.db
 /conf/import
 /conf/msg_conf/import
 
+# /npc/
+/npc/BetterRa/BetterRa_test.txt
+
 # /lib
 /lib
 

@@ -34,8 +34,8 @@ void (*shutdown_callback)(void) = NULL;
 
 int runflag = CORE_ST_RUN;
 char db_path[12] = "db"; /// relative path for db from server
+char db_path_pre[64] = "db/import/csv_version";
 char conf_path[12] = "conf"; /// relative path for conf from server
-char old_db_path[64] = "db/import/old_db_version";
 
 char *SERVER_NAME = NULL;
 char SERVER_TYPE = ATHENA_SERVER_NONE;

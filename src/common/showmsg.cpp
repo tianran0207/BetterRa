@@ -1054,6 +1054,8 @@ void get_real_str(char *string) {
 const char* _vReplaceMessage(const char *String, char *val) {
 	if (!msg_translation)
 		return String;
+	if (!strncmp(String, "Load", 4) && String[strlen(String) - 1] == '\r')
+		return String;
 	val = (char *)strdb_get(msg_translation, String);
 	return val ? val : String;
 }

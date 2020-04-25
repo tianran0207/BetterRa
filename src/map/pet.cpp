@@ -564,10 +564,19 @@ static int pet_reload_sub( struct map_session_data *sd, va_list args ){
 	return 0;
 }
 
+static void pet_read_pre_db();
+bool PetDatabase::load() {
+	if (!TypesafeYamlDatabase::load()) {
+		return false;
+	}
+	pet_read_pre_db();
+	return true;
+}
 bool PetDatabase::reload(){
 	if( !TypesafeYamlDatabase::reload() ){
 		return false;
 	}
+	pet_read_pre_db();
 
 	map_foreachpc( pet_reload_sub );
 	return true;
@@ -2346,4 +2355,119 @@ void do_final_pet(void)
 	ers_destroy(item_drop_list_ers);
 
 	pet_db.clear();
+}
+
+static void pet_read_pre_db()
+{
+	FILE *fp;
+	char filename[128], line[1024];
+	int lines = 0, mob_id;
+	sprintf(filename, "%s/%s", db_path_pre, "pet_db.txt");
+
+	if ((fp = fopen(filename, "r")) == NULL)
+		return;
+
+	while (fgets(line, sizeof(line), fp)) {
+		char *str[22], *p;
+		unsigned k;
+		lines++;
+
+		if (line[0] == '/' && line[1] == '/')
+			continue;
+		memset(str, 0, sizeof(str));
+		p = line;
+
+		while (ISSPACE(*p))
+			++p;
+
+		if (*p == '\0')
+			continue; // empty line
+
+		for (k = 0; k < 20; ++k) {
+			str[k] = p;
+			p = strchr(p, ',');
+
+			if (p == NULL)
+				break; // comma not found
+
+			*p = '\0';
+			++p;
+		}
+		if (p == NULL) {
+			ShowError("read_petdb: Insufficient columns in line %d, skipping.\n", lines);
+			continue;
+		}
+
+		// Pet Script
+		if (*p != '{') {
+			ShowError("read_petdb: Invalid format (Pet Script column) in line %d, skipping.\n", lines);
+			continue;
+		}
+
+		str[20] = p;
+		p = strstr(p + 1, "},");
+
+		if (p == NULL) {
+			ShowError("read_petdb: Invalid format (Pet Script column) in line %d, skipping.\n", lines);
+			continue;
+		}
+
+		p[1] = '\0';
+		p += 2;
+
+		// Equip Script
+		if (*p != '{') {
+			ShowError("read_petdb: Invalid format (Equip Script column) in line %d, skipping.\n", lines);
+			continue;
+		}
+
+		str[21] = p;
+
+		if ((mob_id = atoi(str[0])) <= 0)
+			continue;
+
+		if (!mobdb_checkid(mob_id)) {
+			ShowWarning("pet_db reading: Invalid mob-class %hu, pet not read.\n", mob_id);
+			continue;
+		}
+
+		std::shared_ptr<s_pet_db> pet = pet_db.find(mob_id);
+		bool exists = pet != nullptr;
+
+		if (!exists) {
+			pet = std::make_shared<s_pet_db>();
+			pet->class_ = mob_id;
+		}
+		pet->itemID = atoi(str[3]);
+		pet->EggID = atoi(str[4]);
+		pet->AcceID = atoi(str[5]);
+		pet->FoodID = atoi(str[6]);
+		pet->fullness = atoi(str[7]);
+		pet->hungry_delay = atoi(str[8]) * 1000;
+		pet->r_hungry = atoi(str[9]);
+		if (pet->r_hungry <= 0)
+			pet->r_hungry = 1;
+		pet->r_full = atoi(str[10]);
+		pet->intimate = atoi(str[11]);
+		pet->die = atoi(str[12]);
+		pet->capture = atoi(str[13]);
+		pet->s_perfor = (char)atoi(str[15]);
+		pet->attack_rate = atoi(str[17]);
+		pet->defence_attack_rate = atoi(str[18]);
+		pet->change_target_rate = atoi(str[19]);
+		if (pet->pet_bonus_script)
+			script_free_code(pet->pet_bonus_script);
+		if (*str[20])
+			pet->pet_bonus_script = parse_script(str[20], filename, lines, 0);
+
+		if (pet->pet_support_script)
+			script_free_code(pet->pet_support_script);
+		if (*str[21])
+			pet->pet_support_script = parse_script(str[21], filename, lines, 0);
+
+		if (!exists)
+			pet_db.put(mob_id, pet);
+	}
+
+	return;
 }
