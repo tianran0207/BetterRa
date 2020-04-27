@@ -21027,7 +21027,6 @@ BUILDIN_FUNC(instance_id)
 	else
 		script_pushint(st, script_instancegetid(st, static_cast<e_instance_mode>(mode)));
 
-	script_pushint(st, script_instancegetid(st, static_cast<e_instance_mode>(mode)));
 	return SCRIPT_CMD_SUCCESS;
 }
 

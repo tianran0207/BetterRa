@@ -962,23 +962,20 @@ int instance_addmap_name(int instance_id, const char *mapname, bool copynpc)
 	if (!idata)
 		return 0;
 
-	std::shared_ptr<s_instance_db> db = instance_db.find(idata->id);
-
-	if (!db)
-		return 0;
-
 	int16 m = map_mapname2mapid(mapname);
 	// Add extra maps (if any)
 
-	if (std::find(db->maplist.begin(), db->maplist.end(), m) == db->maplist.end()) {
-		ShowError("instance_addmap_name: Failed to create map '%s' already exist for instance '%s' (%hu).\n", mapname, db->name, instance_id);
+	for (const auto &it : idata->map) {
+		if (it.src_m != m)
+			continue;
+		ShowError("instance_addmap_name: Failed to create map '%s' already exist for instance '%s' (%d).\n", mapname, instance_db.find(idata->id)->name.c_str(), instance_id);
 		return 0;
 	}
 
 	struct s_instance_map entry;
 
 	if ((entry.m = map_addinstancemap(m, instance_id)) < 0) { // An error occured adding a map
-		ShowError("instance_addmap: No maps added to instance '%s' (%d).\n", db->name.c_str(), instance_id);
+		ShowError("instance_addmap: No maps added to instance '%s' (%d).\n", instance_db.find(idata->id)->name.c_str(), instance_id);
 		return 0;
 	}
 	entry.src_m = m;
@@ -1003,9 +1000,12 @@ int instance_delmap_name(int instance_id, const char *mapname)
 
 	int16 m = instance_mapid(map_mapname2mapid(mapname), instance_id);
 
-	for (const auto &it : idata->map){
-		if (it.m == m)
-			map_delinstancemap(it.m);
+	for (auto it = idata->map.begin(); it != idata->map.end(); ++it) {
+		if (it->m != m)
+			continue;
+		map_delinstancemap(it->m);
+		idata->map.erase(it);
+		break;
 	}
 
 	return 1;
