@@ -50,6 +50,7 @@ enum e_regen {
 
 // Bonus values and upgrade chances for refining equipment
 static struct {
+	int max_level;
 	int blessing[MAX_REFINE];
 	int chance[REFINE_CHANCE_TYPE_MAX][MAX_REFINE]; /// Success chance
 	int bonus[MAX_REFINE]; /// Cumulative fixed bonus damage
@@ -15707,9 +15708,30 @@ int status_get_refine_chance(enum refine_type wlv, int refine, bool enriched)
 	return refine_info[wlv].chance[type][refine];
 }
 
-int status_get_refine_blessing(int wlv, int refine)
+enum refine_type status_get_refine_type(struct item_data *id, bool check_weapon)
+{
+	enum refine_type weapon_lv = REFINE_TYPE_ARMOR;
+
+	if (id->type == IT_SHADOWGEAR) {
+		if (check_weapon && id->equip == EQP_SHADOW_WEAPON)
+			weapon_lv = REFINE_TYPE_WEAPON4;
+		else
+			weapon_lv = REFINE_TYPE_SHADOW;
+	}
+	else
+		weapon_lv = (enum refine_type)id->wlv;
+
+	return weapon_lv;
+}
+
+int status_get_refine_blessing(enum refine_type wlv, int refine)
 {
 	return refine_info[wlv].blessing[refine];
+}
+
+int status_get_refine_maxlevel(struct item_data *id)
+{
+	return refine_info[status_get_refine_type(id)].max_level;
 }
 
 /**
@@ -15817,6 +15839,8 @@ static bool status_yaml_readdb_refine_sub(const YAML::Node &node, int refine_inf
 	int bonus_per_level = node["StatsPerLevel"].as<int>();
 	int random_bonus_start_level = node["RandomBonusStartLevel"].as<int>();
 	int random_bonus = node["RandomBonusValue"].as<int>();
+	refine_info[refine_info_index].max_level = node["MaxLevel"].IsDefined() ? node["MaxLevel"].as<int>() : MAX_REFINE;
+	refine_info[refine_info_index].max_level = refine_info[refine_info_index].max_level > MAX_REFINE ? MAX_REFINE : refine_info[refine_info_index].max_level;
 
 	if (file_name.find("import") != std::string::npos) { // Import file, reset refine bonus before calculation
 		for (int refine_level = 0; refine_level < MAX_REFINE; ++refine_level)

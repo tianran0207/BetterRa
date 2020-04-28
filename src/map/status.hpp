@@ -71,7 +71,9 @@ struct refine_cost {
 /// Get refine chance
 int status_get_refine_chance(enum refine_type wlv, int refine, bool enriched);
 int status_get_refine_cost(int weapon_lv, int type, enum refine_info_type what);
-int status_get_refine_blessing(int wlv, int refine);
+int status_get_refine_maxlevel(struct item_data *id);
+enum refine_type status_get_refine_type(struct item_data *id, bool check_weapon = false);
+int status_get_refine_blessing(enum refine_type wlv, int refine);
 
 /// Weapon attack modification for size
 struct s_sizefix_db {

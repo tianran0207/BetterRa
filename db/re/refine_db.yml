@@ -4,6 +4,7 @@
 # StatsPerLevel 精炼每增加一级固定增加多少bonus奖励
 # RandomBonusStartLevel 当精炼等级大于该参数时，每大于一级增加 0~RandomBonusValue 倍固定伤害
 # RandomBonusValue 精炼增加的固定伤害值
+# MaxLevel 精炼最大值
 # Costs 消耗
 #    - Type 精炼类型
 #    - Price 相应精炼类型，每次精炼消耗的Zeny数量
@@ -605,6 +606,7 @@ Shadow:
   StatsPerLevel: 0
   RandomBonusStartLevel: 0
   RandomBonusValue: 0
+  MaxLevel: 10
   Costs:
     - Type: REFINE_COST_NORMAL
       Price: 20000

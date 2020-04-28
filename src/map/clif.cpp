@@ -21765,13 +21765,15 @@ void clif_parse_refineui_close( int fd, struct map_session_data* sd ){
 #endif
 }
 
-#define REFINEUI_MAT_CNT 4
+#define REFINEUI_MAT_BLESSING 4
+#define REFINEUI_MAT_CNT (REFINEUI_MAT_BLESSING+1)
 
 /**
  * Structure to store all required data about refine requirements
  */
 struct refine_materials {
 	struct refine_cost cost;
+	int blessing;
 	uint8 chance;
 };
 
@@ -21783,15 +21785,18 @@ static inline bool clif_refineui_materials_sub( struct item *item, struct item_d
 	if( index < 0 || index > REFINEUI_MAT_CNT ){
 		return false;
 	}
+	enum refine_type weapon_lv = status_get_refine_type(id);
 
 	// Get the material that is required to refine this item
-	materials[index].cost.nameid = status_get_refine_cost( id->wlv, type, REFINE_MATERIAL_ID );
+	materials[index].cost.nameid = status_get_refine_cost( status_get_refine_type(id, true), type, REFINE_MATERIAL_ID );
 	// Get the amount of zeny that is required to refine the item with this material
-	materials[index].cost.zeny = status_get_refine_cost( id->wlv, type, REFINE_ZENY_COST );
+	materials[index].cost.zeny = status_get_refine_cost( weapon_lv, type, REFINE_ZENY_COST );
 	// Get the breaking chance of the item with this material
-	materials[index].cost.breakable = status_get_refine_cost( id->wlv, type, REFINE_BREAKABLE ) != 0;
+	materials[index].cost.breakable = status_get_refine_cost( weapon_lv, type, REFINE_BREAKABLE ) != 0;
 	// Get the chance for refining the item with this material
-	materials[index].chance = status_get_refine_chance( (enum refine_type)id->wlv, item->refine, type == REFINE_COST_ENRICHED );
+	materials[index].chance = status_get_refine_chance( weapon_lv, item->refine, type == REFINE_COST_ENRICHED );
+
+	materials[REFINEUI_MAT_BLESSING].blessing = status_get_refine_blessing( weapon_lv, item->refine );
 
 	// Either of the values was not set
 	if( materials[index].cost.nameid == 0 || materials[index].cost.zeny == 0 || materials[index].chance == 0 ){
@@ -21916,7 +21921,7 @@ void clif_refineui_info( struct map_session_data* sd, uint16 index ){
 	WFIFOW(fd,0) = 0x0AA2;
 	WFIFOW(fd,2) = length;
 	WFIFOW(fd,4) = index + 2;
-	WFIFOB(fd, 6) = status_get_refine_blessing(id->wlv, item->refine); //TODO: required amount of "Blacksmith Blessing"(id: 6635)
+	WFIFOB(fd, 6) = materials[REFINEUI_MAT_BLESSING].blessing; //TODO: required amount of "Blacksmith Blessing"(id: 6635)
 
 	for( i = 0; i < material_count; i++ ){
 		WFIFOW(fd,7 + i * 7) = materials[i].cost.nameid;
@@ -21944,6 +21949,9 @@ void clif_parse_refineui_add( int fd, struct map_session_data* sd ){
 	if( index < 0 || index >= MAX_INVENTORY ){
 		return;
 	}
+
+	if (status_get_refine_maxlevel(sd->inventory_data[index]) <= sd->inventory.u.items_inventory[index].refine)
+		return;
 
 	// Send out the requirements for the refine process
 	clif_refineui_info( sd, index );
@@ -22012,7 +22020,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 	}
 
 	// Check the current refine level
-	if( item->refine < 0 || item->refine >= MAX_REFINE ){
+	if( item->refine < 0 || item->refine >= status_get_refine_maxlevel(id) ){
 		return;
 	}
 
@@ -22043,21 +22051,21 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 			return; //Not enough.
 		if (j < 0 || sd->inventory.u.items_inventory[j].amount < 1)
 			return;
-		if (use_blacksmith_blessing && (n < 0 || sd->inventory.u.items_inventory[n].amount < status_get_refine_blessing(id->wlv, item->refine)))
+		if (use_blacksmith_blessing && (n < 0 || sd->inventory.u.items_inventory[n].amount < materials[REFINEUI_MAT_BLESSING].blessing))
 			return;
 
 		pc_setreg(sd, add_str("@refine_idx"), index);
 		pc_setreg(sd, add_str("@refine_nameid"), id->nameid);
 		pc_setreg(sd, add_str("@refine_rate"), materials[i].chance);
 		pc_setreg(sd, add_str("@refine_cost"), materials[i].cost.nameid);
-		pc_setreg(sd, add_str("@refine_blessing"), (use_blacksmith_blessing ? status_get_refine_blessing(id->wlv, item->refine) : 0));
+		pc_setreg(sd, add_str("@refine_blessing"), (use_blacksmith_blessing ? materials[REFINEUI_MAT_BLESSING].blessing : 0));
 		npc_script_event_atonce(sd, NPCE_REFINEUIFILTER);
 		if (sd->state.processhalt)
 			return;
 		materials[i].chance = static_cast<uint8>(pc_readreg(sd, add_str("@refine_rate")));
 	}
 
-	if (use_blacksmith_blessing && ((k = pc_search_inventory(sd, 6635)) < 0 || pc_delitem(sd, k, status_get_refine_blessing(id->wlv, item->refine), 0, 0, LOG_TYPE_CONSUME)))
+	if (use_blacksmith_blessing && ((k = pc_search_inventory(sd, 6635)) < 0 || pc_delitem(sd, k, materials[REFINEUI_MAT_BLESSING].blessing, 0, 0, LOG_TYPE_CONSUME)))
 		return;
 
 	// Try to pay for the refine
