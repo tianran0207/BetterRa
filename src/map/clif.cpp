@@ -21853,6 +21853,16 @@ static inline uint8 clif_refineui_materials( struct item *item, struct item_data
 	return count;
 }
 
+void clif_refineui_notrefineable(struct map_session_data *sd, uint16 index) {
+	int fd = sd->fd;
+	WFIFOHEAD(fd, 7);
+	WFIFOW(fd, 0) = 0x0AA2;
+	WFIFOW(fd, 2) = 7;
+	WFIFOW(fd, 4) = index + 2;
+	WFIFOB(fd, 6) = 0;
+	WFIFOSET(fd, 7);
+}
+
 /**
  * Adds the selected item into the refine UI and sends the possible materials
  * to the client.
@@ -21894,16 +21904,19 @@ void clif_refineui_info( struct map_session_data* sd, uint16 index ){
 
 	// Check if the item is identified
 	if( !item->identify ){
+		clif_refineui_notrefineable(sd, index);
 		return;
 	}
 
 	// Check if the item is broken
 	if( item->attribute ){
+		clif_refineui_notrefineable(sd, index);
 		return;
 	}
 
 	// Check the current refine level
-	if( item->refine < 0 || item->refine >= MAX_REFINE ){
+	if( item->refine < 0 || item->refine >= status_get_refine_maxlevel(sd->inventory_data[index])){
+		clif_refineui_notrefineable(sd, index);
 		return;
 	}
 
@@ -21912,6 +21925,7 @@ void clif_refineui_info( struct map_session_data* sd, uint16 index ){
 
 	// No possibilities were found
 	if( material_count == 0 ){
+		clif_refineui_notrefineable(sd, index);
 		return;
 	}
 
@@ -21949,9 +21963,6 @@ void clif_parse_refineui_add( int fd, struct map_session_data* sd ){
 	if( index < 0 || index >= MAX_INVENTORY ){
 		return;
 	}
-
-	if (status_get_refine_maxlevel(sd->inventory_data[index]) <= sd->inventory.u.items_inventory[index].refine)
-		return;
 
 	// Send out the requirements for the refine process
 	clif_refineui_info( sd, index );
