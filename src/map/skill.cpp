@@ -24126,7 +24126,9 @@ static bool skill_parse_row_castdb(char* split[], int columns, int current)
 		memset(skill->upkeep_time, 0, sizeof(skill->upkeep_time));
 		memset(skill->upkeep_time2, 0, sizeof(skill->upkeep_time2));
 		memset(skill->cooldown, 0, sizeof(skill->cooldown));
+#ifdef RENEWAL_CAST
 		memset(skill->fixed_cast, 0, sizeof(skill->fixed_cast));
+#endif
 	}
 
 	skill_split_atoi(split[1], skill->cast);
