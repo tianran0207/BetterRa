@@ -24278,10 +24278,11 @@ static bool skill_parse_row_requiredb(char* split[], int columns, int current)
 static void skill_read_pre_db()
 {
 	sv_readdb(db_path_pre, "skill_db.txt", ',', 18, 18, -1, &skill_parse_row_skilldb, true);
-	sv_readdb(db_path_pre, "skill_unit_db.txt", ',', 8, 8, -1, skill_parse_row_unitdb, true);
-	sv_readdb(db_path_pre, "skill_cast_db.txt", ',', 7, 8, -1, skill_parse_row_castdb, true);
-	sv_readdb(db_path_pre, "skill_castnodex_db.txt", ',', 2, 3, -1, skill_parse_row_castnodexdb, true);
-	sv_readdb(db_path_pre, "skill_require_db.txt", ',', 34, 34, -1, skill_parse_row_requiredb, true);
+	skill_db.loadingFinished();
+	sv_readdb(db_path_pre, "skill_unit_db.txt", ',', 8, 8, -1, &skill_parse_row_unitdb, true);
+	sv_readdb(db_path_pre, "skill_cast_db.txt", ',', 7, 8, -1, &skill_parse_row_castdb, true);
+	sv_readdb(db_path_pre, "skill_castnodex_db.txt", ',', 2, 3, -1, &skill_parse_row_castnodexdb, true);
+	sv_readdb(db_path_pre, "skill_require_db.txt", ',', 34, 34, -1, &skill_parse_row_requiredb, true);
 }
 
 bool SkillDatabase::load() {
