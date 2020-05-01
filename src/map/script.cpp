@@ -25480,7 +25480,7 @@ BUILDIN_FUNC(searchinventory)
 		script_pushint(st, -1);
 		return SCRIPT_CMD_SUCCESS;
 	}
-	int flag = script_hasdata(st, 3+extra) ? script_getnum(st, 3+extra) : 0xFFFF;
+	int flag = script_hasdata(st, 3+extra) ? script_getnum(st, 3+extra) : 0;
 
 	script_pushint(st, buildin_searchinventory_sub(sd, storitem, stor_max, script_getnum(st, 2), flag));
 	return SCRIPT_CMD_SUCCESS;
