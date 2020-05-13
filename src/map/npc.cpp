@@ -3572,7 +3572,12 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 			++npc_shop;
 			CREATE(nd->u.shop.shop_item, struct npc_item_list, dnd->u.shop.count);
 			memcpy(nd->u.shop.shop_item, dnd->u.shop.shop_item, sizeof(struct npc_item_list) * dnd->u.shop.count);
+			safestrncpy( nd->u.shop.pointshop_str, dnd->u.shop.pointshop_str, strlen( dnd->u.shop.pointshop_str ) );
+			safestrncpy( nd->u.shop.pointshop_val, dnd->u.shop.pointshop_val, strlen( dnd->u.shop.pointshop_val ) );
+			nd->u.shop.itemshop_nameid = dnd->u.shop.itemshop_nameid;
+			nd->u.shop.shop_item = dnd->u.shop.shop_item;
 			nd->u.shop.count = dnd->u.shop.count;
+			nd->u.shop.discount =  dnd->u.shop.discount;
 			break;
 
 		case NPCTYPE_WARP:
