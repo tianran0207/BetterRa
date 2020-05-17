@@ -2006,6 +2006,8 @@ static bool skill_parse_row_skilldb(char* split[], int columns, int current) {
 				body << YAML::Key << "IgnoreStatus" << YAML::Value << "true";
 			if (it_castdex->second.castnodex & 4)
 				body << YAML::Key << "IgnoreItemBonus" << YAML::Value << "true";
+			if (it_castdex->second.castnodex & 1024)
+				body << YAML::Key << "IgnoreFalse" << YAML::Value << "true";
 
 			body << YAML::EndMap;
 		}
@@ -2020,6 +2022,8 @@ static bool skill_parse_row_skilldb(char* split[], int columns, int current) {
 				body << YAML::Key << "IgnoreStatus" << YAML::Value << "true";
 			if (it_castdex->second.delaynodex & 4)
 				body << YAML::Key << "IgnoreItemBonus" << YAML::Value << "true";
+			if (it_castdex->second.delaynodex & 1024)
+				body << YAML::Key << "IgnoreFalse" << YAML::Value << "true";
 
 			body << YAML::EndMap;
 		}
