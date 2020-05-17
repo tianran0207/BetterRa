@@ -1958,7 +1958,7 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 			}
 			rate = rate * (mapdata->flag[type] ? mapdata->flag_val[type].val : 10000) / 10000;
 		}
-		hp = (int)cap_value((int64)hp * rate / 10000, INT_MIN, INT_MAX);
+		hp = (hp != 1) ? (int)cap_value((int64)hp * rate / 10000, INT_MIN, INT_MAX) : 1;
 		if (target && target->type == BL_MOB) {
 			if (mapdata->flag[MF_MOBDMGFIX])
 				hp = mapdata->flag[MF_MOBDMGFIX];
