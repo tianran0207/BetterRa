@@ -135,10 +135,11 @@ enum e_skill_nonear_npc : uint8 {
 };
 
 /// Constants for skill cast adjustments.
-enum e_skill_cast_flags : uint8 {
+enum e_skill_cast_flags : uint16 {
 	SKILL_CAST_IGNOREDEX = 0x1,
 	SKILL_CAST_IGNORESTATUS = 0x2,
 	SKILL_CAST_IGNOREITEMBONUS = 0x4,
+	SKILL_CAST_IGNOREFALSE = 0x400,
 };
 
 /// Constants for skill copyable options.

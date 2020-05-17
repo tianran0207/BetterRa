@@ -24250,9 +24250,9 @@ static bool skill_parse_row_castnodexdb(char* split[], int columns, int current)
 		ShowWarning("skill_parse_row_unitdb: Skill '%d' isn't created in 'skill_db.yml' yet. Creating dummy value...\n", atoi(split[0]));
 		return false;
 	}
-	skill->castnodex = atoi(split[1]);
+	skill->castnodex |= atoi(split[1]);
 	if (split[2]) // optional column
-		skill->delaynodex = atoi(split[2]);
+		skill->delaynodex |= atoi(split[2]);
 
 	return true;
 }

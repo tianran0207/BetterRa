@@ -7724,6 +7724,7 @@
 	export_constant(SKILL_CAST_IGNOREDEX);
 	export_constant(SKILL_CAST_IGNORESTATUS);
 	export_constant(SKILL_CAST_IGNOREITEMBONUS);
+	export_constant(SKILL_CAST_IGNOREFALSE);
 
 	/* skill require cost flags */
 	export_constant(SKILL_REQ_HPCOST);
