@@ -1004,7 +1004,33 @@ BetterRa 在官方的基础上做了以下改进:
 中断说明: 
 	中断后可通过对 @produce_qty 和 @produce_per 的修改直接修改制作数量和成功率
 	当制作数量或者成功率为0时, 制作失败.
+	
+---------------------------------------
 
+*OnInstanceCreateFilter:
+
+	当玩家创建副本时触发
+	
+参数说明:
+	@instance_owner 副本关联ID（玩家ID、队伍ID、公会ID、部落ID）
+	@instance_mode  副本模式
+	@instance_name$ 副本名
+
+中断说明: 
+	中断后副本创建失败, 并返回 -4
+
+---------------------------------------
+
+*OnInstanceCreateEvent:
+
+	当玩家创建副本成功后触发
+	
+参数说明:
+	@instance_id    副本ID
+	@instance_owner 副本关联ID（玩家ID、队伍ID、公会ID、部落ID）
+	@instance_mode  副本模式
+	@instance_name$ 副本名
+	
 ---------------------------------------
 
 *OnBOTStartFilter:

@@ -533,7 +533,7 @@ void instance_addnpc(std::shared_ptr<s_instance_data> idata)
  * @param mode: Instance mode
  * @return -4 = no free instances | -3 = already exists | -2 = character/party/guild not found | -1 = invalid type | On success return instance_id
  */
-int instance_create(int owner_id, const char *name, e_instance_mode mode) {
+int instance_create(int owner_id, const char *name, e_instance_mode mode, struct map_session_data *ssd) {
 	std::shared_ptr<s_instance_db> db = instance_search_db_name(name);
 
 	if (!db) {
@@ -589,6 +589,15 @@ int instance_create(int owner_id, const char *name, e_instance_mode mode) {
 	if (instance_count <= 0)
 		return -4;
 
+	if (npc_script_event_check(ssd, NPCE_INSTANCEFILTER)) {
+		pc_setreg(ssd, add_str("@instance_owner"), owner_id);
+		pc_setreg(ssd, add_str("@instance_mode"), mode);
+		pc_setregstr(ssd, add_str("@instance_name$"), name);
+		npc_script_event_atonce(ssd, NPCE_INSTANCEFILTER);
+		if (ssd->state.processhalt)
+			return -4;
+	}
+
 	int instance_id = instance_count++;
 	std::shared_ptr<s_instance_data> entry = std::make_shared<s_instance_data>();
 	entry->create_tick = gettick();
@@ -624,6 +633,13 @@ int instance_create(int owner_id, const char *name, e_instance_mode mode) {
 	// Start the instance timer on instance creation
 	instance_startkeeptimer(entry, instance_id);
 
+	if (npc_script_event_check(ssd, NPCE_INSTANCEEVENT)) {
+		pc_setreg(ssd, add_str("@instance_id"), instance_id);
+		pc_setreg(ssd, add_str("@instance_owner"), owner_id);
+		pc_setreg(ssd, add_str("@instance_mode"), mode);
+		pc_setregstr(ssd, add_str("@instance_name$"), name);
+		npc_script_event_atonce(ssd, NPCE_INSTANCEEVENT);
+	}
 	return instance_id;
 }
 

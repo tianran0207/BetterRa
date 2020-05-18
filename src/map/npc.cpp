@@ -5194,6 +5194,10 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.hook_dll_event_name;
 	case NPCE_ANYONESKILLEVENT:
 		return script_config.anyone_skill_event_name;
+	case NPCE_INSTANCEFILTER:
+		return script_config.instance_create_filter_name;
+	case NPCE_INSTANCEEVENT:
+		return script_config.instance_create_event_name;
 	case NPCE_ONDISPLAY:
 		return "NOEVENTNAME";
 	default:

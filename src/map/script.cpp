@@ -308,7 +308,9 @@ struct Script_Config script_config = {
 	// Instance related
 	"OnInstanceInit", //instance_init_event_name (is executed right after instance creation)
 	"OnInstanceDestroy", //instance_destroy_event_name (is executed right before instance destruction)
-	
+	"OnInstanceCreateFilter", //instance_create_filter_name
+	"OnInstanceCreateEvent", //instance_create_event_name
+
 	"OnPCProgressAbortEvent", //progress_abort_event_name
 	"OnPCHomLvUpEvent", //homunculus_lvup_event_name
 	"OnPCHomCallEvent", //homunculus_call_event_name
@@ -20890,7 +20892,7 @@ BUILDIN_FUNC(instance_create)
 		}
 	}
 
-	script_pushint(st, instance_create(owner_id, script_getstr(st, 2), mode));
+	script_pushint(st, instance_create(owner_id, script_getstr(st, 2), mode, map_id2sd(st->rid)));
 	return SCRIPT_CMD_SUCCESS;
 }
 
