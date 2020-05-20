@@ -29909,6 +29909,17 @@ BUILDIN_FUNC(mobaggroswitch)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(broadcast_item)
+{
+	TBL_PC *sd = map_charid2sd(script_getnum(st, 2));
+
+	if (!sd)
+		return SCRIPT_CMD_SUCCESS;
+	
+	intif_broadcast_obtain_special_item(sd, script_getnum(st, 4), script_getnum(st, 3), (enum BROADCASTING_SPECIAL_ITEM_OBTAIN)script_getnum(st, 5));
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -30903,6 +30914,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(delinventorybyidx, "delstoragebyidx", "ii???"),
 	BUILDIN_DEF2(delinventorybyidx, "delguildstorageidx", "ii??"),
 	BUILDIN_DEF(mobaggroswitch, "ii"),
+	BUILDIN_DEF(broadcast_item, "iiiii"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),

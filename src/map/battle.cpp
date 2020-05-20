@@ -8937,7 +8937,6 @@ static const struct _battle_data {
 	{ "skill_critical_damage",              &battle_config.skill_critical_damage,           150,    0,      INT_MAX,        },
 	{ "skill_critical_boss",                &battle_config.skill_critical_boss,             0,      0,      INT_MAX,        },
 	{ "skill_critical_luk",                 &battle_config.skill_critical_luk,              1,      0,      1,              },
-	{ "gm_perfect_hide",                    &battle_config.gm_perfect_hide,                 1,      0,      1,              }, 
 	{ "mobinfo_refresh_tick",               &battle_config.mobinfo_refresh_tick,            300,    0,      INT_MAX,        }, 
 	{ "enable_delitem_event",               &battle_config.enable_delitem_event,            0,      0,      1,              },
 	{ "mvp_skill_rate",                     &battle_config.mvp_skill_rate,                  100,    0,      INT_MAX,        },

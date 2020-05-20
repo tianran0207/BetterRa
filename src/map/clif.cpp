@@ -1495,9 +1495,6 @@ int clif_spawn(struct block_list *bl, bool walking)
 	if(bl->type == BL_NPC && (((TBL_NPC*)bl)->sc.option&OPTION_INVISIBLE))
 		return 0;
 
-	if(bl->type == BL_PC && battle_config.gm_perfect_hide && (((TBL_PC*)bl)->sc.option&OPTION_INVISIBLE))
-		return 0;
-
 	if(bl->type == BL_NPC && !npc_ondisplay_event(NULL, (TBL_NPC*)bl))
 		return 0;
 
@@ -1853,9 +1850,6 @@ void clif_move(struct unit_data *ud)
 	* Hide NPC from maya purple card.
 	**/
 	if(bl->type == BL_NPC && (((TBL_NPC*)bl)->sc.option&OPTION_INVISIBLE))
-		return;
-
-	if(bl->type == BL_PC && battle_config.gm_perfect_hide && (((TBL_PC*)bl)->sc.option&OPTION_INVISIBLE))
 		return;
 
 	if(bl->type == BL_NPC && !npc_ondisplay_event(NULL, (TBL_NPC*)bl))
@@ -4841,9 +4835,6 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 	* Hide NPC from maya purple card.
 	**/
 	if(bl->type == BL_NPC && !((TBL_NPC*)bl)->chat_id && (((TBL_NPC*)bl)->sc.option&OPTION_INVISIBLE))
-		return;
-
-	if(bl->type == BL_PC && battle_config.gm_perfect_hide && (((TBL_PC*)bl)->sc.option&OPTION_INVISIBLE))
 		return;
 
 	if(bl->type == BL_NPC && !npc_ondisplay_event(sd, (TBL_NPC*)bl))

@@ -252,7 +252,6 @@ struct Battle_Config
 	int skill_critical_damage;
 	int skill_critical_boss;
 	int skill_critical_luk;
-	int gm_perfect_hide;
 	int mobinfo_refresh_tick;
 	int enable_delitem_event;
 	int mvp_skill_rate;
