@@ -165,7 +165,7 @@ int chat_joinchat(struct map_session_data* sd, int chatid, const char* pass)
 #ifdef EVENT_INCHATROOMFILTER
 	if (cd->owner->type == BL_NPC && npc_script_event_check(sd, NPCE_CHATJOINFILTER)) {
 		pc_setreg(sd, add_str("@join_chat_aid"), sd->status.account_id);
-		npc_script_event_atonce(sd, NPCE_CHATJOINFILTER);
+		npc_script_event_atonce(sd, NPCE_CHATJOINFILTER, NULL, cd->owner->id);
 		if (sd->state.processhalt)
 			return 0;
 	}

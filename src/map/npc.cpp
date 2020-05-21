@@ -4986,7 +4986,7 @@ int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type, s
 
 	if (ev == NULL) {
 		for (struct script_event_s& evt : vector)
-			run_script(evt.event->nd->u.scr.script, evt.event->pos, sd->bl.id, evt.event->nd->bl.id);
+			run_script(evt.event->nd->u.scr.script, evt.event->pos, sd->bl.id, id ? id : evt.event->nd->bl.id);
 	}else
 		run_script(ev->nd->u.scr.script, ev->pos, sd->bl.id, id ? id : ev->nd->bl.id);
 
