@@ -988,12 +988,12 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 					}
 					if (s_defele != ELE_NONE)
 						ele_fix += tsd->subdefele[s_defele] + tsd->subdefele[ELE_ALL];
-					cardfix = cardfix * (100 - ele_fix) / 100;
+					cardfix = cardfix * (100 - min(ele_fix,100)) / 100;
 				}
-				cardfix = cardfix * (100 - tsd->subsize[sstatus->size] - tsd->subsize[SZ_ALL]) / 100;
-				cardfix = cardfix * (100 - tsd->subrace2[s_race2]) / 100;
-				cardfix = cardfix * (100 - tsd->subrace[sstatus->race] - tsd->subrace[RC_ALL]) / 100;
-				cardfix = cardfix * (100 - tsd->subclass[sstatus->class_] - tsd->subclass[CLASS_ALL]) / 100;
+				cardfix = cardfix * (100 - min(tsd->subsize[sstatus->size] - tsd->subsize[SZ_ALL],100)) / 100;
+				cardfix = cardfix * (100 - min(tsd->subrace2[s_race2],100)) / 100;
+				cardfix = cardfix * (100 - min(tsd->subrace[sstatus->race] - tsd->subrace[RC_ALL],100)) / 100;
+				cardfix = cardfix * (100 - min(tsd->subclass[sstatus->class_] - tsd->subclass[CLASS_ALL],100)) / 100;
 
 				for (const auto &it : tsd->add_mdef) {
 					if (it.id == s_class) {
@@ -2105,7 +2105,7 @@ int64 battle_calc_bg_damage(struct block_list *src, struct block_list *bl, int64
 			damage = damage * battle_config.bg_long_damage_rate / 100;
 	}
 
-	damage = i64max(damage,1); //min 1 damage
+	damage = i64max(damage, battle_config.min_damage); //min 1 damage
 	return damage;
 }
 
@@ -2174,7 +2174,7 @@ int64 battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int64 
 		if (flag & BF_LONG)
 			damage = damage * battle_config.gvg_long_damage_rate / 100;
 	}
-	damage = i64max(damage,1);
+	damage = i64max(damage, battle_config.min_damage);
 	return damage;
 }
 
@@ -2201,7 +2201,7 @@ int64 battle_calc_pvp_damage(struct block_list *src, struct block_list *bl, int6
 			damage = damage * battle_config.pvp_long_damage_rate / 100;
 	}
 
-	damage = i64max(damage, 1); //min 1 damage
+	damage = i64max(damage, battle_config.min_damage); //min 1 damage
 	return damage;
 }
 
@@ -5536,8 +5536,8 @@ static void battle_calc_attack_post_defense(struct Damage* wd, struct block_list
 	}
 #endif
 	//Set to min of 1
-	if (is_attack_right_handed(src, skill_id) && wd->damage < 1) wd->damage = 1;
-	if (is_attack_left_handed(src, skill_id) && wd->damage2 < 1) wd->damage2 = 1;
+	if (is_attack_right_handed(src, skill_id) && wd->damage < battle_config.min_damage) wd->damage = battle_config.min_damage;
+	if (is_attack_left_handed(src, skill_id) && wd->damage2 < battle_config.min_damage) wd->damage2 = battle_config.min_damage;
 
 	switch (skill_id) {
 		case AS_SONICBLOW:
@@ -7022,7 +7022,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 		if (tsd && (i = pc_sub_skillatk_bonus(tsd, skill_id)))
 			ad.damage -= (int64)ad.damage*i/100;
 
-		if(!flag.imdef){
+		if(!flag.imdef && ad.damage){
 			defType mdef = tstatus->mdef;
 			int mdef2= tstatus->mdef2;
 
@@ -7075,8 +7075,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 				ShowError("Zero range by %d:%s, divide per 0 avoided!\n", skill_id, skill_get_name(skill_id));
 		}
 #endif
-		if(ad.damage<1)
-			ad.damage=1;
+		if(ad.damage<battle_config.min_damage)
+			ad.damage=battle_config.min_damage;
 		else if(sc) { //only applies when hit
 			switch(skill_id) {
 				case MG_LIGHTNINGBOLT:
@@ -8956,6 +8956,7 @@ static const struct _battle_data {
 	{ "mob_aggro_logout_clear",             &battle_config.mob_aggro_logout_clear,          0,      0,      1,              },
 	{ "mob_matk_equal_atk",                 &battle_config.mob_matk_equal_atk,              0,      0,      INT_MAX,        },
 	{ "zero_steal_rate",                    &battle_config.zero_steal_rate,                 0,      0,      1,              },
+	{ "min_damage",                         &battle_config.min_damage,                      INT_MIN,INT_MIN,INT_MAX,        },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },
