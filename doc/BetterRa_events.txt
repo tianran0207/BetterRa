@@ -1009,12 +1009,12 @@ BetterRa 在官方的基础上做了以下改进:
 
 *OnInstanceCreateFilter:
 
-	当玩家创建副本时触发
+	当创建副本前触发, 此事件不与玩家关联, 可通过 getpartymember、getguildmember 对成员进行遍历
 	
 参数说明:
-	@instance_owner 副本关联ID（玩家ID、队伍ID、公会ID、部落ID）
-	@instance_mode  副本模式
-	@instance_name$ 副本名
+	$@instance_owner 副本关联ID（玩家ID、队伍ID、公会ID、部落ID）
+	$@instance_mode  副本模式
+	$@instance_name$ 副本名
 
 中断说明: 
 	中断后副本创建失败, 并返回 -4
@@ -1023,13 +1023,25 @@ BetterRa 在官方的基础上做了以下改进:
 
 *OnInstanceCreateEvent:
 
-	当玩家创建副本成功后触发
+	当创建副本后触发, 此事件不与玩家关联, 可通过 getpartymember、getguildmember 对成员进行遍历
 	
 参数说明:
-	@instance_id    副本ID
-	@instance_owner 副本关联ID（玩家ID、队伍ID、公会ID、部落ID）
-	@instance_mode  副本模式
-	@instance_name$ 副本名
+	$@instance_id    副本ID
+	$@instance_owner 副本关联ID（玩家ID、队伍ID、公会ID、部落ID）
+	$@instance_mode  副本模式
+	$@instance_name$ 副本名
+	
+---------------------------------------
+
+*OnInstanceDestroyEvent:
+
+	当创建副本后触发, 此事件不与玩家关联, 可通过 getpartymember、getguildmember 对成员进行遍历
+	
+参数说明:
+	$@instance_id    副本ID
+	$@instance_owner 副本关联ID（玩家ID、队伍ID、公会ID、部落ID）
+	$@instance_mode  副本模式
+	$@instance_name$ 副本名
 	
 ---------------------------------------
 

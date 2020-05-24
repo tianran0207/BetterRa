@@ -37,6 +37,8 @@
 using namespace rathena;
 
 struct npc_data* fake_nd;
+int npc_event_halt = 0;
+int npc_event_type = 0;
 
 // linked list of npc source files
 struct npc_src_list {
@@ -5001,8 +5003,13 @@ int npc_script_event_doall(enum npce_event type) {
 
 	std::vector<struct script_event_s>& vector = script_event[type];
 
+	npc_event_type = type;
+	npc_event_halt = 0;
+
 	for (struct script_event_s& evt : vector)
 		run_script(evt.event->nd->u.scr.script, evt.event->pos, 0, evt.event->nd->bl.id);
+
+	npc_event_type = 0;
 
 	return vector.size();
 }
@@ -5194,10 +5201,12 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.hook_dll_event_name;
 	case NPCE_ANYONESKILLEVENT:
 		return script_config.anyone_skill_event_name;
-	case NPCE_INSTANCEFILTER:
+	case NPCE_INSCREATEFILTER:
 		return script_config.instance_create_filter_name;
-	case NPCE_INSTANCEEVENT:
+	case NPCE_INSCREATEEVENT:
 		return script_config.instance_create_event_name;
+	case NPCE_INSDESTROYEVENT:
+		return script_config.instance_destroy_event_name_;
 	case NPCE_ONDISPLAY:
 		return "NOEVENTNAME";
 	default:

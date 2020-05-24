@@ -310,6 +310,7 @@ struct Script_Config script_config = {
 	"OnInstanceDestroy", //instance_destroy_event_name (is executed right before instance destruction)
 	"OnInstanceCreateFilter", //instance_create_filter_name
 	"OnInstanceCreateEvent", //instance_create_event_name
+	"OnInstanceDestroyEvent", //instance_destroy_event_name_
 
 	"OnPCProgressAbortEvent", //progress_abort_event_name
 	"OnPCHomLvUpEvent", //homunculus_lvup_event_name
@@ -20892,7 +20893,7 @@ BUILDIN_FUNC(instance_create)
 		}
 	}
 
-	script_pushint(st, instance_create(owner_id, script_getstr(st, 2), mode, map_id2sd(st->rid)));
+	script_pushint(st, instance_create(owner_id, script_getstr(st, 2), mode));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -25394,17 +25395,17 @@ BUILDIN_FUNC(processhalt)
 {
 	TBL_PC *sd;
 
-	if (!script_rid2sd(sd)) {
-		script_pushint(st, 0);
-		return SCRIPT_CMD_SUCCESS;
-	}
-
-	if (sd->runing_event_type == 0 || sd->runing_event_type < 0 && sd->runing_event_type > NPCE_MAX) {
-		ShowError("buildin_processhalt: require workin in  Filter event script\n");
+	if (npc_event_type > 0 && npc_event_type <= NPCE_MAX)
+		npc_event_halt = 1;
+	else if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+	else if (sd->runing_event_type > 0 && sd->runing_event_type <= NPCE_MAX)
+		sd->state.halt[sd->runing_event_type] = 1;
+	else {
+		ShowError("buildin_processhalt: require workin in Filter event script\n");
 		return SCRIPT_CMD_FAILURE;
 	}
 
-	sd->state.halt[sd->runing_event_type] = 1;
 	script_pushint(st, 1);
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -28892,9 +28893,7 @@ BUILDIN_FUNC(unitshow)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	sd->runing_event[NPCE_ONDISPLAY] = true;
 	clif_getareachar_unit(sd, bl);
-	sd->runing_event[NPCE_ONDISPLAY] = false;
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -29725,6 +29724,20 @@ BUILDIN_FUNC(instance_addmap)
 }
 
 BUILDIN_FUNC(instance_delmap)
+{
+	const char *mapname;
+	int instance_id, copynpc = 1;
+	mapname = script_getstr(st, 2);
+	if (script_hasdata(st, 3))
+		instance_id = script_getnum(st, 3);
+	else
+		instance_id = script_instancegetid(st);
+
+	script_pushint(st, instance_delmap_name(instance_id, mapname));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(instance_reset)
 {
 	const char *mapname;
 	int instance_id, copynpc = 1;

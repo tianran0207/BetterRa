@@ -24,6 +24,7 @@
 #include "npc.hpp"
 #include "party.hpp"
 #include "pc.hpp"
+#include "mapreg.hpp"
 
 using namespace rathena;
 
@@ -533,7 +534,7 @@ void instance_addnpc(std::shared_ptr<s_instance_data> idata)
  * @param mode: Instance mode
  * @return -4 = no free instances | -3 = already exists | -2 = character/party/guild not found | -1 = invalid type | On success return instance_id
  */
-int instance_create(int owner_id, const char *name, e_instance_mode mode, struct map_session_data *ssd) {
+int instance_create(int owner_id, const char *name, e_instance_mode mode) {
 	std::shared_ptr<s_instance_db> db = instance_search_db_name(name);
 
 	if (!db) {
@@ -589,12 +590,12 @@ int instance_create(int owner_id, const char *name, e_instance_mode mode, struct
 	if (instance_count <= 0)
 		return -4;
 
-	if (npc_script_event_check(ssd, NPCE_INSTANCEFILTER)) {
-		pc_setreg(ssd, add_str("@instance_owner"), owner_id);
-		pc_setreg(ssd, add_str("@instance_mode"), mode);
-		pc_setregstr(ssd, add_str("@instance_name$"), name);
-		npc_script_event_atonce(ssd, NPCE_INSTANCEFILTER);
-		if (ssd->state.processhalt)
+	if (npc_script_hasevent(NPCE_INSCREATEFILTER)) {
+		mapreg_setreg(add_str("$@instance_owner"), owner_id);
+		mapreg_setreg(add_str("$@instance_mode"), mode);
+		mapreg_setregstr(add_str("$@instance_name$"), name);
+		npc_script_event_doall(NPCE_INSCREATEFILTER);
+		if (npc_event_halt)
 			return -4;
 	}
 
@@ -633,12 +634,12 @@ int instance_create(int owner_id, const char *name, e_instance_mode mode, struct
 	// Start the instance timer on instance creation
 	instance_startkeeptimer(entry, instance_id);
 
-	if (npc_script_event_check(ssd, NPCE_INSTANCEEVENT)) {
-		pc_setreg(ssd, add_str("@instance_id"), instance_id);
-		pc_setreg(ssd, add_str("@instance_owner"), owner_id);
-		pc_setreg(ssd, add_str("@instance_mode"), mode);
-		pc_setregstr(ssd, add_str("@instance_name$"), name);
-		npc_script_event_atonce(ssd, NPCE_INSTANCEEVENT);
+	if (npc_script_hasevent(NPCE_INSCREATEEVENT)) {
+		mapreg_setreg(add_str("$@instance_id"), instance_id);
+		mapreg_setreg(add_str("$@instance_owner"), owner_id);
+		mapreg_setreg(add_str("$@instance_mode"), mode);
+		mapreg_setregstr(add_str("$@instance_name$"), name);
+		npc_script_event_doall(NPCE_INSCREATEEVENT);
 	}
 	return instance_id;
 }
@@ -869,6 +870,14 @@ bool instance_destroy(int instance_id)
 
 	ShowInfo("[Instance] Destroyed: %s (%d)\n", instance_db.find(idata->id)->name.c_str(), instance_id);
 
+	if (npc_script_hasevent(NPCE_INSDESTROYEVENT)) {
+		std::shared_ptr<s_instance_db> db = instance_db.find(idata->id);
+		mapreg_setreg(add_str("$@instance_id"), instance_id);
+		mapreg_setreg(add_str("$@instance_owner"), idata->owner_id);
+		mapreg_setreg(add_str("$@instance_mode"), mode);
+		mapreg_setregstr(add_str("$@instance_name$"), db ? db->name.c_str() : "");
+		npc_script_event_doall(NPCE_INSDESTROYEVENT);
+	}
 	instances.erase(instance_id);
 
 	return true;

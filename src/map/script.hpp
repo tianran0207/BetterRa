@@ -209,6 +209,7 @@ struct Script_Config {
 	const char* instance_destroy_event_name;
 	const char* instance_create_filter_name;
 	const char* instance_create_event_name;
+	const char* instance_destroy_event_name_;
 
 	const char* progress_abort_event_name;
 	// Homunculus related
