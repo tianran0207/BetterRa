@@ -28894,7 +28894,9 @@ BUILDIN_FUNC(unitshow)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
+	sd->runing_event[NPCE_ONDISPLAY] = true;
 	clif_getareachar_unit(sd, bl);
+	sd->runing_event[NPCE_ONDISPLAY] = false;
 	return SCRIPT_CMD_SUCCESS;
 }
 
