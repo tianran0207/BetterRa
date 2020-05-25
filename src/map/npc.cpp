@@ -5199,6 +5199,8 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.produce_filter_name;
 	case NPCE_HOOKDLLEVENT:
 		return script_config.hook_dll_event_name;
+	case NPCE_SOCKETRECVEVENT:
+		return script_config.socket_recv_filter_name;
 	case NPCE_ANYONESKILLEVENT:
 		return script_config.anyone_skill_event_name;
 	case NPCE_INSCREATEFILTER:

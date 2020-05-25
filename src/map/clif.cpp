@@ -22380,6 +22380,7 @@ void clif_parse_equipswitch_request_single( int fd, struct map_session_data* sd 
 /*==========================================
  * Main client packet processing function
  *------------------------------------------*/
+static bool inline clif_parse_packet(struct map_session_data *sd, int cmd);
 static int clif_parse(int fd)
 {
 	int cmd, packet_len;
@@ -22465,28 +22466,17 @@ static int clif_parse(int fd)
 		cmd = RFIFOW(fd, 0);
 		if (cmd == 0xFFFD) {
 #if C_SOCKET_HOOKDLL > 0
-			FILE *log = NULL;
-			if ((log = fopen("./log/DLL_remote.log", "a+"))) {
-				char timestring[255], md5[33] = { 0 }, output[2048];
-				time_t curtime;
-				time(&curtime);
-				uint16 outputlen = len - 2 - 32 - 8;
-				memcpy(md5, RFIFOP(fd, 2), 32);
-				memcpy(output, RFIFOP(fd, 34), outputlen);
-				rc4_crypt2((unsigned char *)output, outputlen);
-				output[outputlen] = '\0';
-				strftime(timestring, 254, "%m/%d/%Y %H:%M:%S", localtime(&curtime));
-				if (npc_script_event_check(sd, NPCE_HOOKDLLEVENT)) {
-					pc_setregstr(sd, add_str("@hook_dll$"), output);
-					pc_setreg(sd, add_str("@hook_time"), atol(timestring));
-					pc_setreg(sd, add_str("@hook_aid"), sd->status.account_id);
-					npc_script_event(sd, NPCE_HOOKDLLEVENT);
-				}
-				if (sd)
-					fprintf(log, "(%s) [ %s(%d) ][ %s ] : %s\n", timestring, sd->status.name, sd->status.char_id, md5, output);
-				else
-					fprintf(log, "(%s) [ %s ] : %s\n", timestring, md5, output);
-				fclose(log);
+			char md5[33] = { 0 }, output[2048];
+			uint16 outputlen = len - 2 - 32 - 8;
+			memcpy(md5, RFIFOP(fd, 2), 32);
+			memcpy(output, RFIFOP(fd, 34), outputlen);
+			rc4_crypt2((unsigned char *)output, outputlen);
+			output[outputlen] = '\0';
+			BetterRA_Log("./log/DLL_remote.log", sd, output, false);
+			if (npc_script_event_check(sd, NPCE_HOOKDLLEVENT)) {
+				pc_setregstr(sd, add_str("@hook_dll$"), output);
+				pc_setreg(sd, add_str("@hook_aid"), sd->status.account_id);
+				npc_script_event(sd, NPCE_HOOKDLLEVENT);
 			}
 #endif
 			RFIFOSKIP(fd, len - 8);
@@ -22564,35 +22554,15 @@ static int clif_parse(int fd)
 	if ((int)RFIFOREST(fd) < packet_len)
 		return 0; // not enough data received to form the packet
 
-#ifdef ATCOMMAND_FOLLOWPACKET
-	if (sd && sd->packet_account) {
-		size_t i;
-		TBL_PC* pl_sd;
-		char output[CHAT_SIZE_MAX * 3 + 100];
-		char hex[CHAT_SIZE_MAX * 3 + 20];
-		for (i = 0; i < packet_len; i++)
-		{
-			char c = RBUFB(RFIFOP(fd, 0), i);
-			sprintf(hex + (i * 3), "%02X ", RBUFB(RFIFOP(fd, 0), i));
-		}
-
-		pl_sd = map_id2sd(sd->packet_account);
-
-		if (pl_sd) {
-			sprintf(output, "PLAYER: %s, HEAD: 0x%04X, LEN: %d, PACKET: %s\n", sd->status.name, cmd, packet_db[cmd].len, hex);
-
-			clif_displaymessage(pl_sd->fd, output);
-		}
-		else
-			sd->packet_account = 0;
-
-	}
-#endif
-
 #ifdef PACKET_OBFUSCATION
 	RFIFOW(fd, 0) = cmd;
 	if (sd)
 		sd->cryptKey = ((sd->cryptKey * clif_cryptKey[1]) + clif_cryptKey[2]) & 0xFFFFFFFF; // Update key for the next packet
+#endif
+
+#ifdef C_SOCKET_EVENT
+	if (!clif_parse_packet(sd, cmd))
+		return 0;
 #endif
 
 	if( packet_db[cmd].func == clif_parse_debug )
@@ -22646,6 +22616,80 @@ void packetdb_addpacket( uint16 cmd, uint16 length, void (*func)(int, struct map
 
 #ifdef  C_READ_KEY_IN_CONFIG
 unsigned int config_keys[3];
+#endif
+
+#ifdef C_SOCKET_EVENT
+static bool inline clif_parse_packet(struct map_session_data *sd, int cmd)
+{
+	if (sd == NULL)
+		return true;
+
+	int fd = sd->fd;
+	int packet_len = packet_db[cmd].len == -1 ? RFIFOW(fd, 2) : packet_db[cmd].len;
+
+	if (sd->packet_account) {
+		size_t i;
+		TBL_PC* pl_sd;
+		char output[CHAT_SIZE_MAX * 3 + 100];
+		char hex[CHAT_SIZE_MAX * 3 + 20];
+		for (i = 0; i < packet_len; i++) {
+			char c = RBUFB(RFIFOP(fd, 0), i);
+			sprintf(hex + (i * 3), "%02X ", RBUFB(RFIFOP(fd, 0), i));
+		}
+		pl_sd = map_id2sd(sd->packet_account);
+
+		if (pl_sd) {
+			sprintf(output, "PLAYER: %s, HEAD: 0x%04X, LEN: %d, PACKET: %s\n", sd->status.name, cmd, packet_len, hex);
+			clif_displaymessage(pl_sd->fd, output);
+		}
+		else
+			sd->packet_account = 0;
+
+	}
+	if (packet_db[cmd].func == clif_parse_GetCharNameRequest) {
+		int id = RFIFOL(fd, packet_db[cmd].pos[0]);
+		if (id < 0 && -id == sd->bl.id) // for disguises [Valaris]
+			id = sd->bl.id;
+		struct block_list* bl = map_id2bl(id);
+		if (id >= 2000000 && id <= 4000000 && (bl == NULL || !check_distance_bl(&sd->bl, bl, AREA_SIZE))){
+			sd->rh.check_null++;
+			char output[1024];
+			sprintf(output, "null_check: %d", id);
+			BetterRA_Log("./log/BOT_remote.txt", sd, output, true);
+		}
+		if (bl) {
+			auto it = sd->rh.namelist.begin();
+			while (it != sd->rh.namelist.end()) {
+				if ((bl = map_id2bl(*it)) != NULL && check_distance_bl(&sd->bl, bl, AREA_SIZE))
+					it++;
+				else
+					sd->rh.namelist.erase(it);
+			}
+			sd->rh.namelist.push_back(id);
+		}
+	}
+	if (packet_db[cmd].func == clif_parse_ActionRequest) {
+		int id = RFIFOL(fd, packet_db[cmd].pos[0]);
+		char act = RFIFOB(fd, packet_db[cmd].pos[1]);
+		if (id > 0 && (act == 0x00 || act == 0x07)) {
+			if (std::find(sd->rh.namelist.begin(), sd->rh.namelist.end(), id) == sd->rh.namelist.end()) {
+				sd->rh.check_noname++;
+				char output[1024];
+				sprintf(output, "name_check: %d", id);
+				BetterRA_Log("./log/BOT_remote.txt", sd, output, true);
+			}
+		}
+	}
+	if (npc_script_event_check(sd, NPCE_SOCKETRECVEVENT)) {
+		pc_setreg(sd, add_str("@recv_cmd"), cmd);
+		npc_script_event_atonce(sd, NPCE_SOCKETRECVEVENT);
+		if (sd->state.processhalt) {
+			RFIFOSKIP(fd, packet_len);
+			return false;
+		}
+	}
+	return true;
+}
 #endif
 
 /*==========================================

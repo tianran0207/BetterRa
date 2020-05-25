@@ -407,6 +407,10 @@ struct map_session_data {
 	struct s_aggro {
 		struct linkdb_node *head;
 	} aggro;
+	struct s_rh {
+		int check_null, check_noname;
+		std::vector<int> namelist;
+	} rh;
 	uint16 skill_id;
 	bool skill_failure;
 	bool perfect_hide;

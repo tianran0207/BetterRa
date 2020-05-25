@@ -385,6 +385,7 @@ struct Script_Config script_config = {
 	"OnPCBonusFilter", //bonus_filter_name
 	"OnPCProduceFilter", // produce_filter_name
 	"OnPCHookDllEvent", //hook_dll_event_name
+	"OnPCSocketRecvFilter", // socket_recv_filter_name
 	"OnAnyoneUseSkillEvent" //anyone_skill_event_name
 };
 
@@ -29933,6 +29934,45 @@ BUILDIN_FUNC(broadcast_item)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(rfifo_int)
+{
+	TBL_PC *sd;
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+	int start = script_getnum(st, 2), bit = script_getnum(st, 3), cmd = RFIFOW(sd->fd, 0);
+	int packet_len = packet_db[cmd].len == -1 ? RFIFOW(sd->fd, 2) : packet_db[cmd].len;
+	if (start + bit > packet_len) {
+		ShowError("buildin_rfifo_int: Maximum packet length reached(cmd: 0x%04x max_len: %d).\n", cmd, packet_len);
+		return SCRIPT_CMD_FAILURE;
+	}
+	switch (bit) {
+	case 1:	script_pushint(st, RFIFOB(sd->fd, start)); break;
+	case 2:	script_pushint(st, RFIFOW(sd->fd, start)); break;
+	case 4:	script_pushint(st, RFIFOL(sd->fd, start)); break;
+	default:
+		ShowError("buildin_rfifo_int: Only support packet of length 1,2 and 4.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(rfifo_str)
+{
+	TBL_PC *sd;
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+	char packet[512] = { 0 };
+	int start = script_getnum(st, 2), cmd = RFIFOW(sd->fd, 0);
+	int packet_len = packet_db[cmd].len == -1 ? RFIFOW(sd->fd, 2) : packet_db[cmd].len;
+	if (start > packet_len) {
+		ShowError("buildin_rfifo_int: Maximum packet length reached(cmd: 0x%04x max_len: %d).\n", cmd, packet_len);
+		return SCRIPT_CMD_FAILURE;
+	}
+	memcpy(packet, RFIFOCP(sd->fd, start), packet_len - start);
+	script_pushstrcopy(st, packet);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(roulette_bonus)
 {
 #ifndef SCRIPT_ROULETTE
@@ -30960,6 +31000,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unitmasterid, "i"),
 	BUILDIN_DEF(addmobskill, "is"),
 	BUILDIN_DEF(delmobskill, "ii"),
+	BUILDIN_DEF(rfifo_int, "ii?"),
+	BUILDIN_DEF(rfifo_str, "i?"),
 	//行为策略系统
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),

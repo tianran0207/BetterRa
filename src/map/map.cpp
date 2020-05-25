@@ -6062,3 +6062,38 @@ bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int n
 
 	return true;
 }
+
+#include "../common/des.hpp"
+bool BetterRA_Log(const char* filename, struct map_session_data *sd ,char *text, bool crypt)
+{
+	FILE *log = NULL;
+	if ((log = fopen(filename, "a+"))) {
+		char timestring[255], input[2048];
+		int intputlen = strlen(text);
+		time_t curtime;
+		time(&curtime);
+		strftime(timestring, 254, "%Y-%m-%d %H:%M:%S", localtime(&curtime));
+		if (crypt) {
+			char output[2048-4];
+			WBUFW(input, 0) = 0xFFFF;
+			WBUFW(input, 2) = intputlen;
+			safestrncpy(output, text, sizeof(output));
+			rc4_crypt2((unsigned char *)output, intputlen);
+			safestrncpy(input+4, output, sizeof(input)-4);
+			intputlen += 4;
+		}
+		else
+			safestrncpy(input, text, sizeof(input));
+
+		if (sd)
+			fprintf(log, "(%s)[%s(%d)][%s] : ", timestring, sd->status.name, sd->status.char_id, sd->mac);
+		else
+			fprintf(log, "(%s) : ", timestring);
+
+		fwrite(input, intputlen, 1, log);
+		fprintf(log, "\n");
+		fclose(log);
+		return true;
+	}
+	return false;
+}

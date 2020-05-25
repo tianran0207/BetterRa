@@ -10406,10 +10406,7 @@ ACMD_FUNC(quest) {
 
 ACMD_FUNC(followpacket)
 {
-#ifndef ATCOMMAND_FOLLOWPACKET
-	clif_displaymessage(fd, "it don't work..");
-	return 0;
-#else
+#ifdef C_SOCKET_EVENT
 	struct map_session_data *pl_sd = NULL;
 	int global = 0;
 	nullpo_retr(-1, sd);
@@ -10435,7 +10432,10 @@ ACMD_FUNC(followpacket)
 		clif_displaymessage(sd->fd, "install follow packet..");
 	}
 	return 0;
-#endif // ATCOMMAND_FOLLOWPACKET
+#else
+	clif_displaymessage(fd, "it don't work..");
+	return 0;
+#endif
 }
 
 static int atcommand_recallmap_sub(struct block_list *bl, va_list ap)

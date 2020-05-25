@@ -106,7 +106,6 @@
 //脚本与指令开关
 //----------------------------------
 #define SCRIPT_SENDMAIL
-#define ATCOMMAND_FOLLOWPACKET      
 
 //----------------------------------
 //默认开关
@@ -125,6 +124,10 @@
 		#define PLAYER_LIMIT 20
 		#undef C_SOCKET_ENCRYPT
 		#define C_SOCKET_ENCRYPT 1
+		#undef C_SOCKET_HOOKDLL
+		#define C_SOCKET_HOOKDLL 1
+		#undef C_SOCKET_EVENT
+		#define C_SOCKET_EVENT 1
 	#else
 		#define PLAYER_LIMIT 5
 	#endif
