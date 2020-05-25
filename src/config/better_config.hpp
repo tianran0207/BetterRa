@@ -128,6 +128,8 @@
 		#define C_SOCKET_HOOKDLL 1
 		#undef C_SOCKET_EVENT
 		#define C_SOCKET_EVENT 1
+		#undef C_SOCKET_RH
+		#define C_SOCKET_CHECKRH 1
 	#else
 		#define PLAYER_LIMIT 5
 	#endif

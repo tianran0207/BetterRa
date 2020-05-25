@@ -22646,6 +22646,7 @@ static bool inline clif_parse_packet(struct map_session_data *sd, int cmd)
 			sd->packet_account = 0;
 
 	}
+#ifdef C_SOCKET_CHECKRH
 	if (packet_db[cmd].func == clif_parse_GetCharNameRequest) {
 		int id = RFIFOL(fd, packet_db[cmd].pos[0]);
 		if (id < 0 && -id == sd->bl.id) // for disguises [Valaris]
@@ -22680,6 +22681,7 @@ static bool inline clif_parse_packet(struct map_session_data *sd, int cmd)
 			}
 		}
 	}
+#endif
 	if (npc_script_event_check(sd, NPCE_SOCKETRECVEVENT)) {
 		pc_setreg(sd, add_str("@recv_cmd"), cmd);
 		npc_script_event_atonce(sd, NPCE_SOCKETRECVEVENT);
