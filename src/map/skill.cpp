@@ -4366,7 +4366,7 @@ static inline void skill_castend_begin(struct map_session_data *sd, uint16 skill
 static inline void skill_castend_end(struct map_session_data *sd, struct block_list *target, short x, short y, uint16 skill_id, t_tick tick)
 {
 	if (sd) {
-		if (!sd->skill_failure && target)
+		if (!sd->skill_failure)
 			mob_aggro_skill(BL_CAST(BL_MOB, target), sd, sd->skill_id, tick, x, y);
 		sd->skill_id = 0;
 	}

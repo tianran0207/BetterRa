@@ -1465,6 +1465,11 @@ static int mob_ai_sub_hard_slavemob(struct mob_data *md,t_tick tick)
 			if(map_search_freecell(&md->bl, bl->m, &x, &y, MOB_SLAVEDISTANCE, MOB_SLAVEDISTANCE, 1)
 				&& unit_walktoxy(&md->bl, x, y, 0))
 				return 1;
+			else {
+				md->master_dist = 0;
+				unit_warp(&md->bl, bl->m, bl->x, bl->y, CLR_TELEPORT);
+				return 1;
+			}
 		}
 	} else if (bl->m != md->bl.m && map_flag_gvg2(md->bl.m)) {
 		//Delete the summoned mob if it's in a gvg ground and the master is elsewhere. [Skotlex]
@@ -6090,7 +6095,7 @@ static int mob_aggro_skill_sub(struct block_list *bl, va_list ap)
 		return 0;
 	if (battle_check_target(bl, &sd->bl, BCT_ENEMY) <= 0 || (entry = mob_aggro_exists(md, sd)) == NULL)
 		return 0;
-	std::shared_ptr<s_skill_db> skill = va_arg(ap, std::shared_ptr<s_skill_db>);
+	struct s_skill_db *skill = va_arg(ap, struct s_skill_db *);
 	t_tick tick = va_arg(ap, t_tick);
 	int heal = va_arg(ap, int);
 
@@ -6137,13 +6142,13 @@ int mob_aggro_skill(struct mob_data *md, struct map_session_data *sd, uint16 ski
 	case 1:
 		range = skill->aggro.range;
 		if (md)
-			map_foreachinrange(mob_aggro_skill_sub, &md->bl, range, BL_MOB, sd, skill_id, tick, 0);
+			map_foreachinrange(mob_aggro_skill_sub, &md->bl, range, BL_MOB, sd, skill, tick, 0);
 		else if (x > 0 && y > 0)
-			map_foreachinarea(mob_aggro_skill_sub, sd->bl.m, x-range,y-range,x+range,y+range, BL_MOB, sd, skill_id, tick, 0);
+			map_foreachinarea(mob_aggro_skill_sub, sd->bl.m, x-range,y-range,x+range,y+range, BL_MOB, sd, skill, tick, 0);
 		break;
 	case 2:
 		range = skill->aggro.range;
-		map_foreachinrange(mob_aggro_skill_sub, &sd->bl, range, BL_MOB, sd, skill_id, tick, 0);
+		map_foreachinrange(mob_aggro_skill_sub, &sd->bl, range, BL_MOB, sd, skill, tick, 0);
 		break;
 	default:
 		if (md && x == 0 && y == 0){
@@ -6164,7 +6169,7 @@ int mob_aggro_heal(struct map_session_data *sd, uint16 skill_id, int heal, t_tic
 	if (!battle_config.mob_aggro_enable)
 		return 0;
 
-	map_foreachinrange(mob_aggro_skill_sub, &sd->bl, battle_config.mob_aggro_heal_range, BL_MOB, sd, 0, tick, heal);
+	map_foreachinrange(mob_aggro_skill_sub, &sd->bl, battle_config.mob_aggro_heal_range, BL_MOB, sd, NULL, tick, heal);
 	return 1;
 }
 
