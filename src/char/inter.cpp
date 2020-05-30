@@ -920,6 +920,27 @@ uint64 InterServerDatabase::parseBodyNode( const YAML::Node& node ){
 		}
 	}
 
+	if (this->nodeExists(node, "Type")) {
+		std::string type;
+
+		if (!this->asString(node, "Type", type)) {
+			return 0;
+		}
+		if (!type.compare("INVENTORY_DB"))
+			storage_table->type = 1;
+		else if (!type.compare("STORAGE_DB"))
+			storage_table->type = 0;
+		else {
+			this->invalidWarning(node, "Node \"Type\" is unknown.\n");
+			return 0;
+		}
+	}
+	else {
+		if (!existing) {
+			storage_table->type = 0;
+		}
+	}
+
 	if( !existing ){
 		this->put( storage_table->id, storage_table );
 	}

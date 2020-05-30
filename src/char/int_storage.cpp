@@ -38,14 +38,21 @@ int inter_premiumStorage_getMax(uint8 id) {
  * @param id: Storage ID
  * @return Table name
  */
-const char *inter_premiumStorage_getTableName(uint8 id) {
+const char *inter_premiumStorage_getTableName(uint8 id, enum storage_type tableswitch) {
 	std::shared_ptr<s_storage_table> storage = interServerDb.find( id );
 
-	if( storage != nullptr ){
-		return storage->table;
+	switch (tableswitch) {
+	case TABLE_INVENTORY:
+		if (storage != nullptr && storage->type == 1)
+			return storage->table;
+		return schema_config.inventory_db;
+	case TABLE_STORAGE:
+		if (storage != nullptr && storage->type == 0)
+			return storage->table;
+		return schema_config.storage_db;
 	}
 
-	return schema_config.storage_db;
+	return "UnknowTable";
 }
 
 /**
@@ -156,12 +163,19 @@ bool guild_storage_fromsql(int guild_id, struct s_storage* p)
 void inter_storage_checkDB(void) {
 	// Checking storage tables
 	for( auto storage_table : interServerDb ){
-		if (SQL_ERROR == Sql_Query(sql_handle, "SELECT  `id`,`account_id`,`nameid`,`amount`,`equip`,`identify`,`refine`,"
+		if (storage_table.second->type == 0 &&
+			SQL_ERROR == Sql_Query(sql_handle, "SELECT  `id`,`account_id`,`nameid`,`amount`,`equip`,`identify`,`refine`,"
 			"`attribute`,`card0`,`card1`,`card2`,`card3`,`option_id0`,`option_val0`,`option_parm0`,`option_id1`,`option_val1`,`option_parm1`,"
 			"`option_id2`,`option_val2`,`option_parm2`,`option_id3`,`option_val3`,`option_parm3`,`option_id4`,`option_val4`,`option_parm4`,"
 			"`expire_time`,`bound`,`unique_id`"
 			" FROM `%s` LIMIT 1;", storage_table.second->table)) {
 			Sql_ShowDebug(sql_handle);
+		}else if (storage_table.second->type == 1 &&
+			SQL_ERROR == Sql_Query(sql_handle, "SELECT  `id`,`char_id`,`nameid`,`amount`,`equip`,`identify`,`refine`,"
+			"`attribute`,`card0`,`card1`,`card2`,`card3`,`option_id0`,`option_val0`,`option_parm0`,`option_id1`,`option_val1`,`option_parm1`,"
+			"`option_id2`,`option_val2`,`option_parm2`,`option_id3`,`option_val3`,`option_parm3`,`option_id4`,`option_val4`,`option_parm4`,"
+			"`expire_time`,`favorite`,`bound`,`unique_id`,`equip_switch`"
+			" FROM `%s` LIMIT 1;", storage_table.second->table)) {
 		}else{
 			Sql_FreeResult(sql_handle);
 		}
@@ -523,9 +537,16 @@ bool mapif_parse_StorageLoad(int fd) {
 
 	//ShowInfo("Loading storage for AID=%d.\n", aid);
 	switch (type) {
-		case TABLE_INVENTORY: res = inventory_fromsql(cid, &stor); break;
+		case TABLE_INVENTORY:
+			if( stor_id != 0 && (!interServerDb.exists( stor_id ) || interServerDb.find( stor_id )->type != 1) ){
+				ShowError("Invalid inventory with id %d\n", stor_id);
+				return false;
+			}
+
+			res = inventory_fromsql(cid, &stor);
+			break;
 		case TABLE_STORAGE:
-			if( !interServerDb.exists( stor_id ) ){
+			if( stor_id != 0 && (!interServerDb.exists( stor_id ) || interServerDb.find( stor_id )->type != 0) ){
 				ShowError( "Invalid storage with id %d\n", stor_id );
 				return false;
 			}

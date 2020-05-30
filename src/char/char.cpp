@@ -531,7 +531,7 @@ int char_memitemdata_to_sql(const struct item items[], int max, int id, enum sto
 	switch (tableswitch) {
 		case TABLE_INVENTORY:
 			printname = "Inventory";
-			tablename = schema_config.inventory_db;
+			tablename = inter_premiumStorage_getTableName(stor_id, TABLE_INVENTORY);
 			selectoption = "char_id";
 			break;
 		case TABLE_CART:
@@ -541,7 +541,7 @@ int char_memitemdata_to_sql(const struct item items[], int max, int id, enum sto
 			break;
 		case TABLE_STORAGE:
 			printname = inter_premiumStorage_getPrintableName(stor_id);
-			tablename = inter_premiumStorage_getTableName(stor_id);
+			tablename = inter_premiumStorage_getTableName(stor_id, TABLE_STORAGE);
 			selectoption = "account_id";
 			break;
 		case TABLE_GUILD_STORAGE:
@@ -743,7 +743,7 @@ bool char_memitemdata_from_sql(struct s_storage* p, int max, int id, enum storag
 	switch (tableswitch) {
 		case TABLE_INVENTORY:
 			printname = "Inventory";
-			tablename = schema_config.inventory_db;
+			tablename = inter_premiumStorage_getTableName(stor_id, TABLE_INVENTORY);
 			selectoption = "char_id";
 			storage = p->u.items_inventory;
 			max2 = MAX_INVENTORY;
@@ -757,7 +757,7 @@ bool char_memitemdata_from_sql(struct s_storage* p, int max, int id, enum storag
 			break;
 		case TABLE_STORAGE:
 			printname = "Storage";
-			tablename = inter_premiumStorage_getTableName(stor_id);
+			tablename = inter_premiumStorage_getTableName(stor_id, TABLE_STORAGE);
 			selectoption = "account_id";
 			storage = p->u.items_storage;
 			max2 = inter_premiumStorage_getMax(p->stor_id);

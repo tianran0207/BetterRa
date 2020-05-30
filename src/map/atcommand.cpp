@@ -4459,6 +4459,8 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " MaxASPD |");
 	if (map_getmapflag(m_id, MF_HIDEDAMAGE))
 		strcat(atcmd_output, " HideDamage |");
+	if (map_getmapflag(m_id, MF_INVENTORY_DB))
+		strcat(atcmd_output, " INVENTORY |");
 	//-------------------------------------
 
 	clif_displaymessage(fd, atcmd_output);

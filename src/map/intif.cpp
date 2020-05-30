@@ -3480,6 +3480,10 @@ static bool intif_parse_StorageReceived(int fd)
 			status_calc_pc(sd, (enum e_status_calc_opt)(SCO_FIRST|SCO_FORCE));
 			status_calc_weight(sd, (e_status_calc_weight_opt)(CALCWT_ITEM|CALCWT_MAXBONUS)); // Refresh weight data
 			chrif_scdata_request(sd->status.account_id, sd->status.char_id);
+			if (sd->state.refresh_inventory) {
+				clif_inventorylist(sd);
+				sd->state.refresh_inventory = 0;
+			}
 			break;
 		}
 

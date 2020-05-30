@@ -1834,7 +1834,7 @@ void pc_reg_received(struct map_session_data *sd)
 
 	intif_storage_request(sd,TABLE_STORAGE, 0, STOR_MODE_ALL); // Request storage data
 	intif_storage_request(sd,TABLE_CART, 0, STOR_MODE_ALL); // Request cart data
-	intif_storage_request(sd,TABLE_INVENTORY, 0, STOR_MODE_ALL); // Request inventory data
+	intif_storage_request(sd,TABLE_INVENTORY, map_getmapflag(sd->bl.m, MF_INVENTORY_DB), STOR_MODE_ALL); // Request inventory data
 
 	if (sd->status.party_id)
 		party_member_joined(sd);
@@ -6779,7 +6779,13 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 			if (new_map_instance_id) // Update instance timer for the map on enter
 				instance_addusers(new_map_instance_id);
 		}
-
+		if (map_getmapflag(sd->bl.m, MF_INVENTORY_DB) != map_getmapflag(m, MF_INVENTORY_DB)) {
+			sd->state.refresh_inventory = 1;
+			intif_storage_save(sd, &sd->inventory);
+			memset(&sd->inventory, 0, sizeof(sd->inventory));
+			memset(&sd->inventory_data, 0, sizeof(sd->inventory_data));
+			clif_inventorylist(sd);
+		}
 		if (sd->bg_id && !mapdata->flag[MF_BATTLEGROUND]) // Moving to a map that isn't a Battlegrounds
 			bg_team_leave(sd, false, true);
 

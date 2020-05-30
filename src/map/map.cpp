@@ -4887,6 +4887,7 @@ bool map_setmapflag_sub(int16 m, enum e_mapflag mapflag, bool status, union u_ma
 		case MF_ATTACKEDEVENT:
 		case MF_HEALEVENT:
 		case MF_MAXASPD:
+		case MF_INVENTORY_DB:
 			if (status) {
 				nullpo_retr(false, args);
 				if (mapflag == MF_MOBINFO && args->flag_val == 0)

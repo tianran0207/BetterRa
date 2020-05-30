@@ -617,6 +617,7 @@
 	export_constant(MF_HEALEVENT);
 	export_constant(MF_MAXASPD);
 	export_constant(MF_HIDEDAMAGE);
+	export_constant(MF_INVENTORY_DB);
 
 	export_constant(PH_WALKBACK);
 	export_constant(PH_WARPBACK);

@@ -392,6 +392,7 @@ struct s_storage_table {
 	char table[DB_NAME_LEN];
 	uint16 max_num;
 	uint8 id;
+	uint8 type;
 };
 
 struct s_pet {

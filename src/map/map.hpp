@@ -666,6 +666,7 @@ enum e_mapflag : int16 {
 	MF_HEALEVENT,
 	MF_MAXASPD,
 	MF_HIDEDAMAGE,
+	MF_INVENTORY_DB,
 	MF_MAX
 };
 

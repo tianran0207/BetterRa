@@ -10772,7 +10772,11 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		clif_refreshlook(&sd->bl,sd->bl.id,LOOK_BODY2,sd->vd.body_style,SELF);
 
 	// item
-	clif_inventorylist(sd);  // inventory list first, otherwise deleted items in pc_checkitem show up as 'unknown item'
+	if (sd->state.refresh_inventory)
+		intif_storage_request(sd, TABLE_INVENTORY, map_getmapflag(sd->bl.m, MF_INVENTORY_DB), STOR_MODE_ALL);
+	else
+		clif_inventorylist(sd);  // inventory list first, otherwise deleted items in pc_checkitem show up as 'unknown item'
+
 	pc_checkitem(sd);
 	clif_equipswitch_list(sd);
 
