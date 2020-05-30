@@ -29927,10 +29927,10 @@ BUILDIN_FUNC(mobaggroswitch)
 
 BUILDIN_FUNC(broadcast_item)
 {
-	TBL_PC *sd = map_charid2sd(script_getnum(st, 2));
+	TBL_PC* sd;
 
-	if (!sd)
-		return SCRIPT_CMD_SUCCESS;
+	if (!script_mapid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
 	
 	intif_broadcast_obtain_special_item(sd, script_getnum(st, 4), script_getnum(st, 3), (enum BROADCASTING_SPECIAL_ITEM_OBTAIN)script_getnum(st, 5));
 	return SCRIPT_CMD_SUCCESS;
@@ -30969,7 +30969,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(delinventorybyidx, "delstoragebyidx", "ii???"),
 	BUILDIN_DEF2(delinventorybyidx, "delguildstorageidx", "ii??"),
 	BUILDIN_DEF(mobaggroswitch, "ii"),
-	BUILDIN_DEF(broadcast_item, "iiiii"),
+	BUILDIN_DEF(broadcast_item, "iiii"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
