@@ -187,8 +187,8 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 ---------------------------------------
 
 *getinventorylist {<角色编号>,<类型>};
-*getcartinventorylist {<角色编号>,<类型>};
-*getstorageinventorylist {<角色编号>,<类型>};
+*getcartlist {<角色编号>,<类型>};
+*getstoragelist {<角色编号>,<类型>};
 
 返回背包、手推车、仓库清单。
 

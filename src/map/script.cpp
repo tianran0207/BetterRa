@@ -30926,6 +30926,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mobattached, ""),
 	BUILDIN_DEF(getcartinventorylist, "??"),
 	BUILDIN_DEF(getstorageinventorylist, "??"),
+	BUILDIN_DEF2(getcartinventorylist, "getcartlist", "??"),
+	BUILDIN_DEF2(getstorageinventorylist, "getstoragelist", "??"),
 	BUILDIN_DEF(getunitstatus, "ii"),
 	BUILDIN_DEF(skf_src_status, "i"),
 	BUILDIN_DEF(skf_target_status, "i"),
