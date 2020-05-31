@@ -2077,7 +2077,7 @@
 2852,E_Rosary_C,Rosary,4,1,,0,,0,,0,0xFFFFFFFE,63,2,136,,1,0,0,{ bonus bLuk,4; bonus bMdef,5; },{},{}
 2853,Telekinetic_Orb,灵犀 宝珠,4,20,,200,,2,,0,0xFFFFFFFE,63,2,136,,110,0,0,{ bonus bMdef,1; bonus bInt,3; bonus bMaxSP,30; bonus2 bSkillAtk,"WL_SOULEXPANSION",10; bonus2 bSkillAtk,"SO_PSYCHIC_WAVE",10; bonus2 bSkillUseSP,"WL_SOULEXPANSION",-50; bonus2 bSkillUseSP,"SO_PSYCHIC_WAVE",-50; },{},{}
 2854,Alchemy_Glove,炼金术师手套,4,20,,100,,1,,1,0xFFFFFFFE,63,2,136,,125,0,0,{ bonus bMdef,2; bonus bInt,1; bonus2 bMagicAtkEle,Ele_Fire,10; bonus2 bMagicAtkEle,Ele_Water,-20; bonus2 bSubEle,Ele_Water,-30; bonus3 bAutoSpell,"MG_FIREBALL",5,30; bonus5 bAutoSpell,"MG_FIREBOLT",5,30,BF_MAGIC,1; },{},{}
-2855,Whike_Black_Tail,修伽巴殷的黑猫尾巴,4,20,,100,,0,,0,0xFFFFFFFF,63,2,136,,45,0,0,{ bonus bCritical,7; bonus bAspdRate,3; bonus2 bAddEff2,Eff_Curse,10; },{},{}
+2855,Whike_Black_Tail,修伽巴殷的黑猫尾巴,4,20,,100,,0,,0,0xFFFFFFFF,63,2,136,,45,0,0,{ bonus bCritical,7; bonus bAspdRate,3; },{},{}
 2856,Half_Megin,Half Megingjard,4,20,,0,,1,,0,0xFFFFFFFF,63,2,136,,47,0,0,{ bonus bMdef,3; bonus bStr,20; },{},{}
 2857,Half_Brysing,Half Brisingamen,4,20,,0,,1,,0,0xFFFFFFFF,63,2,136,,47,0,0,{ bonus bStr,3; bonus bInt,5; bonus bVit,3; bonus bDex,3; bonus bAgi,3; bonus bLuk,5; bonus bMdef,2; },{},{}
 2858,Pendant_Of_Guardian,守护者坠饰,4,0,,0,,0,,0,0xFFFFFFFF,63,2,136,,70,0,0,{ skill "ALL_GUARDIAN_RECALL",1; },{},{}
@@ -3549,7 +3549,7 @@
 5357,Wings_Of_Victory,Wings Of Victory,4,20,,200,,10,,0,0xFFFFFFFF,63,2,768,,0,0,365,{ bonus bMdef,10; bonus bUnbreakableHelm; },{},{}
 5358,Pecopeco_Wing_Ears,大嘴鸟的翅膀耳饰,4,20,,100,,2,,0,0xFFFFFFFF,63,2,512,,70,0,366,{ bonus bAgi,1; bonus bMdef,2; bonus bUnbreakableHelm; },{},{}
 5359,J_Captain_Hat,飞空艇船长之帽,4,20,,300,,3,,1,0xFFFFFFFF,63,2,256,,60,1,367,{ bonus bDex,1; bonus bMaxHP,100; bonus bLongAtkRate,7; },{},{}
-5360,Whikebain_Ears,修伽巴殷的黑猫耳朵,4,20,,200,,4,,0,0xFFFFFFFE,63,2,256,,45,1,368,{ bonus bFlee,10; bonus bCritAtkRate,10; autobonus "{ bonus2 bIgnoreMdefRaceRate,RC_ALL,25; }",50,5000,BF_MAGIC,"{ specialeffect2 EF_AGIUP; }"; },{},{}
+5360,Whikebain_Ears,修伽巴殷的黑猫耳朵,4,20,,200,,4,,0,0xFFFFFFFE,63,2,256,,45,1,368,{ bonus bFlee,10; bonus bCritAtkRate,10; autobonus "{ bonus2 bIgnoreMdefClassRate,Class_Normal,100; bonus2 bIgnoreMdefClassRate,Class_Boss,100; }",50,5000,BF_MAGIC,"{ specialeffect2 EF_STEAL; }"; },{},{}
 5361,Gang_Scarf,红色面罩,4,20,,100,,0,,0,0xFFFFFFFF,63,2,1,,0,0,369,{ bonus bBaseAtk,5; if(BaseJob==Job_Rogue) skill "RG_GANGSTER",1; },{},{}
 5362,Ninja_Scroll,忍者卷轴,4,20,,200,,0,,0,0xFFFFFFFF,63,2,1,,0,0,370,{ bonus bMatkRate,1; },{},{}
 5363,Helm_Of_Abyss,深渊之头盔,4,20,,1000,,9,,1,0x000654E2,63,2,256,,70,1,371,{ bonus2 bSubClass,Class_Normal,-5; bonus2 bSubClass,Class_Boss,10; },{},{}
@@ -7044,23 +7044,23 @@
 //===================================================================
 // Rune Knight's Rune Stones
 //===================================================================
-12725,Runstone_Nosiege,束缚符文石,2,100,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_REFRESH",1; },{},{}
-12726,Runstone_Rhydo,调和符文石,2,100,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_CRUSHSTRIKE",1; },{},{}
-12727,Runstone_Verkana,再生符文石,2,100,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_MILLENNIUMSHIELD",1; },{},{}
-12728,Runstone_Isia,静止符文石,2,100,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_VITALITYACTIVATION",1; },{},{}
-12729,Runstone_Asir,联合符文石,2,100,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_FIGHTINGSPIRIT",1; },{},{}
-12730,Runstone_Urj,轮回符文石,2,100,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_ABUNDANCE",1; },{},{}
-12731,Runstone_Turisus,自省符文石,2,100,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_GIANTGROWTH",1; },{},{}
-12732,Runstone_Pertz,恐惧符文石,2,100,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_STORMBLAST",1; },{},{}
-12733,Runstone_Hagalas,毁灭符文石,2,100,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_STONEHARDSKIN",1; },{},{}
+12725,Runstone_Nosiege,束缚符文石,2,100,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_REFRESH",1; },{},{}
+12726,Runstone_Rhydo,调和符文石,2,100,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_CRUSHSTRIKE",1; },{},{}
+12727,Runstone_Verkana,再生符文石,2,100,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_MILLENNIUMSHIELD",1; },{},{}
+12728,Runstone_Isia,静止符文石,2,100,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_VITALITYACTIVATION",1; },{},{}
+12729,Runstone_Asir,联合符文石,2,100,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_FIGHTINGSPIRIT",1; },{},{}
+12730,Runstone_Urj,轮回符文石,2,100,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_ABUNDANCE",1; },{},{}
+12731,Runstone_Turisus,自省符文石,2,100,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_GIANTGROWTH",1; },{},{}
+12732,Runstone_Pertz,恐惧符文石,2,100,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_STORMBLAST",1; },{},{}
+12733,Runstone_Hagalas,毁灭符文石,2,100,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ if ((eaclass()&EAJ_THIRDMASK) == EAJ_RUNE_KNIGHT) unitskilluseid getcharid(3),"RK_STONEHARDSKIN",1; },{},{}
 //===================================================================
 // Rune Knight Rune Ores
 //===================================================================
-12734,Runstone_Quality,高级 符文原石,0,2,,100,,,,,0x00000080,56,2,,,,,,{ makerune 5; },{},{}
-12735,Runstone_Ancient,古代 符文原石,0,2,,100,,,,,0x00000080,56,2,,,,,,{ makerune 11; },{},{}
-12736,Runstone_Mystic,神秘 符文原石,0,2,,100,,,,,0x00000080,56,2,,,,,,{ makerune 14; },{},{}
-12737,Runstone_Ordinary,普通 符文原石,0,2,,100,,,,,0x00000080,56,2,,,,,,{ makerune 2; },{},{}
-12738,Runstone_Rare,珍稀 符文原石,0,2,,100,,,,,0x00000080,56,2,,,,,,{ makerune 8; },{},{}
+12734,Runstone_Quality,高级 符文原石,0,2,,100,,,,,0x00000080,56,2,,,,,,{ makerune 8; },{},{}
+12735,Runstone_Ancient,古代 符文原石,0,2,,100,,,,,0x00000080,56,2,,,,,,{ makerune 30; },{},{}
+12736,Runstone_Mystic,神秘 符文原石,0,2,,100,,,,,0x00000080,56,2,,,,,,{ makerune 60; },{},{}
+12737,Runstone_Ordinary,普通 符文原石,0,2,,100,,,,,0x00000080,56,2,,,,,,{ makerune 4; },{},{}
+12738,Runstone_Rare,珍稀 符文原石,0,2,,100,,,,,0x00000080,56,2,,,,,,{ makerune 15; },{},{}
 //===================================================================
 // More usable items
 //===================================================================
@@ -10122,7 +10122,7 @@
 19092,Machoman_Glasses_,Machoman's Glasses,4,36000,,100,,1,,1,0xFFFFFFFE,63,2,512,,0,0,92,{},{},{}
 19093,Spinning_Eyes_,Geek Glasses,4,20000,,100,,1,,1,0xFFFFFFFF,63,2,512,,0,0,27,{ bonus2 bResEff,Eff_Blind,800; },{},{}
 19094,Mr_Smile_,Mr. Smile,4,60,,100,,1,,1,0xFFFFFFFF,63,2,513,,0,0,65,{},{},{}
-19095,Happy_Balloon,Happy Balloon,4,0,,10,,0,,0,0xFFFFFFFF,63,2,1,,1,0,1289,{ bonus2 bDropAddRace,RC_All,5; bonus2 bExpAddRace,RC_All,5; },{},{}
+19095,Happy_Balloon_K,Happy Balloon,4,0,,10,,0,,0,0xFFFFFFFF,63,2,1,,1,0,1289,{ bonus2 bDropAddRace,RC_All,10; bonus2 bExpAddRace,RC_All,5; },{},{}
 19101,Glastheim_Observer,克雷斯特汉姆的旁观者,4,20,,100,,0,,0,0xFFFFFFFF,63,2,1,,80,1,1041,{ bonus2 bAddClass,Class_All,2; bonus bDelayrate,-5; },{},{}
 19102,Pale_Moon_Hat,薄月夜的帽子,4,20,,500,,2,,1,0xFFFFFFFF,63,2,256,,30,1,913,{ bonus bFlee,20; bonus2 bAddRace2,RC2_THANATOS,5; bonus2 bSubRace2,RC2_THANATOS,5; bonus2 bMagicAddRace2,RC2_THANATOS,5; if(getrefine()>4) { bonus2 bAddRace2,RC2_THANATOS,10; bonus2 bSubRace2,RC2_THANATOS,10; bonus2 bMagicAddRace2,RC2_THANATOS,10; } if(getrefine()>6) { bonus2 bAddRace2,RC2_THANATOS,15; bonus2 bSubRace2,RC2_THANATOS,15; bonus2 bMagicAddRace2,RC2_THANATOS,15; } if(getrefine()>8) { bonus2 bAddRace2,RC2_THANATOS,20; bonus2 bSubRace2,RC2_THANATOS,20; bonus2 bMagicAddRace2,RC2_THANATOS,20; } /* skill 3044,1; */ },{},{}
 19109,Valhalla_Idol,巴哈拉的象征,4,0,,300,,2,,0,0xFFFFFFFF,63,2,512,,70,0,1423,{ bonus bMaxSP,50; bonus4 bAutoSpellWhenHit,"MG_SAFETYWALL",10,50,0; hateffect(HAT_EF_VALHALLA_IDOL,true); },{},{ hateffect(HAT_EF_VALHALLA_IDOL,false); }
@@ -10141,7 +10141,7 @@
 19131,Radio_Antenna_,Radio Antenna,4,0,,1500,,2,,1,0xFFFFFFFF,63,2,256,,1,1,347,{ bonus bMdef,5; bonus bCritical,5; bonus bFlee,5; skill "MG_LIGHTNINGBOLT",1; bonus4 bAutoSpellWhenHit,"MG_THUNDERSTORM",5,30,1; },{},{}
 19132,Masquerade_,Masquerade,4,20,,100,,0,,1,0xFFFFFFFE,63,2,512,,0,0,78,{ bonus2 bAddRace,RC_DemiHuman,3; bonus2 bAddRace,RC_Player,3; },{},{}
 19133,Odin_Mask_,Odin's Mask,4,20,,100,,1,,1,0xFFFFFFFF,63,2,513,,1,0,480,{ bonus2 bSubClass,Class_Boss,2; },{},{}
-19134,Wickebines_Black_Cat_Ears,Wickebine's Black Cat Ears,4,20,,200,,4,,1,0xFFFFFFFE,63,2,256,,45,1,368,{ bonus bFlee,10; bonus bCritAtkRate,10; autobonus "{ bonus2 bIgnoreMdefRaceRate,RC_ALL,25; }",50,5000,BF_MAGIC,"{ specialeffect2 EF_AGIUP; }"; },{},{}
+19134,Wickebines_Black_Cat_Ears,Wickebine's Black Cat Ears,4,20,,200,,4,,1,0xFFFFFFFE,63,2,256,,45,1,368,{ bonus bFlee,10; bonus bCritAtkRate,10; autobonus "{ bonus2 bIgnoreMdefClassRate,Class_Normal,100; bonus2 bIgnoreMdefClassRate,Class_Boss,100; }",50,5000,BF_MAGIC,"{ specialeffect2 EF_STEAL; }"; },{},{}
 19137,Strawberry_Mouth_Guard,嘴咬草莓,4,20,,100,,0,,0,0xFFFFFFFF,63,2,1,,80,0,861,{ bonus bVit,2; bonus bLongAtkDef,5; bonus bShortWeaponDamageReturn,5; if (Baselevel>=100) { bonus bMaxHP,2000; } else { bonus bMaxHP,200; } },{},{}
 19138,Seraphim_Coronet,Seraphim Coronet,4,20,,300,,0,,0,0xFFFFFFFF,63,2,512,,70,0,1487,{ bonus bStr,2; .@int = readparam(bInt); bonus bBaseAtk,(.@int/8)*5; bonus bHealPower,.@int/8; bonus bVariableCastrate,.@int/8; if ((.@int>=108)) { bonus bBaseAtk,50; bonus bHealPower,5; bonus bVariableCastrate,4; } if ((.@int>=120)) { bonus bBaseAtk,125; bonus bHealPower,10; bonus bVariableCastrate,6; } },{},{}
 19139,SurviveOrb,Survive Orb,4,0,,300,,,,0,0xFFFFFFFF,63,2,1,,50,0,1488,{ skill "TF_HIDING",1; bonus2 bAddClass,Class_All,2; bonus bMatkRate,2; bonus bVariableCastrate,-3; },{},{}
@@ -11371,7 +11371,7 @@
 22536,WorkerScroll_B,Scroll Summoning Workers(Female),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
 22537,PrizeOfHero,勇者的战利品,2,0,,100,,,,0,0xFFFFFFFF,63,2,,,1,,,{ getrandgroupitem(IG_PrizeOfHero,1); },{},{}
 22538,Hanbok_bag,韩服围裙,2,0,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_HANBOK,600000,0; },{},{}
-22540,Runstone_Lux,光魂符文石,11,2,,100,,,,,0xFFFFFFFF,56,2,,,,,,{ itemskill "RK_LUXANIMA",1; },{},{}
+22540,Runstone_Lux,光魂符文石,11,2,,10,,,,,0xFFFFFFFF,56,2,,,,,,{ itemskill "RK_LUXANIMA",1; },{},{}
 22541,PC_Room_Coupon_Box_VI,PC Room Coupon Box VI,18,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
 22542,Center_Potion_B,Concentration Potion,2,10,,100,,,,0,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_ASPDPOTION0,1800000,4; },{},{}
 22543,Berserk_Potion_B,Berserk Potion,2,10,,200,,,,0,0x6,63,2,,,,,,{ sc_start SC_ASPDPOTION2,1800000,9; },{},{}
@@ -12563,7 +12563,7 @@
 28703,Infinity_Dagger,无限短剑,5,10,,500,125:100,,1,1,0x028F5EEF,56,2,2,4,100,1,1,{},{},{}
 28705,Crimson_Dagger,猩红短剑,5,20,,550,55,,1,2,0x028F5EEF,63,2,2,3,70,1,1,{ .@r = getrefine(); bonus bBaseAtk,((BaseLevel/10)*5)+(.@r<=15?pow(.@r,2):225); bonus bMatk,(.@r<=15?(pow(.@r,2)/2):225); },{},{}
 28706,Dagger_of_Vicious_Mind,邪念短剑,5,20,,1050,105:50,,1,1,0x028F5EEF,63,2,2,4,160,1,1,{ bonus bAtk,pow(min(getrefine(),15),2); bonus bMatk,pow(min(getrefine(),15),2)/2; },{},{}
-28717,Valkyrie_Knife,Valkyrie Knife,5,50,,100,50:50,,1,4,0x228F5EEF,63,2,2,4,70,1,1,{ .@r = getrefine(); .@b = readparam(bDex)/10; if (.@r>7) { .@c = .@r-7; if (BaseClass==Job_Novice||BaseJob==Job_Mage) { bonus2 bSubRace,RC_DemiHuman,10; bonus2 bSubRace,RC_Player,10; } } if (BaseClass==Job_Novice) { bonus bMaxHP,300+(200*.@c); bonus bMaxSP,300+(20*.@c); bonus bBaseAtk,100; bonus bMatk,150+(15*.@c); bonus bUseSPrate,-5; bonus bUnbreakableWeapon; bonus bInt,2*.@c; bonus bDex,(2*.@c)-(.@c*.@b); bonus bCritical,7*.@c; bonus bAspdRate,10*.@c; bonus bCritAtkRate,1*.@c; } if (BaseClass==Job_Thief) { bonus bMaxSP,100; bonus bMatk,150; bonus bCritAtkRate,.@r; } if (BaseClass==Job_Mage && .@c) { bonus bMaxHP,200*.@c; bonus bMaxSP,20*.@c; } if (BaseJob==Job_Hunter) { bonus bMaxHP,200; bonus bUseSPrate,-5; bonus bInt,2*.@r; bonus bDex,2*.@r; } if (BaseJob==Job_Bard||BaseJob==Job_Dancer) { bonus bBaseAtk,100; bonus bAspdRate,10*.@r; bonus bUnbreakableWeapon; bonus bDex,-1*(.@c*.@b); } },{},{}
+28717,Valkyrie_Knife,Valkyrie Knife,5,50,,100,50:50,,1,4,0x228F5EEF,63,2,2,4,70,1,1,{ .@r = getrefine(); .@b = readparam(bDex)/10; if (BaseClass==Job_Novice) { bonus bMaxHP,300+(200*.@r); bonus bMaxSP,300+(20*.@r); bonus bBaseAtk,100; bonus bMatk,150+(15*.@r); bonus bUseSPrate,-5; bonus bUnbreakableWeapon; bonus bInt,2*.@r; bonus bDex,(2*.@r)-(.@r*.@b); bonus bCritical,7*.@r; bonus bAspdRate,10*.@r; bonus bCritAtkRate,1*.@r; } if (BaseClass==Job_Thief) { bonus bMaxSP,100; bonus bMatk,150; bonus bCritAtkRate,.@r; } if (BaseClass==Job_Mage) { bonus bMaxHP,200*.@r; bonus bMaxSP,20*.@r; } if (BaseJob==Job_Hunter) { bonus bMaxHP,200; bonus bUseSPrate,-5; bonus bInt,2*.@r; bonus bDex,2*.@r; } if (BaseJob==Job_Bard||BaseJob==Job_Dancer) { bonus bBaseAtk,100; bonus bAspdRate,10*.@r; bonus bUnbreakableWeapon; bonus bDex,-1*(.@r*.@b); } if (.@r>=7) { if (BaseClass==Job_Novice||BaseJob==Job_Mage) { bonus2 bSubRace,RC_DemiHuman,10; bonus2 bSubRace,RC_Player,10; } }},{},{}
 28721,Monokage,Monokage,5,10,,800,100,,1,2,0x20000000,63,2,2,3,100,1,1,{ .@r = getrefine(); bonus2 bSkillAtk,"KO_BAKURETSU",getskilllv("NJ_TOBIDOUGU"); if (.@r>=9) { bonus bLongAtkRate,5; } else if (.@r>=7) { bonus bLongAtkRate,2; } },{},{}
 28725,Illusion_Moonlight_Dagger,Illusion Moonlight Dagger,5,20,,700,150,,1,1,0x028F5EEE,63,2,2,4,99,1,1,{ bonus bMaxSPrate,10; .@val = 3; if (getrefine() >= 10) { .@val += 4; } bonus bSPDrainValue,.@val; },{},{}
 28745,Illusion_Counter_Dagger,Illusion Counter Dagger,5,0,,900,170,,1,2,0x00810204,63,2,2,4,120,0,1,{ .@r = getrefine(); bonus bCritical,90; bonus bCritAtkRate,(3*(.@r/2)); if (.@r >= 7) { bonus2 bAddClass,Class_All,5; if (.@r >= 9) { bonus2 bAddSize,Size_All,20; if (.@r >= 11) { bonus2 bAddEle,Ele_All,20; } } } },{},{}

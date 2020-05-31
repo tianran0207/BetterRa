@@ -7394,7 +7394,7 @@ int script_countitem_sub(struct item *items, struct item_data *id, int size, boo
 		for (int i = 0; i < size; i++) {
 			if (&items[i] && rent && !items[i].expire_time)
 				continue;
-			if (&items[i] && items[i].nameid == nameid)
+			if (&items[i] && items[i].nameid == nameid && items[i].expire_time == 0)
 				count += items[i].amount;
 		}
 	} else { // For expanded functions
@@ -7426,7 +7426,7 @@ int script_countitem_sub(struct item *items, struct item_data *id, int size, boo
 		for (int i = 0; i < size; i++) {
 			struct item *itm = &items[i];
 
-			if (!itm || !itm->nameid || itm->amount < 1)
+			if (!itm || !itm->nameid || itm->amount < 1 || items[i].expire_time > 0)
 				continue;
 			if (itm->nameid != it.nameid || itm->identify != it.identify || itm->refine != it.refine || itm->attribute != it.attribute)
 				continue;
@@ -8167,6 +8167,7 @@ BUILDIN_FUNC(rentitem2) {
 	it.card[2] = (short)c3;
 	it.card[3] = (short)c4;
 	it.expire_time = (unsigned int)(time(NULL) + seconds);
+	it.bound = BOUND_NONE;
 
 	if (funcname[strlen(funcname)-1] == '3') {
 		int res = script_getitem_randomoption(st, sd, &it, funcname, 11);
@@ -14662,6 +14663,7 @@ static void buildin_getinventorylist_sub(struct map_session_data *sd, struct ite
 				pc_setreg(sd, reference_uid(add_str("@inventorylist_uid"), j), inventory[i].unique_id);				
 				pc_setregstr(sd, reference_uid(add_str("@inventorylist_uid$"), j), uid);
 			}
+			if (type & INV_TRADABLE) pc_setreg(sd,reference_uid(add_str("@inventorylist_tradable"), j),pc_can_trade_item(sd, i));
 			if (type & INV_EQUIPSWITCH) pc_setreg(sd, reference_uid(add_str("@inventorylist_equipswich"), j), inventory[i].equipSwitch);
 			j++;
 		}
@@ -20687,20 +20689,21 @@ BUILDIN_FUNC(bg_get_data)
 
 /**
  * Reserves a slot for the given Battleground.
- * bg_reserve(<"bg_name">);
+ * bg_reserve("<battleground_map_name>"{,<ended>});
  */
 BUILDIN_FUNC(bg_reserve)
 {
 	const char *str = script_getstr(st, 2);
+	bool ended = script_hasdata(st, 3) ? script_getnum(st, 3) != 0 : false;
 
-	if (!bg_queue_reserve(str))
+	if (!bg_queue_reserve(str, ended))
 		ShowWarning("buildin_bg_reserve: Could not reserve battleground with name %s\n", str);
 	return SCRIPT_CMD_SUCCESS;
 }
 
 /**
  * Removes a spot for the given Battleground.
- * bg_unbook(<"bg_name">);
+ * bg_unbook("<battleground_map_name>");
  */
 BUILDIN_FUNC(bg_unbook)
 {
@@ -20746,7 +20749,7 @@ BUILDIN_FUNC(bg_info)
 			size_t i;
 
 			for (i = 0; i < bg->maps.size(); i++)
-				setd_sub_str(st, nullptr, ".@bgmaps$", i, map_mapid2mapname(bg->maps[i].mapid), nullptr);
+				setd_sub_str(st, nullptr, ".@bgmaps$", i, mapindex_id2name(bg->maps[i].mapindex), nullptr);
 			setd_sub_num(st, nullptr, ".@bgmapscount", 0, i, nullptr);
 			script_pushint(st, i);
 			break;
@@ -24791,13 +24794,8 @@ BUILDIN_FUNC(getequiptradability) {
 		return SCRIPT_CMD_FAILURE;
 	}
 
-	if (i >= 0) {
-		bool tradable = (sd->inventory.u.items_inventory[i].expire_time == 0 &&
-			(!sd->inventory.u.items_inventory[i].bound || pc_can_give_bounded_items(sd)) &&
-			itemdb_cantrade(&sd->inventory.u.items_inventory[i], pc_get_group_level(sd), pc_get_group_level(sd))
-			);
-		script_pushint(st, tradable);
-	}
+	if (i >= 0)
+		script_pushint(st, pc_can_trade_item(sd, i));
 	else
 		script_pushint(st, false);
 
@@ -30646,7 +30644,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bg_updatescore,"sii"),
 	BUILDIN_DEF(bg_join,"i????"),
 	BUILDIN_DEF(bg_create,"sii??"),
-	BUILDIN_DEF(bg_reserve,"s"),
+	BUILDIN_DEF(bg_reserve,"s?"),
 	BUILDIN_DEF(bg_unbook,"s"),
 	BUILDIN_DEF(bg_info,"si"),
 

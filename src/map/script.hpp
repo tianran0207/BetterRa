@@ -481,6 +481,7 @@ enum  inventory_mask {
 	INV_FAVORITE    = 0x0800,
 	INV_UID         = 0x1000,
 	INV_EQUIPSWITCH = 0x2000,
+	INV_TRADABLE    = 0x3000,
 	INV_ALL         = 0xFFFF
 };
 

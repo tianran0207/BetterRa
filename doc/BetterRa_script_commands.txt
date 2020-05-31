@@ -215,6 +215,7 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 	- INV_IDX          位置序列 - @inventorylist_idx[]
 	- INV_FAVORITE     是否收藏 - @inventorylist_favorite[]
 	- INV_UID          物品UID - @inventorylist_uid$[] 或 @inventorylist_uid[]
+	- INV_TRADABLE     是否可交易 - @inventorylist_tradable[]
 	- INV_EQUIPSWITCH  切换位置 - @inventorylist_equipswich[]
 	- INV_ALL          获取所有(默认)
 
