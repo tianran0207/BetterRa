@@ -3798,6 +3798,18 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		}
 		pc_bonus_itembonus(sd->subreseff, type2, val, true);
 		break;
+	case SP_SKILL_TYPE:
+		if (sd->state.lr_flag != 2) {
+			if (sd->skillchangetype.size() == MAX_PC_BONUS) {
+				ShowWarning("pc_bonus2: SP_SKILL_TYPE: Reached max (%d) number of skills per character, bonus skill %d (%d) lost.\n", MAX_PC_BONUS, type2, val);
+				break;
+			}
+			struct s_skill_val entry = {};
+			entry.sk = type2;
+			entry.val |= val;
+			sd->skillchangetype.push_back(entry);
+		}
+		break;
 	case SP_SKILL_NO_CAST:
 		if (sd->state.lr_flag != 2) {
 			if (sd->skillnorequire.size() == MAX_PC_BONUS) {
@@ -11857,7 +11869,9 @@ bool pc_unequipitem(struct map_session_data *sd, int n, int flag) {
 	clif_unequipitemack(sd,n,pos,1);
 	pc_set_costume_view(sd);
 
-	status_change_end(&sd->bl,SC_HEAT_BARREL,INVALID_TIMER);
+	if (sd->inventory_data[n]->type != IT_AMMO)
+		status_change_end(&sd->bl,SC_HEAT_BARREL,INVALID_TIMER);
+
 	// On weapon change (right and left hand)
 	if ((pos & EQP_ARMS) && sd->inventory_data[n]->type == IT_WEAPON) {
 		if (battle_config.ammo_unequip && !(flag & 4)) {

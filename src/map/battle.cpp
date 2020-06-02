@@ -2633,6 +2633,20 @@ static int battle_range_type(struct block_list *src, struct block_list *target, 
 	return BF_LONG;
 }
 
+static int battle_skill_type(struct block_list *src, uint16 skill_id, int flag)
+{
+	if (src->type != BL_PC || skill_id == 0)
+		return flag;
+
+	for (auto &it : ((struct map_session_data *)src)->skillchangetype) {
+		if (it.sk != skill_id)
+			continue;
+
+		return BF_SKILL|it.val;
+	}
+	return flag;
+}
+
 static int battle_blewcount_bonus(struct map_session_data *sd, uint16 skill_id)
 {
 	if (sd->skillblown.empty())
@@ -5924,6 +5938,7 @@ static struct Damage initialize_weapon_data(struct block_list *src, struct block
 
 	if (skill_id) {
 		wd.flag |= battle_range_type(src, target, skill_id, skill_lv);
+		wd.flag = battle_skill_type(src, skill_id, wd.flag);
 		switch(skill_id)
 		{
 #ifdef RENEWAL
@@ -6492,6 +6507,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 
 	//Skill Range Criteria
 	ad.flag |= battle_range_type(src, target, skill_id, skill_lv);
+	ad.flag = battle_skill_type(src, skill_id, ad.flag);
 
 	//Infinite defense (plant mode)
 	flag.infdef = is_infinite_defense(target, ad.flag)?1:0;
@@ -7248,6 +7264,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 
 	//Skill Range Criteria
 	md.flag |= battle_range_type(src, target, skill_id, skill_lv);
+	md.flag = battle_skill_type(src, skill_id, md.flag);
 
 	switch (skill_id) {
 		case TF_THROWSTONE:

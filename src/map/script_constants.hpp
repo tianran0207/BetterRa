@@ -578,6 +578,7 @@
 	export_constant2("bIgnoreWhiteImprison", SP_IGNORE_IMPRISON);
 	export_constant2("bSkillCritAtkRate", SP_SKILL_CRIT_ATK_RATE);
 	export_constant2("bSkillAddDiv", SP_SKILL_ADD_DIV);
+	export_constant2("bSkillChangeType", SP_SKILL_TYPE);
 	export_constant2("bFinalAddRace", SP_FINAL_ADD_RACE);
 	export_constant2("bFinalAddClass", SP_FINAL_ADD_CLASS);
 

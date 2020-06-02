@@ -735,6 +735,7 @@ struct map_session_data {
 	std::vector<s_skill_val> skilltoground;
 	std::vector<s_skill_val> skillnospecial;
 	std::vector<s_skill_val> skillnorequire;
+	std::vector<s_skill_val> skillchangetype;
 	std::vector<s_skill_div> skilladddiv;
 	std::vector<s_skill_attr> skillattribute;
 	std::vector<s_status_bonus> statusbonus;

@@ -35,6 +35,7 @@ bonus3 bSkillCritical,sk,r,n;			µ±Íæ¼ÒÊ¹ÓÃ sk ¹¥»÷Ê±, ÓĞ r/10% µÄ¸ÅÂÊÊ¹ÉËº¦±äÎªÔ
 										sk Îª -1 Ê±ËùÓĞ¼¼ÄÜ±©»÷
 bonus bSkillCritAtkRate,n;				¼¼ÄÜ±©»÷ÉËº¦ + n%
 bonus3 bSkillAddDiv,sk,div,n;			¼¼ÄÜ sk ´ò»÷¶ÎÊıÔö¼Ó div, ÉËº¦ + n%
+bonus2 bSkillChangeType,sk,bf;          ĞŞ¸Ä¼¼ÄÜ sk ¹¥»÷ÀàĞÍÎª bf
 
 bonus2 bIgnoreMdefRaceVal,r,n;			ÎŞÊÓ r ÖÖ×å n µãÄ§·¨·ÀÓùÁ¦
 bonus2 bIgnoreMdefClassVal,c,n;			ÎŞÊÓ c Àà±ğÄ§Îï n µãÄ§·¨·ÀÓùÁ¦
