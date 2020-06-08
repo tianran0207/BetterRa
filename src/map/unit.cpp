@@ -2205,7 +2205,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	skill_toggle_magicpower(src, skill_id);
 
 	// In official this is triggered even if no cast time.
-	clif_skillcasting(src, src->id, target_id, 0,0, skill_id, skill_get_ele(skill_id, skill_lv), casttime);
+	clif_skillcasting(src, src->id, target_id, 0,0, skill_id, skill_lv, skill_get_ele(skill_id, skill_lv), casttime);
 
 	if (src->type != BL_PC && battle_config.display_skill_name && skill->desc[0]) {
 		// custom hack to make the mob display the skill, because these skills don't show the skill use text themselves
@@ -2492,7 +2492,7 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 	skill_toggle_magicpower(src, skill_id);
 
 	// In official this is triggered even if no cast time.
-	clif_skillcasting(src, src->id, 0, skill_x, skill_y, skill_id, skill_get_ele(skill_id, skill_lv), casttime);
+	clif_skillcasting(src, src->id, 0, skill_x, skill_y, skill_id, skill_lv, skill_get_ele(skill_id, skill_lv), casttime);
 
 	if( casttime > 0 ) {
 		ud->skilltimer = add_timer( tick+casttime, skill_castend_pos, src->id, 0 );

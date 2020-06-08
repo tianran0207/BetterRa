@@ -26154,7 +26154,7 @@ BUILDIN_FUNC(setrenttime)
 			return SCRIPT_CMD_SUCCESS;
 		}
 		if (addtime < 0 && abs(addtime) >= expire_time) {
-			clif_rental_expired(sd->fd, idx, sd->inventory.u.items_inventory[idx].nameid);
+			clif_rental_expired(sd, idx, sd->inventory.u.items_inventory[idx].nameid);
 			pc_delitem(sd, idx, 1, 0, 0, LOG_TYPE_SCRIPT);
 			script_pushint(st, 0);
 			return SCRIPT_CMD_SUCCESS;
@@ -26527,7 +26527,7 @@ BUILDIN_FUNC(sethotkey)
 		sd->status.hotkeys[idx].id = id;
 		sd->status.hotkeys[idx].type = type;
 		sd->status.hotkeys[idx].lv = lv;
-		clif_hotkeys_send(sd);
+		clif_hotkeys_send(sd, 0);
 	}
 	script_pushint(st, req);
 	return SCRIPT_CMD_SUCCESS;
