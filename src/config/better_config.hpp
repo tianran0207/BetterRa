@@ -7,7 +7,7 @@
 //----------------------------------
 //自定义宏定义
 //----------------------------------
-#define C_PACKETVER 20180620
+#define C_PACKETVER 20200401
 #define C_PRERE 0                    //是否编译为复兴前版本
 #define C_VIP_ENABLE 0               //是否开启VIP系统
 #define C_PACKET_OBFUSCATION 0       //是否禁用封包加密

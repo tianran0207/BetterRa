@@ -686,7 +686,7 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, uint16 sk
 			hp += hp * 10 / 100;
 #endif
 
-			if (pc_checkskill(sd, SU_TUNABELLY) == 5 && pc_checkskill(sd, SU_TUNAPARTY) == 5 && pc_checkskill(sd, SU_BUNCHOFSHRIMP) == 5 && pc_checkskill(sd, SU_FRESHSHRIMP) == 5)
+			if (pc_checkskill_summoner(sd, SUMMONER_POWER_SEA) >= 20)
 #ifdef RENEWAL
 				hp_bonus += 20;
 #else
@@ -9495,8 +9495,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		}
 		if (skill_id == SL_SUPERNOVICE && dstsd && dstsd->die_counter && !(rnd()%100))
 		{	//Erase death count 1% of the casts
-			dstsd->die_counter = 0;
-			pc_setglobalreg(dstsd, add_str(PCDIECOUNTER_VAR), 0);
+			pc_setparam(dstsd, SP_PCDIECOUNTER, 0);
 			clif_specialeffect(bl, EF_ANGEL2, AREA);
 			//SC_SPIRIT invokes status_calc_pc for us.
 		}
@@ -11977,6 +11976,16 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 	return -1;
 }
 
+TIMER_FUNC( skill_keep_using ){
+	struct map_session_data* sd = map_id2sd( id );
+
+	if( sd && sd->skill_keep_using.skill_id ){
+		clif_parse_skill_toid( sd, sd->skill_keep_using.skill_id, sd->skill_keep_using.level, sd->skill_keep_using.target );
+	}
+
+	return 0;
+}
+
 int skill_castend_for_AOE(struct block_list *bl, va_list ap)
 {
 	struct block_list *src;
@@ -12282,6 +12291,10 @@ TIMER_FUNC(skill_castend_id){
 		else
 			skill_castend_damage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
 
+		if( sd && sd->skill_keep_using.skill_id == ud->skill_id ){
+			sd->skill_keep_using.tid = add_timer( sd->ud.canact_tick + 100, skill_keep_using, sd->bl.id, 0 );
+		}
+
 		skill_castend_delay_cooldown(src, target, tick, false);
 
 		if (sd && !skilltoaround) {
@@ -12392,7 +12405,7 @@ TIMER_FUNC(skill_castend_id){
 	//sent in ALL cases, even cases where skill_check_condition fails
 	//which would lead to double 'skill failed' messages u.u [Skotlex]
 	if(sd)
-		sd->skillitem = sd->skillitemlv = sd->skillitem_keep_requirement = 0;
+		sd->skillitem = sd->skillitemlv = sd->skillitem_keep_requirement = sd->skill_keep_using.skill_id = 0;
 	else if(md)
 		md->skill_idx = -1;
 	return 0;
@@ -17062,7 +17075,7 @@ bool skill_check_condition_castend(struct map_session_data* sd, uint16 skill_id,
 			else if( require.itemid[i] == ITEMID_ANCILLA )
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_ANCILLA,0); //Ancilla is required.
 			else
-				clif_skill_fail( sd, skill_id, USESKILL_FAIL_NEED_ITEM, ( require.itemid[i] << 16 ) | require.amount[i] ); // [%s] required '%d' amount.
+				clif_skill_fail( sd, skill_id, USESKILL_FAIL_NEED_ITEM, require.amount[i], require.itemid[i] ); // [%s] required '%d' amount.
 			return false;
 		}
 	}
@@ -17997,6 +18010,9 @@ void skill_repairweapon(struct map_session_data *sd, int idx) {
 	if( !item->nameid || !item->attribute )
 		return; //Again invalid item....
 
+	if (itemdb_ishatched_egg(item))
+		return;
+
 	if (sd != target_sd && !battle_check_range(&sd->bl, &target_sd->bl, skill_get_range2(&sd->bl, sd->menuskill_id, sd->menuskill_val2, true))) {
 		clif_item_repaireffect(sd, idx, 1);
 		return;
@@ -18074,11 +18090,11 @@ void skill_weaponrefine(struct map_session_data *sd, int idx)
 				return;
 			}
 			if( item->refine >= sd->menuskill_val || item->refine >= 10 ) {
-				clif_upgrademessage(sd->fd, 2, item->nameid);
+				clif_upgrademessage(sd, 2, item->nameid);
 				return;
 			}
 			if( (i = pc_search_inventory(sd, material [ditem->wlv])) < 0 ) {
-				clif_upgrademessage(sd->fd, 3, material[ditem->wlv]);
+				clif_upgrademessage(sd, 3, material[ditem->wlv]);
 				return;
 			}
 			per = status_get_refine_chance(static_cast<refine_type>(ditem->wlv), (int)item->refine, false);
@@ -18098,7 +18114,7 @@ void skill_weaponrefine(struct map_session_data *sd, int idx)
 					pc_unequipitem(sd,idx,3);
 				}
 				clif_delitem(sd,idx,1,3);
-				clif_upgrademessage(sd->fd, 0, item->nameid);
+				clif_upgrademessage(sd, 0, item->nameid);
 				clif_inventorylist(sd);
 				clif_refine(sd->fd,0,idx,item->refine);
 				achievement_update_objective(sd, AG_REFINE_SUCCESS, 2, ditem->wlv, item->refine);
@@ -18125,7 +18141,7 @@ void skill_weaponrefine(struct map_session_data *sd, int idx)
 				item->refine = 0;
 				if(item->equip)
 					pc_unequipitem(sd,idx,3);
-				clif_upgrademessage(sd->fd, 1, item->nameid);
+				clif_upgrademessage(sd, 1, item->nameid);
 				clif_refine(sd->fd,1,idx,item->refine);
 				achievement_update_objective(sd, AG_REFINE_FAIL, 1, 1);
 				pc_delitem(sd,idx,1,0,2, LOG_TYPE_OTHER);
