@@ -5209,6 +5209,8 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.select_item_event_name;
 	case NPCE_SKILLSELECTEVENT:
 		return script_config.select_skill_event_name;
+	case NPCE_MOBSPAWNFILTER:
+		return script_config.mob_spawn_filter_name;
 	case NPCE_MOBDROPITEMFILTER:
 		return script_config.mob_drop_item_filter_name;
 	case NPCE_ATKFILTER:

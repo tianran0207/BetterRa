@@ -306,6 +306,7 @@ struct Script_Config {
 	// Skill related
 	const char* select_skill_event_name;
 	// Mob related
+	const char* mob_spawn_filter_name;
 	const char* mob_drop_item_filter_name;
 	// ATK related
 	const char* attack_filter_name;

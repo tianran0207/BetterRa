@@ -378,6 +378,7 @@ struct Script_Config script_config = {
 	"OnPCDropItemFilter", //drop_item_filter_name
 	"OnPCSelectItemEvent", //select_item_event_name
 	"OnPCSelectSkillEvent", //select_skill_event_name
+	"OnMOBSpawnFilter", //mob_spawn_filter_name
 	"OnMOBDropItemFilter", //mob_drop_item_filter_name
 	"OnPCAttackFilter", //attack_filter_name
 	"OnPCAttackedFilter", //attacked_filter_name

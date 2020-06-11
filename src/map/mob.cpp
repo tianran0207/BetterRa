@@ -32,6 +32,7 @@
 #include "intif.hpp"
 #include "log.hpp"
 #include "map.hpp"
+#include "mapreg.hpp"
 #include "mercenary.hpp"
 #include "npc.hpp"
 #include "party.hpp"
@@ -1189,8 +1190,19 @@ int mob_spawn (struct mob_data *md)
 
 	if(map_addblock(&md->bl))
 		return 2;
+
+	if (npc_script_hasevent(NPCE_MOBSPAWNFILTER)) {
+		mapreg_setreg(add_str("$@mobspawn_gid"), md->bl.id);
+		npc_script_event_doall(NPCE_MOBSPAWNFILTER);
+		if (npc_event_halt) {
+			unit_free(&md->bl, CLR_OUTSIGHT);
+			return 0;
+		}
+	}
+
 	if( map_getmapdata(md->bl.m)->users )
 		clif_spawn(&md->bl);
+
 	skill_unit_move(&md->bl,tick,1);
 	mobskill_use(md, tick, MSC_SPAWN);
 	return 0;
