@@ -63,10 +63,8 @@ Thumbs.db
 # /lib
 /lib
 
-# /log/
-/log/*.txt
-/log/*.log
-/log/*.leaks
+# /log
+/log
 
 # /src/char/
 /src/char/Makefile
