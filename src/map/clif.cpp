@@ -17173,7 +17173,7 @@ void clif_cashshop_result( struct map_session_data *sd, unsigned short item_id, 
 	struct PACKET_ZC_SE_PC_BUY_CASHITEM_RESULT packet;
 
 	packet.packetType = 0x849;
-	packet.itemId = client_nameid( item_id );
+	packet.itemId = item_id ? client_nameid( item_id ) : 0;
 	packet.result = result;
 	packet.cashPoints = sd->cashPoints;
 	packet.kafraPoints = sd->kafraPoints;

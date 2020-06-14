@@ -174,6 +174,7 @@ uint16 skill_get_index_(uint16 skill_id, bool silent, const char *func, const ch
  * @return AEGIS Skill name
  **/
 const char* skill_get_name( uint16 skill_id ) {
+	if (skill_id == 0 || skill_get_index(skill_id) == 0) return "";
 	return skill_db.find(skill_id)->name;
 }
 
@@ -183,6 +184,7 @@ const char* skill_get_name( uint16 skill_id ) {
  * @return English Skill name
  **/
 const char* skill_get_desc( uint16 skill_id ) {
+	if (skill_id == 0 || skill_get_index(skill_id) == 0) return "";
 	return skill_db.find(skill_id)->desc;
 }
 
