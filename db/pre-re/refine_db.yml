@@ -1,5 +1,5 @@
 ###########################################################################
-# Renewal Refine Database
+# Pre-Renewal Refine Database
 ###########################################################################
 # StatsPerLevel 精炼每增加一级固定增加多少bonus奖励
 # RandomBonusStartLevel 当精炼等级大于该参数时，每大于一级增加 0~RandomBonusValue 倍固定伤害

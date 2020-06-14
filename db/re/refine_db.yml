@@ -19,7 +19,7 @@
 #    - EventEnrichedChance 当 conf 配置中 event_refine_chance 打开时，使用 浓缩铝/浓缩神金（高密度混沌金属/高密度魔力之石） 精炼时的陈功率 （百分率）
 
 Armor:
-  StatsPerLevel: 0 
+  StatsPerLevel: 0
   RandomBonusStartLevel: 0
   RandomBonusValue: 0
   Costs:

@@ -28691,7 +28691,7 @@ Body:
     MaxLevel: 1
     Type: Weapon
     TargetType: Self
-    Range: 9
+    Range: -9
     Hit: Single
     HitCount: 1
     Element: Weapon
@@ -28898,7 +28898,6 @@ Body:
     TargetType: Self
     DamageFlags:
       Splash: true
-    Range: 6
     Hit: Single
     HitCount: 1
     Element: Weapon
@@ -29046,7 +29045,7 @@ Body:
     TargetType: Ground
     DamageFlags:
       Splash: true
-    Range: 4
+    Range: 3
     Hit: Single
     HitCount: 1
     Element: Weapon
