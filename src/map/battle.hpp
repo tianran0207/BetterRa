@@ -820,6 +820,7 @@ struct Battle_Config
 	int ping_timer_interval;
 	int ping_time;
 	int show_skill_scale;
+	int achievement_mob_share;
 
 	int feature_refineui;
 	int feature_stylistui;
