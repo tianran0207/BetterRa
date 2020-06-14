@@ -833,7 +833,7 @@
 2222,’ŸªΩª«Ú
 2223,’ŸªΩ…¡µÁ«Ú
 2224,’ŸªΩÀÆ«Ú
-2225,Summon Attack Fire 
+2225,Summon Attack Fire
 2226,Summon Attack Wind
 2227,Summon Attack Water
 2228,Summon Attack Earth
