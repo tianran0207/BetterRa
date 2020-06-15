@@ -401,8 +401,8 @@ struct map_session_data {
 	int sleep_mes_active;
 	struct s_damage_event {
 		short dmg_type, dmg_skillid, dmg_skilllv, dmg_targettype, dmg_mobid, dmg_mark;
-		int dmg_val, dmg_disp_val, dmg_targetgid;
-		int heal_all, heal_real, heal_targetgid;
+		int64 dmg_val, dmg_disp_val;
+		int heal_all, heal_real, dmg_targetgid, heal_targetgid;
 	}eventparam;
 	struct s_aggro {
 		struct linkdb_node *head;

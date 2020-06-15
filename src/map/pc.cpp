@@ -9818,10 +9818,10 @@ bool pc_setparam(struct map_session_data *sd,int64 type,int64 val_tmp)
 		sd->eventparam.dmg_type = val;
 		return true;
 	case SP_DMG_VAL:
-		sd->eventparam.dmg_val = val;
+		sd->eventparam.dmg_val = val_tmp;
 		return true;
 	case SP_DMG_DISP_VAL:
-		sd->eventparam.dmg_disp_val = val;
+		sd->eventparam.dmg_disp_val = val_tmp;
 		return true;
 	case SP_DMG_SKILLID:
 		sd->eventparam.dmg_skillid = val;
