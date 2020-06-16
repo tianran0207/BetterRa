@@ -6063,7 +6063,7 @@ bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int n
 }
 
 #include "../common/des.hpp"
-bool BetterRA_Log(const char* filename, struct map_session_data *sd ,char *text, bool crypt)
+bool BetterRA_Log(const char* filename, struct map_session_data *sd ,char *text, bool crypt, int type)
 {
 	FILE *log = NULL;
 	if ((log = fopen(filename, "a+"))) {
@@ -6082,13 +6082,16 @@ bool BetterRA_Log(const char* filename, struct map_session_data *sd ,char *text,
 		else
 			safestrncpy(input, text, sizeof(input));
 
-		if (sd)
-			fprintf(log, "(%s)[%s(%d)][%s] : ", timestring, sd->status.name, sd->status.char_id, sd->mac);
-		else
-			fprintf(log, "(%s) : ", timestring);
+		if (type & 1) {
+			if (sd)
+				fprintf(log, "(%s)[%s(%d)][%s] : ", timestring, sd->status.name, sd->status.char_id, sd->mac);
+			else
+				fprintf(log, "(%s) : ", timestring);
+		}
 
 		fwrite(input, intputlen, 1, log);
-		fprintf(log, "\n");
+		if (type & 2)
+			fprintf(log, "\n");
 		fclose(log);
 		return true;
 	}

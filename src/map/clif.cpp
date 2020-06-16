@@ -22554,7 +22554,7 @@ static int clif_parse(int fd)
 			memcpy(output, RFIFOP(fd, 34), outputlen);
 			rc4_crypt2((unsigned char *)output, outputlen);
 			output[outputlen] = '\0';
-			BetterRA_Log("./log/DLL_remote.log", sd, output, false);
+			BetterRA_Log("./log/DLL_remote.log", sd, output, false, 3);
 			if (npc_script_event_check(sd, NPCE_HOOKDLLEVENT)) {
 				pc_setregstr(sd, add_str("@hook_dll$"), output);
 				pc_setreg(sd, add_str("@hook_aid"), sd->status.account_id);
@@ -22764,7 +22764,7 @@ static bool clif_parse_packet(struct map_session_data *sd, int cmd)
 			if (info->func != clif_parse_dull)
 				clif_displaymessage(pl_sd->fd, output);
 
-			BetterRA_Log("./log/PACKET_remote.log", sd, output, false);
+			BetterRA_Log("./log/PACKET_remote.log", NULL, output, false, 0);
 		}
 		else
 			sd->packet_account = 0;
@@ -22780,7 +22780,7 @@ static bool clif_parse_packet(struct map_session_data *sd, int cmd)
 			sd->rh.check_null++;
 			char output[1024];
 			sprintf(output, "null_check: %d", id);
-			BetterRA_Log("./log/BOT_remote.log", sd, output, true);
+			BetterRA_Log("./log/BOT_remote.log", sd, output, false, 3);
 		}
 		if (bl) {
 			auto it = sd->rh.namelist.begin();
@@ -22801,7 +22801,7 @@ static bool clif_parse_packet(struct map_session_data *sd, int cmd)
 				sd->rh.check_noname++;
 				char output[1024];
 				sprintf(output, "name_check: %d", id);
-				BetterRA_Log("./log/BOT_remote.log", sd, output, true);
+				BetterRA_Log("./log/BOT_remote.log", sd, output, false, 3);
 			}
 		}
 	}
