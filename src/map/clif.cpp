@@ -13502,7 +13502,10 @@ void clif_parse_MoveToKafraFromCart(int fd, struct map_session_data *sd){
 		clif_msg( sd, C_ITEM_EQUIP_SWITCH );
 		return;
 	}
-
+	if (map_getmapflag(sd->bl.m, MF_NOCART) || map_getmapflag(sd->bl.m, MF_INVENTORY_DB)) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 2348));
+		return;
+	}
 	if (sd->state.storage_flag == 1)
 		storage_storageaddfromcart(sd, &sd->storage, idx, amount);
 	else if (sd->state.storage_flag == 2)
@@ -13523,7 +13526,10 @@ void clif_parse_MoveFromKafraToCart(int fd, struct map_session_data *sd){
 		return;
 	if (!pc_iscarton(sd))
 		return;
-
+	if (map_getmapflag(sd->bl.m, MF_NOCART) || map_getmapflag(sd->bl.m, MF_INVENTORY_DB)) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 2348));
+		return;
+	}
 	if (sd->state.storage_flag == 1)
 		storage_storagegettocart(sd, &sd->storage, idx, amount);
 	else

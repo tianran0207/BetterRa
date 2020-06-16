@@ -596,6 +596,7 @@
 	export_constant(MF_MVPDROPRATE);
 	export_constant(MF_PARTYLOCK2);
 	export_constant(MF_NOMAIL);
+	export_constant(MF_NOCART);
 	export_constant(MF_MOBSPAWNBASE);
 	export_constant(MF_NOSC);
 	export_constant(MF_NOSKILL2);

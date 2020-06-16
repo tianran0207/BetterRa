@@ -5734,6 +5734,7 @@ static int pc_additem_event(struct map_session_data *sd, enum npce_event ent, st
 				stormax = MAX_CART;
 				source = 2;
 			}
+			break;
 		case LOG_TYPE_STORAGE:
 		case LOG_TYPE_GSTORAGE:
 			if (log_type == LOG_TYPE_NONE)
@@ -5783,7 +5784,7 @@ static int pc_additem_event(struct map_session_data *sd, enum npce_event ent, st
 	pc_setreg(sd, add_str("@recv_source"), source);
 	pc_setreg(sd, add_str("@recv_storid"), storid);
 	pc_setreg(sd, add_str("@recv_idx"), idx);
-	npc_script_event_atonce(sd, NPCE_INVENTORYADDFILTER);
+	npc_script_event_atonce(sd, ent);
 
 	return sd->state.processhalt ? 0 : 1;
 }
@@ -5993,9 +5994,6 @@ bool pc_dropitem(struct map_session_data *sd,int n,int amount)
 		return false;
 	}
 
-	if (!map_addflooritem(&sd->inventory.u.items_inventory[n], amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, pc_get_group_level(sd) < battle_config.item_drop_gmlv ? 2 : 4, 0))
-		return false;
-
 	if (npc_script_event_check(sd, NPCE_DROPITEMFILTER)) {
 		pc_setreg(sd, add_str("@drop_itemid"), sd->inventory.u.items_inventory[n].nameid);
 		pc_setreg(sd, add_str("@drop_amount"), amount);
@@ -6004,6 +6002,9 @@ bool pc_dropitem(struct map_session_data *sd,int n,int amount)
 		if (sd->state.processhalt)
 			return false;
 	}
+
+	if (!map_addflooritem(&sd->inventory.u.items_inventory[n], amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, pc_get_group_level(sd) < battle_config.item_drop_gmlv ? 2 : 4, 0))
+		return false;
 
 	pc_delitem(sd, n, amount, 1, 0, LOG_TYPE_PICKDROP_PLAYER);
 	clif_dropitem(sd, n, amount);
@@ -6553,6 +6554,12 @@ void pc_putitemtocart(struct map_session_data *sd,int idx,int amount)
 		clif_msg( sd, C_ITEM_EQUIP_SWITCH );
 		return;
 	}
+	if (map_getmapflag(sd->bl.m, MF_NOCART) || map_getmapflag(sd->bl.m, MF_INVENTORY_DB)) {
+		clif_additem(sd, idx, amount, 0);
+		clif_delitem(sd, idx, amount, 0);
+		clif_displaymessage(sd->fd, msg_txt(sd, 2348));
+		return;
+	}
 
 	enum e_additem_result flag = pc_cart_additem(sd,item_data,amount,LOG_TYPE_NONE);
 
@@ -6598,7 +6605,10 @@ void pc_getitemfromcart(struct map_session_data *sd,int idx,int amount)
 
 	if (item_data->nameid == 0 || amount < 1 || item_data->amount < amount || sd->state.vending || sd->state.prevend)
 		return;
-
+	if (map_getmapflag(sd->bl.m, MF_NOCART) || map_getmapflag(sd->bl.m, MF_INVENTORY_DB)) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 2348));
+		return;
+	}
 	enum e_additem_result flag = pc_additem(sd, item_data, amount, LOG_TYPE_NONE);
 
 	if (flag == ADDITEM_SUCCESS)

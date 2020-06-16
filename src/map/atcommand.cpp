@@ -4413,6 +4413,8 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " MvpDropRate |");
 	if (map_getmapflag(m_id, MF_NOMAIL))
 		strcat(atcmd_output, " NoMail |");
+	if (map_getmapflag(m_id, MF_NOCART))
+		strcat(atcmd_output, " NoCart |");
 	if (map_getmapflag(m_id, MF_MOBSPAWNBASE))
 		strcat(atcmd_output, " MobSpawnBase |");
 	if (map_getmapflag(m_id, MF_PARTYLOCK2))
