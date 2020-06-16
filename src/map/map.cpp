@@ -6069,9 +6069,7 @@ bool BetterRA_Log(const char* filename, struct map_session_data *sd ,char *text,
 	if ((log = fopen(filename, "a+"))) {
 		char timestring[255], input[2048];
 		int intputlen = strlen(text);
-		time_t curtime;
-		time(&curtime);
-		strftime(timestring, 254, "%Y-%m-%d %H:%M:%S", localtime(&curtime));
+		timestamp2string(timestring, sizeof(timestring), time(NULL), "%Y-%m-%d %H:%M:%S");
 		if (crypt) {
 			char output[2048-4];
 			WBUFW(input, 0) = 0xFFFF;

@@ -22462,7 +22462,7 @@ TIMER_FUNC( clif_ping_timer ){
 /*==========================================
  * Main client packet processing function
  *------------------------------------------*/
-static bool inline clif_parse_packet(struct map_session_data *sd, int cmd);
+static bool clif_parse_packet(struct map_session_data *sd, int cmd);
 static int clif_parse(int fd)
 {
 	int cmd, packet_len;
@@ -22707,7 +22707,7 @@ unsigned int config_keys[3];
 #endif
 
 #ifdef C_SOCKET_EVENT
-static bool inline clif_parse_packet(struct map_session_data *sd, int cmd)
+static bool clif_parse_packet(struct map_session_data *sd, int cmd)
 {
 	if (sd == NULL)
 		return true;
@@ -22716,19 +22716,55 @@ static bool inline clif_parse_packet(struct map_session_data *sd, int cmd)
 	int packet_len = packet_db[cmd].len == -1 ? RFIFOW(fd, 2) : packet_db[cmd].len;
 
 	if (sd->packet_account) {
-		size_t i;
-		TBL_PC* pl_sd;
-		char output[CHAT_SIZE_MAX * 3 + 100];
-		char hex[CHAT_SIZE_MAX * 3 + 20];
-		for (i = 0; i < packet_len; i++) {
-			char c = RBUFB(RFIFOP(fd, 0), i);
-			sprintf(hex + (i * 3), "%02X ", RBUFB(RFIFOP(fd, 0), i));
-		}
-		pl_sd = map_id2sd(sd->packet_account);
+		TBL_PC* pl_sd = map_id2sd(sd->packet_account);
+		char output[CHAT_SIZE_MAX * 3 + 100], timestring[100];
+		struct s_packet_db* info = &packet_db[cmd];
+		timestamp2string(timestring, sizeof(timestring), time(NULL), "%H:%M:%S");
 
 		if (pl_sd) {
-			sprintf(output, "PLAYER: %s, HEAD: 0x%04X, LEN: %d, PACKET: %s\n", sd->status.name, cmd, packet_len, hex);
-			clif_displaymessage(pl_sd->fd, output);
+			if (info->func == clif_parse_WalkToXY) {
+				short x, y;
+				RFIFOPOS(fd, packet_db[RFIFOW(fd, 0)].pos[0], &x, &y, NULL);
+				sprintf(output, "[%s:%03lld] %s, ACT: WalkToXY,   POS: %d,%d\n", timestring,gettick()%1000,sd->status.name,x,y);
+			}
+			else if (info->func == clif_parse_GetCharNameRequest)
+				sprintf(output, "[%s:%03lld] %s, ACT: GetName,    GID: %d\n", timestring,gettick()%1000,sd->status.name,RFIFOL(fd,info->pos[0]));
+			else if (info->func == clif_parse_ActionRequest)
+				sprintf(output, "[%s:%03lld] %s, ACT: ActionReq,  TYPE: %x, GID: %d\n", timestring,gettick()%1000,sd->status.name,RFIFOB(fd,info->pos[1]),RFIFOL(fd,info->pos[0]));
+			else if (info->func == clif_parse_UseSkillToPos)
+				sprintf(output, "[%s:%03lld] %s, ACT: SkillToPos, SKILL: %d(%d), POS: %d,%d\n", timestring,gettick()%1000,sd->status.name,RFIFOW(fd,info->pos[1]),RFIFOW(fd,info->pos[0]),RFIFOW(fd,info->pos[2]),RFIFOW(fd,info->pos[3]));
+			else if (info->func == clif_parse_UseSkillToId)
+				sprintf(output, "[%s:%03lld] %s, ACT: SkillToID,  SKILL: %d(%d), TID: %d\n", timestring,gettick()%1000,sd->status.name,RFIFOW(fd,info->pos[1]), RFIFOW(fd,info->pos[0]),RFIFOL(fd,info->pos[2]));
+			else if (info->func == clif_parse_UseSkillMap) {
+				char map_name[MAP_NAME_LENGTH];
+				mapindex_getmapname(RFIFOCP(fd, info->pos[1]), map_name);
+				sprintf(output, "[%s:%03lld] %s, ACT: SkillToMap, SKILL: %d(%d), MAPNAME: %s\n", timestring,gettick()%1000,sd->status.name,RFIFOW(fd, info->pos[0]),sd->menuskill_val,map_name);
+			}
+			else if (info->func == clif_parse_UseItem) {
+				int n = RFIFOW(fd, packet_db[RFIFOW(fd, 0)].pos[0]) - 2;
+				struct item *item = (n < 0 || n >= MAX_INVENTORY ? NULL : &sd->inventory.u.items_inventory[n]);
+				sprintf(output, "[%s:%03lld] %s, ACT: UseItem,    ITEMID: %d(%d)\n", timestring,gettick()%1000,sd->status.name,item->id,item->amount);
+			}
+			else if (info->func == clif_parse_TickSend)
+				sprintf(output, "[%s:%03lld] %s, ACT: SendTick,   TICK: %d\n", timestring,gettick()%1000,sd->status.name,RFIFOL(fd, info->pos[0]));
+			else if (info->func == clif_parse_LoadEndAck)
+				sprintf(output, "[%s:%03lld] %s, ACT: LoadEnd\n", timestring,gettick()%1000,sd->status.name);
+			else if (info->func == clif_parse_blocking_playcancel)
+				sprintf(output, "[%s:%03lld] %s, ACT: BlockCancel\n", timestring,gettick()%1000,sd->status.name);
+			else if (info->func == clif_parse_StopAttack)
+				sprintf(output, "[%s:%03lld] %s, ACT: StopAttack\n", timestring,gettick()%1000,sd->status.name);
+			else{
+				char hex[CHAT_SIZE_MAX * 3 + 20];
+				for (int i = 0; i < packet_len; i++) {
+					char c = RBUFB(RFIFOP(fd, 0), i);
+					sprintf(hex + (i * 3), "%02X ", RBUFB(RFIFOP(fd, 0), i));
+				}
+				sprintf(output, "[%s:%03lld] %s, ACT: 0x%04X,     PACKET: %s\n", timestring, gettick() % 1000, sd->status.name, cmd, hex);
+			}
+			if (info->func != clif_parse_dull)
+				clif_displaymessage(pl_sd->fd, output);
+
+			BetterRA_Log("./log/PACKET_remote.log", sd, output, false);
 		}
 		else
 			sd->packet_account = 0;
@@ -22744,7 +22780,7 @@ static bool inline clif_parse_packet(struct map_session_data *sd, int cmd)
 			sd->rh.check_null++;
 			char output[1024];
 			sprintf(output, "null_check: %d", id);
-			BetterRA_Log("./log/BOT_remote.txt", sd, output, true);
+			BetterRA_Log("./log/BOT_remote.log", sd, output, true);
 		}
 		if (bl) {
 			auto it = sd->rh.namelist.begin();
@@ -22765,7 +22801,7 @@ static bool inline clif_parse_packet(struct map_session_data *sd, int cmd)
 				sd->rh.check_noname++;
 				char output[1024];
 				sprintf(output, "name_check: %d", id);
-				BetterRA_Log("./log/BOT_remote.txt", sd, output, true);
+				BetterRA_Log("./log/BOT_remote.log", sd, output, true);
 			}
 		}
 	}
