@@ -3482,6 +3482,7 @@ static bool intif_parse_StorageReceived(int fd)
 			chrif_scdata_request(sd->status.account_id, sd->status.char_id);
 			if (sd->state.refresh_inventory) {
 				clif_inventorylist(sd);
+				pc_set_costume_view(sd);
 				sd->state.refresh_inventory = 0;
 			}
 			break;

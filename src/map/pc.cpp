@@ -6868,11 +6868,13 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 			if (new_map_instance_id) // Update instance timer for the map on enter
 				instance_addusers(new_map_instance_id);
 		}
-		if (map_getmapflag(sd->bl.m, MF_INVENTORY_DB) != map_getmapflag(m, MF_INVENTORY_DB)) {
+		if (sd->state.active && map_getmapflag(sd->bl.m, MF_INVENTORY_DB) != map_getmapflag(m, MF_INVENTORY_DB)) {
 			sd->state.refresh_inventory = 1;
 			intif_storage_save(sd, &sd->inventory);
 			memset(&sd->inventory, 0, sizeof(sd->inventory));
 			memset(&sd->inventory_data, 0, sizeof(sd->inventory_data));
+			for (int i = 0, idx = 0; i < EQI_MAX; i++)
+				sd->equip_index[i] = -1;
 			clif_inventorylist(sd);
 		}
 		if (sd->bg_id && !mapdata->flag[MF_BATTLEGROUND]) // Moving to a map that isn't a Battlegrounds
