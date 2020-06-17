@@ -22069,7 +22069,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 	}
 
 	if (npc_script_event_check(sd, NPCE_REFINEUIFILTER)) {
-		uint16 n = pc_search_inventory(sd, 6635);
+		int16 n = pc_search_inventory(sd, 6635);
 		if (sd->status.zeny < materials[i].cost.zeny)
 			return; //Not enough.
 		if (j < 0 || sd->inventory.u.items_inventory[j].amount < 1)
