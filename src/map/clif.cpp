@@ -881,8 +881,10 @@ void clif_dropflooritem( struct flooritem_data* fitem, bool canShowEffect ){
 	short dropEffect = static_cast<short>(get_dropitem_special(3));
 	if (dropEffect != 0) {
 		dropEffect = dropEffect < 0 ? itemdb_dropeffect(fitem->item.nameid) : dropEffect;
+#if defined(PACKETVER_ZERO) || PACKETVER >= 20180418
 		p.showdropeffect = 1;
 		p.dropeffectmode = dropEffect - 1;
+#endif
 	}
 	clif_send( &p, sizeof(p), &fitem->bl, AREA );
 }
