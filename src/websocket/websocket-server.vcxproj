@@ -21,9 +21,9 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4B1E1F3E-2484-4F05-AEC1-25BAF7C59AB5}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>chatserver</RootNamespace>
+    <RootNamespace>websocketserver</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>chat-server</ProjectName>
+    <ProjectName>websocket-server</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -158,15 +158,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="chat.cpp" />
+    <ClCompile Include="robrowser.cpp" />
     <ClCompile Include="support\base64.c" />
     <ClCompile Include="support\sha1.c" />
     <ClCompile Include="support\transcoding.c" />
+    <ClCompile Include="websocket.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chat.hpp" />
+    <ClInclude Include="robrowser.hpp" />
     <ClInclude Include="support\base64.h" />
     <ClInclude Include="support\sha1.h" />
     <ClInclude Include="support\transcoding.h" />
+    <ClInclude Include="websocket.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

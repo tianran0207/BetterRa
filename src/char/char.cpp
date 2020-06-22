@@ -867,9 +867,9 @@ int char_mmo_gender( const struct char_session_data *sd, const struct mmo_charst
 			return SEX_FEMALE;
 #else
 		case 'M':
+			if (!sd) return SEX_MALE;
 		case 'F':
-			// No matter what the database says, always return the account gender
-			return sd->sex;
+			if (!sd) return SEX_FEMALE;
 #endif
 		default:
 			ShowWarning( "Found unknown gender '%c' for character '%s' (CID: %d, AID: %d), returning account gender...\n", sex, p->name, p->char_id, p->account_id );

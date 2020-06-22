@@ -3,23 +3,15 @@
 #ifndef _CHAT_HPP_
 #define _CHAT_HPP_
 
-#include "../common/cbasetypes.hpp"
-#include "../common/mmo.hpp"
-#include "support/base64.h"
-#include "support/sha1.h"
-#include "support/transcoding.h"
-
-int map_fd = -1; //login file descriptor
-int chat_fd = -1; //char file descriptor
+#include "websocket.hpp"
 
 struct ChatServ_Config {
+	bool enable;
 	char userid[NAME_LENGTH];
 	char passwd[NAME_LENGTH];
 	char map_ip_str[128];
 	uint32 map_ip;
 	uint16 map_port;
-	char chat_ip_str[128];
-	uint32 chat_ip;
 	char bind_ip_str[128];
 	uint32 bind_ip;
 	uint16 chat_port;
@@ -32,7 +24,7 @@ struct ChatServ_Config {
 	uint16 global_deley;
 	int display_type;
 };
-extern struct CharServ_Config charserv_config;
+extern struct ChatServ_Config chatserv_config;
 
 struct chat_session_data {
 	bool auth; // whether the session is authed or not
@@ -61,5 +53,10 @@ struct online_chat_data {
 	char nickname[NAME_LENGTH];
 	int fd;
 };
+
+int chat_split_auth(int fd, const char *line);
+
+void do_init_chat(void);
+void do_final_chat(void);
 
 #endif //_CHAT_H_

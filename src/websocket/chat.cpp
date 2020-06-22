@@ -2,22 +2,20 @@
 //
 #include <stdlib.h>
 
-#include "../common/cbasetypes.hpp"
 #include "../common/core.hpp"
-#include "../common/db.hpp"
 #include "../common/malloc.hpp"
-#include "../common/random.hpp"
-#include "../common/msg_conf.hpp"
 #include "../common/showmsg.hpp"
-#include "../common/socket.hpp"
-#include "../common/strlib.hpp"
-#include "../common/timer.hpp"
 #include "../common/sql.hpp"
-#include "../common/cli.hpp"
 
+#include "websocket.hpp"
 #include "chat.hpp"
 
 struct ChatServ_Config chatserv_config;
+
+#define CHAT_SIZE_MAX 255
+int map_fd = -1; //login file descriptor
+int chat_fd = -1; //char file descriptor
+
 DBMap* online_chat_db;
 Sql* sql_handle = NULL;
 
@@ -47,162 +45,24 @@ bool chat_config_read(const char* cfgName, bool issql) {
 
 		remove_control_chars(w1);
 		remove_control_chars(w2);
-		
-		if (issql) {
-			if (strcmpi(w1, "map_server_ip") == 0)
-				strcpy(chat_server_ip, w2);
-			else if (strcmpi(w1, "map_server_port") == 0)
-				chat_server_port = atoi(w2);
-			else if (strcmpi(w1, "map_server_id") == 0)
-				strcpy(chat_server_id, w2);
-			else if (strcmpi(w1, "map_server_pw") == 0)
-				strcpy(chat_server_pw, w2);
-			else if (strcmpi(w1, "map_server_db") == 0)
-				strcpy(chat_server_db, w2);
-			else if (strcmpi(w1, "default_codepage") == 0)
-				strcpy(default_codepage, w2);
-		}else if (strcmpi(w1, "map_ip") == 0) {
-			chatserv_config.map_ip = host2ip(w2);
-			if (chatserv_config.map_ip) {
-				char ip_str[16];
-				safestrncpy(chatserv_config.map_ip_str, w2, sizeof(chatserv_config.map_ip_str));
-				ShowStatus("Login server IP address : %s -> %s\n", w2, ip2str(chatserv_config.map_ip, ip_str));
-			}
-		}else if (strcmpi(w1, "map_port") == 0) {
-			chatserv_config.map_port = atoi(w2);
-		}else if (strcmpi(w1, "chat_ip") == 0) {
-			chatserv_config.chat_ip = host2ip(w2);
-			if (chatserv_config.chat_ip) {
-				char ip_str[16];
-				safestrncpy(chatserv_config.chat_ip_str, w2, sizeof(chatserv_config.chat_ip_str));
-				ShowStatus("Character server IP address : %s -> %s\n", w2, ip2str(chatserv_config.chat_ip, ip_str));
-			}
-		}else if (strcmpi(w1, "bind_ip") == 0) {
-			chatserv_config.bind_ip = host2ip(w2);
-			if (chatserv_config.bind_ip) {
-				char ip_str[16];
-				safestrncpy(chatserv_config.bind_ip_str, w2, sizeof(chatserv_config.bind_ip_str));
-				ShowStatus("Character server binding IP address : %s -> %s\n", w2, ip2str(chatserv_config.bind_ip, ip_str));
-			}
-		}else if (strcmpi(w1, "chat_port") == 0) {
-			chatserv_config.chat_port = atoi(w2);
-		}else if (strcmpi(w1, "listen_group") == 0) {
-			chatserv_config.listen_group = atoi(w2);
-		}else if (strcmpi(w1, "global_min_group") == 0) {
-			chatserv_config.global_min_group = atoi(w2);
-		}else if (strcmpi(w1, "global_min_reg_time") == 0) {
-			chatserv_config.global_min_reg_time = atoi(w2);
-		}else if (strcmpi(w1, "global_world_clan") == 0) {
-			safestrncpy(chatserv_config.global_world_clan, w2, sizeof(chatserv_config.global_world_clan));
-		}else if (strcmpi(w1, "web_client_prefix") == 0) {
-			safestrncpy(chatserv_config.web_client_prefix, w2, sizeof(chatserv_config.web_client_prefix));
-		}else if (strcmpi(w1, "global_color") == 0) {
-			safestrncpy(chatserv_config.global_color, w2, sizeof(chatserv_config.global_color));
-		}else if (strcmpi(w1, "global_deley") == 0) {
-			chatserv_config.global_deley = atoi(w2);
-		}else if (strcmpi(w1, "display_type") == 0) {
-			chatserv_config.display_type = atoi(w2);
-		}else if (strcmpi(w1, "userid") == 0) {
-			safestrncpy(chatserv_config.userid, w2, sizeof(chatserv_config.userid));
-		}else if (strcmpi(w1, "passwd") == 0) {
-			safestrncpy(chatserv_config.passwd, w2, sizeof(chatserv_config.passwd));
-		}
+		if (strcmpi(w1, "map_server_ip") == 0)
+			strcpy(chat_server_ip, w2);
+		else if (strcmpi(w1, "map_server_port") == 0)
+			chat_server_port = atoi(w2);
+		else if (strcmpi(w1, "map_server_id") == 0)
+			strcpy(chat_server_id, w2);
+		else if (strcmpi(w1, "map_server_pw") == 0)
+			strcpy(chat_server_pw, w2);
+		else if (strcmpi(w1, "map_server_db") == 0)
+			strcpy(chat_server_db, w2);
+		else if (strcmpi(w1, "default_codepage") == 0)
+			strcpy(default_codepage, w2);
 	}
 
 	fclose(fp);
 
 	ShowInfo("Done reading %s.\n", cfgName);
 	return true;
-}
-
-#define CHAT_MAX_MSG 300	//max number of msg_conf
-#define CHAT_SIZE_MAX 255
-static char* msg_table[CHAT_MAX_MSG]; // Login Server messages_conf
-
-int chat_msg_read(const char *cfgName) {
-	return _msg_config_read(cfgName, CHAT_MAX_MSG, msg_table);
-}
-const char* chat_msg_txt(int msg_number) {
-	return _msg_txt(msg_number, CHAT_MAX_MSG, msg_table);
-}
-void chat_msg_final(void) {
-	_do_final_msg(CHAT_MAX_MSG, msg_table);
-}
-
-static char* gethttpheadline(char** buf) {
-	char *pos, *line;
-	pos = strchr(*buf, '\r\n');
-	if (pos == NULL)
-		return NULL;
-	*pos = '\0'; *(pos + 1) = '\0';
-	line = *buf; *buf = pos + 2;
-	return line;
-}
-
-static uint64 recv_decode(int fd, unsigned char *buf, char *decoded, int maxlen) {
-	unsigned char Uint64byte[8], masks[4];
-	uint64 len, packetlen;
-	int i;
-	unsigned char *data;
-
-	len = buf[1] & 127;
-	switch (len) {
-	case 126:
-		len = (uint16)(buf[2] << 8 | buf[3]);
-		packetlen = len + 8;
-		memcpy(masks, buf + 4, 4);
-		data = buf + 8;
-		break;
-	case 127:
-
-		for (i = 0; i < 8; i++)
-			Uint64byte[i] = buf[9 - i];
-
-		len = *(uint64 *)Uint64byte;
-		packetlen = len + 14;
-		memcpy(masks, buf + 10, 4);
-		data = buf + 14;
-		break;
-	default:
-		memcpy(masks, buf + 2, 4);
-		packetlen = len + 6;
-		data = buf + 6;
-		break;
-	}
-
-	for (i = 0; i < len && i < maxlen; i++)
-		decoded[i] = data[i] ^ masks[i % 4];
-
-	decoded[i] = '\0';
-
-	return packetlen;
-}
-
-static int send_message(int fd, char *buf) {
-	unsigned char sendbuf[2048],temp[2048];
-	int lenght;
-
-	if (!gbk2utf8(buf, (char *)sendbuf, 2048))
-		return 1;
-
-	lenght = strlen((char *)sendbuf);
-	temp[0] = 0x81;
-	if (lenght < 125) {
-		temp[1] = lenght;
-		memcpy(temp + 2, sendbuf, lenght);
-		lenght += 2;
-	}
-	else {
-		temp[1] = 126;
-		temp[2] = lenght >> 8;
-		temp[3] = lenght & 255;
-		memcpy(temp + 4, sendbuf, lenght);
-		lenght += 4;
-	}
-	WFIFOHEAD(fd, lenght);
-	memcpy(WFIFOCP(fd, 0), temp, lenght);
-	WFIFOSET(fd, lenght);
-	return 1;
 }
 
 static bool chat_auth_ok(int fd, const char *nickname, const char *password) {
@@ -283,102 +143,6 @@ static bool chat_auth_ok(int fd, const char *nickname, const char *password) {
 	return true;
 }
 
-const char handshake[] = "HTTP/1.1 101 Switching Protocols\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Accept: %s\r\n\r\n";
-static int inclif_parse_websocket(int fd) {
-	int result = 0, len;
-	char *buf, *line;
-	char *seckey = NULL, *name;
-	char accept[128];
-	SHA1_CTX sha; 
-	uint8_t sha1code[20]; 
-	char reply[1024];
-	
-	if (RFIFOREST(fd) < 3 || RFIFOREST(fd) > 2048)
-		return 1;
-
-	buf = RFIFOCP(fd, 0);
-	if (strstr(buf, "GET") != buf || (line = strstr(buf, "\r\n\r\n")) == NULL)
-		return 0;
-
-	RFIFOSKIP(fd, line - buf + 4);
-
-	while (*line != '\0') {
-		char name_gbk[128], password_gbk[128];
-		line = gethttpheadline(&buf);
-
-		if (buf == NULL || line == NULL)
-			break;
-
-		if (!strnicmp(line, "GET", 3)) {
-			char temp[64];
-			char *password, *tempp;
-
-			line = line + 5; 
-			name = temp;
-			if ((tempp = strchr(line, ' ')) == NULL) {
-				set_eof(fd); 
-				return 0; 
-			}
-			*tempp = '\0';
-			base64_decode(line, strlen(line), (unsigned char *)temp);
-			if ((tempp = strchr(temp, '|')) == NULL) {
-				set_eof(fd); 
-				return 0; 
-			}
-			*tempp = '\0'; 
-			password = tempp + 1;
-
-			if (!utf82gbk(name, name_gbk, 128) || !utf82gbk(password, password_gbk, 128)) {
-				set_eof(fd);
-				return 0;
-			}
-
-			if(!chat_auth_ok(fd, name_gbk, password_gbk)){
-				set_eof(fd); 
-				return 0; 
-			}
-
-			result++;
-		}
-		else if (!strnicmp(line, "Connection", 10)) {
-			line = strchr(line, ':') + 2;
-			if (line && !strcmp(line, "Upgrade"))
-				result++;
-		}
-		else if (!strnicmp(line, "Upgrade", 7)) {
-			line = strchr(line, ':') + 2;
-			if (line && !strcmp(line, "websocket"))
-				result++;
-		}
-		else if (!strnicmp(line, "Sec-WebSocket-Version", 21)) {
-			line = strchr(line, ':') + 2;
-			if (line && !strcmp(line, "13"))
-				result++;
-		}
-		else if (!strnicmp(line, "Sec-WebSocket-Key", 17)) {
-			seckey = strchr(line, ':') + 2;
-		}
-	}
-	
-
-	if (result != 4 || seckey == NULL || seckey[0] == '\0')
-		return 0;
-
-	sprintf(seckey, "%s258EAFA5-E914-47DA-95CA-C5AB0DC85B11", seckey);
-	
-	len = strlen(seckey);
-	SHA1Init(&sha); 
-	SHA1Update(&sha, (uint8_t *)seckey, len);
-	SHA1Final(sha1code, &sha);
-	base64_encode(sha1code, sizeof(sha1code), accept);
-	sprintf(reply, handshake, accept);
-	len = strlen(reply);
-	WFIFOHEAD(fd, len);
-	memcpy(WFIFOP(fd, 0), reply, len);
-	WFIFOSET(fd, len);
-	return 1;
-}
-
 enum chat_type {
 	PKL_GLOBAL,
 	PKL_PARTY,
@@ -388,13 +152,27 @@ enum chat_type {
 
 static void PrintMessage(char *msg, int type, bool send) {
 	if (send)
-		ShowInfo("Receive: %s %s\n", chat_msg_txt(type), msg + 3);
+		ShowInfo("Receive: %s %s\n", websocket_msg_txt(type), msg + 3);
 	else
-		ShowInfo("Send: %s %s\n", chat_msg_txt(type), msg + 3);
+		ShowInfo("Send: %s %s\n", websocket_msg_txt(type), msg + 3);
+}
+
+int chat_split_auth (int fd, const char *line)
+{
+	char temp[1024], temp_gbk[1024], name[128], password[128];
+	base64_decode(line, strlen(line), (unsigned char *)temp);
+	utf82gbk(temp, temp_gbk, 1024);
+	if (sscanf(line, "%127[^|]|%127[^\r\n]", name, password) != 2)
+		return 0;
+	if (!chat_auth_ok(fd, name, password))
+		return 0;
+
+	return 1;
 }
 
 static bool chat_mapif_isconnected();
-static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
+static int inclif_parse_receive(int fd, struct chat_session_data *sd)
+{
 	int packetlen;
 	char decoded[2048], gbkcode[2048], nickname[NAME_LENGTH];
 	unsigned char *buf = (unsigned char *)RFIFOCP(fd, 0);
@@ -402,15 +180,18 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 	DBIterator* iter;
 	struct online_chat_data *od;
 
-	if ((packetlen = (int)recv_decode(fd, buf, decoded, 2048)) == 0)
+	if (sd == NULL)
+		return 0;
+
+	if ((packetlen = (int)websocket_decode(fd, buf, decoded, 2048)) == 0)
 		return 1;
 	else
 		RFIFOSKIP(fd, packetlen);
 	if (!strcmp(decoded,"HBT")) { //ÐÄÌø°ü
 		t_tick tick = gettick();
 		if (sd->beattick + 10000 > tick) {
-			safesnprintf(gbkcode, CHAT_SIZE_MAX, "WR:%s", chat_msg_txt(10));
-			send_message(fd, gbkcode);
+			safesnprintf(gbkcode, CHAT_SIZE_MAX, "WR:%s", websocket_msg_txt(10));
+			websocket_send_str(fd, gbkcode);
 			set_eof(fd);
 			return 1;
 		}
@@ -430,8 +211,8 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 
 	if (!utf82gbk(decoded + 3, gbkcode, CHAT_SIZE_MAX)) {
 		char message[CHAT_SIZE_MAX];
-		sprintf(message, chat_msg_txt(21), CHAT_SIZE_MAX);
-		send_message(fd, message);
+		sprintf(message, websocket_msg_txt(21), CHAT_SIZE_MAX);
+		websocket_send_str(fd, message);
 		return 1;
 	}
 	
@@ -440,14 +221,14 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 	case PKL_GLOBAL:
 		if (sd->group_id < chatserv_config.global_min_group) {
 			char message[CHAT_SIZE_MAX];
-			sprintf(message, chat_msg_txt(22), chatserv_config.global_min_group);
-			send_message(fd, message);
+			sprintf(message, websocket_msg_txt(22), chatserv_config.global_min_group);
+			websocket_send_str(fd, message);
 			return 1;
 		}
 		if (sd->global_tick + chatserv_config.global_deley > gettick()) {
 			char message[CHAT_SIZE_MAX];
-			sprintf(message, chat_msg_txt(20), chatserv_config.global_deley / 1000);
-			send_message(fd, message);
+			sprintf(message, websocket_msg_txt(20), chatserv_config.global_deley / 1000);
+			websocket_send_str(fd, message);
 			return 1;
 		}
 		sd->global_tick = gettick();
@@ -463,14 +244,14 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 		sprintf(gbkcode, "GL:%s", decoded);
 		iter = db_iterator(online_chat_db);
 		for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
-			send_message(od->fd, gbkcode);
+			websocket_send_str(od->fd, gbkcode);
 		}
 		dbi_destroy(iter);
 		break;
 	case PKL_PARTY:
 		if (sd->party_id <= 0) {
-			sprintf(gbkcode, "PR:WR:%s", chat_msg_txt(11));
-			send_message(fd, gbkcode);
+			sprintf(gbkcode, "PR:WR:%s", websocket_msg_txt(11));
+			websocket_send_str(fd, gbkcode);
 			return 1;
 		}
 		sprintf(decoded, "%s%s : %s", chatserv_config.web_client_prefix, sd->nickname, gbkcode);
@@ -487,14 +268,14 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 		iter = db_iterator(online_chat_db);
 		for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
 			if (sd->party_id == od->party_id)
-			send_message(od->fd, gbkcode);
+			websocket_send_str(od->fd, gbkcode);
 		}
 		dbi_destroy(iter);
 		break;
 	case PKL_GUILD:
 		if (sd->guild_id <= 0) {
-			sprintf(gbkcode, "GU:WR:%s", chat_msg_txt(12));
-			send_message(fd, gbkcode);
+			sprintf(gbkcode, "GU:WR:%s", websocket_msg_txt(12));
+			websocket_send_str(fd, gbkcode);
 			return 1;
 		}
 		sprintf(decoded, "%s%s : %s", chatserv_config.web_client_prefix, sd->nickname, gbkcode);
@@ -511,7 +292,7 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 		iter = db_iterator(online_chat_db);
 		for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
 			if (sd->guild_id == od->guild_id)
-				send_message(od->fd, gbkcode);
+				websocket_send_str(od->fd, gbkcode);
 		}
 		dbi_destroy(iter);
 		break;
@@ -537,9 +318,9 @@ static int inclif_parse_receive(int fd, struct chat_session_data *sd) {
 		iter = db_iterator(online_chat_db);
 		for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
 			if (!strcmp(od->nickname, nickname))
-				send_message(od->fd, gbkcode);
+				websocket_send_str(od->fd, gbkcode);
 		}
-		send_message(fd, gbkcode);
+		websocket_send_str(fd, gbkcode);
 		dbi_destroy(iter);
 		break;
 	}
@@ -586,12 +367,11 @@ int chatclif_parse(int fd) {
 		unsigned short cmd;
 
 		cmd = RFIFOB(fd, 0);
-		switch (cmd) {
-		
-		case 'g': case 'G': next = inclif_parse_websocket(fd); break;
+		switch (cmd)
+		{
+		case 'G': next = websocket_websocket_check(fd, chat_split_auth); break;
 		case 129: next = inclif_parse_receive(fd, sd); break;
 		case 136: next = inclif_parse_close(fd, sd); break;
-		
 		// unknown packet received
 		default:
 			ShowError("parse_char: Received unknown packet " CL_WHITE "0x%x" CL_RESET " from ip '" CL_WHITE "%s" CL_RESET "'! Disconnecting!\n", RFIFOW(fd, 0), ip2str(ipl, NULL));
@@ -695,7 +475,7 @@ static int chat_mapif_GlobalMessage(int fd) {
 	iter = db_iterator(online_chat_db);
 	for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
 		if (chatserv_config.listen_group >= od->guild_id)
-			send_message(od->fd, message);
+			websocket_send_str(od->fd, message);
 	}
 	dbi_destroy(iter);
 	PrintMessage(message, PKL_GLOBAL, false);
@@ -712,7 +492,7 @@ static int chat_mapif_PartyMessage(int fd) {
 	iter = db_iterator(online_chat_db);
 	for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
 		if (chatserv_config.listen_group >= od->guild_id || od->party_id == party_id)
-			send_message(od->fd, message);
+			websocket_send_str(od->fd, message);
 	}
 	dbi_destroy(iter);
 	PrintMessage(message, PKL_PARTY, false);
@@ -729,7 +509,7 @@ static int chat_mapif_GuildMessage(int fd) {
 	iter = db_iterator(online_chat_db);
 	for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
 		if (chatserv_config.listen_group >= od->guild_id || od->guild_id == guild_id)
-			send_message(od->fd, message);
+			websocket_send_str(od->fd, message);
 	}
 	dbi_destroy(iter);
 	PrintMessage(message, PKL_GUILD, false);
@@ -749,7 +529,7 @@ static int chat_mapif_WisMessage(int fd) {
 	iter = db_iterator(online_chat_db);
 	for (od = (struct online_chat_data *)dbi_first(iter); dbi_exists(iter); od = (struct online_chat_data *)dbi_next(iter)) {
 		if (*message == 'G'|| chatserv_config.listen_group >= od->guild_id || !strcmp(name, od->nickname))
-			send_message(od->fd, message);
+			websocket_send_str(od->fd, message);
 	}
 	dbi_destroy(iter);
 	PrintMessage(message, PKL_WHISPER, false);
@@ -766,18 +546,18 @@ static int chat_mapif_error(int fd) {
 		ShowWarning("Connection failure. interface disable, please check 'conf/battle/BattleRa.conf -> chat_server_interface'..\n");
 		return 1;
 	case 3: // no party
-		sprintf(message, "PR:WR:%s", chat_msg_txt(15));
+		sprintf(message, "PR:WR:%s", websocket_msg_txt(15));
 		break;
 	case 4: // no guild
-		sprintf(message, "GU:WR:%s", chat_msg_txt(16));
+		sprintf(message, "GU:WR:%s", websocket_msg_txt(16));
 		break;
 	case 5: // no online
-		sprintf(message, "WS:WR:%s", chat_msg_txt(17));
+		sprintf(message, "WS:WR:%s", websocket_msg_txt(17));
 		break;
 	}
 
 	if (od != NULL)
-		send_message(od->fd, message);
+		websocket_send_str(od->fd, message);
 
 	return 1;
 }
@@ -853,27 +633,14 @@ static int chat_mapif_parse(int fd) {
 	return 0;
 }
 
-int do_init(int argc, char** argv)
+void do_init_chat(void)
 {
-
-	const char* CHAT_CONF_NAME = CONF_PATH "/chat_athena.conf";
 	const char* SQL_CONF_NAME = CONF_PATH "/inter_athena.conf";
-	const char* MSG_CONF_NAME_EN = CONF_PATH "/msg_conf/chat_msg.conf";
 
-	memset(&chatserv_config, 0, sizeof(chatserv_config));
+	if (!chatserv_config.enable)
+		return;
 
-	chatserv_config.map_ip = 0;
-	chatserv_config.map_port = 5121;
-	chatserv_config.chat_ip = 0;
-	chatserv_config.bind_ip = INADDR_ANY;
-	chatserv_config.chat_port = 8080;
-	safestrncpy(chatserv_config.userid, "s1", sizeof(chatserv_config.userid));
-	safestrncpy(chatserv_config.passwd, "p1", sizeof(chatserv_config.passwd));
-	safestrncpy(chatserv_config.global_color, "0xFFFFFF", sizeof(chatserv_config.global_color));
-
-	chat_config_read(CHAT_CONF_NAME, false);
 	chat_config_read(SQL_CONF_NAME, true);
-	chat_msg_read(MSG_CONF_NAME_EN);
 	online_chat_db = uidb_alloc(DB_OPT_RELEASE_DATA);
 
 	sql_handle = Sql_Malloc();
@@ -902,21 +669,10 @@ int do_init(int argc, char** argv)
 
 	ShowStatus("Connect map-server after " CL_GREEN " 15 seconds" CL_RESET ".\n", chatserv_config.chat_port);
 	ShowStatus("The chat-server is " CL_GREEN "ready" CL_RESET " (Server is listening on the port %d).\n", chatserv_config.chat_port);
-	
-	return 0;
 }
 
-void do_abort(void)
-{
-}
-
-void set_server_type(void)
-{
-}
-
-void do_final(void)
+void do_final_chat(void)
 {
 	do_close(map_fd);
 	do_close(chat_fd);
-	chat_msg_final();
 }
