@@ -29935,6 +29935,63 @@ BUILDIN_FUNC(broadcast_item)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(getmapinfo)
+{
+	const char *mapname = script_getstr(st, 2);
+	int16 mapid, j = 0;
+	if (!strcmp("this", mapname)) {
+		TBL_PC* sd;
+		if (!script_charid2sd(4, sd))
+			return SCRIPT_CMD_FAILURE;
+		else
+			mapid = sd->bl.m;
+	}
+	else if ((mapid = map_mapname2mapid(mapname)) == -1) {
+		script_pushint(st, -1);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	struct map_data *mapdata = map_getmapdata(mapid);
+
+	switch (script_getnum(st, 3)) {
+	case 1: script_pushint(st, mapdata->m); break;
+	case 2: script_pushstrcopy(st, mapdata->name); break;
+	case 3: script_pushint(st, mapdata->instance_id); break;
+	case 4: script_pushint(st, mapdata->xs); break;
+	case 5: script_pushint(st, mapdata->ys); break;
+	case 6:
+		for (int i = 0; i < MAX_MOB_LIST_PER_MAP; i++) {
+			if (!mapdata->moblist[i])
+				continue;
+			mapreg_setreg(reference_uid(add_str("$@spawn_mobid"), j), mapdata->moblist[i]->id);
+			mapreg_setreg(reference_uid(add_str("$@spawn_amount"), j), mapdata->moblist[i]->num);
+			j++;
+		}
+		script_pushint(st, j);
+		break;
+	default:
+		script_pushint(st, -1);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getmobspawninfo)
+{
+	const std::vector<spawn_info> spawns = mob_get_spawns(script_getnum(st, 2));
+	if (spawns.size() > 0) {
+		int i = 0;
+		for (auto& spawn : spawns) {
+			const char* mapname = mapindex_id2name(spawn.mapindex);
+			mapreg_setregstr(reference_uid(add_str("$@spawn_mapname$"), i), mapname);
+			mapreg_setreg(reference_uid(add_str("$@spawn_amount"), i), spawn.qty);
+			i++;
+		}
+	}
+	mapreg_setreg(add_str("$@spawn_count"), spawns.size());
+	script_pushint(st, spawns.size());
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	TBL_PC *sd;
@@ -30971,6 +31028,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(delinventorybyidx, "delguildstorageidx", "ii??"),
 	BUILDIN_DEF(mobaggroswitch, "ii"),
 	BUILDIN_DEF(broadcast_item, "iiii"),
+	BUILDIN_DEF(getmapinfo, "si?"),
+	BUILDIN_DEF(getmobspawninfo, "i"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),

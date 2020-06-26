@@ -292,7 +292,7 @@ struct Script_Config {
 	const char* manner_filter_name;
 	// Move related
 	const char* move_filter_name;
-	// Trade_add_related
+	// Trade_related
 	const char* open_vend_filter_name;
 	const char* trade_add_filter_name;
 	const char* mail_add_filter_name;
@@ -315,6 +315,8 @@ struct Script_Config {
 	const char* bonus_filter_name;
 	// Produce related
 	const char* produce_filter_name;
+	// Shop related
+	const char* sell_list_filter_name;
 	// Hook related
 	const char* hook_dll_event_name;
 	const char* socket_recv_filter_name;
