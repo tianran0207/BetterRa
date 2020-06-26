@@ -307,9 +307,6 @@ enum e_race : int8{
 	RC_DRAGON,
 	RC_PLAYER_HUMAN,
 	RC_PLAYER_DORAM,
-#ifdef ALONE_SUMMONER
-	RC_SUMMONER,
-#endif
 	RC_ALL,
 	RC_MAX //auto upd enum for array size
 };

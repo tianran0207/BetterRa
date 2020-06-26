@@ -3757,9 +3757,6 @@
 	export_constant(RC_PLAYER_HUMAN);
 	export_constant(RC_PLAYER_DORAM);
 	export_deprecated_constant3("RC_PLAYER", RC_PLAYER_HUMAN, "RC_PLAYER_HUMAN");
-#ifdef ALONE_SUMMONER
-	export_constant(RC_SUMMONER);
-#endif
 	export_constant(RC_ALL);
 
 	export_constant(RC2_NONE);

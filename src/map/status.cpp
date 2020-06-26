@@ -4038,9 +4038,6 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	base_status->aspd_rate = 1000;
 	base_status->ele_lv = 1;
 	base_status->race = ((sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER) ? battle_config.summoner_race : RC_PLAYER_HUMAN;
-#ifdef ALONE_SUMMONER
-	base_status->race = ((sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER) ? RC_SUMMONER : RC_PLAYER;
-#endif
 	base_status->class_ = CLASS_NORMAL;
 
 	sd->autospell.clear();
