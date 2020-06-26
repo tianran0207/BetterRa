@@ -46,6 +46,7 @@ struct login_session_data {
 
 	int fd;				///socket of client
 
+	char web_auth_token[WEB_AUTH_TOKEN_LENGTH]; /// web authentication token
 #if C_SOCKET_ENCRYPT > 0
 	char mac[33];
 #endif
@@ -114,6 +115,7 @@ struct Login_Config {
 		unsigned int char_increase;					/// number of char-slot to increase in VIP state
 	} vip_sys;
 #endif
+	bool use_web_auth_token;						/// Enable web authentication token system
 };
 extern struct Login_Config login_config;
 

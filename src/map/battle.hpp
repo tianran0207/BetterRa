@@ -239,7 +239,6 @@ struct Battle_Config
 	int homunculus_killed_drop;
 	int remove_noinfo_pet;
 	int multiple_script_state;
-	int hidenpc_willbe_disable;
 	int cannonball_attr_alone;
 	int questinfo_updatewarning;
 	int item_noequip_deny_all;
@@ -796,7 +795,8 @@ struct Battle_Config
 	int switch_remove_edp;
 	int feature_homunculus_autofeed;
 	int feature_homunculus_autofeed_rate;
-	int summoner_trait;
+	int summoner_race;
+	int summoner_size;
 	int homunculus_autofeed_always;
 	int feature_attendance;
 	int feature_privateairship;
@@ -821,6 +821,7 @@ struct Battle_Config
 	int ping_time;
 	int show_skill_scale;
 	int achievement_mob_share;
+	int slave_stick_with_master;
 
 	int feature_refineui;
 	int feature_stylistui;

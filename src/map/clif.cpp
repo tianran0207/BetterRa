@@ -6922,6 +6922,9 @@ void clif_use_card(struct map_session_data *sd,int idx)
 		if(sd->inventory_data[i]->type==IT_WEAPON && ep==EQP_SHIELD) //Shield card won't go on left weapon.
 			continue;
 
+		if(sd->inventory_data[i]->type == IT_ARMOR && (ep & EQP_ACC) && ((ep & EQP_ACC) != EQP_ACC) && ((sd->inventory_data[i]->equip & EQP_ACC) != (ep & EQP_ACC)) ) // specific accessory-card can only be inserted to specific accessory.
+			continue;
+
 		ARR_FIND( 0, sd->inventory_data[i]->slot, j, sd->inventory.u.items_inventory[i].card[j] == 0 );
 		if( j == sd->inventory_data[i]->slot )	// No room
 			continue;
@@ -11076,7 +11079,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 	// For automatic triggering of NPCs after map loading (so you don't need to walk 1 step first)
 	if (map_getcell(sd->bl.m,sd->bl.x,sd->bl.y,CELL_CHKNPC))
-		npc_touch_areanpc(sd,sd->bl.m,sd->bl.x,sd->bl.y);
+		npc_touch_area_allnpc(sd,sd->bl.m,sd->bl.x,sd->bl.y);
 	else
 		sd->areanpc.clear();
 
@@ -18532,41 +18535,20 @@ void clif_instance_changestatus(int instance_id, e_instance_notify type, unsigne
 	return;
 }
 
-void clif_parse_InstanceDestroy(int fd, struct map_session_data *sd)
+/// Destroy an instance from the status window
+/// 02cf <command>.L (CZ_MEMORIALDUNGEON_COMMAND)
+void clif_parse_MemorialDungeonCommand(int fd, map_session_data *sd)
 {
-#if PACKETVER >= 20071128
-	struct s_packet_db* info = &packet_db[RFIFOW(fd, 0)];
-	struct party_data *pd = NULL;
-	struct guild *gd = NULL;
-	struct clan *cd = NULL;
-	unsigned short instance_id = 0;
-	int i;
-
-	if (RFIFOL(fd, info->pos[0]) != 3)
+	if (pc_istrading(sd) || pc_isdead(sd) || map_getmapdata(sd->bl.m)->instance_id > 0)
 		return;
 
-	if (sd->instance_id)
-		instance_id = sd->instance_id;
-	if (instance_id == 0 && sd->status.party_id && (pd = party_search(sd->status.party_id)) != NULL && pd->instance_id) {
-		ARR_FIND(0, MAX_PARTY, i, pd->party.member[i].leader);
-		if (i != MAX_PARTY && pd->party.member[i].char_id == sd->status.char_id)
-			instance_id = pd->instance_id;
-	}
-	if (instance_id == 0 && sd->status.guild_id && (gd = guild_search(sd->status.guild_id)) != NULL && gd->instance_id) {
-		if (gd->member[0].char_id == sd->status.char_id) 
-			instance_id = gd->instance_id;
-	}
-	if (instance_id == 0 && sd->status.clan_id && (cd = clan_search(sd->status.clan_id)) != NULL && cd->instance_id) {
-		if (!strcmp(sd->status.name, cd->master))
-			instance_id = cd->instance_id;
-	}
+	const PACKET_CZ_MEMORIALDUNGEON_COMMAND *p = (PACKET_CZ_MEMORIALDUNGEON_COMMAND *)RFIFOP(fd, 0);
 
-	if (instance_id == 0) {
-		ShowError("clif_parse_InstanceDestroy: Trying to destroy invalid instance %hu.\n", instance_id);
-		return;
+	switch (p->command) {
+		case COMMAND_MEMORIALDUNGEON_DESTROY_FORCE:
+			instance_destroy_command(sd);
+			break;
 	}
-	instance_destroy(instance_id);
-#endif
 }
 
 /// Notifies clients about item picked up by a party member.
@@ -19695,6 +19677,15 @@ static void clif_loadConfirm( struct map_session_data *sd ){
 	p.packetType = HEADER_ZC_LOAD_CONFIRM;
 
 	clif_send( &p, sizeof(p), &sd->bl, SELF );
+
+	if (sd->instance_id > 0)
+		instance_reqinfo(sd, sd->instance_id);
+	if (sd->status.party_id > 0)
+		party_member_joined(sd);
+	if (sd->status.guild_id > 0)
+		guild_member_joined(sd);
+	if (sd->status.clan_id > 0)
+		clan_member_joined(sd);
 #endif
 }
 
@@ -20565,9 +20556,9 @@ void clif_roulette_generate( struct map_session_data *sd, unsigned char result, 
 	p.Step = stage;
 	p.Idx = prizeIdx;
 	p.AdditionItemID = bonusItemID;
-	p.RemainBronze = sd->roulette_point.gold;
-	p.RemainGold = sd->roulette_point.silver;
-	p.RemainSilver = sd->roulette_point.bronze;
+	p.RemainGold = sd->roulette_point.gold;
+	p.RemainSilver = sd->roulette_point.silver;
+	p.RemainBronze = sd->roulette_point.bronze;
 
 	clif_send( &p, sizeof( p ), &sd->bl, SELF );
 }
@@ -21715,23 +21706,26 @@ void clif_guild_storage_log( struct map_session_data* sd, std::vector<struct gui
 #if PACKETVER >= 20140205
 	nullpo_retv( sd );
 
-	static struct PACKET_ZC_ACK_GUILDSTORAGE_LOG guild_storage_log;
-	int size = sizeof( struct PACKET_ZC_ACK_GUILDSTORAGE_LOG );
+	int fd = sd->fd;
+	int16 size = sizeof( struct PACKET_ZC_ACK_GUILDSTORAGE_LOG );
 
 	if( result == GUILDSTORAGE_LOG_FINAL_SUCCESS ){
-		size = log.size() * sizeof( struct PACKET_ZC_ACK_GUILDSTORAGE_LOG_sub );
+		size += static_cast<int16>(log.size()) * sizeof( struct PACKET_ZC_ACK_GUILDSTORAGE_LOG_sub );
 	}else{
 		log.clear();
 	}
 
-	guild_storage_log.packetType = HEADER_ZC_ACK_GUILDSTORAGE_LOG;
-	guild_storage_log.PacketLength = size;
-	guild_storage_log.result = result;
-	guild_storage_log.amount = (uint16)log.size();
+	WFIFOHEAD( fd, size );
+	struct PACKET_ZC_ACK_GUILDSTORAGE_LOG *p = (struct PACKET_ZC_ACK_GUILDSTORAGE_LOG*)WFIFOP( fd, 0 );
+
+	p->packetType = HEADER_ZC_ACK_GUILDSTORAGE_LOG;
+	p->PacketLength = size;
+	p->result = result;
+	p->amount = (uint16)log.size();
 
 	if( result == GUILDSTORAGE_LOG_FINAL_SUCCESS ){
 		for( int i = 0; i < log.size(); i++ ){
-			struct PACKET_ZC_ACK_GUILDSTORAGE_LOG_sub* item = &guild_storage_log.items[i];
+			struct PACKET_ZC_ACK_GUILDSTORAGE_LOG_sub* item = &p->items[i];
 			struct guild_log_entry& entry = log[i];
 
 			item->id = entry.id;
@@ -21749,7 +21743,7 @@ void clif_guild_storage_log( struct map_session_data* sd, std::vector<struct gui
 		}
 	}
 	
-	clif_send( &guild_storage_log, guild_storage_log.PacketLength, &sd->bl, SELF );
+	WFIFOSET( fd, p->PacketLength );
 #endif
 }
 

@@ -377,7 +377,7 @@ mal_in01,160,34,4	script	清洁工小林	545,{
 		set in_canal_n,1;
 		close;
 	}
-	if (countitem(6436) == 0) {
+	if (rentalcountitem(6436) == 0) {
 		mes "[清洁工小林]";
 		mes "你没有^FF0000海神的护身符^000000(id:6436), 我不能打开这扇门!";
 		close;
