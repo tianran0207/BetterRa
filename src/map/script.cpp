@@ -30033,8 +30033,57 @@ BUILDIN_FUNC(getmobspawninfo)
 			i++;
 		}
 	}
-	mapreg_setreg(add_str("$@spawn_count"), spawns.size());
 	script_pushint(st, spawns.size());
+	return SCRIPT_CMD_SUCCESS;
+}
+
+static int build_getbossinfo_sub(struct mob_data *md, va_list args)
+{
+	int m = va_arg(args, int);
+	int mobid = va_arg(args, int);
+	int *idx = va_arg(args, int*);
+	if (m && m != md->bl.m)
+		return 0;
+	if (mobid && mobid != md->status.class_)
+		return 0;
+	mapreg_setreg(reference_uid(add_str("$@boss_gid"), *idx), md->bl.id);
+	if (md->spawn_timer == INVALID_TIMER)
+		mapreg_setreg(reference_uid(add_str("$@boss_spawn"), *idx), 0);
+	else
+		mapreg_setreg(reference_uid(add_str("$@boss_spawn"), *idx), DIFF_TICK(get_timer(md->spawn_timer)->tick, gettick()));
+
+	*idx += 1;
+	return 1;
+}
+
+BUILDIN_FUNC(getbossinfo)
+{
+	int mapid = 0, mobid = 0, idx = 0;
+	
+	if (script_hasdata(st, 2)){
+		const char *mapname = script_getstr(st, 2);
+		if (!strcmp("this", mapname)) {
+			TBL_PC* sd;
+			if (!script_charid2sd(4, sd))
+				return SCRIPT_CMD_FAILURE;
+			else
+				mapid = sd->bl.m;
+		}
+		else if (!strcmp("all", mapname))
+			mapid = 0;
+		else {
+			mapid = mapname[0] != '\0' ? map_mapname2mapid(mapname) : 0;
+			if (mapid < 0) {
+				ShowWarning("buildin_getbossinfo: Invalid map name %s.\n", mapname);
+				return SCRIPT_CMD_FAILURE;
+			}
+		}
+	}
+	if (script_hasdata(st, 3))
+		mobid = script_getnum(st, 3);
+
+	map_foreachboss(build_getbossinfo_sub, mapid , mobid, &idx);
+	script_pushint(st, idx);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -31081,6 +31130,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(broadcast_item, "iiii"),
 	BUILDIN_DEF(getmapinfo, "si?"),
 	BUILDIN_DEF(getmobspawninfo, "i"),
+	BUILDIN_DEF(getbossinfo, "??"),
 
 	//ÓÊÏäÏµÍ³
 	BUILDIN_DEF(mail_create, "sss?"),

@@ -301,7 +301,7 @@ struct s_skill_attr {
 	int sk;
 	int16 attr;
 	int n;
-	int target_id, target_state;
+	int target_id, target_state, target_atkele;
 };
 
 struct s_status_bonus {

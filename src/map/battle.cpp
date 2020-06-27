@@ -665,12 +665,14 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 			int target_state = it.sk * 100 + right_ele * 10 + def_type;
 			if (def_type == ELE_NEUTRAL && atk_elem != ELE_GHOST)
 				continue;
-			if (it.sk != 0 && it.sk != sd->skill_id)
+			if (it.sk > 0 && it.sk != sd->skill_id)
 				continue;
 			if (it.attr == -3)
 				return damage = (int64)((damage*it.n) / 100);
-			if (it.sk == 0 && it.target_id == target->id && target_state == it.target_state)
-				continue;
+			if (it.sk == 0 && it.target_id == target->id && target_state == it.target_state) {
+				atk_elem = it.target_atkele;
+				break;
+			}
 			else {
 				it.target_state = target_state;
 				it.target_id = target->id;
@@ -687,12 +689,13 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 			case -2: atk_elem = min_attr; break;
 			default: atk_elem = it.attr;  break;
 			}
+			it.target_atkele = atk_elem;
 			if (it.n && atk_elem != old_attr) {
 				for (n = 0; n < seven_ele_count; n++) {
 					if (seven_ele[n] != atk_elem)
 						continue;
 					if (it.sk == 0)
-						clif_skill_nodamage(src, src, TK_SEVENWIND, n + 1, sc_start(src, src, seven_sc[n], 100, n + 1, it.n == 0 ? 60000 : it.n));
+						clif_skill_nodamage(src, src, TK_SEVENWIND, n + 1, -1);
 					else
 						clif_skill_nodamage(src, src, TK_SEVENWIND, n + 1, -1);
 					break;

@@ -1168,6 +1168,7 @@ void map_foreachpc(int (*func)(struct map_session_data* sd, va_list args), ...);
 void map_foreachbot(int(*func)(struct bot_data* bd, va_list args), ...);
 void map_foreachhombot(int(*func)(struct map_session_data *sd, va_list args), ...);
 void map_foreachmob(int (*func)(struct mob_data* md, va_list args), ...);
+void map_foreachboss(int(*func)(struct mob_data* md, va_list args), ...);
 void map_foreachnpc(int (*func)(struct npc_data* nd, va_list args), ...);
 void map_foreachregen(int (*func)(struct block_list* bl, va_list args), ...);
 void map_foreachiddb(int (*func)(struct block_list* bl, va_list args), ...);

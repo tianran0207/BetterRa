@@ -2500,6 +2500,26 @@ void map_foreachmob(int (*func)(struct mob_data* md, va_list args), ...)
 	dbi_destroy(iter);
 }
 
+void map_foreachboss(int(*func)(struct mob_data* md, va_list args), ...)
+{
+	DBIterator* iter;
+	struct mob_data* md;
+
+	iter = db_iterator(bossid_db);
+	for (md = (struct mob_data*)dbi_first(iter); dbi_exists(iter); md = (struct mob_data*)dbi_next(iter))
+	{
+		va_list args;
+		int ret;
+
+		va_start(args, func);
+		ret = func(md, args);
+		va_end(args);
+		if (ret == -1)
+			break;// stop iterating
+	}
+	dbi_destroy(iter);
+}
+
 /// Applies func to all the npcs in the db.
 /// Stops iterating if func returns -1.
 void map_foreachnpc(int (*func)(struct npc_data* nd, va_list args), ...)
