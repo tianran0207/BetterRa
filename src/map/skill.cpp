@@ -3484,6 +3484,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	if(sd && sc && sc->data[SC_GRAVITATION] && sc->data[SC_GRAVITATION]->val3 == BCT_SELF && skill_id != HW_GRAVITATION && !sd->state.autocast)
 		return 0;
 #endif
+	sd->skill_id = skill_id;
 
 	dmg = battle_calc_attack(attack_type,src,bl,skill_id,skill_lv,flag&0xFFF);
 
@@ -3981,6 +3982,8 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	map_freeblock_unlock();
 
+	sd->skill_id = 0;
+
 	if ((flag&0x1000000) && rmdamage == 1)
 		return 0; //Should return 0 when damage was reflected
 
@@ -4327,6 +4330,8 @@ static inline void skill_castend_begin(struct map_session_data *sd, uint16 skill
 {
 	if (sd) {
 		sd->skill_id = skill_id;
+		for (auto &it : sd->skillattribute)
+			it.target_state = 0;
 		sd->skill_failure = false;
 	}
 }

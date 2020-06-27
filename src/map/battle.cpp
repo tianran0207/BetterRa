@@ -662,10 +662,12 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 			static const int seven_ele_count = ARRAYLENGTH(seven_ele);
 			static const sc_type seven_sc[] = { SC_EARTHWEAPON,SC_WINDWEAPON,SC_WATERWEAPON,SC_FIREWEAPON,SC_GHOSTWEAPON,SC_SHADOWWEAPON,SC_ASPERSIO };
 			unsigned char right_ele = status_get_status_data(src)->rhw.ele;
-			int target_state = it.sk * 100 + right_ele * 10 + def_type;
+			int target_state = sd->skill_id * 100 + it.target_atkele * 10 + def_type;
 			if (def_type == ELE_NEUTRAL && atk_elem != ELE_GHOST)
 				continue;
-			if (it.sk > 0 && it.sk != sd->skill_id)
+			if (it.sk == 0 && it.sk != sd->skill_id)
+				continue;
+			if (it.sk == -1 && sd->skill_id == 0)
 				continue;
 			if (it.attr == -3)
 				return damage = (int64)((damage*it.n) / 100);
@@ -673,9 +675,9 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 				atk_elem = it.target_atkele;
 				break;
 			}
-			else {
-				it.target_state = target_state;
-				it.target_id = target->id;
+			else if (it.sk != 0 && target_state == it.target_state) {
+				atk_elem = it.target_atkele;
+				break;
 			}
 			int attr = attr_fix_table[def_lv - 1][atk_elem][def_type];
 			int max = attr, min = attr, max_attr = atk_elem, min_attr = atk_elem, old_attr = atk_elem, n;
@@ -685,12 +687,11 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 				if (attr < min) { min = attr; min_attr = n; }
 			}
 			switch (it.attr) {
-			case -1: atk_elem = (it.sk == 0 && max_attr != right_ele || it.sk != 0) ? max_attr : atk_elem; break;
+			case -1: atk_elem = max_attr; break;
 			case -2: atk_elem = min_attr; break;
 			default: atk_elem = it.attr;  break;
 			}
-			it.target_atkele = atk_elem;
-			if (it.n && atk_elem != old_attr) {
+			if (it.n && atk_elem != old_attr && (it.sk != 0 && it.target_state == 0 || it.sk == 0)) {
 				for (n = 0; n < seven_ele_count; n++) {
 					if (seven_ele[n] != atk_elem)
 						continue;
@@ -701,6 +702,9 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 					break;
 				}
 			}
+			it.target_atkele = atk_elem;
+			it.target_state = target_state;
+			it.target_id = target->id;
 			break;
 		}
 	}
