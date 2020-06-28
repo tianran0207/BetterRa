@@ -274,6 +274,11 @@ struct s_finaladdrate {
 	int rate, bf;
 };
 
+struct s_hpsp_regen {
+	int hp, sp;
+	t_tick tick, next_tick;
+};
+
 struct s_skillcritical {
 	int32 sk, crirate;
 	uint32 dmgrate;
@@ -726,6 +731,8 @@ struct map_session_data {
 	std::vector<s_bonus_limit> bonus_limit;
 	std::vector<s_skill_noconsume> skillitemfix;
 	std::vector<s_multidamagerate> multidamage;
+	std::vector<s_hpsp_regen> hpsp_regen;
+	std::vector<s_hpsp_regen> hpsp_regen_percent;
 	std::vector<s_finaladdrate> finaladdrate;
 	std::vector<s_skillcritical> skillcritical;
 	std::vector<s_skillforaoe> skillforaoe; //custom;
@@ -1521,6 +1528,7 @@ struct map_session_data *pc_get_child(struct map_session_data *sd);
 
 void pc_bleeding (struct map_session_data *sd, t_tick diff_tick);
 void pc_regen (struct map_session_data *sd, t_tick diff_tick);
+void pc_hpsp_regen(struct map_session_data *sd, t_tick diff_tick);
 
 bool pc_setstand(struct map_session_data *sd, bool force);
 bool pc_candrop(struct map_session_data *sd,struct item *item);

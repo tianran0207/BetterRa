@@ -4532,11 +4532,26 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_HPSP_REGEN: // bonus3 bRegen,hp,sp,t;
+	case SP_HPSP_REGEN_PERCENT: // bonus3 bPercentRegen,hp,sp,t;
+		if (sd->state.lr_flag != 2) {
+			std::vector<s_hpsp_regen>& bonus = (type == SP_HPSP_REGEN ? sd->hpsp_regen : sd->hpsp_regen_percent);
+			if (bonus.size() == MAX_PC_BONUS) {
+				ShowError("pc_bonus3: SP_REGEN: Reached max (%d) number of skills per character, (hp: %d sp: %d t: %d).\n", MAX_PC_BONUS, type2, type3, val);
+				break;
+			}
+			struct s_hpsp_regen entry = {};
+			entry.hp = type2;
+			entry.sp = type3;
+			entry.tick = val;
+			bonus.push_back(entry);
+		}
+		break;
 	case SP_FINAL_ADD_RACE:
 	case SP_FINAL_ADD_CLASS:
 		if (sd->state.lr_flag != 2) {
 			if (sd->finaladdrate.size() == MAX_PC_BONUS) {
-				ShowError("pc_bonus3: SP_SKILL_ADD_DIV: Reached max (%d) number of skills per character, (sk: %d div: %d r: %d).\n", MAX_PC_BONUS, type2, type3, val);
+				ShowError("pc_bonus3: SP_FINAL_ADD_RACE: Reached max (%d) number of skills per character, (sk: %d div: %d r: %d).\n", MAX_PC_BONUS, type2, type3, val);
 				break;
 			}
 			struct s_finaladdrate entry = {};
@@ -12473,6 +12488,31 @@ void pc_regen (struct map_session_data *sd, t_tick diff_tick)
 		while (sd->percent_sp_regen.tick >= sd->percent_sp_regen.rate) {
 			sp += sd->status.max_sp * sd->percent_sp_regen.value / 100;
 			sd->percent_sp_regen.tick -= sd->percent_sp_regen.rate;
+		}
+	}
+
+	if (hp > 0 || sp > 0)
+		status_heal(&sd->bl, hp, sp, 0);
+}
+
+void pc_hpsp_regen(struct map_session_data *sd, t_tick diff_tick)
+{
+	int hp = 0, sp = 0;
+
+	for (auto &it : sd->hpsp_regen) {
+		it.next_tick += diff_tick;
+		while (it.next_tick >= it.tick) {
+			hp += it.hp;
+			sp += it.sp;
+			it.next_tick -= it.tick;
+		}
+	}
+	for (auto &it : sd->hpsp_regen_percent) {
+		it.next_tick += diff_tick;
+		while (it.next_tick >= it.tick) {
+			hp += sd->status.max_hp * it.hp / 100;
+			sp += sd->status.max_sp * it.sp / 100;
+			it.next_tick -= it.tick;
 		}
 	}
 

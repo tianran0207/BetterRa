@@ -4088,6 +4088,8 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	memset(&sd->c_bonus, 0, sizeof(sd->c_bonus)); //×Ô¶¨Òå
 	sd->skillitemfix.clear();
 	sd->multidamage.clear();
+	sd->hpsp_regen.clear();
+	sd->hpsp_regen_percent.clear();
 	sd->finaladdrate.clear();
 	sd->skillcritical.clear();
 	sd->skilldamage.clear(); 
@@ -15663,6 +15665,8 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 			pc_bleeding(sd, natural_heal_diff_tick);
 		if (sd->hp_regen.value || sd->sp_regen.value || sd->percent_hp_regen.value || sd->percent_sp_regen.value)
 			pc_regen(sd, natural_heal_diff_tick);
+		if (sd->hpsp_regen.size() || sd->hpsp_regen_percent.size())
+			pc_hpsp_regen(sd, natural_heal_diff_tick);
 	}
 
 	if(flag&(RGN_SHP|RGN_SSP) && regen->ssregen &&

@@ -581,6 +581,8 @@
 	export_constant2("bSkillChangeType", SP_SKILL_TYPE);
 	export_constant2("bFinalAddRace", SP_FINAL_ADD_RACE);
 	export_constant2("bFinalAddClass", SP_FINAL_ADD_CLASS);
+	export_constant2("bRegen", SP_HPSP_REGEN);
+	export_constant2("bRegenPercent", SP_HPSP_REGEN_PERCENT);
 
 	export_constant(MF_TRIBE);
 	export_constant(MF_HIDEGUILDINFO);
