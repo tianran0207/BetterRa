@@ -2157,11 +2157,10 @@ void clif_selllist(struct map_session_data *sd)
 void clif_selllist_filter(struct map_session_data *sd, int shopid, const char *filter)
 {
 
-	int fd, i, c = 0, val, idx;
-	char filter_copy[1024], *point[2];
-	const char *p, *len;
-	unsigned short type_list[10], item_list[256];
-	int type_idx = 0, item_idx = 0, n;
+	int fd, i, c = 0, val;
+	char *filter_copy, *point[2], *start, *end;
+	char filter_type[30] = {};
+	static std::unordered_map<int, char> filter_item;
 	struct npc_data *nd;
 
 	nullpo_retv(sd);
@@ -2169,34 +2168,32 @@ void clif_selllist_filter(struct map_session_data *sd, int shopid, const char *f
 	if((nd = map_id2nd(shopid)) == NULL)
 		return;
 
-	sd->npc_shopid = shopid;
+	filter_item.clear();
 
-	if ((p = strstr(filter, "type:")) != NULL && (len = strchr(p, ';')) != NULL) {
-		safestrncpy(filter_copy, p + 5, min(len - p - 1, 1023));
-		point[0] = filter_copy;
+	point[0] = filter_copy = (char *)aMalloc(sizeof(char) * (strlen(filter) + 1));
+	memcpy(filter_copy, filter, sizeof(char) * (strlen(filter) + 1));
+	if ((start = strstr(point[0], "type:")) != NULL && (end = strchr(start, ';')) != NULL) {
+		int type;
+		*end = ',';
+		point[0] += 5;
 		do {
-			if ((point[1] = strchr(point[0], ',')) == NULL) {
-				type_list[type_idx++] = atoi(point[0]);
-				break;
-			}
-			*point[1] = '\0';
-			type_list[type_idx++] = atoi(point[0]);
+			point[1] = strchr(point[0], ',');
+			filter_type[(type = atoi(point[0])) < 30 ? type : 29] = 1;
 			point[0] = point[1] + 1;
-		} while (type_idx < 10);
+		} while (point[0] < end);
+		point[0] = end + 1;
 	}
-	if ((p = strstr(filter, "item:")) != NULL && (len = strchr(p, ';')) != NULL) {
-		safestrncpy(filter_copy, p + 5, min(len - p - 1, 1023));
-		point[0] = filter_copy;
+	if ((start = strstr(point[0], "item:")) != NULL && (end = strchr(start, ';')) != NULL) {
+		*end = ',';
+		point[0] += 5;
 		do {
-			if ((point[1] = strchr(point[0], ',')) == NULL) {
-				item_list[item_idx++] = atoi(point[0]);
-				break;
-			}
-			*point[1] = '\0';
-			item_list[item_idx++] = atoi(point[0]);
+			point[1] = strchr(point[0], ',');
+			filter_item[atoi(point[0])] = 1;
 			point[0] = point[1] + 1;
-		} while (item_idx < 256);
+		} while (point[0] < end);
+		point[0] = end + 1;
 	}
+	aFree(filter_copy);
 
 	fd = sd->fd;
 	WFIFOHEAD(fd, MAX_INVENTORY * 10 + 4);
@@ -2206,24 +2203,13 @@ void clif_selllist_filter(struct map_session_data *sd, int shopid, const char *f
 
 		if (sd->inventory.u.items_inventory[i].nameid == 0 || !sd->inventory_data[i])
 			continue;
-		idx = -1;
-		ARR_FIND(0, type_idx, n, sd->inventory_data[i]->type == type_list[n]);
-		if (n < type_idx) {
-			idx = i;
-		}
-		else {
-			ARR_FIND(0, item_idx, n, sd->inventory.u.items_inventory[i].nameid == item_list[n]);
-			if (n < item_idx) {
-				idx = i;
-			}
-		}
-		if (idx != -1) {
-			if (!pc_can_sell_item(sd, &sd->inventory.u.items_inventory[idx], nd->subtype))
+
+		if (filter_type[sd->inventory_data[i]->type] == 1 || filter_item.find(sd->inventory.u.items_inventory[i].nameid) != filter_item.end()) {
+			if (!pc_can_sell_item(sd, &sd->inventory.u.items_inventory[i], nd->subtype))
 				continue;
-			val = sd->inventory_data[idx]->value_sell;
-			if (val < 0)
+			if ((val = sd->inventory_data[i]->value_sell) < 0)
 				continue;
-			WFIFOW(fd, 4 + c * 10) = idx + 2;
+			WFIFOW(fd, 4 + c * 10) = i + 2;
 			WFIFOL(fd, 6 + c * 10) = val;
 			WFIFOL(fd, 10 + c * 10) = pc_modifysellvalue(sd, val);
 			c++;
