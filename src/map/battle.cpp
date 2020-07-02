@@ -346,36 +346,38 @@ int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target,
 	struct map_session_data* sd = BL_CAST(BL_PC, src);
 	struct status_data *status = status_get_status_data(target);
 
-	if (sd && (flag & BF_SKILL) && !battle_display.critical) {
+	if (sd && (flag & BF_SKILL)) {
 		for (auto &it : sd->skilldamage) {
 			if (it.sk != skill_id)
 				continue;
 			switch (it.lv) {
 			case -1:
-				damage += (it.damage * skill_lv);
+				damage += (int64)it.damage * skill_lv;
 				break;
 			case 0:
-				damage += it.damage;
+				damage += (int64)it.damage;
 				break;
 			default:
 				if (skill_lv == it.lv)
-					damage += it.damage;
+					damage += (int64)it.damage;
 			}
 		}
-		int cri_def = 0, cri_rate = 100;
-		if (status && battle_config.skill_critical_luk)
-			cri_def = status->luk * 2;
-		if (status && status->class_ == CLASS_BOSS)
-			cri_rate = battle_config.skill_critical_boss;
+		if (!battle_display.critical) {
+			int cri_def = 0, cri_rate = 100;
+			if (status && battle_config.skill_critical_luk)
+				cri_def = status->luk * 2;
+			if (status && status->class_ == CLASS_BOSS)
+				cri_rate = battle_config.skill_critical_boss;
 
-		for (auto &it : sd->skillcritical) {
-			if (it.sk != skill_id && it.sk != -1)
-				continue;
-			if (rnd() % 1000 >= (it.crirate * cri_rate / 100) - cri_def)
-				continue;
-			damage = damage * it.dmgrate / 100;
-			damage = damage * (100 + sd->c_bonus.skill_crit_atk_rate) / 100;
-			battle_display.critical = true;
+			for (auto &it : sd->skillcritical) {
+				if (it.sk != skill_id && it.sk != -1)
+					continue;
+				if (rnd() % 1000 >= (it.crirate * cri_rate / 100) - cri_def)
+					continue;
+				damage = damage * it.dmgrate / 100;
+				damage = damage * (100 + sd->c_bonus.skill_crit_atk_rate) / 100;
+				battle_display.critical = true;
+			}
 		}
 	}
 	if (src && (battle_config.skill_critical_enable & src->type) && !battle_display.critical) {

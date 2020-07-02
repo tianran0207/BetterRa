@@ -290,8 +290,7 @@ struct s_skillforaoe {
 };
 
 struct s_skilldamage {
-	uint16 sk, lv;
-	int damage;
+	int sk, lv, damage;
 };
 
 struct s_skill_val {
