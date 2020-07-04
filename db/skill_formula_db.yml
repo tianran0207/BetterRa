@@ -21,13 +21,15 @@
 #
 # 参数:
 #   在本文件中可以使用的一些参数, 通过直接修改参数达到修改伤害、时间等内容。
-#   skf_sgid 释放技能对象的GID
-#   skf_scid 释放技能玩家的CID 如果不是玩家则为0
-#   skf_tgid 技能所攻击目标的GID
-#   skf_id 技能ID
-#   skf_lv 技能等级
-#   skf_dmg 最终伤害 
-#   skf_tim 咏唱时间 延迟时间或持续时间
+#   $skf_sgid 释放技能对象的GID
+#   $skf_scid 释放技能玩家的CID 如果不是玩家则为0
+#   $skf_tgid 技能所攻击目标的GID
+#   $skf_id 技能ID
+#   $skf_lv 技能等级
+#   $skf_dmg 最终伤害 
+#   $skf_tim 咏唱时间 延迟时间或持续时间
+# 注意: 
+#   本文件的变量经过优化, 不会落地到 MySQL 的 map_reg 表
 #
 ########################################################################
 #                                                                      #
@@ -51,14 +53,14 @@ Header:
   
 Body:
 #  - Skill: 14
-#    Tips: 伤害修正为 100 * skf_lv + rand(int * 100), 念咒为1秒, 当dex大于100时无延迟;
+#    Tips: 伤害修正为 100 * $skf_lv + rand(int * 100), 念咒为1秒, 当dex大于100时无延迟;
 #    Typeable: 1
 #    Formula: >
-#      skf_dmg = 100 * skf_lv * skf_src_status(STATUS_INT) + rand(skf_src_status(STATUS_INT) * 100);
+#      $skf_dmg = 100 * $skf_lv * $skf_src_status(STATUS_INT) + rand($skf_src_status(STATUS_INT) * 100);
 #    Casting: >
-#      skf_tim = 1000;
+#      $skf_tim = 1000;
 #    Delay: >
-#      skf_tim = skf_src_status(STATUS_DEX) > 100 ? 0 : skf_tim;
+#      $skf_tim = $skf_src_status(STATUS_DEX) > 100 ? 0 : $skf_tim;
 #    Duration: >
-#      skf_tim = 1000;
+#      $skf_tim = 1000;
 #       

@@ -709,13 +709,13 @@
 	export_constant(MSG_DEBUG);
 	export_constant(MSG_ERROR);
 
-	export_parameter("skf_sgid", SP_SKF_SGID);
-	export_parameter("skf_scid", SP_SKF_SCID);
-	export_parameter("skf_tgid", SP_SKF_TGID);
-	export_parameter("skf_id", SP_SKF_SKID);
-	export_parameter("skf_lv", SP_SKF_SKLV);
-	export_parameter("skf_dmg", SP_SKF_DMG);
-	export_parameter("skf_tim", SP_SKF_TIM);
+	export_parameter("$skf_sgid", SP_SKF_SGID);
+	export_parameter("$skf_scid", SP_SKF_SCID);
+	export_parameter("$skf_tgid", SP_SKF_TGID);
+	export_parameter("$skf_id", SP_SKF_SKID);
+	export_parameter("$skf_lv", SP_SKF_SKLV);
+	export_parameter("$skf_dmg", SP_SKF_DMG);
+	export_parameter("$skf_tim", SP_SKF_TIM);
 	export_parameter("dmg_type", SP_DMG_TYPE);
 	export_parameter("dmg_damage", SP_DMG_VAL);
 	export_parameter("dmg_display", SP_DMG_DISP_VAL);

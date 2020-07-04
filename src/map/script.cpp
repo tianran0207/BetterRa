@@ -2840,12 +2840,6 @@ struct script_data *get_val_(struct script_state* st, struct script_data* data, 
 
 	//##TODO use reference_tovariable(data) when it's confirmed that it works [FlavioJS]
 	if( !reference_toconstant(data) && not_server_variable(prefix) ) {
-		if (sd == NULL && !st->rid && reference_toparam(data)) {
-			data->type = C_INT;
-			data->u.num = map_readparam(reference_getparamtype(data));
-			data->ref = NULL;
-			return data;
-		}
 		if( sd == NULL && !script_rid2sd(sd) ) {// needs player attached
 			if( postfix == '$' ) {// string variable
 				ShowWarning("script:get_val: cannot access player variable '%s', defaulting to \"\"\n", name);
@@ -2934,7 +2928,10 @@ struct script_data *get_val_(struct script_state* st, struct script_data* data, 
 		if( reference_toconstant(data) ) {
 			data->u.num = reference_getconstant(data);
 		} else if( reference_toparam(data) ) {
-			data->u.num = pc_readparam(sd, reference_getparamtype(data));
+			if (prefix == '$')
+				data->u.num = map_readparam(reference_getparamtype(data));
+			else
+				data->u.num = pc_readparam(sd, reference_getparamtype(data));
 		} else
 			switch( prefix ) {
 				case '@':
@@ -3410,6 +3407,19 @@ bool set_reg_num( struct script_state* st, struct map_session_data* sd, int64 nu
 	}
 
 	if( str_data[script_getvarid(num)].type == C_PARAM ){
+		if (prefix == '$') {
+			if (map_setparam(str_data[script_getvarid(num)].val, value) == 0) {
+				if (st != NULL) {
+					ShowError("script_set_reg: failed to set param '%s' to %" PRId64 ".\n", name, value);
+					script_reportsrc(st);
+					st->state = END;
+				}
+
+				return false;
+			}
+
+			return true;
+		}
 		if( pc_setparam( sd, str_data[script_getvarid(num)].val, value ) == 0 ){
 			if( st != NULL ) {
 				ShowError( "script_set_reg: failed to set param '%s' to %" PRId64 ".\n", name, value );
@@ -6548,12 +6558,6 @@ BUILDIN_FUNC(setr)
 
 	if (!strcmp(command, "setr"))
 		pos = 5;
-
-	if (not_server_variable(prefix) && !script_hasdata(st, pos) && !st->rid && str_data[script_getvarid(num)].type == C_PARAM) {
-		script_pushcopy(st, 2);
-		map_setparam(str_data[script_getvarid(num)].val, script_getnum64(st, 3));
-		return SCRIPT_CMD_SUCCESS;
-	}
 
 	if (not_server_variable(prefix) && !script_charid2sd(pos,sd)) {
 		ShowError("buildin_set: No player attached for player variable '%s'\n", name);
@@ -28458,9 +28462,6 @@ BUILDIN_FUNC(getbonus)
 	int type = script_getnum(st, 2);
 	int i, val[5], res;
 
-	if (!script_rid2sd(sd))
-		return SCRIPT_CMD_FAILURE;
-
 	for (i = 0; i < 5; i++) {
 
 		data[i] = script_hasdata(st, i + 3) ? script_getdata(st, i + 3) : NULL;
@@ -28472,8 +28473,19 @@ BUILDIN_FUNC(getbonus)
 		val[i] = !data[i] || data_isreference(data[i]) ? 0 : conv_num(st, data[i]);
 	}
 
+	int lastdata = script_lastdata(st);
+	if (!strncmp(command, "getchar", 7)) {
+		if (!script_charid2sd(lastdata, sd))
+			return SCRIPT_CMD_FAILURE;
+		if (lastdata <= 7) {
+			val[7 - lastdata] = 0;
+			data[7 - lastdata] = NULL;
+		}
+	}
+	else if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
 	if (*command == 'b') {
-		int lastdata = script_lastdata(st);
 		int minmax = script_getnum(st, lastdata);
 		if (lastdata - 3 < 5) val[lastdata - 3] = 0;
 		if (strstr(command, "min"))
@@ -31238,6 +31250,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getareamember, "i??"),
 	BUILDIN_DEF(magicshield, "iii?"),
 	BUILDIN_DEF(getbonus, "i?????"),
+	BUILDIN_DEF2(getbonus, "getcharbonus", "i??????"),
 	BUILDIN_DEF2(getbonus, "bonus_minfix", "i??????"),
 	BUILDIN_DEF2(getbonus, "bonus_maxfix", "i??????"),
 	BUILDIN_DEF(getrateidx, "*"),
