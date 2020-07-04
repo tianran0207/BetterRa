@@ -3504,7 +3504,6 @@ static bool intif_parse_StorageReceived(int fd)
 			if (sd->refresh_storage && sd->st && sd->st->state == RERUNLINE) {
 				storage_sortitem(stor->u.items_storage, ARRAYLENGTH(stor->u.items_storage));
 				sd->refresh_storage = false;
-				sd->st->state = RUN;
 				run_script_main(sd->st);
 				break;
 			}

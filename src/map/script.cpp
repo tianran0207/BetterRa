@@ -25485,12 +25485,16 @@ struct item *build_getstorage_sub(struct script_state* st, struct map_session_da
 	else {
 		*stor_max = MAX_STORAGE;
 		*stor_type = TABLE_STORAGE;
-		if (stor_id == sd->storage.stor_id && (sd->storage.dirty = true))
+		if (stor_id == sd->storage.stor_id)
 			return sd->storage.u.items_storage;
-		else if (stor_id == sd->premiumStorage.stor_id && (sd->storage.dirty = true))
+		else if (stor_id == sd->premiumStorage.stor_id && !(st->state = RUN))
 			return sd->premiumStorage.u.items_storage;
 		else if (!storage_exists(stor_id))
 			return NULL;
+		else if (sd->state.storage_flag == 3 && stor_id != sd->premiumStorage.stor_id)
+			return NULL;
+		if (sd->premiumStorage.dirty)
+			storage_premiumStorage_save(sd);
 		intif_storage_request(sd, TABLE_STORAGE, stor_id, STOR_MODE_ALL);
 	}
 	sd->refresh_storage = true;
@@ -25545,7 +25549,7 @@ BUILDIN_FUNC(searchinventory)
 	storitem = build_getstorage_sub(st, sd, command, &stor_max, &stor_id);
 	if (st->state == RERUNLINE)
 		return SCRIPT_CMD_SUCCESS;
-	if (!storitem){
+	if (!storitem) {
 		script_pushint(st, -1);
 		return SCRIPT_CMD_SUCCESS;
 	}
@@ -25570,7 +25574,10 @@ BUILDIN_FUNC(getinventoryinfo)
 	storitem = build_getstorage_sub(st, sd, command, &stor_max, &stor_id);
 	if (st->state == RERUNLINE)
 		return SCRIPT_CMD_SUCCESS;
-
+	if (!storitem) {
+		script_pushint(st, -1);
+		return SCRIPT_CMD_SUCCESS;
+	}
 	idx = script_getnum(st, 2);
 	if ((idx > -1 && idx < stor_max) && storitem && storitem[idx].nameid > 0 && storitem[idx].amount > 0) {
 		switch (script_getnum(st, 3)) {
@@ -25599,6 +25606,21 @@ BUILDIN_FUNC(getinventoryinfo)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+void storage_state_sub(struct map_session_data *sd, bool *storage_state, int *do_event)
+{
+	if (do_event) {
+		storage_state[0] = sd->runing_event[NPCE_STORAGEADDFILTER];
+		storage_state[1] = sd->runing_event[NPCE_CARTADDFILTER];
+		storage_state[2] = sd->runing_event[NPCE_INVENTORYADDFILTER];
+		sd->runing_event[NPCE_STORAGEADDFILTER] = sd->runing_event[NPCE_CARTADDFILTER] = *do_event;
+	}
+	else {
+		sd->runing_event[NPCE_STORAGEADDFILTER] = storage_state[0];
+		sd->runing_event[NPCE_CARTADDFILTER] = storage_state[1];
+		sd->runing_event[NPCE_INVENTORYADDFILTER] = storage_state[2];
+	}
+}
+
 BUILDIN_FUNC(putstoragebyidx)
 {
 	TBL_PC *sd;
@@ -25614,8 +25636,12 @@ BUILDIN_FUNC(putstoragebyidx)
 	int do_event = script_hasdata(st, 4+extra) ? script_getnum(st, 4+extra) : 0;
 
 	storitem = build_getstorage_sub(st, sd, command, &stor_max, &type);
-	if (st->state == RERUNLINE || !storitem)
+	if (st->state == RERUNLINE)
 		return SCRIPT_CMD_SUCCESS;
+	if (!storitem) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
 
 	idx = script_getnum(st, 2); amount = script_getnum(st, 3);
 	if (idx < 0 || idx >= stor_max || !amount || !storitem ||
@@ -25625,7 +25651,8 @@ BUILDIN_FUNC(putstoragebyidx)
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	sd->runing_event[NPCE_CARTADDFILTER] = sd->runing_event[NPCE_STORAGEADDFILTER] = do_event;
+	bool storage_state[3];
+	storage_state_sub(sd, storage_state, &do_event);
 	switch (type) {
 	case TABLE_CART:
 		pc_putitemtocart(sd, idx, amount);
@@ -25640,7 +25667,7 @@ BUILDIN_FUNC(putstoragebyidx)
 		storage_guild_storageadd(sd, idx, amount);
 		break;
 	}
-	sd->runing_event[NPCE_CARTADDFILTER] = sd->runing_event[NPCE_STORAGEADDFILTER] = 0;
+	storage_state_sub(sd, storage_state, NULL);
 	script_pushint(st, 1);
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -25662,6 +25689,10 @@ BUILDIN_FUNC(getstoragebyidx)
 	storitem = build_getstorage_sub(st, sd, command, &stor_max, &type);
 	if (st->state == RERUNLINE)
 		return SCRIPT_CMD_SUCCESS;
+	if (!storitem) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
 
 	idx = script_getnum(st, 2); amount = script_getnum(st, 3);
 	if (idx < 0 || idx >= stor_max || !amount || !storitem || storitem[idx].amount < amount) {
@@ -25669,7 +25700,8 @@ BUILDIN_FUNC(getstoragebyidx)
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	sd->runing_event[NPCE_INVENTORYADDFILTER] = do_event;
+	bool storage_state[3];
+	storage_state_sub(sd, storage_state, &do_event);
 	switch (type) {
 	case TABLE_CART:
 		pc_getitemfromcart(sd, idx, amount);
@@ -25684,7 +25716,7 @@ BUILDIN_FUNC(getstoragebyidx)
 		storage_guild_storageget(sd, idx, amount);
 		break;
 	}
-	sd->runing_event[NPCE_INVENTORYADDFILTER] = 0;
+	storage_state_sub(sd, storage_state, NULL);
 	script_pushint(st, 1);
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -25707,6 +25739,10 @@ BUILDIN_FUNC(delinventorybyidx)
 	storitem = build_getstorage_sub(st, sd, command, &stor_max, &type);
 	if (st->state == RERUNLINE)
 		return SCRIPT_CMD_SUCCESS;
+	if (!storitem) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
 
 	idx = script_getnum(st, 2); amount = script_getnum(st, 3);
 	if (idx < 0 || idx >= stor_max || !amount || !storitem || storitem[idx].amount < amount) {
@@ -25714,7 +25750,8 @@ BUILDIN_FUNC(delinventorybyidx)
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	sd->runing_event[NPCE_INVENTORYADDFILTER] = sd->runing_event[NPCE_CARTADDFILTER] = sd->runing_event[NPCE_STORAGEADDFILTER] = do_event;
+	bool storage_state[3];
+	storage_state_sub(sd, storage_state, &do_event);
 	switch (type) {
 	case TABLE_INVENTORY:
 		pc_delitem(sd, idx, amount, 0, 0, LOG_TYPE_SCRIPT);
@@ -25737,7 +25774,7 @@ BUILDIN_FUNC(delinventorybyidx)
 		log_pick_pc(sd, LOG_TYPE_SCRIPT, -amount, &storitem[idx]);
 		break;
 	}
-	sd->runing_event[NPCE_INVENTORYADDFILTER] = sd->runing_event[NPCE_CARTADDFILTER] = sd->runing_event[NPCE_STORAGEADDFILTER] = 0;
+	storage_state_sub(sd, storage_state, NULL);
 	script_pushint(st, 1);
 	return SCRIPT_CMD_SUCCESS;
 }

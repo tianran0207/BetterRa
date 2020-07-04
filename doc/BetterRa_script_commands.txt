@@ -233,7 +233,7 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 
 *searchinventory <物品ID>{,<条件>{,<角色ID>}};
 *searchcart <物品ID>{,<条件>{,<角色ID>}};
-*searchstorage <物品ID>{,<仓库ID>{,<条件>{,<角色ID>}}};
+*searchstorage <物品ID>{,<条件>{,<仓库ID>{,<角色ID>}}};
 *searchguildstorage <物品ID>{,<条件>{,<角色ID>}};
 
 过滤并查找背包、手推车、仓库中的物品.
@@ -350,6 +350,8 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 *putguildstoragebyidx <仓库位置序号>,<数量>{,<是否触发事件>{,<角色ID>}};
 
 将背包中的物品放入手推车、仓库或公会仓库 
+
+是否触发事件,为全局事件 OnPCStorageAddFilter OnPCCartAddFilter OnPCCartAddFilter, 默认触发。
 
 返回值:
 	成功返回 1, 失败返回 0
