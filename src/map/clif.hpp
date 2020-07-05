@@ -722,7 +722,7 @@ void clif_skill_delunit(struct skill_unit *unit);
 void clif_skillunit_update(struct block_list* bl);
 
 void clif_autospell(struct map_session_data *sd,uint16 skill_lv);
-int clif_skilllist(struct map_session_data *sd, unsigned short skill_id[], unsigned short count);
+int clif_skilllist(struct map_session_data *sd, int skill_id[], int count);
 void clif_devotion(struct block_list *src, struct map_session_data *tsd);
 void clif_spiritball(struct block_list *bl);
 void clif_soulball(struct map_session_data *sd);
@@ -784,7 +784,7 @@ void clif_openvending_ack(struct map_session_data* sd, int result);
 void clif_openvending(struct map_session_data* sd, int id, struct s_vending* vending);
 void clif_vendingreport(struct map_session_data* sd, int index, int amount, uint32 char_id, int zeny);
 int clif_vend(struct map_session_data *sd, int skill_lv);
-int clif_itemlist(struct map_session_data *sd, unsigned short itemid[], unsigned short count);
+int clif_itemlist(struct map_session_data *sd, int itemid[], int count);
 
 void clif_movetoattack(struct map_session_data *sd,struct block_list *bl);
 

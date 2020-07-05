@@ -8391,7 +8391,7 @@ void clif_autospell(struct map_session_data *sd,uint16 skill_lv)
 	sd->menuskill_val = skill_lv;
 }
 
-int clif_skilllist(struct map_session_data *sd, unsigned short skill_id[], unsigned short count)
+int clif_skilllist(struct map_session_data *sd, int skill_id[], int count)
 {
 	int fd;
 
@@ -13287,7 +13287,7 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd) {
 /// Answer to arrow crafting item selection dialog (CZ_REQ_MAKINGARROW).
 /// 01ae <name id>.W
 void clif_parse_SelectArrow(int fd,struct map_session_data *sd) {
-	if (pc_istrading(sd)) {
+	if (pc_istrading(sd) && (sd->menuskill_id != 0 || sd->menulist_data != 0)) {
 		//Make it fail to avoid shop exploits where you sell something different than you see.
 		clif_skill_fail(sd,sd->ud.skill_id,USESKILL_FAIL_LEVEL,0);
 		clif_menuskill_clear(sd);
@@ -13321,10 +13321,9 @@ void clif_parse_SelectArrow(int fd,struct map_session_data *sd) {
 				buyingstore_currency(sd, p->itemId);
 				break;
 			default:
-				if (npc_script_event_check(sd, NPCE_ITEMSELECTEVENT)) {
-					pc_setreg(sd, add_str("@itemlist_param"), sd->menulist_data);
-					pc_setreg(sd, add_str("@itemlist_itemid"), p->itemId);
-					npc_script_event_atonce(sd, NPCE_ITEMSELECTEVENT);
+				if (sd->st && sd->st->state == RERUNLINE) {
+					sd->menulist_select = p->itemId;
+					run_script_main(sd->st);
 				}
 			}
 			sd->menulist_data = 0;
@@ -13338,13 +13337,9 @@ void clif_parse_SelectArrow(int fd,struct map_session_data *sd) {
 /// 01ce <skill id>.L
 void clif_parse_AutoSpell(int fd,struct map_session_data *sd)
 {
-	if (sd->menuskill_id != SA_AUTOSPELL){
-		if (npc_script_event_check(sd, NPCE_SKILLSELECTEVENT)) {
-			pc_setreg(sd, add_str("@skilllist_param"), sd->menulist_data);
-			pc_setreg(sd, add_str("@skilllist_skillid"), RFIFOL(fd, packet_db[RFIFOW(fd, 0)].pos[0]));
-			npc_script_event_atonce(sd, NPCE_SKILLSELECTEVENT);
-		}
-		return;
+	if (sd->st && sd->st->state == RERUNLINE) {
+		sd->menulist_select = RFIFOL(fd, packet_db[RFIFOW(fd, 0)].pos[0]);
+		run_script_main(sd->st);
 	}
 	sd->state.workinprogress = WIP_DISABLE_NONE;
 	skill_autospell(sd,RFIFOL(fd,packet_db[RFIFOW(fd,0)].pos[0]));
@@ -14069,71 +14064,64 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd){
 int clif_vend(struct map_session_data *sd, int skill_lv) {
 
 	struct item_data *item;
-	int c, i, d = 0;
+	int i, c = 0;
 	int fd;
 
 	nullpo_ret(sd);
 
 	fd = sd->fd;
-	WFIFOHEAD(fd, 8 * 8 + 8);
-	WFIFOW(fd, 0) = 0x1ad;
-	if (battle_config.item_zeny && itemdb_exists(battle_config.item_zeny)) {
-		WFIFOW(fd, d * 2 + 4) = battle_config.item_zeny;
-		d++;
-	}
-	if (battle_config.item_cash && itemdb_exists(battle_config.item_cash)) {
-		WFIFOW(fd, d * 2 + 4) = battle_config.item_cash;
-		d++;
-	}
-	for (c = d, i = 0; i < MAX_VENDINGITEM; i++) {
+	WFIFOHEAD(fd, sizeof(struct PACKET_ZC_MAKINGARROW_LIST) + (MAX_VENDINGITEM + 2) * sizeof(struct PACKET_ZC_MAKINGARROW_LIST_sub));
+	struct PACKET_ZC_MAKINGARROW_LIST *p = (struct PACKET_ZC_MAKINGARROW_LIST *)WFIFOP(fd, 0);
+	p->packetType = HEADER_ZC_MAKINGARROW_LIST;
+
+	if (battle_config.item_zeny && itemdb_exists(battle_config.item_zeny))
+		p->items[c++].itemId = battle_config.item_zeny;
+
+	if (battle_config.item_cash && itemdb_exists(battle_config.item_cash))
+		p->items[c++].itemId = battle_config.item_cash;
+
+	for (i = 0; i < MAX_VENDINGITEM; i++) {
 		if (vending_itemid[i].id == 0 || (item = itemdb_exists(vending_itemid[i].id)) == NULL)
 			continue;
 		if (item->nameid == battle_config.item_zeny && item->nameid == battle_config.item_cash)
 			continue;
-		
-		WFIFOW(fd, c * 2 + 4) = item->nameid;
-		c++;
+
+		p->items[c++].itemId = item->nameid;
 	}
-	if (c > 0) {
-		sd->menuskill_id = MC_VENDING;
-		sd->menuskill_val = skill_lv;
-		WFIFOW(fd, 2) = c * 2 + 4;
-		WFIFOSET(fd, WFIFOW(fd, 2));
-	}
-	else {
-		clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0);
-		return 0;
-	}
+
+	sd->menuskill_id = MC_VENDING;
+	sd->menuskill_val = skill_lv;
+	p->packetLength = sizeof(struct PACKET_ZC_MAKINGARROW_LIST) + c * sizeof(struct PACKET_ZC_MAKINGARROW_LIST_sub);
+	WFIFOSET(fd, p->packetLength);
 
 	return 1;
 }
 
-int clif_itemlist(struct map_session_data *sd, unsigned short itemid[], unsigned short count) {
+int clif_itemlist(struct map_session_data *sd, int itemid[], int count) {
 
-	int c, i, d = 0;
 	int fd;
 	struct item_data* id;
 
 	nullpo_ret(sd);
 
-	if (!count)
-		return 0;
-
 	sd->menuskill_id = sd->menuskill_val = 0;
 
 	fd = sd->fd;
-	WFIFOHEAD(fd, count * 2 + 4);
-	WFIFOW(fd, 0) = 0x1ad;
-	for (i = 0, c = 0; i < count; i++) {
+	WFIFOHEAD(fd, sizeof(struct PACKET_ZC_MAKINGARROW_LIST) + count * sizeof(struct PACKET_ZC_MAKINGARROW_LIST_sub));
+	struct PACKET_ZC_MAKINGARROW_LIST *p = (struct PACKET_ZC_MAKINGARROW_LIST *)WFIFOP(fd, 0);
+	p->packetType = HEADER_ZC_MAKINGARROW_LIST;
+
+	int c = 0;
+	for (int i = 0; i < count; i++) {
 		if (!(id = itemdb_exists(itemid[i])))
 			continue;
 
-		WFIFOW(fd, c * 2 + 4) = (id->view_id > 0) ? id->view_id : itemid[i];
+		p->items[i].itemId = client_nameid(itemid[i]);
 		c++;
 	}
-	WFIFOW(fd, 2) = c * 2 + 4;
-	WFIFOSET(fd, WFIFOW(fd, 2));
 
+	p->packetLength = sizeof(struct PACKET_ZC_MAKINGARROW_LIST) + c * sizeof(struct PACKET_ZC_MAKINGARROW_LIST_sub);
+	WFIFOSET(fd, p->packetLength);
 	return 1;
 }
 

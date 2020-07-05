@@ -1507,7 +1507,6 @@ int intif_parse_LoadGuildStorage(int fd)
 	if (sd->refresh_storage && sd->st && sd->st->state == RERUNLINE) {
 		storage_sortitem(gstor->u.items_guild, ARRAYLENGTH(gstor->u.items_guild));
 		sd->refresh_storage = false;
-		sd->st->state = RUN;
 		run_script_main(sd->st);
 		return 1;
 	}

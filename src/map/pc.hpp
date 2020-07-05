@@ -421,6 +421,7 @@ struct map_session_data {
 	bool perfect_hide;
 	bool refresh_storage;
 	short equip_invalid[EQI_MAX];
+	int menulist_select;
 	/**
 	 * Extended Vending system [Lilith]
 	**/

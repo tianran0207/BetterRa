@@ -145,7 +145,7 @@ int8 buyingstore_setup(struct map_session_data* sd, unsigned char slots){
 	sd->buyingstore.slots = slots;
 
 	if (battle_config.extended_buying) {
-		unsigned short itemid[2];
+		int itemid[2];
 		itemid[0] = battle_config.item_zeny;
 		itemid[1] = battle_config.item_cash;
 		sd->menulist_data = 12548;

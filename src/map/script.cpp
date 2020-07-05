@@ -376,8 +376,6 @@ struct Script_Config script_config = {
 	"OnPCInventoryAddFilter", //inventory_add_filter_name
 	"OnPCPickLogEvent", //pick_log_event_name
 	"OnPCDropItemFilter", //drop_item_filter_name
-	"OnPCSelectItemEvent", //select_item_event_name
-	"OnPCSelectSkillEvent", //select_skill_event_name
 	"OnMOBSpawnFilter", //mob_spawn_filter_name
 	"OnMOBDropItemFilter", //mob_drop_item_filter_name
 	"OnPCAttackFilter", //attack_filter_name
@@ -29860,24 +29858,40 @@ BUILDIN_FUNC(itemlist)
 	struct map_session_data* sd = NULL;
 	struct reg_db *ref = NULL;
 	const char *command = script_getfuncname(st);
+
 	data = script_getdata(st, 2);
 	ref = reference_getref(data);
 	id = reference_getid(data);
 
-	if (data_isstring(data) || !script_charid2sd(4, sd))
+	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	array_size = script_array_highest_key(st, sd, reference_getname(data), ref);
-	unsigned short *item_id = (unsigned short*)aMalloc(sizeof(unsigned short)*array_size);
+	if (st->state == RERUNLINE) {
+		st->state = RUN;
+		for (i = 0; i < array_size; ++i) {
+			if (sd->menulist_select == static_cast<int>(get_val2_num(st, reference_uid(id, i), ref)))
+				continue;
+			script_pushint(st, sd->menulist_select);
+			return SCRIPT_CMD_SUCCESS;
+		}
+		if (!strncasecmp(command, "item", 4))
+			script_pushint(st, -1);
+		else
+			script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	int *item_id = (int*)aMalloc(sizeof(int)*array_size);
 	for (i = 0; i < array_size; ++i)
-		item_id[i] = (unsigned short)get_val2_num(st, reference_uid(id, i), ref);
-
-	sd->menulist_data = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+		item_id[i] = static_cast<int>(get_val2_num(st, reference_uid(id, i), ref));
 	if (!strncasecmp(command,"item",4))
 		clif_itemlist(sd, item_id, array_size);
 	else
 		clif_skilllist(sd, item_id, array_size);
 	aFree(item_id);
+
+	st->state = RERUNLINE;
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -31157,8 +31171,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(battle_check, "iii"),
 	BUILDIN_DEF(instance_addmap, "s??"),
 	BUILDIN_DEF(instance_delmap, "s?"),
-	BUILDIN_DEF(itemlist, "v??"),
-	BUILDIN_DEF2(itemlist, "skilllist", "v??"),
+	BUILDIN_DEF(itemlist, "v?"),
+	BUILDIN_DEF2(itemlist, "skilllist", "v?"),
 	BUILDIN_DEF(getconstantstr, "si"),
 	BUILDIN_DEF(next_dropitem_special, "iii"),
 	BUILDIN_DEF(unitdefratefixed, "ii???"),
