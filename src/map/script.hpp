@@ -311,8 +311,6 @@ struct Script_Config {
 	const char* bonus_filter_name;
 	// Produce related
 	const char* produce_filter_name;
-	// Shop related
-	const char* sell_list_filter_name;
 	// Hook related
 	const char* hook_dll_event_name;
 	const char* socket_recv_filter_name;
