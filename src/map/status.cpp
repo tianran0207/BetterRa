@@ -1394,6 +1394,11 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_ENTRY_QUEUE_APPLY_DELAY] = EFST_ENTRY_QUEUE_APPLY_DELAY;
 	StatusIconChangeTable[SC_ENTRY_QUEUE_NOTIFY_ADMISSION_TIME_OUT] = EFST_ENTRY_QUEUE_NOTIFY_ADMISSION_TIME_OUT;
 
+	// Soul Reaper
+	StatusIconChangeTable[SC_SOULENERGY] = EFST_SOULENERGY;
+	StatusIconChangeTable[SC_USE_SKILL_SP_SPA] = EFST_USE_SKILL_SP_SPA;
+	StatusIconChangeTable[SC_USE_SKILL_SP_SHA] = EFST_USE_SKILL_SP_SHA;
+
 	/* Other SC which are not necessarily associated to skills */
 	StatusChangeFlagTable[SC_ASPDPOTION0] |= SCB_ASPD;
 	StatusChangeFlagTable[SC_ASPDPOTION1] |= SCB_ASPD;
@@ -1562,8 +1567,9 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_DORAM_BUF_02] |= SCB_REGEN;
 
 	// Soul Reaper
-	StatusIconChangeTable[SC_USE_SKILL_SP_SPA] = EFST_USE_SKILL_SP_SPA;
-	StatusIconChangeTable[SC_USE_SKILL_SP_SHA] = EFST_USE_SKILL_SP_SHA;
+	StatusChangeFlagTable[SC_SOULENERGY] |= SCB_NONE;
+	StatusChangeFlagTable[SC_USE_SKILL_SP_SPA] |= SCB_NONE;
+	StatusChangeFlagTable[SC_USE_SKILL_SP_SHA] |= SCB_NONE;
 
 	StatusChangeFlagTable[SC_ANCILLA] |= SCB_REGEN;
 	StatusChangeFlagTable[SC_ENSEMBLEFATIGUE] |= SCB_SPEED|SCB_ASPD;
@@ -3983,6 +3989,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->magic_addclass)
 		+ sizeof(sd->magic_addsize)
 		+ sizeof(sd->magic_atk_ele)
+		+ sizeof(sd->magic_subsize)
 		+ sizeof(sd->critaddrace)
 		+ sizeof(sd->expaddrace)
 		+ sizeof(sd->expaddclass)
@@ -4066,6 +4073,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	sd->add_drop.clear();
 	sd->itemhealrate.clear();
 	sd->subele2.clear();
+	sd->subrace3.clear();
 	sd->skilldelay.clear();
 	sd->sp_vanish.clear();
 	sd->hp_vanish.clear();
@@ -13221,6 +13229,7 @@ int status_change_clear(struct block_list* bl, int type)
 			case SC_ENTRY_QUEUE_APPLY_DELAY:
 			case SC_ENTRY_QUEUE_NOTIFY_ADMISSION_TIME_OUT:
 			case SC_REUSE_LIMIT_LUXANIMA:
+			case SC_SOULENERGY:
 			// Costumes
 			case SC_MOONSTAR:
 			case SC_SUPER_STAR:
@@ -13922,6 +13931,10 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_CROSSBOWCLAN:
 		case SC_JUMPINGCLAN:
 			status_change_end(bl,SC_CLAN_INFO,INVALID_TIMER);
+			break;
+		case SC_SOULENERGY:
+			if (sd)
+				pc_delsoulball(sd, sd->soulball, false);
 			break;
 	}
 
@@ -15157,8 +15170,8 @@ TIMER_FUNC(status_change_timer){
 		}
 		break;
 	case SC_SOULCOLLECT:
-		pc_addsoulball(sd, skill_get_time2(SP_SOULCOLLECT, sce->val1), sce->val2);
-		if( sd->soulball < sce->val2 ){
+		pc_addsoulball(sd, sce->val2);
+		if (sd->soulball < sce->val2) {
 			sc_timer_next(sce->val3 + tick);
 			return 0;
 		}
@@ -15407,6 +15420,7 @@ void status_change_clear_buffs(struct block_list* bl, uint8 type)
 			case SC_LHZ_DUN_N4:
 			case SC_REUSE_LIMIT_LUXANIMA:
 			case SC_LUXANIMA:
+			case SC_SOULENERGY:
 			// Clans
 			case SC_CLAN_INFO:
 			case SC_SWORDCLAN:

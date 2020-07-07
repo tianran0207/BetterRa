@@ -657,6 +657,7 @@ enum unitdata_mobtypes {
 	UMOB_TARGETID,
 	UMOB_ROBE,
 	UMOB_BODY2,
+	UMOB_GROUP_ID,
 };
 
 enum unitdata_homuntypes {
@@ -700,6 +701,7 @@ enum unitdata_homuntypes {
 	UHOM_ADELAY,
 	UHOM_DMOTION,
 	UHOM_TARGETID,
+	UHOM_GROUP_ID,
 };
 
 enum unitdata_pettypes {
@@ -740,6 +742,7 @@ enum unitdata_pettypes {
 	UPET_AMOTION,
 	UPET_ADELAY,
 	UPET_DMOTION,
+	UPET_GROUP_ID,
 };
 
 enum unitdata_merctypes {
@@ -780,6 +783,7 @@ enum unitdata_merctypes {
 	UMER_ADELAY,
 	UMER_DMOTION,
 	UMER_TARGETID,
+	UMER_GROUP_ID,
 };
 
 enum unitdata_elemtypes {
@@ -822,6 +826,7 @@ enum unitdata_elemtypes {
 	UELE_ADELAY,
 	UELE_DMOTION,
 	UELE_TARGETID,
+	UELE_GROUP_ID,
 };
 
 enum unitdata_npctypes {
@@ -870,6 +875,7 @@ enum unitdata_npctypes {
 	UNPC_ROBE,
 	UNPC_BODY2,
 	UNPC_DEADSIT,
+	UNPC_GROUP_ID,
 };
 
 enum navigation_service {

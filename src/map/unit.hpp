@@ -36,8 +36,6 @@ struct unit_data {
 		int rate1, rate2;
 		int64 min_dmg, max_dmg;
 	}def_fix;
-	char title[NAME_LENGTH];
-	int groupicon;
 	short attackevent_mark;
 	short attackedevent_mark;
 	short attacktarget_lv;
@@ -74,6 +72,8 @@ struct unit_data {
 		unsigned blockedskill : 1;
 	} state;
 	char walk_done_event[EVENT_NAME_LENGTH];
+	char title[NAME_LENGTH];
+	int32 group_id;
 };
 
 struct view_data {
