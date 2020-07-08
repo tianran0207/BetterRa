@@ -29568,7 +29568,7 @@ BUILDIN_FUNC(skf_card_fix)
 {
 	int64 damage = script_getnum64(st, 2);
 	int attack_type = script_getnum(st, 3);
-	int nk = script_hasdata(st, 4) ? script_getnum(st, 4) : -1;
+	std::bitset<NK_MAX> nk = script_hasdata(st, 4) ? script_getnum(st, 4) : skill_db.find(skf_db.info.skill_id)->nk;
 	int hand = script_hasdata(st, 5) ? script_getnum(st, 5) : 2;
 	script_pushint(st, skf_db.script_card_fix(damage, attack_type, nk, hand));
 	return SCRIPT_CMD_SUCCESS;
