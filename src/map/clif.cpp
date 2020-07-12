@@ -21979,18 +21979,19 @@ void clif_refineui_info( struct map_session_data* sd, uint16 index ){
 		return;
 	}
 
-	length = 7 + material_count * 7;
+	length = sizeof(struct PACKET_ZC_REFINE_ADD_ITEM) + material_count * sizeof(struct PACKET_ZC_REFINE_ADD_ITEM_SUB);
 
-	WFIFOHEAD(fd,length);
-	WFIFOW(fd,0) = 0x0AA2;
-	WFIFOW(fd,2) = length;
-	WFIFOW(fd,4) = index + 2;
-	WFIFOB(fd, 6) = materials[REFINEUI_MAT_BLESSING].blessing; //TODO: required amount of "Blacksmith Blessing"(id: 6635)
+	WFIFOHEAD(fd, length);
+	struct PACKET_ZC_REFINE_ADD_ITEM *p = (struct PACKET_ZC_REFINE_ADD_ITEM *)WFIFOP(fd, 0);
+	p->packetType = HEADER_ZC_REFINE_ADD_ITEM;
+	p->packtLength = length;
+	p->itemIndex = index + 2;
+	p->blacksmithBlessing = materials[REFINEUI_MAT_BLESSING].blessing;
 
 	for( i = 0; i < material_count; i++ ){
-		WFIFOW(fd,7 + i * 7) = materials[i].cost.nameid;
-		WFIFOB(fd,7 + i * 7 + 2) = materials[i].chance;
-		WFIFOL(fd,7 + i * 7 + 3) = materials[i].cost.zeny;
+		p->req[i].itemId = materials[i].cost.nameid;
+		p->req[i].chance = materials[i].chance;
+		p->req[i].zeny = materials[i].cost.zeny;
 	}
 
 	WFIFOSET(fd,length);
