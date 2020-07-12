@@ -22026,9 +22026,10 @@ void clif_parse_refineui_add( int fd, struct map_session_data* sd ){
  */
 void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 #if PACKETVER >= 20161012
-	uint16 index = RFIFOW( fd, 2 ) - 2;
-	uint16 material = RFIFOW( fd, 4 );
-	bool use_blacksmith_blessing = RFIFOB( fd, 6 ) != 0, success = false; // TODO: add logic
+	const struct PACKET_CZ_REFINE_ITEM_REQUEST *p = (struct PACKET_CZ_REFINE_ITEM_REQUEST *)RFIFOP(fd, 0);
+	uint16 index = p->index - 2;
+	uint16 material = p->itemId;
+	bool use_blacksmith_blessing = p->blacksmithBlessing != 0, success = false; // TODO: add logic
 	struct refine_materials materials[REFINEUI_MAT_CNT];
 	uint8 i, material_count;
 	short j, k;

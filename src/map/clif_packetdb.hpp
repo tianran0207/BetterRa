@@ -2358,7 +2358,7 @@
 	packet(0x0AA0,2);
 	parseable_packet(0x0AA1,4,clif_parse_refineui_add,2);
 	packet(0x0AA2,-1);
-	parseable_packet(0x0AA3,7,clif_parse_refineui_refine,2,4,6);
+	parseable_packet(0x0AA3,sizeof( struct PACKET_CZ_REFINE_ITEM_REQUEST ),clif_parse_refineui_refine,2,4,6);
 	parseable_packet(0x0AA4,2,clif_parse_refineui_close,0);
 #endif
 
