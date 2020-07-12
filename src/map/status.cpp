@@ -10333,6 +10333,8 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		break;
 	}
 
+	status_change_check_remove(bl, type);
+
 	// Check for overlapping fails
 	if( (sce = sc->data[type]) ) {
 		switch( type ) {
@@ -11032,7 +11034,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if(val4 == BCT_SELF) {	// Self effect
 				val2 = tick/10000;
 				tick_time = 10000; // [GodLesZ] tick time
-				status_change_clear_buffs(bl, SCCB_BUFFS|SCCB_DEBUFFS|SCCB_CHEM_PROTECT); // Remove buffs/debuffs
+				status_change_clear_buffs(bl, SCCB_BUFFS|SCCB_DEBUFFS|SCCB_CHEM_PROTECT, status_sc2skill(type)); // Remove buffs/debuffs
 			}
 			break;
 
@@ -11491,7 +11493,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			break;
 		case SC_REFRESH:
 			status_heal(bl, status_get_max_hp(bl) * 25 / 100, 0, 1);
-			status_change_clear_buffs(bl, SCCB_REFRESH);
+			status_change_clear_buffs(bl, SCCB_REFRESH, status_sc2skill(type));
 			break;
 		case SC_MILLENNIUMSHIELD:
 			{
@@ -11825,7 +11827,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val3 = status_get_lv(bl) / 10 + val2 / 5; //All stat bonus
 			val4 = tick / 5000;
 			tick_time = 5000; // [GodLesZ] tick time
-			status_change_clear_buffs(bl, SCCB_BUFFS|SCCB_DEBUFFS); // Remove buffs/debuffs
+			status_change_clear_buffs(bl, SCCB_BUFFS|SCCB_DEBUFFS, status_sc2skill(type)); // Remove buffs/debuffs
 			break;
 		case SC_CRESCENTELBOW:
 			val2 = (sd?sd->status.job_level:50) / 2 + (50 + 5 * val1);
@@ -13130,6 +13132,13 @@ int status_change_clear(struct block_list* bl, int type)
 	for(i = 0; i < SC_MAX; i++) {
 		if(!sc->data[i])
 			continue;
+
+		int scc;
+		if ((scc = status_change_check(bl, i, type)) != SCC_NONE) {
+			if (scc == SCC_END)
+				status_change_end(bl, (sc_type)i, INVALID_TIMER);
+			continue;
+		}
 
 		if(type == 0) {
 			switch (i) { // Type 0: PC killed -> Place here statuses that do not dispel on death.
@@ -15296,22 +15305,31 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
  *  SCCB_CHEM_PROTECT: Clear AM_CP_ARMOR/HELM/SHIELD/WEAPON
  *  SCCB_LUXANIMA: Bonus Script removed through RK_LUXANIMA
  */
-void status_change_clear_buffs(struct block_list* bl, uint8 type)
+void status_change_clear_buffs(struct block_list* bl, uint8 type, uint16 skill_id)
 {
-	int i;
+	int i, scc;
 	struct status_change *sc= status_get_sc(bl);
 
 	if (!sc || !sc->count)
 		return;
 
 	if (type&(SCCB_DEBUFFS|SCCB_REFRESH)) // Debuffs
-		for (i = SC_COMMON_MIN; i <= SC_COMMON_MAX; i++)
-			status_change_end(bl, (sc_type)i, INVALID_TIMER);
+		for (i = SC_COMMON_MIN; i <= SC_COMMON_MAX; i++) {
+			if ((scc = status_change_check(bl, i, skill_id)) != SCC_NONE) {
+				if (scc == SCC_END)
+					status_change_end(bl, (sc_type)i, INVALID_TIMER);
+				continue;
+			}
+		}
 
 	for( i = SC_COMMON_MAX+1; i < SC_MAX; i++ ) {
 		if(!sc->data[i])
 			continue;
-
+		if ((scc = status_change_check(bl, i, skill_id)) != SCC_NONE) {
+			if (scc == SCC_END)
+				status_change_end(bl, (sc_type)i, INVALID_TIMER);
+			continue;
+		}
 		switch (i) {
 			// Stuff that cannot be removed
 			case SC_WEIGHT50:
@@ -16240,6 +16258,7 @@ int status_readdb(void)
 	}
 
 	size_fix_db.load();
+	status_change_db.load();
 
 	return 0;
 }
@@ -16271,4 +16290,168 @@ static int status_checkskill(struct block_list *bl, uint16 skill_id) {
 	case BL_MER: return mercenary_checkskill((TBL_MER *)bl, skill_id);
 	}
 	return 0;
+}
+
+const std::string StatusChangeDatabase::getDefaultLocation() {
+	return std::string(db_path) + "/status_change_db.yml";
+}
+
+uint64 StatusChangeDatabase::parseBodyNode(const YAML::Node &node)
+{
+	uint16 sc_id;
+	int64 constant;
+	std::string name;
+
+	if (!this->asString(node, "Id", name))
+		return 0;
+
+	if (!script_get_constant(name.c_str(), &constant)) {
+		this->invalidWarning(node, "Id %s is invalid.\n", name.c_str());
+		return 0;
+	}
+	sc_id = static_cast<uint16>(constant);
+
+	std::shared_ptr<s_status_change_db> status_change = this->find(sc_id);
+	bool exists = status_change != nullptr;
+
+	if (!exists) {
+		status_change = std::make_shared<s_status_change_db>();
+		status_change->sc_id = sc_id;
+	}
+	else
+		status_change->remove_sc.clear();
+
+	if (this->nodeExists(node, "Type")) {
+		uint16 type;
+		if (!this->asUInt16(node, "Type", type))
+			return 0;
+		if ((type&(BL_PC|BL_MOB)) != type){
+			this->invalidWarning(node["Type"], "Invalid type '%d'.\n", type);
+			return 0;
+		}
+		status_change->type = (enum bl_type)type;
+	}else
+		status_change->type = (enum bl_type)(BL_PC|BL_MOB);
+
+	if (this->nodeExists(node, "Condition")) {
+		const YAML::Node &ConditionNode = node["Condition"];
+		for (const auto &it : ConditionNode) {
+			std::string ssc = it.first.as<std::string>(), ssc_constant = "SCC_" + ssc;
+			if (!script_get_constant(ssc_constant.c_str(), &constant)) {
+				this->invalidWarning(ConditionNode, "Condition %s is invalid.\n", ssc.c_str());
+				return 0;
+			}
+			bool active;
+			if (!this->asBool(ConditionNode, ssc, active))
+				return 0;
+			if (active) {
+				status_change->end.set(static_cast<int>(constant));
+				status_change->ignore.reset(static_cast<int>(constant));
+			}	
+			else {
+				status_change->end.reset(static_cast<int>(constant));
+				status_change->ignore.set(static_cast<int>(constant));
+			}
+		}
+	}
+	if (this->nodeExists(node, "RemoveStatus")) {
+		const YAML::Node &RemoveNode = node["RemoveStatus"];
+		for (const auto &it : RemoveNode) {
+			std::string ssc;
+			if (!this->asString(it, "Id", ssc))
+				return 0;
+			if (!script_get_constant(ssc.c_str(), &constant)) {
+				this->invalidWarning(RemoveNode, "SC %s is invalid.\n", ssc.c_str());
+				return 0;
+			}
+			status_change->remove_sc.push_back(static_cast<int16>(constant));
+		}
+	}
+	if (this->nodeExists(node, "Restricted")) {
+		int32 restricted = 0;
+		if (!this->asInt32(node, "Restricted", restricted))
+			return 0;
+		status_change->restricted = restricted;
+	} else
+		status_change->restricted = 0;
+
+	if (!exists) {
+		this->has_data[sc_id] = 1;
+		this->put(sc_id, status_change);
+	}
+		
+
+	return 1;
+}
+
+StatusChangeDatabase status_change_db;
+
+int status_change_check(struct block_list *bl, int16 sc, uint16 type)
+{
+	if (sc < 0 || sc >= SC_MAX || !status_change_db.has_data[sc])
+		return SCC_NONE;
+	if (bl->type == BL_MOB && (type == SCC_DEAD || type == SCC_LOGOUT))
+		return SCC_NONE;
+	std::shared_ptr<s_status_change_db> status_change = status_change_db.find(sc);
+	if (!status_change)
+		return SCC_NONE;
+	if (!(status_change->type&bl->type))
+		return SCC_NONE;
+	if (status_change->restricted) {
+		struct map_data *mapdata = map_getmapdata(bl->m);
+		if (!(status_change->restricted & 1 && (!mapdata->flag[MF_PVP] && !mapdata_flag_gvg2(mapdata) && !mapdata->flag[MF_BATTLEGROUND] && !mapdata->flag[MF_SKILL_DAMAGE] && !mapdata->flag[MF_RESTRICTED])) &&
+			!(status_change->restricted & 2 && mapdata->flag[MF_PVP]) &&
+			!(status_change->restricted & 4 && mapdata_flag_gvg2(mapdata)) &&
+			!(status_change->restricted & 8 && mapdata->flag[MF_BATTLEGROUND]) &&
+			!(status_change->restricted & 16 && mapdata->flag[MF_SKILL_DAMAGE]) &&
+			!(status_change->restricted&mapdata->zone && mapdata->flag[MF_RESTRICTED]))
+			return SCC_NONE;
+	}
+	switch (type) {
+	case PA_GOSPEL:           type = SCC_GOSPEL;           break;
+	case SA_DISPELL:          type = SCC_DISPELL;          break;
+	case AB_CLEARANCE:        type = SCC_CLEARANCE;        break;
+	case CG_HERMODE:          type = SCC_HERMODE;          break;
+	case CG_TAROTCARD:        type = SCC_TAROTCARD;        break;
+	case RL_BANISHING_BUSTER: type = SCC_BANISHING_BUSTER; break;
+	case LG_INSPIRATION:      type = SCC_INSPIRATION;      break;
+	case RK_REFRESH:          type = SCC_REFRESH;          break;
+	case RK_LUXANIMA:         type = SCC_LUXANIMA;         break;
+	default:
+		if (type < 0 || type > SCC_MAX) {
+			ShowError("status_change_check: Invalid status change with type %d.\n", type);
+			return SCC_NONE;
+		}
+	}
+	if (status_change->end[type])
+		return SCC_END;
+	if (status_change->ignore[type])
+		return SCC_IGNORE;
+
+	return SCC_NONE;
+}
+
+int status_change_check_remove(struct block_list *bl, int16 sc)
+{
+	if (sc < 0 || sc >= SC_MAX || !status_change_db.has_data[sc])
+		return 0;
+	std::shared_ptr<s_status_change_db> status_change = status_change_db.find(sc);
+	if (!status_change)
+		return 0;
+	if (!(status_change->type&bl->type))
+		return 0;
+	if (status_change->restricted) {
+		struct map_data *mapdata = map_getmapdata(bl->m);
+		if (!(status_change->restricted&1 && (!mapdata->flag[MF_PVP] && !mapdata_flag_gvg2(mapdata) && !mapdata->flag[MF_BATTLEGROUND] && !mapdata->flag[MF_SKILL_DAMAGE] && !mapdata->flag[MF_RESTRICTED])) &&
+			!(status_change->restricted&2 && mapdata->flag[MF_PVP]) &&
+			!(status_change->restricted&4 && mapdata_flag_gvg2(mapdata)) &&
+			!(status_change->restricted&8 && mapdata->flag[MF_BATTLEGROUND]) &&
+			!(status_change->restricted&16 && mapdata->flag[MF_SKILL_DAMAGE]) &&
+			!(status_change->restricted&mapdata->zone && mapdata->flag[MF_RESTRICTED]))
+			return 0;
+	}
+	for (auto &it : status_change->remove_sc)
+		status_change_end(bl, (enum sc_type)it, INVALID_TIMER);
+
+	return 1;
 }

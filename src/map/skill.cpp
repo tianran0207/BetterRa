@@ -4786,7 +4786,7 @@ static int skill_tarotcard(struct block_list* src, struct block_list *target, ui
 	}
 	case 3: // THE HIGH PRIESTESS - all buffs removed
 	{
-		status_change_clear_buffs(target, SCCB_BUFFS | SCCB_CHEM_PROTECT);
+		status_change_clear_buffs(target, SCCB_BUFFS | SCCB_CHEM_PROTECT, skill_id);
 		break;
 	}
 	case 4: // THE CHARIOT - 1000 damage, random armor destroyed
@@ -6597,7 +6597,7 @@ static int skill_apply_songs(struct block_list* target, va_list ap)
 			return skill_additional_effect(src, target, skill_id, skill_lv, BF_LONG | BF_SKILL | BF_MISC, ATK_DEF, tick);
 		default: // Buff/Debuff type songs
 			if (skill_id == CG_HERMODE && src->id != target->id)
-				status_change_clear_buffs(target, SCCB_BUFFS); // Should dispell only allies.
+				status_change_clear_buffs(target, SCCB_BUFFS, skill_id); // Should dispell only allies.
 			return sc_start(src, target, status_skill2sc(skill_id), 100, skill_lv, skill_get_time(skill_id, skill_lv));
 		}
 	}
@@ -8658,6 +8658,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			for(i=0;i<SC_MAX;i++) {
 				if (!tsc->data[i])
 					continue;
+				int scc;
+				if ((scc = status_change_check(bl, i, skill_id)) != SCC_NONE) {
+					if (scc == SCC_END)
+						status_change_end(bl, (sc_type)i, INVALID_TIMER);
+					continue;
+				}
 				switch (i) {
 					// Custom
 					case SC_BOT:			case SC_BLOCKING_ALIVE:	case SC_BLOCKING_WEAPON:
@@ -9909,7 +9915,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		}
 		break;
 	case RK_LUXANIMA:
-		status_change_clear_buffs(bl, SCCB_LUXANIMA); // For bonus_script
+		status_change_clear_buffs(bl, SCCB_LUXANIMA, RK_LUXANIMA); // For bonus_script
 	case RK_GIANTGROWTH:
 	case RK_STONEHARDSKIN:
 	case RK_VITALITYACTIVATION:
@@ -10156,6 +10162,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			for( i = 0; i < SC_MAX; i++ ) {
 				if (!tsc->data[i])
 					continue;
+				int scc;
+				if ((scc = status_change_check(bl, i, type)) != SCC_NONE) {
+					if (scc == SCC_END)
+						status_change_end(bl, (sc_type)i, INVALID_TIMER);
+					continue;
+				}
 				switch (i) {
 					// Custom
 					case SC_BOT:			case SC_BLOCKING_ALIVE:	case SC_BLOCKING_WEAPON:
@@ -14442,7 +14454,7 @@ static int skill_unit_onplace(struct skill_unit *unit, struct block_list *bl, t_
 
 		case UNT_HERMODE:
 			if (sg->src_id!=bl->id && battle_check_target(&unit->bl,bl,BCT_PARTY|BCT_GUILD) > 0)
-				status_change_clear_buffs(bl, SCCB_BUFFS); //Should dispell only allies.
+				status_change_clear_buffs(bl, SCCB_BUFFS, sg->skill_id); //Should dispell only allies.
 		case UNT_RICHMANKIM:
 		case UNT_ETERNALCHAOS:
 		case UNT_DRUMBATTLEFIELD:
@@ -14972,7 +14984,7 @@ int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *bl, t_t
 						status_heal(bl, heal, 0, 0);
 						break;
 					case 1: // End all negative status
-						status_change_clear_buffs(bl, SCCB_DEBUFFS | SCCB_REFRESH);
+						status_change_clear_buffs(bl, SCCB_DEBUFFS | SCCB_REFRESH, sg->skill_id);
 						if (tsd) clif_gospel_info(tsd, 0x15);
 						break;
 					case 2: // Immunity to all status

@@ -4,6 +4,8 @@
 #ifndef STATUS_HPP
 #define STATUS_HPP
 
+#include <bitset>
+
 #include "../common/database.hpp"
 #include "../common/mmo.hpp"
 #include "../common/timer.hpp"
@@ -2615,7 +2617,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 TIMER_FUNC(status_change_timer);
 int status_change_timer_sub(struct block_list* bl, va_list ap);
 int status_change_clear(struct block_list* bl, int type);
-void status_change_clear_buffs(struct block_list* bl, uint8 type);
+void status_change_clear_buffs(struct block_list* bl, uint8 type, uint16 skill_id = 0);
 void status_change_clear_onChangeMap(struct block_list *bl, struct status_change *sc);
 
 #define status_calc_bl(bl, flag) status_calc_bl_(bl, (enum scb_flag)(flag), SCO_NONE)
@@ -2666,5 +2668,49 @@ void initChangeTables(void);
 int status_readdb(void);
 int do_init_status(void);
 void do_final_status(void);
+
+enum e_status_change_db : uint8 {
+	SCC_DEAD = 0,
+	SCC_LOGOUT = 2,
+	SCC_SCRIPTSCEND = 3,
+	SCC_GOSPEL,
+	SCC_DISPELL,
+	SCC_CLEARANCE,
+	SCC_HERMODE,
+	SCC_TAROTCARD,
+	SCC_BANISHING_BUSTER,
+	SCC_INSPIRATION,
+	SCC_REFRESH,
+	SCC_LUXANIMA,
+	SCC_NOMAGICDAMAGE,
+	SCC_NONE,
+	SCC_END,
+	SCC_IGNORE,
+	SCC_MAX,
+};
+
+struct s_status_change_db {
+	int16 sc_id;
+	enum bl_type type;
+	std::bitset<SCC_MAX> end;
+	std::bitset<SCC_MAX> ignore;
+	std::vector<int16> remove_sc;
+	int restricted;
+};
+
+class StatusChangeDatabase : public TypesafeCachedYamlDatabase <uint16, s_status_change_db> {
+public:
+	StatusChangeDatabase() : TypesafeCachedYamlDatabase("STATUS_CHANGE_DB", 1) {
+
+	}
+	unsigned has_data[SC_MAX] = {};
+	const std::string getDefaultLocation();
+	uint64 parseBodyNode(const YAML::Node &node);
+};
+
+extern StatusChangeDatabase status_change_db;
+
+int status_change_check_remove(struct block_list *bl, int16 sc);
+int status_change_check(struct block_list *bl, int16 sc, uint16 type);
 
 #endif /* STATUS_HPP */

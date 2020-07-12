@@ -709,6 +709,20 @@
 	export_constant(MSG_DEBUG);
 	export_constant(MSG_ERROR);
 
+	export_constant(SCC_DEAD);
+	export_constant(SCC_LOGOUT);
+	export_constant(SCC_GOSPEL);
+	export_constant(SCC_DISPELL);
+	export_constant(SCC_CLEARANCE);
+	export_constant(SCC_HERMODE);
+	export_constant(SCC_TAROTCARD);
+	export_constant(SCC_BANISHING_BUSTER);
+	export_constant(SCC_INSPIRATION);
+	export_constant(SCC_REFRESH);
+	export_constant(SCC_LUXANIMA);
+	export_constant(SCC_NOMAGICDAMAGE);
+	export_constant(SCC_SCRIPTSCEND);
+
 	export_parameter("$skf_sgid", SP_SKF_SGID);
 	export_parameter("$skf_scid", SP_SKF_SCID);
 	export_parameter("$skf_tgid", SP_SKF_TGID);

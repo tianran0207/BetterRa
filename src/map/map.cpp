@@ -2235,6 +2235,12 @@ int map_quit(struct map_session_data *sd) {
 			status_change_end(&sd->bl, SC_SOULFALCON, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_SOULFAIRY, INVALID_TIMER);
 		}
+		for (i = 0; i < SC_MAX; i++) {
+			if (!sd->sc.data[i])
+				continue;
+			if (status_change_check(&sd->bl, i, SCC_LOGOUT) == SCC_END)
+				status_change_end(&sd->bl, (sc_type)i, INVALID_TIMER);
+		}
 	}
 
 	for (i = 0; i < EQI_MAX; i++) {
