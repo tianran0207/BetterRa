@@ -2505,6 +2505,7 @@ static void pet_read_pre_db()
 		if (!exists)
 			pet_db.put(mob_id, pet);
 	}
+	fclose(fp);
 
 	return;
 }
