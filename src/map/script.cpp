@@ -29265,7 +29265,7 @@ BUILDIN_FUNC(sendmail)
 		msg.item[i].nameid = script_getnum(st, 6 + (i*len_items) + 1);
 		msg.item[i].amount = script_getnum(st, 6 + (i*len_items) + 2);
 		struct item_data *item = itemdb_exists(msg.item[i].nameid);
-		if (msg.item[i].amount <= 0) {
+		if (!item || msg.item[i].amount <= 0) {
 			ShowError("buildin_sendmail: amount %d for item %hu is invalid.\n", msg.item[i].amount, msg.item[i].nameid);
 			return SCRIPT_CMD_FAILURE;
 		}
