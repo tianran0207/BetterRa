@@ -2155,7 +2155,7 @@ int64 battle_calc_bg_damage(struct block_list *src, struct block_list *bl, int64
 			damage = damage * battle_config.bg_long_damage_rate / 100;
 	}
 
-	damage = i64max(damage, battle_config.min_damage); //min 1 damage
+	damage = i64max(damage,1); //min 1 damage
 	return damage;
 }
 
@@ -2224,7 +2224,7 @@ int64 battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int64 
 		if (flag & BF_LONG)
 			damage = damage * battle_config.gvg_long_damage_rate / 100;
 	}
-	damage = i64max(damage, battle_config.min_damage);
+	damage = i64max(damage,1);
 	return damage;
 }
 
@@ -2251,7 +2251,7 @@ int64 battle_calc_pvp_damage(struct block_list *src, struct block_list *bl, int6
 			damage = damage * battle_config.pvp_long_damage_rate / 100;
 	}
 
-	damage = i64max(damage, battle_config.min_damage); //min 1 damage
+	damage = i64max(damage,1); //min 1 damage
 	return damage;
 }
 
