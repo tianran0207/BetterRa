@@ -10114,13 +10114,13 @@ BUILDIN_FUNC(autobonus)
 	else
 		pos = sd->inventory.u.items_inventory[current_equip_item_index].equip;
 
-	if((sd->state.autobonus&pos) == pos)
+	if ((sd->state.autobonus&pos) == pos && !running_npc_stat_calc_event)
 		return SCRIPT_CMD_SUCCESS;
 
-	rate = script_getnum(st,3);
-	dur = script_getnum(st,4);
-	bonus_script = script_getstr(st,2);
-	if( !rate || !dur || !pos || !bonus_script )
+	rate = script_getnum(st, 3);
+	dur = script_getnum(st, 4);
+	bonus_script = script_getstr(st, 2);
+	if (!rate || !dur || !pos && !running_npc_stat_calc_event || !bonus_script)
 		return SCRIPT_CMD_SUCCESS;
 
 	if( script_hasdata(st,5) )
