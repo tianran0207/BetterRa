@@ -10015,6 +10015,11 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 					*(str_p-3) = '\0'; //Remove trailing space + pipe.
 					safestrncpy( packet.party_name, mobhp, NAME_LENGTH );
 				}
+				if (str_info1 != mobinfo1) 
+					safestrncpy(packet.guild_name, mobinfo1, NAME_LENGTH);
+
+				if (str_info2 != mobinfo2)
+					safestrncpy(packet.position_name, mobinfo2, NAME_LENGTH);
 
 				clif_send(&packet, sizeof(packet), src, target);
 			} else {
