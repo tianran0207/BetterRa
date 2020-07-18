@@ -2990,7 +2990,7 @@ static void pc_bonus_subrace(struct map_session_data* sd, unsigned char race, sh
 	}
 
 	for (auto &it : sd->subrace3) {
-		if (it.race == race && it.flag == flag) {
+		if ((it.race == race || it.race == RC_ALL) && it.flag == flag) {
 			it.rate = cap_value(it.rate + rate, -10000, 10000);
 			return;
 		}

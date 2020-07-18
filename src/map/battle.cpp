@@ -987,7 +987,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 					int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL] + tsd->subele_script[rh_ele] + tsd->subele_script[ELE_ALL];
 
 					for (const auto &it : tsd->subele2) {
-						if (it.ele != rh_ele)
+						if (it.ele != rh_ele && it.ele != ELE_ALL)
 							continue;
 						if (!(((it.flag)&flag)&BF_WEAPONMASK &&
 							((it.flag)&flag)&BF_RANGEMASK &&
@@ -1004,7 +1004,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 				cardfix = cardfix * (100 - min(tsd->subrace2[s_race2],100)) / 100;
 				int race_fix = tsd->subrace[sstatus->race] - tsd->subrace[RC_ALL];
 				for (const auto &it : tsd->subrace3) {
-					if (it.race != sstatus->race)
+					if (it.race != sstatus->race && it.race != RC_ALL)
 						continue;
 					if (!(((it.flag)&flag)&BF_WEAPONMASK &&
 						((it.flag)&flag)&BF_RANGEMASK &&
@@ -1049,7 +1049,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 							sd->right_weapon.addele[ELE_ALL] + sd->arrow_addele[ELE_ALL];
 
 						for (const auto &it : sd->right_weapon.addele2) {
-							if (it.ele != tstatus->def_ele)
+							if (it.ele != tstatus->def_ele && it.ele != ELE_ALL)
 								continue;
 							if (!(((it.flag)&flag)&BF_WEAPONMASK &&
 								((it.flag)&flag)&BF_RANGEMASK &&
@@ -1075,7 +1075,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 							int ele_fix = sd->right_weapon.addele[tstatus->def_ele] + sd->right_weapon.addele[ELE_ALL];
 
 							for (const auto &it : sd->right_weapon.addele2) {
-								if (it.ele != tstatus->def_ele)
+								if (it.ele != tstatus->def_ele && it.ele != ELE_ALL)
 									continue;
 								if (!(((it.flag)&flag)&BF_WEAPONMASK &&
 									((it.flag)&flag)&BF_RANGEMASK &&
@@ -1095,7 +1095,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 								int ele_fix_lh = sd->left_weapon.addele[tstatus->def_ele] + sd->left_weapon.addele[ELE_ALL];
 
 								for (const auto &it : sd->left_weapon.addele2) {
-									if (it.ele != tstatus->def_ele)
+									if (it.ele != tstatus->def_ele && it.ele != ELE_ALL)
 										continue;
 									if (!(((it.flag)&flag)&BF_WEAPONMASK &&
 										((it.flag)&flag)&BF_RANGEMASK &&
@@ -1118,7 +1118,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 										+ sd->right_weapon.addele[ELE_ALL] + sd->left_weapon.addele[ELE_ALL];
 
 							for (const auto &it : sd->right_weapon.addele2) {
-								if (it.ele != tstatus->def_ele)
+								if (it.ele != tstatus->def_ele && it.ele != ELE_ALL)
 									continue;
 								if (!(((it.flag)&flag)&BF_WEAPONMASK &&
 									((it.flag)&flag)&BF_RANGEMASK &&
@@ -1127,7 +1127,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 								ele_fix += it.rate;
 							}
 							for (const auto &it : sd->left_weapon.addele2) {
-								if (it.ele != tstatus->def_ele)
+								if (it.ele != tstatus->def_ele && it.ele != ELE_ALL)
 									continue;
 								if (!(((it.flag)&flag)&BF_WEAPONMASK &&
 									((it.flag)&flag)&BF_RANGEMASK &&
@@ -1182,7 +1182,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 					int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL] + tsd->subele_script[rh_ele] + tsd->subele_script[ELE_ALL];
 
 					for (const auto &it : tsd->subele2) {
-						if (it.ele != rh_ele)
+						if (it.ele != rh_ele && it.ele != ELE_ALL)
 							continue;
 						if (!(((it.flag)&flag)&BF_WEAPONMASK &&
 							((it.flag)&flag)&BF_RANGEMASK &&
@@ -1196,7 +1196,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 						int ele_fix_lh = tsd->subele[lh_ele] + tsd->subele[ELE_ALL] + tsd->subele_script[lh_ele] + tsd->subele_script[ELE_ALL];
 
 						for (const auto &it : tsd->subele2) {
-							if (it.ele != lh_ele)
+							if (it.ele != lh_ele && it.ele != ELE_ALL)
 								continue;
 							if (!(((it.flag)&flag)&BF_WEAPONMASK &&
 								((it.flag)&flag)&BF_RANGEMASK &&
@@ -1213,7 +1213,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 				cardfix = cardfix * (100 - tsd->subrace2[s_race2]) / 100;
 				int race_fix = tsd->subrace[sstatus->race] - tsd->subrace[RC_ALL];
 				for (const auto &it : tsd->subrace3) {
-					if (it.race != sstatus->race)
+					if (it.race != sstatus->race && it.race != RC_ALL)
 						continue;
 					if (!(((it.flag)&flag)&BF_WEAPONMASK &&
 						((it.flag)&flag)&BF_RANGEMASK &&
@@ -1246,7 +1246,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 					int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL] + tsd->subele_script[rh_ele] + tsd->subele_script[ELE_ALL];
 
 					for (const auto &it : tsd->subele2) {
-						if (it.ele != rh_ele)
+						if (it.ele != rh_ele && it.ele != ELE_ALL)
 							continue;
 						if (!(((it.flag)&flag)&BF_WEAPONMASK &&
 							((it.flag)&flag)&BF_RANGEMASK &&
@@ -1260,7 +1260,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 				}
 				int race_fix = tsd->subrace[sstatus->race] - tsd->subrace[RC_ALL];
 				for (const auto &it : tsd->subrace3) {
-					if (it.race != sstatus->race)
+					if (it.race != sstatus->race && it.race != RC_ALL)
 						continue;
 					if (!(((it.flag)&flag)&BF_WEAPONMASK &&
 						((it.flag)&flag)&BF_RANGEMASK &&
