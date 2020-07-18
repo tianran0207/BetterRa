@@ -2780,7 +2780,7 @@ void pc_delautobonus(struct map_session_data* sd, std::vector<s_autobonus> &bonu
 							equip_pos_idx |= sd->inventory.u.items_inventory[sd->equip_index[j]].equip;
 					}
 
-					if ((equip_pos_idx&b.pos) == b.pos)
+					if ((equip_pos_idx&b.pos) == b.pos || b.pos == running_stat_calc_pos)
 						script_run_autobonus(b.bonus_script, sd, b.pos);
 				}
 
@@ -2840,7 +2840,7 @@ void pc_exeautobonus(struct map_session_data *sd, std::vector<s_autobonus> *bonu
 			if(sd->equip_index[j] >= 0)
 				equip_pos_idx |= sd->inventory.u.items_inventory[sd->equip_index[j]].equip;
 		}
-		if((equip_pos_idx&autobonus->pos) == autobonus->pos)
+		if((equip_pos_idx&autobonus->pos) == autobonus->pos || autobonus->pos == running_stat_calc_pos)
 			script_run_autobonus(autobonus->other_script,sd,autobonus->pos);
 	}
 

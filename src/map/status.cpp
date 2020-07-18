@@ -66,6 +66,7 @@ unsigned int current_equip_combo_pos; /// For combo items we need to save the po
 int current_equip_card_index;
 int current_equip_card_id; /// To prevent card-stacking (from jA) [Skotlex]
 bool running_npc_stat_calc_event; /// Indicate if OnPCStatCalcEvent is running.
+unsigned int running_stat_calc_pos = 1073741824;
 // We need it for new cards 15 Feb 2005, to check if the combo cards are insrerted into the CURRENT weapon only to avoid cards exploits
 short current_equip_opt_index; /// Contains random option index of an equipped item. [Secret]
 

@@ -10109,18 +10109,20 @@ BUILDIN_FUNC(autobonus)
 	if( !script_rid2sd(sd) )
 		return SCRIPT_CMD_SUCCESS; // no player attached
 
-	if (current_equip_combo_pos)
+	if (running_npc_stat_calc_event)
+		pos = running_stat_calc_pos;
+	else if (current_equip_combo_pos)
 		pos = current_equip_combo_pos;
 	else
 		pos = sd->inventory.u.items_inventory[current_equip_item_index].equip;
 
-	if ((sd->state.autobonus&pos) == pos && !running_npc_stat_calc_event)
+	if ((sd->state.autobonus&pos) == pos)
 		return SCRIPT_CMD_SUCCESS;
 
 	rate = script_getnum(st, 3);
 	dur = script_getnum(st, 4);
 	bonus_script = script_getstr(st, 2);
-	if (!rate || !dur || !pos && !running_npc_stat_calc_event || !bonus_script)
+	if (!rate || !dur || !pos || !bonus_script)
 		return SCRIPT_CMD_SUCCESS;
 
 	if( script_hasdata(st,5) )
@@ -10149,7 +10151,9 @@ BUILDIN_FUNC(autobonus2)
 	if( !script_rid2sd(sd) )
 		return SCRIPT_CMD_SUCCESS; // no player attached
 
-	if (current_equip_combo_pos)
+	if (running_npc_stat_calc_event)
+		pos = running_stat_calc_pos;
+	else if (current_equip_combo_pos)
 		pos = current_equip_combo_pos;
 	else
 		pos = sd->inventory.u.items_inventory[current_equip_item_index].equip;
@@ -10189,7 +10193,9 @@ BUILDIN_FUNC(autobonus3)
 	if( !script_rid2sd(sd) )
 		return SCRIPT_CMD_SUCCESS; // no player attached
 
-	if (current_equip_combo_pos)
+	if (running_npc_stat_calc_event)
+		pos = running_stat_calc_pos;
+	else if (current_equip_combo_pos)
 		pos = current_equip_combo_pos;
 	else
 		pos = sd->inventory.u.items_inventory[current_equip_item_index].equip;
