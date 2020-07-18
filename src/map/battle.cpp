@@ -475,7 +475,7 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 
 	skf_db.script_run(src, target, skill_id, skill_lv, 1, wd, &damage, NULL);
 
-	if (ud && ud->def_fix.rate1) {
+	if (ud && ud->def_fix.rate1 && ud->def_fix.rate2) {
 		damage = damage * ud->def_fix.rate1 / ud->def_fix.rate2;
 		if (ud->def_fix.min_dmg && damage < ud->def_fix.min_dmg)
 			damage = ud->def_fix.min_dmg;
@@ -489,13 +489,19 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 		if (wd->damage2 == 0) {
 			wd->damage = damage;
 			battle_display.damage = ddamage;
+			battle_display.damage2 = 0;
 		}
-		else {
+		else if (wd->damage + wd->damage2 > 0){
 			int64 ratio = wd->damage * 10000 / (wd->damage + wd->damage2);
 			wd->damage = damage * ratio / 10000;
 			wd->damage2 = damage - wd->damage;
 			battle_display.damage = ddamage * ratio / 10000;
 			battle_display.damage2 = ddamage - battle_display.damage;
+		}
+		else {
+			wd->damage = damage;
+			battle_display.damage = damage;
+			battle_display.damage2 = 0;
 		}
 	}
 
