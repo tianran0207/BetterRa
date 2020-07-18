@@ -979,7 +979,7 @@ enum e_instance_enter instance_enter_left(struct map_session_data *sd)
 	struct party_data *pd = NULL;
 	struct guild *gd = NULL;
 	struct clan *cd = NULL;
-	int16 m;
+	int16 m, src_m = 0;
 	short x, y;
 	int instance_id = 0;
 	t_tick create_tick = 0;
@@ -1000,16 +1000,19 @@ enum e_instance_enter instance_enter_left(struct map_session_data *sd)
 	if (!idata || idata->state != INSTANCE_BUSY || create_tick != idata->create_tick)
 		return IE_NOINSTANCE;
 
-	std::shared_ptr<s_instance_db> db = instance_db.find(idata->id);
-
-	if (!db || std::find(db->maplist.begin(), db->maplist.end(), m) == db->maplist.end())
+	for (const auto  &it : idata->map) {
+		if (it.m != m)
+			continue;
+		src_m = it.src_m;
+	}
+	if (src_m == 0)
 		return IE_NOINSTANCE;
 
 	switch (idata->mode) {
 	case IM_NONE:
 		break;
 	case IM_CHAR:
-		if (sd->instance_id == 0) // Player must have an instance
+		if (sd->instance_id != instance_id)
 			return IE_NOINSTANCE;
 		if (idata->owner_id != sd->status.char_id)
 			return IE_OTHER;
@@ -1019,7 +1022,7 @@ enum e_instance_enter instance_enter_left(struct map_session_data *sd)
 			return IE_NOMEMBER;
 		if ((pd = party_search(sd->status.party_id)) == NULL)
 			return IE_NOMEMBER;
-		if (pd->instance_id == 0 || im == NULL) // Party must have an instance
+		if (pd->instance_id != instance_id)
 			return IE_NOINSTANCE;
 		if (idata->owner_id != pd->party.party_id)
 			return IE_OTHER;
@@ -1029,7 +1032,7 @@ enum e_instance_enter instance_enter_left(struct map_session_data *sd)
 			return IE_NOMEMBER;
 		if ((gd = guild_search(sd->status.guild_id)) == NULL)
 			return IE_NOMEMBER;
-		if (gd->instance_id == 0) // Guild must have an instance
+		if (gd->instance_id != instance_id)
 			return IE_NOINSTANCE;
 		if (idata->owner_id != gd->guild_id)
 			return IE_OTHER;
@@ -1039,7 +1042,7 @@ enum e_instance_enter instance_enter_left(struct map_session_data *sd)
 			return IE_NOMEMBER;
 		if ((cd = clan_search(sd->status.clan_id)) == NULL)
 			return IE_NOMEMBER;
-		if (cd->instance_id == 0) // Clan must have an instance
+		if (cd->instance_id != instance_id)
 			return IE_NOINSTANCE;
 		if (idata->owner_id != cd->id)
 			return IE_OTHER;
