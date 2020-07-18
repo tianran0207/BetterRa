@@ -2355,6 +2355,15 @@ int status_revive(struct block_list *bl, unsigned char per_hp, unsigned char per
 	else if (per_sp && !sp)
 		sp = 1;
 
+	if (npc_script_event_check(BL_CAST(BL_PC, bl), NPCE_REVIVEFILTER)) {
+		struct map_session_data *sd = (struct map_session_data *)bl;
+		pc_setreg2(sd, "@revive_hp", hp);
+		pc_setreg2(sd, "@revive_sp", sp);
+		npc_script_event_atonce(sd, NPCE_REVIVEFILTER);
+		if (sd->state.processhalt)
+			return 0;
+	}
+
 	status->hp += hp;
 	status->sp += sp;
 

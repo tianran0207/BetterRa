@@ -301,6 +301,8 @@ struct Script_Config {
 	const char* inventory_add_filter_name;
 	const char* pick_log_event_name;
 	const char* drop_item_filter_name;
+	// Pc related
+	const char* pc_revive_filter_name;
 	// Mob related
 	const char* mob_spawn_filter_name;
 	const char* mob_drop_item_filter_name;

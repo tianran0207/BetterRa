@@ -376,6 +376,7 @@ struct Script_Config script_config = {
 	"OnPCInventoryAddFilter", //inventory_add_filter_name
 	"OnPCPickLogEvent", //pick_log_event_name
 	"OnPCDropItemFilter", //drop_item_filter_name
+	"OnPCReviveFilter", //pc_revive_filter_name
 	"OnMOBSpawnFilter", //mob_spawn_filter_name
 	"OnMOBDropItemFilter", //mob_drop_item_filter_name
 	"OnPCAttackFilter", //attack_filter_name
