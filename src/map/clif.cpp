@@ -14389,9 +14389,6 @@ void clif_parse_GuildChangeEmblem2(int fd, struct map_session_data* sd) {
 	if (g == nullptr || g->guild_id != p->guild_id)
 		return;
 
-	if (!sd->state.gmaster_flag)
-		return;
-
 	if (!battle_config.emblem_woe_change && is_agit_start()) {
 		clif_messagecolor(&sd->bl, color_table[COLOR_RED], msg_txt(sd, 385), false, SELF); //"You not allowed to change emblem during woe"
 		return;
