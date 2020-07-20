@@ -18737,7 +18737,7 @@ void clif_elemental_updatestatus(struct elemental_data *ed, int type) {
 	struct status_data *status;
 	int fd = ed->fd;
 
-	if( !session[fd] || session[fd]->session_data != ed->master)
+	if(!session_isActive(fd) || session[fd]->session_data != ed->master)
 		return;
 
 	status = &ed->battle_status;
