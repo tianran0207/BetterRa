@@ -1073,7 +1073,7 @@ int clif_autoshadowspell_list(struct map_session_data *sd);
 
 int clif_skill_itemlistwindow( struct map_session_data *sd, uint16 skill_id, uint16 skill_lv );
 void clif_elemental_info(struct map_session_data *sd);
-void clif_elemental_updatestatus(struct map_session_data *sd, int type);
+void clif_elemental_updatestatus(struct elemental_data *ed, int type);
 
 void clif_spiritcharm(struct map_session_data *sd);
 

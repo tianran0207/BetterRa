@@ -10884,9 +10884,9 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 			return;
 		clif_spawn(&sd->ed->bl);
 		clif_elemental_info(sd);
-		clif_elemental_updatestatus(sd,SP_HP);
+		clif_elemental_updatestatus(sd->ed,SP_HP);
 		clif_hpmeter_single(sd->fd,sd->ed->bl.id,sd->ed->battle_status.hp,sd->ed->battle_status.max_hp);
-		clif_elemental_updatestatus(sd,SP_SP);
+		clif_elemental_updatestatus(sd->ed,SP_SP);
 		status_calc_bl(&sd->ed->bl, SCB_SPEED); //Elemental mimic their master's speed on each map change
 	}
 
@@ -18733,15 +18733,13 @@ void clif_parse_ItemListWindowSelected(int fd, struct map_session_data* sd) {
 /*==========================================
  * Elemental System
  *==========================================*/
-void clif_elemental_updatestatus(struct map_session_data *sd, int type) {
-	struct elemental_data *ed;
+void clif_elemental_updatestatus(struct elemental_data *ed, int type) {
 	struct status_data *status;
-	int fd;
+	int fd = ed->fd;
 
-	if( !clif_session_isValid(sd) || (ed = sd->ed) == NULL )
+	if( !session[fd] || session[fd]->session_data != ed->master)
 		return;
 
-	fd = sd->fd;
 	status = &ed->battle_status;
 	WFIFOHEAD(fd,8);
 	WFIFOW(fd,0) = 0x81e;

@@ -71,6 +71,7 @@ struct elemental_data {
 
 	int masterteleport_timer;
 	struct map_session_data *master;
+	int fd;
 	int summon_timer;
 	int skill_timer;
 

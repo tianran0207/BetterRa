@@ -6218,13 +6218,13 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, enum e_status_ca
 			return;
 
 		if( b_status.max_hp != status->max_hp )
-			clif_elemental_updatestatus(ed->master, SP_MAXHP);
+			clif_elemental_updatestatus(ed, SP_MAXHP);
 		if( b_status.max_sp != status->max_sp )
-			clif_elemental_updatestatus(ed->master, SP_MAXSP);
+			clif_elemental_updatestatus(ed, SP_MAXSP);
 		if( b_status.hp != status->hp )
-			clif_elemental_updatestatus(ed->master, SP_HP);
+			clif_elemental_updatestatus(ed, SP_HP);
 		if( b_status.sp != status->sp )
-			clif_mercenary_updatestatus(ed->master, SP_SP);
+			clif_elemental_updatestatus(ed, SP_SP);
 	}
 }
 
