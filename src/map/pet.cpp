@@ -640,7 +640,7 @@ void pet_set_intimate(struct pet_data *pd, int value)
 	nullpo_retv(pd);
 
 	if (battle_config.pet_ignore_intimate_decrease && value < pd->pet.intimate)
-		value = PET_INTIMATE_AWKWARD;
+		value = pd->pet.intimate;
 
 	pd->pet.intimate = min(value, PET_INTIMATE_MAX);
 
