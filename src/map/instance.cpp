@@ -1445,12 +1445,12 @@ bool instance_readdb_sub(char* str[], int columns, int current)
 		return 0;
 	}
 
-	instance->enter.map = map_mapname2mapid(str[4]);
-	if (instance->enter.map == -1) {
+	if (map_mapname2mapid(str[4]) == -1) {
 		ShowWarning("instance_readdb_sub: Invalid enter map '%s', skipping...\n", str[4]);
 		return 0;
 	}
 
+	instance->enter.map = map_mapname2mapid(str[4]);
 	instance->enter.x = (short)strtol(str[5], &ptr, 10);
 	if (*ptr) {
 		ShowError("instance_readdb_sub: EnterX must be an integer value for instance '%d', skipping...\n", instance_id);
@@ -1483,6 +1483,8 @@ bool instance_readdb_sub(char* str[], int columns, int current)
 			instance->maplist.push_back(m);
 		}
 	}
+
+	instance->destroyable = true;
 
 	if (!exists)
 		instance_db.put(instance_id, instance);
