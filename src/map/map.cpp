@@ -5751,6 +5751,9 @@ int64 map_readparam(int64 type)
 	case SP_SKF_SKLV:        val = skf_db.info.skill_lv; break;
 	case SP_SKF_DMG:         val = skf_db.info.damage;   break;
 	case SP_SKF_TIM:         val = skf_db.info.time;     break;
+	case SP_PACKET_CMD:      val = packet_event.cmd;     break;
+	case SP_PACKET_LEN:      val = packet_event.rlen;    break;
+	case SP_PACKET_AID:      val = packet_event.aid;     break;
 	}
 	return val;
 }
@@ -5779,6 +5782,15 @@ bool map_setparam(int64 type, int64 val_tmp)
 		return true;
 	case SP_SKF_TIM:
 		skf_db.info.time = val;
+		return true;
+	case SP_PACKET_CMD:
+		packet_event.cmd = val;
+		return true;
+	case SP_PACKET_LEN:
+		packet_event.rlen = val;
+		return true;
+	case SP_PACKET_AID:
+		packet_event.aid = val;
 		return true;
 	}
 	return false;

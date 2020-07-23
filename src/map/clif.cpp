@@ -22503,7 +22503,6 @@ TIMER_FUNC( clif_ping_timer ){
 /*==========================================
  * Main client packet processing function
  *------------------------------------------*/
-static bool clif_parse_packet(struct map_session_data *sd, int cmd);
 static int clif_parse(int fd)
 {
 	int cmd, packet_len;
@@ -22714,7 +22713,7 @@ static int clif_parse(int fd)
 	return 0;
 }
 
-void packetdb_addpacket( uint16 cmd, uint16 length, void (*func)(int, struct map_session_data *), ... ){
+void packetdb_addpacket( uint16 cmd, uint16 length, const char *command, void (*func)(int, struct map_session_data *), ... ){
 	va_list argp;
 	int i;
 
@@ -22723,6 +22722,8 @@ void packetdb_addpacket( uint16 cmd, uint16 length, void (*func)(int, struct map
 
 	packet_db[cmd].len = length;
 	packet_db[cmd].func = func;
+	if (func && !strncmp(command, "clif_parse_", 11))
+		packet_db[cmd].command = std::string(command + 11);
 
 	va_start(argp, func);
 
@@ -22747,8 +22748,8 @@ void packetdb_addpacket( uint16 cmd, uint16 length, void (*func)(int, struct map
 unsigned int config_keys[3];
 #endif
 
-#ifdef C_SOCKET_EVENT
-static bool clif_parse_packet(struct map_session_data *sd, int cmd)
+struct s_packet_event packet_event;
+bool clif_parse_packet(struct map_session_data *sd, int cmd)
 {
 	if (sd == NULL)
 		return true;
@@ -22756,51 +22757,46 @@ static bool clif_parse_packet(struct map_session_data *sd, int cmd)
 	int fd = sd->fd;
 	int packet_len = packet_db[cmd].len == -1 ? RFIFOW(fd, 2) : packet_db[cmd].len;
 
+#ifdef C_SOCKET_CHECKRH
 	if (sd->packet_account) {
 		TBL_PC* pl_sd = map_id2sd(sd->packet_account);
-		char output[CHAT_SIZE_MAX * 3 + 100], timestring[100];
+		char output[CHAT_SIZE_MAX * 3 + 100], timestring[100], *output_p = output;
 		struct s_packet_db* info = &packet_db[cmd];
 		timestamp2string(timestring, sizeof(timestring), time(NULL), "%H:%M:%S");
-
+		output_p += sprintf(output_p, "[%s:%03lld] %s  ACT: %-14s ", timestring, gettick()%1000, sd->status.name, packet_db[cmd].command.c_str());
 		if (pl_sd) {
 			if (info->func == clif_parse_WalkToXY) {
 				short x, y;
 				RFIFOPOS(fd, packet_db[RFIFOW(fd, 0)].pos[0], &x, &y, NULL);
-				sprintf(output, "[%s:%03lld] %s, ACT: WalkToXY,   POS: %d,%d\n", timestring,gettick()%1000,sd->status.name,x,y);
+				sprintf(output_p, "POS: %d,%d\n", x,y);
 			}
 			else if (info->func == clif_parse_GetCharNameRequest)
-				sprintf(output, "[%s:%03lld] %s, ACT: GetName,    GID: %d\n", timestring,gettick()%1000,sd->status.name,RFIFOL(fd,info->pos[0]));
+				output_p += sprintf(output, "[%s:%03lld] %s  ACT: GetName        GID: %d\n", timestring,gettick()%1000,sd->status.name,RFIFOL(fd, info->pos[0]));
 			else if (info->func == clif_parse_ActionRequest)
-				sprintf(output, "[%s:%03lld] %s, ACT: ActionReq,  TYPE: %x, GID: %d\n", timestring,gettick()%1000,sd->status.name,RFIFOB(fd,info->pos[1]),RFIFOL(fd,info->pos[0]));
+				sprintf(output_p, "TYPE: %x, GID: %d\n", RFIFOB(fd,info->pos[1]),RFIFOL(fd,info->pos[0]));
 			else if (info->func == clif_parse_UseSkillToPos)
-				sprintf(output, "[%s:%03lld] %s, ACT: SkillToPos, SKILL: %d(%d), POS: %d,%d\n", timestring,gettick()%1000,sd->status.name,RFIFOW(fd,info->pos[1]),RFIFOW(fd,info->pos[0]),RFIFOW(fd,info->pos[2]),RFIFOW(fd,info->pos[3]));
+				sprintf(output_p, "SKILL: %d(%d), POS: %d,%d\n", RFIFOW(fd,info->pos[1]),RFIFOW(fd,info->pos[0]),RFIFOW(fd,info->pos[2]),RFIFOW(fd,info->pos[3]));
 			else if (info->func == clif_parse_UseSkillToId)
-				sprintf(output, "[%s:%03lld] %s, ACT: SkillToID,  SKILL: %d(%d), TID: %d\n", timestring,gettick()%1000,sd->status.name,RFIFOW(fd,info->pos[1]), RFIFOW(fd,info->pos[0]),RFIFOL(fd,info->pos[2]));
+				sprintf(output_p, "SKILL: %d(%d), TID: %d\n", RFIFOW(fd,info->pos[1]), RFIFOW(fd,info->pos[0]),RFIFOL(fd,info->pos[2]));
 			else if (info->func == clif_parse_UseSkillMap) {
 				char map_name[MAP_NAME_LENGTH];
 				mapindex_getmapname(RFIFOCP(fd, info->pos[1]), map_name);
-				sprintf(output, "[%s:%03lld] %s, ACT: SkillToMap, SKILL: %d(%d), MAPNAME: %s\n", timestring,gettick()%1000,sd->status.name,RFIFOW(fd, info->pos[0]),sd->menuskill_val,map_name);
+				sprintf(output_p, "SKILL: %d(%d), MAPNAME: %s\n", RFIFOW(fd, info->pos[0]),sd->menuskill_val,map_name);
 			}
 			else if (info->func == clif_parse_UseItem) {
 				int n = RFIFOW(fd, packet_db[RFIFOW(fd, 0)].pos[0]) - 2;
 				struct item *item = (n < 0 || n >= MAX_INVENTORY ? NULL : &sd->inventory.u.items_inventory[n]);
-				sprintf(output, "[%s:%03lld] %s, ACT: UseItem,    ITEMID: %d(%d)\n", timestring,gettick()%1000,sd->status.name,item->id,item->amount);
+				sprintf(output_p, "ITEMID: %d(%d)\n", item->id,item->amount);
 			}
 			else if (info->func == clif_parse_TickSend)
-				sprintf(output, "[%s:%03lld] %s, ACT: SendTick,   TICK: %d\n", timestring,gettick()%1000,sd->status.name,RFIFOL(fd, info->pos[0]));
-			else if (info->func == clif_parse_LoadEndAck)
-				sprintf(output, "[%s:%03lld] %s, ACT: LoadEnd\n", timestring,gettick()%1000,sd->status.name);
-			else if (info->func == clif_parse_blocking_playcancel)
-				sprintf(output, "[%s:%03lld] %s, ACT: BlockCancel\n", timestring,gettick()%1000,sd->status.name);
-			else if (info->func == clif_parse_StopAttack)
-				sprintf(output, "[%s:%03lld] %s, ACT: StopAttack\n", timestring,gettick()%1000,sd->status.name);
+				sprintf(output_p, "TICK: %d\n", RFIFOL(fd, info->pos[0]));
 			else{
 				char hex[CHAT_SIZE_MAX * 3 + 20];
 				for (int i = 0; i < packet_len; i++) {
 					char c = RBUFB(RFIFOP(fd, 0), i);
 					sprintf(hex + (i * 3), "%02X ", RBUFB(RFIFOP(fd, 0), i));
 				}
-				sprintf(output, "[%s:%03lld] %s, ACT: 0x%04X,     PACKET: %s\n", timestring, gettick() % 1000, sd->status.name, cmd, hex);
+				sprintf(output_p, "PACKET: %s\n", hex);
 			}
 			if (info->func != clif_parse_dull)
 				clif_displaymessage(pl_sd->fd, output);
@@ -22811,7 +22807,6 @@ static bool clif_parse_packet(struct map_session_data *sd, int cmd)
 			sd->packet_account = 0;
 
 	}
-#ifdef C_SOCKET_CHECKRH
 	if (packet_db[cmd].func == clif_parse_GetCharNameRequest) {
 		int id = RFIFOL(fd, packet_db[cmd].pos[0]);
 		if (id < 0 && -id == sd->bl.id) // for disguises [Valaris]
@@ -22847,17 +22842,31 @@ static bool clif_parse_packet(struct map_session_data *sd, int cmd)
 		}
 	}
 #endif
-	if (npc_script_event_check(sd, NPCE_SOCKETRECVEVENT)) {
-		pc_setreg(sd, add_str("@recv_cmd"), cmd);
-		npc_script_event_atonce(sd, NPCE_SOCKETRECVEVENT);
-		if (sd->state.processhalt) {
+#ifdef C_SOCKET_EVENT
+	if (npc_script_hasevent(NPCE_SOCKETRECVEVENT)) {
+		map_setparam(SP_PACKET_CMD, packet_db[cmd].func ? (int)packet_db[cmd].func : 0);
+		map_setparam(SP_PACKET_LEN, packet_len);
+		map_setparam(SP_PACKET_AID, sd->status.account_id);
+		packet_event.rbuf = RFIFOCP(fd, 0);
+		packet_event.wbuf = WFIFOCP(fd, 0);
+		packet_event.max_rlen = session[fd]->max_rdata;
+		packet_event.max_wlen = session[fd]->max_wdata;
+		packet_event.slen = 0;
+		packet_event.send_break = false;
+		npc_script_event_doall(NPCE_SOCKETRECVEVENT);
+		if (packet_event.slen && !packet_event.send_break) {
+			WFIFOHEAD(fd, packet_event.slen);
+			memcpy(WFIFOCP(fd, 0), packet_event.sbuf, packet_event.slen);
+			WFIFOSET(fd, packet_event.slen);
+		}
+		if (npc_event_halt) {
 			RFIFOSKIP(fd, packet_len);
 			return false;
 		}
 	}
+#endif
 	return true;
 }
-#endif
 
 /*==========================================
  * Reads packets and setups its array reference

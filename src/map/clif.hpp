@@ -76,6 +76,7 @@ enum e_packet_ack : uint8_t{
 struct s_packet_db {
 	short len;
 	void (*func)(int, struct map_session_data *);
+	std::string command;
 	short pos[MAX_PACKET_POS];
 };
 

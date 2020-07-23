@@ -4,10 +4,10 @@
 #ifndef CLIF_PACKETDB_HPP
 #define CLIF_PACKETDB_HPP
 
-	#define packet(cmd,length) packetdb_addpacket(cmd,length,NULL,0)
-	#define parseable_packet(cmd,length,func,...) packetdb_addpacket(cmd,length,func,__VA_ARGS__,0)
+	#define packet(cmd,length) packetdb_addpacket(cmd,length,"",NULL,0)
+#define parseable_packet(cmd,length,func,...) packetdb_addpacket(cmd,length,#func,func,__VA_ARGS__,0)
 	#define ack_packet(type,cmd,length,...) \
-		packetdb_addpacket(cmd,length,NULL,__VA_ARGS__,0); \
+		packetdb_addpacket(cmd,length,"",NULL,__VA_ARGS__,0); \
 		packet_db_ack[type] = cmd
 
 	packet(0x0064,55);

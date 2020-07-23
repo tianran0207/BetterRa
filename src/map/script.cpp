@@ -2527,6 +2527,18 @@ static void read_constdb(void){
  **/
 void script_hardcoded_constants(void) {
 	#include "script_constants.hpp"
+
+	for (int i = 0; i < MAX_PACKET_DB; i++) {
+		if (packet_db[i].func == NULL)
+			continue;
+		int n = add_str((std::string("clif_parse_") + packet_db[i].command).c_str());
+		if (str_data[n].type == C_NOP) {// new
+			str_data[n].type = C_INT;
+			str_data[n].val = (int)(packet_db[i].func);
+			str_data[n].deprecated = false;
+			str_data[n].name = NULL;
+		}
+	}
 }
 
 /*==========================================
@@ -7397,8 +7409,12 @@ static int script_countitem_sub(struct item *items, struct item_data *id, int si
 		unsigned short nameid = id->nameid;
 
 		for (int i = 0; i < size; i++) {
-			if (&items[i] && items[i].nameid == nameid && items[i].expire_time == 0)
-				count += items[i].amount;
+			item *itm = &items[i];
+
+			if (itm == nullptr || itm->nameid == 0 || itm->amount < 1 || (!rental && itm->expire_time > 0))
+				continue;
+			if (itm->nameid == nameid)
+				count += itm->amount;
 		}
 	} else { // For expanded functions
 		item it;
@@ -30227,21 +30243,18 @@ BUILDIN_FUNC(getbossinfo)
 
 BUILDIN_FUNC(rfifo_int)
 {
-	TBL_PC *sd;
-	if (!script_charid2sd(4, sd))
-		return SCRIPT_CMD_FAILURE;
-	int start = script_getnum(st, 2), bit = script_getnum(st, 3), cmd = RFIFOW(sd->fd, 0);
-	int packet_len = packet_db[cmd].len == -1 ? RFIFOW(sd->fd, 2) : packet_db[cmd].len;
-	if (start + bit > packet_len) {
-		ShowError("buildin_rfifo_int: Maximum packet length reached(cmd: 0x%04x max_len: %d).\n", cmd, packet_len);
+	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
+	if (start + bit > packet_event.max_rlen) {
+		ShowError("buildin_rfifo_int: Maximum packet length reached(max_len: %d).\n", packet_event.max_rlen);
 		return SCRIPT_CMD_FAILURE;
 	}
 	switch (bit) {
-	case 1:	script_pushint(st, RFIFOB(sd->fd, start)); break;
-	case 2:	script_pushint(st, RFIFOW(sd->fd, start)); break;
-	case 4:	script_pushint(st, RFIFOL(sd->fd, start)); break;
+	case 1:	script_pushint(st, RBUFB(packet_event.rbuf, start)); break;
+	case 2:	script_pushint(st, RBUFW(packet_event.rbuf, start)); break;
+	case 4:	script_pushint(st, RBUFL(packet_event.rbuf, start)); break;
+	case 8:	script_pushint(st, RBUFQ(packet_event.rbuf, start)); break;
 	default:
-		ShowError("buildin_rfifo_int: Only support packet of length 1,2 and 4.\n");
+		ShowError("buildin_rfifo_int: Only support packet of length 1,2,4 and 8.\n");
 		return SCRIPT_CMD_FAILURE;
 	}
 	return SCRIPT_CMD_SUCCESS;
@@ -30249,18 +30262,64 @@ BUILDIN_FUNC(rfifo_int)
 
 BUILDIN_FUNC(rfifo_str)
 {
-	TBL_PC *sd;
-	if (!script_charid2sd(3, sd))
-		return SCRIPT_CMD_FAILURE;
-	char packet[512] = { 0 };
-	int start = script_getnum(st, 2), cmd = RFIFOW(sd->fd, 0);
-	int packet_len = packet_db[cmd].len == -1 ? RFIFOW(sd->fd, 2) : packet_db[cmd].len;
-	if (start > packet_len) {
-		ShowError("buildin_rfifo_int: Maximum packet length reached(cmd: 0x%04x max_len: %d).\n", cmd, packet_len);
+	int start = script_getnum(st, 2);
+	const char *rbuf = RBUFCP(packet_event.rbuf, start);
+	if (strchr(rbuf,'\0') - rbuf > packet_event.rlen) {
+		ShowError("buildin_rfifo_str: Maximum packet length reached(max_len: %d).\n", packet_event.max_rlen);
 		return SCRIPT_CMD_FAILURE;
 	}
-	memcpy(packet, RFIFOCP(sd->fd, start), packet_len - start);
-	script_pushstrcopy(st, packet);
+	script_pushstrcopy(st, RBUFCP(packet_event.rbuf, start));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(wfifo_int)
+{
+	int start = script_getnum(st, 2), bit = script_getnum(st, 4);
+	int64 num = script_getnum64(st, 3);
+	if (start + bit > packet_event.max_wlen || start + bit > sizeof(packet_event.sbuf)) {
+		ShowError("buildin_wfifo_int: Maximum packet length reached(max_len: %d).\n", packet_event.max_wlen);
+		return SCRIPT_CMD_FAILURE;
+	}
+	switch (bit) {
+	case 1:	WBUFB(packet_event.sbuf, start) = static_cast<int8>(num); break;
+	case 2:	WBUFW(packet_event.sbuf, start) = static_cast<int16>(num); break;
+	case 4:	WBUFL(packet_event.sbuf, start) = static_cast<int32>(num); break;
+	case 8:	WBUFQ(packet_event.sbuf, start) = static_cast<int64>(num); break;
+	default:
+		ShowError("buildin_wfifo_int: Only support packet of length 1,2,4 and 8.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	packet_event.slen = start + bit > packet_event.slen ? start + bit : packet_event.slen;
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(wfifo_str)
+{
+	int start = script_getnum(st, 2), len = script_hasdata(st, 4) ? script_getnum(st, 4) : 0, real_len;
+	const char *str = script_getstr(st, 3);
+	real_len = len > strlen(str) + 1 ? len : strlen(str) + 1;
+	if (start + real_len > packet_event.max_wlen || start + real_len > sizeof(packet_event.sbuf)) {
+		ShowError("buildin_wfifo_str: Maximum packet length reached(max_len: %d).\n", packet_event.max_wlen);
+		return SCRIPT_CMD_FAILURE;
+	}
+	packet_event.slen = start + real_len > packet_event.slen ? start + real_len : packet_event.slen;
+	memset(WBUFCP(packet_event.sbuf, start), 0, real_len);
+	safestrncpy(WBUFCP(packet_event.sbuf, start), str, real_len);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(fifo_debug)
+{
+	static char hex[256 * 1024 * 3];
+	const char *command = script_getfuncname(st);
+	int type = script_getnum(st, 2);
+	if (type&1 && packet_event.rlen)
+		ShowDump(packet_event.rbuf, packet_event.rlen);
+	if (type&2 && packet_event.slen)
+		ShowDump(packet_event.sbuf, packet_event.slen);
+	if (type&4)
+		packet_event.send_break = true;
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -31303,8 +31362,11 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unitmasterid, "i"),
 	BUILDIN_DEF(addmobskill, "is"),
 	BUILDIN_DEF(delmobskill, "ii"),
-	BUILDIN_DEF(rfifo_int, "ii?"),
-	BUILDIN_DEF(rfifo_str, "i?"),
+	BUILDIN_DEF(rfifo_int, "ii"),
+	BUILDIN_DEF(rfifo_str, "i"),
+	BUILDIN_DEF(wfifo_int, "iii"),
+	BUILDIN_DEF(wfifo_str, "is?"),
+	BUILDIN_DEF(fifo_debug, "i"),
 	//行为策略系统
 	BUILDIN_DEF(setpolicyid, "i?"),
 	BUILDIN_DEF(getpolicyid, "?"),

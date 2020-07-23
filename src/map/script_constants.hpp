@@ -730,6 +730,9 @@
 	export_parameter("$skf_lv", SP_SKF_SKLV);
 	export_parameter("$skf_dmg", SP_SKF_DMG);
 	export_parameter("$skf_tim", SP_SKF_TIM);
+	export_parameter("$packet_cmd", SP_PACKET_CMD);
+	export_parameter("$packet_len", SP_PACKET_LEN);
+	export_parameter("$packet_aid", SP_PACKET_AID);
 	export_parameter("dmg_type", SP_DMG_TYPE);
 	export_parameter("dmg_damage", SP_DMG_VAL);
 	export_parameter("dmg_display", SP_DMG_DISP_VAL);

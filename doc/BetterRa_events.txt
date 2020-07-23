@@ -543,7 +543,7 @@ BetterRa 在官方的基础上做了以下改进:
 
 ---------------------------------------
 
-*OnPCPetSkillFilter
+*OnPCPetSkillFilter:
 
 	当宠物使用技能时触发
 
@@ -558,10 +558,11 @@ BetterRa 在官方的基础上做了以下改进:
 
 ---------------------------------------
 
-*OnHTTPReceivedEvent 事件返回变量:
+*OnHTTPReceivedEvent:
 
 使用http_get指令成功后的事件.用于获取HTTP GET内容
 
+事件返回变量:
 	$@http_name$          HTTP header 返回名(数组),
 	$@http_val$           HTTP header 值(数组),
 	$@http_header_count   HTTP header 数组长度.
@@ -571,6 +572,23 @@ BetterRa 在官方的基础上做了以下改进:
 	$@http_host$    为 http_get脚本指令中的 <网址>
 	$@http_folder$  为 http_get脚本指令中的 <网址剩余部分>
 	$@http_str$     为返回的内容
+
+---------------------------------------
+
+*OnPCSocketRecvFilter:
+
+当服务端接收到封包时, 触发该事件, 可以通过 rfifo_int、rfifo_str、wfifo_int、wfifo_str、fifo_debug 对封包内容进行解析和编辑
+
+事件返回变量:
+	$packet_cmd   封包头
+	$packet_len   封包长度
+	$packet_aid   关联玩家的AID
+	
+注意: 1.事件不与玩家关联，关联请使用 attachrid.
+      2.当使用过 wfifo_int 或 wfifo_str 指令后, 事件结束后服务端会向客户端发送编辑过的封包, 一般重写封包后需要打断该事件.
+
+中断说明:
+	中断后服务器忽略当前封包
 
 ---------------------------------------
 
