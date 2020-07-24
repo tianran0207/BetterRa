@@ -6164,6 +6164,16 @@ static int mob_aggro_skill_sub(struct block_list *bl, va_list ap)
 	return 1;
 }
 
+static int mob_aggro_skill_sub_(struct block_list *bl, ...)
+{
+	va_list ap;
+	int ret = 0;
+	va_start(ap, bl);
+	ret = mob_aggro_skill_sub(bl, ap);
+	va_end(ap);
+	return ret;
+}
+
 int mob_aggro_skill(struct mob_data *md, struct map_session_data *sd, uint16 skill_id, t_tick tick, int x, int y)
 {
 	int idx, range;
@@ -6192,12 +6202,8 @@ int mob_aggro_skill(struct mob_data *md, struct map_session_data *sd, uint16 ski
 		map_foreachinrange(mob_aggro_skill_sub, &sd->bl, range, BL_MOB, sd, skill, tick, 0);
 		break;
 	default:
-		if (md && x == 0 && y == 0){
-			va_list ap;
-			va_start(ap, md);
-			mob_aggro_skill_sub(&md->bl, ap);
-			va_end(ap);
-		}
+		if (md && x == 0 && y == 0)
+			mob_aggro_skill_sub_(&md->bl, sd, skill_id, tick, x, y);
 		break;
 	}
 	return 1;
