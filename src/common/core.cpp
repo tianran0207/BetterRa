@@ -406,24 +406,43 @@ LONG WINAPI ExceptionFilter(LPEXCEPTION_POINTERS lpExceptionInfo)
 }
 #endif
 
+#ifdef _WIN32
+#include <limits.h>
+#include <intrin.h>
+typedef unsigned __int32  uint32_t;
+#else
+#include <stdint.h>
+#endif
+class CPUID {
+	uint32_t regs[4];
+public:
+	explicit CPUID(unsigned i) {
+#ifdef _WIN32
+		__cpuid((int *)regs, (int)i);
+#else
+		asm volatile
+			("cpuid" : "=a" (regs[0]), "=b" (regs[1]), "=c" (regs[2]), "=d" (regs[3])
+				: "a" (i), "c" (0));
+		// ECX is set to zero for CPUID function 4
+#endif
+	}
+	const uint32_t &EAX() const { return regs[0]; }
+	const uint32_t &EBX() const { return regs[1]; }
+	const uint32_t &ECX() const { return regs[2]; }
+	const uint32_t &EDX() const { return regs[3]; }
+};
+
 #include "md5calc.hpp"
 void server_machine_code(char *code, int len) {
-	char md5[128];
-	int sign, s2, id, s4;
-	_asm
-	{
-		mov  eax, 0x00000001
-		cpuid
-		mov sign, eax
-		mov s2, ecx
-		mov id, edx
-		mov s4, ebx
+	CPUID cpuID(1);
+	char UID[32+49+1], MD5[32+1];
+	sprintf(UID, "%08X%08X", cpuID.EDX(), cpuID.EAX());
+	for (int i = 0; i < 3; i++) {
+		CPUID cpuBrand(0x80000002 + i);
+		memcpy(UID + i * 16 + 16, &cpuBrand.EAX(), 16);
 	}
-	sprintf(md5, "%02X%02X%02X%02X%02X%02X%02X%02X%s", (id >> 24) & 0xff, (id >> 16) & 0xff, (id >> 8) & 0xff, (id >> 0) & 0xff
-		, (sign >> 24) & 0xff, (sign >> 16) & 0xff, (sign >> 8) & 0xff, (sign >> 0) & 0xff, "OckHALdCLKAHCUZ");
-	MD5_String(md5, md5);
-
-	safestrncpy(code, md5, len);
+	MD5_String(UID, MD5);
+	safestrncpy(code, MD5, len);
 }
 
 void server_info(char *path) {
