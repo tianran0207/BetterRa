@@ -21784,8 +21784,10 @@ BUILDIN_FUNC(progressbar_npc){
 			return SCRIPT_CMD_FAILURE;
 		}
 
-		if (sd) // Player attached - keep them from doing other things
+		if (sd) { // Player attached - keep them from doing other things
 			sd->state.workinprogress = WIP_DISABLE_ALL;
+			sd->state.block_action |= (PCBLOCK_MOVE | PCBLOCK_ATTACK | PCBLOCK_SKILL);
+		}
 
 		// Sleep for the target amount of time
 		st->state = RERUNLINE;
@@ -21794,11 +21796,15 @@ BUILDIN_FUNC(progressbar_npc){
 		nd->progressbar.color = strtol(color, (char **)NULL, 0);
 
 		clif_progressbar_npc_area(nd);
-	} else { // Second call (by timer after sleep time is over)
-		if (sd) // Player attached - remove restrictions
+	// Second call(by timer after sleeping time is over)
+	} else {
+		// Continue the script
+		if (sd) { // Player attached - remove restrictions
 			sd->state.workinprogress = WIP_DISABLE_NONE;
+			sd->state.block_action &= ~(PCBLOCK_MOVE | PCBLOCK_ATTACK | PCBLOCK_SKILL);
+		}
 
-		st->state = RUN; // Continue the script
+		st->state = RUN;
 		st->sleep.tick = 0;
 		nd->progressbar.timeout = nd->progressbar.color = 0;
 	}
