@@ -29155,6 +29155,82 @@ BUILDIN_FUNC(showbuying)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(openchat)
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(5, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	const char *title = script_getstr(st, 2);
+	int limit = script_hasdata(st, 3) ? script_getnum(st, 3) : 20;
+	const char *pass = script_hasdata(st, 4) ? script_getstr(st, 4) : "";
+
+	chat_createpcchat(sd, title, pass, limit, pass && *pass == '\0' ? true : false);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(openvending)
+{
+	TBL_PC *sd;
+	struct s_vending {
+		unsigned short index;
+		unsigned short amount;
+		unsigned int value;
+	};
+	
+	if (((script_lastdata(st) - 2) % 3) != 0 && !script_charid2sd(script_lastdata(st), sd))
+		return SCRIPT_CMD_FAILURE;
+	else if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	const char *message = script_getstr(st, 2);
+	int num_items = (script_lastdata(st) - 2) / 3;
+	struct s_vending *vendlist = (struct s_vending *)aCalloc(num_items, sizeof(struct s_vending));
+
+	for (int i = 0; i < num_items; i++) {
+		vendlist[i].index = script_getnum(st, 2 + (i * 3) + 1) + 2;
+		vendlist[i].amount = script_getnum(st, 2 + (i * 3) + 2);
+		vendlist[i].value = script_getnum(st, 2 + (i * 3) + 3);
+	}
+	sd->state.prevend = 1;
+	int npc_id = sd->npc_id;
+	sd->npc_id = 0;
+	vending_openvending(sd, message, (const uint8*)vendlist, num_items, NULL);
+	sd->npc_id = npc_id;
+	aFree(vendlist);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(openbuying)
+{
+	TBL_PC *sd;
+
+	if (((script_lastdata(st) - 2) % 3) != 0 && !script_charid2sd(script_lastdata(st), sd))
+		return SCRIPT_CMD_FAILURE;
+	else if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	const char *message = script_getstr(st, 2);
+	int num_items = (script_lastdata(st) - 2) / 3;
+	struct PACKET_CZ_REQ_OPEN_BUYING_STORE_sub *vendlist = (struct PACKET_CZ_REQ_OPEN_BUYING_STORE_sub *)aCalloc(num_items, sizeof(struct PACKET_CZ_REQ_OPEN_BUYING_STORE_sub));
+
+	for (int i = 0; i < num_items; i++) {
+		vendlist[i].itemId = script_getnum(st, 2 + (i * 3) + 1);
+		vendlist[i].amount = script_getnum(st, 2 + (i * 3) + 2);
+		vendlist[i].price = script_getnum(st, 2 + (i * 3) + 3);
+	}
+	sd->state.prevend = 1;
+	sd->buyingstore.slots = 3;
+	int npc_id = sd->npc_id;
+	sd->npc_id = 0;
+	buyingstore_create(sd, sd->status.zeny, 1, message, vendlist, num_items, NULL);
+	sd->npc_id = npc_id;
+	aFree(vendlist);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 int buildin_killaroundmonster_sub(struct block_list *bl, va_list ap)
 {
 	struct mob_data *md = BL_CAST(BL_MOB, bl);
@@ -31382,6 +31458,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bot_run, ""),
 	BUILDIN_DEF(bot_stop, "??"),
 	BUILDIN_DEF(is_bot, "?"),
+	BUILDIN_DEF(openchat, "s???"),
+	BUILDIN_DEF(openvending, "s*"),
+	BUILDIN_DEF(openbuying, "s*"),
 	//路点系统
 	BUILDIN_DEF(unitsteppath, "iv???"),
 	//阵营系统
