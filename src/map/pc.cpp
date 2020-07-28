@@ -5151,6 +5151,12 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 	case SP_SKILL_COOLDOWN:
 		BONUS_VECTOR_CHK(auto &it: sd->skillcooldown, it.id == val1, val2ptr, it.val);
 		break;
+	case SP_LONG_ATK_RATE:
+		BONUS_VAL_CHK(val1ptr, sd->bonus.long_attack_atk_rate);
+		break;
+	case SP_CRIT_ATK_RATE:
+		BONUS_VAL_CHK(val1ptr, sd->bonus.crit_atk_rate);
+		break;
 	default:
 		ShowWarning("pc_bonus_chk: Invalid type '%d' limit for player AID: '%u', CID: '%u'\n", type, sd->status.account_id, sd->status.char_id);
 		break;
