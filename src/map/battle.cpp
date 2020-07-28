@@ -4218,9 +4218,6 @@ static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *
 		case NPC_PULSESTRIKE:
 			skillratio += 100 * (skill_lv - 1);
 			break;
-		case NPC_EARTHQUAKE:
-			skillratio += 100 + 100 * skill_lv + 100 * (skill_lv / 2) + ((skill_lv > 4) ? 100 : 0);
-			break;
 		case NPC_REVERBERATION_ATK:
 			skillratio += 400 + 200 * skill_lv;
 			break;
@@ -6799,7 +6796,6 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += 100 * skill_lv;
 						break;
 					case NPC_EARTHQUAKE:
-						return battle_calc_weapon_attack(src, target, skill_id, skill_lv, mflag);
 						skillratio += 100 + 100 * skill_lv + 100 * (skill_lv / 2) + ((skill_lv > 4) ? 100 : 0);
 						break;
 #ifdef RENEWAL
