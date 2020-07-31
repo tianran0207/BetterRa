@@ -1050,7 +1050,8 @@ unitsteppath <GID>,<路点编号>{,<寻路AI>,{<参数>,{<"事件名称">}}};
 注意!!加载脚本设置为是的时候 将不会触发事件, 直接会被加载...
 
 OnHTTPReceivedEvent 事件返回变量:
-
+	
+	$@http_code           HTTP 返回代码（200 404 301 302 502等）
 	$@http_name$          HTTP header 返回名(数组),
 	$@http_val$           HTTP header 值(数组),
 	$@http_header_count   HTTP header 数组长度.
@@ -1148,7 +1149,8 @@ OnHTTPReceivedEvent 事件返回变量:
 
 注: 
 	getcharbonus 用法与getbonus相同, 只是最后一个参数为玩家的角色ID, 用来获取指定玩家的 bonus 参数
-
+	当 bf 参数为 -1 时 则忽略 bf参数, 获取的结果为所有满足条件之和
+	
 例：
 
 	getbonus bAddEle,Ele_Dark,.@val;

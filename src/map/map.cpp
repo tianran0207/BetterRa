@@ -5936,14 +5936,12 @@ static int http_parse(int fd) {
 
 	//ShowStatus("%s\n", req);
 
-	sscanf(req, "HTTP%*[^ ] %d ", &resultcode);
-
-	if (resultcode != 200) {
+	if (sscanf(req, "HTTP%*[^ ] %d ", &resultcode) == 2 && resultcode > 0) {
 		set_eof(fd);
 		return 0;
 	}
 
-	if ((head_end = strstr(req, "\r\n\r\n")) == NULL || head_end - req > FIFOSIZE_SERVERLINK - 1024)
+	if ((head_end = strstr(req, "\r\n\r\n")) == NULL)
 		return 0;
 
 	safestrncpy(head, req, head_end - req);
@@ -6018,6 +6016,7 @@ static int http_parse(int fd) {
 		server_verification_result(http_data->url, content);
 
 	if (http_data->forscript) {
+		mapreg_setreg(add_str("$@http_code"), resultcode);
 		mapreg_setreg(add_str("$@http_num"), http_data->num);
 		mapreg_setregstr(add_str("$@http_url$"), http_data->url);
 		mapreg_setregstr(add_str("$@http_host$"), http_data->host);
@@ -6026,12 +6025,15 @@ static int http_parse(int fd) {
 		npc_event_doall(script_config.http_received_event_name);
 	}
 
-	if (http_data->load_file) {
+	if (resultcode == 200 && http_data->load_file) {
 		npc_parsesrcfile(http_data->url, true, content);
 		ShowStatus("Load HTTP file: %s done.\n", http_data->url);
 	}
-	else
+	else{
+		ShowError("Load HTTP file: %s failed. error code '%d'\n", http_data->url, resultcode);
 		aFree(content);
+	}
+		
 
 	set_eof(fd);
 	return 0;

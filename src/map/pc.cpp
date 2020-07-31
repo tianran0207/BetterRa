@@ -5046,11 +5046,11 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 	switch (type) {
 	case SP_FINAL_ADD_RACE:
 		PC_BONUS_CHK_RACE(val1, SP_FINAL_ADD_RACE);
-		BONUS_VECTOR_CHK(auto &it: sd->finaladdrate, it.race == val1 && (it.bf&val3) == val3, val2ptr, it.rate);
+		BONUS_VECTOR_CHK(auto &it: sd->finaladdrate, it.race == val1 && ((it.bf&val3) == val3 || val3 == -1), val2ptr, it.rate);
 		break;
 	case SP_FINAL_ADD_CLASS:
 		PC_BONUS_CHK_CLASS(val1, SP_FINAL_ADD_CLASS);
-		BONUS_VECTOR_CHK(auto &it: sd->finaladdrate, it.class_ == val1 && (it.bf&val3) == val3, val2ptr, it.rate);
+		BONUS_VECTOR_CHK(auto &it: sd->finaladdrate, it.class_ == val1 && ((it.bf&val3) == val3 || val3 == -1), val2ptr, it.rate);
 		break;
 	case SP_ADDELE:
 		PC_BONUS_CHK_ELEMENT(val1, SP_ADDELE);
@@ -5058,7 +5058,7 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 			BONUS_WEAPON_CHK_A(val2ptr, addele, val1);
 			break;
 		}
-		BONUS_VECTOR_CHK(auto &it: (sd->state.lr_flag ? sd->left_weapon.addele2 : sd->right_weapon.addele2), it.ele == val1 && (it.flag&val3) == val3, val2ptr, it.rate);
+		BONUS_VECTOR_CHK(auto &it: (sd->state.lr_flag ? sd->left_weapon.addele2 : sd->right_weapon.addele2), it.ele == val1 && ((it.flag&val3) == val3 || val3 == -1), val2ptr, it.rate);
 		break;
 	case SP_MAGIC_ADDELE:
 		PC_BONUS_CHK_ELEMENT(val1, SP_MAGIC_ADDELE);
@@ -5070,7 +5070,7 @@ bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2
 			BONUS_VAL_CHK(val2ptr, sd->subele_script[val1]);
 			break;
 		}
-		BONUS_VECTOR_CHK(auto &it: sd->subele2, it.ele == val1 && (it.flag&val3), val2ptr, it.rate);
+		BONUS_VECTOR_CHK(auto &it: sd->subele2, it.ele == val1 && ((it.flag&val3) || val3 == -1), val2ptr, it.rate);
 		break;
 	case SP_SUBDEF_ELE:
 		PC_BONUS_CHK_ELEMENT(val1, SP_SUBDEF_ELE);
