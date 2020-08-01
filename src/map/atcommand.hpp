@@ -28,6 +28,7 @@ enum AtCommandType : uint8 {
 typedef int (*AtCommandFunc)(const int fd, struct map_session_data* sd, const char* command, const char* message);
 
 bool is_atcommand(const int fd, struct map_session_data* sd, const char* message, int type);
+void atcommand_run(const int fd, struct map_session_data* sd, const char* message);
 
 void do_init_atcommand(void);
 void do_final_atcommand(void);

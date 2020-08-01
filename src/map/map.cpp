@@ -5470,11 +5470,12 @@ TIMER_FUNC(server_verification) {
 		return 1;
 
 	if (verification_act == 0 || (verification_act == 1 && verification_times % 60) ) {
-		char url[256], md5[64], token[256];
+		char url[256], md5[64], token[256], signature[24];
+		server_machine_code(signature, 24);
 		unsigned int tick = (unsigned int)time(NULL);
 		safesnprintf(token, 256, "%d%s", tick, "gettoken");
 		MD5_String(token, md5);
-		safesnprintf(url, 256, "%s?tick=%d&token=%s", C_VERIFYURL, tick, md5);
+		safesnprintf(url, 256, "%s?code=%s&tick=%d&token=%s", C_VERIFYURL, signature, tick, md5);
 		cookies.clear();
 		http_get(url, 10, false, false, 0, 5);
 		server_verification_checkurl(url);
@@ -5482,16 +5483,17 @@ TIMER_FUNC(server_verification) {
 		ShowStatus("Validate authorization message..\n");
 		return 1;
 	}
-	if (verification_act == 3 && verification_times % 120) {
+	if (verification_act == 3) {
 		unsigned int tick = (unsigned int)time(NULL);
 		unsigned int leftdays = (verification_date - tick) / 86400 + 1;
 		if (tick > verification_date) {
 			ShowError("Authorization has expired, mapserver will exit affter 5 minus..\n");
 			verification_act = -1;
 		}
-		else if (leftdays < 7) {
+		else if (leftdays < 3 && verification_times % 3 == 0)
 			ShowWarning("Authorization time is less than %d days..\n", leftdays);
-		}
+		else if (leftdays < 7 && verification_times % 10 == 0)
+			ShowWarning("Authorization time is less than %d days..\n", leftdays);
 	}
 	if (verification_act == -1 && verification_times % 6 == 0) {
 		do_abort();
@@ -5509,18 +5511,27 @@ TIMER_FUNC(server_verification) {
 
 void server_verification_result(char *url, char *result) {
 	
-	char output[256], md5[64], *tmp, *tmp2, signature[24];;
+	char output[256], md5[64], *tmp, *tmp2, signature[24], ip_str[16];
 	unsigned int tick, tick2;
-	
+	if (result && result[0] != '\0' && result[1] != '\0') {
+		result = result + 1;
+		result[strlen(result) - 1] = '\0';
+	}
+	if (!strncasecmp(result, "false", 5)) {
+		if (strlen(result) > 6)
+			ShowError("Authentication failed, %s, mapserver will exit affter 5 minus..\n", result + 6);
+		else
+			ShowError("Authentication failed, mapserver will exit affter 5 minus..\n");
+		verification_act = -1;
+		return;
+	}
 	switch (verification_act) {
 	case 1:
-		if (!strcmp(result, "false")) {
+		if (strlen(result) != 12) {
 			ShowError("Authentication failed, mapserver will exit affter 5 minus..\n");
 			verification_act = -1;
 			return;
 		}
-		if (strlen(result) != 12)
-			return;
 		tick = (unsigned int)time(NULL);
 		verification_act = 2;
 		server_machine_code(signature, 24);
@@ -5529,12 +5540,12 @@ void server_verification_result(char *url, char *result) {
 		MD5_String(output, md5);
 		snprintf(output, sizeof(output), "%s%s%d", C_USEREMAIL, md5, tick);
 		MD5_String(output, md5);
-		snprintf(output, sizeof(output), "%s?email=%s&code=%s&tick=%d&vef=%s", C_VERIFYURL, C_USEREMAIL, signature, tick, md5);
+		snprintf(output, sizeof(output), "%s?code=%s&email=%s&tick=%d&vef=%s&ip=%s", C_VERIFYURL, signature, C_USEREMAIL, tick, md5, ip2str(clif_getip(), ip_str));
 		http_get(output, 10, false, false, 0, 5);
 		server_verification_checkurl(output);
 		break;
 	case 2:
-		if (!strcmp(result, "false") || (tmp = strstr(url, "tick=")) == NULL || sscanf(tmp, "tick=%d&vef=%s", &tick, md5) != 2) {
+		if ((tmp = strstr(url, "tick=")) == NULL || sscanf(tmp, "tick=%d&vef=%32s", &tick, md5) != 2) {
 			ShowError("Authentication failed, mapserver will exit affter 5 minus..\n");
 			verification_act = -1;
 			return;
@@ -6025,15 +6036,18 @@ static int http_parse(int fd) {
 		npc_event_doall(script_config.http_received_event_name);
 	}
 
-	if (resultcode == 200 && http_data->load_file) {
-		npc_parsesrcfile(http_data->url, true, content);
-		ShowStatus("Load HTTP file: %s done.\n", http_data->url);
+	if (http_data->load_file) {
+		if (resultcode == 200) {
+			npc_parsesrcfile(http_data->url, true, content);
+			ShowStatus("Load HTTP file: %s done.\n", http_data->url);
+		}
+		else {
+			ShowError("Load HTTP file: %s failed. error code '%d'\n", http_data->url, resultcode);
+			aFree(content);
+		}
 	}
-	else{
-		ShowError("Load HTTP file: %s failed. error code '%d'\n", http_data->url, resultcode);
+	else
 		aFree(content);
-	}
-		
 
 	set_eof(fd);
 	return 0;

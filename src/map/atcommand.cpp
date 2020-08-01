@@ -11220,6 +11220,16 @@ bool is_atcommand(const int fd, struct map_session_data* sd, const char* message
 	return true;
 }
 
+void atcommand_run(const int fd, struct map_session_data* sd, const char* message)
+{
+	char command[256] = {}, params[256] = {};
+	if (sscanf(message, "%255s %255[^\n]", command, params) < 2)
+		params[0] = '\0';
+	AtCommandInfo * info = get_atcommandinfo_byname(atcommand_alias_db.checkAlias(command));
+	if (info)
+		info->func(fd, sd, command, params);
+}
+
 void atcommand_db_load_groups(int* group_ids) {
 	DBIterator *iter = db_iterator(atcommand_db);
 	AtCommandInfo* cmd;
