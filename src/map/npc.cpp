@@ -1556,7 +1556,7 @@ bool npc_scriptcont(struct map_session_data* sd, int id, bool closing){
 	nullpo_retr(true, sd);
 
 #ifdef SECURE_NPCTIMEOUT
-	if( !closing && sd->npc_idle_timer == INVALID_TIMER && !sd->state.ignoretimeout )
+	if( !closing && sd->npc_idle_timer == INVALID_TIMER && !sd->state.ignoretimeout && battle_config.npc_timeout)
 		return true;
 #endif
 

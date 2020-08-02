@@ -13295,7 +13295,7 @@ void clif_parse_NpcSelectMenu(int fd,struct map_session_data *sd){
 	uint8 select = RFIFOB(fd,info->pos[1]);
 
 #ifdef SECURE_NPCTIMEOUT
-	if( sd->npc_idle_timer == INVALID_TIMER && !sd->state.ignoretimeout )
+	if( sd->npc_idle_timer == INVALID_TIMER && !sd->state.ignoretimeout && battle_config.npc_timeout)
 		return;
 #endif
 
