@@ -30038,15 +30038,12 @@ BUILDIN_FUNC(itemlist)
 	if (st->state == RERUNLINE) {
 		st->state = RUN;
 		for (i = 0; i < array_size; ++i) {
-			if (sd->menulist_select == static_cast<int>(get_val2_num(st, reference_uid(id, i), ref)))
+			if (sd->menulist_select != static_cast<int>(get_val2_num(st, reference_uid(id, i), ref)))
 				continue;
 			script_pushint(st, sd->menulist_select);
 			return SCRIPT_CMD_SUCCESS;
 		}
-		if (!strncasecmp(command, "item", 4))
-			script_pushint(st, -1);
-		else
-			script_pushint(st, 0);
+		script_pushint(st, 0);
 		return SCRIPT_CMD_SUCCESS;
 	}
 	int *item_id = (int*)aMalloc(sizeof(int)*array_size);
