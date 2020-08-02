@@ -357,59 +357,86 @@ BetterRa 在官方的基础上做了以下改进:
 
 ---------------------------------------
 
-*OnPCUseSkillExFilter:
+*OnPCUseSkillFilter:
 
 	当玩家施放技能时, 在实际咏唱之前, 此事件会被触发 (关联到技能施放者)
 	无论技能的所需道具是否足够, 最终技能会不会使用失败, 只要玩家使用了技能, 就必定触发此事件
 
 参数说明:
-	@useskill_id		施放的技能ID
-	@useskill_lv		被施放的技能等级
-	@useskill_target	被施法目标的GameID或者AccountID, 若为 0 则表示这是个对地面施放的技能
-	@useskill_x			被施法的地面X坐标
-	@useskill_y			被施法的地面Y坐标
+	useskill_id			施放的技能ID
+	useskill_lv			被施放的技能等级
+	useskill_target		被施法目标的GameID或者AccountID, 若为 0 则表示这是个对地面施放的技能
+	useskill_x			被施法的地面X坐标
+	useskill_y			被施法的地面Y坐标
 
 中断说明:
 	中断后服务端会无视玩家本次使用技能的请求
 	
 ---------------------------------------
 
-*OnPCUseSkillExEvent:
+*OnPCUseSkillEvent:
+
+	当玩家技能成功施放完毕时, 触发此事件
+
+参数说明:
+	useskill_id			施放的技能ID
+	useskill_lv			被施放的技能等级
+	useskill_target		被施法目标的GameID或者AccountID, 若为 0 则表示这是个对地面施放的技能
+	useskill_x			被施法的地面X坐标
+	useskill_y			被施法的地面Y坐标
+	
+---------------------------------------
+
+*OnPCAutoSpellFilter:
+
+	当玩家自动念咒前, 触发此事件
+
+参数说明:
+	useskill_id			施放的技能ID
+	useskill_lv			被施放的技能等级
+	useskill_target		被施法目标的GameID或者AccountID, 地面技能则为目标对应坐标
+	useskill_x			0: 通过技能自动施法, 1: 通过 bAutoSpell, 2: 通过 bAutoSpellWhenHit, 3: 通过 bAutoSpellOnSkill
+	useskill_y			bAutoSpell 和 bAutoSpell 对应释放条件, bAutoSpellOnSkill 对应释放技能
+	
+中断说明:
+	中断后此次自动念咒被跳过
+	
+---------------------------------------
+
+*OnPCAutoSpellEvent:
 
 	当玩家技能成功施放完毕时, 此事件会被触发 (关联到技能施放者)
 
 参数说明:
-	@useskill_id		施放的技能ID
-	@useskill_lv		被施放的技能等级
-	@useskill_target	被施法目标的GameID或者AccountID, 若为 0 则表示这是个对地面施放的技能
-	@useskill_x			被施法的地面X坐标
-	@useskill_y			被施法的地面Y坐标
+	useskill_id			施放的技能ID
+	useskill_lv			被施放的技能等级
+	useskill_target		被施法目标的GameID或者AccountID, 若为 0 则表示这是个对地面施放的技能
+	useskill_x			0: 通过技能自动施法, 1: 通过 bAutoSpell, 2: 通过 bAutoSpellWhenHit, 3: 通过 bAutoSpellOnSkill
+	useskill_y			bAutoSpell 和 bAutoSpell 对应释放条件, bAutoSpellOnSkill 对应释放技能
 
 ---------------------------------------
 
-*OnPCUseItemExFilter:
+*OnPCUseItemFilter:
 
 	当玩家双击使用“非装备”类型道具时, 此事件会被触发 (关联到物品使用者)
 	无论物品最终是否会使用失败, 只要玩家双击了物品, 就必定触发此事件
 
 参数说明:
-	@useitem_nameid		玩家所使用的物品编号
-	@useitem_idx		玩家所使用物品的背包序号
-	@useitem_pos 		为了兼容SEA和CSEA服务端, 被赋予了和 @useitem_idx 一样的值
+	useitem_nameid		玩家所使用的物品编号
+	useitem_idx			玩家所使用物品的背包序号
 
 中断说明:
 	中断后服务端会无视玩家本次使用物品的请求
 	
 ---------------------------------------
 
-*OnPCUseItemExEvent:
+*OnPCUseItemEvent:
 
 	当玩家成功使用“非装备”类型道具时, 此事件会被触发 (关联到物品使用者)
 
 参数说明:
-	@useitem_nameid		玩家所使用的物品编号
-	@useitem_idx		玩家所使用物品的背包序号
-	@useitem_pos 		为了兼容SEA和CSEA服务端, 被赋予了和 @useitem_idx 一样的值
+	useitem_nameid		玩家所使用的物品编号
+	useitem_idx			玩家所使用物品的背包序号
 
 ---------------------------------------
 
@@ -966,7 +993,24 @@ BetterRa 在官方的基础上做了以下改进:
 
 中断说明: 
 	中断后可通过修改上面的参数来实现对最终结果的影响, 当 @bonus_type 为0时, 当前 Bonus 附加失效
+
+---------------------------------------
+
+*OnAnyoneUseSkillFilter:
+
+事件描述：
+	当释放技能前触发, 可通过在skill_db中自创ID为20000以上的技能通过打断实现一些新技能(ID在20000以下会报错)
 	
+参数说明：
+	$useskill_src 释放技能对象的GID
+	$useskill_id 技能ID
+	$useskill_lv 技能等级
+	$useskill_target 目标GID
+	$useskill_x 目标坐标x 如果是单体技能则返回目标的x坐标
+	$useskill_y 目标坐标x 如果是单体技能则返回目标的y坐标
+	
+配合脚本指令 unitskilltowide 和 unitskilltoAOE 实现更多技能
+
 ---------------------------------------
 
 *OnAnyoneUseSkillEvent:
@@ -975,12 +1019,12 @@ BetterRa 在官方的基础上做了以下改进:
 	当释放技能时触发, 可通过在skill_db中自创ID为20000以上的技能通过打断实现一些新技能(ID在20000以下会报错)
 	
 参数说明：
-	$@useskill_src 释放技能对象的GID
-	$@useskill_id 技能ID
-	$@useskill_lv 技能等级
-	$@useskill_target 目标GID
-	$@useskill_x 目标坐标x 如果是单体技能则返回目标的x坐标
-	$@useskill_y 目标坐标x 如果是单体技能则返回目标的y坐标
+	$useskill_src 释放技能对象的GID
+	$useskill_id 技能ID
+	$useskill_lv 技能等级
+	$useskill_target 目标GID
+	$useskill_x 目标坐标x 如果是单体技能则返回目标的x坐标
+	$useskill_y 目标坐标x 如果是单体技能则返回目标的y坐标
 	
 配合脚本指令 unitskilltowide 和 unitskilltoAOE 实现更多技能
 

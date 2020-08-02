@@ -341,10 +341,12 @@ struct Script_Config script_config = {
 	"OnPCFoodPet", //pet_food_event_name
 	"OnPCPetSkillFilter", //pet_skill_filter_name
 	"OnPCViewEquipFilter", //view_equit_filter_name
-	"OnPCUseSkillExFilter", //use_skill_filter_name
-	"OnPCUseSkillExEvent", //use_skill_event_name
-	"OnPCUseItemExFilter", //use_item_filter_name
-	"OnPCUseItemExEvent", //use_item_event_name
+	"OnPCUseSkillFilter", //use_skill_filter_name
+	"OnPCUseSkillEvent", //use_skill_event_name
+	"OnPCAutoSpellFilter", //auto_spell_filter_name;
+	"OnPCAutoSpellEvent", //auto_spell_event_name;
+	"OnPCUseItemFilter", //use_item_filter_name
+	"OnPCUseItemEvent", //use_item_event_name
 	"OnPCUseTokenFilter", //use_token_filter_name
 	"OnPCWillLoadMapEvent", //map_will_load_event_name
 	"OnPCInChatroomFilter", //chatroom_join_filter_name
@@ -386,6 +388,7 @@ struct Script_Config script_config = {
 	"OnPCProduceFilter", // produce_filter_name
 	"OnPCHookDllEvent", //hook_dll_event_name
 	"OnPCSocketRecvFilter", // socket_recv_filter_name
+	"OnAnyoneUseSkillFilter", // anyone_skill_filter_name
 	"OnAnyoneUseSkillEvent" //anyone_skill_event_name
 };
 

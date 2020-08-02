@@ -733,6 +733,12 @@
 	export_parameter("$packet_cmd", SP_PACKET_CMD);
 	export_parameter("$packet_len", SP_PACKET_LEN);
 	export_parameter("$packet_aid", SP_PACKET_AID);
+	export_parameter("$useskill_src", SP_USESKILL_SRC);
+	export_parameter("$useskill_id", SP_USESKILL_ID);
+	export_parameter("$useskill_lv", SP_USESKILL_LV);
+	export_parameter("$useskill_target", SP_USESKILL_TARGET);
+	export_parameter("$useskill_x", SP_USESKILL_X);
+	export_parameter("$useskill_y", SP_USESKILL_Y);
 	export_parameter("dmg_type", SP_DMG_TYPE);
 	export_parameter("dmg_damage", SP_DMG_VAL);
 	export_parameter("dmg_display", SP_DMG_DISP_VAL);
@@ -745,6 +751,13 @@
 	export_parameter("heal_all", SP_HEAL_ALL);
 	export_parameter("heal_real", SP_HEAL_REAL);
 	export_parameter("heal_targetgid", SP_HEAL_TARGETRID);
+	export_parameter("useskill_id", SP_USESKILL_ID);
+	export_parameter("useskill_lv", SP_USESKILL_LV);
+	export_parameter("useskill_target", SP_USESKILL_TARGET);
+	export_parameter("useskill_x", SP_USESKILL_X);
+	export_parameter("useskill_y", SP_USESKILL_Y);
+	export_parameter("use_item_nameid", SP_ITEM_NAMEID);
+	export_parameter("use_item_idx", SP_ITEM_IDX);
 	//-----------------------------------------------------------------------
 	export_constant2("bMaxHP",SP_MAXHP);
 	export_constant2("bMaxSP",SP_MAXSP);

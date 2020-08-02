@@ -1270,6 +1270,8 @@ enum npce_event : uint8 {
 	NPCE_VIEWEQUIPFILTER,
 	NPCE_USESKILLFILTER,
 	NPCE_USESKILLEVENT,
+	NPCE_AUTOSPELLFILTER,
+	NPCE_AUTOSPELLEVENT,
 	NPCE_USEITEMFILTER,
 	NPCE_USEITEMEVENT,
 	NPCE_USETOKENFILTER,
@@ -1311,7 +1313,8 @@ enum npce_event : uint8 {
 	NPCE_BONUSFILTER,
 	NPCE_PRODUCEFILTER,
 	NPCE_HOOKDLLEVENT,
-	NPCE_SOCKETRECVEVENT,
+	NPCE_SOCKETRECVFILTER,
+	NPCE_ANYONESKILLFILTER,
 	NPCE_ANYONESKILLEVENT,
 	NPCE_INSCREATEFILTER,
 	NPCE_INSCREATEEVENT,
@@ -1414,7 +1417,7 @@ int npc_do_atcmd_event(struct map_session_data* sd, const char* command, const c
 bool npc_unloadfile( const char* path );
 
 bool npc_script_event_check(struct map_session_data* sd, enum npce_event type);
-bool npc_script_hasevent(enum npce_event type);
+bool npc_script_event_check_doall(enum npce_event type);
 bool npc_file_decrypt(const char* filepath, char *src, size_t *ptr_len);
 bool npc_ondisplay_event(struct map_session_data *sd, struct npc_data *nd);
 void npc_database_reload(char *type);

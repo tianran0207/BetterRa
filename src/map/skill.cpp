@@ -1218,6 +1218,53 @@ bool skill_isNotOk_npcRange(struct block_list *src, uint16 skill_id, uint16 skil
 	return skill_check_unit_range2(src,pos_x,pos_y,skill_id,skill_lv,true) != 0;
 }
 
+bool skill_doEvent(struct block_list *src, int target_id, uint16 skill_id, uint16 skill_lv, int x, int y, enum npce_event type)
+{
+	struct map_session_data *sd = BL_CAST(BL_PC, src);
+	switch (type) {
+	case NPCE_ANYONESKILLFILTER:
+	case NPCE_ANYONESKILLEVENT:
+		if (!npc_script_event_check_doall(type))
+			return true;
+		map_setparam(SP_USESKILL_SRC, src->id);
+		map_setparam(SP_USESKILL_ID, skill_id);
+		map_setparam(SP_USESKILL_LV, skill_lv);
+		map_setparam(SP_USESKILL_TARGET, target_id);
+		map_setparam(SP_USESKILL_X, x);
+		map_setparam(SP_USESKILL_Y, y);
+		break;
+	case NPCE_USESKILLFILTER:
+	case NPCE_USESKILLEVENT:
+	case NPCE_AUTOSPELLFILTER:
+	case NPCE_AUTOSPELLEVENT:
+		if (!npc_script_event_check(sd, type))
+			return true;
+		pc_setparam(sd, SP_USESKILL_ID, skill_id);
+		pc_setparam(sd, SP_USESKILL_LV, skill_lv);
+		pc_setparam(sd, SP_USESKILL_TARGET, target_id);
+		pc_setparam(sd, SP_USESKILL_X, x);
+		pc_setparam(sd, SP_USESKILL_Y, y);
+		break;
+	}
+	switch (type) {
+	case NPCE_ANYONESKILLFILTER:
+	case NPCE_ANYONESKILLEVENT:
+		npc_script_event_doall(type);
+		if (npc_event_halt)
+			return false;
+	case NPCE_USESKILLFILTER:
+	case NPCE_AUTOSPELLFILTER:
+		npc_script_event(sd, type);
+		return true;
+	case NPCE_USESKILLEVENT:
+	case NPCE_AUTOSPELLEVENT:
+		npc_script_event_atonce(sd, type);
+		if (sd->state.processhalt)
+			return false;
+	}
+	return true;
+}
+
 struct s_skill_unit_layout *skill_get_unit_layout(uint16 skill_id, uint16 skill_lv, struct block_list* src, int x, int y)
 {
 	int pos = skill_get_unit_layout_type(skill_id,skill_lv);
@@ -2346,6 +2393,8 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 			if (battle_config.autospell_check_range &&
 				!battle_check_range(bl, tbl, skill_get_range2(src, skill, autospl_skill_lv, true)))
 				continue;
+			if (!skill_doEvent(src, tbl->id, skill, autospl_skill_lv, 1, it.flag, NPCE_AUTOSPELLFILTER))
+				continue;
 
 			if (skill == PF_SPIDERWEB) //Special case, due to its nature of coding.
 				type = CAST_GROUND;
@@ -2369,6 +2418,7 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 					break;
 			}
 			sd->state.autocast = 0;
+			skill_doEvent(src, tbl->id, skill, autospl_skill_lv, 1, it.flag, NPCE_AUTOSPELLEVENT);
 			//Set canact delay. [Skotlex]
 			ud = unit_bl2ud(src);
 			if (ud) {
@@ -2477,6 +2527,8 @@ int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, uint1
 		if (battle_config.autospell_check_range &&
 			!battle_check_range(bl, tbl, skill_get_range2(&sd->bl, skill, skill_lv, true)))
 			continue;
+		if (!skill_doEvent(bl, tbl->id, skill, skill_lv, 3, it.flag, NPCE_AUTOSPELLFILTER))
+			continue;
 
 		sd->state.autocast = 1;
 		it.lock = true;
@@ -2488,6 +2540,7 @@ int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, uint1
 		}
 		it.lock = false;
 		sd->state.autocast = 0;
+		skill_doEvent(bl, tbl->id, skill, skill_lv, 3, it.flag, NPCE_AUTOSPELLEVENT);
 	}
 
 	if( sd && !sd->autobonus3.empty() ) {
@@ -2682,6 +2735,8 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 
 			if (!battle_check_range(bl, tbl, skill_get_range2(src, autospl_skill_id, autospl_skill_lv, true)) && battle_config.autospell_check_range)
 				continue;
+			if (!skill_doEvent(bl, tbl->id, autospl_skill_id, autospl_skill_lv, 2, it.flag, NPCE_AUTOSPELLFILTER))
+				continue;
 
 			dstsd->state.autocast = 1;
 			skill_consume_requirement(dstsd,autospl_skill_id,autospl_skill_lv,1);
@@ -2697,6 +2752,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 					break;
 			}
 			dstsd->state.autocast = 0;
+			skill_doEvent(bl, tbl->id, autospl_skill_id, autospl_skill_lv, 2, it.flag, NPCE_AUTOSPELLEVENT);
 			//Set canact delay. [Skotlex]
 			ud = unit_bl2ud(bl);
 			if (ud) {
@@ -4330,7 +4386,7 @@ int skill_area_sub_count (struct block_list *src, struct block_list *target, uin
 	return 1;
 }
 
-static inline void skill_castend_begin(struct map_session_data *sd, uint16 skill_id)
+static void skill_castend_begin(struct map_session_data *sd, uint16 skill_id)
 {
 	if (sd) {
 		sd->skill_id = skill_id;
@@ -4340,7 +4396,7 @@ static inline void skill_castend_begin(struct map_session_data *sd, uint16 skill
 	}
 }
 
-static inline void skill_castend_end(struct map_session_data *sd, struct block_list *target, short x, short y, uint16 skill_id, t_tick tick)
+static void skill_castend_end(struct map_session_data *sd, struct block_list *target, short x, short y, uint16 skill_id, t_tick tick)
 {
 	if (sd) {
 		if (!sd->skill_failure)
@@ -12369,25 +12425,8 @@ TIMER_FUNC(skill_castend_id){
 		if (sd && ud->skill_id != SA_ABRACADABRA) // they just set the data so leave it as it is.[Inkfish]
 			sd->skillitem = sd->skillitemlv = sd->skillitem_keep_requirement = 0;
 
-		if (npc_script_hasevent(NPCE_ANYONESKILLEVENT)) {
-			mapreg_setreg(add_str("$@useskill_src"), src->id);
-			mapreg_setreg(add_str("$@useskill_id"), ud->skill_id);
-			mapreg_setreg(add_str("$@useskill_lv"), ud->skill_lv);
-			mapreg_setreg(add_str("$@useskill_target"), target->id);
-			mapreg_setreg(add_str("$@useskill_x"), target->x);
-			mapreg_setreg(add_str("$@useskill_y"), target->y);
-			npc_script_event_doall(NPCE_ANYONESKILLEVENT);
-		}
-#ifdef EVENT_USESKILLEVENT
-		if (npc_script_event_check(sd, NPCE_USESKILLEVENT)) {
-			pc_setreg(sd, add_str("@useskill_id"), ud->skill_id);
-			pc_setreg(sd, add_str("@useskill_lv"), ud->skill_lv);
-			pc_setreg(sd, add_str("@useskill_target"), target->id);
-			pc_setreg(sd, add_str("@useskill_x"), target->x);
-			pc_setreg(sd, add_str("@useskill_y"), target->y);
-			npc_script_event(sd, NPCE_USESKILLEVENT);
-		}
-#endif // EVENT_USESKILLEVENT
+		skill_doEvent(src, target->id, ud->skill_id, ud->skill_lv, target->x, target->y, NPCE_ANYONESKILLEVENT);
+		skill_doEvent(src, target->id, ud->skill_id, ud->skill_lv, target->x, target->y, NPCE_USESKILLEVENT);
 
 		if (ud->skilltimer == INVALID_TIMER) {
 			if(md) md->skill_idx = -1;
@@ -12561,6 +12600,9 @@ TIMER_FUNC(skill_castend_pos){
 
 		if( sd && sd->skillitem != AL_WARP ) // Warp-Portal thru items will clear data in skill_castend_map. [Inkfish]
 			sd->skillitem = sd->skillitemlv = sd->skillitem_keep_requirement = 0;
+
+		skill_doEvent(src, 0, ud->skill_id, ud->skill_lv, ud->skillx, ud->skilly, NPCE_ANYONESKILLEVENT);
+		skill_doEvent(src, 0, ud->skill_id, ud->skill_lv, ud->skillx, ud->skilly, NPCE_USESKILLEVENT);
 
 		if (ud->skilltimer == INVALID_TIMER) {
 			if (md) md->skill_idx = -1;
@@ -13463,25 +13505,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
 		// perform skill requirement consumption
 		skill_consume_requirement(sd,skill_id,skill_lv,2);
 	}
-	if (npc_script_hasevent(NPCE_ANYONESKILLEVENT)) {
-		mapreg_setreg(add_str("$@useskill_src"), src->id);
-		mapreg_setreg(add_str("$@useskill_id"), skill_id);
-		mapreg_setreg(add_str("$@useskill_lv"), skill_lv);
-		mapreg_setreg(add_str("$@useskill_target"), 0);
-		mapreg_setreg(add_str("$@useskill_x"), x);
-		mapreg_setreg(add_str("$@useskill_y"), y);
-		npc_script_event_doall(NPCE_ANYONESKILLEVENT);
-	}
-#ifdef EVENT_USESKILLEVENT
-	if (npc_script_event_check(sd, NPCE_USESKILLEVENT)) {
-		pc_setreg(sd, add_str("@useskill_id"), skill_id);
-		pc_setreg(sd, add_str("@useskill_lv"), skill_lv);
-		pc_setreg(sd, add_str("@useskill_target"), 0);
-		pc_setreg(sd, add_str("@useskill_x"), x);
-		pc_setreg(sd, add_str("@useskill_y"), y);
-		npc_script_event(sd, NPCE_USESKILLEVENT);
-	}
-#endif // EVENT_USESKILLEVENT
 
 	return 0;
 }

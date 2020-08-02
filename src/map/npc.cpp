@@ -5030,8 +5030,11 @@ bool npc_script_event_check(struct map_session_data* sd, enum npce_event type)
 	return script_event[type].size() > 0;
 }
 
-bool npc_script_hasevent(enum npce_event type)
+bool npc_script_event_check_doall(enum npce_event type)
 {
+	if (npc_event_type == type)
+		return false;
+
 	return script_event[type].size() > 0;
 }
 
@@ -5122,6 +5125,10 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.use_skill_filter_name;
 	case NPCE_USESKILLEVENT:
 		return script_config.use_skill_event_name;
+	case NPCE_AUTOSPELLFILTER:
+		return script_config.auto_spell_filter_name;
+	case NPCE_AUTOSPELLEVENT:
+		return script_config.auto_spell_event_name;
 	case NPCE_USEITEMFILTER:
 		return script_config.use_item_filter_name;
 	case NPCE_USEITEMEVENT:
@@ -5204,8 +5211,10 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.produce_filter_name;
 	case NPCE_HOOKDLLEVENT:
 		return script_config.hook_dll_event_name;
-	case NPCE_SOCKETRECVEVENT:
+	case NPCE_SOCKETRECVFILTER:
 		return script_config.socket_recv_filter_name;
+	case NPCE_ANYONESKILLFILTER:
+		return script_config.anyone_skill_filter_name;
 	case NPCE_ANYONESKILLEVENT:
 		return script_config.anyone_skill_event_name;
 	case NPCE_INSCREATEFILTER:

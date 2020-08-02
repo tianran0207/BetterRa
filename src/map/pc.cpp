@@ -6425,9 +6425,8 @@ int pc_useitem(struct map_session_data *sd,int n)
 
 #ifdef EVENT_USEITEMFILTER
 	if (npc_script_event_check(sd, NPCE_USEITEMFILTER)) {
-		pc_setreg(sd, add_str("@useitem_nameid"), item.nameid);
-		pc_setreg(sd, add_str("@useitem_idx"), n);
-		pc_setreg(sd, add_str("@useitem_pos"), n);
+		pc_setparam(sd, SP_ITEM_NAMEID, item.nameid);
+		pc_setparam(sd, SP_ITEM_IDX, n);
 		npc_script_event_atonce(sd, NPCE_USEITEMFILTER);
 		if (sd->state.processhalt)
 			return 0;
@@ -6477,10 +6476,8 @@ int pc_useitem(struct map_session_data *sd,int n)
 
 #ifdef EVENT_USEITEMEVENT
 	if (npc_script_event_check(sd, NPCE_USEITEMEVENT)) {
-		pc_setreg(sd, add_str("@useitem_nameid"), item.nameid);
-		amount = amount == 1 ? -1 : n;
-		pc_setreg(sd, add_str("@useitem_idx"), amount);
-		pc_setreg(sd, add_str("@useitem_pos"), amount);
+		pc_setparam(sd, SP_ITEM_NAMEID, item.nameid);
+		pc_setparam(sd, SP_ITEM_IDX, amount == 1 ? -1 : n);
 		npc_script_event(sd, NPCE_USEITEMEVENT);
 	}
 #endif // EVENT_USEITEMEVENT
@@ -9721,6 +9718,13 @@ int64 pc_readparam(struct map_session_data* sd,int64 type)
 		case SP_HEAL_ALL:        val = sd->eventparam.heal_all; break;
 		case SP_HEAL_REAL:       val = sd->eventparam.heal_real; break;
 		case SP_HEAL_TARGETRID:  val = sd->eventparam.heal_targetgid; break;
+		case SP_USESKILL_ID:     val = sd->eventparam.use_skill_id; break;
+		case SP_USESKILL_LV:     val = sd->eventparam.use_skill_lv; break;
+		case SP_USESKILL_TARGET: val = sd->eventparam.use_skill_target; break;
+		case SP_USESKILL_X:      val = sd->eventparam.use_skill_x; break;
+		case SP_USESKILL_Y:      val = sd->eventparam.use_skill_y; break;
+		case SP_ITEM_NAMEID:     val = sd->eventparam.use_item_nameid; break;
+		case SP_ITEM_IDX:        val = sd->eventparam.use_item_idx; break;
 		case SP_SKILLPOINT:      val = sd->status.skill_point; break;
 		case SP_STATUSPOINT:     val = sd->status.status_point; break;
 		case SP_ZENY:            val = sd->status.zeny; break;
@@ -9931,6 +9935,27 @@ bool pc_setparam(struct map_session_data *sd,int64 type,int64 val_tmp)
 		return true;
 	case SP_HEAL_TARGETRID:
 		sd->eventparam.heal_targetgid = val;
+		return true;
+	case SP_USESKILL_ID:
+		sd->eventparam.use_skill_id = val;
+		return true;
+	case SP_USESKILL_LV:
+		sd->eventparam.use_skill_lv = val;
+		return true;
+	case SP_USESKILL_TARGET:
+		sd->eventparam.use_skill_target = val;
+		return true;
+	case SP_USESKILL_X:
+		sd->eventparam.use_skill_x = val;
+		return true;
+	case SP_USESKILL_Y:
+		sd->eventparam.use_skill_y = val;
+		return true;
+	case SP_ITEM_NAMEID:
+		sd->eventparam.use_item_nameid = val;
+		return true;
+	case SP_ITEM_IDX:
+		sd->eventparam.use_item_idx = val;
 		return true;
 	case SP_BASELEVEL:
 		if (val > pc_maxbaselv(sd)) //Capping to max

@@ -8312,7 +8312,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		}
 		sp = skill_get_sp(skill_id,skill_lv) * 2 / 3;
 
-		if (status_charge(src, 0, sp)) {
+		if (status_charge(src, 0, sp) && skill_doEvent(src, target->id, skill_id, skill_lv, 0, 0, NPCE_AUTOSPELLFILTER)) {
 			struct unit_data *ud = unit_bl2ud(src);
 
 			switch (skill_get_casttype(skill_id)) {
@@ -8335,6 +8335,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 						clif_status_change(src, EFST_POSTDELAY, 1, autospell_tick, 0, 0, 0);
 				}
 			}
+			skill_doEvent(src, target->id, skill_id, skill_lv, 0, 0, NPCE_AUTOSPELLEVENT);
 		}
 	}
 	if (sd) {

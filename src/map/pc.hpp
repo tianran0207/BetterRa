@@ -415,6 +415,11 @@ struct map_session_data {
 		short dmg_type, dmg_skillid, dmg_skilllv, dmg_targettype, dmg_mobid, dmg_mark;
 		int64 dmg_val, dmg_disp_val;
 		int heal_all, heal_real, dmg_targetgid, heal_targetgid;
+		uint16 use_skill_id, use_skill_lv;
+		int use_skill_target;
+		short use_skill_x, use_skill_y;
+		uint32 use_item_nameid;
+		short use_item_idx;
 	}eventparam;
 	struct s_aggro {
 		struct linkdb_node *head;

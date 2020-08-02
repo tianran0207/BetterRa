@@ -588,7 +588,7 @@ int instance_create(int owner_id, const char *name, e_instance_mode mode) {
 	if (instance_count <= 0)
 		return -4;
 
-	if (npc_script_hasevent(NPCE_INSCREATEFILTER)) {
+	if (npc_script_event_check_doall(NPCE_INSCREATEFILTER)) {
 		mapreg_setreg(add_str("$@instance_owner"), owner_id);
 		mapreg_setreg(add_str("$@instance_mode"), mode);
 		mapreg_setregstr(add_str("$@instance_name$"), name);
@@ -641,7 +641,7 @@ int instance_create(int owner_id, const char *name, e_instance_mode mode) {
 	// Start the instance timer on instance creation
 	instance_startkeeptimer(entry, instance_id);
 
-	if (npc_script_hasevent(NPCE_INSCREATEEVENT)) {
+	if (npc_script_event_check_doall(NPCE_INSCREATEEVENT)) {
 		mapreg_setreg(add_str("$@instance_id"), instance_id);
 		mapreg_setreg(add_str("$@instance_owner"), owner_id);
 		mapreg_setreg(add_str("$@instance_mode"), mode);
@@ -960,7 +960,7 @@ bool instance_destroy(int instance_id)
 
 	ShowInfo("[Instance] Destroyed: %s (%d)\n", instance_db.find(idata->id)->name.c_str(), instance_id);
 
-	if (npc_script_hasevent(NPCE_INSDESTROYEVENT)) {
+	if (npc_script_event_check_doall(NPCE_INSDESTROYEVENT)) {
 		std::shared_ptr<s_instance_db> db = instance_db.find(idata->id);
 		mapreg_setreg(add_str("$@instance_id"), instance_id);
 		mapreg_setreg(add_str("$@instance_owner"), idata->owner_id);

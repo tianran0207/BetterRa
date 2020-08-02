@@ -60,7 +60,7 @@ Header:
 
 Body:
   - Id: 1
-    Name: Tierra Gorge
+    Name: 提耶拉峡谷
     MinPlayers: 6
     MinLevel: 80
     JobRestrictions:
@@ -101,7 +101,7 @@ Body:
           ActiveEvent: start#bat_a02::OnCroixActive
           Variable: $@TierraBG2_id2
   - Id: 2
-    Name: Flavius
+    Name: 瀑拉毕乌斯
     MinPlayers: 6
     MinLevel: 80
     JobRestrictions:
@@ -142,7 +142,7 @@ Body:
           ActiveEvent: start#bat_b02::OnCroixActive
           Variable: $@FlaviusBG2_id2
   - Id: 3
-    Name: KVM (Level 80 and up)
+    Name: KVM (Lv80以上)
     MinPlayers: 5
     MinLevel: 80
     Locations:
@@ -163,7 +163,7 @@ Body:
           ActiveEvent: KvM01_BG::OnCroixActive
           Variable: $@KvM01BG_id2
   - Id: 4
-    Name: KVM (Level 60~79)
+    Name: KVM (Lv60~79)
     MinPlayers: 5
     MinLevel: 60
     MaxLevel: 79
@@ -185,7 +185,7 @@ Body:
           ActiveEvent: KvM02_BG::OnCroixActive
           Variable: $@KvM02BG_id2
   - Id: 5
-    Name: KVM (Level 59 and below
+    Name: KVM (小于 Lv59)
     MinPlayers: 5
     MaxLevel: 59
     Locations:

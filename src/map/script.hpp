@@ -254,6 +254,8 @@ struct Script_Config {
 	// Useskill related
 	const char*	use_skill_filter_name;
 	const char*	use_skill_event_name;
+	const char*	auto_spell_filter_name;
+	const char*	auto_spell_event_name;
 	// Useitem related
 	const char*	use_item_filter_name;
 	const char*	use_item_event_name;
@@ -317,6 +319,7 @@ struct Script_Config {
 	const char* hook_dll_event_name;
 	const char* socket_recv_filter_name;
 	// Anyone related
+	const char* anyone_skill_filter_name;
 	const char* anyone_skill_event_name;
 };
 extern struct Script_Config script_config;

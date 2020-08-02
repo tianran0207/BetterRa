@@ -1191,7 +1191,7 @@ int mob_spawn (struct mob_data *md)
 	if(map_addblock(&md->bl))
 		return 2;
 
-	if (npc_script_hasevent(NPCE_MOBSPAWNFILTER)) {
+	if (npc_script_event_check_doall(NPCE_MOBSPAWNFILTER)) {
 		mapreg_setreg(add_str("$@mobspawn_gid"), md->bl.id);
 		npc_script_event_doall(NPCE_MOBSPAWNFILTER);
 		if (npc_event_halt) {

@@ -22883,7 +22883,6 @@ void packetdb_addpacket( uint16 cmd, uint16 length, const char *command, void (*
 unsigned int config_keys[3];
 #endif
 
-struct s_packet_event packet_event;
 bool clif_parse_packet(struct map_session_data *sd, int cmd)
 {
 	if (sd == NULL)
@@ -22978,7 +22977,7 @@ bool clif_parse_packet(struct map_session_data *sd, int cmd)
 	}
 #endif
 #ifdef C_SOCKET_EVENT
-	if (npc_script_hasevent(NPCE_SOCKETRECVEVENT)) {
+	if (npc_script_event_check_doall(NPCE_SOCKETRECVFILTER)) {
 		map_setparam(SP_PACKET_CMD, packet_db[cmd].func ? (int)packet_db[cmd].func : 0);
 		map_setparam(SP_PACKET_LEN, packet_len);
 		map_setparam(SP_PACKET_AID, sd->status.account_id);
@@ -22988,7 +22987,7 @@ bool clif_parse_packet(struct map_session_data *sd, int cmd)
 		packet_event.max_wlen = session[fd]->max_wdata;
 		packet_event.slen = 0;
 		packet_event.send_break = false;
-		npc_script_event_doall(NPCE_SOCKETRECVEVENT);
+		npc_script_event_doall(NPCE_SOCKETRECVFILTER);
 		if (packet_event.slen && !packet_event.send_break) {
 			WFIFOHEAD(fd, packet_event.slen);
 			memcpy(WFIFOCP(fd, 0), packet_event.sbuf, packet_event.slen);

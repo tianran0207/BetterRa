@@ -16,6 +16,7 @@
 #include "map.hpp" // struct block_list
 
 enum damage_lv : uint8;
+enum npce_event : uint8;
 enum sc_type : int16;
 enum send_target : uint8;
 enum e_damage_type : uint8;
@@ -658,6 +659,7 @@ bool skill_isNotOk_hom(struct homun_data *hd, uint16 skill_id, uint16 skill_lv);
 bool skill_isNotOk_mercenary(uint16 skill_id, struct mercenary_data *md);
 
 bool skill_isNotOk_npcRange(struct block_list *src, uint16 skill_id, uint16 skill_lv, int pos_x, int pos_y);
+bool skill_doEvent(struct block_list *src, int target_id, uint16 skill_id, uint16 skill_lv, int x, int y, enum npce_event type);
 
 // Item creation
 short skill_can_produce_mix( struct map_session_data *sd, unsigned short nameid, int trigger, int qty);

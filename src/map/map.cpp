@@ -5751,20 +5751,29 @@ int do_init(int argc, char *argv[])
 	return 0;
 }
 
+struct s_packet_event packet_event;
+struct s_use_skill_event use_skill_event;
+
 int64 map_readparam(int64 type)
 {
 	int64 val = 0;
 	switch (type) {
-	case SP_SKF_SGID:        val = skf_db.sgid;          break;
-	case SP_SKF_SCID:        val = skf_db.scid;          break;
-	case SP_SKF_TGID:        val = skf_db.tgid;          break;
-	case SP_SKF_SKID:        val = skf_db.info.skill_id; break;
-	case SP_SKF_SKLV:        val = skf_db.info.skill_lv; break;
-	case SP_SKF_DMG:         val = skf_db.info.damage;   break;
-	case SP_SKF_TIM:         val = skf_db.info.time;     break;
-	case SP_PACKET_CMD:      val = packet_event.cmd;     break;
-	case SP_PACKET_LEN:      val = packet_event.rlen;    break;
-	case SP_PACKET_AID:      val = packet_event.aid;     break;
+	case SP_SKF_SGID:        val = skf_db.sgid;                break;
+	case SP_SKF_SCID:        val = skf_db.scid;                break;
+	case SP_SKF_TGID:        val = skf_db.tgid;                break;
+	case SP_SKF_SKID:        val = skf_db.info.skill_id;       break;
+	case SP_SKF_SKLV:        val = skf_db.info.skill_lv;       break;
+	case SP_SKF_DMG:         val = skf_db.info.damage;         break;
+	case SP_SKF_TIM:         val = skf_db.info.time;           break;
+	case SP_PACKET_CMD:      val = packet_event.cmd;           break;
+	case SP_PACKET_LEN:      val = packet_event.rlen;          break;
+	case SP_PACKET_AID:      val = packet_event.aid;           break;
+	case SP_USESKILL_SRC:    val = use_skill_event.src;        break;
+	case SP_USESKILL_ID:     val = use_skill_event.skill_id;   break;
+	case SP_USESKILL_LV:     val = use_skill_event.skill_lv;   break;
+	case SP_USESKILL_TARGET: val = use_skill_event.target;     break;
+	case SP_USESKILL_X:      val = use_skill_event.x;          break;
+	case SP_USESKILL_Y:      val = use_skill_event.y;          break;
 	}
 	return val;
 }
@@ -5773,36 +5782,22 @@ bool map_setparam(int64 type, int64 val_tmp)
 {
 	int val = static_cast<unsigned int>(val_tmp);
 	switch (type) {
-	case SP_SKF_SGID:
-		skf_db.sgid = val;
-		return true;
-	case SP_SKF_SCID:
-		skf_db.scid = val;
-		return true;
-	case SP_SKF_TGID:
-		skf_db.tgid = val;
-		return true;
-	case SP_SKF_SKID:
-		skf_db.info.skill_id = val;
-		return true;
-	case SP_SKF_SKLV:
-		skf_db.info.skill_lv = val;
-		return true;
-	case SP_SKF_DMG:
-		skf_db.info.damage = val_tmp;
-		return true;
-	case SP_SKF_TIM:
-		skf_db.info.time = val;
-		return true;
-	case SP_PACKET_CMD:
-		packet_event.cmd = val;
-		return true;
-	case SP_PACKET_LEN:
-		packet_event.rlen = val;
-		return true;
-	case SP_PACKET_AID:
-		packet_event.aid = val;
-		return true;
+	case SP_SKF_SGID:        skf_db.sgid = val;              return true;
+	case SP_SKF_SCID:        skf_db.scid = val;              return true;
+	case SP_SKF_TGID:        skf_db.tgid = val;              return true;
+	case SP_SKF_SKID:        skf_db.info.skill_id = val;     return true;
+	case SP_SKF_SKLV:        skf_db.info.skill_lv = val;     return true;
+	case SP_SKF_DMG:         skf_db.info.damage = val_tmp;   return true;
+	case SP_SKF_TIM:         skf_db.info.time = val;         return true;
+	case SP_PACKET_CMD:      packet_event.cmd = val;         return true;
+	case SP_PACKET_LEN:      packet_event.rlen = val;        return true;
+	case SP_PACKET_AID:      packet_event.aid = val;         return true;
+	case SP_USESKILL_SRC:    use_skill_event.src = val;      return true;
+	case SP_USESKILL_ID:     use_skill_event.skill_id = val; return true;
+	case SP_USESKILL_LV:     use_skill_event.skill_lv = val; return true;
+	case SP_USESKILL_TARGET: use_skill_event.target = val;   return true;
+	case SP_USESKILL_X:      use_skill_event.x = val;        return true;
+	case SP_USESKILL_Y:      use_skill_event.y = val;        return true;
 	}
 	return false;
 }

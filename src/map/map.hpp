@@ -486,7 +486,7 @@ enum _sp {
 	SP_HEAL_ALL, SP_HEAL_REAL, SP_HEAL_TARGETRID, SP_SKF_SGID, SP_SKF_SCID, SP_SKF_TGID, SP_SKF_SKID, SP_SKF_SKLV, SP_SKF_DMG, SP_SKF_TIM, SP_ADD_SKILL_AREA, SP_ADD_SKILL_RANGE,
 	SP_SKILL_TO_AROUND, SP_SKILL_TO_GROUND, SP_SKILL_NO_SPECIAL, SP_SKILL_ATTR, SP_SKILL_NO_CAST, SP_WEAPON_RETURN_DEF_RATE, SP_MAGIC_RETURN_DEF_RATE, SP_STATUS_ADD_BONUS, 
 	SP_ADD_STATUS_VAL,SP_SUBRESEFF, SP_SKILL_CRIT_ATK_RATE, SP_SKILL_ADD_DIV, SP_SKILL_TYPE, SP_FINAL_ADD_RACE, SP_FINAL_ADD_CLASS, SP_HPSP_REGEN, SP_HPSP_REGEN_PERCENT,
-	SP_PACKET_CMD, SP_PACKET_LEN, SP_PACKET_AID,
+	SP_PACKET_CMD, SP_PACKET_LEN, SP_PACKET_AID, SP_USESKILL_SRC, SP_USESKILL_ID, SP_USESKILL_LV, SP_USESKILL_TARGET, SP_USESKILL_X, SP_USESKILL_Y, SP_ITEM_NAMEID, SP_ITEM_IDX,
 	// original 1000-
 	SP_ATTACKRANGE=1000,	SP_ATKELE,SP_DEFELE,	// 1000-1002
 	SP_CASTRATE, SP_MAXHPRATE, SP_MAXSPRATE, SP_SPRATE, // 1003-1006
@@ -1293,13 +1293,20 @@ void do_shutdown(void);
 #ifdef C_SOCKET_EVENT
 bool clif_parse_packet(struct map_session_data *sd, int cmd);
 #endif
+
 struct s_packet_event {
 	int cmd, rlen, aid;
-	char *rbuf, *wbuf, sbuf[256*1024];
+	char *rbuf, *wbuf, sbuf[256 * 1024];
 	int max_rlen, max_wlen, slen;
 	bool send_break;
 };
+struct s_use_skill_event {
+	int src, target;
+	uint16 skill_id, skill_lv;
+	short x, y;
+};
 extern struct s_packet_event packet_event;
+extern struct s_use_skill_event use_skill_event;
 extern char verification_act;
 void not_free(const char *name);
 int map_checknear(struct block_list* bl, int range, int cell);
