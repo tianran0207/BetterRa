@@ -5447,7 +5447,7 @@ int clif_outsight(struct block_list *bl,va_list ap)
 			if(sd->chatID){
 				struct chat_data *cd;
 				cd=(struct chat_data*)map_id2bl(sd->chatID);
-				if(cd->usersd[0]==sd)
+				if(cd && cd->usersd[0]==sd)
 					clif_dispchat(cd,tsd->fd);
 			}
 			if(sd->state.vending)
