@@ -4425,6 +4425,10 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 		npc_script_event_atonce(sd, NPCE_STATCALC);
 	running_npc_stat_calc_event = false;
 
+	base_status->size = sd->c_bonus.def_size ? sd->c_bonus.def_size - 1 : base_status->size;
+	base_status->race = sd->c_bonus.def_race ? sd->c_bonus.def_race - 1 : base_status->race;
+	base_status->ele_lv = sd->c_bonus.def_ele_lv ? sd->c_bonus.def_ele_lv : base_status->ele_lv;
+
 	// param_bonus now holds card bonuses.
 	if(base_status->rhw.range < 1) base_status->rhw.range = 1;
 	if(base_status->lhw.range < 1) base_status->lhw.range = 1;

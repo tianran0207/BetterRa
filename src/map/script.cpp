@@ -30280,7 +30280,7 @@ static int build_getbossinfo_sub(struct mob_data *md, va_list args)
 	int *idx = va_arg(args, int*);
 	if (m && m != md->bl.m)
 		return 0;
-	if (mobid && mobid != md->status.class_)
+	if (mobid && mobid != md->mob_id)
 		return 0;
 	mapreg_setreg(reference_uid(add_str("$@boss_gid"), *idx), md->bl.id);
 	if (md->spawn_timer == INVALID_TIMER)

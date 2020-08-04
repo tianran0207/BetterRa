@@ -27,6 +27,9 @@ bonus2 bSkillTreeDelay,jobid,n;			职业技能独立技能延迟调整
 
 bonus bCooldownrate,n;					技能独立延迟时间 + n%
 bonus bMaxASPD,n;						修改ASPD上限(无视CONF中的配置)
+bonus bDefSize,s;						修改体型大小为 s
+bonus bDefRace,r;						修改种族为 r
+bonus bDefEleLevel,n;					修改防御属性等级为 n
 bonus3 bSkillItemFix,sk,iid,n;			技能 sk 消耗的物品ID iid 增加 n 个(n可以为负数)
 bonus3 bRegen,hp,sp,t;					每隔 t 毫秒, 恢复 HP 和 SP (不覆盖, 独立运算)
 bonus3 bRegenPercent,hp,sp,t;			每隔 t 毫秒, 按百分比恢复 HP 和 SP(不覆盖, 独立运算)

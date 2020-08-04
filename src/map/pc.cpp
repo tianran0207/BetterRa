@@ -3136,6 +3136,20 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 			if(sd->state.lr_flag != 2)
 				sd->c_bonus.misc_add_damage += val;
 			break;
+		case SP_DEFSIZE:
+			PC_BONUS_CHK_SIZE(val, SP_DEFSIZE);
+			if (sd->state.lr_flag != 2)
+				sd->c_bonus.def_size = val + 1;
+			break;
+		case SP_DEFRACE:
+			PC_BONUS_CHK_RACE(val, SP_DEFRACE);
+			if (sd->state.lr_flag != 2)
+				sd->c_bonus.def_race = val + 1;
+			break;
+		case SP_DEFELELEVEL:
+			if (sd->state.lr_flag != 2 && val >= 0 && val <= 4)
+				sd->c_bonus.def_ele_lv = val;
+			break;
 		case SP_STR:
 		case SP_AGI:
 		case SP_VIT:
@@ -5422,7 +5436,7 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 		return 0; // item must be unequipped
 
 	
-	ARR_FIND(0, MAIL_MAX_ITEM, i, sd->mail.item[i].index == idx_equip || sd->mail.item[i].index == idx_card);
+	ARR_FIND(0, MAIL_MAX_ITEM, i, sd->mail.item[i].nameid && (sd->mail.item[i].index == idx_equip || sd->mail.item[i].index == idx_card));
 	if (i < MAIL_MAX_ITEM)
 		return 0; // in mail
 

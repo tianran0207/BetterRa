@@ -722,6 +722,7 @@ struct map_session_data {
 
 	struct s_custom_bonus {
 		int weapon_add_damage, magic_add_damage, misc_add_damage;
+		char def_size, def_race, def_ele_lv;
 		struct s_job_cooldown {
 			int c_idxrate;
 			int c_cooldownrate;
@@ -733,7 +734,7 @@ struct map_session_data {
 			int d_delay;
 		}skill_tree;
 		int ignore_imprison;
-		int max_aspd;
+		int max_hp, max_sp, max_aspd;
 		int cooldownrate;
 		int ignore_mdef_by_race[RC_MAX];
 		int ignore_mdef_by_class[CLASS_MAX];
