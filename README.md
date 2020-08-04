@@ -2,6 +2,111 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20200803  [修复] 战斗配置 npc_timeout 设置为 no 时卡脚本的问题
+* 20200803  [添加] 脚本事件 OnPCAutoSpellFilter 当自动念咒时触发
+* 20200803  [添加] 脚本事件 OnPCAutoSpellEvent 当自动念咒后触发
+* 20200803  [优化] 脚本事件 OnAnyoneUseSkillFilter 当释放技能前触发, 可通过在skill_db中自创ID为20000以上的技能通过打断实现一些新技能
+* 20200803  [优化] 脚本事件 OnAnyoneUseSkillEvent 返回变量更名,优化事件返回参数的读取速度
+* 20200803  [优化] 脚本事件更名 OnPCUseSkillExFilter -> OnPCUseSkillFilter, 返回变量更名, 优化事件返回参数的读取速度
+* 20200803  [优化] 脚本事件更名 OnPCUseSkillExEvent -> OnPCUseSkillEvent, 返回变量更名, 优化事件返回参数的读取速度
+* 20200803  [优化] 脚本事件更名 OnPCUseItemExFilter -> OnPCUseItemFilter, 返回变量更名,优化事件返回参数的读取速度
+* 20200803  [优化] 脚本事件更名 OnPCUseItemExEvent -> OnPCUseItemEvent, 返回变量更名,优化事件返回参数的读取速度
+* 20200802  [修复] 当玩家聊天窗不存在时产生的宕机问题
+* 20200802  [修复] 脚本指令 itemlist skilllist 在选择框只有一项时返回不正确的问题
+* 20200731  [添加] 经验值提高到 uint64位类型, 最高等级提升至200
+* 20200731  [修复] 当NPC超时时map服务器输出debug信息的问题
+* 20200731  [优化] 脚本指令 getbonus 当 bf 参数为 -1 时 则忽略 bf参数, 获取的结果为所有满足条件之和
+* 20200730  [优化] 脚本事件 OnHTTPReceivedEvent 增加参数 $@http_code 返回代码（200 404 301 302 502等）
+* 20200730  [修复] 读入 MySQL 数据库无法正确获取物品和魔物变量的问题
+* 20200730  [修复] 脚本事件 OnPCAttackFilter 与 OnPCAttackedFilter 不能正常获取 dmg_mark 的问题
+* 20200730  [优化] 脚本指令 getbonus 增加对 bFinalAddRace 与 bFinalAddClass 的支持
+* 20200729  [添加] 脚本指令 getbonus getcharbonus bonus_minfix bonus_maxfix 支援 bLongAtkRate 和 bCritAtkRate
+* 20200729  [修复] 物品附加 bMagicDamageReturn 只对指向性技能有效
+* 20200729  [添加] 脚本指令 openchat 开启一个聊天窗口
+* 20200729  [添加] 脚本指令 openvending 开启一个贩卖商店, 手推车中必须有这些物品.
+* 20200729  [添加] 脚本指令 openbuying 开启一个采购商店, 最多只能同时采购 3 个物品.
+* 20200723  [修复] 读入csv版本副本数据时, 因为地图不存在导致的宕机问题
+* 20200723  [修复] 通过csv创建的副本无法被副本销毁按钮销毁的问题
+* 20200723  [修复] 配置选项 pet_ignore_intimate_decrease 选项在降低好感度时直接降低到1的问题
+* 20200723  [添加] 脚本指令 rfifo_int 当 OnPCSocketRecvFilter 事件接收到封包时, 可以用本指令获取‘接收封包’中对应位置的数字数据.
+* 20200723  [添加] 脚本指令 rfifo_str 当 OnPCSocketRecvFilter 事件接收到封包时, 可以用本指令获取‘接收封包’中的文本数据.
+* 20200723  [添加] 脚本指令 wfifo_int 当 OnPCSocketRecvFilter 事件接收到封包时, 可以用本指令改写‘发送封包’的数字数据.
+* 20200723  [添加] 脚本指令 wfifo_str 当 OnPCSocketRecvFilter 事件接收到封包时, 可以用本指令改写‘发送封包’的文本数据.
+* 20200723  [添加] 脚本指令 fifo_debug 将 ‘发送封包’ 或 ‘接收封包’ 打印到控制台, 或是禁止事件结束后发送 ‘发送封包’ 给客户端.
+* 20200723  [添加] 脚本事件 OnPCSocketRecvFilter 当服务端接收到封包时, 触发该事件.
+* 20200720  [修复] 元素精灵导致的宕机问题
+* 20200718  [添加] 脚本事件 OnPCReviveFilter 当玩复活时触发该事件
+* 20200718  [修复] 脚本指令 autobonus autobonus2 autobonus3 在 OnPCStatCalcEvent 事件下无效的问题
+* 20200718  [修复] 脚本指令 unitdefratefixed 造成的宕机问题
+* 20200718  [修复] 物品附加 bAddEle bSubEle 使用 Ele_All 没有效果的问题
+* 20200718  [修复] 物品附加 bSubRace 使用 RC_ALL 没有效果的问题
+* 20200718  [修复] 客户端 20190724 之后的版本不能换公会图标的问题
+* 20200718  [修复] 由于副本DB转yml造成的掉线回传失效的问题
+* 20200717  [修复] 脚本指令 autobonus 在 OnPCStatCalcEvent 事件下使用不生效的问题
+* 20200715  [修复] 复兴后出生点出生在空气墙上的问题
+* 20200714  [修复] 当玩家死后技能持续输出伤害的问题
+* 20200714  [修复] GM指令 itemreset 导致宠物不能收回的问题
+* 20200714  [修复] GVG最低伤害小于 1 导致攻击华丽miss的问题
+* 20200714  [修复] 脚本指令 sendmail 发送不存在的物品发生的宕机问题
+* 20200713  [修复] 在201811月的封包版本中精炼UI显示苹果的问题
+* 20200712  [添加] 文件 status_change_db.yml 用于定义每一种状态在特定的条件下的进行清除、保留。
+* 20200709  [修复] 技能公式 db/skill_formula_db.yml bonus 计算远程增伤无效的问题
+* 20200709  [修复] 脚本指令 skf_card_fix 当无视NK值时, 不采用默认NK值的问题
+* 20200707  [添加] 脚本指令 setunitdata 设置前缀图标 UXXX_GROUP_ID
+* 20200707  [添加] 脚本指令 getunitdata 获取前缀图标 UXXX_GROUP_ID
+* 20200707  [添加] 脚本指令 setunittitle 设置前缀名称
+* 20200707  [添加] 脚本指令 getunittitle 获取前缀名称
+* 20200705  [优化] 添加 2019 客户端版本之后对公会图标的支持
+* 20200705  [优化] 脚本指令 itemlist 脚本指令直接返回玩家选择的 物品ID
+* 20200705  [优化] 脚本指令 skilllist 脚本指令直接返回玩家选择的 技能ID
+* 20200705  [移除] 移除事件 OnPCSelectItemEvent
+* 20200705  [移除] 移除事件 OnPCSelectSkillEvent
+* 20200705  [修复] 在 20181121 后的版本的客户端中不能使用扩展挂店的问题
+* 20200705  [修复] 脚本指令 itemlist 在 20181121 后的版本的客户端中不能使用的问题
+* 20200705  [添加] 脚本指令 getcharbonus 获取指定玩家的 bonus 参数
+* 20200705  [优化] db/skill_formula_db.yml 中的变量更改为系统变量, 避免关联玩家时造成变量不可用的问题
+* 20200705  [修复] 脚本指令 searchstorage 相关问题, 优化仓库ID参数置于条件参数后
+* 20200704  [修复] 拓展仓库相关脚本指令, 在第一次使用时获取不到数据的问题
+* 20200703  [修复] 物品附加 bSkillDamage 当技能等级为-1时对技能伤害加成无效的问题
+* 20200703  [修复] 物品附加 bSkillCritical bSkillDamage bSkillAddDiv bSkillChangeType bSkillAttribute 使用技能名无效的问题
+* 20200701  [添加] 战斗配置 at_logout_event 当使用 @at 离线后触发 OnPCLogoutEvent 事件
+* 20200629  [优化] 取消 callshop 类型 10 对于物品类型和物品ID的数量限制
+* 20200629  [添加] 物品附加 bRegen 每隔 t 毫秒, 恢复 HP 和 SP (不覆盖, 独立运算)
+* 20200629  [添加] 物品附加 bRegenPercent 每隔 t 毫秒, 按百分比恢复 HP 和 SP(不覆盖, 独立运算)
+* 20200627  [优化] 物品附加 bSkillAttribute 当sk为 0 时变更 n 的表达意义
+* 20200627  [优化] 物品附加 bSkillAttribute 当sk为 -1 时为全部技能
+* 20200627  [添加] 脚本指令 getbossinfo 获取使用 boss_monster 标签召唤出来的魔物的信息
+* 20200627  [优化] 召唤师为独立种族, 默认 RC_PLAYER_DORAM 可在配置中通过 summoner_race 修改召唤师种族
+* 20200627  [添加] 脚本指令 getmapinfo 获取地图相关的信息
+* 20200627  [添加] 脚本指令 getmobspawninfo 获取魔物在哪些地图生成
+* 20200625  [添加] 网页登陆 token 验证
+* 20200625  [添加] OnTouch 支持移动的NPC触发事件
+* 20200625  [添加] 脚本指令 rentalcountitem rentalcountitem2 rentalcountitem3 获取租赁物品数量
+* 20200625  [优化] 脚本指令 rentitem 不能再获取租赁道具的数量
+* 20200624  [修复] 幸运大转盘硬币不对应的问题 
+* 20200622  [优化] 项目 chat-server 名成修改为 websocket-server
+* 20200622  [优化] 项目 websocket-server 架构
+* 20200622  [添加] 项目 websocket-server 加入 websocket 代理用于支持 robrowser
+* 20200622  [修复] 当客户端版本小于 20141016 读取性别时的宕机问题
+* 20200618  [优化] 副本销毁按钮可在 instance_db.yml 中禁用
+* 20200618  [修复] 精炼事件当玩家缺少精炼材料时的宕机问题
+* 20200617  [修复] 地图标记 mapflag inventory_db 客户端报错和服装外观刷新问题
+* 20200617  [添加] 地图标记 nocart 禁止玩家在此地图上手推车
+* 20200617  [优化] 地图标记 inventory_db 当切换背包后默认不能使用手推车
+* 20200615  [修复] 脚本事件 OnPCAttackedFilter 和 OnPCAttackFilter 伤害不能突破21亿的问题
+* 20200612  [[修复] 商城使用免费点数超出拥有点数的报错问题
+* 20200612  [[修复] 获取技能名和技能说明时的宕机问题
+* 20200612  [[添加] 脚本事件 OnMOBSpawnFilter 当魔物生成前触发
+* 20200609  [修复] 由于攻速达到193以后不能触发连锁动作的问题
+* 20200605  [添加] 魔物大型技能在念咒时显示红色警戒范围, skill_db 中 ShowScale 选项
+* 20200605  [添加] 魔神塔副本增加怪物卡片掉落
+* 20200604  [优化] 取消性别'U'保留性别'F'、'M'
+* 20200603  [修复] 超级初学者死亡次数不能重新计数问题
+* 20200603  [修复] 使用 @reloadmobdb 导致的宕机问题
+* 20200603  [添加] 客户端支持至20200401
+* 20200603  [修复] 加速子弹状态在切换子弹时会消失的问题
+* 20200601  [添加] 物品附加 bSkillChangeType 可更改技能的bf, 影响最终伤害计算结果
+* 20200601  [修复] 机甲状态下不能使用速度激发和凶砍的问题
 * 20200531  [添加] 地图标记 mapflag inventory_db 可以在不同地图不同的背包
 * 20200531  [添加] conf/inter_server.yml 支持扩展背包配置, 可与 mapflag 配合实现不同地图不同的背包
 * 20200528  [修复] 仇恨系统宕机BUG
