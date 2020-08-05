@@ -68,7 +68,7 @@ typedef uint64 t_exp;
 #endif
 
 /// Max EXP for guilds
-const t_exp MAX_GUILD_EXP = INT32_MAX;
+const t_exp MAX_GUILD_EXP = INT64_MAX;
 /// Max Base EXP for player on Max Base Level
 const t_exp MAX_LEVEL_BASE_EXP = 99999999;
 /// Max Job EXP for player on Max Job Level
