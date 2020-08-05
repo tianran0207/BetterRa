@@ -271,6 +271,7 @@ struct Battle_Config
 	int mob_matk_equal_atk;
 	int zero_steal_rate;
 	int min_damage;
+	int preloading_mvps;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

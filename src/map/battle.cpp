@@ -9031,6 +9031,7 @@ static const struct _battle_data {
 	{ "mob_matk_equal_atk",                 &battle_config.mob_matk_equal_atk,              0,      0,      INT_MAX,        },
 	{ "zero_steal_rate",                    &battle_config.zero_steal_rate,                 0,      0,      1,              },
 	{ "min_damage",                         &battle_config.min_damage,                      INT_MIN,INT_MIN,INT_MAX,        },
+	{ "preloading_mvps",                    &battle_config.preloading_mvps,                 0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

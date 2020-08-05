@@ -4174,6 +4174,20 @@ void npc_parse_mob2(struct spawn_data* mob)
 	}
 }
 
+void npc_parse_mvp2(struct spawn_data* mob)
+{
+	if (!mob->state.boss)
+		return;
+
+	for (int i = mob->active; i < mob->num; ++i)
+	{
+		struct mob_data* md = mob_spawn_dataset(mob);
+		md->spawn = mob;
+		md->spawn->active++;
+		mob_spawn(md);
+	}
+}
+
 static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath)
 {
 	int num, mob_id, mob_lv = -1, size = -1, w1count;
@@ -4185,6 +4199,8 @@ static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const c
 	memset(&mob, 0, sizeof(struct spawn_data));
 
 	mob.state.boss = !strcmpi(w2,"boss_monster");
+	if (battle_config.preloading_mvps && mob.state.boss)
+		mob.state.dynamic = false;
 
 	// w1=<map name>{,<x>,<y>,<xs>{,<ys>}}
 	// w3=<mob name>{,<mob level>}
@@ -4323,6 +4339,8 @@ static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const c
 		// but not the case when we do @reloadscript
 		if( map_getmapdata(data->m)->users > 0 )
 			npc_parse_mob2(data);
+		else if (battle_config.preloading_mvps)
+			npc_parse_mvp2(data);
 	}
 	else
 	{
