@@ -759,8 +759,8 @@
 	export_parameter("useskill_target", SP_USESKILL_TARGET);
 	export_parameter("useskill_x", SP_USESKILL_X);
 	export_parameter("useskill_y", SP_USESKILL_Y);
-	export_parameter("use_item_nameid", SP_ITEM_NAMEID);
-	export_parameter("use_item_idx", SP_ITEM_IDX);
+	export_parameter("useitem_nameid", SP_ITEM_NAMEID);
+	export_parameter("useitem_idx", SP_ITEM_IDX);
 	//-----------------------------------------------------------------------
 	export_constant2("bMaxHP",SP_MAXHP);
 	export_constant2("bMaxSP",SP_MAXSP);
