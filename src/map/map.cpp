@@ -3657,6 +3657,7 @@ static char *map_init_mapcache(FILE *fp)
 		ShowError("map_init_mapcache: Could not read entire mapcache file\n");
 		return NULL;
 	}
+	WBUFL(buffer, 0) = size;
 
 	return buffer;
 }
@@ -3723,11 +3724,10 @@ void map_loadfromcache(char *buffer)
 	int i;
 	struct map_cache_main_header *header = (struct map_cache_main_header *)buffer;
 	struct map_cache_map_info *info = NULL;
-	char *p = buffer + sizeof(struct map_cache_main_header);
+	char *p = buffer + sizeof(struct map_cache_main_header), *end = buffer + header->file_size;
 
-	for (i = 0; i < header->map_count; i++) {
+	for (i = 0; i < header->map_count && p < end; i++) {
 		struct s_map_cache_map_info *mapinfo;
-
 		info = (struct map_cache_map_info *)p;
 
 		if (!strdb_exists(map_cache_db, info->name)) {
