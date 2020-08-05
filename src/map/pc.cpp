@@ -6443,8 +6443,8 @@ int pc_useitem(struct map_session_data *sd,int n)
 
 #ifdef EVENT_USEITEMFILTER
 	if (npc_script_event_check(sd, NPCE_USEITEMFILTER)) {
-		pc_setparam(sd, SP_ITEM_NAMEID, item.nameid);
-		pc_setparam(sd, SP_ITEM_IDX, n);
+		pc_setparam(sd, SP_USEITEM_NAMEID, item.nameid);
+		pc_setparam(sd, SP_USEITEM_IDX, n);
 		npc_script_event_atonce(sd, NPCE_USEITEMFILTER);
 		if (sd->state.processhalt)
 			return 0;
@@ -6494,8 +6494,8 @@ int pc_useitem(struct map_session_data *sd,int n)
 
 #ifdef EVENT_USEITEMEVENT
 	if (npc_script_event_check(sd, NPCE_USEITEMEVENT)) {
-		pc_setparam(sd, SP_ITEM_NAMEID, item.nameid);
-		pc_setparam(sd, SP_ITEM_IDX, amount == 1 ? -1 : n);
+		pc_setparam(sd, SP_USEITEM_NAMEID, item.nameid);
+		pc_setparam(sd, SP_USEITEM_IDX, amount == 1 ? -1 : n);
 		npc_script_event(sd, NPCE_USEITEMEVENT);
 	}
 #endif // EVENT_USEITEMEVENT
@@ -9741,8 +9741,8 @@ int64 pc_readparam(struct map_session_data* sd,int64 type)
 		case SP_USESKILL_TARGET: val = sd->eventparam.use_skill_target; break;
 		case SP_USESKILL_X:      val = sd->eventparam.use_skill_x; break;
 		case SP_USESKILL_Y:      val = sd->eventparam.use_skill_y; break;
-		case SP_ITEM_NAMEID:     val = sd->eventparam.use_item_nameid; break;
-		case SP_ITEM_IDX:        val = sd->eventparam.use_item_idx; break;
+		case SP_USEITEM_NAMEID:     val = sd->eventparam.use_item_nameid; break;
+		case SP_USEITEM_IDX:        val = sd->eventparam.use_item_idx; break;
 		case SP_SKILLPOINT:      val = sd->status.skill_point; break;
 		case SP_STATUSPOINT:     val = sd->status.status_point; break;
 		case SP_ZENY:            val = sd->status.zeny; break;
@@ -9969,10 +9969,10 @@ bool pc_setparam(struct map_session_data *sd,int64 type,int64 val_tmp)
 	case SP_USESKILL_Y:
 		sd->eventparam.use_skill_y = val;
 		return true;
-	case SP_ITEM_NAMEID:
+	case SP_USEITEM_NAMEID:
 		sd->eventparam.use_item_nameid = val;
 		return true;
-	case SP_ITEM_IDX:
+	case SP_USEITEM_IDX:
 		sd->eventparam.use_item_idx = val;
 		return true;
 	case SP_BASELEVEL:
