@@ -1252,15 +1252,17 @@ bool skill_doEvent(struct block_list *src, int target_id, uint16 skill_id, uint1
 		npc_script_event_doall(type);
 		if (npc_event_halt)
 			return false;
+		break;
 	case NPCE_USESKILLFILTER:
 	case NPCE_AUTOSPELLFILTER:
-		npc_script_event(sd, type);
-		return true;
-	case NPCE_USESKILLEVENT:
-	case NPCE_AUTOSPELLEVENT:
 		npc_script_event_atonce(sd, type);
 		if (sd->state.processhalt)
 			return false;
+		break;
+	case NPCE_USESKILLEVENT:
+	case NPCE_AUTOSPELLEVENT:
+		npc_script_event(sd, type);
+		break;
 	}
 	return true;
 }
