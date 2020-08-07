@@ -591,7 +591,7 @@ bool cashshop_buylist( struct map_session_data* sd, uint32 kafrapoints, int n, s
 		if (sd->state.processhalt)
 			return true;
 	}
-	if (sd->cashPoints < totalcash || sd->kafraPoints < kafrapoints) {
+	if (sd->cashPoints < totalcash - kafrapoints || sd->kafraPoints < kafrapoints) {
 		clif_cashshop_result(sd, 0, CASHSHOP_RESULT_ERROR_SHORTTAGE_CASH);
 		return false;
 	}
