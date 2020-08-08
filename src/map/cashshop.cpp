@@ -236,7 +236,11 @@ static void sale_read_db_sql( void ){
 }
 
 static TIMER_FUNC(sale_end_timer){
-	struct sale_item_data* sale_item = (struct sale_item_data*)data;
+	struct sale_item_data* sale_item = sale_find_item((uint16)data, false);
+
+	if (sale_item == NULL) {
+		return 1;
+	}
 
 	// Remove the timer so the sale end is not sent out again
 	delete_timer( sale_item->timer_end, sale_end_timer );
@@ -262,7 +266,7 @@ static TIMER_FUNC(sale_start_timer){
 	}
 
 	// Init sale end
-	sale_item->timer_end = add_timer( gettick() + (unsigned int)( sale_item->end - time(NULL) ) * 1000, sale_end_timer, 0, (intptr_t)sale_item );
+	sale_item->timer_end = add_timer( gettick() + (unsigned int)( sale_item->end - time(NULL) ) * 1000, sale_end_timer, 0, (intptr_t)(sale_item->nameid) );
 
 	return 1;
 }
