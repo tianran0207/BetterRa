@@ -16647,7 +16647,7 @@ void clif_parse_Mail_setattach(int fd, struct map_session_data *sd){
 
 	if( !chrif_isconnected() )
 		return;
-	if (idx < 0 || amount < 0 || idx >= MAX_INVENTORY)
+	if (server_index(idx) < 0 || amount <= 0 || server_index(idx) >= MAX_INVENTORY)
 		return;
 
 	if (npc_script_event_check(sd, NPCE_MAILADDFILTER)) {
