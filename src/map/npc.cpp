@@ -5313,6 +5313,7 @@ int npc_reload(void) {
 	guild_flags_clear();
 
 	npc_clear_pathlist();
+	script_event.clear();
 
 	db_clear(npc_path_db);
 

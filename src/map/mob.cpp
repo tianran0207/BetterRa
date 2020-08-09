@@ -3990,7 +3990,7 @@ int mobskill_use(struct mob_data *md, t_tick tick, int event)
 		}
 		if(!(battle_config.mob_ai&0x200)) { //pass on delay to same skill.
 			for (j = 0; j < maxskill; j++)
-				if (md->db->skill[j].skill_id == ms[i].skill_id)
+				if (ms[j].skill_id == ms[i].skill_id)
 					md->skilldelay[j]=tick;
 		} else
 			md->skilldelay[i]=tick;

@@ -28518,10 +28518,17 @@ BUILDIN_FUNC(getareamember)
 	struct party_data *p = NULL;
 	struct guild *g = NULL;
 	std::shared_ptr<s_battleground_data> bg;
-	int x0 = 0, x1 = 0, y0 = 0, y1 = 0, size = 0, i, j = 0;
+	const char *mapname;
+	int16 x0 = 0, x1 = 0, y0 = 0, y1 = 0, size = 0, i, j = 0, m;
 
-	if (!script_charid2sd(4, sd))
+	if (!script_charid2sd(5, sd))
 		return SCRIPT_CMD_FAILURE;
+
+	mapname = script_hasdata(st, 4) ? script_getstr(st, 4) : NULL;
+	if (!mapname || !strcmp("this", mapname))
+		m = sd->bl.m;
+	else
+		m = map_mapname2mapid(mapname);
 
 	size = script_hasdata(st, 3) ? script_getnum(st, 3) : AREA_SIZE;
 
@@ -28538,7 +28545,7 @@ BUILDIN_FUNC(getareamember)
 		for (i = 0; i<MAX_PARTY; i++) {
 			if ((tsd = p->data[i].sd) == NULL)
 				continue;
-			if (tsd->bl.x < x0 || tsd->bl.y < y0 || tsd->bl.x > x1 || tsd->bl.y > y1)
+			if (tsd->bl.m != m || tsd->bl.x < x0 || tsd->bl.y < y0 || tsd->bl.x > x1 || tsd->bl.y > y1)
 				continue;
 			pc_setreg(sd, reference_uid(add_str("@member_aid"), j), tsd->status.account_id);
 			j++;
@@ -28551,7 +28558,7 @@ BUILDIN_FUNC(getareamember)
 		for (i = 0; i < g->max_member; i++) {
 			if ((tsd = g->member[i].sd) == NULL)
 				continue;
-			if (tsd->bl.x < x0 || tsd->bl.y < y0 || tsd->bl.x > x1 || tsd->bl.y > y1)
+			if (tsd->bl.m != m || tsd->bl.x < x0 || tsd->bl.y < y0 || tsd->bl.x > x1 || tsd->bl.y > y1)
 				continue;
 			pc_setreg(sd, reference_uid(add_str("@member_aid"), j), tsd->status.account_id);
 			j++;
@@ -28562,7 +28569,7 @@ BUILDIN_FUNC(getareamember)
 			for (i = 0; i < bg->members.size(); i++) {
 				if ((tsd = bg->members[i].sd) == NULL)
 					continue;
-				if (tsd->bl.x < x0 || tsd->bl.y < y0 || tsd->bl.x > x1 || tsd->bl.y > y1)
+				if (tsd->bl.m != m || tsd->bl.x < x0 || tsd->bl.y < y0 || tsd->bl.x > x1 || tsd->bl.y > y1)
 					continue;
 				pc_setreg(sd, reference_uid(add_str("@member_aid"), j), tsd->status.account_id);
 				j++;
@@ -31529,7 +31536,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unit_Astart_walkto, "iii????"),
 	BUILDIN_DEF(instance_name, "?"),
 	BUILDIN_DEF(readstatus, "i?"),
-	BUILDIN_DEF(getareamember, "i??"),
+	BUILDIN_DEF(getareamember, "i???"),
 	BUILDIN_DEF(magicshield, "iii?"),
 	BUILDIN_DEF(getbonus, "i?????"),
 	BUILDIN_DEF2(getbonus, "getcharbonus", "i??????"),
