@@ -9883,6 +9883,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		if (type>=SC_COMMON_MIN && type <= SC_COMMON_MAX)
 			return 0;
 		switch (type) {
+			case SC_STOP:
 			case SC_BLESSING:
 			case SC_DECREASEAGI:
 			case SC_PROVOKE:
