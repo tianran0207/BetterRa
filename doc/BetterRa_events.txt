@@ -778,6 +778,8 @@ BetterRa 在官方的基础上做了以下改进:
 	当把物品(zeny)添加到交易菜单时触发
 	
 参数说明：
+	@trade_partner_aid 交易对方的AID
+	@trade_partner_cid 交易对方的CID
 	@trade_itemid 放入交易菜单物品的ID, 如果是Zeny 则返回 0
 	@trade_amount 放入交易菜单物品的数量, 如果是Zeny 则Zeny数量
 	@trade_idx 放入交易菜单物品在背包中的序列, 如果是Zeny 则返回 -1
@@ -891,11 +893,39 @@ BetterRa 在官方的基础上做了以下改进:
 	当玩家记录获取失去物品时触发该事件, 触发事件的时机与 MySQL中pick表相同
 	
 参数说明:
-	@pick_itemid 要记录物品ID
-	@pick_amount 要记录物品数量
-	@recv_stortype 要记录物品来自哪里(1: 背包, 2:手推车 3: 普通/扩展仓库 4: 公会仓库)
-	@pick_storid 要记录物品来自仓库ID(公会仓库返回-1, 普通仓库和扩展仓库返回仓库ID)
-	@pick_idx 要记录物品原本的所在位置的序号, 可通过 getinventoryinfo getcartinfo getstorageinfo getguildstorageinfo 查看物品详细信息
+	@pick_itemid      物品ID
+	@pick_amount      物品数量
+	@recv_stortype    物品来自哪里 (1: 背包 2:手推车 3: 普通/扩展仓库 4: 公会仓库)
+	@pick_storid      物品来自仓库ID (公会仓库返回-1, 普通仓库和扩展仓库返回仓库ID)
+	@pick_partner_aid 物品来自对方的AID (例如 交易、挂店、采购)
+	@pick_idx         物品原本的所在位置的序号, 可通过 getinventoryinfo getcartinfo getstorageinfo getguildstorageinfo 查看物品详细信息
+	@pick_type$       log 类型
+						- 'W' 手推车
+						- 'T' 交易 
+						- 'V' 挂店 
+						- 'P' 玩家拾起
+						- 'M' 魔物掉落 
+						- 'S' NPC购买 
+						- 'N' 脚本给予 
+						- 'D' 偷窃 
+						- 'C' 消耗 
+						- 'O' 制造 
+						- 'U' MVP物品 
+						- 'A' 指令获取 
+						- 'R' 仓库 
+						- 'G' 公会仓库 
+						- 'E' 邮件 
+						- 'I' 拍卖 
+						- 'B' 采购 
+						- 'L' 魔物拾取掉落
+						- 'K' 银行
+						- 'X' 其他 
+						- '$' 商城 
+						- 'F' 移除绑定
+						- 'Y' 幸运转盘
+						- 'Z' 合成
+						- 'Q' 任务
+						- 'H' 定制飞行
 
 ---------------------------------------
 

@@ -263,6 +263,7 @@ void log_pick_pc(struct map_session_data* sd, e_log_pick_type type, int amount, 
 	nullpo_retv(sd);
 	if (npc_script_event_check(sd, NPCE_PICKLOGEVENT)) {
 		struct s_storage *stor= NULL;
+		char log_type[2] = {};
 		int idx = -1;
 		if (itm >= &sd->inventory.u.items_inventory[0] && itm <= &sd->inventory.u.items_inventory[MAX_INVENTORY-1])
 			stor = &sd->inventory;
@@ -280,10 +281,13 @@ void log_pick_pc(struct map_session_data* sd, e_log_pick_type type, int amount, 
 			if (idx == stor->max_amount)
 				idx = -1;
 		}
+		log_type[0] = type == LOG_TYPE_NONE ? 'W' : log_picktype2char(type);
+		pc_setregstr(sd, add_str("@pick_type$"), log_type);
 		pc_setreg(sd, add_str("@pick_itemid"), itm->id);
-		pc_setreg(sd, add_str("@pick_amount"), itm->amount);
+		pc_setreg(sd, add_str("@pick_amount"), amount);
 		pc_setreg(sd, add_str("@pick_stortype"), stor ? stor->type : 0);
 		pc_setreg(sd, add_str("@pick_storid"), stor ? stor->id : 0);
+		pc_setreg(sd, add_str("@pick_partner_aid"), sd->trade_partner);
 		pc_setreg(sd, add_str("@pick_idx"), idx);
 		npc_script_event_atonce(sd, NPCE_PICKLOGEVENT);
 	}
