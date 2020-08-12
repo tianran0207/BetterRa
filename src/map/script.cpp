@@ -30379,6 +30379,46 @@ BUILDIN_FUNC(getbossinfo)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(checktrade)
+{
+	TBL_PC* sd;
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, sd->trade_partner);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(checkcashshop)
+{
+	TBL_PC* sd;
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, sd->state.cashshop_open ? 1 : 0);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(checkmailwriting)
+{
+	TBL_PC* sd;
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, sd->state.mail_writing ? 1 : 0);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(checkrefineui)
+{
+	TBL_PC* sd;
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, sd->state.refineui_open ? 1 : 0);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -31468,6 +31508,10 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getmapinfo, "si?"),
 	BUILDIN_DEF(getmobspawninfo, "i"),
 	BUILDIN_DEF(getbossinfo, "??"),
+	BUILDIN_DEF(checktrade, "?"),
+	BUILDIN_DEF(checkcashshop, "?"),
+	BUILDIN_DEF(checkmailwriting, "?"),
+	BUILDIN_DEF(checkrefineui, "?"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
