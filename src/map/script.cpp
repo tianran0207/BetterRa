@@ -30724,10 +30724,13 @@ BUILDIN_FUNC(preg_match) {
 
 bool has_func_name(struct script_code *script_code, char *func_name) {
 
-	int len, i = 0, j;
+	int len, i = 0, j, func;
 	unsigned char *buf;
 
 	if (!script_code)
+		return false;
+
+	if ((func = search_str(func_name)) == -1)
 		return false;
 
 	len = script_code->script_size;
@@ -30737,11 +30740,12 @@ bool has_func_name(struct script_code *script_code, char *func_name) {
 		j = i;
 		switch (op) {
 		case C_INT:
-			get_num(buf, &i);
+			for (j = 0; buf[i+j] >= 0xc0; j++);
+			i += j + 1;
 			break;
 		case C_NAME:
 			j = (*(int*)(buf + i) & 0xffffff);
-			if (j != 0xffffff && !strcmp(func_name, get_str(j)))
+			if (func == j)
 				return true;
 		case C_POS:
 			i += 3;

@@ -6194,7 +6194,7 @@ bool pc_isUseitem(struct map_session_data *sd,int n)
 	if( item == NULL )
 		return false;
 
-	if (battle_config.mounting_cant_use && &sd->sc && sd->sc.data[SC_ALL_RIDING] && nameid != ITEMID_REINS_OF_MOUNT && item->flag.delay_consume != 3) {
+	if (battle_config.mounting_cant_use && &sd->sc && sd->sc.data[SC_ALL_RIDING] && nameid != ITEMID_REINS_OF_MOUNT) {
 		int type;
 		switch (item->type) {
 		case IT_HEALING:	  type = 1;	  	 break;
@@ -6207,7 +6207,7 @@ bool pc_isUseitem(struct map_session_data *sd,int n)
 		case IT_SHADOWGEAR:	  type = 128; 	 break;
 		case IT_CASH:		  type = 256; 	 break;
 		}
-		if (battle_config.mounting_cant_use & type) {
+		if ((battle_config.mounting_cant_use & type) && !has_func_name(item->script, "setmounting")) {
 			clif_displaymessage(sd->fd, msg_txt(sd, 2337));
 			return false;
 		}
@@ -6418,7 +6418,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 
 	/* Items with delayed consume are not meant to work while in mounts except reins of mount(12622) */
 	if( id->flag.delay_consume == 1 || id->flag.delay_consume == 2) {
-		if( nameid != ITEMID_REINS_OF_MOUNT && sd->sc.data[SC_ALL_RIDING] )
+		if( nameid != ITEMID_REINS_OF_MOUNT && sd->sc.data[SC_ALL_RIDING] && !has_func_name(id->script, "setmounting"))
 			return 0;
 		else if( pc_issit(sd) )
 			return 0;
