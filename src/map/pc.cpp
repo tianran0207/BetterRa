@@ -6190,7 +6190,7 @@ bool pc_isUseitem(struct map_session_data *sd,int n)
 	if( item == NULL )
 		return false;
 
-	if (battle_config.mounting_cant_use && &sd->sc && sd->sc.data[SC_ALL_RIDING]) {
+	if (battle_config.mounting_cant_use && &sd->sc && sd->sc.data[SC_ALL_RIDING] && nameid != ITEMID_REINS_OF_MOUNT && item->flag.delay_consume != 3) {
 		int type;
 		switch (item->type) {
 		case IT_HEALING:	  type = 1;	  	 break;
