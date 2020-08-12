@@ -28518,19 +28518,14 @@ BUILDIN_FUNC(getareamember)
 	struct party_data *p = NULL;
 	struct guild *g = NULL;
 	std::shared_ptr<s_battleground_data> bg;
-	const char *mapname;
-	int16 x0 = 0, x1 = 0, y0 = 0, y1 = 0, size = 0, i, j = 0, m;
+	int x0 = 0, x1 = 0, y0 = 0, y1 = 0, size = 0, i, j = 0, m;
 
-	if (!script_charid2sd(5, sd))
+	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	mapname = script_hasdata(st, 4) ? script_getstr(st, 4) : NULL;
-	if (!mapname || !strcmp("this", mapname))
-		m = sd->bl.m;
-	else
-		m = map_mapname2mapid(mapname);
-
 	size = script_hasdata(st, 3) ? script_getnum(st, 3) : AREA_SIZE;
+
+	m = sd->bl.m;
 
 	x0 = sd->bl.x - size;
 	y0 = sd->bl.y - size;
@@ -28581,6 +28576,59 @@ BUILDIN_FUNC(getareamember)
 		return SCRIPT_CMD_FAILURE;
 	}
 	pc_setreg(sd, add_str("@member_amount"), j);
+	script_pushint(st, j);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getmapmember)
+{
+	TBL_PC *tsd = NULL;
+	struct party_data *p = NULL;
+	struct guild *g = NULL;
+	std::shared_ptr<s_battleground_data> bg;
+	int16 i, j = 0, m;
+	int team_id;
+
+	m = map_mapname2mapid(script_getstr(st, 3));
+	team_id = script_getnum(st, 4);
+
+	switch (script_getnum(st, 2)) {
+	case PARTY_AREA:
+		if ((p = party_search(team_id)) == NULL)
+			break;
+		for (i = 0; i < MAX_PARTY; i++) {
+			if ((tsd = p->data[i].sd) == NULL || tsd->bl.m != m)
+				continue;
+			mapreg_setreg(reference_uid(add_str("$@member_aid"), i), tsd->status.account_id);
+			j++;
+		}
+		break;
+	case GUILD_AREA:
+		if ((g = guild_search(team_id)) == NULL)
+			break;
+		if (!g) break;
+		for (i = 0; i < g->max_member; i++) {
+			if ((tsd = g->member[i].sd) == NULL || tsd->bl.m != m)
+				continue;
+			mapreg_setreg(reference_uid(add_str("$@member_aid"), i), tsd->status.account_id);
+			j++;
+		}
+		break;
+	case BG_AREA:
+		if ((bg = util::umap_find(bg_team_db, team_id)) == NULL)
+			break;
+		for (i = 0; i < bg->members.size(); i++) {
+			if ((tsd = bg->members[i].sd) == NULL || tsd->bl.m != m)
+				continue;
+			mapreg_setreg(reference_uid(add_str("$@member_aid"), i), tsd->status.account_id);
+			j++;
+		}
+		break;
+	default:
+		ShowError("buildin_getmapmember: Unsupport this type\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	script_pushint(st, j);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -28626,10 +28674,8 @@ BUILDIN_FUNC(getbonus)
 	if (!strncmp(command, "getchar", 7)) {
 		if (!script_charid2sd(lastdata, sd))
 			return SCRIPT_CMD_FAILURE;
-		if (lastdata <= 7) {
-			val[7 - lastdata] = 0;
-			data[7 - lastdata] = NULL;
-		}
+		val[lastdata - 3] = 0;
+		data[lastdata - 3] = NULL;
 	}
 	else if (!script_rid2sd(sd))
 		return SCRIPT_CMD_FAILURE;
@@ -31581,6 +31627,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(instance_name, "?"),
 	BUILDIN_DEF(readstatus, "i?"),
 	BUILDIN_DEF(getareamember, "i???"),
+	BUILDIN_DEF(getmapmember, "isi"),
 	BUILDIN_DEF(magicshield, "iii?"),
 	BUILDIN_DEF(getbonus, "i?????"),
 	BUILDIN_DEF2(getbonus, "getcharbonus", "i??????"),
