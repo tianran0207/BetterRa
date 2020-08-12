@@ -2414,6 +2414,7 @@ int64 battle_addmastery(struct map_session_data *sd,struct block_list *target,in
 				damage += (skill * 3);
 			break;
 	}
+	damage += sd->c_bonus.add_mastery;
 
 	return damage;
 }

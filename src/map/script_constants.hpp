@@ -547,6 +547,7 @@
 	export_constant2("bWeaponAddDamage", SP_WEAPON_ADD_DAMAGE);
 	export_constant2("bMagicAddDamage", SP_MAGIC_ADD_DAMAGE);
 	export_constant2("bMiscAddDamage", SP_MISC_ADD_DAMAGE);
+	export_constant2("bAddMastery", SP_ADD_MASTERY);
 	export_constant2("bSkillDamage", SP_SKILL_DAMAGE);
 	export_constant2("bSkillForAOE", SP_SKILL_AOE);
 	export_constant2("bSkillTreeCooldownRate", SP_SKILLTREE_COOLDOWNRATE);

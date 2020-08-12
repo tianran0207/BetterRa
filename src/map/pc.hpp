@@ -722,7 +722,7 @@ struct map_session_data {
 	// zeroed vars end here.
 
 	struct s_custom_bonus {
-		int weapon_add_damage, magic_add_damage, misc_add_damage;
+		int weapon_add_damage, magic_add_damage, misc_add_damage, add_mastery;
 		char def_size, def_race, def_ele_lv;
 		struct s_job_cooldown {
 			int c_idxrate;

@@ -3136,6 +3136,10 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 			if(sd->state.lr_flag != 2)
 				sd->c_bonus.misc_add_damage += val;
 			break;
+		case SP_ADD_MASTERY:
+			if (sd->state.lr_flag != 2)
+				sd->c_bonus.add_mastery += val;
+			break;
 		case SP_DEFSIZE:
 			PC_BONUS_CHK_SIZE(val, SP_DEFSIZE);
 			if (sd->state.lr_flag != 2)
