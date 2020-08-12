@@ -444,7 +444,7 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 			damage = val;
 	}
 	if (target && (sd = BL_CAST(BL_PC, src)) && (npc_script_event_check(sd, NPCE_ATKFILTER))) {
-		ud = unit_bl2ud(src);
+		ud = unit_bl2ud(target);
 		if ((map_getmapflag(target->m, MF_ATTACKEVENT)&(target->type)) || ud && ud->attackevent_mark || (battle_config.attack_event & target->type)) {
 			pc_setparam(sd, SP_DMG_TYPE, wd->flag);
 			pc_setparam(sd, SP_DMG_VAL, damage);
