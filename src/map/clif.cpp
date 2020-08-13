@@ -6993,17 +6993,16 @@ void clif_insert_card(struct map_session_data *sd,int idx_equip,int idx_card,int
 
 void clif_change_card(struct map_session_data *sd, unsigned int pos, int solt, unsigned short card, int flag)
 {
-	int fd;
 	nullpo_retv(sd);
+	struct PACKET_ZC_ENCHANT_EQUIPMENT p;
 
-	fd = sd->fd;
-	WFIFOHEAD(fd, 9);
-	WFIFOW(fd, 0) = 0x0a3f;
-	WFIFOW(fd, 2) = pos;
-	WFIFOW(fd, 4) = solt;
-	WFIFOW(fd, 6) = card;
-	WFIFOB(fd, 8) = flag;
-	WFIFOSET(fd, 9);
+	p.packetType = HEADER_ZC_ENCHANT_EQUIPMENT;
+	p.wearState = pos;
+	p.cardSlot = solt;
+	p.itemId = card ? client_nameid(card) : card;
+	p.equipFlag = flag;
+
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
 }
 
 /// Presents a list of items that can be identified (ZC_ITEMIDENTIFY_LIST).

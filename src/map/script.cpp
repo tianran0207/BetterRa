@@ -29931,42 +29931,37 @@ BUILDIN_FUNC(setequipedcard)
 {
 #if PACKETVER >= 20151118
 	struct map_session_data *sd;
-	int card, slot, pos, flag = 1, i;
-	int unequip = 0;
 
 	if (!script_charid2sd(5, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	pos = script_getnum(st, 2);
-	if ((pos <= EQI_COMPOUND_ON || pos >= EQI_MAX)) {
+	const int pos = script_getnum(st, 2);
+	if (!equip_index_check(pos)) {
 		ShowError("buildin_setequipedcard: Wrong equip position: %d\n", pos);
 		return SCRIPT_CMD_FAILURE;
 	}
-	card = script_getnum(st, 4);
-	if (card != 0 && !itemdb_exists(card)) {
-		ShowError("buildin_setequipedcard: Item id is not exists: %d\n", card);
-		return SCRIPT_CMD_FAILURE;
-	}
-	if ((i = sd->equip_index[pos]) < 0) {
+	const int cardId = script_getnum(st, 4);
+	if (cardId != 0 && itemdb_exists(cardId) == NULL) {
 		ShowError("buildin_setequipedcard: Item in equipment slot %d is not equipped\n", pos);
 		return SCRIPT_CMD_FAILURE;
 	}
-	slot = script_getnum(st, 3);
-	if (slot < 0 || slot >= MAX_SLOTS) {
-		ShowError("buildin_setequipedcard: Wrong card slot %d. Must be in range 0-3.\n", slot);
+	const int n = sd->equip_index[pos];
+	if (n < 0) {
+		ShowError("buildin_setequipedcard: Item in equipment slot %d is not equipped\n", pos);
 		return SCRIPT_CMD_FAILURE;
 	}
-	clif_change_card(sd, equip_bitmask[pos], slot, card, card == 0 ? 2 : 1);
-	if (sd->inventory.u.items_inventory[i].card[slot])
-		unequip += itemdb_search(sd->inventory.u.items_inventory[i].card[slot])->flag.costume_card;
-	if (card)
-		unequip += itemdb_search(card)->flag.costume_card;
-	log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[i]);
-	sd->inventory.u.items_inventory[i].card[slot] = card;
-	log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[i]);
-	if (unequip)
-		pc_unequipitem(sd, i, 0);
-	clif_equiplist(sd);
+	const int cardSlot = script_getnum(st, 3);
+	if (cardSlot < 0 || cardSlot >= MAX_SLOTS) {
+		ShowError("buildin_setequipedcard: Wrong card slot %d. Must be in range 0-3.\n", cardSlot);
+		return SCRIPT_CMD_FAILURE;
+	}
+	log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[n]);
+	sd->inventory.u.items_inventory[n].card[cardSlot] = cardId;
+	log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[n]);
+	if ((pos < EQI_ACC_L || pos > EQI_HAND_R) && pos != EQI_AMMO)
+		clif_equiplist(sd);
+	else
+		clif_change_card(sd, equip_bitmask[pos], cardSlot, cardId, cardId == 0 ? 2 : 1);
 	status_calc_pc(sd, SCO_NONE);
 	return SCRIPT_CMD_SUCCESS;
 #else
