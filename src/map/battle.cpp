@@ -443,6 +443,19 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 		if (val && damage > val)
 			damage = val;
 	}
+
+	skf_db.script_run(src, target, skill_id, skill_lv, 1, wd, &damage, NULL);
+
+	if ((ud = unit_bl2ud(target)) && ud->def_fix.rate1 && ud->def_fix.rate2) {
+		damage = damage * ud->def_fix.rate1 / ud->def_fix.rate2;
+		if (ud->def_fix.min_dmg && damage < ud->def_fix.min_dmg)
+			damage = ud->def_fix.min_dmg;
+		if (ud->def_fix.max_dmg && damage > ud->def_fix.max_dmg)
+			damage = ud->def_fix.max_dmg;
+	}
+	if (is_infinite_defense(target, wd->flag))
+		damage = 1 * wd->div_;
+
 	if (target && (sd = BL_CAST(BL_PC, src)) && (npc_script_event_check(sd, NPCE_ATKFILTER))) {
 		ud = unit_bl2ud(target);
 		if ((map_getmapflag(target->m, MF_ATTACKEVENT)&(target->type)) || ud && ud->attackevent_mark || (battle_config.attack_event & target->type)) {
@@ -481,19 +494,6 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 			}
 		}
 	}
-
-	skf_db.script_run(src, target, skill_id, skill_lv, 1, wd, &damage, NULL);
-
-	if ((ud = unit_bl2ud(target)) && ud->def_fix.rate1 && ud->def_fix.rate2) {
-		damage = damage * ud->def_fix.rate1 / ud->def_fix.rate2;
-		if (ud->def_fix.min_dmg && damage < ud->def_fix.min_dmg)
-			damage = ud->def_fix.min_dmg;
-		if (ud->def_fix.max_dmg && damage > ud->def_fix.max_dmg)
-			damage = ud->def_fix.max_dmg;
-	}
-	if (is_infinite_defense(target, wd->flag))
-		damage = 1 * wd->div_;
-
 	if (damage != wd->damage + wd->damage2 || ddamage > 0) {
 		if (wd->damage2 == 0) {
 			wd->damage = damage;
