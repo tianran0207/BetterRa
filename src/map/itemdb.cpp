@@ -662,7 +662,7 @@ static bool itemdb_read_vending(char* fields[], int columns, int current)
 	struct item_data* id;
 	t_itemid nameid;
 
-	nameid = atoi(fields[0]);
+	nameid = strtoul(fields[0], nullptr, 10);
 
 	if ((id = itemdb_exists(nameid)) == NULL) {
 		ShowWarning("itemdb_read_vending: Invalid item id %u.\n", nameid);
