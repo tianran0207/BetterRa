@@ -65,7 +65,7 @@ enum refine_info_type {
 };
 
 struct refine_cost {
-	unsigned short nameid;
+	t_itemid nameid;
 	int zeny;
 	bool breakable;
 };
@@ -669,11 +669,7 @@ enum sc_type : int16 {
 	SC_SPELLBOOK4,
 	SC_SPELLBOOK5,
 	SC_SPELLBOOK6,
-/**
- * In official server there are only 7 maximum number of spell books that can be memorized
- * To increase the maximum value just add another status type before SC_MAXSPELLBOOK (ex. SC_SPELLBOOK7, SC_SPELLBOOK8 and so on)
- **/
-	SC_MAXSPELLBOOK,
+	SC_MAXSPELLBOOK, // SC_SPELLBOOK7
 	/* Max HP & SP */
 	SC_INCMHP,
 	SC_INCMSP,
@@ -950,6 +946,8 @@ enum sc_type : int16 {
 	SC_LUXANIMA,
 	SC_REUSE_LIMIT_LUXANIMA,
 	SC_ENSEMBLEFATIGUE,
+	SC_MISTY_FROST,
+	SC_MAGIC_POISON,
 
 #ifdef RENEWAL
 	SC_EXTREMITYFIST2, //! NOTE: This SC should be right before SC_MAX, so it doesn't disturb if RENEWAL is disabled

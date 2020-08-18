@@ -57,7 +57,7 @@ struct s_item_group_db *itemdb_group_exists(unsigned short group_id) {
  * @param nameid: Item to check for in group
  * @return True if item is in group, else false
  */
-bool itemdb_group_item_exists(unsigned short group_id, unsigned short nameid)
+bool itemdb_group_item_exists(unsigned short group_id, t_itemid nameid)
 {
 	struct s_item_group_db *group = (struct s_item_group_db *)uidb_get(itemdb_group, group_id);
 	unsigned short i, j;
@@ -141,13 +141,13 @@ static int itemdb_loadname_sub(DBKey key, DBData *data, va_list ap)
 	return 0;
 }
 
-void itemdb_addname(unsigned short nameid, const char *from)
+void itemdb_addname(t_itemid nameid, const char *from)
 {
 	struct item_data* item1 = itemdb_exists(nameid);
 	struct item_data* item2;
 
 	if (item1 == NULL) {
-		ShowWarning("itemdb_addname: Invalid item id %d.\n", nameid);
+		ShowWarning("itemdb_addname: Invalid item id %u.\n", nameid);
 		return;
 	}
 	item2 = itemdb_searchname(item1->name);
@@ -261,7 +261,7 @@ struct s_item_group_entry *itemdb_get_randgroupitem(uint16 group_id, uint8 sub_g
 * @param sub_group: 0 is 'must' item group, random groups start from 1 to MAX_ITEMGROUP_RANDGROUP+1
 * @return Item ID or UNKNOWN_ITEM_ID on fail
 */
-unsigned short itemdb_searchrandomid(uint16 group_id, uint8 sub_group) {
+t_itemid itemdb_searchrandomid(uint16 group_id, uint8 sub_group) {
 	struct s_item_group_entry *entry = itemdb_get_randgroupitem(group_id, sub_group);
 	return entry ? entry->nameid : UNKNOWN_ITEM_ID;
 }
@@ -352,7 +352,7 @@ char itemdb_pc_get_itemgroup(uint16 group_id, bool identify, struct map_session_
 * @param nameid
 * @return *item_data if item is exist, or NULL if not
 */
-struct item_data* itemdb_exists(int nameid) {
+struct item_data* itemdb_exists(t_itemid nameid) {
 	if (nameid < 0) return NULL;
 	return ((struct item_data*)uidb_get(itemdb,nameid));
 }
@@ -496,7 +496,7 @@ static void itemdb_create_dummy(void) {
 * Create new item data
 * @param nameid
 */
-static struct item_data *itemdb_create_item(unsigned short nameid) {
+static struct item_data *itemdb_create_item(t_itemid nameid) {
 	struct item_data *id;
 	CREATE(id, struct item_data, 1);
 	memset(id, 0, sizeof(struct item_data));
@@ -511,12 +511,12 @@ static struct item_data *itemdb_create_item(unsigned short nameid) {
  * @param nameid
  * @return *item_data or *dummy_item if item not found
  *------------------------------------------*/
-struct item_data* itemdb_search_sub(int nameid, const char* func) {
+struct item_data* itemdb_search_sub(t_itemid nameid, const char* func) {
 	struct item_data* id = NULL;
 	if (nameid < 0 || nameid == dummy_item->nameid)
 		id = dummy_item;
 	else if (!(id = (struct item_data*)uidb_get(itemdb, nameid))) {
-		ShowWarning("itemdb_search: Item ID %hu does not exists in the item_db. Using dummy data.(source: %s)\n", nameid, func);
+		ShowWarning("itemdb_search: Item ID %u does not exists in the item_db. Using dummy data.(source: %s)\n", nameid, func);
 		id = dummy_item;
 	}
 	return id;
@@ -622,13 +622,12 @@ bool itemdb_ishatched_egg(struct item* item) {
 /** Specifies if item-type should drop unidentified.
 * @param nameid ID of item
 */
-char itemdb_isidentified(unsigned short nameid, int from) {
-	int type;
-
+char itemdb_isidentified(t_itemid nameid, int from) {
+	
 	if (battle_config.get_identify_equip && (battle_config.get_identify_equip & from) == from)
 		return 1;
 
-	type = itemdb_type(nameid);
+int type=itemdb_type(nameid);
 	switch (type) {
 		case IT_WEAPON:
 		case IT_ARMOR:
@@ -641,14 +640,14 @@ char itemdb_isidentified(unsigned short nameid, int from) {
 }
 
 static bool item_read_announce(char* str[], int columns, int current) {
-	unsigned short nameid;
+	t_itemid nameid;
 	struct item_data *id;
 
-	nameid = atoi(str[0]);
+	nameid = strtoul(str[0], nullptr, 10);
 
 	if ((id = itemdb_exists(nameid)) == NULL)
 	{
-		ShowWarning("item_read_announce: Invalid item id %hu.\n", nameid);
+		ShowWarning("item_read_announce: Invalid item id %u.\n", nameid);
 		return false;
 	}
 	id->flag.announce = atoi(str[1]);
@@ -661,26 +660,26 @@ static bool item_read_announce(char* str[], int columns, int current) {
 static bool itemdb_read_vending(char* fields[], int columns, int current)
 {
 	struct item_data* id;
-	int nameid;
+	t_itemid nameid;
 
-	nameid = atoi(fields[0]);
+	nameid = strtoul(fields[0], nullptr, 10);
 
 	if ((id = itemdb_exists(nameid)) == NULL) {
-		ShowWarning("itemdb_read_vending: Invalid item id %d.\n", nameid);
+		ShowWarning("itemdb_read_vending: Invalid item id %u.\n", nameid);
 		return false;
 	}
 
 	if (id->type == IT_ARMOR || id->type == IT_WEAPON) {
-		ShowWarning("itemdb_read_vending: item id %d cannot be equipment or weapon.\n", nameid);
+		ShowWarning("itemdb_read_vending: item id %u cannot be equipment or weapon.\n", nameid);
 		return false;
 	}
 
 	if (MAX_VENDINGITEM <= current) {
-		ShowWarning("itemdb_read_vending: Max vending currency is %d. skip itemid %d\n", MAX_VENDINGITEM, nameid);
+		ShowWarning("itemdb_read_vending: Max vending currency is %d. skip itemid %u\n", MAX_VENDINGITEM, nameid);
 		return false;
 	}
 
-	vending_itemid[current].id = nameid;
+	vending_itemid[current].nameid = nameid;
 	vending_itemid[current].tax = columns > 1 ? atoi(fields[1]) : 0;
 	vending_itemid[current].tax_min = columns > 2 ? atoi(fields[2]) : 0;
 
@@ -691,18 +690,18 @@ static bool itemdb_read_vending(char* fields[], int columns, int current)
 * Structure: <nameid>,<sprite>
 */
 bool itemdb_read_itemavail(char* str[], int columns, int current) {
-	unsigned short nameid, sprite;
+	t_itemid nameid, sprite;
 	struct item_data *id;
 
-	nameid = atoi(str[0]);
+	nameid = strtoul(str[0], nullptr, 10);
 
 	if( ( id = itemdb_exists(nameid) ) == NULL )
 	{
-		ShowWarning("itemdb_read_itemavail: Invalid item id %hu.\n", nameid);
+		ShowWarning("itemdb_read_itemavail: Invalid item id %u.\n", nameid);
 		return false;
 	}
 
-	sprite = atoi(str[1]);
+	sprite = strtoul(str[1], nullptr, 10);
 
 	if( sprite > 0 )
 	{
@@ -794,7 +793,7 @@ static bool itemdb_read_group(char* str[], int columns, int current) {
 	str[1] = trim(str[1]);
 
 	// Check if the item can be found by id
-	if( ( entry.nameid = atoi(str[1]) ) <= 0 || !itemdb_exists( entry.nameid ) ){
+	if( ( entry.nameid = strtoul(str[1], nullptr, 10) ) == 0 || !itemdb_exists( entry.nameid ) ){
 		// Otherwise look it up by name
 		struct item_data *id = itemdb_searchname(str[1]);
 
@@ -850,16 +849,16 @@ static bool itemdb_read_group(char* str[], int columns, int current) {
 * Structure: <nameid>,<mode>
 */
 bool itemdb_read_noequip(char* str[], int columns, int current) {
-	unsigned short nameid;
+	t_itemid nameid;
 	int flag;
 	struct item_data *id;
 
-	nameid = atoi(str[0]);
+	nameid = strtoul(str[0], nullptr, 10);
 	flag = atoi(str[1]);
 
 	if( ( id = itemdb_exists(nameid) ) == NULL )
 	{
-		ShowWarning("itemdb_read_noequip: Invalid item id %hu.\n", nameid);
+		ShowWarning("itemdb_read_noequip: Invalid item id %u.\n", nameid);
 		return false;
 	}
 
@@ -875,14 +874,15 @@ bool itemdb_read_noequip(char* str[], int columns, int current) {
 * Structure: <nameid>,<mask>,<gm level>
 */
 bool itemdb_read_itemtrade(char* str[], int columns, int current) {
-	unsigned short nameid, flag, gmlv;
+	t_itemid nameid;
+	unsigned short flag, gmlv;
 	struct item_data *id;
 
-	nameid = atoi(str[0]);
+	nameid = strtoul(str[0], nullptr, 10);
 
 	if( ( id = itemdb_exists(nameid) ) == NULL )
 	{
-		//ShowWarning("itemdb_read_itemtrade: Invalid item id %d.\n", nameid);
+		//ShowWarning("itemdb_read_itemtrade: Invalid item id %u.\n", nameid);
 		//return false;
 		// FIXME: item_trade.txt contains items, which are commented in item database.
 		return true;
@@ -892,12 +892,12 @@ bool itemdb_read_itemtrade(char* str[], int columns, int current) {
 	gmlv = atoi(str[2]);
 
 	if( flag > 8191 ) {//Check range
-		ShowWarning("itemdb_read_itemtrade: Invalid trading mask %hu for item id %hu.\n", flag, nameid);
+		ShowWarning("itemdb_read_itemtrade: Invalid trading mask %hu for item id %u.\n", flag, nameid);
 		return false;
 	}
 	if( gmlv < 1 )
 	{
-		ShowWarning("itemdb_read_itemtrade: Invalid override GM level %hu for item id %hu.\n", gmlv, nameid);
+		ShowWarning("itemdb_read_itemtrade: Invalid override GM level %hu for item id %u.\n", gmlv, nameid);
 		return false;
 	}
 
@@ -911,15 +911,15 @@ bool itemdb_read_itemtrade(char* str[], int columns, int current) {
 * Structure: <nameid>,<delay>{,<delay sc group>}
 */
 static bool itemdb_read_itemdelay(char* str[], int columns, int current) {
-	unsigned short nameid;
+	t_itemid nameid;
 	int delay;
 	struct item_data *id;
 
-	nameid = atoi(str[0]);
+	nameid = strtoul(str[0], nullptr, 10);
 
 	if( ( id = itemdb_exists(nameid) ) == NULL )
 	{
-		ShowWarning("itemdb_read_itemdelay: Invalid item id %hu.\n", nameid);
+		ShowWarning("itemdb_read_itemdelay: Invalid item id %u.\n", nameid);
 		return false;
 	}
 
@@ -927,7 +927,7 @@ static bool itemdb_read_itemdelay(char* str[], int columns, int current) {
 
 	if( delay < 0 )
 	{
-		ShowWarning("itemdb_read_itemdelay: Invalid delay %d for item id %hu.\n", delay, nameid);
+		ShowWarning("itemdb_read_itemdelay: Invalid delay %d for item id %u.\n", delay, nameid);
 		return false;
 	}
 
@@ -941,7 +941,7 @@ static bool itemdb_read_itemdelay(char* str[], int columns, int current) {
 		int64 constant;
 
 		if( !script_get_constant(trim(str[2]), &constant) ){
-			ShowWarning("itemdb_read_itemdelay: Invalid sc group \"%s\" for item id %hu.\n", str[2], nameid);
+			ShowWarning("itemdb_read_itemdelay: Invalid sc group \"%s\" for item id %u.\n", str[2], nameid);
 			return false;
 		}
 
@@ -955,21 +955,22 @@ static bool itemdb_read_itemdelay(char* str[], int columns, int current) {
 * Structure: <item id>,<stack limit amount>,<type>
 */
 static bool itemdb_read_stack(char* fields[], int columns, int current) {
-	unsigned short nameid, amount;
+	t_itemid nameid;
+	unsigned short amount;
 	unsigned int type;
 	struct item_data* id;
 
-	nameid = (unsigned short)strtoul(fields[0], NULL, 10);
+	nameid = strtoul(fields[0], nullptr, 10);
 
 	if( ( id = itemdb_exists(nameid) ) == NULL )
 	{
-		ShowWarning("itemdb_read_stack: Unknown item id '%hu'.\n", nameid);
+		ShowWarning("itemdb_read_stack: Unknown item id '%u'.\n", nameid);
 		return false;
 	}
 
 	if( !itemdb_isstackable2(id) )
 	{
-		ShowWarning("itemdb_read_stack: Item id '%hu' is not stackable.\n", nameid);
+		ShowWarning("itemdb_read_stack: Item id '%u' is not stackable.\n", nameid);
 		return false;
 	}
 
@@ -994,20 +995,20 @@ static bool itemdb_read_stack(char* fields[], int columns, int current) {
 * <nameid>
 */
 static bool itemdb_read_buyingstore(char* fields[], int columns, int current) {
-	unsigned short nameid;
+	t_itemid nameid;
 	struct item_data* id;
 
-	nameid = atoi(fields[0]);
+	nameid = strtoul(fields[0], nullptr, 10);
 
 	if( ( id = itemdb_exists(nameid) ) == NULL )
 	{
-		ShowWarning("itemdb_read_buyingstore: Invalid item id %hu.\n", nameid);
+		ShowWarning("itemdb_read_buyingstore: Invalid item id %u.\n", nameid);
 		return false;
 	}
 
 	if( !itemdb_isstackable2(id) )
 	{
-		ShowWarning("itemdb_read_buyingstore: Non-stackable item id %hu cannot be enabled for buying store.\n", nameid);
+		ShowWarning("itemdb_read_buyingstore: Non-stackable item id %u cannot be enabled for buying store.\n", nameid);
 		return false;
 	}
 
@@ -1020,13 +1021,14 @@ static bool itemdb_read_buyingstore(char* fields[], int columns, int current) {
 * <nameid>,<flag>,<override>
 */
 static bool itemdb_read_nouse(char* fields[], int columns, int current) {
-	unsigned short nameid, flag, override;
+	t_itemid nameid;
+	unsigned short flag, override;
 	struct item_data* id;
 
-	nameid = atoi(fields[0]);
+	nameid = strtoul(fields[0], nullptr, 10);
 
 	if( ( id = itemdb_exists(nameid) ) == NULL ) {
-		ShowWarning("itemdb_read_nouse: Invalid item id %hu.\n", nameid);
+		ShowWarning("itemdb_read_nouse: Invalid item id %u.\n", nameid);
 		return false;
 	}
 
@@ -1039,19 +1041,20 @@ static bool itemdb_read_nouse(char* fields[], int columns, int current) {
 	return true;
 }
 
-static bool itemdb_read_dropeffect(char* fields[], int columns, int current) {
-	unsigned short nameid = atoi(fields[0]);
+static bool itemdb_read_dropeffect(char* fields[], int columns, int current)
+{
+	t_itemid nameid = strtoul(fields[0], nullptr, 10);
 	struct item_data *id;
 	int flag;
 
 	if (!(id = itemdb_exists(nameid))) {
-		ShowError("itemdb_read_dropeffect: Invalid item item with id %hu\n", nameid);
+		ShowError("itemdb_read_dropeffect: Invalid item item with id %u\n", nameid);
 		return true;
 	}
 	flag = atoi(fields[1]);
 
 	if (flag < 1 || flag > 6) {
-		ShowError("itemdb_read_dropeffect: Invalid dropeffect item with id %hu\n", nameid);
+		ShowError("itemdb_read_dropeffect: Invalid dropeffect item with id %u\n", nameid);
 		return true;
 	}
 	id->flag.dropEffect = flag;
@@ -1065,13 +1068,13 @@ static bool itemdb_read_dropeffect(char* fields[], int columns, int current) {
 * &4 - GUID item, cannot be stacked even same or stackable item
 */
 static bool itemdb_read_flag(char* fields[], int columns, int current) {
-	unsigned short nameid = atoi(fields[0]);
+	t_itemid nameid = strtoul(fields[0], nullptr, 10);
 	int flag, flag2;
 	bool set;
 	struct item_data *id;
 
 	if (!(id = itemdb_exists(nameid))) {
-		ShowError("itemdb_read_flag: Invalid item id %hu\n", nameid);
+		ShowError("itemdb_read_flag: Invalid item id %u\n", nameid);
 		return true;
 	}
 	
@@ -1253,8 +1256,8 @@ bool itemdb_read_combos_line(const char *path, int lines, char *line, uint32 *nu
 			} else {
 				RECREATE(id->combos, struct item_combo*, ++id->combos_count);
 			}
-			CREATE(id->combos[idx], struct item_combo, 1);
-			id->combos[idx]->nameid = (unsigned short*)aMalloc(retcount * sizeof(unsigned short));
+			CREATE(id->combos[idx],struct item_combo,1);
+			id->combos[idx]->nameid = (t_itemid *)aMalloc(retcount * sizeof(t_itemid));
 			id->combos[idx]->count = retcount;
 			id->combos[idx]->script = parse_script(str[1], path, lines, 0);
 			id->combos[idx]->id = *number;
@@ -1344,29 +1347,30 @@ bool itemdb_parse_roulette_db(void)
 
 		for (k = 0; k < limit && SQL_SUCCESS == Sql_NextRow(mmysql_handle); k++) {
 			char* data;
-			unsigned short item_id, amount;
+			t_itemid item_id;
+			unsigned short amount;
 			int level, flag;
 
 			Sql_GetData(mmysql_handle, 1, &data, NULL); level = atoi(data);
-			Sql_GetData(mmysql_handle, 2, &data, NULL); item_id = atoi(data);
+			Sql_GetData(mmysql_handle, 2, &data, NULL); item_id = strtoul(data, nullptr, 10);
 			Sql_GetData(mmysql_handle, 3, &data, NULL); amount = atoi(data);
 			Sql_GetData(mmysql_handle, 4, &data, NULL); flag = atoi(data);
 
 			if (!itemdb_exists(item_id)) {
-				ShowWarning("itemdb_parse_roulette_db: Unknown item ID '%hu' in level '%d'\n", item_id, level);
+				ShowWarning("itemdb_parse_roulette_db: Unknown item ID '%u' in level '%d'\n", item_id, level);
 				continue;
 			}
 			if (amount < 1 || amount > MAX_AMOUNT){
-				ShowWarning("itemdb_parse_roulette_db: Unsupported amount '%hu' for item ID '%hu' in level '%d'\n", amount, item_id, level);
+				ShowWarning("itemdb_parse_roulette_db: Unsupported amount '%hu' for item ID '%u' in level '%d'\n", amount, item_id, level);
 				continue;
 			}
 			if (flag < 0 || flag > 1) {
-				ShowWarning("itemdb_parse_roulette_db: Unsupported flag '%d' for item ID '%hu' in level '%d'\n", flag, item_id, level);
+				ShowWarning("itemdb_parse_roulette_db: Unsupported flag '%d' for item ID '%u' in level '%d'\n", flag, item_id, level);
 				continue;
 			}
 
 			j = rd.items[i];
-			RECREATE(rd.nameid[i], unsigned short, ++rd.items[i]);
+			RECREATE(rd.nameid[i], t_itemid, ++rd.items[i]);
 			RECREATE(rd.qty[i], unsigned short, rd.items[i]);
 			RECREATE(rd.flag[i], int, rd.items[i]);
 
@@ -1397,7 +1401,7 @@ bool itemdb_parse_roulette_db(void)
 		ShowWarning("itemdb_parse_roulette_db: Level %d has %d items, %d are required. Filling with Apples...\n", i + 1, rd.items[i], limit);
 
 		rd.items[i] = limit;
-		RECREATE(rd.nameid[i], unsigned short, rd.items[i]);
+		RECREATE(rd.nameid[i], t_itemid, rd.items[i]);
 		RECREATE(rd.qty[i], unsigned short, rd.items[i]);
 		RECREATE(rd.flag[i], int, rd.items[i]);
 
@@ -1494,15 +1498,16 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 		| id | name_english | name_japanese | type | price_buy | price_sell | weight | attack | defence | range | slots | equip_jobs | equip_upper | equip_genders | equip_locations | weapon_level | equip_level | refineable | view | script | equip_script | unequip_script |
 		+----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+-------------+---------------+-----------------+--------------+-------------+------------+------+--------+--------------+----------------+
 	*/
-	unsigned short nameid;
+	t_itemid nameid;
 	struct item_data* id;
 
-	if( atoi(str[0]) <= 0 || atoi(str[0]) >= MAX_ITEMID || atoi(str[0]) == dummy_item->nameid )
+	nameid = strtoul(str[0], nullptr, 10);
+
+	if( nameid == 0 || nameid == dummy_item->nameid )
 	{
-		ShowWarning("itemdb_parse_dbrow: Invalid id %d in line %d of \"%s\", skipping.\n", atoi(str[0]), line, source);
+		ShowWarning("itemdb_parse_dbrow: Invalid id %d in line %d of \"%s\", skipping.\n", nameid, line, source);
 		return false;
 	}
-	nameid = atoi(str[0]);
 
 	//ID,Name,Jname,Type,Price,Sell,Weight,ATK,DEF,Range,Slot,Job,Job Upper,Gender,Loc,wLV,eLV,refineable,View
 	if (!(id = itemdb_exists(nameid))) {
@@ -1517,7 +1522,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 
 	if( id->type < 0 || id->type == IT_UNKNOWN || id->type == IT_UNKNOWN2 || ( id->type > IT_SHADOWGEAR && id->type < IT_CASH ) || id->type >= IT_MAX )
 	{// catch invalid item types
-		ShowWarning("itemdb_parse_dbrow: Invalid item type %d for item %hu. IT_ETC will be used.\n", id->type, nameid);
+		ShowWarning("itemdb_parse_dbrow: Invalid item type %d for item %u. IT_ETC will be used.\n", id->type, nameid);
 		id->type = IT_ETC;
 	}
 
@@ -1549,13 +1554,13 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 	/*
 	if ( !str[4][0] && !str[5][0])
 	{
-		ShowWarning("itemdb_parse_dbrow: No buying/selling price defined for item %hu (%s), using 20/10z\n", nameid, id->jname);
+		ShowWarning("itemdb_parse_dbrow: No buying/selling price defined for item %u (%s), using 20/10z\n", nameid, id->jname);
 		id->value_buy = 20;
 		id->value_sell = 10;
 	} else
 	*/
 	if (id->value_buy/124. < id->value_sell/75.)
-		ShowWarning("itemdb_parse_dbrow: Buying/Selling [%d/%d] price of item %hu (%s) allows Zeny making exploit  through buying/selling at discounted/overcharged prices!\n",
+		ShowWarning("itemdb_parse_dbrow: Buying/Selling [%d/%d] price of item %u (%s) allows Zeny making exploit  through buying/selling at discounted/overcharged prices!\n",
 			id->value_buy, id->value_sell, nameid, id->jname);
 
 	id->weight = atoi(str[6]);
@@ -1570,7 +1575,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 
 	if (id->slot > MAX_SLOTS)
 	{
-		ShowWarning("itemdb_parse_dbrow: Item %hu (%s) specifies %d slots, but the server only supports up to %d. Using %d slots.\n", nameid, id->jname, id->slot, MAX_SLOTS, MAX_SLOTS);
+		ShowWarning("itemdb_parse_dbrow: Item %u (%s) specifies %d slots, but the server only supports up to %d. Using %d slots.\n", nameid, id->jname, id->slot, MAX_SLOTS, MAX_SLOTS);
 		id->slot = MAX_SLOTS;
 	}
 
@@ -1581,13 +1586,13 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 
 	if (!id->equip && itemdb_isequip2(id))
 	{
-		ShowWarning("Item %hu (%s) is an equipment with no equip-field! Making it an etc item.\n", nameid, id->jname);
+		ShowWarning("Item %u (%s) is an equipment with no equip-field! Making it an etc item.\n", nameid, id->jname);
 		id->type = IT_ETC;
 	}
 
 	if( id->type != IT_SHADOWGEAR && id->type != IT_CARD && id->equip&EQP_SHADOW_GEAR )
 	{
-		ShowWarning("Item %hu (%s) have invalid equipment slot! Making it an etc item.\n", nameid, id->jname);
+		ShowWarning("Item %u (%s) have invalid equipment slot! Making it an etc item.\n", nameid, id->jname);
 		id->type = IT_ETC;
 	}
 
@@ -1598,7 +1603,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 
 	if (id->type == IT_WEAPON && (id->look < W_FIST || id->look > W_2HSTAFF))
 	{
-		ShowError("itemdb_parse_dbrow: Item %hu (%s) weapon type is not exist, Making it an etc item.\n", nameid, id->jname);
+		ShowError("itemdb_parse_dbrow: Item %u (%s) weapon type is not exist, Making it an etc item.\n", nameid, id->jname);
 		id->type = IT_ETC;
 	}
 

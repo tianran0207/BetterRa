@@ -904,6 +904,7 @@ void do_init_quest(void)
  */
 void do_final_quest(void)
 {
+	quest_db.clear();
 }
 
 static void quest_read_txtdb(void)
@@ -991,7 +992,7 @@ static void quest_read_txtdb(void)
 		for (int i = 0; i < MAX_QUEST_OBJECTIVES; i++) {
 			std::shared_ptr<s_quest_dropitem> target;
 			uint16 mob_id = (uint16)atoi(str[3 * i + (2 * MAX_QUEST_OBJECTIVES + 2)]);
-			uint16 nameid = (uint16)atoi(str[3 * i + (2 * MAX_QUEST_OBJECTIVES + 3)]);
+			t_itemid nameid = strtoul(str[3 * i + (2 * MAX_QUEST_OBJECTIVES + 3)], nullptr, 10);
 			if (!nameid)
 				continue;
 			if (!itemdb_exists(nameid) || (mob_id && mob_db(mob_id) == NULL)) {
