@@ -21089,7 +21089,7 @@ int skill_poisoningweapon(struct map_session_data *sd, t_itemid nameid)
 /**
 * Extended Vending system [Lilith]
 **/
-int skill_vending(struct map_session_data *sd, int nameid) {
+int skill_vending(struct map_session_data *sd, t_itemid nameid) {
 
 	struct item_data *item;
 	char output[1024];
@@ -24172,6 +24172,7 @@ static bool skill_parse_row_requiredb(char* split[], int columns, int current)
 		memset(skill->require.amount, 0, sizeof(skill->require.amount));
 		skill->require.status.clear();
 		skill->require.eqItem.clear();
+		skill->require.ammo = skill->require.weapon = skill->require.state = 0;
 	}
 
 	skill_split_atoi(split[1], skill->require.hp);
@@ -24244,10 +24245,10 @@ static bool skill_parse_row_requiredb(char* split[], int columns, int current)
 	skill_split_atoi(split[12], skill->require.spiritball);
 
 	for (i = 0; i < MAX_SKILL_ITEM_REQUIRE; i++) {
-		uint16 itemid = atoi(split[13 + 2 * i]);
+		t_itemid itemid = strtoul(split[13 + 2 * i], nullptr, 10);
 
 		if (itemid > 0 && !itemdb_exists(itemid)) {
-			ShowError("skill_parse_row_requiredb: Invalid item (in ITEM_REQUIRE list) %d for skill %d.\n", itemid, atoi(split[0]));
+			ShowError("skill_parse_row_requiredb: Invalid item (in ITEM_REQUIRE list) %u for skill %d.\n", itemid, atoi(split[0]));
 			return false;
 		}
 		skill->require.itemid[i] = itemid;

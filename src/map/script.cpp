@@ -25193,7 +25193,7 @@ BUILDIN_FUNC(mail){
 		}
 
 		for (i = 0; i < num_items && start < end; i++, start++) {
-			struct item_data* item = itemdb_exists(msg.item[i].nameid);
+			struct item_data *item = itemdb_exists(msg.item[i].nameid);
 
 			msg.item[i].refine = (char)get_val2_num( st, reference_uid( id, start ), reference_getref( data ) );
 
@@ -29493,14 +29493,14 @@ BUILDIN_FUNC(sendmail)
 		msg.item[i].amount = script_getnum(st, 6 + (i*len_items) + 2);
 		struct item_data *item = itemdb_exists(msg.item[i].nameid);
 		if (!item || msg.item[i].amount <= 0) {
-			ShowError("buildin_sendmail: amount %d for item %hu is invalid.\n", msg.item[i].amount, msg.item[i].nameid);
+			ShowError("buildin_sendmail: amount %d for item %u is invalid.\n", msg.item[i].amount, msg.item[i].nameid);
 			return SCRIPT_CMD_FAILURE;
 		}
 		else if (itemdb_isstackable2(item)) {
 			uint16 max = item->stack.amount > 0 ? item->stack.amount : MAX_AMOUNT;
 
 			if (msg.item[i].amount > max) {
-				ShowWarning("buildin_sendmail: amount %d for item %hu is exceeding the maximum of %d. Capping...\n", msg.item[i].amount, msg.item[i].nameid, max);
+				ShowWarning("buildin_sendmail: amount %d for item %u is exceeding the maximum of %d. Capping...\n", msg.item[i].amount, msg.item[i].nameid, max);
 				msg.item[i].amount = max;
 			}
 		}
@@ -30167,7 +30167,7 @@ BUILDIN_FUNC(itemlist)
 	for (i = 0; i < array_size; ++i)
 		item_id[i] = static_cast<int>(get_val2_num(st, reference_uid(id, i), ref));
 	if (!strncasecmp(command,"item",4))
-		clif_itemlist(sd, item_id, array_size);
+		clif_itemlist(sd, (t_itemid *)item_id, array_size);
 	else
 		clif_skilllist(sd, item_id, array_size);
 	aFree(item_id);

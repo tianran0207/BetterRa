@@ -5492,7 +5492,7 @@ static bool mob_readdb_itemratefix(char* str[], int columns, int current)
 	nameid = strtoul(str[0], nullptr, 10);
 
 	if (itemdb_exists(nameid) == NULL) {
-		ShowWarning("mob_readdb_itemratio: Invalid item id %hu.\n", nameid);
+		ShowWarning("mob_readdb_itemratio: Invalid item id %u.\n", nameid);
 		return false;
 	}
 
@@ -5506,7 +5506,7 @@ static bool mob_readdb_itemratefix(char* str[], int columns, int current)
 	for (i = 0; i < columns - 2; i++) {
 		uint16 mob_id = atoi(str[i + 2]);
 		if (mob_db(mob_id) == NULL)
-			ShowError("mob_readdb_itemratio: Invalid monster with ID %hu (Item:%hu Col:%d).\n", mob_id, nameid, columns);
+			ShowError("mob_readdb_itemratio: Invalid monster with ID %hu (Item:%u Col:%d).\n", mob_id, nameid, columns);
 		else
 			item_ratio->mob_id[i] = atoi(str[i + 2]);
 	}

@@ -87,7 +87,7 @@ bool buying_extended_vending_check(struct map_session_data *sd) {
 	return true;
 }
 
-int buyingstore_currency(struct map_session_data *sd, int nameid) {
+int buyingstore_currency(struct map_session_data *sd, t_itemid nameid) {
 
 	struct item_data *item;
 	char output[1024];
@@ -145,7 +145,7 @@ int8 buyingstore_setup(struct map_session_data* sd, unsigned char slots){
 	sd->buyingstore.slots = slots;
 
 	if (battle_config.extended_buying) {
-		int itemid[2];
+		t_itemid itemid[2];
 		itemid[0] = battle_config.item_zeny;
 		itemid[1] = battle_config.item_cash;
 		sd->menulist_data = 12548;

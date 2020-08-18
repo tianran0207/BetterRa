@@ -12580,7 +12580,8 @@ void clif_parse_TradeAddItem(int fd,struct map_session_data *sd)
 
 	if (npc_script_event_check(sd, NPCE_TRADEADDFILTER)) {
 		map_session_data *tsd = map_id2sd(sd->trade_partner);
-		int idx = index - 2, itemid = 0;
+		t_itemid itemid = 0;
+		int idx = index - 2;
 		if (idx >= 0 && idx < MAX_INVENTORY && sd->inventory_data[idx] != nullptr)
 			itemid = sd->inventory_data[idx]->nameid;
 		pc_setreg(sd, add_str("@trade_partner_aid"), sd->trade_partner);		
@@ -14233,7 +14234,7 @@ int clif_vend(struct map_session_data *sd, int skill_lv) {
 	return 1;
 }
 
-int clif_itemlist(struct map_session_data *sd, int itemid[], int count) {
+int clif_itemlist(struct map_session_data *sd, t_itemid itemid[], int count) {
 
 	int fd;
 	struct item_data* id;
@@ -16671,7 +16672,8 @@ void clif_parse_Mail_setattach(int fd, struct map_session_data *sd){
 		return;
 
 	if (npc_script_event_check(sd, NPCE_MAILADDFILTER)) {
-		int index = idx - 2, itemid = 0, i;
+		t_itemid itemid = 0;
+		int index = idx - 2, i;
 		if (index >= 0 && index < MAX_INVENTORY && sd->inventory_data[index] != nullptr)
 			itemid = sd->inventory_data[index]->nameid;
 
@@ -21682,29 +21684,35 @@ void clif_parse_open_ui( int fd, struct map_session_data* sd ){
 	}
 }
 
-void clif_parse_style_change(int fd, struct map_session_data *sd) {
-	struct s_packet_db *info = &packet_db[RFIFOW(fd, 0)];
-	int16 hair_color = RFIFOW(fd, info->pos[0]);
-	int16 hair_style = RFIFOW(fd, info->pos[1]);
-	int16 cloth_color = RFIFOW(fd, info->pos[2]);
-	int16 head_top = RFIFOW(fd, info->pos[3]);
-	int16 head_mid = RFIFOW(fd, info->pos[4]);
-	int16 head_bottom = RFIFOW(fd, info->pos[5]);
+void clif_style_change_response(struct map_session_data *sd, int8 flag)
+{
+	struct PACKET_ZC_STYLE_CHANGE_RES p;
+
+	nullpo_retv(sd);
+
+	p.PacketType = 0x0a47;
+	p.flag = flag;
+
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
+}
+
+void clif_parse_style_change(int fd, struct map_session_data *sd)
+{
+	if (pc_istrading(sd) || pc_isdead(sd))
+		return;
+	const struct PACKET_CZ_REQ_STYLE_CHANGE *p = (struct PACKET_CZ_REQ_STYLE_CHANGE *)RFIFOP(fd, 0);
 
 	if (npc_script_event_check(sd, NPCE_STYLISTCHANGEEVENT)) {
-		pc_setreg(sd, add_str("@stylist_hair_color"), hair_color);
-		pc_setreg(sd, add_str("@stylist_hair_style"), hair_style);
-		pc_setreg(sd, add_str("@stylist_cloth_color"), cloth_color);
-		pc_setreg(sd, add_str("@stylist_head_top"), head_top);
-		pc_setreg(sd, add_str("@stylist_head_mid"), head_mid);
-		pc_setreg(sd, add_str("@stylist_head_bottom"), head_bottom);
+		pc_setreg(sd, add_str("@stylist_hair_color"), p->HeadPalette);
+		pc_setreg(sd, add_str("@stylist_hair_style"), p->HeadStyle);
+		pc_setreg(sd, add_str("@stylist_cloth_color"), p->BodyPalette);
+		pc_setreg(sd, add_str("@stylist_head_top"), p->TopAccessory);
+		pc_setreg(sd, add_str("@stylist_head_mid"), p->MidAccessory);
+		pc_setreg(sd, add_str("@stylist_head_bottom"), p->BottomAccessory);
 		npc_script_event_atonce(sd, NPCE_STYLISTCHANGEEVENT);
 	}
 
-	WFIFOHEAD(fd, 3);
-	WFIFOW(fd, 0) = 0x0A47;
-	WFIFOB(fd, 2) = 0;
-	WFIFOSET(fd, 3);
+	clif_style_change_response(sd, 0);
 }
 
 /// Response for attedance request

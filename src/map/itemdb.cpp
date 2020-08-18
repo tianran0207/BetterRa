@@ -647,7 +647,7 @@ static bool item_read_announce(char* str[], int columns, int current) {
 
 	if ((id = itemdb_exists(nameid)) == NULL)
 	{
-		ShowWarning("item_read_announce: Invalid item id %hu.\n", nameid);
+		ShowWarning("item_read_announce: Invalid item id %u.\n", nameid);
 		return false;
 	}
 	id->flag.announce = atoi(str[1]);
@@ -1603,7 +1603,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 
 	if (id->type == IT_WEAPON && (id->look < W_FIST || id->look > W_2HSTAFF))
 	{
-		ShowError("itemdb_parse_dbrow: Item %hu (%s) weapon type is not exist, Making it an etc item.\n", nameid, id->jname);
+		ShowError("itemdb_parse_dbrow: Item %u (%s) weapon type is not exist, Making it an etc item.\n", nameid, id->jname);
 		id->type = IT_ETC;
 	}
 

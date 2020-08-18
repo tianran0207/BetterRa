@@ -267,7 +267,7 @@ struct s_bonus_limit {
 
 struct s_skill_noconsume {
 	uint16 sk;
-	unsigned short iid;
+	t_itemid iid;
 	int amount;
 };
 
@@ -343,20 +343,20 @@ struct bot_data {
 	unsigned running : 1;
 	struct map_session_data *sd;
 	struct bot_info {
-		unsigned short item_hp_id;			//HPҩˮID
-		unsigned short item_sp_id;
+		t_itemid item_hp_id;			//HPҩˮID
+		t_itemid item_sp_id;
 		unsigned short item_heal_delay;
 
-		unsigned short item_fly_id;
+		t_itemid item_fly_id;
 		unsigned short item_fly_delay;
 
-		unsigned short loot_item_id[MAX_BOT_ITEM_COUNT];
+		t_itemid loot_item_id[MAX_BOT_ITEM_COUNT];
 		unsigned short loot_item_acttime;
 
 		unsigned short skill_id[MAX_BOT_SKILL_COUNT];
 		unsigned short skill_lv[MAX_BOT_SKILL_COUNT];
 		unsigned short skill_delay[MAX_BOT_SKILL_COUNT];
-		unsigned short sc_item_id[MAX_BOT_SC_COUNT];
+		t_itemid sc_item_id[MAX_BOT_SC_COUNT];
 		int sc_item_sc[MAX_BOT_SC_COUNT];
 		unsigned short sc_skill_id[MAX_BOT_SC_COUNT];
 		unsigned short sc_skill_lv[MAX_BOT_SC_COUNT];
@@ -437,7 +437,7 @@ struct map_session_data {
 	/**
 	 * Extended Vending system [Lilith]
 	**/
-	unsigned short vend_loot;
+	t_itemid vend_loot;
 	//NOTE: When deciding to add a flag to state or special_state, take into consideration that state is preserved in
 	//status_calc_pc, while special_state is recalculated in each call. [Skotlex]
 	struct s_state {

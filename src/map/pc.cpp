@@ -14931,7 +14931,7 @@ static int pcbot_ai_sub_hard_lootsearch(struct block_list *bl, va_list ap)
 	return 1;
 }
 
-static int pcbot_useitem(struct map_session_data *sd, unsigned short itemid)
+static int pcbot_useitem(struct map_session_data *sd, t_itemid itemid)
 {
 	int i;
 
@@ -15374,10 +15374,10 @@ void pcbot_reset_state(struct map_session_data *sd)
 	
 #define pcbot_readparameter(type__,str__, idx__) static_cast< ## type__ >(pc_readreg(sd, reference_uid(add_str(str__), idx__)));
 	bd->sd = sd;
-	bd->info.item_hp_id = pcbot_readparameter(uint16, "@item_hp_id", 0);
-	bd->info.item_sp_id = pcbot_readparameter(uint16, "@item_sp_id", 0);
+	bd->info.item_hp_id = pcbot_readparameter(t_itemid, "@item_hp_id", 0);
+	bd->info.item_sp_id = pcbot_readparameter(t_itemid, "@item_sp_id", 0);
 	bd->info.item_heal_delay = pcbot_readparameter(uint16, "@item_heal_delay", 0);
-	bd->info.item_fly_id = pcbot_readparameter(uint16, "@item_fly_id", 0);
+	bd->info.item_fly_id = pcbot_readparameter(t_itemid, "@item_fly_id", 0);
 	bd->info.item_fly_delay = pcbot_readparameter(uint16, "@item_fly_delay", 0);
 	bd->info.loot_item_acttime = pcbot_readparameter(uint16, "@loot_item_acttime", 0);
 	bd->info.choose_target_acttime = pcbot_readparameter(uint16, "@choose_target_acttime", 0);
@@ -15410,14 +15410,14 @@ void pcbot_reset_state(struct map_session_data *sd)
 	for (i = 0; i < MAX_BOT_MOB_COUNT; i++)
 		bd->info.mob_id[i] = pcbot_readparameter(uint16, "@mob_id", i);
 	for (i = 0; i < MAX_BOT_ITEM_COUNT; i++)
-		bd->info.loot_item_id[i] = pcbot_readparameter(uint16, "@loot_item_id", i);
+		bd->info.loot_item_id[i] = pcbot_readparameter(t_itemid, "@loot_item_id", i);
 	for (i = 0; i < MAX_BOT_SKILL_COUNT; i++) {
 		bd->info.skill_id[i] = pcbot_readparameter(uint16, "@skill_id", i);
 		bd->info.skill_lv[i] = pcbot_readparameter(uint16, "@skill_lv", i);
 		bd->info.skill_delay[i] = pcbot_readparameter(uint16, "@skill_delay", i);
 	}
 	for (i = 0; i < MAX_BOT_SC_COUNT; i++) {
-		bd->info.sc_item_id[i] = pcbot_readparameter(uint16, "@sc_item_id", i);
+		bd->info.sc_item_id[i] = pcbot_readparameter(t_itemid, "@sc_item_id", i);
 		bd->info.sc_item_sc[i] = pcbot_readparameter(uint16, "@sc_item_sc", i);
 		bd->info.sc_skill_id[i] = pcbot_readparameter(uint16, "@sc_skill_id", i);
 		bd->info.sc_skill_lv[i] = pcbot_readparameter(uint16, "@sc_skill_lv", i);

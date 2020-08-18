@@ -2385,7 +2385,7 @@ int skill_magicdecoy(struct map_session_data *sd, t_itemid nameid);
 /**
  * Extended Vending system [Lilith]
  **/
-int skill_vending(struct map_session_data *sd, int nameid);
+int skill_vending(struct map_session_data *sd, t_itemid nameid);
 
 /**
  * Guiltoine Cross
