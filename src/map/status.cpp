@@ -2695,22 +2695,25 @@ int status_check_visibility(struct block_list *src, struct block_list *target)
  * @return base amotion after single/dual weapon and shield adjustments [RENEWAL]
  *	  base amotion after single/dual weapon and stats adjustments [PRE-RENEWAL]
  */
-static int status_base_amotion_pc_sub(struct map_session_data* sd, struct status_data* status, int type) {
-	float amotion = 0;
-	float aspd_penalty = 1;
+static int status_base_amotion_pc_sub(struct map_session_data* sd, struct status_data* status, int type)
+{
+	int amotion;
 	int classidx = pc_class2idx(sd->status.class_);
-	int16 val = 0;
-	float temp_aspd = 0;
-	amotion = (float)job_info[classidx].aspd_base[sd->weapontype1]; // Single weapon
+	int16 skill_lv, val = 0;
+	float temp_aspd = 0, aspd_penalty = 1;
+	amotion = job_info[classidx].aspd_base[sd->weapontype1]; // Single weapon
+	if (sd->status.shield)
+		amotion += job_info[classidx].aspd_base[MAX_WEAPON_TYPE];
+	else if (sd->weapontype2 && sd->equip_index[EQI_HAND_R] != sd->equip_index[EQI_HAND_L])
+		amotion += job_info[classidx].aspd_base[sd->weapontype2] / 4; // Dual-wield
+
 	switch (type) {
 	case 1: //  iRO http://kaitch.com/files/FJK_iRO_ASPD_Calc_1.11.xls
 		if (amotion > 55) aspd_penalty = 0.96f;
 	case 2: // twRO http://ro.tsu299.com/js/cal.js
 	case 3: //  jRO http://roratorio-hinanjo.net/roro/m/js/foot.js
-		if (amotion < 56) // aspd >= 145
-			aspd_penalty = 1 - (56.0f - amotion) / 50.0f; // [1 - (aspd - 144) / 50]  ASPD Խ��, �� AGI/DEX ��������ԽС
-		if (sd->weapontype2 && sd->equip_index[EQI_HAND_R] != sd->equip_index[EQI_HAND_L] && !sd->status.shield)
-			amotion += (float)(job_info[classidx].aspd_base[sd->weapontype2] - 6) / 4.0f; // [(Left_hand - 194) / 4]
+		if (amotion <= 55)  // aspd >= 145
+			aspd_penalty = 1 - (float)((200 - amotion) - 144) / 50.0f; // [1 - (aspd - 144) / 50]  ASPD Խ��, �� AGI/DEX ��������ԽС
 		break;
 	}
 
@@ -2755,18 +2758,29 @@ static int status_base_amotion_pc_sub(struct map_session_data* sd, struct status
 		}
 		break;
 	}
+
+	temp_aspd = temp_aspd + (200 - amotion);
+	if ((skill_lv = pc_checkskill(sd, SA_ADVANCEDBOOK)) > 0 && sd->status.weapon == W_BOOK)
+		val += (skill_lv - 1) / 2 + 1;
+	if ((skill_lv = pc_checkskill(sd, SG_DEVIL)) > 0 && ((sd->class_&MAPID_THIRDMASK) == MAPID_STAR_EMPEROR || pc_is_maxjoblv(sd)))
+		val += 1 + skill_lv;
+	if ((skill_lv = pc_checkskill(sd, GS_SINGLEACTION)) > 0 && (sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE))
+		val += ((skill_lv + 1) / 2);
+	if ((skill_lv = pc_checkskill(sd, RG_PLAGIARISM)) > 0)
+		val += skill_lv;
+	if (pc_isriding(sd))
+		val -= 50 - 10 * pc_checkskill(sd, KN_CAVALIERMASTERY);
+	else if (pc_isridingdragon(sd))
+		val -= 25 - 5 * pc_checkskill(sd, RK_DRAGONTRAINING);
+
 	switch (type) {
 	case 1: // iRO
-		amotion += (float)(status->agi < 205 ? round((sqrt(205) - sqrt(status->agi)) / 7.15f * 1000.0f) / 1000.0f : 0.0f); // aspd_correction
 	case 2: // twRO
 	case 3: // jRO
-		amotion -= temp_aspd;
-		if (sd->status.shield)
-			amotion += job_info[classidx].aspd_base[MAX_WEAPON_TYPE];
-		amotion = (float)(200000 - round(amotion * 1000)); // [200 - amotion] amotion to ASPD
-		break;
+		amotion = (int)(200 - (200 - temp_aspd) * (1 - (float)(status_calc_aspd(&sd->bl, &sd->sc, true) + val) / 100));
 	}
-	return (int)(amotion / 1000.0f);
+
+	return amotion;
 }
 
 int status_base_amotion_pc(struct map_session_data* sd, struct status_data* status)
