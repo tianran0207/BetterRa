@@ -93,7 +93,7 @@ bool vending_extended_vending_check(struct map_session_data *sd)
 		else if (battle_config.item_cash == id->nameid || battle_config.item_zeny == id->nameid)
 			sd->vend_loot = id->nameid;
 		else{
-			ARR_FIND(0, MAX_VENDINGITEM, j, vending_itemid[j].id == id->nameid);
+			ARR_FIND(0, MAX_VENDINGITEM, j, vending_itemid[j].nameid == id->nameid);
 			if (j < MAX_VENDINGITEM)
 				sd->vend_loot = id->nameid;
 			else {
@@ -178,13 +178,13 @@ static double vending_calc_cash_tax(struct map_session_data *sd, double zeny)
 	return zeny;
 }
 
-static double vending_calc_item_tax(struct map_session_data *sd, unsigned short nameid, double zeny)
+static double vending_calc_item_tax(struct map_session_data *sd, t_itemid nameid, double zeny)
 {
 	int i;
 	for (i = 0; i < MAX_VENDINGITEM; i++) {
-		if (vending_itemid[i].id == 0)
+		if (vending_itemid[i].nameid == 0)
 			break;
-		if (vending_itemid[i].id != nameid)
+		if (vending_itemid[i].nameid != nameid)
 			continue;
 		if (vending_itemid[i].tax && zeny >= vending_itemid[i].tax_min)
 			zeny -= zeny * (vending_itemid[i].tax / 10000.);
@@ -597,7 +597,7 @@ int8 vending_openvending(struct map_session_data* sd, const char* message, const
  * @param nameid : item id
  * @return 0:not selling it, 1: yes
  */
-bool vending_search(struct map_session_data* sd, unsigned short nameid)
+bool vending_search(struct map_session_data* sd, t_itemid nameid)
 {
 	int i;
 
@@ -605,7 +605,7 @@ bool vending_search(struct map_session_data* sd, unsigned short nameid)
 		return false;
 	}
 
-	ARR_FIND( 0, sd->vend_num, i, sd->cart.u.items_cart[sd->vending[i].index].nameid == (short)nameid );
+	ARR_FIND( 0, sd->vend_num, i, sd->cart.u.items_cart[sd->vending[i].index].nameid == nameid );
 	if( i == sd->vend_num ) { // not found
 		return false;
 	}

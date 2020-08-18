@@ -1102,7 +1102,8 @@ in_moc_16,21,165,2	script	待命房间#ASNTEST	4_F_JOB_ASSASSIN,{
 	end;
 
 OnInit:
-	disablenpc "待命房间#ASNTEST";
+	//disablenpc "Standby Room#ASNTEST";
+	hideonnpc "待命房间#ASNTEST";
 	waitingroom "待命房间",10,"待命房间#ASNTEST::OnStartArena",1;
 	enablewaitingroomevent;
 	end;
