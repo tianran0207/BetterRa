@@ -2698,6 +2698,7 @@ int status_check_visibility(struct block_list *src, struct block_list *target)
  */
 static int status_base_amotion_pc_sub(struct map_session_data* sd, struct status_data* status, int type)
 {
+#ifdef RENEWAL_ASPD
 	int amotion;
 	int classidx = pc_class2idx(sd->status.class_);
 	int16 skill_lv, val = 0;
@@ -2782,6 +2783,9 @@ static int status_base_amotion_pc_sub(struct map_session_data* sd, struct status
 	}
 
 	return amotion;
+#else
+	return 0;
+#endif
 }
 
 int status_base_amotion_pc(struct map_session_data* sd, struct status_data* status)
