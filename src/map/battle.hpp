@@ -208,7 +208,6 @@ struct Battle_Config
 	int bonus_submax;
 	int always_npc_kill_event;
 	int always_mvp_kill_event;
-	int overlay_back_stack;
 	int walk_close_to_npc;
 	int pvp_weapon_damage_rate;
 	int pvp_magic_damage_rate;

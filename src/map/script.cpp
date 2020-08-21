@@ -4767,11 +4767,6 @@ void run_script_main(struct script_state *st)
 			return;
 #endif
 		if(st->bk_st) {
-			if (battle_config.overlay_back_stack) {
-				script_free_state(st->bk_st);
-				st->bk_st = NULL;
-				return;
-			}
 			ShowWarning("Unable to restore stack! Double continuation!\n");
 			//Report BOTH scripts to see if that can help somehow.
 			ShowDebug("Previous script (lost):\n");

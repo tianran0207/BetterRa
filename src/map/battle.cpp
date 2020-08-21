@@ -8968,7 +8968,6 @@ static const struct _battle_data {
 	{ "bonus_submax",                       &battle_config.bonus_submax,                    0,      0,      1000,           },
 	{ "always_npc_kill_event",              &battle_config.always_npc_kill_event,           0,      0,      1,              },
 	{ "always_mvp_kill_event",              &battle_config.always_mvp_kill_event,           0,      0,      1,              },
-	{ "overlay_back_stack",                 &battle_config.overlay_back_stack,              0,      0,      1,              },
 	{ "walk_close_to_npc",                  &battle_config.walk_close_to_npc,               0,      0,      INT_MAX,        },
 	{ "pvp_weapon_attack_damage_rate",      &battle_config.pvp_weapon_damage_rate,          100,    0,      INT_MAX,        },
 	{ "pvp_magic_attack_damage_rate",       &battle_config.pvp_magic_damage_rate,           100,    0,      INT_MAX,        },
