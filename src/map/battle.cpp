@@ -7836,6 +7836,11 @@ int64 battle_calc_return_damage(struct block_list* bl, struct block_list *src, i
 	if (rdamage && (sd = BL_CAST(BL_PC, src)) && sd->c_bonus.weapon_return_def_rate)
 		rdamage = rdamage * (100 - sd->c_bonus.weapon_return_def_rate) / 100;
 
+	switch (battle_config.damage_return_mode) {
+		case 1:	max_damage = status_get_max_hp(src); break;
+		case 2: max_damage = INT_MAX; break;
+	}
+
 	return cap_value(min(rdamage,max_damage),INT_MIN,INT_MAX);
 }
 
@@ -9034,6 +9039,7 @@ static const struct _battle_data {
 	{ "zero_steal_rate",                    &battle_config.zero_steal_rate,                 0,      0,      1,              },
 	{ "min_damage",                         &battle_config.min_damage,                      INT_MIN,INT_MIN,INT_MAX,        },
 	{ "preloading_mvps",                    &battle_config.preloading_mvps,                 0,      0,      1,              },
+	{ "damage_return_mode",                 &battle_config.damage_return_mode,              0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

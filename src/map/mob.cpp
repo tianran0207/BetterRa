@@ -1767,6 +1767,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, t_tick tick)
 			}
 			tbl = NULL;
 		}
+		mode = (enum e_mode)(mode & ~(MD_ANGRY|MD_CHANGECHASE|MD_CHANGETARGET_MELEE|MD_CHANGETARGET_CHASE|MD_RANDOMTARGET));
 	}
 
 	if (md->target_id)

@@ -271,6 +271,7 @@ struct Battle_Config
 	int zero_steal_rate;
 	int min_damage;
 	int preloading_mvps;
+	int damage_return_mode;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;
