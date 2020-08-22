@@ -38,8 +38,8 @@
 #define C_MAX_RC2 0                  //最大自定义种族数量
 #define C_MAX_SKILLUNITTEMP 20       //最大地面上最大技能存在数量
 #define C_MAX_LEVEL 200              //最大等级
-#define C_MAX_DAMAGELOG 30          //魔物伤害记录数量
-#define C_MIN_CHARS 3            //初始创建角色数量
+#define C_MAX_DAMAGELOG 30           //魔物伤害记录数量
+#define C_MIN_CHARS 0                //初始创建角色数量
 
 #define C_SHOW_SERVER_STATS 0
 
