@@ -188,7 +188,7 @@ int logchrif_send_accdata(int fd, uint32 aid) {
 	safestrncpy(WFIFOCP(fd,6), email, 40);
 	WFIFOL(fd,46) = (uint32)expiration_time;
 	WFIFOB(fd,50) = (unsigned char)group_id;
-	WFIFOB(fd,51) = char_slots;
+	WFIFOB(fd,51) = C_MIN_CHARS > 0 ? acc.char_slots : char_slots;
 	safestrncpy(WFIFOCP(fd,52), birthdate, 10+1);
 	safestrncpy(WFIFOCP(fd,63), pincode, 4+1 );
 	WFIFOL(fd,68) = (uint32)acc.pincode_change;

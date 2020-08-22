@@ -1045,7 +1045,11 @@ struct clan{
 
 #ifndef VIP_ENABLE
 	#define MIN_STORAGE C_MIN_STORAGE // If the VIP system is disabled the min = max.
-	#define MIN_CHARS MAX_CHARS // Default number of characters per account.
+	#if C_MIN_CHARS > 0
+		#define MIN_CHARS C_MIN_CHARS
+	#else
+		#define MIN_CHARS MAX_CHARS // Default number of characters per account.
+	#endif
 	#define MAX_CHAR_BILLING 0
 	#define MAX_CHAR_VIP 0
 #endif
