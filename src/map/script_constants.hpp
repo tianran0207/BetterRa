@@ -571,6 +571,7 @@
 	export_constant2("bMagicReturnDefRate", SP_MAGIC_RETURN_DEF_RATE);
 	export_constant2("bStatusAddBonus", SP_STATUS_ADD_BONUS);
 	export_constant2("bAddStatusVal", SP_ADD_STATUS_VAL);
+	export_constant2("bBlockStatus", SP_BLOCK_STATUS);
 	export_constant2("bSubResEff", SP_SUBRESEFF);
 	export_constant2("bIgnoreMdefRaceVal", SP_IGNORE_MDEF_RACE_VAL);
 	export_constant2("bIgnoreMdefClassVal", SP_IGNORE_MDEF_CLASS_VAL);

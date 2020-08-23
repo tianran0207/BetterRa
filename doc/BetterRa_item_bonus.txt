@@ -25,6 +25,13 @@ bonus2 bSkillTreeCooldown,jobid,n;		职业技能公共技能延迟调整
 bonus2 bSkillTreeDelayRate,jobid,n;		职业技能独立技能延迟按百分比调整
 bonus2 bSkillTreeDelay,jobid,n;			职业技能独立技能延迟调整
 
+bonus2 bBlockStatus,x,n;                固定玩家属性 x 为 n
+										x 支持	STATUS_MAXHP STATUS_MAXSP 
+												STATUS_STR STATUS_AGI STATUS_VIT STATUS_INT STATUS_DEX STATUS_LUK
+												STATUS_ATK_L STATUS_ATK_R STATUS_MATK_L STATUS_MATK_R
+												STATUS_HIT STATUS_SPEED STATUS_FLEE_L STATUS_FLEE_R STATUS_CRI
+												STATUS_DEF_L STATUS_DEF_R STATUS_MDEF_L STATUS_MDEF_R
+												STATUS_ATK_ELE STATUS_DEF_ELE STATUS_ATK_RANGE STATUS_ASPD
 
 bonus bCooldownrate,n;					技能独立延迟时间 + n%
 bonus bMaxASPD,n;						修改ASPD上限(无视CONF中的配置)

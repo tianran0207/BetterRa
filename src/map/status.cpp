@@ -4764,19 +4764,6 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	if(battle_config.pc_damage_delay_rate != 100)
 		base_status->dmotion = base_status->dmotion*battle_config.pc_damage_delay_rate/100;
 
-	if (battle_config.pc_max_def)
-		base_status->def = cap_value(base_status->def, 0, battle_config.pc_max_def);
-	if (battle_config.pc_max_def2)
-		base_status->def2 = cap_value(base_status->def2, 0, battle_config.pc_max_def2);
-	if (battle_config.pc_max_mdef)
-		base_status->mdef = cap_value(base_status->mdef, 0, battle_config.pc_max_mdef);
-	if (battle_config.pc_max_mdef2)
-		base_status->mdef2 = cap_value(base_status->mdef2, 0, battle_config.pc_max_mdef2);
-	if (battle_config.pc_max_flee)
-		base_status->flee = cap_value(base_status->flee, 0, battle_config.pc_max_flee);
-	if (battle_config.pc_max_flee2)
-		base_status->flee2 = cap_value(base_status->flee2, 0, battle_config.pc_max_flee2 * 10);
-
 // ----- MISC CALCULATIONS -----
 
 	// Weight
@@ -6054,6 +6041,9 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 
 	if(flag&SCB_REGEN && bl->type&BL_REGEN)
 		status_calc_regen_rate(bl, status_get_regen_data(bl), sc);
+
+	if(sd)
+		pc_status_limit(sd);
 }
 
 /**

@@ -3811,6 +3811,36 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_BLOCK_STATUS: // bonus2 bBlockStatus,x,n;
+		switch (type2) {
+			case STATUS_MAXHP: sd->c_bonus.status.max_hp = val; break;
+			case STATUS_MAXSP: sd->c_bonus.status.max_sp = val; break;
+			case STATUS_STR: sd->c_bonus.status.str = val; break; 
+			case STATUS_AGI: sd->c_bonus.status.agi = val; break;
+			case STATUS_VIT: sd->c_bonus.status.vit = val; break;
+			case STATUS_INT: sd->c_bonus.status.int_ = val; break;
+			case STATUS_DEX: sd->c_bonus.status.dex = val; break;
+			case STATUS_LUK: sd->c_bonus.status.luk = val; break;
+			case STATUS_ATK_L: sd->c_bonus.status.atk = val; break;
+			case STATUS_ATK_R: sd->c_bonus.status.atk2 = val; break;
+			case STATUS_MATK_L: sd->c_bonus.status.matk = val; break;
+			case STATUS_MATK_R: sd->c_bonus.status.matk2 = val; break;
+			case STATUS_HIT: sd->c_bonus.status.hit = val; break;
+			case STATUS_SPEED: sd->c_bonus.status.speed = val; break;
+			case STATUS_FLEE_L: sd->c_bonus.status.flee = val; break;
+			case STATUS_FLEE_R: sd->c_bonus.status.flee2 = val; break;
+			case STATUS_CRI: sd->c_bonus.status.cri = val; break;
+			case STATUS_DEF_L: sd->c_bonus.status.def = val; break;
+			case STATUS_DEF_R: sd->c_bonus.status.def2 = val; break;
+			case STATUS_MDEF_L: sd->c_bonus.status.mdef = val; break;
+			case STATUS_MDEF_R: sd->c_bonus.status.mdef2 = val; break;
+			case STATUS_ATK_ELE: sd->c_bonus.status.atk_ele = val; break;
+			case STATUS_DEF_ELE: sd->c_bonus.status.def_ele = val; break;
+			case STATUS_ATK_RANGE: sd->c_bonus.status.range = val; break;
+			case STATUS_ASPD: sd->c_bonus.status.aspd = 2000 - val * 10; break;
+			default: ShowWarning("pc_bonus2: SP_BLOCK_STATUS: Invalid type of %d.\n", type2); break;
+		}
+		break;
 	case SP_SUBRESEFF: // bonus2 bResEff,eff,n;
 		if (sd->state.lr_flag == 2)
 			break;
@@ -5317,6 +5347,77 @@ void pc_bonus_limit(struct map_session_data *sd) {
 #undef BONUS_LIMIT2
 #undef BONUS_VECTOR_LIMIT
 #undef BONUS_LOOP
+}
+
+void pc_status_limit(struct map_session_data *sd)
+{
+	nullpo_retv(sd);
+
+	struct status_data *status = &sd->battle_status;
+	if (sd->c_bonus.status.matk)
+		status->rhw.matk = status->lhw.matk = sd->bonus.ematk = 0;
+#define CASE_STATUS(set__, var__) if (set__) var__ = set__;
+	CASE_STATUS(sd->c_bonus.status.max_hp, status->max_hp);
+	CASE_STATUS(sd->c_bonus.status.max_sp, status->max_sp);
+	CASE_STATUS(sd->c_bonus.status.str, status->str);
+	CASE_STATUS(sd->c_bonus.status.agi, status->agi);
+	CASE_STATUS(sd->c_bonus.status.vit, status->vit);
+	CASE_STATUS(sd->c_bonus.status.int_, status->int_);
+	CASE_STATUS(sd->c_bonus.status.dex, status->dex);
+	CASE_STATUS(sd->c_bonus.status.luk, status->luk);
+#ifdef RENEWAL
+	CASE_STATUS(sd->c_bonus.status.atk, status->batk);
+	if (sd->c_bonus.status.atk2 && pc_rightside_atk(sd)) {
+		status->watk = status->watk2 = status->eatk = status->rhw.atk = status->lhw.atk = 0;
+		status->watk = sd->c_bonus.status.atk2;
+	}
+	CASE_STATUS(sd->c_bonus.status.def, status->def2);
+	CASE_STATUS(sd->c_bonus.status.def2, status->def);
+	CASE_STATUS(sd->c_bonus.status.mdef, status->mdef2);
+	CASE_STATUS(sd->c_bonus.status.mdef2, status->mdef);
+	CASE_STATUS(sd->c_bonus.status.matk, status->matk_min);
+	CASE_STATUS(sd->c_bonus.status.matk2, status->matk_max);
+#else
+	if (sd->c_bonus.status.atk && pc_leftside_atk(sd)) {
+		status->batk = status->eatk = status->rhw.atk = status->lhw.atk = 0;
+		rhw.atk = sd->c_bonus.status.atk;
+	}
+	if (sd->c_bonus.status.atk2 && pc_rightside_atk(sd)) {
+		status->rhw.atk2 = status->lhw.atk2 = 0;
+		status->rhw.atk2 = sd->c_bonus.status.atk2;
+	}
+	CASE_STATUS(sd->c_bonus.status.def, status->def);
+	CASE_STATUS(sd->c_bonus.status.def2, status->def2);
+	CASE_STATUS(sd->c_bonus.status.mdef, status->mdef);
+	CASE_STATUS(sd->c_bonus.status.mdef2, status->mdef2);
+	CASE_STATUS(sd->c_bonus.status.matk, status->matk_min);
+	CASE_STATUS(sd->c_bonus.status.matk2, status->matk_max);
+#endif
+	CASE_STATUS(sd->c_bonus.status.speed, status->speed);
+	CASE_STATUS(sd->c_bonus.status.hit, status->hit);
+	CASE_STATUS(sd->c_bonus.status.flee, status->flee);
+	CASE_STATUS(sd->c_bonus.status.flee2, status->flee2);
+	CASE_STATUS(sd->c_bonus.status.cri, status->cri);
+	CASE_STATUS(sd->c_bonus.status.atk_ele, status->rhw.ele);
+	CASE_STATUS(sd->c_bonus.status.def_ele, status->def_ele);
+	CASE_STATUS(sd->c_bonus.status.range, status->rhw.range);
+	CASE_STATUS(sd->c_bonus.status.aspd, status->amotion);
+	status->hp = min(status->hp, status->max_hp);
+	status->sp = min(status->sp, status->max_sp);
+#undef CASE_STATUS
+
+	if (battle_config.pc_max_def)
+		status->def = cap_value(status->def, 0, battle_config.pc_max_def);
+	if (battle_config.pc_max_def2)
+		status->def2 = cap_value(status->def2, 0, battle_config.pc_max_def2);
+	if (battle_config.pc_max_mdef)
+		status->mdef = cap_value(status->mdef, 0, battle_config.pc_max_mdef);
+	if (battle_config.pc_max_mdef2)
+		status->mdef2 = cap_value(status->mdef2, 0, battle_config.pc_max_mdef2);
+	if (battle_config.pc_max_flee)
+		status->flee = cap_value(status->flee, 0, battle_config.pc_max_flee);
+	if (battle_config.pc_max_flee2)
+		status->flee2 = cap_value(status->flee2, 0, battle_config.pc_max_flee2 * 10);
 }
 
 /*==========================================

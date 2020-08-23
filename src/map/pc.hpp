@@ -734,6 +734,14 @@ struct map_session_data {
 			int d_idx;
 			int d_delay;
 		}skill_tree;
+		struct s_status_data {
+			unsigned int max_hp, max_sp;
+			short str, agi, vit, int_, dex, luk;
+			unsigned int atk, atk2, matk, matk2;
+			short hit, flee, cri, flee2, def, def2, mdef, mdef2;
+			unsigned char def_ele, atk_ele;
+			unsigned int range, aspd, speed;
+		}status;
 		int ignore_imprison;
 		int max_hp, max_sp, max_aspd;
 		int cooldownrate;
@@ -1428,6 +1436,7 @@ void pc_bonus4(struct map_session_data *sd, int type, int type2, int type3, int 
 void pc_bonus5(struct map_session_data *sd, int type, int type2, int type3, int type4, int type5, int val);
 bool pc_bonus_chk(struct map_session_data *sd, int type, int *val1ptr, int *val2ptr, int *val3ptr, int *val4ptr, int *val5ptr, int *minval, int *maxval);
 void pc_bonus_limit(struct map_session_data *sd);
+void pc_status_limit(struct map_session_data *sd);
 
 enum e_addskill_type {
 	ADDSKILL_PERMANENT			= 0,	///< Permanent skill. Remove the skill if level is 0
