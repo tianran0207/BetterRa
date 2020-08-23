@@ -5660,7 +5660,6 @@ int do_init(int argc, char *argv[])
 			chrif_setip(ip_str);
 	}
 
-	battle_config_read(BATTLE_CONF_FILENAME);
 	script_config_read(SCRIPT_CONF_NAME);
 	inter_config_read(INTER_CONF_NAME);
 	log_config_read(LOG_CONF_NAME);
@@ -5678,6 +5677,9 @@ int do_init(int argc, char *argv[])
 	iwall_db = strdb_alloc(DB_OPT_RELEASE_DATA,2*NAME_LENGTH+2+1); // [Zephyrus] Invisible Walls
 
 	map_sql_init();
+	do_init_script();
+	battle_config_read(BATTLE_CONF_FILENAME);
+
 	if (log_config.sql_logs)
 		log_sql_init();
 
@@ -5700,7 +5702,6 @@ int do_init(int argc, char *argv[])
 	do_init_chrif();
 	do_init_clan();
 	do_init_clif();
-	do_init_script();
 	do_init_itemdb();
 	do_init_channel();
 	do_init_cashshop();

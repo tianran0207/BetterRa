@@ -4140,9 +4140,6 @@ static const char* npc_parse_function(char* w1, char* w2, char* w3, char* w4, co
 	if( script == NULL )// parse error, continue
 		return end;
 
-	strdb_put(script_get_userfunc_db(), w3, script);
-	return end;
-
 	func_db = script_get_userfunc_db();
 	if (func_db->put(func_db, db_str2key(w3), db_ptr2data(script), &old_data)) {
 		struct script_code *oldscript = (struct script_code*)db_data2ptr(&old_data);

@@ -9620,6 +9620,18 @@ int battle_data_isset[ARRAYLENGTH(battle_data)];
 int battle_set_value(const char* w1, const char* w2)
 {
 	int val = config_switch(w2);
+	if (!strnicmp(w1, "string.", 7)){
+		int64 type = 0; script_get_constant(w1+7, &type);
+		if (type && !strnicmp(w1+7,"status_",7)){
+			if (status_formula.code[type])
+				script_free_code(status_formula.code[type]);
+			if (!strcmpi(w2, "empty"))
+				status_formula.code[type] = NULL;
+			else
+				status_formula.code[type] = parse_script(std::string("achievement_condition( " + std::string(w2) + " );").c_str(), "base_formula", 0, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+		}
+		return 1;
+	}
 
 	int i;
 	ARR_FIND(0, ARRAYLENGTH(battle_data), i, strcmpi(w1, battle_data[i].str) == 0);
@@ -9890,6 +9902,9 @@ void do_init_battle(void)
 void do_final_battle(void)
 {
 	ers_destroy(delay_damage_ers);
+	for (int i = 0; i < STATUS_MAX; i++)
+		if (status_formula.code[i])
+			script_free_code(status_formula.code[i]);
 }
 
 int64 SkillFormulaDatabase::script_attr_fix(int64 damage)

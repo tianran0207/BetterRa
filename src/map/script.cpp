@@ -2618,6 +2618,16 @@ void script_warning(const char* src, const char* file, int start_line, const cha
 	StringBuf_Destroy(&buf);
 }
 
+void parse_script_load() {
+	static bool first = true;
+	if (first) {
+		add_buildin_func();
+		read_constdb();
+		script_hardcoded_constants();
+		first = false;
+	}
+}
+
 /*==========================================
  * Analysis of the script
  *------------------------------------------*/
@@ -2626,7 +2636,6 @@ struct script_code* parse_script(const char *src,const char *file,int line,int o
 	const char *p,*tmpp;
 	int i;
 	struct script_code* code = NULL;
-	static bool first=true;
 	char end;
 	bool unresolved_names = false;
 
@@ -2638,12 +2647,6 @@ struct script_code* parse_script(const char *src,const char *file,int line,int o
 		return NULL;// empty script
 
 	memset(&syntax,0,sizeof(syntax));
-	if(first){
-		add_buildin_func();
-		read_constdb();
-		script_hardcoded_constants();
-		first=false;
-	}
 
 	script_buf=(unsigned char *)aMalloc(SCRIPT_BLOCK_SIZE*sizeof(unsigned char));
 	script_pos=0;
@@ -5117,6 +5120,7 @@ void do_init_script(void) {
 	next_id = 0;
 
 	mapreg_init();
+	parse_script_load();
 }
 
 void script_reload(void) {
@@ -28484,7 +28488,7 @@ BUILDIN_FUNC(instance_name)
 
 BUILDIN_FUNC(readstatus)
 {
-	int value;
+	int value = 0;
 	struct script_data *data = script_getdata(st, 2);
 	TBL_PC *sd = NULL;
 
@@ -29752,7 +29756,7 @@ BUILDIN_FUNC(getunitstatus)
 {
 	struct block_list* bl;
 
-	if (!script_rid2bl(2, bl))
+	if (!script_rid2bl(script_hasdata(st, 3) ? 2 : 3, bl))
 		return SCRIPT_CMD_FAILURE;
 
 	script_pushint(st, buildin_readstatus_sub(bl, script_getnum(st, 3)));
@@ -31520,7 +31524,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getstorageinventorylist, "??"),
 	BUILDIN_DEF2(getcartinventorylist, "getcartlist", "??"),
 	BUILDIN_DEF2(getstorageinventorylist, "getstoragelist", "??"),
-	BUILDIN_DEF(getunitstatus, "ii"),
+	BUILDIN_DEF(getunitstatus, "i?"),
 	BUILDIN_DEF(skf_src_status, "i"),
 	BUILDIN_DEF(skf_target_status, "i"),
 	BUILDIN_DEF(skf_attr_fix, "i"),

@@ -488,6 +488,7 @@ enum  inventory_mask {
 };
 
 enum status_type {
+	STATUS_NONE,
 	STATUS_HP,
 	STATUS_SP,
 	STATUS_MAXHP,
@@ -525,6 +526,7 @@ enum status_type {
 	STATUS_RACE,
 	STATUS_CLASS,
 	STATUS_ASPD,
+	STATUS_MAX,
 };
 
 enum monsterinfo_types {
@@ -2209,6 +2211,7 @@ void script_error(const char* src, const char* file, int start_line, const char*
 void script_warning(const char* src, const char* file, int start_line, const char* error_msg, const char* error_pos);
 
 bool is_number(const char *p);
+void parse_script_load();
 struct script_code* parse_script(const char* src,const char* file,int line,int options);
 void run_script(struct script_code *rootscript,int pos,int rid,int oid);
 

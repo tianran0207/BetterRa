@@ -738,7 +738,8 @@ struct map_session_data {
 			unsigned int max_hp, max_sp;
 			short str, agi, vit, int_, dex, luk;
 			unsigned int atk, atk2, matk, matk2;
-			short hit, flee, cri, flee2, def, def2, mdef, mdef2;
+			defType def, mdef;
+			short hit, flee, cri, flee2, def2, mdef2;
 			unsigned char def_ele, atk_ele;
 			unsigned int range, aspd, speed;
 		}status;
@@ -1683,6 +1684,12 @@ int pc_level_penalty_mod(int level_diff, uint32 mob_class, enum e_mode mode, int
 bool pc_attendance_enabled();
 int32 pc_attendance_counter( struct map_session_data* sd );
 void pc_attendance_claim_reward( struct map_session_data* sd );
+
+struct s_status_formula {
+	struct script_code *code[STATUS_MAX];
+};
+extern struct s_status_formula status_formula;
+int pc_status_formula_calc(const struct block_list* bl, int type, int val);
 
 void pcbot_reset_state(struct map_session_data *sd);
 int pcbot_run(struct map_session_data *sd, int64 timeout);

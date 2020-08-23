@@ -5355,7 +5355,11 @@ void pc_status_limit(struct map_session_data *sd)
 
 	struct status_data *status = &sd->battle_status;
 	if (sd->c_bonus.status.matk)
+#ifdef RENEWAL
 		status->rhw.matk = status->lhw.matk = sd->bonus.ematk = 0;
+#else
+		sd->bonus.ematk = 0;
+#endif
 #define CASE_STATUS(set__, var__) if (set__) var__ = set__;
 	CASE_STATUS(sd->c_bonus.status.max_hp, status->max_hp);
 	CASE_STATUS(sd->c_bonus.status.max_sp, status->max_sp);
@@ -5380,7 +5384,7 @@ void pc_status_limit(struct map_session_data *sd)
 #else
 	if (sd->c_bonus.status.atk && pc_leftside_atk(sd)) {
 		status->batk = status->eatk = status->rhw.atk = status->lhw.atk = 0;
-		rhw.atk = sd->c_bonus.status.atk;
+		status->rhw.atk = sd->c_bonus.status.atk;
 	}
 	if (sd->c_bonus.status.atk2 && pc_rightside_atk(sd)) {
 		status->rhw.atk2 = status->lhw.atk2 = 0;
@@ -5418,6 +5422,37 @@ void pc_status_limit(struct map_session_data *sd)
 		status->flee = cap_value(status->flee, 0, battle_config.pc_max_flee);
 	if (battle_config.pc_max_flee2)
 		status->flee2 = cap_value(status->flee2, 0, battle_config.pc_max_flee2 * 10);
+}
+
+struct s_status_formula status_formula;
+int pc_status_formula_calc(const struct block_list* bl, int type, int val)
+{
+	nullpo_retr(val, bl);
+
+	if (bl->type != BL_PC || type > STATUS_NONE && type < STATUS_MAX && status_formula.code[type] == NULL)
+		return val;
+
+	struct map_session_data *sd = (struct map_session_data *)bl;
+	struct script_state* previous_st = sd->st;
+	if (previous_st != nullptr) {
+		if (previous_st->bk_st && !battle_config.multiple_script_state) {
+			ShowWarning("pc_status_formula_calc: Stopped because double scripts runing, plese set battleconf 'multiple_script_state' to repair.\n");
+			return val;
+		}
+		script_detach_rid(previous_st);
+	}
+	run_script(status_formula.code[type], 0, sd->bl.id, fake_nd->bl.id);
+	struct script_state* st = sd->st;
+	int value = 0;
+	if (st != nullptr) {
+		value = script_getnum(st, 2);
+		script_free_state(st);
+	}
+	if (previous_st != nullptr) {
+		previous_st->rid = sd->bl.id;
+		script_attach_state(previous_st);
+	}
+	return value;
 }
 
 /*==========================================

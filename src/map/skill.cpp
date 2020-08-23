@@ -11550,7 +11550,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 #ifdef RENEWAL
 						status_base_matk_min(bl, &hd->battle_status, status_get_lv(&hd->bl));
 #else
-						status_base_matk_min(&hd->battle_status);
+						status_base_matk_min(bl, &hd->battle_status);
 #endif
 			//Silences the homunculus and target
 			status_change_start(src,src,SC_SILENCE,10000,skill_lv,0,0,0,skill_get_time(skill_id,skill_lv),SCSTART_NONE);

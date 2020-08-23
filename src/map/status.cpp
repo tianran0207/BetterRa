@@ -2919,6 +2919,7 @@ unsigned short status_base_atk(const struct block_list *bl, const struct status_
 			str += dstr*dstr;
 			str += dex / 5 + status->luk / 5;
 #endif
+			str = pc_status_formula_calc(bl, STATUS_ATK, str);
 			break;
 		default:// Others
 #ifdef RENEWAL
@@ -2956,8 +2957,19 @@ unsigned int status_weapon_atk(struct weapon_atk wa, struct map_session_data *sd
 #endif
 
 #ifndef RENEWAL
-unsigned short status_base_matk_min(const struct status_data* status) { return status->int_ + (status->int_ / 7) * (status->int_ / 7); }
-unsigned short status_base_matk_max(const struct status_data* status) { return status->int_ + (status->int_ / 5) * (status->int_ / 5); }
+unsigned short status_base_matk_min(struct block_list *bl, const struct status_data* status)
+{
+	int matk;
+	if ((matk = pc_status_formula_calc(bl, STATUS_MATK_L, 0)) != 0)
+		return static_cast<unsigned short>(matk);
+	return status->int_ + (status->int_ / 7) * (status->int_ / 7);
+}
+unsigned short status_base_matk_max(struct block_list *bl, const struct status_data* status){
+	int matk;
+	if ((matk = pc_status_formula_calc(bl, STATUS_MATK_R, 0)) != 0)
+		return static_cast<unsigned short>(matk);
+	return status->int_ + (status->int_ / 5) * (status->int_ / 5);
+}
 #else
 /*
 * Calculates minimum attack variance 80% from db's ATK1 for non BL_PC
@@ -3011,6 +3023,8 @@ unsigned int status_base_matk_min(struct block_list *bl, const struct status_dat
 		case BL_HOM:
 			return status_get_homint(bl) + level + (status_get_homint(bl) + status_get_homdex(bl)) / 5;
 		case BL_PC:
+			if ((level = pc_status_formula_calc(bl, STATUS_MATK_L, 0)) != 0)
+				return level;
 		default:
 			return status->int_ + (status->int_ / 2) + (status->dex / 5) + (status->luk / 3) + (level / 4);
 	}
@@ -3030,6 +3044,8 @@ unsigned int status_base_matk_max(struct block_list *bl, const struct status_dat
 		case BL_HOM:
 			return status_get_homint(bl) + level + (status_get_homluk(bl) + status_get_homint(bl) + status_get_homdex(bl)) / 3;
 		case BL_PC:
+			if ((level = pc_status_formula_calc(bl, STATUS_MATK_R, 0)) != 0)
+				return level;
 		default:
 			return status->int_ + (status->int_ / 2) + (status->dex / 5) + (status->luk / 3) + (level / 4);
 	}
@@ -3076,18 +3092,18 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 	} else {
 		// Hit
 		stat = status->hit;
-		stat += level + status->dex + (bl->type == BL_PC ? status->luk / 3 + 175 : 150); //base level + ( every 1 dex = +1 hit ) + (every 3 luk = +1 hit) + 175
+		stat += pc_status_formula_calc(bl, STATUS_HIT, level + status->dex + (bl->type == BL_PC ? status->luk / 3 + 175 : 150)); //base level + ( every 1 dex = +1 hit ) + (every 3 luk = +1 hit) + 175
 		status->hit = cap_value(stat, 1, SHRT_MAX);
 		// Flee
 		stat = status->flee;
-		stat += level + status->agi + (bl->type == BL_MER ? 0 : bl->type == BL_PC ? status->luk / 5 : 0) + 100; //base level + ( every 1 agi = +1 flee ) + (every 5 luk = +1 flee) + 100
+		stat += pc_status_formula_calc(bl, STATUS_FLEE_L, level + status->agi + (bl->type == BL_MER ? 0 : bl->type == BL_PC ? status->luk / 5 : 0) + 100); //base level + ( every 1 agi = +1 flee ) + (every 5 luk = +1 flee) + 100
 		status->flee = cap_value(stat, 1, SHRT_MAX);
 		// Def2
 		if (bl->type == BL_MER)
 			stat = (int)(status->vit + ((float)level / 10) + ((float)status->vit / 5));
 		else {
 			stat = status->def2;
-			stat += (int)(((float)level + status->vit) / 2 + (bl->type == BL_PC ? ((float)status->agi / 5) : 0)); //base level + (every 2 vit = +1 def) + (every 5 agi = +1 def)
+			stat += pc_status_formula_calc(bl, STATUS_DEF_R, (int)(((float)level + status->vit) / 2 + (bl->type == BL_PC ? ((float)status->agi / 5) : 0))); //base level + (every 2 vit = +1 def) + (every 5 agi = +1 def)
 		}
 		status->def2 = cap_value(stat, 0, SHRT_MAX);
 		// Mdef2
@@ -3095,7 +3111,7 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 			stat = (int)(((float)level / 10) + ((float)status->int_ / 5));
 		else {
 			stat = status->mdef2;
-			stat += (int)(bl->type == BL_PC ? (status->int_ + ((float)level / 4) + ((float)(status->dex + status->vit) / 5)) : ((float)(status->int_ + level) / 4)); //(every 4 base level = +1 mdef) + (every 1 int = +1 mdef) + (every 5 dex = +1 mdef) + (every 5 vit = +1 mdef)
+			stat += pc_status_formula_calc(bl, STATUS_MDEF_R, (int)(bl->type == BL_PC ? (status->int_ + ((float)level / 4) + ((float)(status->dex + status->vit) / 5)) : ((float)(status->int_ + level) / 4))); //(every 4 base level = +1 mdef) + (every 1 int = +1 mdef) + (every 5 dex = +1 mdef) + (every 5 vit = +1 mdef)
 		}
 		status->mdef2 = cap_value(stat, 0, SHRT_MAX);
 	}
@@ -3111,37 +3127,37 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 	status->matk_max = status_base_matk_max(bl, status, level);
 #else
 	// Matk
-	status->matk_min = status_base_matk_min(status);
-	status->matk_max = status_base_matk_max(status);
+	status->matk_min = status_base_matk_min(bl, status);
+	status->matk_max = status_base_matk_max(bl, status);
 	// Hit
 	stat = status->hit;
-	stat += level + status->dex;
+	stat += pc_status_formula_calc(bl, STATUS_HIT, level + status->dex);
 	status->hit = cap_value(stat, 1, SHRT_MAX);
 	// Flee
 	stat = status->flee;
-	stat += level + status->agi;
+	stat += pc_status_formula_calc(bl, STATUS_FLEE_L, level + status->agi);
 	status->flee = cap_value(stat, 1, SHRT_MAX);
 	// Def2
 	stat = status->def2;
-	stat += status->vit;
+	stat += pc_status_formula_calc(bl, STATUS_DEF_R, status->vit);
 	status->def2 = cap_value(stat, 0, SHRT_MAX);
 	// Mdef2
 	stat = status->mdef2;
-	stat += status->int_ + (status->vit>>1);
+	stat += pc_status_formula_calc(bl, STATUS_MDEF_R, status->int_ + (status->vit>>1));
 	status->mdef2 = cap_value(stat, 0, SHRT_MAX);
 #endif
 
 	//Critical
 	if( bl->type&battle_config.enable_critical ) {
 		stat = status->cri;
-		stat += 10 + (status->luk*10/3); // (every 1 luk = +0.3 critical)
+		stat += pc_status_formula_calc(bl, STATUS_CRI, 10 + (status->luk*10/3)); // (every 1 luk = +0.3 critical)
 		status->cri = cap_value(stat, 1, SHRT_MAX);
 	} else
 		status->cri = 0;
 
 	if (bl->type&battle_config.enable_perfect_flee) {
 		stat = status->flee2;
-		stat += status->luk + 10; // (every 10 luk = +1 perfect flee)
+		stat += pc_status_formula_calc(bl, STATUS_FLEE_R, status->luk + 10); // (every 10 luk = +1 perfect flee)
 		status->flee2 = cap_value(stat, 0, SHRT_MAX);
 	} else
 		status->flee2 = 0;
@@ -5868,8 +5884,8 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 
 	if(flag&SCB_MATK) {
 #ifndef RENEWAL
-		status->matk_min = status_base_matk_min(status) + (sd?sd->bonus.ematk:0);
-		status->matk_max = status_base_matk_max(status) + (sd?sd->bonus.ematk:0);
+		status->matk_min = status_base_matk_min(bl, status) + (sd?sd->bonus.ematk:0);
+		status->matk_max = status_base_matk_max(bl, status) + (sd?sd->bonus.ematk:0);
 #else
 		/**
 		 * RE MATK Formula (from irowiki:http:// irowiki.org/wiki/MATK)
