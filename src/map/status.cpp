@@ -219,11 +219,11 @@ SizeFixDatabase size_fix_db;
  * @param skill The skill to look up
  * @return The status registered for this skill
  */
-sc_type status_skill2sc(int skill)
+sc_type status_skill2sc_(int skill, const char *func, const char *file, int line)
 {
 	int idx = skill_get_index(skill);
 	if( idx == 0 ) {
-		ShowError("status_skill2sc: Unsupported skill id %d\n", skill);
+		ShowError("status_skill2sc: Skill '%d' is undefined! %s:%d::%s\n", skill, file, line, func);
 		return SC_NONE;
 	}
 	return SkillStatusChangeTable[idx];

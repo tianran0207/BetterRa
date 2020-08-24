@@ -2632,7 +2632,8 @@ struct status_change {
 };
 
 // for looking up associated data
-sc_type status_skill2sc(int skill);
+sc_type status_skill2sc_(int skill, const char *func, const char *file, int line);
+#define status_skill2sc(skill_id) status_skill2sc_((skill_id), __FUNCTION__, __FILE__, __LINE__)
 int status_sc2skill(sc_type sc);
 unsigned int status_sc2scb_flag(sc_type sc);
 int status_type2relevant_bl_types(int type);
