@@ -420,7 +420,7 @@ end;
 -	script	USE_SKILL_EVENT	-1,{
 end;
 OnPCUseSkillFilter:
-	// OnPCUseSkillExFilter 是与技能施放者关联的
+	// OnPCUseSkillFilter 是与技能施放者关联的
 	// 当玩家施放技能时，咏唱之前此事件会被触发
 	// 无论技能的所需道具是否足够，最终技能会不会使用失败，只要玩家使用了技能，就必定触发此事件
 	//
@@ -433,11 +433,11 @@ OnPCUseSkillFilter:
 	// useskill_y		被施法的地面Y坐标
 	// -------------------------------------------------------
 	
-	dispbottom "[事件演示] OnPCUseSkillExFilter | 开始使用技能";
+	dispbottom "[事件演示] OnPCUseSkillFilter | 开始使用技能";
 	dispbottom "           - 技能编号: " + useskill_id + " | 技能等级: " + useskill_lv + " | 目标GID/AID: " + useskill_target + " | 地面坐标: " + useskill_x + "," + useskill_y;
 end;
 OnPCUseSkillEvent:
-	// OnPCUseSkillExEvent 是与技能施放者关联的
+	// OnPCUseSkillEvent 是与技能施放者关联的
 	// 当玩家技能成功施放完毕时，此事件会被触发
 	// 只有技能成功被施放出来了，才会触发此事件
 	//
@@ -450,7 +450,24 @@ OnPCUseSkillEvent:
 	// useskill_y		被施法的地面Y坐标
 	// -------------------------------------------------------
 	
-	dispbottom "[事件演示] OnPCUseSkillExEvent | 技能使用完毕";
+	dispbottom "[事件演示] OnPCUseSkillEvent | 技能使用完毕";
+	dispbottom "           - 技能编号: " + useskill_id + " | 技能等级: " + useskill_lv + " | 目标GID/AID: " + useskill_target + " | 地面坐标: " + useskill_x + "," + useskill_y;
+end;
+OnPCAutoSpellFilter:
+	// OnPCAutoSpellFilter 是与技能施放者关联的
+	// 当玩家自动念咒施时，此事件会被触发
+	// 只有技能成功被施放出来了，才会触发此事件
+	//
+	// 参数说明
+	// -------------------------------------------------------
+	// useskill_id		施放的技能ID
+	// useskill_lv		被施放的技能等级
+	// useskill_target	被施法目标的GameID或者AccountID，若为 0 则表示这是个对地面施放的技能
+	// useskill_x		被施法的地面X坐标
+	// useskill_y		被施法的地面Y坐标
+	// -------------------------------------------------------
+	
+	dispbottom "[事件演示] OnPCAutoSpellFilter | 技能使用完毕";
 	dispbottom "           - 技能编号: " + useskill_id + " | 技能等级: " + useskill_lv + " | 目标GID/AID: " + useskill_target + " | 地面坐标: " + useskill_x + "," + useskill_y;
 end;
 }
@@ -458,7 +475,7 @@ end;
 -	script	USE_ITEM_EVENT	-1,{
 end;
 OnPCUseItemFilter:
-	// OnPCUseItemExFilter 是与物品使用者关联的
+	// OnPCUseItemFilter 是与物品使用者关联的
 	// 当玩家双击使用“非装备”类型道具时，此事件会被触发
 	// 无论物品最终是否会使用失败，只要玩家双击了物品，就必定触发此事件
 	//
@@ -476,13 +493,13 @@ OnPCUseItemFilter:
 	//
 	// -------------------------------------------------------
 	
-	dispbottom "[事件演示] OnPCUseItemExFilter | 开始使用物品";
+	dispbottom "[事件演示] OnPCUseItemFilter | 开始使用物品";
 	dispbottom "           - 物品编号: " + useitem_nameid + " | 物品名称: " + getitemname(useitem_nameid) + " | 背包序号: " + useitem_idx;
 	dispbottom "           - 编号: " + getinventoryinfo(useitem_idx, 0) + " | 数量: " + getinventoryinfo(useitem_idx, 1) + " | 装备到哪个位置: " + getinventoryinfo(useitem_idx, 2) + " | 精炼值: " + getinventoryinfo(useitem_idx, 3) + " | 是否鉴定: " + getinventoryinfo(useitem_idx, 4);
 	dispbottom "           - 是否损坏: " + getinventoryinfo(useitem_idx, 5) + " | 卡片1: " + getinventoryinfo(useitem_idx, 6) + " | 卡片2: " + getinventoryinfo(useitem_idx, 7) + " | 卡片3: " + getinventoryinfo(useitem_idx, 8) + " | 卡片4: " + getinventoryinfo(useitem_idx, 9) + " | 租赁到期时间: " + getinventoryinfo(useitem_idx, 10);
 end;
 OnPCUseItemEvent:
-	// OnPCUseItemExEvent 是与物品使用者关联的
+	// OnPCUseItemEvent 是与物品使用者关联的
 	// 当玩家成功使用“非装备”类型道具时，此事件会被触发
 	// 只有当物品被成功使用时，才会触发此事件
 	//
@@ -500,7 +517,7 @@ OnPCUseItemEvent:
 	// 
 	// -------------------------------------------------------
 	
-	dispbottom "[事件演示] OnPCUseItemExEvent | 物品使用完毕";
+	dispbottom "[事件演示] OnPCUseItemEvent | 物品使用完毕";
 	dispbottom "           - 物品编号: " + useitem_nameid + " | 物品名称: " + getitemname(useitem_nameid) + " | 背包序号: " + useitem_idx;
 	dispbottom "           - 编号: " + getinventoryinfo(useitem_idx, 0) + " | 数量: " + getinventoryinfo(useitem_idx, 1) + " | 装备到哪个位置: " + getinventoryinfo(useitem_idx, 2) + " | 精炼值: " + getinventoryinfo(useitem_idx, 3) + " | 是否鉴定: " + getinventoryinfo(useitem_idx, 4);
 	dispbottom "           - 是否损坏: " + getinventoryinfo(useitem_idx, 5) + " | 卡片1: " + getinventoryinfo(useitem_idx, 6) + " | 卡片2: " + getinventoryinfo(useitem_idx, 7) + " | 卡片3: " + getinventoryinfo(useitem_idx, 8) + " | 卡片4: " + getinventoryinfo(useitem_idx, 9) + " | 租赁到期时间: " + getinventoryinfo(useitem_idx, 10);

@@ -61,7 +61,6 @@
 #define BRA_TRIBE_TEAM
 
 #define BRA_MSG_TRANSLATE
-#define BRA_STATE_FIX
 
 //----------------------------------
 //事件列表
