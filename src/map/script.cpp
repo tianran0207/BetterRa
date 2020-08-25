@@ -4538,7 +4538,7 @@ static void script_detach_state(struct script_state* st, bool dequeue_event)
 		sd->st = st->bk_st;
 		sd->npc_id = st->bk_npcid;
 		sd->state.disable_atcommand_on_npc = 0;
-		if (battle_config.multiple_script_state) {
+		if (battle_config.multiple_script_state && st->bk_st) {
 			st->detach.using_fake_npc = sd->state.using_fake_npc;
 			st->detach.menu_or_input = sd->state.menu_or_input;
 			st->detach.npc_menu = sd->npc_menu;
