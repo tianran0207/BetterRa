@@ -36,6 +36,9 @@ struct unit_data {
 		int rate1, rate2;
 		int64 min_dmg, max_dmg;
 	}def_fix;
+	struct s_aura {
+		int eff_id, eff_timer, eff_tick;
+	}aura;
 	short attackevent_mark;
 	short attackedevent_mark;
 	short attacktarget_lv;

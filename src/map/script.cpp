@@ -30457,6 +30457,37 @@ BUILDIN_FUNC(checkrefineui)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+static int build_unitaura_sub(int tid, t_tick tick, int id, intptr_t data)
+{
+	struct block_list *bl = map_id2bl(id);
+	struct unit_data *ud = unit_bl2ud(bl);
+	if (ud != (struct unit_data *)data)
+		return 1;
+
+	clif_specialeffect(bl, ud->aura.eff_id, AREA);
+	ud->aura.eff_timer = add_timer(gettick() + ud->aura.eff_tick, build_unitaura_sub, id, (intptr_t)ud);
+	return 1;
+}
+
+BUILDIN_FUNC(unitaura)
+{
+	struct block_list *bl;
+	struct unit_data *ud;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	if ((ud = unit_bl2ud(bl)) != NULL) {
+		if (ud->aura.eff_timer != INVALID_TIMER)
+			delete_timer(ud->aura.eff_timer, build_unitaura_sub);
+		if ((ud->aura.eff_id = script_getnum(st, 3)) != 0 && script_hasdata(st, 4))
+			ud->aura.eff_timer = add_timer(gettick() + (ud->aura.eff_tick = script_getnum(st, 4)), build_unitaura_sub, bl->id, (intptr_t)ud);
+		if (ud->aura.eff_id != 0)
+			clif_specialeffect(bl, ud->aura.eff_id, AREA);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -31586,6 +31617,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unitmasterid, "i"),
 	BUILDIN_DEF(addmobskill, "is"),
 	BUILDIN_DEF(delmobskill, "ii"),
+	BUILDIN_DEF(unitaura, "ii?"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),

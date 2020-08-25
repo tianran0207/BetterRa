@@ -1630,7 +1630,7 @@ int clif_spawn( struct block_list *bl, bool walking ){
 	if (clif_npc_mayapurple(bl))
 		return 0;
 
-	if(bl->type == BL_NPC && !npc_ondisplay_event(NULL, (TBL_NPC*)bl))
+	if(bl->type == BL_NPC && !npc_ondisplay_event((TBL_NPC*)bl, NULL))
 		return 0;
 
 	if( bl->type == BL_NPC && !vd->dead_sit ){
@@ -1978,7 +1978,7 @@ void clif_move(struct unit_data *ud)
 	if (clif_npc_mayapurple(bl))
 		return;
 
-	if(bl->type == BL_NPC && !npc_ondisplay_event(NULL, (TBL_NPC*)bl))
+	if(bl->type == BL_NPC && !npc_ondisplay_event((TBL_NPC*)bl, NULL))
 		return;
 
 	if (ud->state.speed_changed) {
@@ -4849,7 +4849,7 @@ void clif_getareachar_unit( struct map_session_data* sd,struct block_list *bl ){
 	if (clif_npc_mayapurple(bl))
 		return;
 
-	if(bl->type == BL_NPC && !npc_ondisplay_event(sd, (TBL_NPC*)bl))
+	if(bl->type == BL_NPC && !npc_ondisplay_event((TBL_NPC*)bl, sd))
 		return;
 
 	ud = unit_bl2ud(bl);
@@ -4927,6 +4927,9 @@ void clif_getareachar_unit( struct map_session_data* sd,struct block_list *bl ){
 			clif_pet_equip(sd, (TBL_PET*)bl); // needed to display pet equip properly
 		break;
 	}
+
+	if (sd && ud && ud->aura.eff_id)
+		clif_specialeffect_single(bl, ud->aura.eff_id, sd->fd);
 }
 
 //Modifies the type of damage according to status changes [Skotlex]

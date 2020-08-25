@@ -1043,7 +1043,7 @@ int npc_event_atonce(struct map_session_data* sd, const char* eventname)
 	return 0;
 }
 
-bool npc_ondisplay_event(struct map_session_data *sd, struct npc_data *nd)
+bool npc_ondisplay_event(struct npc_data *nd, struct map_session_data *sd)
 {
 	char name[EVENT_NAME_LENGTH];
 	struct event_data* ev;

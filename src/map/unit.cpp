@@ -3229,6 +3229,7 @@ void unit_dataset(struct block_list *bl)
 	ud->attackabletime =
 	ud->canact_tick    =
 	ud->canmove_tick   = gettick();
+	ud->aura.eff_timer = INVALID_TIMER;
 }
 
 /**
