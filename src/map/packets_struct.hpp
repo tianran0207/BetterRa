@@ -3050,9 +3050,9 @@ struct PACKET_ZC_ENCHANT_EQUIPMENT {
 	int16 wearState;
 	int16 cardSlot;
 #if PACKETVER_MAIN_NUM >= 20181121 || PACKETVER_RE_NUM >= 20180704 || PACKETVER_ZERO_NUM >= 20181114
-	int32 itemId;
+	uint32 itemId;
 #else
-	int16 itemId;
+	uint16 itemId;
 #endif
 	int8 equipFlag;
 } __attribute__((packed));

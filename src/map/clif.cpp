@@ -1694,6 +1694,10 @@ int clif_spawn( struct block_list *bl, bool walking ){
 			clif_pet_equip_area((TBL_PET*)bl); // needed to display pet equip properly
 		break;
 	}
+
+	struct unit_data *ud = unit_bl2ud(bl);
+	if (ud && ud->aura.eff_id)
+		clif_specialeffect(bl, ud->aura.eff_id, AREA);
 	return 0;
 }
 
@@ -1976,9 +1980,6 @@ void clif_move(struct unit_data *ud)
 
 	// Hide NPC from Maya Purple card
 	if (clif_npc_mayapurple(bl))
-		return;
-
-	if(bl->type == BL_NPC && !npc_ondisplay_event((TBL_NPC*)bl, NULL))
 		return;
 
 	if (ud->state.speed_changed) {
