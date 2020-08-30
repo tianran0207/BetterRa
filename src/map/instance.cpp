@@ -1106,6 +1106,14 @@ int instance_addmap_name(int instance_id, const char *mapname, bool copynpc)
 		struct map_data *mapdata = map_getmapdata(entry.src_m);
 		map_foreachinallarea(instance_addnpc_sub, entry.src_m, 0, 0, mapdata->xs, mapdata->ys, BL_NPC, entry.m);
 	}
+	else {
+		struct map_data *mapdata = map_getmapdata(entry.m);
+		size_t xy, num_cells = mapdata->xs * mapdata->ys;
+		for (xy = 0; xy < num_cells; ++xy){
+			if (mapdata->cell[xy].npc)
+				mapdata->cell[xy].npc = 0;
+		}
+	}
 	return 1;
 }
 

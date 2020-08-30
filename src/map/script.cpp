@@ -30077,7 +30077,7 @@ BUILDIN_FUNC(instance_addmap)
 	int instance_id, copynpc = 1;
 	mapname = script_getstr(st, 2);
 	if (script_hasdata(st, 3))
-		copynpc = script_getnum(st, 4);
+		copynpc = script_getnum(st, 3);
 
 	if (script_hasdata(st, 4))
 		instance_id = script_getnum(st, 4);
