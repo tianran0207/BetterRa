@@ -15682,6 +15682,9 @@ void clif_parse_HomMoveToMaster(int fd, struct map_session_data *sd){
 	struct block_list *bl = NULL;
 	struct unit_data *ud = NULL;
 
+	if (sd->state.hombot)
+		return;
+
 	if( sd->md && sd->md->bl.id == id )
 		bl = &sd->md->bl;
 	else if( hom_is_active(sd->hd) && sd->hd->bl.id == id )

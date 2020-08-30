@@ -1718,48 +1718,60 @@ static int hombot_ai_lazy(struct map_session_data *sd, va_list args){
 	struct homun_data *hd = NULL;
 	struct block_list *bl = NULL;
 	struct block_list *tbl = NULL;
-	int i, oldpar = 0, skill_id = 0, skill_lv = 0;
-	int result = 0, inf, can_move, min_chase;
+	int oldpar = 0, skill_id = 0, skill_lv = 0;
+	int inf, can_move, min_chase;
 	t_tick tick = va_arg(args, t_tick);
 	nullpo_ret(sd);
 
 	if (sd->bl.prev == NULL || !sd->state.active)
 		return 0;
 
-	hd = sd->hd;
-
-	if (!hd || !hom_is_active(hd))
+	if (sd->state.hombot == 0 || !(hd = sd->hd) || !hom_is_active(hd)) {
+		map_delhombot(sd);
 		return 0;
+	}
 
 	bl = &hd->bl;
+
+	if (DIFF_TICK(tick, hd->ud.canact_tick) < 0)
+		return 0;
 
 	//如果正在吟唱
 	if (hd->ud.skilltimer != INVALID_TIMER)
 		return 0;
 
-	if (hd->sc.data[SC_BASILICA])
+	if (hd->ud.walktimer != INVALID_TIMER)
 		return 0;
 
-	if (distance_bl(bl, &sd->bl) > 14)
-		return 0;
+	can_move = unit_can_move(bl);
 
-	if (!check_distance_bl(bl, &sd->bl, 12) && unit_can_move(bl)) {
-		hombot_moveto_master(sd);
+	if (sd->enemy_id) {
+		tbl = map_id2bl(sd->enemy_id);
+		sd->enemy_id = 0;
+	}
+	if (!tbl && (!hd->ud.target || !(tbl = map_id2bl(hd->ud.target))))
+		map_foreachinallrange(hombot_ai_sub_hard_activesearch, &sd->bl, 9, BL_CHAR, sd, &tbl);
+
+	if (!tbl) {
+		if (can_move && !check_distance_bl(bl, &sd->bl, 3))
+			hombot_moveto_master(sd);
+		return 0;
+	}else if (!check_distance_bl(bl, &sd->bl, 9)) {
+		if (can_move)
+			hombot_moveto_master(sd);
 		return 0;
 	}
 
-	if (sd->ud.walktimer != INVALID_TIMER)
-		return 0;
-
-	for (i = 0; i < MAX_HOMUNSKILL; i++) {
+	for (int i = 0; i < MAX_HOMUNSKILL && sd->state.hombot != 1; i++) {
 		int par = 0;
-		
-		if (DIFF_TICK(tick, hd->ud.canact_tick) < 0 || sd->state.hombot == 1)
-			break;
-		
-		if (hd->homunculus.hskill[i].lv == 0)
+
+		if (!hd->homunculus.hskill[i].id || !hd->homunculus.hskill[i].lv)
 			continue;
-		
+		if (skill_isNotOk_hom(hd, hd->homunculus.hskill[i].id, hd->homunculus.hskill[i].lv))
+			continue;
+		if (skill_get_sp(hd->homunculus.hskill[i].id, hd->homunculus.hskill[i].lv) >= hd->battle_status.sp)
+			continue;
+
 		switch (hd->homunculus.hskill[i].id) {
 		case HFLI_FLEET:
 		case HFLI_SPEED:
@@ -1774,56 +1786,43 @@ static int hombot_ai_lazy(struct map_session_data *sd, va_list args){
 			if (inf&INF_GROUND_SKILL && sd->state.hombot == 3)
 				par = 100;
 		}
-		if (par > oldpar && !skill_isNotOk_hom(hd, hd->homunculus.hskill[i].id, hd->homunculus.hskill[i].lv)) {
+		if (par > oldpar) {
 			oldpar = par;
 			skill_id = hd->homunculus.hskill[i].id;
 			skill_lv = hd->homunculus.hskill[i].lv;
 		}
 	}
-	if (sd->enemy_id) {
-		tbl = map_id2bl(sd->enemy_id);
-		sd->enemy_id = 0;
-	}else if (hd->ud.attacktimer != INVALID_TIMER)
-		tbl = map_id2bl(hd->ud.target);
-	else
-		map_foreachinallrange(hombot_ai_sub_hard_activesearch, &sd->bl, 11, BL_CHAR, sd, &tbl);
 
-	can_move = unit_can_move(bl);
-
-	if (skill_id && skill_get_sp(skill_id, skill_lv) < hd->battle_status.sp) {
+	if (skill_id) {
 		inf = skill_get_inf(skill_id);
 		if (inf&INF_SELF_SKILL) {
 			unit_skilluse_id(bl, bl->id, skill_id, skill_lv);
 			return 0;
 		}
-		if (tbl) {
-			min_chase = skill_get_range2(bl, skill_id, skill_lv, true);
-			if (can_move && !check_distance_bl(bl, tbl, min_chase)) {
-				unit_walktobl(bl, tbl, min_chase, 2);
-				return 0;
-			}
-			if (battle_check_range(bl, tbl, min_chase)) {
-				if (inf&INF_GROUND_SKILL)
-					result = unit_skilluse_pos(bl, tbl->x, tbl->y, skill_id, skill_lv);
-				else
-					result = unit_skilluse_id(bl, tbl->id, skill_id, skill_lv);
+		int result = 0;
+		min_chase = skill_get_range2(bl, skill_id, skill_lv, true);
+		if (can_move && !check_distance_bl(bl, tbl, min_chase)) {
+			unit_walktobl(bl, tbl, min_chase, 2);
+			return 0;
+		}
+		if (battle_check_range(bl, tbl, min_chase)) {
+			if (inf&INF_GROUND_SKILL)
+				result = unit_skilluse_pos(bl, tbl->x, tbl->y, skill_id, skill_lv);
+			else
+				result = unit_skilluse_id(bl, tbl->id, skill_id, skill_lv);
 				
-				if (result)
-					return 0;
-			}
+			if (result)
+				return 0;
 		}
 	}
-	if (tbl) {
+	else if (hd->ud.attacktimer == INVALID_TIMER) {
 		min_chase = status_get_range(bl);
 		if (can_move && !check_distance_bl(bl, tbl, min_chase)) {
 			unit_walktobl(bl, tbl, min_chase, 2);
 			return 0;
 		}
 		unit_attack(bl, tbl->id, 1);
-	} else if(!check_distance_bl(bl, &sd->bl, 3)){
-		hombot_moveto_master(sd);
 	}
-
 	return 0;
 }
 
@@ -1848,7 +1847,7 @@ void do_init_homunculus(void){
 		hom_viewdb[class_].class_ = HM_CLASS_BASE+class_;
 
 	add_timer_func_list(hombot_ai_hard, "hombot_ai_hard");
-	add_timer_interval(gettick() + 1000, hombot_ai_hard, 0, 0, 1000);
+	add_timer_interval(gettick() + 1000, hombot_ai_hard, 0, 0, MIN_MOBTHINKTIME);
 }
 
 void do_final_homunculus(void) {
