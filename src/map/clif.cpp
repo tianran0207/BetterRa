@@ -22110,7 +22110,7 @@ void clif_refineui_info( struct map_session_data* sd, uint16 index ){
 		clif_refineui_notrefineable(sd, index);
 		return;
 	}
-
+#if PACKETVER_MAIN_NUM >= 20161130 || PACKETVER_RE_NUM >= 20161109 || defined(PACKETVER_ZERO)
 	length = sizeof(struct PACKET_ZC_REFINE_ADD_ITEM) + material_count * sizeof(struct PACKET_ZC_REFINE_ADD_ITEM_SUB);
 
 	WFIFOHEAD(fd, length);
@@ -22127,6 +22127,7 @@ void clif_refineui_info( struct map_session_data* sd, uint16 index ){
 	}
 
 	WFIFOSET(fd,length);
+#endif
 }
 
 /**
