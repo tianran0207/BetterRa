@@ -1805,10 +1805,10 @@ prontera,150,150,4	shop	Buy_Title_Test	48,501:-1
 如果执行成功的话, 会赋予以下数组在线玩家的信息:
 
 $@sameuid_aid[]		使用指定机器码在线的玩家账号编号数组(AccountID)
-$@sameip_cid[]		使用指定机器码在线的玩家角色编号数组(CharID)
-$@sameip_name$[]	使用指定机器码在线的玩家角色名数组
+$@sameuid_cid[]		使用指定机器码在线的玩家角色编号数组(CharID)
+$@sameuid_name$[]	使用指定机器码在线的玩家角色名数组
 
-$@sameip_amount 使用指定机器码登录的玩家个数.
+$@sameuid_amount 使用指定机器码登录的玩家个数.
 
 ---------------------------------------
 
