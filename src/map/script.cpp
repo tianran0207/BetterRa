@@ -29981,7 +29981,7 @@ BUILDIN_FUNC(setequipedcard)
 	log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[n]);
 	sd->inventory.u.items_inventory[n].card[cardSlot] = cardId;
 	log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[n]);
-	if ((pos < EQI_ACC_L || pos > EQI_HAND_R) && pos != EQI_AMMO)
+	if ((pos < EQI_ACC_L || pos > EQI_HAND_R) && pos != EQI_AMMO || cardId >= SHRT_MAX)
 		clif_equiplist(sd);
 	else
 		clif_change_card(sd, equip_bitmask[pos], cardSlot, cardId, cardId == 0 ? 2 : 1);
