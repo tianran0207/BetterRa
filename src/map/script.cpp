@@ -29952,7 +29952,7 @@ BUILDIN_FUNC(getcalendartime)
 // insert or remove card into equipped item
 BUILDIN_FUNC(setequipedcard)
 {
-#if PACKETVER >= 20151118
+#if PACKETVER_MAIN_NUM >= 20160831 || PACKETVER_RE_NUM >= 20151118 || defined(PACKETVER_ZERO)
 	struct map_session_data *sd;
 
 	if (!script_charid2sd(5, sd))

@@ -575,9 +575,7 @@ bool cashshop_buylist( struct map_session_data* sd, uint32 kafrapoints, int n, s
 		for (i = 0; i < n; ++i) {
 			t_itemid nameid = item_list[i].itemId;
 			uint32 quantity = item_list[i].amount;
-#if PACKETVER_SUPPORTS_SALES
 			uint16 tab = item_list[i].tab;
-#endif
 			if (tab >= CASHSHOP_TAB_MAX)
 				continue;
 			ARR_FIND(0, cash_shop_items[tab].count, j, nameid == cash_shop_items[tab].item[j]->nameid || nameid == itemdb_viewid(cash_shop_items[tab].item[j]->nameid));
@@ -673,9 +671,8 @@ bool cashshop_buylist( struct map_session_data* sd, uint32 kafrapoints, int n, s
 		for (i = 0; i < n; ++i) {
 			t_itemid nameid = item_list[i].itemId;
 			uint32 quantity = item_list[i].amount;
-#if PACKETVER_SUPPORTS_SALES
 			uint16 tab = item_list[i].tab;
-#endif
+
 			if (tab >= CASHSHOP_TAB_MAX)
 				continue;
 			ARR_FIND(0, cash_shop_items[tab].count, j, nameid == cash_shop_items[tab].item[j]->nameid || nameid == itemdb_viewid(cash_shop_items[tab].item[j]->nameid));

@@ -6989,6 +6989,7 @@ void clif_insert_card(struct map_session_data *sd,int idx_equip,int idx_card,int
 
 void clif_change_card(struct map_session_data *sd, unsigned int pos, int solt, unsigned short card, int flag)
 {
+#if PACKETVER_MAIN_NUM >= 20160831 || PACKETVER_RE_NUM >= 20151118 || defined(PACKETVER_ZERO)
 	nullpo_retv(sd);
 	struct PACKET_ZC_ENCHANT_EQUIPMENT p;
 
@@ -6999,6 +7000,7 @@ void clif_change_card(struct map_session_data *sd, unsigned int pos, int solt, u
 	p.equipFlag = flag;
 
 	clif_send(&p, sizeof(p), &sd->bl, SELF);
+#endif
 }
 
 /// Presents a list of items that can be identified (ZC_ITEMIDENTIFY_LIST).
@@ -22054,9 +22056,8 @@ void clif_refineui_info( struct map_session_data* sd, uint16 index ){
 	int fd = sd->fd;
 	struct item *item;
 	struct item_data *id;
-	uint16 length;
 	struct refine_materials materials[REFINEUI_MAT_CNT];
-	uint8 i, material_count;
+	uint8 material_count;
 
 	// Get the item db reference
 	id = sd->inventory_data[index];
@@ -22111,8 +22112,8 @@ void clif_refineui_info( struct map_session_data* sd, uint16 index ){
 		return;
 	}
 #if PACKETVER_MAIN_NUM >= 20161130 || PACKETVER_RE_NUM >= 20161109 || defined(PACKETVER_ZERO)
-	length = sizeof(struct PACKET_ZC_REFINE_ADD_ITEM) + material_count * sizeof(struct PACKET_ZC_REFINE_ADD_ITEM_SUB);
-
+	uint16 length = sizeof(struct PACKET_ZC_REFINE_ADD_ITEM) + material_count * sizeof(struct PACKET_ZC_REFINE_ADD_ITEM_SUB);
+	uint8 i;
 	WFIFOHEAD(fd, length);
 	struct PACKET_ZC_REFINE_ADD_ITEM *p = (struct PACKET_ZC_REFINE_ADD_ITEM *)WFIFOP(fd, 0);
 	p->packetType = HEADER_ZC_REFINE_ADD_ITEM;
