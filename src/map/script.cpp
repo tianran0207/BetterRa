@@ -28464,6 +28464,24 @@ BUILDIN_FUNC(unit_Astar_walkto)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(unit_walkto)
+{
+	struct block_list *bl;
+	struct autowalk_data *ad;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	if ((ad = unit_autowalk(bl)) == NULL)
+		return SCRIPT_CMD_SUCCESS;
+
+	if (!map_path(bl->m, map_mapname2mapid(script_getstr(st, 3)), ad))
+		return SCRIPT_CMD_FAILURE;
+
+	unit_check_step(bl, ad, gettick());
+	return SCRIPT_CMD_SUCCESS;
+}
+
 /**
  * 获取玩家当前副本的副本名
  * instance_name({<instance_id>});
@@ -31681,6 +31699,7 @@ struct script_function buildin_func[] = {
 
 	BUILDIN_DEF(unit_Astar_walkto, "iii????"),
 	BUILDIN_DEF2(unit_Astar_walkto, "unit_Astart_walkto", "iii????"),
+	BUILDIN_DEF(unit_walkto, "isii"),
 	BUILDIN_DEF(instance_name, "?"),
 	BUILDIN_DEF(readstatus, "i?"),
 	BUILDIN_DEF(getareamember, "i???"),

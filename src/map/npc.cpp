@@ -2937,6 +2937,13 @@ static const char* npc_parse_warp(char* w1, char* w2, char* w3, char* w4, const 
 	nd->u.warp.y = to_y;
 	nd->u.warp.xs = xs;
 	nd->u.warp.ys = ys;
+	struct s_warp_list entry;
+	entry.to.m = map_mapindex2mapid(i);
+	entry.to.x = to_x;
+	entry.to.y = to_y;
+	entry.from.x = x;
+	entry.from.y = y;
+	mapdata->warp_list.push_back(entry);
 	npc_warp++;
 	nd->bl.type = BL_NPC;
 	nd->subtype = NPCTYPE_WARP;

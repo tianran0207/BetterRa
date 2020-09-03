@@ -10803,6 +10803,8 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		clif_changemap(sd, sd->bl.m, sd->bl.x, sd->bl.y);
 		return;
 	}
+	if (sd->state.warping && sd->autowalk.map_path.pos < sd->autowalk.map_path.len)
+		unit_check_step(&sd->bl, &sd->autowalk, gettick());
 
 	sd->state.warping = 0;
 

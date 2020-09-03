@@ -30,6 +30,15 @@ struct step_path {
 	unsigned int uid;
 };
 
+#define MAX_MAPPATH 32
+struct s_map_path {
+	int16 m[MAX_MAPPATH];
+	int16 x[MAX_MAPPATH];
+	int16 y[MAX_MAPPATH];
+	int16 len;
+	int16 pos;
+};
+
 enum autowolk_type {
 	PH_NONE,
 	PH_WALKBACK,       /// 离开路径30格或回到路径遇到障碍时, 不再追踪, 自动行走返回路径. (默认)
@@ -48,9 +57,11 @@ struct autowalk_data {
 	unsigned short step_ai;
 	unsigned short step_range;
 	char eventname[EVENT_NAME_LENGTH];
+	struct s_map_path map_path;
 };
 struct step_path *get_step(const char *key);
 struct step_path *path_Astar_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid);
+bool map_path(int16 from_m, int16 to_m, autowalk_data *ad);
 void path_free(struct step_path *sp);
 void path_step_load(void);
 

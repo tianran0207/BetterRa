@@ -934,6 +934,21 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 	nullpo_retr(false, bl);
 	nullpo_retr(false, ad);
 
+	if (ad->map_path.pos < ad->map_path.len) {
+		if (bl->m == ad->map_path.m[ad->map_path.pos])
+			ad->map_path.pos++;
+		if (path && (path->x[path->number - 1] != ad->map_path.x[ad->map_path.pos] || path->y[path->number - 1] != ad->map_path.y[ad->map_path.pos])){
+			path_free(ad->path);
+			path = ad->path = NULL;
+		}
+		if (!ad->path && ad->map_path.pos < ad->map_path.len && (path = path_Astar_steppath(bl->m, bl->x, bl->y, ad->map_path.x[ad->map_path.pos], ad->map_path.y[ad->map_path.pos], bl->id)) != NULL){
+			path->x[path->number - 1] = ad->map_path.x[ad->map_path.pos];
+			path->y[path->number - 1] = ad->map_path.y[ad->map_path.pos];
+			ad->path = path;
+			ad->step = 0;
+		} else if (!ad->path)
+			ad->map_path.pos = ad->map_path.len = 0;
+	}
 	if (!path)
 		return (md && unit_check_staypos(bl, NULL)) ? true : false;
 
@@ -1026,8 +1041,10 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 			walkfail = true;
 	}
 
-	if (ad->path->uid == bl->id)
+	if (ad->path->uid == bl->id) {
 		path_free(ad->path);
+		ad->path = NULL;
+	}
 
 	char eventname[EVENT_NAME_LENGTH];
 	safestrncpy(eventname, ad->eventname, EVENT_NAME_LENGTH);

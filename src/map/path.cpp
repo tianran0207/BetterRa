@@ -743,6 +743,54 @@ bool astar_path(struct step_path *sp, int16 m, int16 x0, int16 y0, int16 x1, int
 	// A* end
 }
 
+struct map_path_node {
+	struct map_path_node *parent; ///< pointer to parent (for path reconstruction)
+	int16 m, x, y;
+};
+
+bool map_path(int16 from_m, int16 to_m, autowalk_data *ad)
+{
+	struct map_path_node tp[MAX_MAP_PER_SERVER], *it = NULL;
+	struct map_data *mapdata = NULL;
+	int i = 0, n = 0, in = 0, len = 0;
+
+	memset(tp, 0, sizeof(tp));
+
+	tp[n].parent = NULL;
+	tp[n].m = from_m;
+	for (i = 0, n = 1; i < MAX_MAP_PER_SERVER; i++) {
+
+		if (!tp[i].m || (mapdata = map_getmapdata(tp[i].m)) == NULL)
+			return false;
+
+		for (const auto warp : mapdata->warp_list) {
+			ARR_FIND(0, n, in, tp[in].m == warp.to.m);
+			if (in < n)
+				continue;
+			tp[n].parent = &tp[i];
+			tp[n].m = warp.to.m;
+			tp[n].x = warp.from.x;
+			tp[n].y = warp.from.y;
+			if (warp.to.m == to_m) {
+				for (it = &tp[n]; it->parent != NULL; it = it->parent, len++);
+				if (len > MAX_MAPPATH)
+					return false;
+				ad->map_path.len = len;
+				ad->map_path.pos = 0;
+				for (it = &tp[n], i = len - 1; i >= 0; it = it->parent, i--) {
+					ad->map_path.m[i] = it->m;
+					ad->map_path.x[i] = it->x;
+					ad->map_path.y[i] = it->y;
+					//mapdata = map_getmapdata(it->m);
+				}
+				return true;
+			}
+			n++;
+		}
+	}
+	return false;
+}
+
 struct step_path* get_step(const char *key) {
 	return (struct step_path *)strdb_get(step_db, key);
 }

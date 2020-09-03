@@ -809,6 +809,11 @@ struct s_questinfo {
 	struct script_code* condition;
 };
 
+struct s_warp_list {
+	struct s_warp_list_info { int16 m, x, y; }from;
+	struct s_warp_list_info to;
+};
+
 struct map_data {
 	char name[MAP_NAME_LENGTH];
 	uint16 index; // The map index used by the mapindex* functions.
@@ -830,6 +835,7 @@ struct map_data {
 	std::unordered_map<int16, s_mapflag_val> flag_val;
 	struct point save;
 	std::vector<s_drop_list> drop_list;
+	std::vector<s_warp_list> warp_list;
 	uint32 zone; // zone number (for item/skill restrictions)
 	struct s_skill_damage damage_adjust; // Used for overall skill damage adjustment
 	std::unordered_map<uint16, s_skill_damage> skill_damage; // Used for single skill damage adjustment
