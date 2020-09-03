@@ -28427,7 +28427,7 @@ BUILDIN_FUNC(http_get)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(unit_Astart_walkto)
+BUILDIN_FUNC(unit_Astar_walkto)
 {
 	struct block_list *bl;
 	struct step_path *sp;
@@ -28444,13 +28444,13 @@ BUILDIN_FUNC(unit_Astart_walkto)
 	if((ad = unit_autowalk(bl)) == NULL)
 		return SCRIPT_CMD_SUCCESS;
 
-	if((sp = path_Astart_steppath(bl->m, bl->x, bl->y, script_getnum(st, 3), script_getnum(st, 4), uid)) == NULL)
+	if((sp = path_Astar_steppath(bl->m, bl->x, bl->y, script_getnum(st, 3), script_getnum(st, 4), uid)) == NULL)
 		return SCRIPT_CMD_SUCCESS;
 
 	step_ai = script_hasdata(st, 6) ? script_getnum(st, 6) : PH_WALKBACK;
 
 	if (step_ai < PH_NONE || step_ai >= PH_MAX) {
-		ShowWarning("buildin_unit_Astart_walkto: The third parameter is invalid.\n", step_ai);
+		ShowWarning("buildin_unit_Astar_walkto: The third parameter is invalid.\n", step_ai);
 		return SCRIPT_CMD_FAILURE;
 	}
 	eventname = script_hasdata(st, 8) ? script_getstr(st, 8) : "";
@@ -31679,7 +31679,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(isequipped, "isequipped2", "i*"),
 	BUILDIN_DEF2(isequipped, "isequipped_enchant", "i*"),
 
-	BUILDIN_DEF(unit_Astart_walkto, "iii????"),
+	BUILDIN_DEF(unit_Astar_walkto, "iii????"),
+	BUILDIN_DEF2(unit_Astar_walkto, "unit_Astart_walkto", "iii????"),
 	BUILDIN_DEF(instance_name, "?"),
 	BUILDIN_DEF(readstatus, "i?"),
 	BUILDIN_DEF(getareamember, "i???"),

@@ -525,13 +525,13 @@ bool direction_diagonal( enum directions direction ){
 
 /// Adds new node to heap and updates/re-adds old ones if necessary.
 #define STEPL 4
-#define astart_index(x,y) (((x)/STEPL+(y)*MAX_ASTARTPATH/STEPL) & (MAX_ASTARTPATH*MAX_ASTARTPATH-1))
-#define ASTART_COST 40
-#define ASTART_DIAGONAL_COST 48
+#define astar_index(x,y) (((x)/STEPL+(y)*MAX_ASTARTPATH/STEPL) & (MAX_ASTARTPATH*MAX_ASTARTPATH-1))
+#define ASTAR_COST 40
+#define ASTAR_DIAGONAL_COST 48
 
-static int astart_add_path(struct node_heap *heap, struct path_node *tp, int16 x, int16 y, int g_cost, struct path_node *parent, int h_cost)
+static int astar_add_path(struct node_heap *heap, struct path_node *tp, int16 x, int16 y, int g_cost, struct path_node *parent, int h_cost)
 {
-	int i = astart_index(x, y);
+	int i = astar_index(x, y);
 
 	if (tp[i].x == x && tp[i].y == y) { // We processed this node before
 		if (g_cost < tp[i].g_cost) { // New path to this node is better than old one
@@ -564,7 +564,7 @@ static int astart_add_path(struct node_heap *heap, struct path_node *tp, int16 x
 	return 0;
 }
 
-static int astart_check_pass(struct map_data *md, int x, int y, int dir, cell_chk cell) {
+static int astar_check_pass(struct map_data *md, int x, int y, int dir, cell_chk cell) {
 	int i;
 	switch (dir) {
 	case PATH_DIR_NORTH:
@@ -626,7 +626,7 @@ static int astart_check_pass(struct map_data *md, int x, int y, int dir, cell_ch
 	}
 	return 1;
 }
-bool astart_path(struct step_path *sp, int16 m, int16 x0, int16 y0, int16 x1, int16 y1, cell_chk cell)
+bool astar_path(struct step_path *sp, int16 m, int16 x0, int16 y0, int16 x1, int16 y1, cell_chk cell)
 {
 	register int i, x, y, dx = 0, dy = 0;
 	struct map_data *md;
@@ -662,7 +662,7 @@ bool astart_path(struct step_path *sp, int16 m, int16 x0, int16 y0, int16 x1, in
 	memset(tp, 0, sizeof(tp));
 
 	// Start node
-	i = astart_index(x0, y0);
+	i = astar_index(x0, y0);
 	tp[i].parent = NULL;
 	tp[i].x = x0;
 	tp[i].y = y0;
@@ -703,23 +703,23 @@ bool astart_path(struct step_path *sp, int16 m, int16 x0, int16 y0, int16 x1, in
 		}
 		
 		// Process neighbors of current node
-		if (astart_check_pass(md, x, y, PATH_DIR_NORTH, cell))
-			e += astart_add_path(&g_open_set, tp, x, y + STEPL, g_cost + ASTART_COST, current, heuristic(x, y + STEPL, x1, y1)); // (x, y+1) 0
-		if (astart_check_pass(md, x, y, PATH_DIR_SOUTH, cell))
-			e += astart_add_path(&g_open_set, tp, x, y - STEPL, g_cost + ASTART_COST, current, heuristic(x, y - STEPL, x1, y1)); // (x, y-1) 4
-		if (astart_check_pass(md, x, y, PATH_DIR_WEST, cell))
-			e += astart_add_path(&g_open_set, tp, x - STEPL, y, g_cost + ASTART_COST, current, heuristic(x - STEPL, y, x1, y1)); // (x-1, y) 2
-		if (astart_check_pass(md, x, y, PATH_DIR_EAST, cell))
-			e += astart_add_path(&g_open_set, tp, x + STEPL, y, g_cost + ASTART_COST, current, heuristic(x + STEPL, y, x1, y1)); // (x+1, y) 6
+		if (astar_check_pass(md, x, y, PATH_DIR_NORTH, cell))
+			e += astar_add_path(&g_open_set, tp, x, y + STEPL, g_cost + ASTAR_COST, current, heuristic(x, y + STEPL, x1, y1)); // (x, y+1) 0
+		if (astar_check_pass(md, x, y, PATH_DIR_SOUTH, cell))
+			e += astar_add_path(&g_open_set, tp, x, y - STEPL, g_cost + ASTAR_COST, current, heuristic(x, y - STEPL, x1, y1)); // (x, y-1) 4
+		if (astar_check_pass(md, x, y, PATH_DIR_WEST, cell))
+			e += astar_add_path(&g_open_set, tp, x - STEPL, y, g_cost + ASTAR_COST, current, heuristic(x - STEPL, y, x1, y1)); // (x-1, y) 2
+		if (astar_check_pass(md, x, y, PATH_DIR_EAST, cell))
+			e += astar_add_path(&g_open_set, tp, x + STEPL, y, g_cost + ASTAR_COST, current, heuristic(x + STEPL, y, x1, y1)); // (x+1, y) 6
 
-		if (astart_check_pass(md, x, y, PATH_DIR_SOUTH | PATH_DIR_EAST, cell))
-			e += astart_add_path(&g_open_set, tp, x + STEPL, y - STEPL, g_cost + ASTART_DIAGONAL_COST, current, heuristic(x + STEPL, y - STEPL, x1, y1)); // (x+1, y-1) 5
-		if (astart_check_pass(md, x, y, PATH_DIR_NORTH | PATH_DIR_EAST, cell))
-			e += astart_add_path(&g_open_set, tp, x + STEPL, y + STEPL, g_cost + ASTART_DIAGONAL_COST, current, heuristic(x + STEPL, y + STEPL, x1, y1)); // (x+1, y+1) 7
-		if (astart_check_pass(md, x, y, PATH_DIR_NORTH | PATH_DIR_WEST, cell))
-			e += astart_add_path(&g_open_set, tp, x - STEPL, y + STEPL, g_cost + ASTART_DIAGONAL_COST, current, heuristic(x - STEPL, y + STEPL, x1, y1)); // (x-1, y+1) 1
-		if (astart_check_pass(md, x, y, PATH_DIR_SOUTH | PATH_DIR_WEST, cell))
-			e += astart_add_path(&g_open_set, tp, x - STEPL, y - STEPL, g_cost + ASTART_DIAGONAL_COST, current, heuristic(x - STEPL, y - STEPL, x1, y1)); // (x-1, y-1) 3
+		if (astar_check_pass(md, x, y, PATH_DIR_SOUTH | PATH_DIR_EAST, cell))
+			e += astar_add_path(&g_open_set, tp, x + STEPL, y - STEPL, g_cost + ASTAR_DIAGONAL_COST, current, heuristic(x + STEPL, y - STEPL, x1, y1)); // (x+1, y-1) 5
+		if (astar_check_pass(md, x, y, PATH_DIR_NORTH | PATH_DIR_EAST, cell))
+			e += astar_add_path(&g_open_set, tp, x + STEPL, y + STEPL, g_cost + ASTAR_DIAGONAL_COST, current, heuristic(x + STEPL, y + STEPL, x1, y1)); // (x+1, y+1) 7
+		if (astar_check_pass(md, x, y, PATH_DIR_NORTH | PATH_DIR_WEST, cell))
+			e += astar_add_path(&g_open_set, tp, x - STEPL, y + STEPL, g_cost + ASTAR_DIAGONAL_COST, current, heuristic(x - STEPL, y + STEPL, x1, y1)); // (x-1, y+1) 1
+		if (astar_check_pass(md, x, y, PATH_DIR_SOUTH | PATH_DIR_WEST, cell))
+			e += astar_add_path(&g_open_set, tp, x - STEPL, y - STEPL, g_cost + ASTAR_DIAGONAL_COST, current, heuristic(x - STEPL, y - STEPL, x1, y1)); // (x-1, y-1) 3
 
 		if (e) {
 			return false;
@@ -753,7 +753,7 @@ void path_free(struct step_path *sp) {
 }
 
 // flag?
-struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid) {
+struct step_path *path_Astar_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid) {
 	struct step_path *sptmp;
 	char pathname[NAME_LENGTH];
 
@@ -774,7 +774,7 @@ struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, in
 		safestrncpy(sptmp->pathname, pathname, NAME_LENGTH);
 		strdb_put(step_db, sptmp->pathname, sptmp);
 	}
-	if (!astart_path(sptmp, m, x0, y0, x1, y1, CELL_CHKNOPASS)) {
+	if (!astar_path(sptmp, m, x0, y0, x1, y1, CELL_CHKNOPASS)) {
 		strdb_remove(step_db, pathname);
 		return NULL;
 	}

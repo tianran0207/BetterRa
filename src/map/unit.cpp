@@ -1003,7 +1003,7 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 				tempsp.y[i] = path->y[newstep];
 			}
 			tempsp.number = i;
-			if ((sp = path_Astart_steppath(bl->m, bl->x, bl->y, tempsp.x[0], tempsp.y[0], bl->id))) {
+			if ((sp = path_Astar_steppath(bl->m, bl->x, bl->y, tempsp.x[0], tempsp.y[0], bl->id))) {
 				for (i = 1; i < tempsp.number && sp->number < MAX_PATHSTEP; i++) {
 					sp->x[sp->number] = tempsp.x[i];
 					sp->y[sp->number] = tempsp.y[i];
@@ -1016,7 +1016,7 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 		}
 		else if (ad->step_ai == PH_ASTARTWALK){
 			struct step_path *sp;
-			if (ad->path->number > 0 && (sp = path_Astart_steppath(bl->m, bl->x, bl->y, ad->path->x[ad->path->number - 1], ad->path->y[ad->path->number - 1], bl->id))) {
+			if (ad->path->number > 0 && (sp = path_Astar_steppath(bl->m, bl->x, bl->y, ad->path->x[ad->path->number - 1], ad->path->y[ad->path->number - 1], bl->id))) {
 				ad->path = sp;
 				ad->step = 0;
 				return true;

@@ -15,7 +15,7 @@ enum cell_chk : uint8;
 #define MAX_WALKPATH 32
 
 #define MAX_ASTARTPATH 128
-struct astart_path_data {
+struct astar_path_data {
 	unsigned char path_len, path_pos;
 	unsigned short x[MAX_ASTARTPATH];
 	unsigned short y[MAX_ASTARTPATH];
@@ -50,7 +50,7 @@ struct autowalk_data {
 	char eventname[EVENT_NAME_LENGTH];
 };
 struct step_path *get_step(const char *key);
-struct step_path *path_Astart_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid);
+struct step_path *path_Astar_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid);
 void path_free(struct step_path *sp);
 void path_step_load(void);
 
