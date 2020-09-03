@@ -2114,13 +2114,6 @@ int map_quit(struct map_session_data *sd) {
 		return 0;
 	}
 
-	if (map_getmapdata(sd->bl.m)->m != sd->bl.m) {
-		pc_setpos(sd, sd->status.save_point.map, sd->status.save_point.x, sd->status.save_point.y, CLR_TELEPORT);
-		if (map_getmapdata(sd->bl.m)->m == sd->bl.m)
-			map_quit(sd);
-		return 0;
-	}
-
 	if (sd->state.bot)
 		pcbot_stop(sd, 0);
 
