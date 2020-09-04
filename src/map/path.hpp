@@ -61,8 +61,8 @@ struct autowalk_data {
 };
 struct step_path *get_step(const char *key);
 struct step_path *path_Astar_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid);
-bool map_path(int16 from_m, int16 to_m, autowalk_data *ad);
-void path_free(struct step_path *sp);
+bool map_path(int16 from_m, int16 to_m, int16 to_x, int16 to_y, autowalk_data *ad);
+void path_free(struct autowalk_data *ad);
 void path_step_load(void);
 
 enum directions : int8 {

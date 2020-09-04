@@ -937,13 +937,29 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 	if (ad->map_path.pos < ad->map_path.len) {
 		if (bl->m == ad->map_path.m[ad->map_path.pos])
 			ad->map_path.pos++;
-		if (path && (path->x[path->number - 1] != ad->map_path.x[ad->map_path.pos] || path->y[path->number - 1] != ad->map_path.y[ad->map_path.pos])){
-			path_free(ad->path);
+		if (bl->type == BL_PC && path &&(path->x[path->number - 1] != ad->map_path.x[ad->map_path.pos] || path->y[path->number - 1] != ad->map_path.y[ad->map_path.pos])){
+			path_free(ad);
 			path = ad->path = NULL;
+		} else if (path && (!ad->map_path.pos || bl->m == ad->map_path.m[ad->map_path.pos-1]) && abs(bl->x - ad->map_path.x[ad->map_path.pos]) < 3 && abs(bl->y - ad->map_path.y[ad->map_path.pos]) < 3){
+			struct map_data *mapdata = map_getmapdata(bl->m);
+			for (const auto warp : mapdata->warp_list) {
+				if (warp.from.x != ad->map_path.x[ad->map_path.pos] || warp.from.y != ad->map_path.y[ad->map_path.pos])
+					continue;
+				unit_warp(bl, warp.to.m, warp.to.x, warp.to.y, CLR_TELEPORT);
+				path_free(ad);
+				path = ad->path = NULL;
+				ad->map_path.pos++;
+				break;
+			}
 		}
 		if (!ad->path && ad->map_path.pos < ad->map_path.len && (path = path_Astar_steppath(bl->m, bl->x, bl->y, ad->map_path.x[ad->map_path.pos], ad->map_path.y[ad->map_path.pos], bl->id)) != NULL){
 			path->x[path->number - 1] = ad->map_path.x[ad->map_path.pos];
 			path->y[path->number - 1] = ad->map_path.y[ad->map_path.pos];
+			ad->path = path;
+			ad->step = 0;
+		} else if (!ad->path && ad->map_path.pos == ad->map_path.len && (path = path_Astar_steppath(bl->m, bl->x, bl->y, ad->map_path.x[ad->map_path.len], ad->map_path.y[ad->map_path.len], bl->id)) != NULL){
+			path->x[path->number - 1] = ad->map_path.x[ad->map_path.len];
+			path->y[path->number - 1] = ad->map_path.y[ad->map_path.len];
 			ad->path = path;
 			ad->step = 0;
 		} else if (!ad->path)
@@ -1041,10 +1057,8 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 			walkfail = true;
 	}
 
-	if (ad->path->uid == bl->id) {
-		path_free(ad->path);
-		ad->path = NULL;
-	}
+	if (ad->path->uid == bl->id)
+		path_free(ad);
 
 	char eventname[EVENT_NAME_LENGTH];
 	safestrncpy(eventname, ad->eventname, EVENT_NAME_LENGTH);
@@ -1055,9 +1069,6 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 		if (!npc_event_do(eventname))
 			ShowError("npc_event: event not found [%s]\n", eventname);
 	}
-
-	if (ad->path)
-		return true;
 
 	return false;
 }
@@ -3692,7 +3703,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 		unit_remove_map(bl, clrtype);
 
 	if ((ad = unit_autowalk(bl)) != NULL && ad->path !=NULL && ad->path->uid == bl->id)
-		path_free(ad->path);
+		path_free(ad);
 
 	switch( bl->type ) {
 		case BL_PC: {

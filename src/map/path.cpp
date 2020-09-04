@@ -748,7 +748,7 @@ struct map_path_node {
 	int16 m, x, y;
 };
 
-bool map_path(int16 from_m, int16 to_m, autowalk_data *ad)
+bool map_path(int16 from_m, int16 to_m, int16 to_x, int16 to_y, autowalk_data *ad)
 {
 	struct map_path_node tp[MAX_MAP_PER_SERVER], *it = NULL;
 	struct map_data *mapdata = NULL;
@@ -773,7 +773,7 @@ bool map_path(int16 from_m, int16 to_m, autowalk_data *ad)
 			tp[n].y = warp.from.y;
 			if (warp.to.m == to_m) {
 				for (it = &tp[n]; it->parent != NULL; it = it->parent, len++);
-				if (len > MAX_MAPPATH)
+				if (len + 1 > MAX_MAPPATH)
 					return false;
 				ad->map_path.len = len;
 				ad->map_path.pos = 0;
@@ -783,6 +783,8 @@ bool map_path(int16 from_m, int16 to_m, autowalk_data *ad)
 					ad->map_path.y[i] = it->y;
 					//mapdata = map_getmapdata(it->m);
 				}
+				ad->map_path.x[len] = to_x;
+				ad->map_path.y[len] = to_y;
 				return true;
 			}
 			n++;
@@ -791,13 +793,15 @@ bool map_path(int16 from_m, int16 to_m, autowalk_data *ad)
 	return false;
 }
 
-struct step_path* get_step(const char *key) {
+struct step_path* get_step(const char *key)
+{
 	return (struct step_path *)strdb_get(step_db, key);
 }
 
-void path_free(struct step_path *sp) {
-	strdb_remove(step_db, sp->pathname);
-	sp = NULL;
+void path_free(struct autowalk_data *ad)
+{
+	strdb_remove(step_db, ad->path->pathname);
+	ad->path = NULL;
 }
 
 // flag?

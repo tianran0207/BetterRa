@@ -28132,7 +28132,7 @@ BUILDIN_FUNC(unitsteppath)
 	}
 
 	if(ad->path && ad->path->uid == bl->id)
-		path_free(ad->path);
+		path_free(ad);
 
 	ad->path = steppath;
 	ad->step = 0;
@@ -28464,10 +28464,12 @@ BUILDIN_FUNC(unit_Astar_walkto)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(unit_walkto)
+BUILDIN_FUNC(unit_cross_map_walkto)
 {
 	struct block_list *bl;
 	struct autowalk_data *ad;
+	const char *eventname;
+	int step_ai;
 
 	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_FAILURE;
@@ -28475,9 +28477,19 @@ BUILDIN_FUNC(unit_walkto)
 	if ((ad = unit_autowalk(bl)) == NULL)
 		return SCRIPT_CMD_SUCCESS;
 
-	if (!map_path(bl->m, map_mapname2mapid(script_getstr(st, 3)), ad))
+	if (!map_path(bl->m, map_mapname2mapid(script_getstr(st, 3)), script_getnum(st, 4), script_getnum(st, 5),ad))
 		return SCRIPT_CMD_FAILURE;
 
+	step_ai = script_hasdata(st, 6) ? script_getnum(st, 6) : PH_WALKBACK;
+	if (step_ai < PH_NONE || step_ai >= PH_MAX) {
+		ShowWarning("buildin_unit_Astar_walkto: The third parameter is invalid.\n", step_ai);
+		return SCRIPT_CMD_FAILURE;
+	}
+	eventname = script_hasdata(st, 8) ? script_getstr(st, 8) : "";
+	check_event(st, eventname);
+	ad->step_ai = step_ai;
+	ad->step_range = script_hasdata(st, 7) ? (script_getnum(st, 7) > 25 ? 25 : script_getnum(st, 7)) : 25;
+	safestrncpy(ad->eventname, eventname, EVENT_NAME_LENGTH);
 	unit_check_step(bl, ad, gettick());
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -31699,7 +31711,7 @@ struct script_function buildin_func[] = {
 
 	BUILDIN_DEF(unit_Astar_walkto, "iii????"),
 	BUILDIN_DEF2(unit_Astar_walkto, "unit_Astart_walkto", "iii????"),
-	BUILDIN_DEF(unit_walkto, "isii"),
+	BUILDIN_DEF(unit_cross_map_walkto, "isii???"),
 	BUILDIN_DEF(instance_name, "?"),
 	BUILDIN_DEF(readstatus, "i?"),
 	BUILDIN_DEF(getareamember, "i???"),
