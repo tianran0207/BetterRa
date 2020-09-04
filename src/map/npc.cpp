@@ -346,6 +346,7 @@ bool npc_enable_target(const char* name, uint32 char_id, int flag)
 			else
 				it->option = nd->sc.option;
 			option_exists = true;
+			break;
 		}
 		if (!option_exists && option != nd->sc.option) {
 			struct s_npc_option entry = {};
