@@ -2516,6 +2516,26 @@ Example:
 
 ----------------------------------------
 
+*disablenpc "<NPC名称>"{,<角色ID>};
+*enablenpc "<NPC名称>"{,<角色ID>};
+*hideonnpc "<NPC名称>"{,<角色ID>};
+*hideoffnpc "<NPC名称>"{,<角色ID>};
+*cloakonnpc "<NPC名称>"{,<角色ID>};
+*cloakoffnpc "<NPC名称>"{,<角色ID>};
+
+从之前指令基础上增加了对单个玩家的支持, 单个玩家支持只对当前登陆有效
+如果想让此长期有效则需使用 OnPCLoginEvent 对NPC进行隐藏
+
+----------------------------------------
+
+*disableontouch "<NPC名称>"{,<角色ID>};
+*enableontouch "<NPC名称>"{,<角色ID>};
+
+开启或关闭NPC的 OnTouch 触发, 可针对角色使用
+本指令 覆盖 disablenpc enablenpc hideonnpc hideoffnpc cloakonnpc cloakoffnpc 的默认触发配置
+
+----------------------------------------
+
 *rfifo_int <读取位置>,<字节数>;
 
 当 OnPCSocketRecvFilter 事件接收到封包时, 可以用本指令获取‘接收封包’中对应位置的数字数据.

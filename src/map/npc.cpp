@@ -228,11 +228,50 @@ int npc_enable_sub(struct block_list *bl, va_list ap)
 }
 
 bool npc_is_cloaked(struct npc_data* nd, struct map_session_data* sd) {
+
+	return npc_check_ontouch(nd, sd) ? true : false;
+	/*
 	bool npc_cloaked = (nd->sc.option & OPTION_CLOAK) ? true : false;
 
 	if (std::find(sd->cloaked_npc.begin(), sd->cloaked_npc.end(), nd->bl.id) != sd->cloaked_npc.end())
 		return (!npc_cloaked);
 	return npc_cloaked;
+	*/
+}
+
+unsigned int npc_check_option(struct npc_data* nd, struct map_session_data* sd)
+{
+	for (auto it : sd->npc_option) {
+		if (it.npc_id != nd->bl.id)
+			continue;
+		if (it.option != nd->sc.option)
+			return it.option;
+	}
+	return nd->sc.option;
+}
+
+bool npc_check_ontouch(struct npc_data* nd, struct map_session_data* sd)
+{
+	for (auto it : sd->npc_option) {
+		if (it.npc_id != nd->bl.id)
+			continue;
+		if (it.ontouch == -1)
+			return true;
+		if (it.ontouch == 1)
+			return false;
+	}
+	if (nd->IgnoreOnTouch == -1)
+		return true;
+	if (nd->IgnoreOnTouch == 1)
+		return false;
+
+	bool npc_cloaked = (nd->sc.option & OPTION_CLOAK) ? true : false;
+
+	if (std::find(sd->cloaked_npc.begin(), sd->cloaked_npc.end(), nd->bl.id) != sd->cloaked_npc.end())
+		return (!npc_cloaked);
+	return npc_cloaked;
+
+	return nd->sc.option&OPTION_INVISIBLE ? true : false;
 }
 
 static int npc_cloaked_sub(struct block_list *bl, va_list ap)
@@ -263,7 +302,7 @@ bool npc_enable_target(const char* name, uint32 char_id, int flag)
 		return false;
 	}
 
-	if (char_id > 0 && (flag & 24)) {
+	if (char_id > 0) {
 		map_session_data *sd = map_charid2sd(char_id);
 	
 		if (!sd) {
@@ -272,17 +311,48 @@ bool npc_enable_target(const char* name, uint32 char_id, int flag)
 		}
 
 		unsigned int option = nd->sc.option;
-		if (flag&8)
+		if (flag & 1) {
+			nd->sc.option &= ~OPTION_INVISIBLE;
+			clif_spawn(&nd->bl);
+		}
+		else if (flag & 2)
+			nd->sc.option &= ~OPTION_HIDE;
+		else if (flag & 4)
+			nd->sc.option |= OPTION_HIDE;
+		else if (flag & 8)
 			nd->sc.option &= ~OPTION_CLOAK;
-		else
+		else if (flag & 16)
 			nd->sc.option |= OPTION_CLOAK;
+		else {	//Can't change the view_data to invisible class because the view_data for all npcs is shared! [Skotlex]
+			nd->sc.option |= OPTION_INVISIBLE;
+			clif_clearunit_area(&nd->bl, CLR_OUTSIGHT);  // Hack to trick maya purple card [Xazax]
+		}
 
+		if ((flag&24)){
 		auto it = std::find(sd->cloaked_npc.begin(), sd->cloaked_npc.end(), nd->bl.id);
 	
 		if (it == sd->cloaked_npc.end() && option != nd->sc.option)
 			sd->cloaked_npc.push_back(nd->bl.id);
 		else if (it != sd->cloaked_npc.end() && option == nd->sc.option)
 			sd->cloaked_npc.erase(it);
+		}
+
+		bool option_exists = false;
+		for (auto it = sd->npc_option.begin(); it != sd->npc_option.end(); ++it) {
+			if (it->npc_id != nd->bl.id)
+				continue;
+			if (option == nd->sc.option && !it->ontouch)
+				it = sd->npc_option.erase(it);
+			else
+				it->option = nd->sc.option;
+			option_exists = true;
+		}
+		if (!option_exists && option != nd->sc.option) {
+			struct s_npc_option entry = {};
+			entry.npc_id = nd->bl.id;
+			entry.option = nd->sc.option;
+			sd->npc_option.push_back(entry);
+		}
 	
 		if (nd->class_ != JT_WARPNPC && nd->class_ != JT_GUILD_FLAG)
 			clif_changeoption_target(&nd->bl, &sd->bl);
@@ -1045,11 +1115,6 @@ int npc_event_atonce(struct map_session_data* sd, const char* eventname)
 
 bool npc_ondisplay_event(struct npc_data *nd, struct map_session_data *sd)
 {
-	char name[EVENT_NAME_LENGTH];
-	struct event_data* ev;
-
-	sprintf(name, "%s::OnDisplay", nd->name);
-	ev = (struct event_data*)strdb_get(ev_db, name);
 
 	if(!sd && nd->u.scr.label_list) {
 		int i;
@@ -1057,8 +1122,14 @@ bool npc_ondisplay_event(struct npc_data *nd, struct map_session_data *sd)
 			if (!strcmp(nd->u.scr.label_list[i].name, "OnDisplay"))
 				return false;
 		}
-	}else if(ev) {
-		if (sd->runing_event[NPCE_ONDISPLAY])
+	}else{
+		char name[EVENT_NAME_LENGTH];
+		struct event_data* ev;
+
+		sprintf(name, "%s::OnDisplay", nd->name);
+		ev = (struct event_data*)strdb_get(ev_db, name);
+
+		if (!ev || sd->runing_event[NPCE_ONDISPLAY])
 			return true;
 
 		npc_script_event_atonce(sd, NPCE_ONDISPLAY, ev, nd->bl.id);
@@ -1145,8 +1216,8 @@ int npc_touch_areanpc(struct map_session_data* sd, int16 m, int16 x, int16 y, st
 	nullpo_retr(0, sd);
 	nullpo_retr(0, nd);
 
-	if (nd->sc.option&OPTION_INVISIBLE)
-		return 1; // a npc was found, but it is disabled
+	//if (nd->sc.option&OPTION_INVISIBLE)
+	//	return 1; // a npc was found, but it is disabled
 	if (npc_is_cloaked(nd, sd))
 		return 1;
 

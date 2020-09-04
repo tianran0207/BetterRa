@@ -394,6 +394,12 @@ struct bot_data {
 	int skill_inf;
 };
 
+struct s_npc_option {
+	int npc_id;
+	unsigned int option;
+	int ontouch;
+};
+
 struct map_session_data {
 	struct block_list bl;
 	struct unit_data ud;
@@ -921,6 +927,7 @@ struct map_session_data {
 	std::vector<int> titles;
 
 	std::vector<int> cloaked_npc;
+	std::vector<s_npc_option> npc_option;
 
 	/* ShowEvent Data Cache flags from map */
 	bool *qi_display;

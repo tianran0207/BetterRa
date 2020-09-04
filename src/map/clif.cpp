@@ -1046,6 +1046,11 @@ static int clif_setlevel(struct block_list* bl) {
 	return lv;
 }
 
+static void clif_unit_display(struct block_list *bl, struct block_list *tbl, enum send_target target)
+{
+
+}
+
 /*==========================================
  * Prepares 'unit standing/spawning' packet
  *------------------------------------------*/
@@ -1125,7 +1130,7 @@ static void clif_set_unit_idle( struct block_list* bl, bool walking, send_target
 	if( tbl && tbl->type == BL_PC && bl->type == BL_NPC ){
 		struct map_session_data* sd = (struct map_session_data*)tbl;
 		struct npc_data* nd = (struct npc_data*)bl;
-		int option = (sc) ? sc->option : 0;
+		int option = (sc) ? (bl->type == BL_NPC ? npc_check_option(nd, sd) : sc->option) : 0;
 
 		if( !nd->vd.dead_sit ){
 			if( std::find( sd->cloaked_npc.begin(), sd->cloaked_npc.end(), nd->bl.id ) != sd->cloaked_npc.end() ){
@@ -1204,6 +1209,7 @@ static void clif_set_unit_idle( struct block_list* bl, bool walking, send_target
 	}
 
 	clif_send( &p, sizeof( p ), tbl, target );
+	clif_unit_display(bl, tbl, target);
 }
 
 static void clif_spawn_unit( struct block_list *bl, enum send_target target ){
@@ -1344,6 +1350,7 @@ static void clif_spawn_unit( struct block_list *bl, enum send_target target ){
 		clif_send( &p, sizeof( p ), bl, SELF );
 	}else{
 		clif_send( &p, sizeof( p ), bl, target );
+		clif_unit_display(bl, NULL, target);
 	}
 }
 
@@ -1378,7 +1385,7 @@ static void clif_set_unit_walking( struct block_list *bl, struct map_session_dat
 	p.speed = status_get_speed(bl);
 	p.bodyState = (sc) ? sc->opt1 : 0;
 	p.healthState = (sc) ? sc->opt2 : 0;
-	p.effectState = (sc) ? sc->option : 0;
+	p.effectState = (sc) ? (tsd && bl->type == BL_NPC ? npc_check_option((TBL_NPC*)bl, tsd) : sc->option) : 0;
 	p.job = vd->class_;
 	p.head = vd->hair_style;
 	p.weapon = vd->weapon;
@@ -1427,6 +1434,7 @@ static void clif_set_unit_walking( struct block_list *bl, struct map_session_dat
 #endif
 
 	clif_send( &p, sizeof(p), tsd ? &tsd->bl : bl, target );
+	clif_unit_display(bl, tsd ? &tsd->bl : bl, target);
 
 	if( disguised( bl ) ){
 #if PACKETVER >= 20091103

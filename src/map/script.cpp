@@ -12171,8 +12171,7 @@ BUILDIN_FUNC(getareadropitem)
  *------------------------------------------*/
 BUILDIN_FUNC(enablenpc)
 {
-	const char *str = script_getstr(st,2);
-	if (npc_enable(str,1))
+	if (npc_enable_target(script_getstr(st, 2), script_hasdata(st, 3) ? script_getnum(st, 3) : 0, 1))
 		return SCRIPT_CMD_SUCCESS;
 
 	return SCRIPT_CMD_FAILURE;
@@ -12182,8 +12181,7 @@ BUILDIN_FUNC(enablenpc)
  *------------------------------------------*/
 BUILDIN_FUNC(disablenpc)
 {
-	const char *str = script_getstr(st,2);
-	if (npc_enable(str,0))
+	if (npc_enable_target(script_getstr(st, 2), script_hasdata(st, 3) ? script_getnum(st, 3) : 0, 0))
 		return SCRIPT_CMD_SUCCESS;
 
 	return SCRIPT_CMD_FAILURE;
@@ -12193,8 +12191,7 @@ BUILDIN_FUNC(disablenpc)
  *------------------------------------------*/
 BUILDIN_FUNC(hideoffnpc)
 {
-	const char *str = script_getstr(st,2);
-	if (npc_enable(str,2))
+	if (npc_enable_target(script_getstr(st, 2), script_hasdata(st, 3) ? script_getnum(st, 3) : 0, 2))
 		return SCRIPT_CMD_SUCCESS;
 
 	return SCRIPT_CMD_FAILURE;
@@ -12203,8 +12200,7 @@ BUILDIN_FUNC(hideoffnpc)
  *------------------------------------------*/
 BUILDIN_FUNC(hideonnpc)
 {
-	const char *str = script_getstr(st,2);
-	if (npc_enable(str,4))
+	if (npc_enable_target(script_getstr(st, 2), script_hasdata(st, 3) ? script_getnum(st, 3) : 0, 4))
 		return SCRIPT_CMD_SUCCESS;
 
 	return SCRIPT_CMD_FAILURE;
@@ -30544,6 +30540,43 @@ BUILDIN_FUNC(unitaura)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(enableontouch)
+{
+	struct npc_data* nd = npc_name2id(script_getstr(st, 2));
+	const char *command = script_getfuncname(st);
+	int result = !strcmp(command, "disableontouch") ? -1 : 1;
+
+	if (!nd) {
+		ShowError("buildin_%s: No such NPC '%s'.\n", command, script_getstr(st, 2));
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	if (script_hasdata(st, 3)) {
+		map_session_data *sd = map_charid2sd(script_getnum(st, 3));
+		if (!sd) {
+			ShowError("buildin_%s: Attempted to %s a NPC '%s' on an invalid target %d.\n", command, script_getstr(st, 2), script_getnum(st, 3));
+			return SCRIPT_CMD_FAILURE;
+		}
+		bool option_exists = false;
+		for (auto it = sd->npc_option.begin(); it != sd->npc_option.end(); ++it) {
+			if (it->npc_id != nd->bl.id)
+				continue;
+			it->ontouch = result;
+			option_exists = true;
+		}
+		if (!option_exists) {
+			struct s_npc_option entry = {};
+			entry.npc_id = nd->bl.id;
+			entry.option = nd->sc.option;
+			entry.ontouch = result;
+			sd->npc_option.push_back(entry);
+		}
+	} else
+		nd->IgnoreOnTouch = result;
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -31012,10 +31045,10 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(getunits, "getmapunits", "is?"),
 	BUILDIN_DEF2(getunits, "getareaunits", "isiiii?"),
 	BUILDIN_DEF(getareadropitem,"siiiiv"),
-	BUILDIN_DEF(enablenpc,"s"),
-	BUILDIN_DEF(disablenpc,"s"),
-	BUILDIN_DEF(hideoffnpc,"s"),
-	BUILDIN_DEF(hideonnpc,"s"),
+	BUILDIN_DEF(enablenpc,"s?"),
+	BUILDIN_DEF(disablenpc,"s?"),
+	BUILDIN_DEF(hideoffnpc,"s?"),
+	BUILDIN_DEF(hideonnpc,"s?"),
 	BUILDIN_DEF(sc_start,"iii???"),
 	BUILDIN_DEF2(sc_start,"sc_start2","iiii???"),
 	BUILDIN_DEF2(sc_start,"sc_start4","iiiiii???"),
@@ -31676,6 +31709,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(addmobskill, "is"),
 	BUILDIN_DEF(delmobskill, "ii"),
 	BUILDIN_DEF(unitaura, "ii?"),
+	BUILDIN_DEF(enableontouch, "s?"),
+	BUILDIN_DEF2(enableontouch, "disableontouch", "s?"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),

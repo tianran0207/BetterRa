@@ -122,6 +122,7 @@ struct npc_data {
 		char type;
 		char message[80];
 	} vend;
+	int IgnoreOnTouch;
 	struct autowalk_data autowalk;
 };
 
@@ -1349,6 +1350,8 @@ void npc_setcells(struct npc_data* nd);
 void npc_unsetcells(struct npc_data* nd);
 bool npc_movenpc(struct npc_data* nd, int16 x, int16 y);
 bool npc_is_cloaked(struct npc_data* nd, struct map_session_data* sd);
+bool npc_check_ontouch(struct npc_data* nd, struct map_session_data* sd);
+unsigned int npc_check_option(struct npc_data* nd, struct map_session_data* sd);
 bool npc_enable_target(const char* name, uint32 char_id, int flag);
 #define npc_enable(name, flag) npc_enable_target(name, 0, flag)
 void npc_setdisplayname(struct npc_data* nd, const char* newname);
