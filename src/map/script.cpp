@@ -25969,7 +25969,7 @@ BUILDIN_FUNC(setinventoryinfo)
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
 		else {
-			ShowError("%s: Unknown equip index '%d'\n", command, pos);
+			ShowError("buildin_%s: Unknown equip index '%d'\n", command, pos);
 			return SCRIPT_CMD_FAILURE;
 		}
 	}
@@ -26006,7 +26006,7 @@ BUILDIN_FUNC(setinventoryinfo)
 			inv_info.item.option[opt_id].param = script_getnum(st, 7);
 			break;
 		default:
-			ShowError("%s: Invalid type %d\n", command, script_getnum(st, 3));
+			ShowError("buildin_%s: Invalid type %d\n", command, script_getnum(st, 3));
 			return SCRIPT_CMD_FAILURE;
 		}
 		script_pushint(st, 1);
@@ -26014,6 +26014,47 @@ BUILDIN_FUNC(setinventoryinfo)
 	else
 		script_pushint(st, 0);
 
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bounditembyidx)
+{
+	TBL_PC *sd;
+	int idx, pos, bound;
+	const char *command = script_getfuncname(st);
+
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (strstr(command, "pos")) {
+		pos = script_getnum(st, 2);
+		if (equip_index_check(pos))
+			idx = pc_checkequip(sd, equip_bitmask[pos]);
+		else {
+			ShowError("buildin_%s: Unknown equip index '%d'\n", command, pos);
+			return SCRIPT_CMD_FAILURE;
+		}
+	}
+	else {
+		idx = script_getnum(st, 2);
+	}
+
+	bound = script_getnum(st, 3);
+	if (bound < BOUND_NONE && bound >= BOUND_MAX) {
+		ShowError("buildin_%s: Unknown bound type '%d'\n", bound);
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+		
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
+		sd->inventory.u.items_inventory[idx].bound = bound;
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[idx]);
+		script_pushint(st, 1);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	script_pushint(st, 0);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -26031,7 +26072,7 @@ BUILDIN_FUNC(refreshinventory)
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
 		else {
-			ShowError("%s: Unknown equip index '%d'\n", command, pos);
+			ShowError("buildin_%s: Unknown equip index '%d'\n", command, pos);
 			return SCRIPT_CMD_FAILURE;
 		}
 	}
@@ -26899,7 +26940,7 @@ BUILDIN_FUNC(resetoptionbyidx)
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
 		else {
-			ShowError("%s: Unknown equip index '%d'\n", command, pos);
+			ShowError("buildin_%s: Unknown equip index '%d'\n", command, pos);
 			return SCRIPT_CMD_FAILURE;
 		}
 	}
@@ -26938,7 +26979,7 @@ BUILDIN_FUNC(getoptionbyidx)
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
 		else {
-			ShowError("%s: Unknown equip index '%d'\n", command, pos);
+			ShowError("buildin_%s: Unknown equip index '%d'\n", command, pos);
 			return SCRIPT_CMD_FAILURE;
 		}
 	}
@@ -26974,7 +27015,7 @@ BUILDIN_FUNC(setoptionbyidx)
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
 		else {
-			ShowError("%s: Unknown equip index '%d'\n", command, pos);
+			ShowError("buildin_%s: Unknown equip index '%d'\n", command, pos);
 			return SCRIPT_CMD_FAILURE;
 		}
 	}
@@ -27014,7 +27055,7 @@ BUILDIN_FUNC(getidxrandomoption)
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
 		else {
-			ShowError("%s: Unknown equip index '%d'\n", command, pos);
+			ShowError("buildin_%s: Unknown equip index '%d'\n", command, pos);
 			return SCRIPT_CMD_FAILURE;
 		}
 	}
@@ -27061,7 +27102,7 @@ BUILDIN_FUNC(setidxrandomoption)
 		if (equip_index_check(pos))
 			idx = pc_checkequip(sd, equip_bitmask[pos]);
 		else {
-			ShowError("%s: Unknown equip index '%d'\n", command, pos);
+			ShowError("buildin_%s: Unknown equip index '%d'\n", command, pos);
 			return SCRIPT_CMD_FAILURE;
 		}
 	}
@@ -27072,7 +27113,7 @@ BUILDIN_FUNC(setidxrandomoption)
 	id = script_getnum(st, 4);
 
 	if (itemdb_randomopt_exists(id) == NULL) {
-		ShowError("%s: Invalid random option ID '%d'.\n", command, id);
+		ShowError("buildin_%s: Invalid random option ID '%d'.\n", command, id);
 		return SCRIPT_CMD_FAILURE;
 	}
 
@@ -28229,12 +28270,19 @@ BUILDIN_FUNC(is_attach)
 	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	if (st->bk_npcid)
-		script_pushint(st, 1);
-	else
-		script_pushint(st, 0);
+	script_pushint(st, st->bk_npcid);
 	return SCRIPT_CMD_SUCCESS;
+}
 
+BUILDIN_FUNC(getattachnpc)
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, sd->npc_id);
+	return SCRIPT_CMD_SUCCESS;
 }
 
 BUILDIN_FUNC(bot_reset) {
@@ -31576,6 +31624,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unloadduplicate, "s"),
 	BUILDIN_DEF2(unloadduplicate, "unloadcopynpc", "s"),
 	BUILDIN_DEF(is_attach, "?"),
+	BUILDIN_DEF(getattachnpc, "?"),
 	BUILDIN_DEF(unitskilltowide, "iviiiii"),
 	BUILDIN_DEF2(unitskilltowide, "unitskilltowide2", "iviiiii"),
 	BUILDIN_DEF(unitskilltoAOE, "ivii?"),

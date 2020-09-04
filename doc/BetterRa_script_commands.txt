@@ -676,6 +676,20 @@ OnTalk:
 
 ---------------------------------------
 
+*bounditembyidx <背包序号>,<绑定类型>{,<角色ID>};
+*bounditembypos <装备编号>,<绑定类型>{,<角色ID>};
+
+绑定 背包序号/装备编号 指定道具的道具
+
+绑定类型: 
+	BOUND_NONE    不绑定
+	BOUND_ACCOUNT 账号绑定
+	BOUND_GUILD   公会绑定
+	BOUND_PARTY   队伍绑定
+	BOUND_CHAR    角色绑定
+	
+---------------------------------------
+
 *setoptionbyidx <背包序号>,<Random Option ID数组>,<Random Option value数组>,<Random Option param数组>;
 *setoptionbypos <装备编号>,<Random Option ID数组>,<Random Option value数组>,<Random Option param数组>;
 
@@ -1505,13 +1519,36 @@ OnHTTPReceivedEvent 事件返回变量:
 
 ---------------------------------------
 
-*is_attach();
+*is_attach({<角色ID>});
 
 获取玩家是否跟脚本有关联, 一般用来判断玩家是否正在跟NPC对话
+一般用在脚本外使用, 如果在脚本外获取 GID 则使用 getattachnpc 指令
+
+例:
+501,Vip_list,VIP菜单,11,10,,70,,,,,0xFFFFFFFF,63,2,,,,,,{ if (is_attach()) dispbottom "使用VIP菜单请先关闭与 "+getunitname(is_attach())+" 的交谈"; },{},{}
+
+prontera,153,179,5	script	is_attach测试	56,{
+	mes "正在与NPC对话,请不要点击关闭,并尝试使用VIP菜单";
+	close;
+}
 
 返回值:
-	正在对话返回1, 没有在对话返回0;
+	正在对话则返回上层关联 NPC 的 GID , 没有在对话返回0;
 
+---------------------------------------
+
+*getattachnpc({<角色ID>});
+
+获得玩家当前激活的 NPC 的 GID.
+
+prontera,153,179,5	script	getattachnpc测试	56,{
+	mes "正在与NPC对话, NPC 名称: "+getunitname(getattachnpc());
+	close;
+}
+
+返回值:
+	NPC 的 GID , 没有在对话返回0;
+	
 ---------------------------------------
 
 *unitskilluse <GID>,<技能ID>,<技能等级>{,<目标GID>,<吟唱时间>{,<是否可打断>}};
