@@ -26017,47 +26017,6 @@ BUILDIN_FUNC(setinventoryinfo)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(bounditembyidx)
-{
-	TBL_PC *sd;
-	int idx, pos, bound;
-	const char *command = script_getfuncname(st);
-
-	if (!script_charid2sd(4, sd))
-		return SCRIPT_CMD_FAILURE;
-
-	if (strstr(command, "pos")) {
-		pos = script_getnum(st, 2);
-		if (equip_index_check(pos))
-			idx = pc_checkequip(sd, equip_bitmask[pos]);
-		else {
-			ShowError("buildin_%s: Unknown equip index '%d'\n", command, pos);
-			return SCRIPT_CMD_FAILURE;
-		}
-	}
-	else {
-		idx = script_getnum(st, 2);
-	}
-
-	bound = script_getnum(st, 3);
-	if (bound < BOUND_NONE && bound >= BOUND_MAX) {
-		ShowError("buildin_%s: Unknown bound type '%d'\n", bound);
-		return SCRIPT_CMD_FAILURE;
-	}
-
-	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
-		
-		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
-		sd->inventory.u.items_inventory[idx].bound = bound;
-		log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[idx]);
-		script_pushint(st, 1);
-		return SCRIPT_CMD_SUCCESS;
-	}
-
-	script_pushint(st, 0);
-	return SCRIPT_CMD_SUCCESS;
-}
-
 BUILDIN_FUNC(refreshinventory)
 {
 	TBL_PC *sd;
@@ -26922,6 +26881,47 @@ BUILDIN_FUNC(getcardinfo)
 		break;
 	}
 	script_pushint(st, req);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bounditembyidx)
+{
+	TBL_PC *sd;
+	int idx, pos, bound;
+	const char *command = script_getfuncname(st);
+
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (strstr(command, "pos")) {
+		pos = script_getnum(st, 2);
+		if (equip_index_check(pos))
+			idx = pc_checkequip(sd, equip_bitmask[pos]);
+		else {
+			ShowError("buildin_%s: Unknown equip index '%d'\n", command, pos);
+			return SCRIPT_CMD_FAILURE;
+		}
+	}
+	else {
+		idx = script_getnum(st, 2);
+	}
+
+	bound = script_getnum(st, 3);
+	if (bound < BOUND_NONE && bound >= BOUND_MAX) {
+		ShowError("buildin_%s: Unknown bound type '%d'\n", bound);
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
+		sd->inventory.u.items_inventory[idx].bound = bound;
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[idx]);
+		script_pushint(st, 1);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	script_pushint(st, 0);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -31608,6 +31608,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bonus_script_remove, "s?"),
 	BUILDIN_DEF(getchartitle, "?"),
 	BUILDIN_DEF(getequipidx, "i?"),
+	BUILDIN_DEF(bounditembyidx, "ii?"),
+	BUILDIN_DEF2(bounditembyidx, "bounditembypos", "ii?"),
 	BUILDIN_DEF(resetoptionbyidx, "i?"),
 	BUILDIN_DEF2(resetoptionbyidx, "resetoptionbypos", "i?"),
 	BUILDIN_DEF(getoptionbyidx, "i?"),
