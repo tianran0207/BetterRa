@@ -597,28 +597,28 @@ static int astar_check_pass(struct map_data *md, int x, int y, int dir, cell_chk
 		break;
 	case (PATH_DIR_SOUTH | PATH_DIR_EAST):
 		if (y - STEPL < 0 && x + STEPL > md->xs) return 0;
-		for (i = STEPL; i > 1; i--) {
+		for (i = STEPL; i > 0; i--) {
 			if (map_getcellp(md, x + i, y - i, cell))
 				return 0;
 		}
 		break;
 	case (PATH_DIR_NORTH | PATH_DIR_EAST):
 		if (y + STEPL > md->ys && x + STEPL > md->xs) return 0;
-		for (i = STEPL; i > 1; i--) {
+		for (i = STEPL; i > 0; i--) {
 			if (map_getcellp(md, x + i, y + i, cell))
 				return 0;
 		}
 		break;
 	case (PATH_DIR_NORTH | PATH_DIR_WEST):
 		if (y + STEPL > md->ys && x - STEPL < 0) return 0;
-		for (i = STEPL; i > 1; i--) {
+		for (i = STEPL; i > 0; i--) {
 			if (map_getcellp(md, x - i, y + i, cell))
 				return 0;
 		}
 		break;
 	case (PATH_DIR_SOUTH | PATH_DIR_WEST):
 		if (y - STEPL < 0 && x - STEPL < 0) return 0;
-		for (i = STEPL; i > 1; i--) {
+		for (i = STEPL; i > 0; i--) {
 			if (map_getcellp(md, x - i, y - i, cell))
 				return 0;
 		}
