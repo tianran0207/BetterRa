@@ -5406,6 +5406,7 @@ void pc_status_limit(struct map_session_data *sd)
 	CASE_STATUS(sd->c_bonus.status.def_ele, status->def_ele);
 	CASE_STATUS(sd->c_bonus.status.range, status->rhw.range);
 	CASE_STATUS(sd->c_bonus.status.aspd, status->amotion);
+	CASE_STATUS(sd->c_bonus.status.aspd*2, status->adelay);
 	status->hp = min(status->hp, status->max_hp);
 	status->sp = min(status->sp, status->max_sp);
 #undef CASE_STATUS
