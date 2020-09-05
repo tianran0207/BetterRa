@@ -26,6 +26,7 @@
 
 #include "achievement.hpp"
 #include "battle.hpp"
+#include "cashshop.hpp"
 #include "channel.hpp"
 #include "chat.hpp"
 #include "chrif.hpp"
@@ -10646,6 +10647,24 @@ ACMD_FUNC(offline)
 	return 0;
 }
 
+ACMD_FUNC(cashshopsale)
+{
+	int count, minute_;
+	t_itemid itemid;
+	t_tick start_tick;
+	struct tm info = { 0 };
+
+	if (sscanf(message, "%d %d %d-%d-%d %d:%d:%d %d", &itemid, &count, &info.tm_year, &info.tm_mon, &info.tm_mday, &info.tm_hour, &info.tm_min, &info.tm_sec, &minute_) < 8)
+		return -1;
+
+	info.tm_mon = info.tm_mon - 1;
+	info.tm_year = info.tm_year - 1900;
+	start_tick = mktime(&info);
+
+	sale_add_item(itemid, count, start_tick, start_tick + minute_ * 60);
+	return 0;
+}
+
 /**
  * Fills the reference of available commands in atcommand DBMap
  **/
@@ -10958,6 +10977,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(refineui),
 		ACMD_DEF(verification),
 		ACMD_DEF(bot),
+		ACMD_DEF(cashshopsale),
 		ACMD_DEFR(camerainfo, ATCMD_NOCONSOLE|ATCMD_NOAUTOTRADE),
 		ACMD_DEFR(resurrect, ATCMD_NOCONSOLE),
 		ACMD_DEF2("setquest", quest),

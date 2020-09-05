@@ -26089,6 +26089,21 @@ BUILDIN_FUNC(setchartitle)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(getdir)
+{
+	TBL_PC *sd;
+	unsigned char headdir, dir;
+	const char *command = script_getfuncname(st);
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (strcmp(command, "getheaddir") == 0)
+		script_pushint(st, sd->head_dir);
+	else
+		script_pushint(st, sd->ud.dir);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(setdir)
 {
 	TBL_PC *sd;
@@ -31581,6 +31596,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(refreshinventory, "refreshequip", "??"),
 	BUILDIN_DEF(setchartitle, "i?"),
 	BUILDIN_DEF2(warpparty, "warpparty2", "siii???"),
+	BUILDIN_DEF2(getdir, "getheaddir", "?"),
+	BUILDIN_DEF2(getdir, "getbodydir", "?"),
 	BUILDIN_DEF2(setdir, "setheaddir", "i?"),
 	BUILDIN_DEF2(setdir, "setbodydir", "i?"),
 	BUILDIN_DEF(party_leave, "?"),
