@@ -269,9 +269,8 @@ bool npc_check_ontouch(struct npc_data* nd, struct map_session_data* sd)
 
 	if (std::find(sd->cloaked_npc.begin(), sd->cloaked_npc.end(), nd->bl.id) != sd->cloaked_npc.end())
 		return (!npc_cloaked);
-	return npc_cloaked;
 
-	return nd->sc.option&OPTION_INVISIBLE ? true : false;
+	return nd->sc.option&OPTION_INVISIBLE ? true : npc_cloaked;
 }
 
 static int npc_cloaked_sub(struct block_list *bl, va_list ap)
