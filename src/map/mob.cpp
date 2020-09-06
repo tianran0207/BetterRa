@@ -3143,7 +3143,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			if (sd->md && src && (src->type == BL_PC || src->type == BL_MER) && mob_db(md->mob_id)->lv > sd->status.base_level / 2)
 				mercenary_kills(sd->md);
 		}
-
+		map_setparam(SP_KILLEDGID, md->bl.id);
+		map_setparam(SP_KILLEDRID, md->mob_id);
+		map_setparam(SP_KILLERRID, src ? src->id : 0);
 		if( md->npc_event[0] && !md->state.npc_killmonster ) {
 			if( sd && battle_config.mob_npc_event_type ) {
 				pc_setparam(sd, SP_KILLEDGID, md->bl.id);
@@ -3169,6 +3171,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			pc_setparam(mvp_sd, SP_KILLEDRID, md->mob_id);
 			npc_script_event(mvp_sd, NPCE_KILLNPC); // PCKillNPC [Lance]
 		}
+		if (npc_script_event_check_doall(NPCE_MOBDEADEVENT))
+			npc_script_event_doall(NPCE_MOBDEADEVENT);
+
 #ifdef EVENT_KILLMVP
 		if (mvp_sd && !md->state.npc_killmonster && status_has_mode(&md->status, MD_MVP) && (battle_config.always_mvp_kill_event || !md->npc_event[0]) && npc_script_event_check(mvp_sd, NPCE_KILLMVP)) {
 			pc_setparam(mvp_sd, SP_KILLEDGID, md->bl.id);

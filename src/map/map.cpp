@@ -5748,6 +5748,7 @@ int do_init(int argc, char *argv[])
 
 struct s_packet_event packet_event;
 struct s_use_skill_event use_skill_event;
+struct s_global_event global_event;
 
 int64 map_readparam(int64 type)
 {
@@ -5769,6 +5770,9 @@ int64 map_readparam(int64 type)
 	case SP_USESKILL_TARGET: val = use_skill_event.target;     break;
 	case SP_USESKILL_X:      val = use_skill_event.x;          break;
 	case SP_USESKILL_Y:      val = use_skill_event.y;          break;
+	case SP_KILLEDGID:       val = global_event.killed_gid;    break;
+	case SP_KILLEDRID:       val = global_event.killed_rid;    break;
+	case SP_KILLERRID:       val = global_event.killer_rid;    break;
 	}
 	return val;
 }
@@ -5793,6 +5797,9 @@ bool map_setparam(int64 type, int64 val_tmp)
 	case SP_USESKILL_TARGET: use_skill_event.target = val;   return true;
 	case SP_USESKILL_X:      use_skill_event.x = val;        return true;
 	case SP_USESKILL_Y:      use_skill_event.y = val;        return true;
+	case SP_KILLEDGID:       global_event.killed_gid = val;  return true;
+	case SP_KILLEDRID:       global_event.killed_rid = val;  return true;
+	case SP_KILLERRID:       global_event.killer_rid = val;  return true;
 	}
 	return false;
 }

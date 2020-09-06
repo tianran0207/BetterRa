@@ -381,6 +381,7 @@ struct Script_Config script_config = {
 	"OnPCReviveFilter", //pc_revive_filter_name
 	"OnMOBSpawnFilter", //mob_spawn_filter_name
 	"OnMOBDropItemFilter", //mob_drop_item_filter_name
+	"OnMOBDeadEvent", //mob_dead_event_name
 	"OnPCAttackFilter", //attack_filter_name
 	"OnPCAttackedFilter", //attacked_filter_name
 	"OnPCHealFilter", //heal_filter_name
@@ -26092,7 +26093,6 @@ BUILDIN_FUNC(setchartitle)
 BUILDIN_FUNC(getdir)
 {
 	TBL_PC *sd;
-	unsigned char headdir, dir;
 	const char *command = script_getfuncname(st);
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;

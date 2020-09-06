@@ -308,6 +308,7 @@ struct Script_Config {
 	// Mob related
 	const char* mob_spawn_filter_name;
 	const char* mob_drop_item_filter_name;
+	const char* mob_dead_event_name;
 	// ATK related
 	const char* attack_filter_name;
 	const char* attacked_filter_name;

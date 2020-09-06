@@ -744,6 +744,9 @@
 	export_parameter("$useskill_target", SP_USESKILL_TARGET);
 	export_parameter("$useskill_x", SP_USESKILL_X);
 	export_parameter("$useskill_y", SP_USESKILL_Y);
+	export_parameter("$killedgid", SP_KILLEDGID);
+	export_parameter("$killedrid", SP_KILLEDRID);
+	export_parameter("$killerrid", SP_KILLERRID);
 	export_parameter("dmg_type", SP_DMG_TYPE);
 	export_parameter("dmg_damage", SP_DMG_VAL);
 	export_parameter("dmg_display", SP_DMG_DISP_VAL);

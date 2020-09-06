@@ -72,8 +72,9 @@ BetterRa 在官方的基础上做了以下改进:
 	死了一个MVP魔物的话, 此事件只会被触发1次
 
 参数说明:
-	killerrid 			此参数已于 v1.4.5 版本被废弃
-	killedrid 			为被杀死的MVP魔物的魔物编号(MobID)
+	killedgid			被杀死魔物的GID
+	killedrid			被杀死魔物的魔物编号(MobID)
+	killerrid 			杀死魔物的玩家AID
 	@mob_dead_m			魔物死亡时地图ID
 	@mob_dead_x			魔物死亡时的X坐标
 	@mob_dead_y			魔物死亡时的Y坐标
@@ -740,6 +741,19 @@ BetterRa 在官方的基础上做了以下改进:
 中断说明: 
 	中断后玩家说话将被屏蔽且没有任何提示
 
+---------------------------------------
+
+*OnMobDeadEvent:
+
+	魔物被杀死时触发该事件 (此事件不关联玩家)
+
+参数说明:
+	$killedgid          被杀死魔物的GID
+	$killedrid 			被杀死魔物的魔物编号(MobID)
+	$killerrid 			杀死魔物的实体GID
+	
+注意: 所有魔物死亡事件都会返回以上三个参数
+	
 ---------------------------------------
 
 *OnMOBDropItemFilter:

@@ -1313,8 +1313,12 @@ struct s_use_skill_event {
 	uint16 skill_id, skill_lv;
 	short x, y;
 };
+struct s_global_event {
+	int killed_gid, killed_rid, killer_rid;
+};
 extern struct s_packet_event packet_event;
 extern struct s_use_skill_event use_skill_event;
+extern struct s_global_event global_event;
 extern char verification_act;
 void not_free(const char *name);
 int map_checknear(struct block_list* bl, int range, int cell);
