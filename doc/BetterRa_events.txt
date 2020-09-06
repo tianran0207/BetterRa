@@ -748,9 +748,9 @@ BetterRa 在官方的基础上做了以下改进:
 	魔物被杀死时触发该事件 (此事件不关联玩家)
 
 参数说明:
-	$killedgid          被杀死魔物的GID
-	$killedrid 			被杀死魔物的魔物编号(MobID)
-	$killerrid 			杀死魔物的实体GID
+	$killedgid			被杀死魔物的GID
+	$killedrid			被杀死魔物的魔物编号(MobID)
+	$killerrid			杀死魔物的实体GID
 	
 注意: 所有魔物死亡事件都会返回以上三个参数
 	
