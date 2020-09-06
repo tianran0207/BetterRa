@@ -2837,6 +2837,18 @@ static bool script_rid2sd_( struct script_state *st, struct map_session_data** s
 	}
 }
 
+static char *get_val_pc_ref_str(struct script_state *st, struct reg_db *n, struct script_data *data)
+{
+	struct script_reg_str *p = (struct script_reg_str *)i64db_get(n->vars, reference_getuid(data));
+	return p ? p->value : NULL;
+}
+
+static int get_val_pc_ref_num(struct script_state *st, struct reg_db *n, struct script_data *data)
+{
+	struct script_reg_num *p = (struct script_reg_num *)i64db_get(n->vars, reference_getuid(data));
+	return p ? p->value : 0;
+}
+
 /**
  * Dereferences a variable/constant, replacing it with a copy of the value.
  * @param st Script state
@@ -2857,7 +2869,7 @@ struct script_data *get_val_(struct script_state* st, struct script_data* data, 
 	postfix = name[strlen(name) - 1];
 
 	//##TODO use reference_tovariable(data) when it's confirmed that it works [FlavioJS]
-	if( !reference_toconstant(data) && not_server_variable(prefix) ) {
+	if( !reference_toconstant(data) && not_server_variable(prefix) && reference_getref(data) == NULL) {
 		if( sd == NULL && !script_rid2sd(sd) ) {// needs player attached
 			if( postfix == '$' ) {// string variable
 				ShowWarning("script:get_val: cannot access player variable '%s', defaulting to \"\"\n", name);
@@ -2876,13 +2888,18 @@ struct script_data *get_val_(struct script_state* st, struct script_data* data, 
 
 		switch( prefix ) {
 			case '@':
-				data->u.str = pc_readregstr(sd, data->u.num);
+				if (data->ref)
+					data->u.str = (char*)i64db_get(data->ref->vars, reference_getuid(data));
+				else
+					data->u.str = pc_readregstr(sd, data->u.num);
 				break;
 			case '$':
 				data->u.str = mapreg_readregstr(data->u.num);
 				break;
 			case '#':
-				if( name[1] == '#' )
+				if (data->ref)
+					data->u.str = get_val_pc_ref_str(st, data->ref, data);
+				else if( name[1] == '#' )
 					data->u.str = pc_readaccountreg2str(sd, data->u.num);// global
 				else
 					data->u.str = pc_readaccountregstr(sd, data->u.num);// local
@@ -2921,13 +2938,10 @@ struct script_data *get_val_(struct script_state* st, struct script_data* data, 
 					break;
 				}
 			default:
-				if (data->ref) {
-					struct script_reg_str *p = (struct script_reg_str *)i64db_get(data->ref->vars, data->u.num);
-					data->u.str = p ? p->value : NULL;
-				}
-				else {
+				if (data->ref)
+					data->u.str = get_val_pc_ref_str(st, data->ref, data);
+				else
 					data->u.str = pc_readglobalreg_str(sd, data->u.num);
-				}
 				break;
 		}
 
@@ -2953,13 +2967,18 @@ struct script_data *get_val_(struct script_state* st, struct script_data* data, 
 		} else
 			switch( prefix ) {
 				case '@':
-					data->u.num = pc_readreg(sd, data->u.num);
+					if (data->ref)
+						data->u.num = i64db_i64get(data->ref->vars, reference_getuid(data));
+					else
+						data->u.num = pc_readreg(sd, data->u.num);
 					break;
 				case '$':
 					data->u.num = mapreg_readreg(data->u.num);
 					break;
 				case '#':
-					if( name[1] == '#' )
+					if (data->ref)
+						data->u.num = get_val_pc_ref_num(st, data->ref, data);
+					else if( name[1] == '#' )
 						data->u.num = pc_readaccountreg2(sd, data->u.num);// global
 					else
 						data->u.num = pc_readaccountreg(sd, data->u.num);// local
@@ -2998,13 +3017,10 @@ struct script_data *get_val_(struct script_state* st, struct script_data* data, 
 						break;
 					}
 				default:
-					if (data->ref) {
-						struct script_reg_num *p = (struct script_reg_num *)i64db_get(data->ref->vars, data->u.num);
-						data->u.num = p ? p->value : 0;
-					}
-					else {
+					if (data->ref)
+						data->u.num = get_val_pc_ref_num(st, data->ref, data);
+					else
 						data->u.num = pc_readglobalreg(sd, data->u.num);
-					}
 					break;
 			}
 
@@ -6543,6 +6559,7 @@ BUILDIN_FUNC(setr)
 	uint8 pos = 4;
 	const char* name, *command = script_getfuncname(st);
 	char prefix;
+	struct reg_db *ref;
 
 	data = script_getdata(st,2);
 	//datavalue = script_getdata(st,3);
@@ -6556,14 +6573,17 @@ BUILDIN_FUNC(setr)
 
 	num = reference_getuid(data);
 	name = reference_getname(data);
+	ref = reference_getref(data);
 	prefix = *name;
 
 	if (!strcmp(command, "setr"))
 		pos = 5;
 
-	if (not_server_variable(prefix) && !script_charid2sd(pos,sd)) {
-		ShowError("buildin_set: No player attached for player variable '%s'\n", name);
-		return SCRIPT_CMD_FAILURE;
+	if (not_server_variable(prefix)) {
+		if (ref == NULL && !script_charid2sd(pos, sd)) {
+			ShowError("buildin_set: No player attached for player variable '%s'\n", name);
+			return SCRIPT_CMD_FAILURE;
+		}
 	}
 
 #if 0
@@ -6603,9 +6623,9 @@ BUILDIN_FUNC(setr)
 		script_pushcopy(st, 2);
 
 	if( is_string_variable(name) )
-		set_reg_str( st, sd, num, name, script_getstr( st, 3 ), script_getref( st, 2 ) );
+		set_reg_str( st, sd, num, name, script_getstr( st, 3 ), ref );
 	else
-		set_reg_num( st, sd, num, name, script_getnum64( st, 3 ), script_getref( st, 2 ) );
+		set_reg_num( st, sd, num, name, script_getnum64( st, 3 ), ref );
 
 	return SCRIPT_CMD_SUCCESS;
 }
