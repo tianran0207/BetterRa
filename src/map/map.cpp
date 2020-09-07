@@ -2851,7 +2851,6 @@ int map_addinstancemap(int src_m, int instance_id)
 	dst_map->ys = src_map->ys;
 	dst_map->bxs = src_map->bxs;
 	dst_map->bys = src_map->bys;
-	dst_map->iwall_num = src_map->iwall_num;
 
 	memset(dst_map->npc, 0, sizeof(dst_map->npc));
 	dst_map->npc_num = 0;
@@ -2946,6 +2945,8 @@ int map_delinstancemap(int m)
 	if( mapdata->mob_delete_timer != INVALID_TIMER )
 		delete_timer(mapdata->mob_delete_timer, map_removemobs_timer);
 	mapdata->mob_delete_timer = INVALID_TIMER;
+
+	map_iwall_map_clear(mapdata->m);
 
 	// Free memory
 	if (mapdata->cell)
@@ -3439,12 +3440,19 @@ void map_setgatcell(int16 m, int16 x, int16 y, int gat)
  *------------------------------------------*/
 static DBMap* iwall_db;
 
-bool map_iwall_exist(const char* wall_name)
+bool map_iwall_exist(const char* wall_name, int instance_id)
 {
-	return strdb_exists(iwall_db, wall_name);
+	char iwall_name[50];
+
+	if (instance_id > 0)
+		safesnprintf(iwall_name, sizeof(iwall_name), "%s_%d", wall_name, instance_id);
+	else
+		safestrncpy(iwall_name, wall_name, sizeof(iwall_name));
+
+	return strdb_exists(iwall_db, iwall_name);
 }
 
-void map_iwall_getxy_sub(int x, int y, void *data)
+static void map_iwall_getxy_sub(int x, int y, void *data)
 {
 	struct iwall_data *iwall = (struct iwall_data *)data;
 	struct map_data *mapdata = map_getmapdata(iwall->m);
@@ -3462,7 +3470,7 @@ void map_iwall_getxy_sub(int x, int y, void *data)
 	iwall->pos_list.push_back(entry);
 }
 
-void map_iwall_getxy(struct iwall_data *iwall)
+static void map_iwall_getxy(struct iwall_data *iwall)
 {
 	int16 x0 = iwall->x0, y0 = iwall->y0;
 	int8 dir = iwall->dir;
@@ -3496,11 +3504,18 @@ void map_iwall_getxy(struct iwall_data *iwall)
 bool map_iwall_set(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, int size, int8 dir, bool shootable, int mob_id, const char* mob_name, const char* wall_name)
 {
 	struct iwall_data *iwall;
+	struct map_data *mapdata = map_getmapdata(m);
+	char iwall_name[50];
 
-	if( size < 1 || !wall_name )
+	if( size < 1 || !wall_name || !mapdata)
 		return false;
 
-	if( (iwall = (struct iwall_data *)strdb_get(iwall_db, wall_name)) != NULL )
+	if (mapdata->instance_id > 0)
+		safesnprintf(iwall_name, sizeof(iwall_name), "%s_%d", wall_name, mapdata->instance_id);
+	else
+		safestrncpy(iwall_name, wall_name, sizeof(iwall_name));
+
+	if( (iwall = (struct iwall_data *)strdb_get(iwall_db, iwall_name)) != NULL )
 		return false; // Already Exists
 
 	CREATE(iwall, struct iwall_data, 1);
@@ -3510,7 +3525,7 @@ bool map_iwall_set(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, int size, in
 	iwall->size = size;
 	iwall->dir = dir;
 	iwall->shootable = shootable;
-	safestrncpy(iwall->wall_name, wall_name, sizeof(iwall->wall_name));
+	safestrncpy(iwall->wall_name, iwall_name, sizeof(iwall->wall_name));
 
 	map_iwall_getxy(iwall);
 
@@ -3532,12 +3547,13 @@ bool map_iwall_set(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, int size, in
 	}
 
 	strdb_put(iwall_db, iwall->wall_name, iwall);
-	map_getmapdata(m)->iwall_num++;
+	mapdata->iwall_num++;
 
 	return true;
 }
 
-void map_iwall_get(struct map_session_data *sd) {
+void map_iwall_get(struct map_session_data *sd)
+{
 	struct iwall_data *iwall;
 	DBIterator* iter;
 
@@ -3555,12 +3571,18 @@ void map_iwall_get(struct map_session_data *sd) {
 	dbi_destroy(iter);
 }
 
-bool map_iwall_remove(const char *wall_name)
+bool map_iwall_remove(const char *wall_name, int instance_id)
 {
 	struct iwall_data *iwall;
 	struct block_list *bl;
+	char iwall_name[50];
 
-	if( (iwall = (struct iwall_data *)strdb_get(iwall_db, wall_name)) == NULL )
+	if (instance_id > 0)
+		safesnprintf(iwall_name, sizeof(iwall_name), "%s_%d", wall_name, instance_id);
+	else
+		safestrncpy(iwall_name, wall_name, sizeof(iwall_name));
+
+	if( (iwall = (struct iwall_data *)strdb_get(iwall_db, iwall_name)) == NULL )
 		return false; // Nothing to do
 
 	for (auto it : iwall->pos_list){
@@ -3576,6 +3598,58 @@ bool map_iwall_remove(const char *wall_name)
 
 	map_getmapdata(iwall->m)->iwall_num--;
 	strdb_remove(iwall_db, iwall->wall_name);
+	return true;
+}
+
+bool map_iwall_map_copy(struct map_data *src_map, struct map_data *dst_map)
+{
+	struct iwall_data *iwall, *dst_iwall;
+	DBIterator* iter;
+
+	if (src_map->iwall_num < 1 || src_map->instance_id > 0 || dst_map->instance_id == 0)
+		return false;
+
+	iter = db_iterator(iwall_db);
+	for (iwall = (struct iwall_data *)dbi_first(iter); dbi_exists(iter); iwall = (struct iwall_data *)dbi_next(iter)) {
+		if (iwall->m != src_map->m)
+			continue;
+		CREATE(dst_iwall, struct iwall_data, 1);
+		memcpy(dst_iwall, iwall, sizeof(struct iwall_data));
+		dst_iwall->m = dst_map->m;
+		safesnprintf(dst_iwall->wall_name, sizeof(dst_iwall->wall_name), "%s_%d", iwall->wall_name, dst_map->instance_id);
+		auto it = iwall->pos_list.begin();
+		struct mob_data *md = (it != iwall->pos_list.end() ? map_id2md(it->id) : NULL);
+		for (auto &it : dst_iwall->pos_list) {
+			if (md) {
+				md = mob_once_spawn_sub(NULL, dst_map->m, it.x, it.y, md->name, md->mob_id, "", SZ_SMALL, AI_NONE);
+				mob_spawn(md);
+				md->ud.immune_attack = true;
+				md->status.mode = (enum e_mode)(MD_KNOCKBACK_IMMUNE | MD_STATUS_IMMUNE);
+				it.id = md->bl.id;
+			}
+			map_setcell(dst_iwall->m, it.x, it.y, CELL_WALKABLE, false);
+			map_setcell(dst_iwall->m, it.x, it.y, CELL_SHOOTABLE, dst_iwall->shootable);
+			clif_changemapcell(0, dst_iwall->m, it.x, it.y, map_getcell(dst_iwall->m, it.x, it.y, CELL_GETTYPE), ALL_SAMEMAP);
+		}
+		strdb_put(iwall_db, dst_iwall->wall_name, dst_iwall);
+		dst_map->iwall_num++;
+	}
+	dbi_destroy(iter);
+	return true;
+}
+
+bool map_iwall_map_clear(int16 m)
+{
+	struct iwall_data *iwall;
+	DBIterator* iter;
+
+	iter = db_iterator(iwall_db);
+	for (iwall = (struct iwall_data *)dbi_first(iter); dbi_exists(iter); iwall = (struct iwall_data *)dbi_next(iter)) {
+		if (m != -1 && iwall->m != m )
+			continue;
+		map_iwall_remove(iwall->wall_name);
+	}
+	dbi_destroy(iter);
 	return true;
 }
 
@@ -3916,6 +3990,8 @@ void map_data_copy(struct map_data *dst_map, struct map_data *src_map) {
 	dst_map->skill_duration.insert(src_map->skill_duration.begin(), src_map->skill_duration.end());
 
 	dst_map->zone = src_map->zone;
+
+	map_iwall_map_copy(src_map, dst_map);
 
 	// Mimic questinfo
 	if (!src_map->qi_data.empty())

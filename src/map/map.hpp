@@ -1227,10 +1227,12 @@ int cleanup_sub(struct block_list *bl, va_list ap);
 int map_delmap(char* mapname);
 void map_flags_init(void);
 
-bool map_iwall_exist(const char* wall_name);
+bool map_iwall_exist(const char* wall_name, int instance_id = 0);
 bool map_iwall_set(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, int size, int8 dir, bool shootable, int mob_id, const char* mob_name, const char* wall_name);
 void map_iwall_get(struct map_session_data *sd);
-bool map_iwall_remove(const char *wall_name);
+bool map_iwall_remove(const char *wall_name, int instance_id = 0);
+bool map_iwall_map_copy(struct map_data *src_map, struct map_data *dst_map);
+bool map_iwall_map_clear(int16 m = -1);
 
 int map_addmobtolist(unsigned short m, struct spawn_data *spawn);	// [Wizputer]
 void map_spawnmobs(int16 m); // [Wizputer]

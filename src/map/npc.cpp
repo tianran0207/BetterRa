@@ -5444,6 +5444,7 @@ int npc_reload(void) {
 
 	// clear mob spawn lookup index
 	mob_clear_spawninfo();
+	map_iwall_map_clear();
 
 	npc_warp = npc_shop = npc_script = 0;
 	npc_mob = npc_cache_mob = npc_delay_mob = 0;

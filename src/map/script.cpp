@@ -14427,24 +14427,29 @@ BUILDIN_FUNC(guardian)
 BUILDIN_FUNC(setwall)
 {
 	const char *mapname, *name, *mob_name, *command = script_getfuncname(st);
-	int x, y, m, size, dir, mob_id;
+	int x, y, m, size, dir, mob_id, pos = 7;
 	bool shootable;
+
+	if (strstr(command, "circle"))
+		pos = 6;
 
 	mapname = script_getstr(st,2);
 	x = script_getnum(st,3);
 	y = script_getnum(st,4);
 	size = script_getnum(st,5);
 	dir = script_getnum(st,6);
-	shootable = script_getnum(st,7) != 0;
-	name = script_getstr(st,8);
-	mob_id = script_hasdata(st, 9) ? script_getnum(st, 9) : 0;
-	mob_name = script_hasdata(st, 10) ? script_getstr(st, 10) : 0;
+	shootable = script_getnum(st, pos) != 0;
+	name = script_getstr(st, pos+1);
+	mob_id = script_hasdata(st, pos+2) ? script_getnum(st, pos+2) : 0;
+	mob_name = script_hasdata(st, pos+3) ? script_getstr(st, pos+3) : 0;
 
 	if( (m = map_mapname2mapid(mapname)) < 0 )
 		return SCRIPT_CMD_SUCCESS; // Invalid Map
 
 	if (strstr(command, "line")) 
-		map_iwall_set(m, x, y, size, dir, 0, 0, shootable, mob_id, mob_name, name);
+		map_iwall_set(m, x, y, size, dir, 1, 16, shootable, mob_id, mob_name, name);
+	else if (strstr(command, "circle"))
+		map_iwall_set(m, x, y, 0, 0, size, 32, shootable, mob_id, mob_name, name);
 	else
 		map_iwall_set(m, x, y, 0, 0, size, dir, shootable, mob_id, mob_name, name);
 
@@ -14454,9 +14459,22 @@ BUILDIN_FUNC(setwall)
 BUILDIN_FUNC(delwall)
 {
 	const char *name = script_getstr(st,2);
+	int instance_id = script_hasdata(st,3) ? script_getnum(st,3) : 0;
 
-	if( !map_iwall_remove(name) ){
+	if( !map_iwall_remove(name, instance_id) ){
 		ShowError( "buildin_delwall: wall \"%s\" does not exist.\n", name );
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(delwallmap)
+{
+	int16 m = map_mapname2mapid(script_getstr(st, 2));
+
+	if (m < 0 || !map_iwall_map_clear()) {
+		ShowError("buildin_delwall: mapname \"%s\" does not exist.\n", script_getstr(st, 2));
 		return SCRIPT_CMD_FAILURE;
 	}
 
@@ -14466,8 +14484,9 @@ BUILDIN_FUNC(delwall)
 BUILDIN_FUNC(checkwall)
 {
 	const char *wall_name = script_getstr(st, 2);
+	int instance_id = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
 
-	script_pushint(st, map_iwall_exist(wall_name));
+	script_pushint(st, map_iwall_exist(wall_name, instance_id));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -30666,6 +30685,62 @@ BUILDIN_FUNC(enableontouch)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+struct s_bresenham_data {
+	struct map_session_data *sd;
+	struct script_state *st;
+	struct script_data *data_x, *data_y;
+	int32 id_x, id_y;
+	int idx;
+};
+
+static void buildin_bresenham_sub(int x, int y, void *data)
+{
+	struct s_bresenham_data *bxy = (struct s_bresenham_data *)data;
+	set_reg_num(bxy->st, bxy->sd, reference_uid(bxy->id_x, bxy->idx), reference_getname(bxy->data_x), x, reference_getref(bxy->data_x));
+	set_reg_num(bxy->st, bxy->sd, reference_uid(bxy->id_y, bxy->idx), reference_getname(bxy->data_y), y, reference_getref(bxy->data_y));
+	bxy->idx++;
+}
+
+BUILDIN_FUNC(getlinexy)
+{
+	map_session_data *sd = map_id2sd(st->rid);
+	struct s_bresenham_data bxy;
+	bxy.sd = sd;
+	bxy.st = st;
+	bxy.data_x = script_getdata(st, 6);
+	bxy.data_y = script_getdata(st, 7);
+	bxy.id_x = reference_getid(bxy.data_x);
+	bxy.id_y = reference_getid(bxy.data_y);
+
+	if (!data_isreference(bxy.data_x) || data_isstring(bxy.data_x) || !data_isreference(bxy.data_y) || data_isstring(bxy.data_y)) {
+		ShowWarning("buildin_getlinexy: error in argument! please give a int variable to store num.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	bxy.idx = 0;
+	map_line(buildin_bresenham_sub, script_getnum(st, 2), script_getnum(st, 3), script_getnum(st, 4), script_getnum(st, 5), (void *)&bxy);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getcirclexy)
+{
+	map_session_data *sd = map_id2sd(st->rid);
+	struct s_bresenham_data bxy;
+	bxy.sd = sd;
+	bxy.st = st;
+	bxy.data_x = script_getdata(st, 5);
+	bxy.data_y = script_getdata(st, 6);
+	bxy.id_x = reference_getid(bxy.data_x);
+	bxy.id_y = reference_getid(bxy.data_y);
+
+	if (!data_isreference(bxy.data_x) || data_isstring(bxy.data_x) || !data_isreference(bxy.data_y) || data_isstring(bxy.data_y)) {
+		ShowWarning("buildin_getlinexy: error in argument! please give a int variable to store num.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	bxy.idx = 0;
+	map_circle(buildin_bresenham_sub, script_getnum(st, 2), script_getnum(st, 3), script_getnum(st, 4), (void *)&bxy);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -31389,7 +31464,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getfreecell,"srr?????"),
 	BUILDIN_DEF(setwall,"siiiiis??"),
 	BUILDIN_DEF2(setwall, "setwallline", "siiiiis??"),
-	BUILDIN_DEF(delwall,"s"),
+	BUILDIN_DEF2(setwall, "setwallcircle", "siiiis??"),
+	BUILDIN_DEF(delwall,"s?"),
+	BUILDIN_DEF(delwallmap, "s"),
 	BUILDIN_DEF(checkwall,"s"),
 	BUILDIN_DEF(searchitem,"rs"),
 	BUILDIN_DEF(mercenary_create,"ii"),
@@ -31806,6 +31883,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unitaura, "ii?"),
 	BUILDIN_DEF(enableontouch, "s?"),
 	BUILDIN_DEF2(enableontouch, "disableontouch", "s?"),
+	BUILDIN_DEF(getlinexy, "iiiirr"),
+	BUILDIN_DEF(getcirclexy, "iiirr"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),
