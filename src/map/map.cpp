@@ -3444,28 +3444,58 @@ bool map_iwall_exist(const char* wall_name)
 	return strdb_exists(iwall_db, wall_name);
 }
 
-void map_iwall_nextxy(int16 x, int16 y, int8 dir, int pos, int16 *x1, int16 *y1)
+void map_iwall_getxy_sub(int x, int y, void *data)
 {
-	if( dir == 0 || dir == 4 )
-		*x1 = x; // Keep X
-	else if( dir > 0 && dir < 4 )
-		*x1 = x - pos; // Going left
-	else
-		*x1 = x + pos; // Going right
+	struct iwall_data *iwall = (struct iwall_data *)data;
+	struct map_data *mapdata = map_getmapdata(iwall->m);
+	int j = x + y * mapdata->xs;
+	if (x < 0 || x >= mapdata->xs - 1 || y < 0 || y >= mapdata->ys - 1)
+		return;
+	if (!mapdata->cell[j].walkable)
+		return;
 
-	if( dir == 2 || dir == 6 )
-		*y1 = y;
-	else if( dir > 2 && dir < 6 )
-		*y1 = y - pos;
-	else
-		*y1 = y + pos;
+	struct iwall_xy_data entry;
+	entry.x = static_cast<short>(x);
+	entry.y = static_cast<short>(y);
+	entry.shootable = mapdata->cell[j].shootable;
+	entry.walkable = mapdata->cell[j].walkable;
+	iwall->pos_list.push_back(entry);
 }
 
-bool map_iwall_set(int16 m, int16 x, int16 y, int size, int8 dir, bool shootable, const char* wall_name)
+void map_iwall_getxy(struct iwall_data *iwall)
+{
+	int16 x0 = iwall->x0, y0 = iwall->y0;
+	int8 dir = iwall->dir;
+	int x, y;
+
+	if (dir < 8) {
+		for (int i = 0; i < iwall->size; i++) {
+			if (dir == 0 || dir == 4)
+				x = x0; // Keep X
+			else if (dir > 0 && dir < 4)
+				x = x0 - i; // Going left
+			else
+				x = x0 + i; // Going right
+
+			if (dir == 2 || dir == 6)
+				y = y0;
+			else if (dir > 2 && dir < 6)
+				y = y0 - i;
+			else
+				y = y0 + i;
+
+			map_iwall_getxy_sub(x, y, (void *)iwall);
+		}
+	}
+	else if (dir == 16)
+		map_line(map_iwall_getxy_sub, x0, y0, iwall->x1, iwall->y1, (void *)iwall);
+	else if (dir == 32)
+		map_circle(map_iwall_getxy_sub, x0, y0, iwall->size, (void *)iwall);
+}
+
+bool map_iwall_set(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, int size, int8 dir, bool shootable, int mob_id, const char* mob_name, const char* wall_name)
 {
 	struct iwall_data *iwall;
-	int i;
-	int16 x1 = 0, y1 = 0;
 
 	if( size < 1 || !wall_name )
 		return false;
@@ -3473,32 +3503,33 @@ bool map_iwall_set(int16 m, int16 x, int16 y, int size, int8 dir, bool shootable
 	if( (iwall = (struct iwall_data *)strdb_get(iwall_db, wall_name)) != NULL )
 		return false; // Already Exists
 
-	if( map_getcell(m, x, y, CELL_CHKNOREACH) )
-		return false; // Starting cell problem
-
 	CREATE(iwall, struct iwall_data, 1);
 	iwall->m = m;
-	iwall->x = x;
-	iwall->y = y;
+	iwall->x0 = x0;	iwall->y0 = y0;
+	iwall->x1 = x1;	iwall->y1 = y1;
 	iwall->size = size;
 	iwall->dir = dir;
 	iwall->shootable = shootable;
 	safestrncpy(iwall->wall_name, wall_name, sizeof(iwall->wall_name));
 
-	for( i = 0; i < size; i++ )
-	{
-		map_iwall_nextxy(x, y, dir, i, &x1, &y1);
+	map_iwall_getxy(iwall);
 
-		if( map_getcell(m, x1, y1, CELL_CHKNOREACH) )
-			break; // Collision
-
-		map_setcell(m, x1, y1, CELL_WALKABLE, false);
-		map_setcell(m, x1, y1, CELL_SHOOTABLE, shootable);
-
-		clif_changemapcell(0, m, x1, y1, map_getcell(m, x1, y1, CELL_GETTYPE), ALL_SAMEMAP);
+	for (auto &it : iwall->pos_list) {
+		if (mob_id) {
+			struct mob_data *md = mob_once_spawn_sub(NULL, m, it.x, it.y, mob_name, mob_id, "", SZ_SMALL, AI_NONE);
+			mob_spawn(md);
+			md->ud.immune_attack = true;
+			md->status.mode = (enum e_mode)(MD_KNOCKBACK_IMMUNE | MD_STATUS_IMMUNE);
+			it.id = md->bl.id;
+		}
+		map_setcell(m, it.x, it.y, CELL_WALKABLE, false);
+		map_setcell(m, it.x, it.y, CELL_SHOOTABLE, shootable);
+		clif_changemapcell(0, m, it.x, it.y, map_getcell(m, it.x, it.y, CELL_GETTYPE), ALL_SAMEMAP);
 	}
-
-	iwall->size = i;
+	if (iwall->pos_list.size() == 0) {
+		aFree(iwall);
+		return false;
+	}
 
 	strdb_put(iwall_db, iwall->wall_name, iwall);
 	map_getmapdata(m)->iwall_num++;
@@ -3509,8 +3540,6 @@ bool map_iwall_set(int16 m, int16 x, int16 y, int size, int8 dir, bool shootable
 void map_iwall_get(struct map_session_data *sd) {
 	struct iwall_data *iwall;
 	DBIterator* iter;
-	int16 x1, y1;
-	int i;
 
 	if( map_getmapdata(sd->bl.m)->iwall_num < 1 )
 		return;
@@ -3520,10 +3549,8 @@ void map_iwall_get(struct map_session_data *sd) {
 		if( iwall->m != sd->bl.m )
 			continue;
 
-		for( i = 0; i < iwall->size; i++ ) {
-			map_iwall_nextxy(iwall->x, iwall->y, iwall->dir, i, &x1, &y1);
-			clif_changemapcell(sd->fd, iwall->m, x1, y1, map_getcell(iwall->m, x1, y1, CELL_GETTYPE), SELF);
-		}
+		for (auto it : iwall->pos_list)
+			clif_changemapcell(sd->fd, iwall->m, it.x, it.y, map_getcell(iwall->m, it.x, it.y, CELL_GETTYPE), SELF);
 	}
 	dbi_destroy(iter);
 }
@@ -3531,19 +3558,21 @@ void map_iwall_get(struct map_session_data *sd) {
 bool map_iwall_remove(const char *wall_name)
 {
 	struct iwall_data *iwall;
-	int16 i, x1, y1;
+	struct block_list *bl;
 
 	if( (iwall = (struct iwall_data *)strdb_get(iwall_db, wall_name)) == NULL )
 		return false; // Nothing to do
 
-	for( i = 0; i < iwall->size; i++ ) {
-		map_iwall_nextxy(iwall->x, iwall->y, iwall->dir, i, &x1, &y1);
-
-		map_setcell(iwall->m, x1, y1, CELL_SHOOTABLE, true);
-		map_setcell(iwall->m, x1, y1, CELL_WALKABLE, true);
-
-		clif_changemapcell(0, iwall->m, x1, y1, map_getcell(iwall->m, x1, y1, CELL_GETTYPE), ALL_SAMEMAP);
+	for (auto it : iwall->pos_list){
+		if (it.id && (bl = map_id2bl(it.id)) != NULL) {
+			clif_clearunit_area(bl, CLR_OUTSIGHT);
+			unit_free(bl, CLR_OUTSIGHT);
+		}
+		map_setcell(iwall->m, it.x, it.y, CELL_SHOOTABLE, it.shootable);
+		map_setcell(iwall->m, it.x, it.y, CELL_WALKABLE, it.walkable);
+		clif_changemapcell(0, iwall->m, it.x, it.y, map_getcell(iwall->m, it.x, it.y, CELL_GETTYPE), ALL_SAMEMAP);
 	}
+	iwall->pos_list.clear();
 
 	map_getmapdata(iwall->m)->iwall_num--;
 	strdb_remove(iwall_db, iwall->wall_name);
@@ -6148,4 +6177,79 @@ bool BetterRA_Log(const char* filename, struct map_session_data *sd ,char *text,
 		return true;
 	}
 	return false;
+}
+
+// 交换整数 a 、b 的值
+inline void map_line_sub(int *a, int *b) {
+	*a ^= *b;
+	*b ^= *a;
+	*a ^= *b;
+}
+
+void map_line(void(*func)(int, int, void*), int x1, int y1, int x2, int y2, void* data)
+{
+	int dx = abs(x2 - x1), dy = abs(y2 - y1), yy = 0;
+	if (dx < dy) {
+		yy = 1;
+		map_line_sub(&x1, &y1);
+		map_line_sub(&x2, &y2);
+		map_line_sub(&dx, &dy);
+	}
+	int ix = (x2 - x1) > 0 ? 1 : -1, iy = (y2 - y1) > 0 ? 1 : -1,
+		cx = x1, cy = y1,
+		n2dy = dy * 2, n2dydx = (dy - dx) * 2, d = dy * 2 - dx;
+
+	if (yy) { // 如果直线与 x 轴的夹角大于 45 度
+		while (cx != x2) {
+			if (d < 0)
+				d += n2dy;
+			else {
+				cy += iy;
+				d += n2dydx;
+			}
+			func(cy, cx, data);
+			cx += ix;
+		}
+	}
+	else { // 如果直线与 x 轴的夹角小于 45 度
+		while (cx != x2) {
+			if (d < 0)
+				d += n2dy;
+			else {
+				cy += iy;
+				d += n2dydx;
+			}
+			func(cx, cy, data);
+			cx += ix;
+		}
+	}
+}
+// 八对称性
+inline void map_circle_sub(void(*func)(int, int, void*), int xc, int yc, int x, int y, void *data)
+{
+	func(xc + x, yc + y, data); func(xc - x, yc + y, data);
+	func(xc + x, yc - y, data); func(xc - x, yc - y, data);
+	func(xc + y, yc + x, data); func(xc - y, yc + x, data);
+	func(xc + y, yc - x, data); func(xc - y, yc - x, data);
+}
+
+//Bresenham's circle algorithm
+void map_circle(void(*func)(int, int, void*), int xc, int yc, int r, void *data)
+{
+	if (xc + r < 0 || yc + r < 0)
+		return;
+
+	int x = 0, y = r, d = 3 - 2 * r;
+
+	while (x <= y) {
+		map_circle_sub(func, xc, yc, x, y, data);
+		if (d < 0) {
+			d = d + 4 * x + 6;
+		}
+		else {
+			d = d + 4 * (x - y) + 10;
+			y--;
+		}
+		x++;
+	}
 }

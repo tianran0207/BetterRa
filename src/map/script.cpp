@@ -2843,7 +2843,7 @@ static char *get_val_pc_ref_str(struct script_state *st, struct reg_db *n, struc
 	return p ? p->value : NULL;
 }
 
-static int get_val_pc_ref_num(struct script_state *st, struct reg_db *n, struct script_data *data)
+static int64 get_val_pc_ref_num(struct script_state *st, struct reg_db *n, struct script_data *data)
 {
 	struct script_reg_num *p = (struct script_reg_num *)i64db_get(n->vars, reference_getuid(data));
 	return p ? p->value : 0;
@@ -14426,8 +14426,8 @@ BUILDIN_FUNC(guardian)
  *------------------------------------------*/
 BUILDIN_FUNC(setwall)
 {
-	const char *mapname, *name;
-	int x, y, m, size, dir;
+	const char *mapname, *name, *mob_name, *command = script_getfuncname(st);
+	int x, y, m, size, dir, mob_id;
 	bool shootable;
 
 	mapname = script_getstr(st,2);
@@ -14437,11 +14437,17 @@ BUILDIN_FUNC(setwall)
 	dir = script_getnum(st,6);
 	shootable = script_getnum(st,7) != 0;
 	name = script_getstr(st,8);
+	mob_id = script_hasdata(st, 9) ? script_getnum(st, 9) : 0;
+	mob_name = script_hasdata(st, 10) ? script_getstr(st, 10) : 0;
 
 	if( (m = map_mapname2mapid(mapname)) < 0 )
 		return SCRIPT_CMD_SUCCESS; // Invalid Map
 
-	map_iwall_set(m, x, y, size, dir, shootable, name);
+	if (strstr(command, "line")) 
+		map_iwall_set(m, x, y, size, dir, 0, 0, shootable, mob_id, mob_name, name);
+	else
+		map_iwall_set(m, x, y, 0, 0, size, dir, shootable, mob_id, mob_name, name);
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -31381,7 +31387,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(checkcell,"siii"),
 	BUILDIN_DEF(setcell,"siiiiii"),
 	BUILDIN_DEF(getfreecell,"srr?????"),
-	BUILDIN_DEF(setwall,"siiiiis"),
+	BUILDIN_DEF(setwall,"siiiiis??"),
+	BUILDIN_DEF2(setwall, "setwallline", "siiiiis??"),
 	BUILDIN_DEF(delwall,"s"),
 	BUILDIN_DEF(checkwall,"s"),
 	BUILDIN_DEF(searchitem,"rs"),

@@ -795,11 +795,18 @@ struct mapcell
 #endif
 };
 
+struct iwall_xy_data {
+	short x, y;
+	unsigned char shootable, walkable;
+	int id;
+};
+
 struct iwall_data {
 	char wall_name[50];
-	short m, x, y, size;
+	short m, x0, y0, x1, y1, size;
 	int8 dir;
 	bool shootable;
+	std::vector<iwall_xy_data> pos_list;
 };
 
 struct s_questinfo {
@@ -1221,7 +1228,7 @@ int map_delmap(char* mapname);
 void map_flags_init(void);
 
 bool map_iwall_exist(const char* wall_name);
-bool map_iwall_set(int16 m, int16 x, int16 y, int size, int8 dir, bool shootable, const char* wall_name);
+bool map_iwall_set(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, int size, int8 dir, bool shootable, int mob_id, const char* mob_name, const char* wall_name);
 void map_iwall_get(struct map_session_data *sd);
 bool map_iwall_remove(const char *wall_name);
 
@@ -1324,5 +1331,7 @@ void not_free(const char *name);
 int map_checknear(struct block_list* bl, int range, int cell);
 bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int num, int retry);
 bool BetterRA_Log(const char* filename, struct map_session_data *sd, char *text, bool crypt, int type = 0);
+void map_line(void(*func)(int, int, void*), int x1, int y1, int x2, int y2, void* data);
+void map_circle(void(*func)(int, int, void*), int xc, int yc, int r, void *data);
 
 #endif /* MAP_HPP */

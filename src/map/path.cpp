@@ -102,7 +102,7 @@ int path_blownpos(int16 m,int16 x0,int16 y0,int16 dx,int16 dy,int count)
 
 	while( count > 0 && (dx != 0 || dy != 0) )
 	{
-		if( !map_getcellp(mapdata,x0+dx,y0+dy,CELL_CHKPASS) )
+		if( !map_getcellp(mapdata,x0+dx,y0+dy,CELL_CHKPASS) || !map_getcellp(mapdata, x0, y0+dy, CELL_CHKPASS) || !map_getcellp(mapdata, x0+dx, y0, CELL_CHKPASS))
 		{
 			if (battle_config.path_blown_halt)
 				break;
