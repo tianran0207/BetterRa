@@ -550,6 +550,17 @@ int bg_team_leave(struct map_session_data *sd, bool quit, bool deserter)
 					member++;
 			}
 		}
+		else {
+			auto member = bgteam->members.begin();
+			while (member != bgteam->members.end()) {
+				if (member->sd == sd) {
+					bgteam->members.erase(member);
+					break;
+				}
+				else
+					member++;
+			}
+		}
 
 		char output[CHAT_SIZE_MAX];
 
