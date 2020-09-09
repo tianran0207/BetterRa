@@ -9,7 +9,7 @@
 struct map_session_data;
 struct chat_data;
 
-#define MAX_CHAT_USERS 20
+#define MAX_CHAT_USERS C_MAX_CHAT_USERS
 
 struct chat_data {
 	struct block_list bl;            // data for this map object
@@ -17,7 +17,7 @@ struct chat_data {
 	char pass[CHATROOM_PASS_SIZE];   // password
 	bool pub;                        // private/public flag
 	uint8 users;                     // current user count
-	uint8 limit;                     // join limit
+	uint16 limit;                     // join limit
 	uint8 trigger;                   // number of users needed to trigger event
 	uint32 zeny;						 // required zeny to join
 	uint32 minLvl;					 // minimum base level to join

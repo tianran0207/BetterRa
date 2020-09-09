@@ -29425,7 +29425,7 @@ BUILDIN_FUNC(openchat)
 		return SCRIPT_CMD_FAILURE;
 
 	const char *title = script_getstr(st, 2);
-	int limit = script_hasdata(st, 3) ? script_getnum(st, 3) : 20;
+	uint16 limit = script_hasdata(st, 3) ? script_getnum(st, 3) : MAX_CHAT_USERS;
 	const char *pass = script_hasdata(st, 4) ? script_getstr(st, 4) : "";
 
 	chat_createpcchat(sd, title, pass, limit, pass && *pass == '\0' ? true : false);
