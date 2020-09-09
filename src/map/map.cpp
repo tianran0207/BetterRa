@@ -3536,7 +3536,9 @@ bool map_iwall_set(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, int size, in
 			md->ud.immune_attack = true;
 			md->status.mode = (enum e_mode)(MD_KNOCKBACK_IMMUNE | MD_STATUS_IMMUNE);
 			it.id = md->bl.id;
-		}
+		}else
+			it.id = 0;
+
 		map_setcell(m, it.x, it.y, CELL_WALKABLE, false);
 		map_setcell(m, it.x, it.y, CELL_SHOOTABLE, shootable);
 		clif_changemapcell(0, m, it.x, it.y, map_getcell(m, it.x, it.y, CELL_GETTYPE), ALL_SAMEMAP);
@@ -3586,7 +3588,7 @@ bool map_iwall_remove(const char *wall_name, int instance_id)
 		return false; // Nothing to do
 
 	for (auto &it : iwall->pos_list){
-		if (it.id && (bl = map_id2bl(it.id)) != NULL) {
+		if (it.id && (bl = map_id2bl(it.id)) != NULL && bl->type == BL_MOB) {
 			clif_clearunit_area(bl, CLR_OUTSIGHT);
 			unit_free(bl, CLR_OUTSIGHT);
 		}
@@ -3626,7 +3628,9 @@ bool map_iwall_map_copy(struct map_data *src_map, struct map_data *dst_map)
 				md->ud.immune_attack = true;
 				md->status.mode = (enum e_mode)(MD_KNOCKBACK_IMMUNE | MD_STATUS_IMMUNE);
 				it.id = md->bl.id;
-			}
+			}else
+				it.id = 0;
+
 			map_setcell(dst_iwall->m, it.x, it.y, CELL_WALKABLE, false);
 			map_setcell(dst_iwall->m, it.x, it.y, CELL_SHOOTABLE, dst_iwall->shootable);
 			clif_changemapcell(0, dst_iwall->m, it.x, it.y, map_getcell(dst_iwall->m, it.x, it.y, CELL_GETTYPE), ALL_SAMEMAP);

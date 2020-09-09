@@ -22115,7 +22115,7 @@ BUILDIN_FUNC(setdragon) {
 
 	if (!script_charid2sd(3,sd))
 		return SCRIPT_CMD_FAILURE;
-	if( !pc_checkskill(sd,RK_DRAGONTRAINING) || (sd->class_&MAPID_THIRDMASK) != MAPID_RUNE_KNIGHT )
+	if( !pc_checkskill(sd,RK_DRAGONTRAINING) )
 		script_pushint(st,0);//Doesn't have the skill or it's not a Rune Knight
 	else if ( pc_isridingdragon(sd) ) {//Is mounted; release
 		pc_setoption(sd, sd->sc.option&~OPTION_DRAGON);
