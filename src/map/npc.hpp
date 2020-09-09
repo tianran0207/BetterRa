@@ -126,9 +126,9 @@ struct npc_data {
 	struct autowalk_data autowalk;
 };
 
-struct function_data {
+struct npc_func_data {
+	char name[NPC_NAME_LENGTH + 1];
 	char* path;
-	char* func_name;
 	script_code *script;
 };
 

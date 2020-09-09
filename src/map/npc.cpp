@@ -2575,6 +2575,8 @@ int npc_unload(struct npc_data* nd, bool single) {
 		iter = mapit_geteachpc();
 		for( bl = (struct block_list*)mapit_first(iter); mapit_exists(iter); bl = (struct block_list*)mapit_next(iter) ) {
 			struct map_session_data *sd = ((TBL_PC*)bl);
+			if (sd && sd->npc_id == nd->bl.id)
+				pc_close_npc(sd, 1);
 			if( sd && sd->npc_timer_id != INVALID_TIMER ) {
 				const struct TimerData *td = get_timer(sd->npc_timer_id);
 
@@ -2628,34 +2630,22 @@ int npc_unload(struct npc_data* nd, bool single) {
 	return 0;
 }
 
-int npc_func_unload(char *func_name) {
+int npc_func_unload(char *func_name)
+{
 	DBMap* func_db = script_get_userfunc_db();
-	struct script_code *oldscript = (struct script_code *)strdb_get(func_db, func_name);
-	
-	if (!oldscript)
+	struct npc_func_data *scr = (struct npc_func_data *)strdb_get(func_db, func_name);
+	struct script_code *code;
+
+	if (!scr || !(code = scr->script))
 		return 0;
 
-	script_stop_scriptinstances(oldscript);
-	script_free_vars(oldscript->local.vars);
-	aFree(oldscript->script_buf);
-	aFree(oldscript);
+	script_stop_scriptinstances(code);
+	script_free_vars(code->local.vars);
+	aFree(code->script_buf);
+	aFree(code);
+	aFree(scr->path);
 	strdb_remove(func_db, func_name);
 	return 1;
-}
-
-int npc_func_reload(void) {
-	struct script_code *oldscript;
-	DBMap* func_db = script_get_userfunc_db();
-	DBIterator * iter = db_iterator(func_db);
-	for (oldscript = (struct script_code *)dbi_first(iter); dbi_exists(iter); oldscript = (struct script_code *)dbi_next(iter)) {
-		script_stop_scriptinstances(oldscript);
-		script_free_vars(oldscript->local.vars);
-		aFree(oldscript->script_buf);
-		aFree(oldscript);
-	}
-	dbi_destroy(iter);
-	db_clear(func_db);
-	return 0;
 }
 
 //
@@ -4194,7 +4184,6 @@ int npc_do_atcmd_event(struct map_session_data* sd, const char* command, const c
 static const char* npc_parse_function(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath)
 {
 	DBMap* func_db;
-	DBData old_data;
 	struct script_code *script;
 	const char* end;
 	const char* script_start;
@@ -4219,16 +4208,17 @@ static const char* npc_parse_function(char* w1, char* w2, char* w3, char* w4, co
 		return end;
 
 	func_db = script_get_userfunc_db();
-	if (func_db->put(func_db, db_str2key(w3), db_ptr2data(script), &old_data)) {
-		struct script_code *oldscript = (struct script_code*)db_data2ptr(&old_data);
+	struct npc_func_data * scr = NULL;
+	if (!(scr = (struct npc_func_data *)strdb_get(func_db, w3))) {
+		CREATE(scr, struct npc_func_data, 1);
+		strdb_put(func_db, w3, scr);
 
-		ShowInfo("npc_parse_function: Overwriting user function [%s] (%s:%d)\n", w3, filepath, strline(buffer,start-buffer));
-		script_stop_scriptinstances(oldscript);
-		script_free_vars(oldscript->local.vars);
-		aFree(oldscript->script_buf);
-		aFree(oldscript);
+		CREATE(scr->path, char, strlen(filepath) + 1);
+		safestrncpy(scr->path, filepath, strlen(filepath) + 1);
+		safestrncpy(scr->name, w3, strlen(w3) + 1);
+
+		scr->script = script;
 	}
-
 	return end;
 }
 
@@ -5493,8 +5483,25 @@ int npc_reload(void) {
 }
 
 //Unload all npc in the given file
-bool npc_unloadfile( const char* path ) {
-	DBIterator * iter = db_iterator(npcname_db);
+bool npc_unloadfile( const char* path )
+{
+	DBIterator * iter = db_iterator(script_get_userfunc_db());
+	struct npc_func_data* scr;
+	for (scr = (struct npc_func_data*)dbi_first(iter); dbi_exists(iter); scr = (struct npc_func_data*)dbi_next(iter)) {
+		if (!scr->path || strcasecmp(scr->path, path))
+			continue;
+		struct s_mapiterator* users = mapit_geteachpc();
+		struct map_session_data *sd;
+		for (sd = (struct map_session_data*)mapit_first(users); mapit_exists(users); sd = (struct map_session_data*)mapit_next(users)) {
+			if (sd && sd->st && sd->st->script == scr->script)
+				pc_close_npc(sd, 1);
+		}
+		mapit_free(users);
+		npc_func_unload(scr->name);
+	}
+	dbi_destroy(iter);
+
+	iter = db_iterator(npcname_db);
 	struct npc_data* nd = NULL;
 	bool found = false;
 
@@ -5505,7 +5512,6 @@ bool npc_unloadfile( const char* path ) {
 			npc_unload(nd, true);
 		}
 	}
-
 	dbi_destroy(iter);
 
 	if( found ) /* refresh event cache */

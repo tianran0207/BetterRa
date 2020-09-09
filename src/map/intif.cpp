@@ -3494,6 +3494,8 @@ static bool intif_parse_StorageReceived(int fd)
 					pc_delitem(sd, idxlist[i], sd->inventory.u.items_inventory[idxlist[i]].amount, 4, 1, LOG_TYPE_OTHER);
 			}
 #endif
+			if (sd->state.autotrade)
+				clif_parse_LoadEndAck(sd->fd, sd);
 			//Set here because we need the inventory data for weapon sprite parsing.
 			status_set_viewdata(&sd->bl, sd->status.class_);
 			pc_load_combo(sd);
@@ -3511,7 +3513,6 @@ static bool intif_parse_StorageReceived(int fd)
 		case TABLE_CART:
 			pc_check_available_item(sd, ITMCHK_CART);
 			if (sd->state.autotrade) {
-				clif_parse_LoadEndAck(sd->fd, sd);
 				sd->autotrade_tid = add_timer(gettick() + battle_config.feature_autotrade_open_delay, pc_autotrade_timer, sd->bl.id, 0);
 			}else if( sd->state.prevend ){
 				clif_clearcart(sd->fd);

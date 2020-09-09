@@ -4866,9 +4866,10 @@ int script_config_read(const char *cfgName)
  */
 static int db_script_free_code_sub(DBKey key, DBData *data, va_list ap)
 {
-	struct script_code *code = static_cast<script_code *>(db_data2ptr(data));
-	if (code)
-		script_free_code(code);
+	struct npc_func_data *scr = static_cast<npc_func_data *>(db_data2ptr(data));
+	if (scr->script)
+		script_free_code(scr->script);
+	aFree(scr->path);
 	return 0;
 }
 
@@ -5133,8 +5134,7 @@ void script_reload(void) {
 	DBIterator *iter;
 	struct script_state *st;
 
-	//userfunc_db->clear(userfunc_db, db_script_free_code_sub);
-	npc_func_reload();
+	userfunc_db->clear(userfunc_db, db_script_free_code_sub);
 	db_clear(scriptlabel_db);
 
 	// @commands (script based)
@@ -5842,11 +5842,11 @@ BUILDIN_FUNC(callfunc)
 {
 	int i, j;
 	struct script_retinfo* ri;
-	struct script_code* scr;
+	struct npc_func_data* scr;
 	const char* str = script_getstr(st,2);
 	struct reg_db *ref = NULL;
 
-	scr = (struct script_code*)strdb_get(userfunc_db, str);
+	scr = (struct npc_func_data*)strdb_get(userfunc_db, str);
 	if(!scr) {
 		ShowError("buildin_callfunc: Function not found! [%s]\n", str);
 		st->state = END;
@@ -5884,7 +5884,7 @@ BUILDIN_FUNC(callfunc)
 	push_retinfo(st->stack, ri, ref);
 
 	st->pos = 0;
-	st->script = scr;
+	st->script = scr->script;
 	st->stack->defsp = st->stack->sp;
 	st->state = GOTO;
 	st->stack->scope.vars = i64db_alloc(DB_OPT_RELEASE_DATA);
