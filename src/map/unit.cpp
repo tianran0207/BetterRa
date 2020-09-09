@@ -2464,7 +2464,8 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 	}
 
 	if( (skill_id >= SC_MANHOLE && skill_id <= SC_FEINTBOMB) && map_getcell(src->m, skill_x, skill_y, CELL_CHKMAELSTROM) ) {
-		clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
+		if (sd)
+			clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
 		return 0;
 	}
 
