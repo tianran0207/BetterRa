@@ -272,6 +272,7 @@ struct Battle_Config
 	int min_damage;
 	int preloading_mvps;
 	int damage_return_mode;
+	int ignore_insert_card_specific;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

@@ -9044,6 +9044,7 @@ static const struct _battle_data {
 	{ "min_damage",                         &battle_config.min_damage,                      INT_MIN,INT_MIN,INT_MAX,        },
 	{ "preloading_mvps",                    &battle_config.preloading_mvps,                 0,      0,      1,              },
 	{ "damage_return_mode",                 &battle_config.damage_return_mode,              0,      0,      2,              },
+	{ "ignore_insert_card_specific",        &battle_config.ignore_insert_card_specific,     0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },
