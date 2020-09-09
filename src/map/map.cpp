@@ -3565,7 +3565,7 @@ void map_iwall_get(struct map_session_data *sd)
 		if( iwall->m != sd->bl.m )
 			continue;
 
-		for (auto it : iwall->pos_list)
+		for (auto &it : iwall->pos_list)
 			clif_changemapcell(sd->fd, iwall->m, it.x, it.y, map_getcell(iwall->m, it.x, it.y, CELL_GETTYPE), SELF);
 	}
 	dbi_destroy(iter);
@@ -3585,7 +3585,7 @@ bool map_iwall_remove(const char *wall_name, int instance_id)
 	if( (iwall = (struct iwall_data *)strdb_get(iwall_db, iwall_name)) == NULL )
 		return false; // Nothing to do
 
-	for (auto it : iwall->pos_list){
+	for (auto &it : iwall->pos_list){
 		if (it.id && (bl = map_id2bl(it.id)) != NULL) {
 			clif_clearunit_area(bl, CLR_OUTSIGHT);
 			unit_free(bl, CLR_OUTSIGHT);

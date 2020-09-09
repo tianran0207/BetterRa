@@ -241,7 +241,7 @@ bool npc_is_cloaked(struct npc_data* nd, struct map_session_data* sd) {
 
 unsigned int npc_check_option(struct npc_data* nd, struct map_session_data* sd)
 {
-	for (auto it : sd->npc_option) {
+	for (auto &it : sd->npc_option) {
 		if (it.npc_id != nd->bl.id)
 			continue;
 		if (it.option != nd->sc.option)
@@ -252,7 +252,7 @@ unsigned int npc_check_option(struct npc_data* nd, struct map_session_data* sd)
 
 bool npc_check_ontouch(struct npc_data* nd, struct map_session_data* sd)
 {
-	for (auto it : sd->npc_option) {
+	for (auto &it : sd->npc_option) {
 		if (it.npc_id != nd->bl.id)
 			continue;
 		if (it.ontouch == -1)
