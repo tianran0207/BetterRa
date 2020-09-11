@@ -31477,7 +31477,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(setwall, "setwallcircle", "siiiis??"),
 	BUILDIN_DEF(delwall,"s?"),
 	BUILDIN_DEF(delwallmap, "s"),
-	BUILDIN_DEF(checkwall,"s"),
+	BUILDIN_DEF(checkwall,"s?"),
 	BUILDIN_DEF(searchitem,"rs"),
 	BUILDIN_DEF(mercenary_create,"ii"),
 	BUILDIN_DEF(mercenary_heal,"ii"),
