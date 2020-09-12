@@ -6122,16 +6122,30 @@ bool MobAvailDatabase::load() {
 }
 
 static struct s_aggro_entry *mob_aggro_exists(struct mob_data *md, struct map_session_data *sd) {
-	struct s_aggro_entry *entry = (struct s_aggro_entry *)linkdb_search(&md->aggro.head, (void *)(sd->status.account_id));
+	struct s_aggro_entry *entry = (struct s_aggro_entry *)linkdb_search(&md->aggro.head, (void *)(sd->bl.id));
 	if (entry == NULL) {
 		CREATE(entry, struct s_aggro_entry, 1);
-		entry->src_id = sd->status.char_id;
-		linkdb_insert(&md->aggro.head, (void *)(sd->status.account_id), entry);
+		entry->src_id = sd->bl.id;
+		linkdb_insert(&md->aggro.head, (void *)(sd->bl.id), entry);
 		linkdb_insert(&sd->aggro.head, (void *)(md->bl.id), md);
 	}
 	if (!entry->sd)
 		entry->sd = sd;
 	return entry;
+}
+
+static int mob_aggro_free_single(struct mob_data *md, struct s_aggro_entry *entry)
+{
+	if (entry != NULL) {
+		if (entry->sd) {
+			if (md->aggro.force_id == entry->sd->status.char_id)
+				md->aggro.force_id = 0;
+			linkdb_erase(&entry->sd->aggro.head, (void *)(md->bl.id));
+		}
+		linkdb_erase(&md->aggro.head, (void *)(entry->src_id));
+		aFree(entry);
+	}
+	return 1;
 }
 
 static int mob_aggro_skill_sub(struct block_list *bl, va_list ap)
@@ -6278,7 +6292,7 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 		struct linkdb_node *next = node->next;
 		struct s_aggro_entry *entry = ((struct s_aggro_entry *)node->data);
 		if (battle_config.mob_aggro_disengage != 0 && entry->disengage_tick + battle_config.mob_aggro_disengage < tick && mob_aggro_free_single(md, entry)) {
-			node = next;
+			node = md->aggro.head;
 			continue;
 		}
 		if (!entry->sd || (bl= &entry->sd->bl)->m != md->bl.m || distance_bl(bl, &md->bl) >= range || !mob_aggro_search_sub(bl, md, &(target = NULL), 0)) {
@@ -6297,20 +6311,6 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 	md->target_id = target_id;
 
 	return result ? &result->sd->bl : NULL;
-}
-
-int mob_aggro_free_single(struct mob_data *md, struct s_aggro_entry *entry)
-{
-	if (entry != NULL) {
-		if (entry->sd) {
-			if (md->aggro.force_id == entry->sd->status.char_id)
-				md->aggro.force_id = 0;
-			linkdb_erase(&entry->sd->aggro.head, (void *)(md->bl.id));
-			linkdb_erase(&md->aggro.head, (void *)(entry->sd->status.account_id));
-		}
-		aFree(entry);
-	}
-	return 1;
 }
 
 void mob_aggro_free(struct mob_data *md)
@@ -6332,10 +6332,10 @@ void mob_aggro_clear(struct map_session_data *sd)
 		struct linkdb_node *next = node->next;
 		struct mob_data *md = ((struct mob_data *)node->data);
 		if (battle_config.mob_aggro_logout_clear) {
-			linkdb_erase(&md->aggro.head, (void *)(sd->status.account_id));
+			linkdb_erase(&md->aggro.head, (void *)(sd->bl.id));
 		}
 		else {
-			struct s_aggro_entry *entry = (struct s_aggro_entry *)linkdb_search(&md->aggro.head, (void *)(sd->status.account_id));
+			struct s_aggro_entry *entry = (struct s_aggro_entry *)linkdb_search(&md->aggro.head, (void *)(sd->bl.id));
 			entry->sd = NULL;
 		}
 		node = next;

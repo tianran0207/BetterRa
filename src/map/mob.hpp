@@ -399,7 +399,6 @@ void mob_skill_db_set(void);
 int mob_aggro_skill(struct mob_data *md, struct map_session_data *sd, uint16 skill_id, t_tick tick, int x, int y);
 int mob_aggro_damage(struct mob_data *md, struct map_session_data *sd, int64 damage, t_tick tick);
 int mob_aggro_heal(struct map_session_data *sd, uint16 skill_id, int heal, t_tick tick);
-int mob_aggro_free_single(struct mob_data *md, struct s_aggro_entry *entry);
 struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick);
 void mob_aggro_free(struct mob_data *md);
 void mob_aggro_clear(struct map_session_data *sd);
