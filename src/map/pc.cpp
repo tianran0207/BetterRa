@@ -11789,15 +11789,6 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 		return false;
 	}
 	req_pos = pos = pc_equip_costume_card(sd, n);
-#ifdef EVENT_EQUIPFILTER
-	if (npc_script_event_check(sd, NPCE_EQUIPFILTER)) {
-		pc_setreg(sd, add_str("@equip_idx"), n);
-		pc_setreg(sd, add_str("@equip_pos"), req_pos);
-		npc_script_event_atonce(sd, NPCE_EQUIPFILTER);
-		if (sd->state.processhalt)
-			return false;
-	}
-#endif
 
 	equip_index = equipswitch ? sd->equip_switch_index : sd->equip_index;
 
@@ -11849,6 +11840,16 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 			flag = id->range != sd->inventory_data[i]->range;
 	}
 
+#ifdef EVENT_EQUIPFILTER
+	if (!equipswitch && npc_script_event_check(sd, NPCE_EQUIPFILTER)) {
+		pc_setreg(sd, add_str("@equip_idx"), n);
+		pc_setreg(sd, add_str("@equip_pos"), pos);
+		npc_script_event_atonce(sd, NPCE_EQUIPFILTER);
+		if (sd->state.processhalt)
+			return false;
+	}
+#endif
+
 	if( equipswitch ){
 		for( i = 0; i < EQI_MAX; i++ ){
 			if( pos&equip_bitmask[i] ){
@@ -11866,13 +11867,15 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 		clif_equipswitch_add( sd, n, pos, ITEM_EQUIP_ACK_OK );
 		return true;
 	}else{
+		for (i = 0; i < EQI_MAX; i++) {
+			if (!(pos&equip_bitmask[i]) || sd->equip_index[i] < 0)
+				continue;
+			if (!pc_unequipitem(sd, sd->equip_index[i], 2 | 4))
+				return false;
+		}
 		for(i=0;i<EQI_MAX;i++) {
-			if(pos & equip_bitmask[i]) {
-				if(sd->equip_index[i] >= 0) //Slot taken, remove item from there.
-					pc_unequipitem(sd,sd->equip_index[i],2 | 4);
-
+			if(pos & equip_bitmask[i])
 				sd->equip_index[i] = n;
-			}
 		}
 
 		pc_equipswitch_remove(sd, n);
@@ -12258,15 +12261,17 @@ int pc_equipswitch( struct map_session_data* sd, int index ){
 
 			if( unequip_index >= 0 && position & equip_bitmask[i] ){
 				struct item* unequip_item = &sd->inventory.u.items_inventory[unequip_index];
-
-				// Store the unequipped index and position mask for later
-				unequipped[unequip_index] = unequip_item->equip;
-
-				// Keep the position for later
-				unequipped_position |= unequip_item->equip;
+				unsigned int equip = unequip_item->equip;
 
 				// Unequip the item
-				pc_unequipitem( sd, unequip_index, 0 );
+				if (!pc_unequipitem(sd, unequip_index, 0))
+					continue;
+
+				// Store the unequipped index and position mask for later
+				unequipped[unequip_index] = equip;
+
+				// Keep the position for later
+				unequipped_position |= equip;
 			}
 		}
 
@@ -12276,7 +12281,7 @@ int pc_equipswitch( struct map_session_data* sd, int index ){
 		for( int i = 0; i < EQI_MAX; i++ ){
 			int exchange_index = sd->equip_switch_index[i];
 
-			if( exchange_index >= 0 && all_position & equip_bitmask[i] ){
+			if( exchange_index >= 0 && all_position & equip_bitmask[i] && sd->equip_index[i] == -1){
 				struct item* exchange_item = &sd->inventory.u.items_inventory[exchange_index];
 
 				// Store the target position
