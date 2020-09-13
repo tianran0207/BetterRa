@@ -11870,7 +11870,7 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 		for (i = 0; i < EQI_MAX; i++) {
 			if (!(pos&equip_bitmask[i]) || sd->equip_index[i] < 0)
 				continue;
-			if (!pc_unequipitem(sd, sd->equip_index[i], 2 | 4))
+			if (!pc_unequipitem(sd, sd->equip_index[i], 4))
 				return false;
 		}
 		for(i=0;i<EQI_MAX;i++) {
@@ -12133,7 +12133,7 @@ bool pc_unequipitem(struct map_session_data *sd, int n, int flag) {
 		pc_setreg(sd, add_str("@unequip_idx"), n);
 		pc_setreg(sd, add_str("@unequip_pos"), n);
 		npc_script_event_atonce(sd, NPCE_UNEQUIPFILTER);
-		if (sd->state.processhalt)
+		if (!(flag & 2) && sd->state.processhalt)
 			return false;
 	}
 #endif
