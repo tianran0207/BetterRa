@@ -1741,7 +1741,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, t_tick tick)
 
 	can_move = (mode&MD_CANMOVE) && unit_can_move(&md->bl);
 
-	if (battle_config.mob_aggro_enable && (battle_config.mob_aggro_all_mob || md->aggro.flag))
+	if (battle_config.mob_aggro_enable && can_move && (battle_config.mob_aggro_all_mob || md->aggro.flag))
 	{
 		md->attacked_id = md->norm_attacked_id = 0;
 		if (DIFF_TICK(tick, md->aggro.last_thinktime) > 1000 && (mode&MD_CANATTACK)) {
@@ -1767,7 +1767,6 @@ static bool mob_ai_sub_hard(struct mob_data *md, t_tick tick)
 			}
 			tbl = NULL;
 		}
-		mode = (enum e_mode)(mode & ~(MD_ANGRY|MD_CHANGECHASE|MD_CHANGETARGET_MELEE|MD_CHANGETARGET_CHASE|MD_RANDOMTARGET));
 	}
 
 	if (md->target_id)
@@ -3225,6 +3224,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		// If the unit is currently in a walk script, it will be removed there
 		return ud->state.walk_script ? 3 : 5; // Note: Actually, it's 4. Oh well...
 	}
+
+	mob_aggro_free(md);
+	mobskill_del(md, 0);
 
 	// MvP tomb [GreenBox]
 	if (battle_config.mvp_tomb_enabled && md->spawn->state.boss && map_getmapflag(md->bl.m, MF_NOTOMB) != 1)
@@ -6128,6 +6130,7 @@ static struct s_aggro_entry *mob_aggro_exists(struct mob_data *md, struct map_se
 		entry->src_id = sd->bl.id;
 		linkdb_insert(&md->aggro.head, (void *)(sd->bl.id), entry);
 		linkdb_insert(&sd->aggro.head, (void *)(md->bl.id), md);
+		md->status.mode = (enum e_mode)(md->status.mode & ~(MD_ANGRY|MD_CHANGECHASE|MD_CHANGETARGET_MELEE|MD_CHANGETARGET_CHASE|MD_RANDOMTARGET));
 	}
 	if (!entry->sd)
 		entry->sd = sd;
