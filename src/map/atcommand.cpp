@@ -4061,6 +4061,7 @@ ACMD_FUNC(reload) {
 		)
 		{	// Exp or Drop rates changed.
 			mob_reload(); //Needed as well so rate changes take effect.
+			pet_db.reload();
 		}
 		clif_displaymessage(fd, msg_txt(sd,255)); // Battle configuration has been reloaded.
 	} else if (strstr(command, "statusdb") || strncmp(message, "statusdb", 3) == 0) {
