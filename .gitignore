@@ -64,7 +64,7 @@ Thumbs.db
 /lib
 
 # /log
-/log
+/log/*.*
 
 # /src/char/
 /src/char/Makefile
