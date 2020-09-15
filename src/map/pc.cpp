@@ -1863,7 +1863,6 @@ void pc_reg_received(struct map_session_data *sd)
 		}
 	}
 
-#if PACKETVER_MAIN_NUM < 20190403 || PACKETVER_RE_NUM < 20190320 || PACKETVER_ZERO_NUM < 20190410
 	if (sd->instance_id > 0)
 		instance_reqinfo(sd, sd->instance_id);
 	if (sd->status.party_id > 0)
@@ -1872,7 +1871,6 @@ void pc_reg_received(struct map_session_data *sd)
 		guild_member_joined(sd);
 	if (sd->status.clan_id > 0)
 		clan_member_joined(sd);
-#endif
 
 	// pet
 	if (sd->status.pet_id > 0)
