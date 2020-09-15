@@ -4866,10 +4866,19 @@ int script_config_read(const char *cfgName)
  */
 static int db_script_free_code_sub(DBKey key, DBData *data, va_list ap)
 {
+	struct script_code *code = static_cast<script_code *>(db_data2ptr(data));
+	if (code)
+		script_free_code(code);
+	return 0;
+}
+
+static int db_func_free_code_sub(DBKey key, DBData *data, va_list ap)
+{
 	struct npc_func_data *scr = static_cast<npc_func_data *>(db_data2ptr(data));
 	if (scr->script)
 		script_free_code(scr->script);
 	aFree(scr->path);
+	aFree(scr);
 	return 0;
 }
 
@@ -5076,7 +5085,7 @@ void do_final_script() {
 	mapreg_final();
 
 	db_destroy(scriptlabel_db);
-	userfunc_db->destroy(userfunc_db, db_script_free_code_sub);
+	userfunc_db->destroy(userfunc_db, db_func_free_code_sub);
 	autobonus_db->destroy(autobonus_db, db_script_free_code_sub);
 
 	ers_destroy(array_ers);
@@ -5134,7 +5143,7 @@ void script_reload(void) {
 	DBIterator *iter;
 	struct script_state *st;
 
-	userfunc_db->clear(userfunc_db, db_script_free_code_sub);
+	userfunc_db->clear(userfunc_db, db_func_free_code_sub);
 	db_clear(scriptlabel_db);
 
 	// @commands (script based)
