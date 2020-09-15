@@ -10978,6 +10978,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 #if PACKETVER_MAIN_NUM >= 20190522 || PACKETVER_RE_NUM >= 20190508 || PACKETVER_ZERO_NUM >= 20190605
 		clif_hotkeys_send(sd,1);
 #endif
+		//clif_loadConfirm(sd);
 		clif_updatestatus(sd,SP_BASEEXP);
 		clif_updatestatus(sd,SP_NEXTBASEEXP);
 		clif_updatestatus(sd,SP_JOBEXP);
