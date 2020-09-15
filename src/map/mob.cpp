@@ -1745,7 +1745,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, t_tick tick)
 	{
 		md->attacked_id = md->norm_attacked_id = 0;
 		if (DIFF_TICK(tick, md->aggro.last_thinktime) > 1000 && (mode&MD_CANATTACK)) {
-			tbl = mob_aggro_search(md, view_range, tick);
+			tbl = mob_aggro_search(md, md->min_chase, tick);
 			md->aggro.last_thinktime = tick;
 			if (tbl && tbl->id != md->target_id)
 			{
