@@ -16689,7 +16689,7 @@ void clif_parse_Mail_setattach(int fd, struct map_session_data *sd){
 
 	if( !chrif_isconnected() )
 		return;
-	if (amount <= 0 || server_index(idx) >= MAX_INVENTORY)
+	if (amount <= 0 || server_index(idx) < 0 || server_index(idx) >= MAX_INVENTORY)
 		return;
 
 	if (sd->inventory_data[server_index(idx)] == nullptr)
