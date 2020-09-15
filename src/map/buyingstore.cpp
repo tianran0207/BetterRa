@@ -286,7 +286,25 @@ int8 buyingstore_create( struct map_session_data* sd, int zenylimit, unsigned ch
 			return 5;
 		}
 	}
-
+	if (npc_script_event_check(sd, NPCE_OPENBUYINGFILTER)) {
+		for (int j = 0; j < i; j++) {
+			pc_setreg(sd, reference_uid(add_str("@buyiny_nameid"), j), sd->buyingstore.items[j].nameid);
+			pc_setreg(sd, reference_uid(add_str("@buyiny_amount"), j), sd->buyingstore.items[j].amount);
+			pc_setreg(sd, reference_uid(add_str("@buyiny_price"), j), sd->buyingstore.items[j].price);
+		}
+		pc_setreg(sd, add_str("@buyiny_count"), i);
+		pc_setreg(sd, add_str("@buyiny_loot"), sd->vend_loot);
+		npc_script_event_atonce(sd, NPCE_OPENBUYINGFILTER);
+		for (int j = 0; j < i; j++) {
+			sd->buyingstore.items[j].amount = static_cast<short>(pc_readreg(sd, reference_uid(add_str("@buyiny_amount"), j)));
+			sd->buyingstore.items[j].price = static_cast<unsigned int>(pc_readreg(sd, reference_uid(add_str("@buyiny_price"), j)));
+		}
+		if (sd->state.processhalt) {
+			sd->buyingstore.slots = 0;
+			clif_buyingstore_open_failed(sd, BUYINGSTORE_CREATE, 0);
+			return 5;
+		}
+	}
 	// success
 	sd->state.buyingstore = true;
 	sd->buyer_id = buyingstore_getuid();

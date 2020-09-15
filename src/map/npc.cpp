@@ -5264,6 +5264,8 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.move_filter_name;
 	case NPCE_OPENVENDFILTER:
 		return script_config.open_vend_filter_name;
+	case NPCE_OPENBUYINGFILTER:
+		return script_config.open_buying_filter_name;
 	case NPCE_TRADEADDFILTER:
 		return script_config.trade_add_filter_name;
 	case NPCE_MAILADDFILTER:

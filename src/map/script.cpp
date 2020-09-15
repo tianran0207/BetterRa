@@ -371,6 +371,7 @@ struct Script_Config script_config = {
 	"OnPCMannerFilter", //manner_filter_name
 	"OnPCMoveFilter", //move_filter_name
 	"OnPCOpenVendFilter", //open_vend_filter_name
+	"OnPCOpenBuyingFilter", //open_buying_filter_name
 	"OnPCTradeAddFilter", //trade_add_filter_name
 	"OnPCMailAddFilter", //mail_add_filter_name
 	"OnPCStorageAddFilter", //storage_add_filter_name
