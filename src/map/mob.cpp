@@ -1741,11 +1741,10 @@ static bool mob_ai_sub_hard(struct mob_data *md, t_tick tick)
 
 	can_move = (mode&MD_CANMOVE) && unit_can_move(&md->bl);
 
-	if (battle_config.mob_aggro_enable && can_move && (battle_config.mob_aggro_all_mob || md->aggro.flag))
+	if (battle_config.mob_aggro_enable && (battle_config.mob_aggro_all_mob || md->aggro.flag))
 	{
-		md->attacked_id = md->norm_attacked_id = 0;
 		if (DIFF_TICK(tick, md->aggro.last_thinktime) > 1000 && (mode&MD_CANATTACK)) {
-			tbl = mob_aggro_search(md, md->min_chase, tick);
+			tbl = mob_aggro_search(md, md->db->range3+1, tick);
 			md->aggro.last_thinktime = tick;
 			if (tbl && tbl->id != md->target_id)
 			{
@@ -6268,12 +6267,15 @@ int mob_aggro_damage(struct mob_data *md, struct map_session_data *sd, int64 dam
 	return 1;
 }
 
-static int mob_aggro_search_sub(struct block_list *bl, ...) {
-	va_list ap;
-	va_start(ap, bl);
-	int result = mob_ai_sub_hard_activesearch(bl, ap);
-	va_end(ap);
-	return result;
+static int mob_aggro_search_sub(struct mob_data *md, struct block_list *bl, int range)
+{
+	if (md->bl.m != bl->m || bl->prev == NULL
+		|| (distance_bl(&md->bl, bl)) >= range // Attacker longer than visual area
+		|| battle_check_target(&md->bl, bl, BCT_ENEMY) <= 0 // Attacker is not enemy of mob
+		|| !status_check_skilluse(&md->bl, bl, 0, 0)) // Cannot normal attack back to Attacker
+		return 0;
+
+	return 1;
 }
 
 struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
@@ -6284,8 +6286,8 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 	int target_id = md->target_id;
 	if (md->aggro.force_tick > tick) {
 		struct map_session_data *sd = map_charid2sd(md->aggro.force_id);
-		if (sd && (bl = &sd->bl)->m == md->bl.m && distance_bl(bl, &md->bl) < AREA_SIZE && mob_aggro_search_sub(bl, md, &(target = NULL), 0))
-			return bl;
+		if (sd && mob_aggro_search_sub(md, bl, range))
+			return &sd->bl;
 		md->aggro.force_id = 0;
 		md->aggro.force_tick = 0;
 	}
@@ -6298,7 +6300,7 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 			node = md->aggro.head;
 			continue;
 		}
-		if (!entry->sd || (bl= &entry->sd->bl)->m != md->bl.m || distance_bl(bl, &md->bl) >= range || !mob_aggro_search_sub(bl, md, &(target = NULL), 0)) {
+		if (!entry->sd || !mob_aggro_search_sub(md, &entry->sd->bl, range)) {
 			node = next;
 			continue;
 		}
