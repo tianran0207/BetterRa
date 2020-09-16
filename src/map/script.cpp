@@ -16824,7 +16824,7 @@ BUILDIN_FUNC(delchar)
 	char *output;
 	size_t len = strlen(str);
 
-	if(index < 0 || index > len) {
+	if(index < 0 || index > len || !len) {
 		//return original
 		output = aStrdup(str);
 		script_pushstr(st, output);
@@ -26570,7 +26570,7 @@ BUILDIN_FUNC(sc_check)
 	pc_setreg(sd, add_str("@sc_val3"), sc->data[type]->val3);
 	pc_setreg(sd, add_str("@sc_val4"), sc->data[type]->val4);
 	timer = get_timer(sd->sc.data[type]->timer);
-	pc_setreg(sd, add_str("@sc_tickleft"), (timer ? (int)DIFF_TICK(timer->tick, gettick()) : -1));
+	pc_setreg(sd, add_str("@sc_tickleft"), (timer ? DIFF_TICK(timer->tick, gettick()) : -1));
 	script_pushint(st, 1);
 	return SCRIPT_CMD_SUCCESS;
 }

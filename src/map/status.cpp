@@ -11817,6 +11817,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			}
 			break;
 		case SC_GLOOMYDAY_SK:
+			if ((((sd?pc_checkskill(sd, WM_LESSON)*5:0) + val1*10) == 0) break;
 			// Random number between [15 ~ (Voice Lesson Skill Level x 5) + (Skill Level x 10)] %.
 			val2 = 15 + rnd()%( (sd?pc_checkskill(sd, WM_LESSON)*5:0) + val1*10 );
 			break;
