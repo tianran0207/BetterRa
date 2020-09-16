@@ -288,16 +288,16 @@ int8 buyingstore_create( struct map_session_data* sd, int zenylimit, unsigned ch
 	}
 	if (npc_script_event_check(sd, NPCE_OPENBUYINGFILTER)) {
 		for (int j = 0; j < i; j++) {
-			pc_setreg(sd, reference_uid(add_str("@buyiny_nameid"), j), sd->buyingstore.items[j].nameid);
-			pc_setreg(sd, reference_uid(add_str("@buyiny_amount"), j), sd->buyingstore.items[j].amount);
-			pc_setreg(sd, reference_uid(add_str("@buyiny_price"), j), sd->buyingstore.items[j].price);
+			pc_setreg(sd, reference_uid(add_str("@buying_nameid"), j), sd->buyingstore.items[j].nameid);
+			pc_setreg(sd, reference_uid(add_str("@buying_amount"), j), sd->buyingstore.items[j].amount);
+			pc_setreg(sd, reference_uid(add_str("@buying_price"), j), sd->buyingstore.items[j].price);
 		}
-		pc_setreg(sd, add_str("@buyiny_count"), i);
-		pc_setreg(sd, add_str("@buyiny_loot"), sd->vend_loot);
+		pc_setreg(sd, add_str("@buying_count"), i);
+		pc_setreg(sd, add_str("@buying_loot"), sd->vend_loot);
 		npc_script_event_atonce(sd, NPCE_OPENBUYINGFILTER);
 		for (int j = 0; j < i; j++) {
-			sd->buyingstore.items[j].amount = static_cast<short>(pc_readreg(sd, reference_uid(add_str("@buyiny_amount"), j)));
-			sd->buyingstore.items[j].price = static_cast<unsigned int>(pc_readreg(sd, reference_uid(add_str("@buyiny_price"), j)));
+			sd->buyingstore.items[j].amount = static_cast<short>(pc_readreg(sd, reference_uid(add_str("@buying_amount"), j)));
+			sd->buyingstore.items[j].price = static_cast<unsigned int>(pc_readreg(sd, reference_uid(add_str("@buying_price"), j)));
 		}
 		if (sd->state.processhalt) {
 			sd->buyingstore.slots = 0;
