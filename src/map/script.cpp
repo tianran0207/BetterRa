@@ -30761,6 +30761,55 @@ BUILDIN_FUNC(getcirclexy)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(array_keys)
+{
+	struct script_data *data = script_getdata(st, 2);
+	struct script_data *data_out = script_getdata(st, 3);
+	const char *name, *name_out;
+	int id, array_size;
+	unsigned int *list = NULL;
+	struct map_session_data* sd = NULL;
+	struct reg_db *ref_out = NULL;
+
+	if (!data_isreference(data)) {
+		ShowError("buildin_sortarray: first array is not a variable\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	name = reference_getname(data);
+	if (not_server_variable(*name) && !script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!data_isreference(data_out) || data_isstring(data_out)) {
+		ShowError("buildin_sortarray: first array is not a variable\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	name_out = reference_getname(data_out);
+	if (not_server_variable(*name_out) && !script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	struct reg_db *src;
+	struct script_array *sa;
+
+	if (!(src = script_array_src(st, sd, name, reference_getref(data))) || !src->arrays)
+		return SCRIPT_CMD_SUCCESS;
+
+	if (!(sa = static_cast<script_array *>(idb_get(src->arrays, search_str(name)))))
+		return SCRIPT_CMD_SUCCESS;
+
+	list = script_array_cpy_list(sa);
+	array_size = sa->size;
+
+	id = reference_getid(data_out);
+	ref_out = reference_getref(data_out);
+	
+	for (int i = 0; i < array_size; i++)
+		set_reg_num(st, sd, reference_uid(id, i), name_out, list[i], ref_out);
+
+	script_pushint(st, array_size);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -31905,6 +31954,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(enableontouch, "disableontouch", "s?"),
 	BUILDIN_DEF(getlinexy, "iiiirr"),
 	BUILDIN_DEF(getcirclexy, "iiirr"),
+	BUILDIN_DEF(array_keys, "rr"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),

@@ -2629,6 +2629,29 @@ Example:
 
 ----------------------------------------
 
+*array_keys <数组>,<存入数组>;
+
+获取数组中所有值非0(非空字符串)的键, 并将键存入指定的数组中, 主要用于以玩家的aid或cid作为键值的数组(.@damage[getcharid(0)] += 100)
+
+例: // .@array[键] = 值;
+	.@test[5] = 1;
+	.@test[3] = 2;
+	.@test[1024] = 9918;
+	.@test[789523] = 12345678;
+	array_keys .@test,.@idx;
+	for (.@i = 0; .@i < getarraysize(.@idx); .@i++)
+		dispbottom "key: "+.@idx[.@i]+" value: "+.@test[.@idx[.@i]];
+	// 输出:
+	// 	key: 5 value: 1;
+	// 	key: 3 value: 2;
+	// 	key: 1024 value: 9918;
+	// 	key: 789523 value: 12345678;
+	
+返回值: 
+	获取到键的数量
+
+----------------------------------------
+
 *rfifo_int <读取位置>,<字节数>;
 
 当 OnPCSocketRecvFilter 事件接收到封包时, 可以用本指令获取‘接收封包’中对应位置的数字数据.
