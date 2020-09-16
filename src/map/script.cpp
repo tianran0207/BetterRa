@@ -26066,10 +26066,10 @@ BUILDIN_FUNC(setinventoryinfo)
 		case 13:		inv_info.item.equipSwitch = script_getnum(st, 4);	break;
 		case 16:		inv_info.item.favorite = script_getnum(st, 4);		break;
 		case -1:
-			opt_id = script_getnum(st, 4);
-			inv_info.item.option[opt_id].id = script_getnum(st, 5);
-			inv_info.item.option[opt_id].value = script_getnum(st, 6);
-			inv_info.item.option[opt_id].param = script_getnum(st, 7);
+			opt_id = script_getnum(st, 3);
+			inv_info.item.option[opt_id].id = script_getnum(st, 4);
+			inv_info.item.option[opt_id].value = script_getnum(st, 5);
+			inv_info.item.option[opt_id].param = script_getnum(st, 6);
 			break;
 		default:
 			ShowError("buildin_%s: Invalid type %d\n", command, script_getnum(st, 3));
