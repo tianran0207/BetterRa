@@ -6282,11 +6282,10 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 {
 	struct linkdb_node *node = md->aggro.head;
 	struct s_aggro_entry *result = NULL;
-	struct block_list *target = NULL, *bl;
 	int target_id = md->target_id;
 	if (md->aggro.force_tick > tick) {
 		struct map_session_data *sd = map_charid2sd(md->aggro.force_id);
-		if (sd && mob_aggro_search_sub(md, bl, range))
+		if (sd && mob_aggro_search_sub(md, &sd->bl, range))
 			return &sd->bl;
 		md->aggro.force_id = 0;
 		md->aggro.force_tick = 0;
