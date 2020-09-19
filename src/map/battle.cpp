@@ -682,7 +682,7 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 			int target_state = sd->skill_id * 100 + it.target_atkele * 10 + def_type;
 			if (def_type == ELE_NEUTRAL && atk_elem != ELE_GHOST)
 				continue;
-			if (it.sk == 0 && it.sk != sd->skill_id)
+			if (it.sk != 0 && it.sk != sd->skill_id)
 				continue;
 			if (it.sk == -1 && sd->skill_id == 0)
 				continue;
