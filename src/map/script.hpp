@@ -489,6 +489,20 @@ enum  inventory_mask {
 	INV_ALL         = 0xFFFF
 };
 
+enum  foreach_mask {
+	SFE_MAP = 1,
+	SFE_MAP_RANGE,
+	SFE_MAP_PARTY,
+	SFE_MAP_GUILD,
+	SFE_MAP_AREA,
+	SFE_PARTY,
+	SFE_GUILD,
+	SFE_MAP_TRIBE,
+	SFE_TRIBE,
+	SFE_MAP_BG,
+	SFE_BG,
+};
+
 enum status_type {
 	STATUS_NONE,
 	STATUS_HP,

@@ -635,6 +635,18 @@
 	export_constant(PH_ASTARTWALK);
 	export_constant(PH_ASTARTWALKBACK);
 
+	export_constant(SFE_MAP);
+	export_constant(SFE_MAP_RANGE);
+	export_constant(SFE_MAP_PARTY);
+	export_constant(SFE_MAP_GUILD);
+	export_constant(SFE_MAP_AREA);
+	export_constant(SFE_PARTY);
+	export_constant(SFE_GUILD);
+	export_constant(SFE_MAP_TRIBE);
+	export_constant(SFE_TRIBE);
+	export_constant(SFE_MAP_BG);
+	export_constant(SFE_BG);
+
 	export_constant(SC_BOT);
 	export_constant(SC_BLOCKING_ALIVE);
 	export_constant(SC_BLOCKING_WEAPON);

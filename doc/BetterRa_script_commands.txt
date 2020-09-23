@@ -532,18 +532,20 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 *script4eachnpc "{<脚本>}",<覆盖范围>{,<参数>...};
 *script4eachnpc "NPCNAME::EVENT",<覆盖范围>{,<参数>...};
 
-对指定范围的玩家、魔物、NPC执行相同的一段脚本，在"{<脚本>}或NPCNAME::EVENT"中使用 $@gid 来获取和脚本关联的玩家、魔物、NPC的 GID.
+对指定范围的玩家、魔物、NPC执行相同的一段脚本，在"{<脚本>}或NPCNAME::EVENT"中使用 $@gid 来获取和脚本关联的玩家、魔物、NPC的 GID. 阵营魔物同样可以使用本指令.
 
 全服				  - script4each "{<脚本>}或NPCNAME::EVENT",0;
-指定地图			- script4each "{<脚本>}或NPCNAME::EVENT",1,"地图名";
-指定区域			- script4each "{<脚本>}或NPCNAME::EVENT",2,"地图名",中心坐标x,中心坐标y,范围;
-指定地图上的队伍	- script4each "{<脚本>}或NPCNAME::EVENT",3,"地图名",队伍编号;
-指定地图上的公会	- script4each "{<脚本>}或NPCNAME::EVENT",4,"地图名",公会编号;
-指定区域			- script4each "{<脚本>}或NPCNAME::EVENT",5,"地图名",坐标x0,坐标y0,坐标x1,坐标y1;
-指定队伍			- script4each "{<脚本>}或NPCNAME::EVENT",6,队伍编号;
-指定公会			- script4each "{<脚本>}或NPCNAME::EVENT",7,公会编号;
-指定地图上的阵营	- script4each "{<脚本>}或NPCNAME::EVENT",8,"地图名",阵营编号;
-指定阵营			- script4each "{<脚本>}或NPCNAME::EVENT",9,阵营编号;
+指定地图			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP,"地图名";
+指定区域			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP_RANGE,"地图名",中心坐标x,中心坐标y,范围;
+指定地图上的队伍	- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP_PARTY,"地图名",队伍编号;
+指定地图上的公会	- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP_GUILD,"地图名",公会编号;
+指定区域			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP_AREA,"地图名",坐标x0,坐标y0,坐标x1,坐标y1;
+指定队伍			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_PARTY,队伍编号;
+指定公会			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_GUILD,公会编号;
+指定地图上的阵营	- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP_TRIBE,"地图名",Tribe阵营编号;
+指定阵营			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_TRIBE,Tribe阵营编号;
+指定地图上的阵营	- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP_BG,"地图名",BG阵营编号;
+指定阵营			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_BG,BG阵营编号;
 
 例:
 	script4eachmob "{unittalk $@gid,\"123456\";}",1,"prontera";
