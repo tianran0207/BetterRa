@@ -4564,9 +4564,8 @@ static void script_detach_state(struct script_state* st, bool dequeue_event)
 			sd->state.using_fake_npc = st->bk.using_fake_npc;
 			sd->state.menu_or_input = st->bk.menu_or_input;
 			sd->npc_menu = st->bk.npc_menu;
-			sd->npc_id = st->bk_npcid;
-			sd->st = st->bk_st;
-		} else if(st->bk_st) {
+		}
+		if(st->bk_st) {
 			//Remove tag for removal.
 			st->bk_st = NULL;
 			st->bk_npcid = 0;
