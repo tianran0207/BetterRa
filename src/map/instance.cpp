@@ -189,6 +189,9 @@ uint64 InstanceDatabase::parseBodyNode(const YAML::Node &node) {
 			if (!this->asBool(mapNode, map, active))
 				return 0;
 
+			if (active && util::vector_exists(instance->maplist, m))
+				continue;
+
 			if (active)
 				instance->maplist.push_back(m);
 			else
@@ -1478,17 +1481,13 @@ bool instance_readdb_sub(char* str[], int columns, int current)
 				ShowWarning("instance_readdb_sub: Invalid map '%s' in maplist, skipping...\n", str[i]);
 				continue;
 			}
-
 			if (instance->enter.map == m) {
 				ShowWarning("instance_readdb_sub: '%s'(Map%d) must not be equal to EnterMap for instance id '%d', skipping...\n", str[i], i - 5, instance_id);
 				continue;
 			}
-			for (const auto &it : instance->maplist) {
-				if (it == m) {
-					ShowWarning("instance_readdb_sub: '%s'(Map%d) was already added for instance id '%d', skipping...\n", str[i], i - 5, instance_id);
-					continue; // Skip it
-				}
-			}
+			if (util::vector_exists(instance->maplist, m))
+				continue;
+
 			instance->maplist.push_back(m);
 		}
 	}
