@@ -8976,7 +8976,7 @@ static const struct _battle_data {
 	{ "dropeffect_card",                    &battle_config.dropeffect_card,                 0,      0,      6,              },
 	{ "dropeffect_shadowgear",              &battle_config.dropeffect_shadowgear,           0,      0,      6,              },
 	{ "bonus_ratefix",                      &battle_config.bonus_ratefix,                   0,      0,      100,            },
-	{ "bonus_addmax",                       &battle_config.bonus_addmax,                    0,      0,      1000,           },
+	{ "bonus_addmax",                       &battle_config.bonus_addmax,                    0,      0,      INT_MAX,        },
 	{ "bonus_submax",                       &battle_config.bonus_submax,                    0,      0,      1000,           },
 	{ "always_npc_kill_event",              &battle_config.always_npc_kill_event,           0,      0,      1,              },
 	{ "always_mvp_kill_event",              &battle_config.always_mvp_kill_event,           0,      0,      1,              },
