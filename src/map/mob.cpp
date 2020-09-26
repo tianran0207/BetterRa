@@ -6131,8 +6131,7 @@ static struct s_aggro_entry *mob_aggro_exists(struct mob_data *md, struct map_se
 		linkdb_insert(&sd->aggro.head, (void *)(md->bl.id), md);
 		md->status.mode = (enum e_mode)(md->status.mode & ~(MD_ANGRY|MD_CHANGECHASE|MD_CHANGETARGET_MELEE|MD_CHANGETARGET_CHASE|MD_RANDOMTARGET));
 	}
-	if (!entry->sd)
-		entry->sd = sd;
+	entry->sd = sd;
 	return entry;
 }
 
@@ -6140,9 +6139,10 @@ static int mob_aggro_free_single(struct mob_data *md, struct s_aggro_entry *entr
 {
 	if (entry != NULL) {
 		if (entry->sd) {
-			if (md->aggro.force_id == entry->sd->status.char_id)
+			if (md->aggro.force_id == entry->src_id)
 				md->aggro.force_id = 0;
-			linkdb_erase(&entry->sd->aggro.head, (void *)(md->bl.id));
+			if ((entry->sd = map_id2sd(entry->src_id)) != NULL)
+				linkdb_erase(&entry->sd->aggro.head, (void *)(md->bl.id));
 		}
 		linkdb_erase(&md->aggro.head, (void *)(entry->src_id));
 		aFree(entry);
@@ -6172,7 +6172,7 @@ static int mob_aggro_skill_sub(struct block_list *bl, va_list ap)
 	sc_type type;
 	entry->aggro += skill->aggro.extra;
 	if (skill->aggro.force) {
-		md->aggro.force_id = sd->status.char_id;
+		md->aggro.force_id = sd->bl.id;
 		md->aggro.force_tick = tick + skill->aggro.force;
 	}
 	if (skill->aggro.rate && (type = status_skill2sc(skill->nameid)) != SC_NONE) {
@@ -6284,7 +6284,7 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 	struct s_aggro_entry *result = NULL;
 	int target_id = md->target_id;
 	if (md->aggro.force_tick > tick) {
-		struct map_session_data *sd = map_charid2sd(md->aggro.force_id);
+		struct map_session_data *sd = map_id2sd(md->aggro.force_id);
 		if (sd && mob_aggro_search_sub(md, &sd->bl, range))
 			return &sd->bl;
 		md->aggro.force_id = 0;
@@ -6340,7 +6340,7 @@ void mob_aggro_clear(struct map_session_data *sd)
 		}
 		else {
 			struct s_aggro_entry *entry = (struct s_aggro_entry *)linkdb_search(&md->aggro.head, (void *)(sd->bl.id));
-			entry->sd = NULL;
+			if (entry) entry->sd = NULL;
 		}
 		node = next;
 	}
