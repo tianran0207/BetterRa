@@ -10666,6 +10666,19 @@ ACMD_FUNC(cashshopsale)
 	return 0;
 }
 
+ACMD_FUNC(mapname)
+{
+	int mapid;
+
+	if (sscanf(message, "%d", &mapid) < 1)
+		return -1;
+	if (mapid < 0 || mapid > MAX_MAP_PER_SERVER)
+		return -1;
+
+	clif_displaymessage(fd, map_getmapdata(mapid)->name);
+	return 0;
+}
+
 /**
  * Fills the reference of available commands in atcommand DBMap
  **/
@@ -10979,6 +10992,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(verification),
 		ACMD_DEF(bot),
 		ACMD_DEF(cashshopsale),
+		ACMD_DEF(mapname),
 		ACMD_DEFR(camerainfo, ATCMD_NOCONSOLE|ATCMD_NOAUTOTRADE),
 		ACMD_DEFR(resurrect, ATCMD_NOCONSOLE),
 		ACMD_DEF2("setquest", quest),
