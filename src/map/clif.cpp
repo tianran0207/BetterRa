@@ -1093,7 +1093,7 @@ static void clif_set_unit_idle( struct block_list* bl, bool walking, send_target
 		p.bodypalette = vd->cloth_color;
 		p.headDir = ( sd )? sd->head_dir : 0;
 		p.GUID = g_id;
-		p.GEmblemVer = status_get_emblem_id( bl );
+		p.GEmblemVer = map_getmapflag(bl->m, MF_HIDEGUILDINFO) ? 0 : status_get_emblem_id( bl );
 		p.honor = ( sd ) ? sd->status.manner : 0;
 		p.virtue = ( sc ) ? sc->opt3 : 0;
 		p.isPKModeON = ( sd && sd->status.karma ) ? 1 : 0;
@@ -1165,7 +1165,7 @@ static void clif_set_unit_idle( struct block_list* bl, bool walking, send_target
 	p.robe = vd->robe;
 #endif
 	p.GUID = g_id;
-	p.GEmblemVer = status_get_emblem_id( bl );
+	p.GEmblemVer = map_getmapflag(bl->m, MF_HIDEGUILDINFO) ? 0 : status_get_emblem_id( bl );
 	p.honor = (sd) ? sd->status.manner : 0;
 	p.virtue = (sc) ? sc->opt3 : 0;
 	p.isPKModeON = (sd && sd->status.karma) ? 1 : 0;
@@ -1300,7 +1300,7 @@ static void clif_spawn_unit( struct block_list *bl, enum send_target target ){
 	p.robe = vd->robe;
 #endif
 	p.GUID = g_id;
-	p.GEmblemVer = status_get_emblem_id( bl );
+	p.GEmblemVer = map_getmapflag(bl->m, MF_HIDEGUILDINFO) ? 0 : status_get_emblem_id( bl );
 	p.honor = (sd) ? sd->status.manner : 0;
 	p.virtue = (sc) ? sc->opt3 : 0;
 	p.isPKModeON = (sd && sd->status.karma) ? 1 : 0;
@@ -1403,7 +1403,7 @@ static void clif_set_unit_walking( struct block_list *bl, struct map_session_dat
 	p.robe = vd->robe;
 #endif
 	p.GUID = g_id;
-	p.GEmblemVer = status_get_emblem_id(bl);
+	p.GEmblemVer = map_getmapflag(bl->m, MF_HIDEGUILDINFO) ? 0 : status_get_emblem_id(bl);
 	p.honor = (sd) ? sd->status.manner : 0;
 	p.virtue = (sc) ? sc->opt3 : 0;
 	p.isPKModeON = (sd && sd->status.karma) ? 1 : 0;
@@ -3272,6 +3272,9 @@ void clif_guild_xy(struct map_session_data *sd)
 
 	nullpo_retv(sd);
 
+	if (map_getmapflag(sd->bl.m, MF_HIDEGUILDINFO))
+		return;
+
 	WBUFW(buf,0)=0x1eb;
 	WBUFL(buf,2)=sd->status.account_id;
 	WBUFW(buf,6)=sd->bl.x;
@@ -3285,6 +3288,8 @@ void clif_guild_xy(struct map_session_data *sd)
 void clif_guild_xy_single(int fd, struct map_session_data *sd)
 {
 	if( sd->bg_id )
+		return;
+	if (map_getmapflag(sd->bl.m, MF_HIDEGUILDINFO))
 		return;
 
 	WFIFOHEAD(fd,packet_len(0x1eb));
@@ -8046,6 +8051,9 @@ void clif_party_xy(struct map_session_data *sd)
 
 	nullpo_retv(sd);
 
+	if (map_getmapflag(sd->bl.m, MF_HIDEPARTYINFO))
+		return;
+
 	WBUFW(buf,0)=0x107;
 	WBUFL(buf,2)=sd->status.account_id;
 	WBUFW(buf,6)=sd->bl.x;
@@ -8059,6 +8067,8 @@ void clif_party_xy(struct map_session_data *sd)
  *------------------------------------------*/
 void clif_party_xy_single(int fd, struct map_session_data *sd)
 {
+	if (map_getmapflag(sd->bl.m, MF_HIDEPARTYINFO))
+		return;
 	WFIFOHEAD(fd,packet_len(0x107));
 	WFIFOW(fd,0)=0x107;
 	WFIFOL(fd,2)=sd->status.account_id;
