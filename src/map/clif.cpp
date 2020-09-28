@@ -9049,7 +9049,7 @@ void clif_guild_emblem_area(struct block_list* bl)
 
 	p.packetType = changeGuildEmblem;
 	p.guild_id = status_get_guild_id(bl);
-	p.emblem_id = map_getmapflag(bl->m, MF_HIDEGUILDINFO)) ? 0 : status_get_emblem_id(bl);
+	p.emblem_id = map_getmapflag(bl->m, MF_HIDEGUILDINFO) ? 0 : status_get_emblem_id(bl);
 
 #if PACKETVER < 20190724
 	p.aid = bl->id;
