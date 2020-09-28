@@ -9002,10 +9002,8 @@ BUILDIN_FUNC(getcharid)
 
 	num = script_getnum(st,2);
 
-	if( !script_nick2sd(3,sd) ){
-		script_pushint(st,0); //return 0, according docs
-		return SCRIPT_CMD_SUCCESS;
-	}
+	if( !script_nick2sd(3,sd) )
+		return SCRIPT_CMD_FAILURE;
 
 	switch( num ) {
 	case 0: script_pushint(st,sd->status.char_id); break;
