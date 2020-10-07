@@ -11933,13 +11933,13 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 
 	switch (skill_id) {
 		case MO_EXTREMITYFIST:
-			if (battle_config.extremityfist_castend_ball_check) {
-				struct map_session_data *sd;
-				sd = BL_CAST(BL_PC, src);
-				if (sd && sd->spiritball < 5)
+			if (src->type == BL_PC && battle_config.extremityfist_castend_ball_check) {
+				struct map_session_data *sd = (struct map_session_data *)src;
+				struct s_skill_condition req = skill_get_requirement(sd, skill_id, skill_lv);
+				if (sd && sd->spiritball < req.spiritball)
 					return USESKILL_FAIL_SPIRITS;
 			}
-			if (battle_config.extremityfist_castend_status_check) {
+			if (src->type == BL_PC && battle_config.extremityfist_castend_status_check) {
 				struct status_change *sc = status_get_sc(src);
 				if (!sc || !sc->data[SC_EXPLOSIONSPIRITS])
 					return USESKILL_FAIL_EXPLOSIONSPIRITS;
