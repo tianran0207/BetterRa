@@ -174,6 +174,7 @@ struct mob_db {
 	unsigned int option;
 	int maxskill;
 	struct mob_skill skill[MAX_MOBSKILL];
+	int damage_rate;
 };
 
 #define MAX_AGGRO_RATE 2

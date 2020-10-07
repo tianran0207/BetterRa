@@ -5414,6 +5414,20 @@ static int mob_read_sqlskilldb(void)
 	return 0;
 }
 
+static bool mob_readdb_dmgrate(char* fields[], int columns, int current)
+{
+	unsigned short mobid;
+	struct mob_db *mob;
+
+	mobid = atoi(fields[0]);
+	if ((mob = mob_db(mobid)) == NULL) {
+		ShowError("mob_readdb_dmgrate: Invalid monster ID %s.\n", fields[0]);
+		return false;
+	}
+	mob->damage_rate = atoi(fields[1]);
+	return true;
+}
+
 /*==========================================
  * mob_race2_db.txt reading
  *------------------------------------------*/
@@ -5922,6 +5936,7 @@ static void mob_load(void)
 		else
 			mob_readskilldb(dbsubpath2, silent);
 
+		sv_readdb(dbsubpath2, "mob_dmgrate_db.txt", ',', 2, 2, -1, &mob_readdb_dmgrate, silent);
 		sv_readdb(dbsubpath2, "mob_race2_db.txt", ',', 2, MAX_RACE2_MOBS, -1, &mob_readdb_race2, silent);
 		sv_readdb(dbsubpath1, "mob_item_ratio.txt", ',', 2, 2+MAX_ITEMRATIO_MOBS, -1, &mob_readdb_itemratio, silent);
 		sv_readdb(dbsubpath1, "mob_item_ratefix.txt", ',', 2, 2+MAX_ITEMRATIO_MOBS, -1, &mob_readdb_itemratefix, silent);

@@ -425,6 +425,15 @@ int64 battle_damage_event(struct block_list* src, struct block_list* target, str
 	struct map_session_data* sd;
 	struct unit_data *ud = NULL;
 	struct map_data *mapdata;
+	if (battle_config.mob_dmgrate_db && wd->damage + wd->damage2 > 0) {
+		struct mob_data* md = BL_CAST(BL_MOB, target);
+		if (md && md->db->damage_rate) {
+			wd->damage = wd->damage * md->db->damage_rate / 10000;
+			wd->damage2 = wd->damage2 * md->db->damage_rate / 10000;
+			if (wd->damage <= 0)
+				wd->damage = 1;
+		}
+	}
 	int64 damage = wd->damage + wd->damage2, ddamage = 0;
 	battle_display.block_id = 0;
 	if (damage <= 0)
@@ -9044,7 +9053,8 @@ static const struct _battle_data {
 	{ "min_damage",                         &battle_config.min_damage,                      INT_MIN,INT_MIN,INT_MAX,        },
 	{ "preloading_mvps",                    &battle_config.preloading_mvps,                 0,      0,      1,              },
 	{ "damage_return_mode",                 &battle_config.damage_return_mode,              0,      0,      2,              },
-	{ "ignore_insert_card_specific",        &battle_config.ignore_insert_card_specific,     0,      0,      1,              },
+	{ "ignore_insert_card_specific",        &battle_config.ignore_insert_card_specific,     0,      0,      1,              }, 
+	{ "mob_dmgrate_db",                     &battle_config.mob_dmgrate_db,                  0,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },
