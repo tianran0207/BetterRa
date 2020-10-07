@@ -675,6 +675,7 @@ enum e_mapflag : int16 {
 	MF_MAXASPD,
 	MF_HIDEDAMAGE,
 	MF_INVENTORY_DB,
+	MF_CONVENIO,
 	MF_MAX
 };
 

@@ -4481,6 +4481,8 @@ ACMD_FUNC(mapinfo) {
 		strcat(atcmd_output, " HideDamage |");
 	if (map_getmapflag(m_id, MF_INVENTORY_DB))
 		strcat(atcmd_output, " INVENTORY |");
+	if (map_getmapflag(m_id, MF_CONVENIO))
+		strcat(atcmd_output, " CONVENIO |");
 	//-------------------------------------
 
 	clif_displaymessage(fd, atcmd_output);
