@@ -1876,6 +1876,36 @@ prontera,150,150,4	shop	Buy_Title_Test	48,501:-1
 
 ---------------------------------------
 
+*specialeffectnum(<特效ID>,<特效参数>{,<发送目标>{,<源GID>{,<目标GID>}}});
+*specialeffectnum(<特效ID>,<特效参数>{,<发送目标>{,"<源NPC名>"{,<目标GID>}}});
+
+使目标显示一个带参数的特效效果, 如果指定 <源GID>("<源NPC名>") 则特效会显示在指定的源实体上
+
+发送目标
+   AREA - 发送给可视范围内的玩家(默认)
+   SELF - 发送给自己, 如果指定<目标GID> 则特效只能指定玩家看到
+   PARTY_AREA - 发送给可视范围内的指定队伍
+   GUILD_AREA - 发送给可视范围内的指定公会
+   BG_AREA - 发送给可视范围内的指定BG队伍
+
+---------------------------------------
+
+*removespecialeffect(<特效ID>{,<发送目标>{,<源GID>{,<目标GID>}}});
+*removespecialeffect(<特效ID>{,<发送目标>{,"<源NPC名>"{,<目标GID>}}});
+
+移除目标身上的一个特效效果, 如果指定 <源GID>("<源NPC名>") 则特效会显示在指定的源实体上
+
+发送目标
+   AREA - 发送给可视范围内的玩家(默认)
+   SELF - 发送给自己, 如果指定<目标GID> 则特效只能指定玩家看到
+   PARTY_AREA - 发送给可视范围内的指定队伍
+   GUILD_AREA - 发送给可视范围内的指定公会
+   BG_AREA - 发送给可视范围内的指定BG队伍
+
+注意: 本指令只在 20181002 以上客户端有效. 
+
+---------------------------------------
+
 *getcomputeruid {<角色ID>};
 
 获取玩家机器码, 只有客户端加载了防外挂dll才可以使用
@@ -2650,7 +2680,10 @@ Example:
 
 获取数组中所有值非0(非空字符串)的键, 并将键存入指定的数组中, 主要用于以玩家的aid或cid作为键值的数组(.@damage[getcharid(0)] += 100)
 
-例: // .@array[键] = 值;
+什么是键? 
+	数组变量[键] = 值; 其中键即中括号中改的内容
+
+例: 
 	.@test[5] = 1;
 	.@test[3] = 2;
 	.@test[1024] = 9918;
@@ -2668,6 +2701,66 @@ Example:
 	获取到键的数量
 
 ----------------------------------------
+
+*getarrayindex <数组>;
+
+获取数组变量中的 key 值, 一般用在函数调用中获取传参 getarg() 的源变量中括号中的数字
+
+什么是键? 
+	数组变量[键] = 值; 其中键即中括号中改的内容
+
+例子:
+	getarrayindex(.@foo[42]) // 42
+	
+	getindex(.@foo[36]);
+	function	script	getindex	{
+		getarrayindex(getarg(0)) // 36
+	}
+
+----------------------------------------
+
+*countnameditem(<物品ID>, "<角色名>")
+*countnameditem(<物品ID>, <角色ID>)
+*countnameditem("<物品名>", "<角色名>")
+*countnameditem("<物品名>", <角色ID>)
+
+获取身上有多少个署名物品, 具体参考 getnameditem. 
+
+---------------------------------------
+
+*getguildinfo(<信息类型>{,<公会ID>})
+*getguildinfo(<信息类型>{,"<公会名称>"})
+
+获取指定类型的公会相关数据
+
+<信息类型>:
+	GUILDINFO_NAME          - 公会名称
+	GUILDINFO_ID            - 公会ID
+	GUILDINFO_LEVEL         - 公会等级
+	GUILDINFO_EXP           - 公会经验
+	GUILDINFO_NEXT_EXP      - 距离下一级升级的经验
+	GUILDINFO_SKILL_POINTS  - 公会剩余技能点数
+	GUILDINFO_ONLINE        - 公会在线人数
+	GUILDINFO_AV_LEVEL      - 公会成员平均等级
+	GUILDINFO_MAX_MEMBERS   - 公会最大成员数
+	GUILDINFO_MASTER_NAME   - 公会会长名称
+	GUILDINFO_MASTER_CID    - 公会会长角色ID
+
+例子:
+	getguildinfo(GUILDINFO_MASTER_NAME, getcharid(2, "Haru"))
+
+---------------------------------------
+
+*gettimer(<类型>{,<角色ID>{,"<事件>"}})
+
+返回由 addtimer() 创建的玩家时钟的相关信息. 如果未指定事件则为所有事件
+
+<类型>:
+	TIMER_COUNT       - 玩家有多少个 "<事件>" 相关的时钟.
+    TIMER_TICK_NEXT   - 玩家触发下一次 "<事件>" 还有多少毫秒.
+    TIMER_TICK_LAST	  - 玩家触发最后一次 "<事件>" 还有多少毫秒.
+
+---------------------------------------
 
 *monster     "<地图名>",<x>,<y>,"<显示名称>",<魔物ID>,<数量>{,"<触发事件>",<体型大小>,<魔物ai>};
 *areamonster "<地图名>",<x1>,<y1>,<x2>,<y2>,"<显示名称>",<魔物ID>,<数量>{,"<地图名>",<体型大小>,<魔物ai>};

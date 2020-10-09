@@ -6164,10 +6164,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 			map_foreachinallrange(skill_area_sub, bl, skill_get_splash(skill_id, skill_lv), splash_target(src), src, skill_id, skill_lv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
 		}
 		break;
-
-	case NC_MAGNETICFIELD:
-		sc_start2(src,bl,SC_MAGNETICFIELD,100,skill_lv,src->id,skill_get_time(skill_id,skill_lv));
-		break;
 	case SC_FATALMENACE:
 		if( flag&1 )
 			skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
@@ -6540,7 +6536,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 				// Tag the target only if damage was done. If it deals no damage, it counts as a miss and won't tag.
 				// Note: Not sure if it works like this in official but you can't mark on something you can't
 				// hit, right? For now well just use this logic until we can get a confirm on if it does this or not. [Rytech]
-				if (fk_damage > 0) { // Add the ID of the tagged target to the player's tag list and start the status on the target.
+				if (tmd->status.hp > 0) { // Add the ID of the tagged target to the player's tag list and start the status on the target.
 					sd->stellar_mark[i] = bl->id;
 
 					// Val4 flags if the status was applied by a player or a monster.
@@ -6550,7 +6546,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 					// apply the status here. We can't pass this data to skill_additional_effect.
 					sc_start4(src, bl, SC_FLASHKICK, 100, src->id, i, skill_lv, 1, skill_get_time(skill_id, skill_lv));
 				}
-			} else if (md) { // Monster's cant track with this skill. Just give the status.
+			} else if (md) { // Monsters can't track with this skill. Just give the status.
 				if (fk_damage > 0)
 					sc_start4(src, bl, SC_FLASHKICK, 100, 0, 0, skill_lv, 2, skill_get_time(skill_id, skill_lv));
 			}
@@ -10538,10 +10534,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		break;
 
 	case NC_MAGNETICFIELD:
-		clif_skill_damage(src,bl,tick,status_get_amotion(src),0,-30000,1,skill_id,skill_lv,DMG_SINGLE);
-		if (map_flag_vs(src->m)) // Doesn't affect the caster in non-PVP maps [exneval]
-			sc_start2(src,bl,type,100,skill_lv,src->id,skill_get_time(skill_id,skill_lv));
-		map_foreachinallrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
+		if (flag & 1) {
+			sc_start2(src, bl, SC_MAGNETICFIELD, 100, skill_lv, src->id, skill_get_time(skill_id, skill_lv));
+		} else {
+			if (map_flag_vs(src->m)) // Doesn't affect the caster in non-PVP maps [exneval]
+				sc_start2(src, bl, type, 100, skill_lv, src->id, skill_get_time(skill_id, skill_lv));
+			map_foreachinallrange(skill_area_sub, bl, skill_get_splash(skill_id, skill_lv), splash_target(src), src, skill_id, skill_lv, tick, flag | BCT_ENEMY | SD_SPLASH | 1, skill_castend_nodamage_id);
+			clif_skill_damage(src, bl, tick, status_get_amotion(src), 0, -30000, 1, skill_id, skill_lv, DMG_SINGLE);
+		}
 		break;
 
 	case NC_REPAIR:

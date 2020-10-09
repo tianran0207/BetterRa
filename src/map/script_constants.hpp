@@ -720,6 +720,22 @@
 	export_constant(STATUS_CLASS);
 	export_constant(STATUS_ASPD);
 
+	export_constant(GUILDINFO_NAME);
+	export_constant(GUILDINFO_ID);
+	export_constant(GUILDINFO_LEVEL);
+	export_constant(GUILDINFO_EXP);
+	export_constant(GUILDINFO_NEXT_EXP);
+	export_constant(GUILDINFO_SKILL_POINTS);
+	export_constant(GUILDINFO_ONLINE);
+	export_constant(GUILDINFO_AV_LEVEL);
+	export_constant(GUILDINFO_MAX_MEMBERS);
+	export_constant(GUILDINFO_MASTER_NAME);
+	export_constant(GUILDINFO_MASTER_CID);
+
+	export_constant(GETTIMER_COUNT);
+	export_constant(GETTIMER_TICK_NEXT);
+	export_constant(GETTIMER_TICK_LAST);
+
 	export_constant(MSG_STATUS);
 	export_constant(MSG_INFORMATION);
 	export_constant(MSG_NOTICE);
