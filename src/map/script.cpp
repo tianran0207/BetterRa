@@ -8325,9 +8325,9 @@ BUILDIN_FUNC(getnameditem)
 	item_tmp.nameid=nameid;
 	item_tmp.amount=1;
 	item_tmp.identify=1;
-	item_tmp.card[0]=CARD0_CREATE; //we don't use 255! because for example SIGNED WEAPON shouldn't get TOP10 BS Fame bonus [Lupus]
-	item_tmp.card[2]=tsd->status.char_id;
-	item_tmp.card[3]=tsd->status.char_id >> 16;
+	item_tmp.card[0] = CARD0_CREATE; //we don't use 255! because for example SIGNED WEAPON shouldn't get TOP10 BS Fame bonus [Lupus]
+	item_tmp.card[2] = GetWord(tsd->status.char_id, 0);
+	item_tmp.card[3] = GetWord(tsd->status.char_id, 1);
 	if(pc_additem(sd,&item_tmp,1,LOG_TYPE_SCRIPT)) {
 		script_pushint(st,0);
 		return SCRIPT_CMD_SUCCESS;	//Failed to add item, we will not drop if they don't fit
@@ -29557,13 +29557,24 @@ BUILDIN_FUNC(unitspecialeffect)
 {
 	int type;
 	struct block_list *bl;
+	enum send_target target = script_hasdata(st, 4) ? (send_target)script_getnum(st, 4) : AREA;
 
 	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_FAILURE;
 
 	type = script_getnum(st, 3);
 
-	clif_specialeffect(bl, type, AREA);
+	if (target == SELF) {
+		struct map_session_data *sd;
+		if (script_hasdata(st, 5))
+			sd = map_id2sd(script_getnum(st, 5));
+		else
+			sd = map_id2sd(st->oid);
+		if (sd != NULL)
+			clif_specialeffect_single(bl, type, sd->fd);
+	}
+	else
+		clif_specialeffect(bl, type, target);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -30325,8 +30336,8 @@ BUILDIN_FUNC(countnameditem)
 			sd->inventory.u.items_inventory[i].amount > 0 &&
 			sd->inventory.u.items_inventory[i].nameid == id->nameid &&
 			sd->inventory.u.items_inventory[i].card[0] == CARD0_CREATE &&
-			sd->inventory.u.items_inventory[i].card[2] == sd->status.char_id &&
-			sd->inventory.u.items_inventory[i].card[3] == sd->status.char_id >> 16)
+			sd->inventory.u.items_inventory[i].card[2] == GetWord(sd->status.char_id, 0) &&
+			sd->inventory.u.items_inventory[i].card[3] == GetWord(sd->status.char_id, 1))
 		{
 			count += sd->inventory.u.items_inventory[i].amount;
 		}
@@ -30475,6 +30486,228 @@ BUILDIN_FUNC(gettimer)
 
 	script_pushint(st, val);
 	return SCRIPT_CMD_SUCCESS;
+}
+
+// set click npc distance [4144]
+BUILDIN_FUNC(setnpcdistance)
+{
+	struct npc_data *nd = map_id2nd(st->oid);
+	if (nd == NULL)
+		return SCRIPT_CMD_FAILURE;
+
+	nd->area_size = script_getnum(st, 2);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getdatatype)
+{
+	int type;
+
+	if (script_hasdata(st, 2)) {
+		struct script_data *data = script_getdata(st, 2);
+
+		if (data_isstring(data)) {
+			type = DATATYPE_STR;
+			if (data->type == C_CONSTSTR)
+				type |= DATATYPE_CONST;
+		} else if (data_isint(data)) {
+			type = DATATYPE_INT;
+		} else if (data_islabel(data)) {
+			type = DATATYPE_LABEL;
+		} else if (data_isreference(data)) {
+			if (reference_toconstant(data)) {
+				type = DATATYPE_CONST | DATATYPE_INT;
+			} else if (reference_toparam(data)) {
+				type = DATATYPE_PARAM | DATATYPE_INT;
+			} else if (reference_tovariable(data)) {
+				type = DATATYPE_VAR;
+				if (is_string_variable(reference_getname(data)))
+					type |= DATATYPE_STR;
+				else
+					type |= DATATYPE_INT;
+			} else {
+				ShowError("script:getdatatype: Unknown reference type!\n");
+				return SCRIPT_CMD_FAILURE;
+			}
+		} else
+			type = data->type; // fallback to primitive type if unknown
+	} else
+		type = DATATYPE_NIL; // nothing was passed
+
+	script_pushint(st, type);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(tostring)
+{
+	if (script_hasdata(st, 2)) {
+		struct script_data *data = script_getdata(st, 2);
+
+		if (data_isstring(data)) {
+			script_pushcopy(st, 2);
+		} else if (data_isint(data)) {
+			char *str = NULL;
+			CREATE(str, char, 20);
+			safesnprintf(str, 20, "%" PRId64 "", data->u.num);
+			script_pushstr(st, str);
+		} else if (data_islabel(data)) {
+			const char *str = "";
+			if (st->oid) {
+				struct npc_data *nd = map_id2nd(st->oid);
+				for (int i = 0; i < nd->u.scr.label_list_num; ++i) {
+					if (nd->u.scr.label_list[i].pos == data->u.num) {
+						str = nd->u.scr.label_list[i].name;
+						break;
+					}
+				}
+			} else {
+				for (int i = LABEL_START; str_data[i].next != 0; i = str_data[i].next) {
+					if (str_data[i].label == data->u.num) {
+						str = get_str(i);
+						break;
+					}
+				}
+			}
+			script_pushconststr(st, str);
+		} else if (data_isreference(data)) {
+			script_pushstrcopy(st, reference_getname(data));
+		} else {
+			ShowWarning("script:data_to_string: unknown data type!\n");
+			return SCRIPT_CMD_FAILURE;
+		}
+	} else
+		script_pushconststr(st, ""); // NIL
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+//=======================================================
+// chr <int>
+//-------------------------------------------------------
+BUILDIN_FUNC(chr)
+{
+	char output[2];
+	output[0] = script_getnum(st, 2);
+	output[1] = '\0';
+
+	script_pushstrcopy(st, output);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+//=======================================================
+// ord <chr>
+//-------------------------------------------------------
+BUILDIN_FUNC(ord)
+{
+	const char *chr = script_getstr(st, 2);
+	script_pushint(st, *chr);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(log10)
+{
+	double i, a;
+	i = script_getnum(st, 2);
+	a = log10(i);
+	script_pushint(st, (int64)a);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(swap)
+{
+	struct map_session_data *sd = NULL;
+	struct script_data *data1, *data2;
+	struct reg_db *ref1, *ref2;
+	const char *varname1, *varname2;
+	int64 uid1, uid2;
+
+	data1 = script_getdata(st,2);
+	data2 = script_getdata(st,3);
+
+	if (!data_isreference(data1) || !data_isreference(data2) || reference_toconstant(data1) || reference_toconstant(data2)) {
+		ShowError("buildin_swap: reference cant be constant.\n");
+		return SCRIPT_CMD_FAILURE; // avoid print error message twice
+	}
+
+	if (reference_toparam(data1) || reference_toparam(data2)) {
+		ShowError("buildin_swap: detected parameter type constant.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	varname1 = reference_getname(data1);
+	varname2 = reference_getname(data2);
+
+	if ((is_string_variable(varname1) && !is_string_variable(varname2)) || (!is_string_variable(varname1) && is_string_variable(varname2))) {
+		ShowError("buildin_swap: both sides must be same integer or string type.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	if (not_server_variable(*varname1) || not_server_variable(*varname2)) {
+		if (!script_rid2sd(sd))
+			return SCRIPT_CMD_FAILURE; // avoid print error message twice
+	}
+
+	uid1 = reference_getuid(data1);
+	uid2 = reference_getuid(data2);
+	ref1 = reference_getref(data1);
+	ref2 = reference_getref(data2);
+
+	if (is_string_variable(varname1)) {
+		const char *value1 = script_getstr(st,2);
+		const char *value2 = script_getstr(st,3);
+		set_reg_str(st, sd, uid1, varname1, value2, ref1);
+		set_reg_str(st, sd, uid2, varname2, value1, ref2);
+	}
+	else {
+		int value1 = script_getnum(st,2);
+		int value2 = script_getnum(st,3);
+		set_reg_num(st, sd, uid1, varname1, value2, ref1);
+		set_reg_num(st, sd, uid2, varname2, value1, ref2);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(unitiswalking)
+{
+	struct block_list *bl;
+
+	if(script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, unit_is_walking(bl));
+	return true;
+}
+
+/*==========================================
+ * Remove character's mercenary and update loyalty
+ * mercenary_delete({<char_id>, <update>});
+ *------------------------------------------*/
+BUILDIN_FUNC(mercenary_delete)
+{
+	struct map_session_data* sd;
+
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (sd->md != NULL)
+		mercenary_delete(sd->md, script_hasdata(st, 3) ? script_getnum(st, 3) : 0);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(msgtable)
+{
+	struct map_session_data *sd;
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (script_hasdata(st, 3))
+		clif_msg_color(sd, script_getnum(st, 2), script_getnum(st, 3));
+	else
+		clif_msg(sd, script_getnum(st, 2));
+
+	return true;
 }
 
 BUILDIN_FUNC(abs)
@@ -30911,13 +31144,14 @@ BUILDIN_FUNC(checkrefineui)
 
 static int build_unitaura_sub(int tid, t_tick tick, int id, intptr_t data)
 {
-	struct block_list *bl = map_id2bl(id);
-	struct unit_data *ud = unit_bl2ud(bl);
-	if (ud != (struct unit_data *)data)
+	struct block_list *bl;
+	struct s_aura *entry = (struct s_aura *)data;
+
+	if ((bl = map_id2bl(id)) == NULL)
 		return 1;
 
-	clif_specialeffect(bl, ud->aura.eff_id, AREA);
-	ud->aura.eff_timer = add_timer(gettick() + ud->aura.eff_tick, build_unitaura_sub, id, (intptr_t)ud);
+	clif_specialeffect(bl, entry->eff_id, AREA);
+	entry->eff_timer = add_timer(gettick() + entry->eff_tick, build_unitaura_sub, id, (intptr_t)entry);
 	return 1;
 }
 
@@ -30925,17 +31159,48 @@ BUILDIN_FUNC(unitaura)
 {
 	struct block_list *bl;
 	struct unit_data *ud;
+	int eff_id = script_getnum(st, 3);
 
 	if (!script_rid2bl(2, bl))
 		return SCRIPT_CMD_FAILURE;
 
 	if ((ud = unit_bl2ud(bl)) != NULL) {
-		if (ud->aura.eff_timer != INVALID_TIMER)
-			delete_timer(ud->aura.eff_timer, build_unitaura_sub);
-		if ((ud->aura.eff_id = script_getnum(st, 3)) != 0 && script_hasdata(st, 4))
-			ud->aura.eff_timer = add_timer(gettick() + (ud->aura.eff_tick = script_getnum(st, 4)), build_unitaura_sub, bl->id, (intptr_t)ud);
-		if (ud->aura.eff_id != 0)
-			clif_specialeffect(bl, ud->aura.eff_id, AREA);
+		struct s_aura entry;
+		for (auto it = ud->aura.begin(); it != ud->aura.end(); ++it) {
+			if (it->eff_id != eff_id)
+				continue;
+			delete_timer(it->eff_timer, build_unitaura_sub);
+			ud->aura.erase(it);
+			break;
+		}
+		entry.eff_id = eff_id;
+		entry.eff_tick = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
+		entry.eff_timer = entry.eff_tick ? add_timer(gettick() + entry.eff_tick, build_unitaura_sub, bl->id, (intptr_t)&entry) : INVALID_TIMER;
+		clif_specialeffect(bl, entry.eff_id, AREA);
+		ud->aura.push_back(entry);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(unitdelaura)
+{
+	struct block_list *bl;
+	struct unit_data *ud;
+
+	int eff_id = script_getnum(st, 3);
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	if ((ud = unit_bl2ud(bl)) != NULL) {
+		for (auto it = ud->aura.begin(); it != ud->aura.end(); ++it) {
+			if (it->eff_id != eff_id)
+				continue;
+			clif_removeSpecialEffect(bl, eff_id, AREA);
+			delete_timer(it->eff_timer, build_unitaura_sub);
+			ud->aura.erase(it);
+			break;
+		}
 	}
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -32116,7 +32381,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(showvending, "showvend", "si?"),
 	BUILDIN_DEF(when_pcmove_doevent, "?"),
 	BUILDIN_DEF(killaroundmonster, "iii"),
-	BUILDIN_DEF(unitspecialeffect, "ii"),
+	BUILDIN_DEF(unitspecialeffect, "ii??"),
 	BUILDIN_DEF(specialeffectnum, "ii???"),
 	BUILDIN_DEF(removespecialeffect, "i???"),
 	BUILDIN_DEF(isloggedin2, "i"),
@@ -32224,6 +32489,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(addmobskill, "is"),
 	BUILDIN_DEF(delmobskill, "ii"),
 	BUILDIN_DEF(unitaura, "ii?"),
+	BUILDIN_DEF(unitdelaura, "ii"),
 	BUILDIN_DEF(enableontouch, "s?"),
 	BUILDIN_DEF2(enableontouch, "disableontouch", "s?"),
 	BUILDIN_DEF(getlinexy, "iiiirr"),
@@ -32233,6 +32499,14 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(countnameditem, "v?"),
 	BUILDIN_DEF(getguildinfo, "i?"),
 	BUILDIN_DEF(gettimer, "i??"),
+	BUILDIN_DEF(setnpcdistance, "i"),
+	BUILDIN_DEF(getdatatype, "?"),
+	BUILDIN_DEF(tostring, "?"),
+	BUILDIN_DEF(chr, "i"),
+	BUILDIN_DEF(ord, "s"),
+	BUILDIN_DEF(log10, "i"),
+	BUILDIN_DEF(unitiswalking, "?"),
+	BUILDIN_DEF(mercenary_delete, "??"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),

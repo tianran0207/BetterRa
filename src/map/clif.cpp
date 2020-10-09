@@ -1703,9 +1703,12 @@ int clif_spawn( struct block_list *bl, bool walking ){
 		break;
 	}
 
-	struct unit_data *ud = unit_bl2ud(bl);
-	if (ud && ud->aura.eff_id)
-		clif_specialeffect(bl, ud->aura.eff_id, AREA);
+	struct unit_data *ud;
+	if ((ud = unit_bl2ud(bl)) != NULL) {
+		for (auto &it : ud->aura)
+			clif_specialeffect(bl, it.eff_id, AREA);
+	}
+		
 	return 0;
 }
 
@@ -4942,8 +4945,10 @@ void clif_getareachar_unit( struct map_session_data* sd,struct block_list *bl ){
 		break;
 	}
 
-	if (sd && ud && ud->aura.eff_id)
-		clif_specialeffect_single(bl, ud->aura.eff_id, sd->fd);
+	if (sd && (ud = unit_bl2ud(bl)) != NULL) {
+		for (auto &it : ud->aura)
+			clif_specialeffect(bl, it.eff_id, AREA);
+	}
 }
 
 //Modifies the type of damage according to status changes [Skotlex]

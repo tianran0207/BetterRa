@@ -19,6 +19,10 @@ enum clr_type : uint8;
 extern const short dirx[DIR_MAX]; ///lookup to know where will move to x according dir
 extern const short diry[DIR_MAX]; ///lookup to know where will move to y according dir
 
+struct s_aura {
+	int eff_id, eff_timer, eff_tick;
+};
+
 struct unit_data {
 	struct block_list *bl; ///link to owner object BL_PC|BL_MOB|BL_PET|BL_NPC|BL_HOM|BL_MER|BL_ELEM
 	struct walkpath_data walkpath;
@@ -36,9 +40,7 @@ struct unit_data {
 		int rate1, rate2;
 		int64 min_dmg, max_dmg;
 	}def_fix;
-	struct s_aura {
-		int eff_id, eff_timer, eff_tick;
-	}aura;
+	std::vector<s_aura> aura;
 	short attackevent_mark;
 	short attackedevent_mark;
 	short attacktarget_lv;

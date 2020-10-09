@@ -122,6 +122,8 @@ struct npc_data {
 		char type;
 		char message[80];
 	} vend;
+
+	int area_size;
 	int IgnoreOnTouch;
 	struct autowalk_data autowalk;
 };

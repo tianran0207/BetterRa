@@ -1452,6 +1452,7 @@ int npc_check_areanpc(int flag, int16 m, int16 x, int16 y, int16 range)
 struct npc_data* npc_checknear(struct map_session_data* sd, struct block_list* bl)
 {
 	struct npc_data *nd;
+	int distance = AREA_SIZE + 1;
 
 	nullpo_retr(NULL, sd);
 	if(bl == NULL) return NULL;
@@ -1464,9 +1465,12 @@ struct npc_data* npc_checknear(struct map_session_data* sd, struct block_list* b
 	if (nd->class_<0) //Class-less npc, enable click from anywhere.
 		return nd;
 
+	if (distance > nd->area_size)
+		distance = nd->area_size;
+
 	if (bl->m!=sd->bl.m ||
-	   bl->x<sd->bl.x-AREA_SIZE-1 || bl->x>sd->bl.x+AREA_SIZE+1 ||
-	   bl->y<sd->bl.y-AREA_SIZE-1 || bl->y>sd->bl.y+AREA_SIZE+1)
+	   bl->x<sd->bl.x-distance || bl->x>sd->bl.x+distance ||
+	   bl->y<sd->bl.y-distance || bl->y>sd->bl.y+distance)
 		return NULL;
 
 	return nd;
@@ -2874,6 +2878,7 @@ struct npc_data *npc_create_npc(int16 m, int16 x, int16 y){
 	nd->bl.m = m;
 	nd->bl.x = x;
 	nd->bl.y = y;
+	nd->area_size = AREA_SIZE + 1;
 	nd->sc_display = nullptr;
 	nd->sc_display_count = 0;
 	nd->progressbar.timeout = 0;

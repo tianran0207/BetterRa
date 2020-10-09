@@ -565,6 +565,16 @@ enum gettimer_types {
 	GETTIMER_TICK_LAST,
 };
 
+enum getdata_types {
+	DATATYPE_NIL    = 1 << 7, // we don't start at 1, to leave room for primitives
+	DATATYPE_STR    = 1 << 8,
+	DATATYPE_INT    = 1 << 9,
+	DATATYPE_CONST  = 1 << 10,
+	DATATYPE_PARAM  = 1 << 11,
+	DATATYPE_VAR    = 1 << 12,
+	DATATYPE_LABEL  = 1 << 13,
+};
+
 enum monsterinfo_types {
 	MOB_NAME = 0,
 	MOB_LV,

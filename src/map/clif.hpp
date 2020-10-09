@@ -934,6 +934,7 @@ void clif_viewequip_ack(struct map_session_data* sd, struct map_session_data* ts
 void clif_equipcheckbox(struct map_session_data* sd);
 
 void clif_msg(struct map_session_data* sd, unsigned short id);
+void clif_msg_color(struct map_session_data *sd, uint16 msg_id, uint32 color);
 void clif_msg_value(struct map_session_data* sd, unsigned short id, int value);
 void clif_msg_skill(struct map_session_data* sd, uint16 skill_id, int msg_id);
 

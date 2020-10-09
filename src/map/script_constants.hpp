@@ -732,9 +732,16 @@
 	export_constant(GUILDINFO_MASTER_NAME);
 	export_constant(GUILDINFO_MASTER_CID);
 
-	export_constant(GETTIMER_COUNT);
-	export_constant(GETTIMER_TICK_NEXT);
-	export_constant(GETTIMER_TICK_LAST);
+	export_constant2("TIMER_COUNT", GETTIMER_COUNT);
+	export_constant2("TIMER_TICK_NEXT", GETTIMER_TICK_NEXT);
+	export_constant2("TIMER_TICK_LAST", GETTIMER_TICK_LAST);
+
+	export_constant(COLOR_DEFAULT);
+	export_constant(COLOR_RED);
+	export_constant(COLOR_WHITE);
+	export_constant(COLOR_YELLOW);
+	export_constant(COLOR_CYAN);
+	export_constant(COLOR_LIGHT_GREEN);
 
 	export_constant(MSG_STATUS);
 	export_constant(MSG_INFORMATION);
