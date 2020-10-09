@@ -15402,11 +15402,6 @@ BUILDIN_FUNC(specialeffect)
 	if(bl==NULL)
 		return SCRIPT_CMD_SUCCESS;
 
-	if( type <= EF_NONE || type >= EF_MAX ){
-		ShowError( "buildin_specialeffect: unsupported effect id %d\n", type );
-		return SCRIPT_CMD_FAILURE;
-	}
-
 	if( script_hasdata(st,4) )
 	{
 		TBL_NPC *nd = npc_name2id(script_getstr(st,4));
@@ -15433,11 +15428,6 @@ BUILDIN_FUNC(specialeffect2)
 	if( script_nick2sd(4,sd) ){
 		int type = script_getnum(st,2);
 		enum send_target target = script_hasdata(st,3) ? (send_target)script_getnum(st,3) : AREA;
-
-		if( type <= EF_NONE || type >= EF_MAX ){
-			ShowError( "buildin_specialeffect2: unsupported effect id %d\n", type );
-			return SCRIPT_CMD_FAILURE;
-		}
 
 		clif_specialeffect(&sd->bl, type, target);
 	}
@@ -29573,15 +29563,83 @@ BUILDIN_FUNC(unitspecialeffect)
 
 	type = script_getnum(st, 3);
 
-	if (type <= EF_NONE || type >= EF_MAX) {
-		ShowError("buildin_misceffect: unsupported effect id %d\n", type);
-		return SCRIPT_CMD_FAILURE;
-	}
-
 	clif_specialeffect(bl, type, AREA);
 
 	return SCRIPT_CMD_SUCCESS;
 }
+
+/*==========================================
+ * Special effects with num [4144]
+ *------------------------------------------*/
+BUILDIN_FUNC(specialeffectnum)
+{
+	struct block_list *bl = map_id2bl(st->oid);
+	int type = script_getnum(st, 2);
+	int64 num = script_getnum64(st, 3);
+	enum send_target target = script_hasdata(st, 4) ? (send_target)script_getnum(st, 4) : AREA;
+
+	if (script_hasdata(st, 5)) {
+		if (script_isstring(st, 5)) {
+			struct npc_data *nd;
+			if ((nd = npc_name2id(script_getstr(st, 5))) != NULL)
+				bl = &nd->bl;
+		}
+		else
+			bl = map_id2bl(script_getnum(st, 5));
+	}
+
+	if (bl == NULL)
+		return SCRIPT_CMD_SUCCESS;
+
+	if (target == SELF) {
+		struct map_session_data *sd;
+		if (script_hasdata(st, 6))
+			sd = map_id2sd(script_getnum(st, 6));
+		else
+			sd = map_id2sd(st->oid);
+		if (sd != NULL)
+			clif_specialeffect_value_single(bl, type, num, sd->fd);
+	}
+	else
+		clif_specialeffect_value(bl, type, num, target);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(removespecialeffect)
+{
+	struct block_list *bl = map_id2bl(st->oid);
+	int type = script_getnum(st, 2);
+	enum send_target target = script_hasdata(st, 3) ? (send_target)script_getnum(st, 3) : AREA;
+
+	if (script_hasdata(st, 4)) {
+		if (script_isstring(st, 4)) {
+			struct npc_data *nd;
+			if ((nd = npc_name2id(script_getstr(st, 4))) != NULL)
+				bl = &nd->bl;
+		}
+		else
+			bl = map_id2bl(script_getnum(st, 4));
+	}
+
+	if (bl == NULL)
+		return SCRIPT_CMD_SUCCESS;
+
+	if (target == SELF) {
+		struct map_session_data *sd;
+		if (script_hasdata(st, 5))
+			sd = map_id2sd(script_getnum(st, 5));
+		else
+			sd = map_id2sd(st->oid);
+		if (sd != NULL)
+			clif_removeSpecialEffect_single(bl, type, &sd->bl);
+	}
+	else
+		clif_removeSpecialEffect(bl, type, target);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 
 BUILDIN_FUNC(unitatkeventmark)
 {
@@ -30217,6 +30275,205 @@ BUILDIN_FUNC(consolemes)
 
 	StringBuf_Destroy(&buf);
 	script_pushint(st, 1);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getarrayindex)
+{
+	struct script_data *data = script_getdata(st, 2);
+
+	if (!data_isreference(data) || reference_toconstant(data)) {
+		ShowError("script:getarrayindex: not a variable\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	script_pushint(st, reference_getindex(data));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(countnameditem)
+{
+	int count = 0;
+	struct item_data* id = NULL;
+	struct map_session_data *sd = NULL;
+
+	if (script_hasdata(st, 3)) {
+		if (script_isstring(st, 3))
+			script_nick2sd(3, sd);
+		else
+			script_charid2sd(3, sd);
+	}
+	else 
+		script_rid2sd(sd);
+
+	if (sd == NULL)
+		return SCRIPT_CMD_FAILURE;
+
+	if (script_isstring(st, 2))
+		id = itemdb_searchname(script_getstr(st, 2));
+	else
+		id = itemdb_exists(script_getnum(st, 2));
+
+	if (id == NULL) {
+		ShowError("buildin_countnameditem: Invalid item '%s'.\n", script_getstr(st, 2));  // returns string, regardless of what it was
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	for (int i = 0; i < MAX_INVENTORY; i++) {
+		if (sd->inventory.u.items_inventory[i].nameid > 0 &&
+			sd->inventory_data[i] != NULL &&
+			sd->inventory.u.items_inventory[i].amount > 0 &&
+			sd->inventory.u.items_inventory[i].nameid == id->nameid &&
+			sd->inventory.u.items_inventory[i].card[0] == CARD0_CREATE &&
+			sd->inventory.u.items_inventory[i].card[2] == sd->status.char_id &&
+			sd->inventory.u.items_inventory[i].card[3] == sd->status.char_id >> 16)
+		{
+			count += sd->inventory.u.items_inventory[i].amount;
+		}
+	}
+
+	script_pushint(st, count);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getguildinfo)
+{
+	struct guild *g = NULL;
+	enum guildinfo_types type = (enum guildinfo_types)script_getnum(st, 2);
+
+	if (script_hasdata(st, 3)) {
+		if (script_isstring(st, 3))
+			g = guild_searchname((char *)script_getstr(st, 3));
+		else
+			g = guild_search(script_getnum(st, 3));
+	}
+	else {
+		struct map_session_data *sd = map_id2sd(st->oid);
+		g = sd ? sd->guild : NULL;
+	}
+
+	if (g == NULL) {
+		ShowError("buildin_getguildinfo: guild does not exist.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	switch (type) {
+	case GUILDINFO_NAME:
+		script_pushstrcopy(st, g->name);
+		break;
+	case GUILDINFO_ID:
+		script_pushint(st, g->guild_id);
+		break;
+	case GUILDINFO_LEVEL:
+		script_pushint(st, g->guild_lv);
+		break;
+	case GUILDINFO_ONLINE:
+		script_pushint(st, g->connect_member);
+		break;
+	case GUILDINFO_AV_LEVEL:
+		script_pushint(st, g->average_lv);
+		break;
+	case GUILDINFO_MAX_MEMBERS:
+		script_pushint(st, g->max_member);
+		break;
+	case GUILDINFO_EXP:
+		script_pushint(st, g->exp);
+		break;
+	case GUILDINFO_NEXT_EXP:
+		script_pushint(st, g->next_exp);
+		break;
+	case GUILDINFO_SKILL_POINTS:
+		script_pushint(st, g->skill_point);
+		break;
+	case GUILDINFO_MASTER_NAME:
+		script_pushstrcopy(st, g->member[0].name);
+		break;
+	case GUILDINFO_MASTER_CID:
+		script_pushint(st, g->member[0].char_id);
+		break;
+	default:
+		ShowError("script:getguildinfo: unknown info type!\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(gettimer)
+{
+	struct map_session_data *sd;
+	const struct TimerData *td;
+	const char *event = NULL;
+	t_tick tick, val = 0;
+	int i, type = script_getnum(st, 2);
+	bool first = true;
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (script_hasdata(st, 4)) {
+		event = script_getstr(st, 4);
+		check_event(st, event);
+	}
+
+	switch (type) {
+	case GETTIMER_COUNT:
+		// get number of timers
+		for (i = 0; i < MAX_EVENTTIMER; i++) {
+			if (sd->eventtimer[i] == INVALID_TIMER)
+				continue;
+			if (event != NULL) {
+				if ((td = get_timer(sd->eventtimer[i])) == NULL)
+					return SCRIPT_CMD_FAILURE;
+				if (strcmp((char *)(td->data), event) == 0)
+					val++;
+			}
+			else
+				val++;
+		}
+		break;
+	case GETTIMER_TICK_NEXT:
+		// get the number of tick before the next timer runs
+		for (i = 0; i < MAX_EVENTTIMER; i++) {
+			if (sd->eventtimer[i] == INVALID_TIMER)
+				continue;
+			if ((td = get_timer(sd->eventtimer[i])) == NULL)
+				return SCRIPT_CMD_FAILURE;
+
+			tick = i64max(0, DIFF_TICK(td->tick, gettick()));
+
+			if (event != NULL) {
+				if ((first == true || tick < val) && strcmp((char *)(td->data), event) == 0) {
+					val = tick;
+					first = false;
+				}
+			}
+			else if (first == true || tick < val) {
+				val = tick;
+				first = false;
+			}
+		}
+		break;
+	case GETTIMER_TICK_LAST:
+		// get the number of ticks before the last timer runs
+		for (i = MAX_EVENTTIMER - 1; i >= 0; i--) {
+			if (sd->eventtimer[i] == INVALID_TIMER)
+				continue;
+			if ((td = get_timer(sd->eventtimer[i])) == NULL)
+				return SCRIPT_CMD_FAILURE;
+
+			tick = i64max(0, DIFF_TICK(td->tick, gettick()));
+
+			if (event != NULL) {
+				if (strcmp((char *)(td->data), event) == 0)
+					val = max(val, tick);
+			}
+			else 
+				val = max(val, tick);
+		}
+		break;
+	}
+
+	script_pushint(st, val);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -31860,6 +32117,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(when_pcmove_doevent, "?"),
 	BUILDIN_DEF(killaroundmonster, "iii"),
 	BUILDIN_DEF(unitspecialeffect, "ii"),
+	BUILDIN_DEF(specialeffectnum, "ii???"),
+	BUILDIN_DEF(removespecialeffect, "i???"),
 	BUILDIN_DEF(isloggedin2, "i"),
 	BUILDIN_DEF2(rentalcountitem, "countrentitem", "v?"),
 	BUILDIN_DEF2(rentalcountitem, "countrentitem2", "viiiiiii?"),
@@ -31970,6 +32229,10 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getlinexy, "iiiirr"),
 	BUILDIN_DEF(getcirclexy, "iiirr"),
 	BUILDIN_DEF(array_keys, "rr"),
+	BUILDIN_DEF(getarrayindex, "r"),
+	BUILDIN_DEF(countnameditem, "v?"),
+	BUILDIN_DEF(getguildinfo, "i?"),
+	BUILDIN_DEF(gettimer, "i??"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),

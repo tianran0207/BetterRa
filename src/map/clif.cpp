@@ -9761,22 +9761,83 @@ void clif_specialeffect_single(struct block_list* bl, int type, int fd)
 ///     @see doc/effect_list.txt
 /// num data:
 ///     effect-dependent value
-void clif_specialeffect_value(struct block_list* bl, int effect_id, int num, send_target target)
+void clif_specialeffect_value(struct block_list *bl, int effect_id, uint64 num, send_target target)
 {
-	uint8 buf[14];
+#if PACKETVER_MAIN_NUM >= 20060911 || PACKETVER_AD_NUM >= 20060911 || PACKETVER_SAK_NUM >= 20060911 || defined(PACKETVER_RE) || defined(PACKETVER_ZERO)
+	struct PACKET_ZC_NOTIFY_EFFECT3 packet;
+	packet.packetType = HEADER_ZC_NOTIFY_EFFECT3;
+	packet.aid = bl->id;
+	packet.effectId = effect_id;
+#if PACKETVER >= 20191127
+	packet.num = num;
+#else
+	packet.num = (uint32)num;
+#endif
 
-	WBUFW(buf,0) = 0x284;
-	WBUFL(buf,2) = bl->id;
-	WBUFL(buf,6) = effect_id;
-	WBUFL(buf,10) = num;
+	clif_send(&packet, sizeof(struct PACKET_ZC_NOTIFY_EFFECT3), bl, target);
 
-	clif_send(buf, packet_len(0x284), bl, target);
-
-	if( disguised(bl) )
-	{
-		WBUFL(buf,2) = disguised_bl_id(bl->id);
-		clif_send(buf, packet_len(0x284), bl, SELF);
+	if (disguised(bl)) {
+		packet.aid = -bl->id;
+		clif_send(&packet, sizeof(struct PACKET_ZC_NOTIFY_EFFECT3), bl, SELF);
 	}
+#endif
+}
+
+void clif_specialeffect_value_single(struct block_list *bl, int effect_id, uint64 num, int fd)
+{
+#if PACKETVER_MAIN_NUM >= 20060911 || defined(PACKETVER_RE) || defined(PACKETVER_ZERO)
+	WFIFOHEAD(fd, sizeof(struct PACKET_ZC_NOTIFY_EFFECT3));
+
+	struct PACKET_ZC_NOTIFY_EFFECT3 *packet = (struct PACKET_ZC_NOTIFY_EFFECT3 *)WFIFOP(fd, 0);
+	packet->packetType = HEADER_ZC_NOTIFY_EFFECT3;
+	packet->aid = bl->id;
+	packet->effectId = effect_id;
+#if PACKETVER >= 20191127
+	packet->num = num;
+#else
+	packet->num = (uint32)num;
+#endif
+	WFIFOSET(fd, sizeof(struct PACKET_ZC_NOTIFY_EFFECT3));
+#endif
+}
+
+
+/// Remove special effects (ZC_REMOVE_EFFECT).
+/// 0b0d <id>.L <effect id>.L
+/// effect id:
+///     @see doc/effect_list.txt
+void clif_removeSpecialEffect(struct block_list *bl, int effectId, enum send_target target)
+{
+#if PACKETVER_MAIN_NUM >= 20181002 || PACKETVER_RE_NUM >= 20181002 || PACKETVER_ZERO_NUM >= 20181010
+	nullpo_retv(bl);
+
+	struct PACKET_ZC_REMOVE_EFFECT p;
+	p.packetType = 0xb0d;
+	p.aid = bl->id;
+	p.effectId = effectId;
+
+	clif_send(&p, sizeof(p), bl, target);
+
+	if (disguised(bl)) {
+		p.aid = -bl->id;
+		clif_send(&p, sizeof(p), bl, SELF);
+	}
+#endif
+}
+
+void clif_removeSpecialEffect_single(struct block_list *bl, int effectId, struct block_list *targetBl)
+{
+#if PACKETVER_MAIN_NUM >= 20181002 || PACKETVER_RE_NUM >= 20181002 || PACKETVER_ZERO_NUM >= 20181010
+	nullpo_retv(bl);
+	nullpo_retv(targetBl);
+
+	struct PACKET_ZC_REMOVE_EFFECT p;
+	p.packetType = 0xb0d;
+	p.aid = bl->id;
+	p.effectId = effectId;
+
+	clif_send(&p, sizeof(p), targetBl, SELF);
+#endif
 }
 
 /// Monster/NPC color chat [SnakeDrak] (ZC_NPC_CHAT).
