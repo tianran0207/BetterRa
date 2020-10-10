@@ -3848,6 +3848,78 @@ void map_loadfromcache(char *buffer)
 	return;
 }
 
+// Reads a map from GRF's GAT and RSW files
+int map_getfromfolder(struct map_data *mapdata)
+{
+	FILE *fp;
+	size_t len = 0;
+	char filename[256];
+	unsigned char *gat, *rsw;
+	int water_height;
+	size_t xy, off, num_cells;
+
+	// Open map RSW
+	sprintf(filename, "db\\import\\mapcache\\%s.rsw", mapdata->name);
+
+	if ((fp = fopen(filename, "rb")) != NULL) {
+		fseek(fp, 0, SEEK_END);
+		len = ftell(fp);
+		rsw = (unsigned char *)aMalloc(len + 1);
+		fseek(fp, 0, SEEK_SET);
+		len = fread(rsw, 1, len, fp);
+		fclose(fp);
+		// Read water height
+		if (len < 6 || strncmp((char*)rsw, "GRSW", strlen("GRSW")))
+			water_height = RSW_NO_WATER;
+		else {
+			uint16 version = (rsw[4] << 8) | rsw[5];
+
+			if (version < 0x104 || version > 0x202)
+				water_height = RSW_NO_WATER;
+
+			if (version >= 0x202)
+				water_height = (int32)*(float*)(rsw + 167);
+			else
+				water_height = (int32)*(float*)(rsw + 166);
+		}
+		aFree(rsw);
+	}
+
+	// Open map GAT
+	sprintf(filename, "db\\import\\mapcache\\%s.gat", mapdata->name);
+	if (!(fp = fopen(filename, "rb")))
+		return 0;
+	fseek(fp, 0, SEEK_END);
+	len = ftell(fp);
+	gat = (unsigned char *)aMalloc(len + 1);
+	fseek(fp, 0, SEEK_SET);
+	len = fread(gat, 1, len, fp);
+	fclose(fp);
+
+	mapdata->xs = *(int32*)(gat + 6);
+	mapdata->ys = *(int32*)(gat + 10);
+	num_cells = mapdata->xs * mapdata->ys;
+	CREATE(mapdata->cell, struct mapcell, num_cells);
+
+	// Set cell properties
+	off = 14;
+	for (xy = 0; xy < num_cells; ++xy)
+	{
+		// read cell data
+		float height = *(float*)(gat + off);
+		uint32 type = *(uint32*)(gat + off + 16);
+		off += 20;
+
+		if (type == 0 && water_height != RSW_NO_WATER && height > water_height)
+			type = 3; // Cell is 0 (walkable) but under water level, set to 3 (walkable water)
+
+		mapdata->cell[xy] = map_gat2cell(type);
+	}
+
+	aFree(gat);
+	return 1;
+}
+
 int map_getfromcache(struct map_data *m, char *decode_buffer)
 {
 	struct s_map_cache_map_info *mapinfo = (struct s_map_cache_map_info *)strdb_get(map_cache_db, m->name);
@@ -4155,7 +4227,7 @@ int map_readallmaps (void)
 		// show progress
 		ShowStatus("Loading maps [%i/%i]: %s" CL_CLL "\r", i, map_num, mapdata->name);
 
-		if( enable_grf ){
+		if (enable_grf) {
 			// try to load the map
 			success = map_readgat(mapdata) != 0;
 		}else{
@@ -4169,6 +4241,7 @@ int map_readallmaps (void)
 			//if( !success ){
 			//	success = map_readfromcache( mapdata, map_cache_buffer[0], map_cache_decode_buffer ) != 0;
 			//}
+			if (!(success = map_getfromfolder(mapdata)))
 			success = map_getfromcache(mapdata, map_cache_decode_buffer) != 0;
 		}
 

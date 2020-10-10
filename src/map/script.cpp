@@ -30231,6 +30231,17 @@ BUILDIN_FUNC(setequipedcard)
 #endif
 }
 
+BUILDIN_FUNC(itempreview)
+{
+	struct map_session_data *sd;
+
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	clif_item_preview(sd, script_getnum(st, 2));
+	return true;
+}
+
 BUILDIN_FUNC(mesf)
 {
 	TBL_PC* sd;
@@ -32417,6 +32428,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getvariableofpc, "ri?"),
 	BUILDIN_DEF(getcalendartime, "ii??"),
 	BUILDIN_DEF(setequipedcard, "iii?"),
+	BUILDIN_DEF(itempreview, "i"),
 	BUILDIN_DEF(mesf, "s*"),
 	BUILDIN_DEF(consolemes, "iv*"),
 	BUILDIN_DEF(abs, "i"),

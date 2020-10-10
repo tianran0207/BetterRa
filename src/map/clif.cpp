@@ -7022,6 +7022,27 @@ void clif_change_card(struct map_session_data *sd, unsigned int pos, int solt, u
 #endif
 }
 
+// show item preview in already opened preview window
+void clif_item_preview(struct map_session_data *sd, int n)
+{
+#if PACKETVER_MAIN_NUM >= 20170726 || PACKETVER_RE_NUM >= 20170621 || defined(PACKETVER_ZERO)
+	nullpo_retv(sd);
+	if (n >= 0 && n < MAX_INVENTORY)
+		return;
+
+	struct PACKET_ZC_ITEM_PREVIEW p;
+	p.packetType = HEADER_ZC_ITEM_PREVIEW;
+	p.index = n + 2;
+#if PACKETVER_MAIN_NUM >= 20181017 || PACKETVER_RE_NUM >= 20181017 || PACKETVER_ZERO_NUM >= 20181024
+	p.isDamaged = ( sd->inventory.u.items_inventory[n].attribute ) != 0 ? 1 : 0;
+#endif
+	p.refiningLevel = sd->inventory.u.items_inventory[n].refine;
+	clif_addcards(&p.slot, &sd->inventory.u.items_inventory[n]);
+	clif_add_random_options(&p.option_data[0], &sd->inventory.u.items_inventory[n]);
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
+#endif
+}
+
 /// Presents a list of items that can be identified (ZC_ITEMIDENTIFY_LIST).
 /// 0177 <packet len>.W { <index>.W }*
 void clif_item_identify_list(struct map_session_data *sd)
