@@ -2482,19 +2482,22 @@ static void pet_read_pre_db()
 		pet->EggID = atoi(str[4]);
 		pet->AcceID = atoi(str[5]);
 		pet->FoodID = atoi(str[6]);
-		pet->fullness = atoi(str[7]);
+		pet->fullness = atoi(str[7]) / 20;
 		pet->hungry_delay = atoi(str[8]) * 1000;
 		pet->r_hungry = atoi(str[9]);
 		if (pet->r_hungry <= 0)
 			pet->r_hungry = 1;
-		pet->r_full = atoi(str[10]);
+		pet->r_full = -atoi(str[10]);
 		pet->intimate = atoi(str[11]);
-		pet->die = atoi(str[12]);
+		pet->die = -atoi(str[12]);
 		pet->capture = atoi(str[13]);
-		pet->s_perfor = (char)atoi(str[15]);
+		pet->s_perfor = atoi(str[15]) != 0;
 		pet->attack_rate = atoi(str[17]);
 		pet->defence_attack_rate = atoi(str[18]);
 		pet->change_target_rate = atoi(str[19]);
+		pet->hunger_increase = 20;
+		pet->hungry_intimacy_dec = -5;
+		pet->allow_autofeed = false;
 		if (pet->pet_bonus_script)
 			script_free_code(pet->pet_bonus_script);
 		if (*str[20])
