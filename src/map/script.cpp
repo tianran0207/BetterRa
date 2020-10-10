@@ -16664,6 +16664,7 @@ BUILDIN_FUNC(setbattleflag)
 			for (i = 0; i < ARRAYLENGTH(expdrop_flags); i++) {
 				if (!strcmpi(flag, expdrop_flags[i])) {
 					mob_reload();
+					pet_db.reload();
 					break;
 				}
 			}
@@ -29592,15 +29593,15 @@ BUILDIN_FUNC(specialeffectnum)
 	if (script_hasdata(st, 5)) {
 		if (script_isstring(st, 5)) {
 			struct npc_data *nd;
-			if ((nd = npc_name2id(script_getstr(st, 5))) != NULL)
-				bl = &nd->bl;
+			if (!(nd = npc_name2id(script_getstr(st, 5)))) {
+				ShowError("buildin_removespecialeffect: NPC with name '%s' is not found.\n", script_getstr(st, 5));
+				return SCRIPT_CMD_FAILURE;
+			}
+			bl = &nd->bl;
 		}
-		else
-			bl = map_id2bl(script_getnum(st, 5));
+		else if (script_rid2bl(5, bl))
+			return SCRIPT_CMD_FAILURE;
 	}
-
-	if (bl == NULL)
-		return SCRIPT_CMD_SUCCESS;
 
 	if (target == SELF) {
 		struct map_session_data *sd;
@@ -29626,15 +29627,15 @@ BUILDIN_FUNC(removespecialeffect)
 	if (script_hasdata(st, 4)) {
 		if (script_isstring(st, 4)) {
 			struct npc_data *nd;
-			if ((nd = npc_name2id(script_getstr(st, 4))) != NULL)
-				bl = &nd->bl;
+			if (!(nd = npc_name2id(script_getstr(st, 4)))) {
+				ShowError("buildin_removespecialeffect: NPC with name '%s' is not found.\n", script_getstr(st, 4));
+				return SCRIPT_CMD_FAILURE;
+			}
+			bl = &nd->bl;
 		}
-		else
-			bl = map_id2bl(script_getnum(st, 4));
+		else if (script_rid2bl(4, bl))
+			return SCRIPT_CMD_FAILURE;
 	}
-
-	if (bl == NULL)
-		return SCRIPT_CMD_SUCCESS;
 
 	if (target == SELF) {
 		struct map_session_data *sd;

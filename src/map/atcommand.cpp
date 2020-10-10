@@ -7228,8 +7228,10 @@ ACMD_FUNC(setbattleflag)
 
 	clif_displaymessage(fd, msg_txt(sd,1233)); // Set battle_config as requested.
 
-	if (reload)
+	if (reload) {
 		mob_reload();
+		pet_db.reload();
+	}
 
 	return 0;
 }
