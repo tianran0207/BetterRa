@@ -4372,7 +4372,7 @@ static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *
 #else
 			skillratio += 300 + 100 * skill_lv;
 #endif
-			if (sc->data[SC_GT_ENERGYGAIN])
+			if (sc && sc->data[SC_GT_ENERGYGAIN])
 				skillratio += skillratio * 50 / 100;
 			break;
 		case CH_PALMSTRIKE:
