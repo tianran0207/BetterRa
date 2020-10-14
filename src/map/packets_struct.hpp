@@ -1147,7 +1147,7 @@ struct packet_itemlist_normal {
 
 struct packet_itemlist_equip {
 	int16 PacketType;
-	int16 PacketLength;
+	uint16 PacketLength;
 #if PACKETVER_RE_NUM >= 20180912 || PACKETVER_ZERO_NUM >= 20180919 || PACKETVER_MAIN_NUM >= 20181002
 	uint8 invType;
 #endif
