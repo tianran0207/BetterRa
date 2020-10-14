@@ -3221,9 +3221,33 @@ void clif_cartlist( struct map_session_data *sd ){
 		// Non-stackable (Equippable)
 		if( !itemdb_isstackable2(id) ){
 			clif_item_equip( client_index( i ), &itemlist_equip.list[equip++], &sd->cart.u.items_cart[i], id, id->equip );
-		 // Stackable (Normal)
+
+			if( equip == MAX_STORAGE_ITEM_PACKET_EQUIP ){
+				itemlist_equip.PacketType = cartlistequipType;
+				itemlist_equip.PacketLength = ( sizeof( itemlist_equip ) - sizeof( itemlist_equip.list ) ) + ( sizeof( struct EQUIPITEM_INFO ) * equip );
+#if PACKETVER_RE_NUM >= 20180912 || PACKETVER_ZERO_NUM >= 20180919 || PACKETVER_MAIN_NUM >= 20181002
+				itemlist_equip.invType = type;
+#endif
+
+				clif_send( &itemlist_equip, itemlist_equip.PacketLength, &sd->bl, SELF );
+
+				equip = 0;
+			}
+		// Stackable (Normal)
 		}else{
 			clif_item_normal( client_index( i ), &itemlist_normal.list[normal++], &sd->cart.u.items_cart[i], id );
+
+			if( normal == MAX_STORAGE_ITEM_PACKET_NORMAL ){
+				itemlist_normal.PacketType = cartlistnormalType;
+				itemlist_normal.PacketLength = ( sizeof( itemlist_normal ) - sizeof( itemlist_normal.list ) ) + ( sizeof( struct NORMALITEM_INFO ) * normal );
+#if PACKETVER_RE_NUM >= 20180912 || PACKETVER_ZERO_NUM >= 20180919 || PACKETVER_MAIN_NUM >= 20181002
+				itemlist_normal.invType = type;
+#endif
+
+				clif_send( &itemlist_normal, itemlist_normal.PacketLength, &sd->bl, SELF );
+
+				normal = 0;
+			}
 		}
 	}
 
