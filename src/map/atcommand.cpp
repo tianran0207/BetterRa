@@ -7581,16 +7581,16 @@ ACMD_FUNC(mobinfo)
 			int droprate;
 			if (mob->dropitem[i].nameid == 0 || mob->dropitem[i].p < 1 || (item_data = itemdb_exists(mob->dropitem[i].nameid)) == NULL)
 				continue;
-			droprate = mob->dropitem[i].p;
+			droprate = mob->dropitem[i].dp ? mob->dropitem[i].dp : mob->dropitem[i].p;
 
 #ifdef RENEWAL_DROP
-			if( battle_config.atcommand_mobinfo_type ) {
+			if( battle_config.atcommand_mobinfo_type && !mob->dropitem[i].no_lv_fix) {
 				droprate = droprate * pc_level_penalty_mod(mob->lv - sd->status.base_level, mob->status.class_, mob->status.mode, 2) / 100;
 				if (droprate <= 0 && !battle_config.drop_rate0item)
 					droprate = 1;
 			}
 #endif
-			if (pc_isvip(sd)) // Display drop rate increase for VIP
+			if (pc_isvip(sd) && !mob->dropitem[i].no_vip_fix) // Display drop rate increase for VIP
 				droprate += (droprate * battle_config.vip_drop_increase) / 100;
 			if (item_data->slot)
 				sprintf(atcmd_output2, " - %s[%d]  %02.02f%%", item_data->jname, item_data->slot, (float)droprate / 100);

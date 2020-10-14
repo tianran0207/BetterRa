@@ -90,7 +90,6 @@ struct mob_chat *mob_chat(short id) {
 struct s_mob_item_drop_ratio {
 	t_itemid nameid;
 	int drop_ratio;
-	int drop_fix;
 	unsigned short mob_id[MAX_ITEMRATIO_MOBS];
 };
 static DBMap *mob_item_drop_ratio;
@@ -2846,7 +2845,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				// Now rig the drop rate to never be over 90% unless it is originally >90%.
 				drop_rate = i32max(drop_rate, cap_value(drop_rate_bonus, 0, 9000));
 
-				if (pc_isvip(sd)) { // Increase item drop rate for VIP.
+				if (pc_isvip(sd) && !md->db->dropitem[i].no_vip_fix ) { // Increase item drop rate for VIP.
 					drop_rate += (int)(0.5 + drop_rate * battle_config.vip_drop_increase / 100.);
 					drop_rate = min(drop_rate,10000); //cap it to 100%
 				}
@@ -2854,7 +2853,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			}
 
 #ifdef RENEWAL_DROP
-			if( drop_modifier != 100 ) {
+			if( drop_modifier != 100 && !md->db->dropitem[i].no_lv_fix ) {
 				drop_rate = apply_rate(drop_rate, drop_modifier);
 				if (drop_rate < 1)
 					drop_rate = 1;
@@ -2868,7 +2867,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				continue;
 
 			static const int itemtype_bitmask[30] = { 1,0,2,4,8,16,32,64,0,128,256,512,1024,0,0,0,0,0,2048,0,4096 };
-			if (npc_script_event_check(mvp_sd, NPCE_MOBDROPITEMFILTER) && (it->flag.item_drop_event || (battle_config.mob_drop_event & itemtype_bitmask[it->type]))) {
+			if (npc_script_event_check(mvp_sd, NPCE_MOBDROPITEMFILTER) && (md->db->dropitem[i].do_event || it->flag.item_drop_event || (battle_config.mob_drop_event & itemtype_bitmask[it->type]))) {
 				pc_setreg(mvp_sd, add_str("@drop_mobid"), md->mob_id);
 				pc_setreg(mvp_sd, add_str("@drop_itemid"), md->db->dropitem[i].nameid);
 				pc_setreg(mvp_sd, add_str("@drop_rate"), md->db->dropitem[i].p);
@@ -4328,34 +4327,6 @@ static void item_dropratio_adjust(t_itemid nameid, int mob_id, int *rate_adjust)
 	}
 }
 
-static bool item_dropratefix_adjust(t_itemid nameid, int mob_id, int *rate, int *rate_adjust)
-{
-	struct s_mob_item_drop_ratio *item_ratio = (struct s_mob_item_drop_ratio *)idb_get(mob_item_drop_ratio, nameid);
-	if (item_ratio) {
-		if (item_ratio->mob_id[0]) { // only for listed mobs
-			int i;
-			ARR_FIND(0, MAX_ITEMRATIO_MOBS, i, item_ratio->mob_id[i] == mob_id);
-			if (i < MAX_ITEMRATIO_MOBS) { // found
-				if (!item_ratio->drop_fix)
-					*rate_adjust = item_ratio->drop_ratio;
-				else {
-					*rate = cap_value(item_ratio->drop_fix, 0, 10000);
-					return false;
-				}
-			}
-		}
-		else { // for all mobs
-			if (!item_ratio->drop_fix)
-				*rate_adjust = item_ratio->drop_ratio;
-			else {
-				*rate = cap_value(item_ratio->drop_fix, 0, 10000);
-				return false;
-			}
-		}
-	}
-	return true;
-}
-
 /*==========================================
  * processes one mobdb entry
  *------------------------------------------*/
@@ -5505,41 +5476,6 @@ static bool mob_readdb_itemratio(char* str[], int columns, int current)
 	return true;
 }
 
-static bool mob_readdb_itemratefix(char* str[], int columns, int current)
-{
-	t_itemid nameid;
-	int ratefix, i;
-	struct s_mob_item_drop_ratio *item_ratio;
-	nameid = strtoul(str[0], nullptr, 10);
-
-	if (itemdb_exists(nameid) == NULL) {
-		ShowWarning("mob_readdb_itemratio: Invalid item id %u.\n", nameid);
-		return false;
-	}
-
-	ratefix = atoi(str[1]);
-
-	if (!(item_ratio = (struct s_mob_item_drop_ratio *)idb_get(mob_item_drop_ratio, nameid)))
-		CREATE(item_ratio, struct s_mob_item_drop_ratio, 1);
-
-	item_ratio->drop_fix = ratefix;
-	memset(item_ratio->mob_id, 0, sizeof(item_ratio->mob_id));
-	for (i = 0; i < columns - 2; i++) {
-		uint16 mob_id = atoi(str[i + 2]);
-		if (mob_db(mob_id) == NULL)
-			ShowError("mob_readdb_itemratio: Invalid monster with ID %hu (Item:%u Col:%d).\n", mob_id, nameid, columns);
-		else
-			item_ratio->mob_id[i] = atoi(str[i + 2]);
-	}
-
-	if (!item_ratio->nameid) {
-		item_ratio->nameid = nameid;
-		idb_put(mob_item_drop_ratio, nameid, item_ratio);
-	}
-
-	return true;
-}
-
 /**
  * Read additional monster drop from db file
  * @author [Cydh]
@@ -5618,6 +5554,64 @@ static bool mob_readdb_drop(char* str[], int columns, int current) {
 
 	return true;
 }
+
+static bool mob_readdb_itemratefix(char* str[], int columns, int current)
+{
+	unsigned short mobid;
+	t_itemid nameid;
+	int rate, i, size, flag = 0;
+	struct mob_db *mob;
+	struct s_mob_drop *drop;
+
+	mobid = atoi(str[0]);
+	if ((mob = mob_db(mobid)) == NULL) {
+		ShowError("mob_readdb_itemratefix: Invalid monster ID %s.\n", str[0]);
+		return false;
+	}
+
+	nameid = strtoul(str[1], nullptr, 10);
+	if (itemdb_exists(nameid) == NULL) {
+		ShowWarning("mob_readdb_itemratefix: Invalid item ID %s.\n", str[1]);
+		return false;
+	}
+
+	rate = atoi(str[2]);
+	if (columns > 4 && ((flag = atoi(str[4])) & 1)) {
+		drop = mob->mvpitem;
+		size = ARRAYLENGTH(mob->mvpitem);
+	}
+	else {
+		drop = mob->dropitem;
+		size = ARRAYLENGTH(mob->dropitem);
+	}
+
+	if (rate == 0) {
+		ARR_FIND(0, size, i, drop[i].nameid == nameid);
+		if (i < size) {
+			memset(&drop[i], 0, sizeof(struct s_mob_drop));
+			return true;
+		}
+	} else {
+		ARR_FIND(0, size, i, drop[i].nameid == nameid);
+		if (i == size) { // Item is not dropped at all (search all item slots)
+			ARR_FIND(0, size, i, drop[i].nameid == 0);
+			if (i == size) { // No empty slots
+				ShowError("mob_readdb_drop: Cannot add item '%u' to monster '%hu'. Max drop reached (%d).\n", nameid, mobid, size);
+				return true;
+			}
+		}
+		drop[i].nameid = nameid;
+		drop[i].p = rate;
+		drop[i].dp = columns > 3 ? atoi(str[3]) : 0;
+		drop[i].steal_protected = (flag & 2) ? 1 : 0;
+		drop[i].no_lv_fix = (flag & 4) ? 1 : 0;
+		drop[i].no_vip_fix = (flag & 8) ? 1 : 0;
+		drop[i].do_event = (flag & 16) ? 1 : 0;
+	}
+
+	return true;
+}
+
 
 /**
  * Free drop ratio data
@@ -5752,21 +5746,21 @@ static void mob_drop_ratio_adjust(void){
 						break;
 				}
 			}
-			//item_dropratio_adjust( nameid, mob_id, &rate_adjust );
-			if(item_dropratefix_adjust(nameid, mob_id, &rate, &rate_adjust))
-				rate = mob_drop_adjust( rate, rate_adjust, ratemin, ratemax );
+
+			item_dropratio_adjust(nameid, mob_id, &rate_adjust);
+			rate = mob_drop_adjust(rate, rate_adjust, ratemin, ratemax);
 
 			// calculate and store Max available drop chance of the item
 			// but skip treasure chests.
 			if( rate && !is_treasurechest ){
 				unsigned short k;
 
-				if( id->maxchance == -1 || ( id->maxchance < rate ) ){
-					id->maxchance = rate; // item has bigger drop chance or sold in shops
+				if( id->maxchance == -1 || ( id->maxchance < mob->dropitem[j].dp) ){
+					id->maxchance = mob->dropitem[j].dp; // item has bigger drop chance or sold in shops
 				}
 
 				for( k = 0; k < MAX_SEARCH; k++ ){
-					if( id->mob[k].chance <= rate ){
+					if( id->mob[k].chance <= mob->dropitem[j].dp){
 						break;
 					}
 				}
@@ -5776,7 +5770,7 @@ static void mob_drop_ratio_adjust(void){
 						memmove( &id->mob[k+1], &id->mob[k], (MAX_SEARCH-k-1)*sizeof(id->mob[0]) );
 					}
 
-					id->mob[k].chance = rate;
+					id->mob[k].chance = mob->dropitem[j].dp;
 					id->mob[k].id = mob_id;
 				}
 			}
@@ -5939,7 +5933,7 @@ static void mob_load(void)
 		sv_readdb(dbsubpath2, "mob_dmgrate_db.txt", ',', 2, 2, -1, &mob_readdb_dmgrate, silent);
 		sv_readdb(dbsubpath2, "mob_race2_db.txt", ',', 2, MAX_RACE2_MOBS, -1, &mob_readdb_race2, silent);
 		sv_readdb(dbsubpath1, "mob_item_ratio.txt", ',', 2, 2+MAX_ITEMRATIO_MOBS, -1, &mob_readdb_itemratio, silent);
-		sv_readdb(dbsubpath1, "mob_item_ratefix.txt", ',', 2, 2+MAX_ITEMRATIO_MOBS, -1, &mob_readdb_itemratefix, silent);
+		sv_readdb(dbsubpath1, "mob_item_ratefix.txt", ',', 3, 7, -1, &mob_readdb_itemratefix, silent);
 		sv_readdb(dbsubpath2, "mob_random_db.txt", ',', 4, 4, -1, &mob_readdb_group, silent);
 		sv_readdb(dbsubpath2, "mob_branch.txt", ',', 4, 4, -1, &mob_readdb_group, silent);
 		sv_readdb(dbsubpath2, "mob_poring.txt", ',', 4, 4, -1, &mob_readdb_group, silent);
