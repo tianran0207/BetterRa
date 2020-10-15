@@ -2551,6 +2551,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	if(src && src->type == BL_MOB)
 		mob_unlocktarget((struct mob_data *)src,tick);
 
+	mob_aggro_free(md);
+
 	// filter out entries not eligible for exp distribution
 	memset(tmpsd,0,sizeof(tmpsd));
 	for(i = 0, count = 0, mvp_damage = 0; i < DAMAGELOG_SIZE && md->dmglog[i].id; i++) {
@@ -3223,7 +3225,6 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		return ud->state.walk_script ? 3 : 5; // Note: Actually, it's 4. Oh well...
 	}
 
-	mob_aggro_free(md);
 	mobskill_del(md, 0);
 
 	// MvP tomb [GreenBox]
@@ -6132,31 +6133,21 @@ bool MobAvailDatabase::load() {
 }
 
 static struct s_aggro_entry *mob_aggro_exists(struct mob_data *md, struct map_session_data *sd) {
-	struct s_aggro_entry *entry = (struct s_aggro_entry *)linkdb_search(&md->aggro.head, (void *)(sd->bl.id));
+	struct s_aggro_entry *entry;
+
+	if (!md->aggro.head)
+		md->status.mode = (enum e_mode)(md->status.mode & ~(MD_ANGRY | MD_CHANGECHASE | MD_CHANGETARGET_MELEE | MD_CHANGETARGET_CHASE | MD_RANDOMTARGET));
+
+	entry = (struct s_aggro_entry *)linkdb_search(&md->aggro.head, (void *)(sd->bl.id));
 	if (entry == NULL) {
 		CREATE(entry, struct s_aggro_entry, 1);
 		entry->src_id = sd->bl.id;
 		linkdb_insert(&md->aggro.head, (void *)(sd->bl.id), entry);
 		linkdb_insert(&sd->aggro.head, (void *)(md->bl.id), md);
-		md->status.mode = (enum e_mode)(md->status.mode & ~(MD_ANGRY|MD_CHANGECHASE|MD_CHANGETARGET_MELEE|MD_CHANGETARGET_CHASE|MD_RANDOMTARGET));
 	}
 	entry->sd = sd;
-	return entry;
-}
 
-static int mob_aggro_free_single(struct mob_data *md, struct s_aggro_entry *entry)
-{
-	if (entry != NULL) {
-		if (entry->sd) {
-			if (md->aggro.force_id == entry->src_id)
-				md->aggro.force_id = 0;
-			if ((entry->sd = map_id2sd(entry->src_id)) != NULL)
-				linkdb_erase(&entry->sd->aggro.head, (void *)(md->bl.id));
-		}
-		linkdb_erase(&md->aggro.head, (void *)(entry->src_id));
-		aFree(entry);
-	}
-	return 1;
+	return entry;
 }
 
 static int mob_aggro_skill_sub(struct block_list *bl, va_list ap)
@@ -6164,10 +6155,12 @@ static int mob_aggro_skill_sub(struct block_list *bl, va_list ap)
 	struct map_session_data *sd = va_arg(ap, struct map_session_data *);
 	struct mob_data *md = (struct mob_data *)bl;
 	struct s_aggro_entry *entry;
+
 	if (!battle_config.mob_aggro_all_mob && !md->aggro.flag)
 		return 0;
 	if (battle_check_target(bl, &sd->bl, BCT_ENEMY) <= 0 || (entry = mob_aggro_exists(md, sd)) == NULL)
 		return 0;
+
 	struct s_skill_db *skill = va_arg(ap, struct s_skill_db *);
 	t_tick tick = va_arg(ap, t_tick);
 	int heal = va_arg(ap, int);
@@ -6292,6 +6285,7 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 	struct linkdb_node *node = md->aggro.head;
 	struct s_aggro_entry *result = NULL;
 	int target_id = md->target_id;
+
 	if (md->aggro.force_tick > tick) {
 		struct map_session_data *sd = map_id2sd(md->aggro.force_id);
 		if (sd && mob_aggro_search_sub(md, &sd->bl, range))
@@ -6302,14 +6296,21 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 
 	while (node)
 	{
-		struct linkdb_node *next = node->next;
 		struct s_aggro_entry *entry = ((struct s_aggro_entry *)node->data);
-		if (battle_config.mob_aggro_disengage != 0 && entry->disengage_tick + battle_config.mob_aggro_disengage < tick && mob_aggro_free_single(md, entry)) {
-			node = md->aggro.head;
+		if (battle_config.mob_aggro_disengage != 0 && entry->disengage_tick + battle_config.mob_aggro_disengage < tick)
+		{
+			if (entry->sd && !linkdb_erase(&entry->sd->aggro.head, (void *)(md->bl.id)))
+				ShowError("mob_aggro_search: Player '%d' has not monster '%d' logs.\n", entry->src_id, md->bl.id);
+
+			node = node->next;
+			if (linkdb_erase(&md->aggro.head, (void *)(entry->src_id)))
+				ShowError("mob_aggro_search: Monster '%d' aggro has not player '%d' information.\n", md->bl.id, entry->src_id);
+
+			aFree(entry);
 			continue;
 		}
 		if (!entry->sd || !mob_aggro_search_sub(md, &entry->sd->bl, range)) {
-			node = next;
+			node = node->next;
 			continue;
 		}
 		for (int n = 0; n < MAX_AGGRO_RATE; n++) {
@@ -6319,7 +6320,8 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 		}
 		if (!result || entry->aggro > result->aggro)
 			result = entry;
-		node = next;
+
+		node = node->next;
 	}
 	md->target_id = target_id;
 
@@ -6330,10 +6332,13 @@ void mob_aggro_free(struct mob_data *md)
 {
 	struct linkdb_node *node = md->aggro.head;
 	while (node) {
-		struct linkdb_node *next = node->next;
 		struct s_aggro_entry *entry = ((struct s_aggro_entry *)node->data);
-		mob_aggro_free_single(md, entry);
-		node = next;
+
+		if (entry->sd && !linkdb_erase(&entry->sd->aggro.head, (void *)(md->bl.id)))
+			ShowError("mob_aggro_free: Player '%d' has not monster '%d' logs.\n", entry->src_id, md->bl.id);
+
+		aFree(entry);
+		node = node->next;
 	}
 	linkdb_final(&md->aggro.head);
 }
@@ -6341,17 +6346,25 @@ void mob_aggro_free(struct mob_data *md)
 void mob_aggro_clear(struct map_session_data *sd)
 {
 	struct linkdb_node *node = sd->aggro.head;
+	struct s_aggro_entry *entry;
+
 	while (node) {
-		struct linkdb_node *next = node->next;
 		struct mob_data *md = ((struct mob_data *)node->data);
 		if (battle_config.mob_aggro_logout_clear) {
-			linkdb_erase(&md->aggro.head, (void *)(sd->bl.id));
+			entry = (struct s_aggro_entry *)linkdb_erase(&md->aggro.head, (void *)(sd->bl.id));
+			if (!entry)
+				ShowError("mob_aggro_clear: Monster '%d' aggro has not player '%d' information.\n", md->bl.id, sd->bl.id);
+			else
+				aFree(entry);
 		}
 		else {
-			struct s_aggro_entry *entry = (struct s_aggro_entry *)linkdb_search(&md->aggro.head, (void *)(sd->bl.id));
-			if (entry) entry->sd = NULL;
+			entry = (struct s_aggro_entry *)linkdb_search(&md->aggro.head, (void *)(sd->bl.id));
+			if (!entry)
+				ShowError("mob_aggro_clear: Monster '%d' aggro has not player '%d' information.\n", md->bl.id, sd->bl.id);
+			else
+				entry->sd = NULL;
 		}
-		node = next;
+		node = node->next;
 	}
 	linkdb_final(&sd->aggro.head);
 }
