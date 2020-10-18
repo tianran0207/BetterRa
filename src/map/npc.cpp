@@ -1897,6 +1897,8 @@ int npc_cashshop_buylist(struct map_session_data *sd, int points, int count, str
 		return ERROR_TYPE_INVENTORY_WEIGHT;
 	if( pc_inventoryblank(sd) < new_ )
 		return ERROR_TYPE_INVENTORY_WEIGHT;
+	if (points < 0 || vt < 0)
+		return ERROR_TYPE_MONEY;
 	if( points > vt ) points = vt;
 
 	if ((res = npc_cashshop_process_payment(nd, vt, points, sd)) != ERROR_TYPE_NONE)
@@ -2055,8 +2057,9 @@ int npc_cashshop_buy(struct map_session_data *sd, t_itemid nameid, int amount, i
 	}
 
 	price = nd->u.shop.shop_item[i].value * amount;
-	if( points > price )
-		points = price;
+	if (points < 0 || price < 0)
+		return ERROR_TYPE_MONEY;
+	if( points > price ) points = price;
 
 	if ((res = npc_cashshop_process_payment(nd, price, points, sd)) != ERROR_TYPE_NONE)
 		return res;

@@ -5837,6 +5837,12 @@ int pc_paycash(struct map_session_data *sd, int price, int points, e_log_pick_ty
 
 	cash = price-points;
 
+	if(price < 0 || cash < 0)
+	{
+		ShowError("pc_paycash: Data overflow (cash=%d, kafra=%d account_id=%d, char_id=%d).\n", cash, points, sd->status.account_id, sd->status.char_id);
+		return -1;
+	}
+
 	if( sd->cashPoints < cash || sd->kafraPoints < points )
 	{
 		ShowError("pc_paycash: Not enough points (cash=%d, kafra=%d) to cover the price (cash=%d, kafra=%d) (account_id=%d, char_id=%d).\n", sd->cashPoints, sd->kafraPoints, cash, points, sd->status.account_id, sd->status.char_id);
