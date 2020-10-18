@@ -6365,7 +6365,7 @@ struct block_list *mob_aggro_search(struct mob_data *md, int range, t_tick tick)
 				ShowError("mob_aggro_search: Player '%d' has not monster '%d' logs.\n", entry->src_id, md->bl.id);
 
 			node = node->next;
-			if (linkdb_erase(&md->aggro.head, (void *)(entry->src_id)))
+			if (!linkdb_erase(&md->aggro.head, (void *)(entry->src_id)))
 				ShowError("mob_aggro_search: Monster '%d' aggro has not player '%d' information.\n", md->bl.id, entry->src_id);
 
 			aFree(entry);
