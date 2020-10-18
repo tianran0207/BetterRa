@@ -15352,6 +15352,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				bd->state.next_acttime = tick + 500;
 				return 0;
 			}
+			int min_chase = bd->min_chase;
 			//满足条件则技能攻击目标
 			if ((bd->info.atktype & BF_MAGIC) && sd->ud.skilltimer == INVALID_TIMER) {
 				if (pcbot_skill(bd, tbl, tick)){
@@ -15377,9 +15378,10 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			bd->state.next_acttime = tick + 500;
 
 			//攻击失败 则判断是否需要靠近目标
-			if (!battle_check_range(&sd->bl, tbl, bd->min_chase + 1) && bd->min_chase > 1) {
+			if (!battle_check_range(&sd->bl, tbl, bd->min_chase + 1) && distance_bl(&sd->bl, tbl) > 1) {
 				//攻击距离缩小一半走的更近一些
-				bd->min_chase /= 2;
+				if (min_chase > 1)
+					bd->min_chase = min_chase / 2;
 				//由于上次走路失败, 所以直接用A* 走. 如果还是失败则放弃这个目标.
 				if (unit_walktobl(&sd->bl, tbl, bd->min_chase, 0))
 					return 1;
