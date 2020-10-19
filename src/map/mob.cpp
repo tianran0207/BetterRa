@@ -2887,7 +2887,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 			ditem = mob_setdropitem(&md->db->dropitem[i], 1, md->mob_id);
 
-			if (md->db->dropitem[i].dp) {
+			if (md->db->dropitem[i].p != md->db->dropitem[i].dp) {
 				drop_rate = md->db->dropitem[i].dp;
 				if (md->db->mexp) {
 					if (map_getmapflag(md->bl.m, MF_MVPDROPRATE))
@@ -5666,7 +5666,7 @@ static bool mob_readdb_itemratefix(char* str[], int columns, int current)
 		}
 		drop[i].nameid = nameid;
 		drop[i].p = rate;
-		drop[i].dp = columns > 3 ? atoi(str[3]) : 0;
+		drop[i].dp = columns > 3 ? atoi(str[3]) : rate;
 		drop[i].steal_protected = (flag & 2) ? 1 : 0;
 		drop[i].no_lv_fix = (flag & 4) ? 1 : 0;
 		drop[i].no_vip_fix = (flag & 8) ? 1 : 0;
@@ -5737,6 +5737,7 @@ static void mob_drop_ratio_adjust(void){
 				}
 			}
 
+			mob->mvpitem[j].dp = mob->mvpitem[j].dp ? mob->mvpitem[j].dp : rate;
 			mob->mvpitem[j].p = rate;
 		}
 
@@ -5814,6 +5815,7 @@ static void mob_drop_ratio_adjust(void){
 			item_dropratio_adjust(nameid, mob_id, &rate_adjust);
 			rate = mob_drop_adjust(rate, rate_adjust, ratemin, ratemax);
 
+			mob->dropitem[j].dp = mob->dropitem[j].dp ? mob->dropitem[j].dp : rate;
 			// calculate and store Max available drop chance of the item
 			// but skip treasure chests.
 			if( rate && !is_treasurechest ){

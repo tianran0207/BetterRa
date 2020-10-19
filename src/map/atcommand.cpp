@@ -7581,7 +7581,7 @@ ACMD_FUNC(mobinfo)
 			int droprate;
 			if (mob->dropitem[i].nameid == 0 || mob->dropitem[i].p < 1 || (item_data = itemdb_exists(mob->dropitem[i].nameid)) == NULL)
 				continue;
-			droprate = mob->dropitem[i].dp ? mob->dropitem[i].dp : mob->dropitem[i].p;
+			droprate = mob->dropitem[i].dp;
 
 #ifdef RENEWAL_DROP
 			if( battle_config.atcommand_mobinfo_type && !mob->dropitem[i].no_lv_fix) {
