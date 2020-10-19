@@ -230,6 +230,7 @@ void mvptomb_create(struct mob_data *md, char *killer, time_t time)
 	nd->bl.x = md->bl.x;
 	nd->bl.y = md->bl.y;
 	nd->bl.type = BL_NPC;
+	nd->area_size = AREA_SIZE + 1;
 
 	safestrncpy(nd->name, msg_txt(NULL,656), sizeof(nd->name));
 
