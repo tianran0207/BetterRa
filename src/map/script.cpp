@@ -26330,7 +26330,7 @@ BUILDIN_FUNC(logout)
 
 	if (script_hasdata(st, 3)) {
 		if (script_isstring(st, 3)){
-			sd = map_nick2sd(script_getstr(st, 2), false);
+			sd = map_nick2sd(script_getstr(st, 3), false);
 		}
 		else {
 			id = script_getnum(st, 3);

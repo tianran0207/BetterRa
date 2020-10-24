@@ -995,7 +995,7 @@ bool skill_isNotOk(uint16 skill_id, struct map_session_data *sd)
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
 				return true;
 			}
-			if (battle_config.min_storechat_distance && map_checknear(&sd->bl, battle_config.min_storechat_distance - 1, CHECK_CHAT | CHECK_BUYING_STORE | CHECK_VENDING)) {
+			if (battle_config.min_storechat_distance && map_checknear(&sd->bl, battle_config.min_storechat_distance-1, CHECK_CHAT | CHECK_BUYING_STORE | CHECK_VENDING)) {
 				char output[150];
 				sprintf(output, msg_txt(sd, 2345), battle_config.min_storechat_distance);
 				clif_displaymessage(sd->fd, output);
@@ -19730,7 +19730,7 @@ int skill_unit_timer_sub_onplace(struct block_list* bl, va_list ap)
 	if( battle_check_target(&unit->bl,bl,group->target_flag) <= 0 )
 		return 0;
 
-	if (map_find_skill_unit_oncell(bl, bl->x, bl->y, SA_LANDPROTECTOR, NULL, 0))
+	if (!skill->inf2[INF2_IGNORELANDPROTECTOR] && map_find_skill_unit_oncell(bl, bl->x, bl->y, SA_LANDPROTECTOR, NULL, 0))
 		return 0;
 
 	skill_unit_onplace_timer(unit,bl,tick);
