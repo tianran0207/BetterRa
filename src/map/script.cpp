@@ -28430,11 +28430,15 @@ static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data){
 		sd = (struct map_session_data*)data;
 		chrif_authreq(sd, true);
 		clif_parse_LoadEndAck(0, sd);
-		add_timer(gettick() + 3000, buildin_bot_login_sub, sd->bl.id, 0);
+		add_timer(gettick() + 100, buildin_bot_login_sub, sd->bl.id, 0);
 	}
 	else if ((sd = map_id2sd(id)) != NULL) {
-		sd->state.bot = 1;
-		clif_parse_LoadEndAck(0, sd);
+		if (!sd->state.active || (!sd->state.autotrade && !sd->state.pc_loaded))
+			add_timer(gettick() + 100, buildin_bot_login_sub, id, data);
+		else {
+			sd->state.bot = 1;
+			clif_parse_LoadEndAck(0, sd);
+		}
 	}
 	return 1;
 }
@@ -28456,14 +28460,14 @@ BUILDIN_FUNC(bot_login)
 		}
 		CREATE(tbl, TBL_PC, 1);
 		pc_setnewpc(tbl, account_id, char_id, 0, gettick(), sex, 0);
-		add_timer(gettick() + 3000, buildin_bot_login_sub, 0, (intptr_t)tbl);
+		add_timer(gettick() + 100, buildin_bot_login_sub, 0, (intptr_t)tbl);
 		return SCRIPT_CMD_SUCCESS;
 	}
 	CREATE(sd, TBL_PC, 1);
 	pc_setnewpc(sd, account_id, char_id, 0, gettick(), sex, 0);
 	chrif_authreq(sd, true);
 	clif_parse_LoadEndAck(0, sd);
-	add_timer(gettick() + 3000, buildin_bot_login_sub, sd->bl.id, 0);
+	add_timer(gettick() + 100, buildin_bot_login_sub, sd->bl.id, 0);
 	return SCRIPT_CMD_SUCCESS;
 }
 

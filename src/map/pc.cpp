@@ -15620,10 +15620,14 @@ int pcbot_run(struct map_session_data *sd, int64 timeout)
 
 int pcbot_stop(struct map_session_data *sd, int logout)
 {
-	struct bot_data *bd = map_id2bot(sd->bl.id);
+	struct bot_data *bd;
 
-	if (!bd || (sd = bd->sd) != map_id2sd(bd->sd->bl.id)) {
-		ShowError("pcbot_stop: bd = NULL");
+	if (!(bd = map_id2bot(sd->bl.id)))
+		return 0;
+
+	if (sd != bd->sd) {
+		map_delbot(bd);
+		ShowError("pcbot_stop: sd != bd->sd, bot delete.\n");
 		return 0;  
 	}
 	if (npc_script_event_check(sd, NPCE_BOTSTOPEVENT)) {
