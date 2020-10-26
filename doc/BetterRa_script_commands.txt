@@ -823,19 +823,31 @@ OnTalk:
 	.@gid = copynpc("prontera,156,99,2","duplicate(PVPCOPYTEST)","PVP管理员#1","917");
 	unittalk .@gid, "My GID is : " + .@gid;
 	
-如果想要复制到副本中, 那么需要在用到地图名称的地方使用 instance_mapname 进行转换, 如果原始NPC的也在副本中的话也需要使用 instance_npcname 对NPC名称进行转换, 如果NPC在副本外的话则不需要转换NPC名字 如:
+如何在副本中使用:
 
 	.@w1 = instance_mapname("1@tower") + ",156,99,2";
-	.@w2 = "duplicate(" + instance_npcname("PVPCOPYTEST") + ")"; // .@w2 = "duplicate(PVPCOPYTEST)";
-	.@w3 = "PVP管理员::1";
+	.@w2 = "duplicate(PVPCOPYTEST)";
+	.@w3 = "PVP管理员::0";
 	.@w4 = "917";
 	
 	copynpc .@w1, .@w2, .@w3, .@w4;
 	npctalk "我是复制自 PVPCOPYTEST 的NPC", instance_npcname("PVPCOPYTEST::1");
 	
-注意: 将NPC复制到副本中时 NPC名称中必须带有 ::XXX 才能复制成功!!此项是为了防止重复, 但与 #XXX 类似但有所不同, 
-      副本中使用 ::XXX 其中 XXX 在当前副本中复制同一个NPC时不允许重复, 长度不能大于6, 且最好使用数字
-	  获取副本中的NPC真实名称同理 类似 
+注意: 1. NPC名称中必须带有 ::XXX 才能复制成功, XXX最好为数字
+	  2. 当在副本中复制多个相同的NPC时, 通过修改 ::XXX 来避免NPC名称重复
+	  3. 可以通过 instance_npcname("来源NPC名称::XXX"); 获取NPC的真实名称. 
+ 
+	// 复制相同源生成的NPC
+	copynpc instance_mapname("1@tower") + ",156,100,2", "duplicate(PVPCOPYTEST)", "PVP管理员::1", "917";
+	copynpc instance_mapname("1@tower") + ",156,101,2", "duplicate(PVPCOPYTEST)", "PVP管理员::2", "917";
+	copynpc instance_mapname("1@tower") + ",156,102,2", "duplicate(PVPCOPYTEST)", "PVP管理员::3", "917";
+	copynpc instance_mapname("1@tower") + ",156,103,2", "duplicate(PVPCOPYTEST)", "PVP管理员::4", "917";
+	sleep 3000;
+	// 移除相同源生成的NPC
+	unloadcopynpc instance_npcname("PVPCOPYTEST::1");
+	unloadcopynpc instance_npcname("PVPCOPYTEST::2");
+	unloadcopynpc instance_npcname("PVPCOPYTEST::3");
+	unloadcopynpc instance_npcname("PVPCOPYTEST::4");
 
 返回值:
 	复制成功, 则返回复制出来的新NPC的GID, 失败则返回 0
@@ -845,7 +857,9 @@ OnTalk:
 *unloadduplicate "<NPC名称>";
 *unloadcopynpc "<NPC名称>";
 
-卸载掉复制的NPC, 如果是副本中的NPC请先用 instance_npcname 指令返回NPC名字.
+卸载掉复制的NPC, 具体使用方法请查看指令 copynpc
+
+如果是副本中的NPC请先用 instance_npcname 指令返回NPC名字, 也可以通过 strnpcinfo(3) 获取NPC名称.
 
 ---------------------------------------
 

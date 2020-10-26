@@ -21236,11 +21236,11 @@ BUILDIN_FUNC(instance_npcname)
 	else
 		instance_id = script_instancegetid(st);
 
-	if ((p = strstr(str, "::")) != NULL && strlen(p) > 2) {
+	if (instance_id && (p = strstr(str, "::")) != NULL && strlen(p) > 2) {
 		static char srcname[NAME_LENGTH];
 		*(p = p + 2);
 		safestrncpy(srcname, str, p - str - 1);
-		if( instance_id > 0 && (nd = npc_name2id(str)) != NULL ) {
+		if( instance_id > 0 && (nd = npc_name2id(srcname)) != NULL ) {
 			snprintf(srcname, sizeof(srcname), "dup_%hu_%d_%s", instance_id, nd->bl.id, p);
 			script_pushconststr(st, srcname);
 			return SCRIPT_CMD_SUCCESS;
