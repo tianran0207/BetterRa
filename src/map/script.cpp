@@ -26342,7 +26342,10 @@ BUILDIN_FUNC(logout)
 		sd = map_id2sd(st->rid);
 	}
 	if (sd) {
-		clif_authfail_fd(sd->fd, type);
+		if (sd->fd > 0)
+			clif_authfail_fd(sd->fd, 15);
+		else
+			map_quit(sd);
 		script_pushint(st, 1);	
 	}
 	else {
