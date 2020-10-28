@@ -3482,6 +3482,7 @@ static bool intif_parse_StorageReceived(int fd)
 			int j, idxlist[MAX_INVENTORY];
 #endif
 			pc_setinventorydata(sd);
+			pc_setinventorymark(sd);
 			pc_setequipindex(sd);
 			pc_check_expiration(sd);
 			pc_check_available_item(sd, ITMCHK_INVENTORY);

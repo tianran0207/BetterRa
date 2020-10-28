@@ -2804,7 +2804,7 @@ struct script_code* parse_script(const char *src,const char *file,int line,int o
 				i += 3;
 				break;
 			case C_STR:
-				j = strlen(script_buf + i);
+				j = strlen((char *)script_buf + i);
 				ShowMessage(" %s", script_buf + i);
 				i += j+1;
 				break;
@@ -14634,8 +14634,8 @@ BUILDIN_FUNC(getiteminfo)
 		switch (n) {
 		case 17:	script_pushint(st, i_data->flag.no_refine ? 0 : 1); break;
 		case 18:	script_pushint(st, i_data->flag.trade_restriction); break;
-		case 21:	script_pushint(st, has_func_name(i_data->script, "pet") ? 1 : 0); break;
-		case 22:	script_pushint(st, has_func_name(i_data->script, "callfunc") ? 1 : 0); break;
+		case 21:	script_pushint(st, script_func_mark_sub(NULL, 0, i_data->script, "pet") ? 1 : 0); break;
+		case 22:	script_pushint(st, script_func_mark_sub(NULL, 0, i_data->script, "callfunc") ? 1 : 0); break;
 		default:	script_pushint(st, -1); break;
 		}
 	} else
@@ -31623,41 +31623,102 @@ BUILDIN_FUNC(preg_match) {
 #endif
 }
 
-bool has_func_name(struct script_code *script_code, char *func_name) {
+bool script_func_mark_sub(struct map_session_data *sd, int n, script_code *script_code, char *func_name) {
 
-	int len, i = 0, j, func;
+	int len, i = 0, j, bonus_check = 0, func = -1;
+	int64 bonus_mark = 0, tmp_int = 0;
 	unsigned char *buf;
 
 	if (!script_code)
 		return false;
 
-	if ((func = search_str(func_name)) == -1)
+	if (func_name && (func = search_str(func_name)) == -1)
 		return false;
 
 	len = script_code->script_size;
 	buf = script_code->script_buf;
+
 	while (i < len) {
 		c_op op = get_com(buf, &i);
+
 		j = i;
 		switch (op) {
 		case C_INT:
-			for (j = 0; buf[i+j] >= 0xc0; j++);
-			i += j + 1;
+			tmp_int = get_num(buf, &i);
+			switch (bonus_check) {
+			case 1:
+				bonus_check = 2;
+				bonus_mark = tmp_int;
+				break;
+			case 2:
+				bonus_check = 0;
+				switch (bonus_mark) {
+				case SP_EQUIPLOC:
+					sd->inventory_mark[n].EquipLoc = static_cast<int>(tmp_int);
+					break;
+				}
+				break;
+			}
 			break;
-		case C_NAME:
-			j = (*(int*)(buf + i) & 0xffffff);
-			if (func == j)
-				return true;
 		case C_POS:
 			i += 3;
 			break;
+		case C_NAME:
+			j = (*(int*)(buf + i) & 0xffffff);
+			bonus_check = 0;
+			if (j == func)
+				return true;
+			else if (sd == NULL || j < LABEL_START || j >= str_size)
+				;
+			else if (str_data[j].func == buildin_bonus)
+				bonus_check = 1;
+			else if (str_data[j].func == buildin_callfunc)
+				sd->inventory_mark[n].callfunc = 1;
+			else if (str_data[j].func == buildin_catchpet)
+				sd->inventory_mark[n].pet = 1;
+			else if (str_data[j].func == buildin_setmounting)
+				sd->inventory_mark[n].setmounting = 1;
+			i += 3;
+			break;
 		case C_STR:
-			j = strlen((char *)(buf + i));
+			j = strlen((char *)buf + i);
 			i += j + 1;
 			break;
 		}
 	}
+
 	return false;
+}
+
+void script_func_mark(struct map_session_data *sd, int n)
+{
+	struct item_data *id = sd->inventory_data[n];
+	struct item *itm = &sd->inventory.u.items_inventory[n];
+
+	if (id->script)
+		script_func_mark_sub(sd, n, id->script);
+
+	if (id->equip) {
+		for (int i = 0; i < MAX_SLOTS; i++) {
+			if (!itm->card[i])
+				continue;
+			if ((id = itemdb_exists(itm->card[i])) == NULL)
+				continue;
+			if (!id->script)
+				continue;
+			script_func_mark_sub(sd, n, id->script);
+		}
+		for (int i = 0; i < MAX_ITEM_RDM_OPT; i++) {
+			struct s_random_opt_data *data;
+			if (!itm->option[i].id)
+				continue;
+			if ((data = itemdb_randomopt_exists(itm->option[i].id)) == NULL)
+				continue;
+			if (!data->script)
+				continue;
+			script_func_mark_sub(sd, n, data->script);
+		}
+	}
 }
 
 BUILDIN_FUNC_SKIP(setquestinfo_level)

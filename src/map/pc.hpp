@@ -417,6 +417,12 @@ struct map_session_data {
 	bool runing_event[NPCE_MAX];
 	int menulist_data;
 	int sleep_mes_active;
+	struct s_inventory_mark {
+		unsigned int EquipLoc;
+		unsigned callfunc : 1;
+		unsigned pet : 1;
+		unsigned setmounting : 1;
+	}inventory_mark[MAX_INVENTORY];
 	struct s_damage_event {
 		short dmg_type, dmg_skillid, dmg_skilllv, dmg_targettype, dmg_mobid, dmg_mark;
 		int64 dmg_val, dmg_disp_val;
@@ -1368,6 +1374,7 @@ uint8 pc_isequip(struct map_session_data *sd,int n);
 int pc_equippoint(struct map_session_data *sd,int n);
 int pc_equippoint_sub(struct map_session_data *sd, struct item_data* id);
 void pc_setinventorydata(struct map_session_data *sd);
+void pc_setinventorymark(struct map_session_data *sd);
 
 int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv);
 uint8 pc_checkskill(struct map_session_data *sd,uint16 skill_id);

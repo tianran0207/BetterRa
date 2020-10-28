@@ -2289,6 +2289,7 @@ void itemdb_reload(void) {
 		}
 
 		pc_setinventorydata(sd);
+		pc_setinventorymark(sd);
 		pc_check_available_item(sd, ITMCHK_ALL); // Check for invalid(ated) items.
 		pc_load_combo(sd); // Check to see if new combos are available
 		status_calc_pc(sd, SCO_FORCE); // 

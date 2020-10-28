@@ -1061,6 +1061,15 @@ void pc_setinventorydata(struct map_session_data *sd)
 	}
 }
 
+void pc_setinventorymark(struct map_session_data *sd)
+{
+	for (int i = 0; i < MAX_INVENTORY; i++) {
+		if (sd->inventory.u.items_inventory[i].nameid == 0 || sd->inventory_data[i] == NULL)
+			continue;
+		script_func_mark(sd, i);
+	}
+}
+
 /**
 * 'Calculates' weapon type
 * @param sd : Player
@@ -6109,6 +6118,7 @@ enum e_additem_result pc_additem(struct map_session_data *sd,struct item *item,i
 		if (!itemdb_isstackable2(id) || id->flag.guid)
 			sd->inventory.u.items_inventory[i].unique_id = item->unique_id ? item->unique_id : pc_generate_unique_id(sd);
 
+		script_func_mark(sd,i);
 		clif_additem(sd,i,amount,0);
 	}
 
@@ -6170,6 +6180,7 @@ char pc_delitem(struct map_session_data *sd,int n,int amount,int type, short rea
 		if(sd->inventory.u.items_inventory[n].equip)
 			pc_unequipitem(sd,n,2|(!(type&4) ? 1 : 0));
 		memset(&sd->inventory.u.items_inventory[n],0,sizeof(sd->inventory.u.items_inventory[0]));
+		memset(&sd->inventory_mark[n], 0, sizeof(sd->inventory_mark[0]));
 		sd->inventory_data[n] = NULL;
 	}
 	if(!(type&1))
@@ -6349,7 +6360,7 @@ bool pc_isUseitem(struct map_session_data *sd,int n)
 		case IT_SHADOWGEAR:	  type = 128; 	 break;
 		case IT_CASH:		  type = 256; 	 break;
 		}
-		if ((battle_config.mounting_cant_use & type) && !has_func_name(item->script, "setmounting")) {
+		if ((battle_config.mounting_cant_use & type) && !sd->inventory_mark[n].setmounting) {
 			clif_displaymessage(sd->fd, msg_txt(sd, 2337));
 			return false;
 		}
@@ -6560,7 +6571,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 
 	/* Items with delayed consume are not meant to work while in mounts except reins of mount(12622) */
 	if( id->flag.delay_consume == 1 || id->flag.delay_consume == 2) {
-		if( nameid != ITEMID_REINS_OF_MOUNT && sd->sc.data[SC_ALL_RIDING] && !has_func_name(id->script, "setmounting"))
+		if( nameid != ITEMID_REINS_OF_MOUNT && sd->sc.data[SC_ALL_RIDING] && !sd->inventory_mark[n].setmounting)
 			return 0;
 		else if( pc_issit(sd) )
 			return 0;
@@ -6576,12 +6587,12 @@ int pc_useitem(struct map_session_data *sd,int n)
 		return 0;
 
 	if (battle_config.disable_items_callfunc) {
-		if ((sd->npc_id || sd->sleep_mes_active) && has_func_name(id->script, "callfunc"))
+		if ((sd->npc_id || sd->sleep_mes_active) && sd->inventory_mark[n].callfunc)
 			return 0;
 	}
 
 	if (map_getmapflag(sd->bl.m, MF_NOCAPTURE) && id->type == IT_USABLE) {
-		if (has_func_name(id->script, "pet")) {
+		if (sd->inventory_mark[n].pet) {
 			clif_displaymessage(sd->fd, msg_txt(sd, 2336));
 			return 0;
 		}
