@@ -419,6 +419,8 @@ struct map_session_data {
 	int sleep_mes_active;
 	struct s_inventory_mark {
 		unsigned int EquipLoc;
+		char Bound;
+		unsigned Ignore : 1;
 		unsigned callfunc : 1;
 		unsigned pet : 1;
 		unsigned setmounting : 1;

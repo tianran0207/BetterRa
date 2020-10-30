@@ -588,6 +588,9 @@
 	export_constant2("bDefSize", SP_DEFSIZE);
 	export_constant2("bDefRace", SP_DEFRACE);
 	export_constant2("bDefEleLevel", SP_DEFELELEVEL);
+	export_constant2("bEquipLoc", SP_EQUIPLOC);
+	export_constant2("bEquipBound", SP_EQUIPBOUND);
+	export_constant2("bEquipIgnore", SP_EQUIPIGNORE);
 
 	export_constant(MF_TRIBE);
 	export_constant(MF_HIDEGUILDINFO);

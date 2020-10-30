@@ -10020,6 +10020,10 @@ BUILDIN_FUNC(bonus)
 	}
 
 	switch( type ) {
+		case SP_EQUIPLOC:
+		case SP_EQUIPBOUND:
+		case SP_EQUIPIGNORE:
+			return SCRIPT_CMD_SUCCESS;
 		case SP_SKILL_AOE:
 		case SP_SKILL_DAMAGE:
 		case SP_SKILL_ITEM_FIX:
@@ -31655,6 +31659,12 @@ bool script_func_mark_sub(struct map_session_data *sd, int n, script_code *scrip
 				switch (bonus_mark) {
 				case SP_EQUIPLOC:
 					sd->inventory_mark[n].EquipLoc = static_cast<int>(tmp_int);
+					break;
+				case SP_EQUIPBOUND:
+					sd->inventory_mark[n].Bound = static_cast<char>(tmp_int);
+					break;
+				case SP_EQUIPIGNORE:
+					sd->inventory_mark[n].Ignore = static_cast<char>(tmp_int);
 					break;
 				}
 				break;

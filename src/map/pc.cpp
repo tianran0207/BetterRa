@@ -1012,39 +1012,6 @@ int pc_equippoint(struct map_session_data *sd,int n){
 	return pc_equippoint_sub(sd,sd->inventory_data[n]);
 }
 
-int pc_equip_costume_card(struct map_session_data *sd, int n)
-{
-	nullpo_ret(sd);
-	struct item_data *card, *id;
-	int pos = 0;
-	for (int i = 0; i < MAX_SLOTS && n >= 0; i++) { // Uses MAX_SLOTS to support Soul Bound system [Inkfish]
-		id = sd->inventory_data[n];
-		int c = sd->inventory.u.items_inventory[n].card[i];
-		if (c == 0 || (card = itemdb_exists(c)) == NULL)
-			continue;
-		if (card->flag.costume_card) {
-			if (id->equip & EQP_HEAD_TOP)	pos |= EQP_COSTUME_HEAD_TOP;
-			if (id->equip & EQP_HEAD_MID)	pos |= EQP_COSTUME_HEAD_MID;
-			if (id->equip & EQP_HEAD_LOW)	pos |= EQP_COSTUME_HEAD_LOW;
-			if (id->equip & EQP_GARMENT)	pos |= EQP_COSTUME_GARMENT;
-			if (id->equip & EQP_ARMOR)		pos |= EQP_SHADOW_ARMOR;
-			if (id->equip & EQP_HAND_R)		pos |= EQP_SHADOW_WEAPON;
-			if (id->equip & EQP_HAND_L)		pos |= EQP_SHADOW_SHIELD;
-			if (id->equip & EQP_SHOES)		pos |= EQP_SHADOW_SHOES;
-			if (id->equip & EQP_ACC_R)		pos |= EQP_SHADOW_ACC_R;
-			if (id->equip & EQP_ACC_L)		pos |= EQP_SHADOW_ACC_L;
-		}
-		if (card->flag.equip_invalid) {
-			pos = pos ? pos : pc_equippoint(sd, n);
-			for (i = 0; i < EQI_MAX; i++) {
-				if (pos & equip_bitmask[i])
-					sd->equip_invalid[i] = n;
-			}
-		}
-	}
-	return pos ? pos : pc_equippoint(sd, n);
-}
-
 /**
  * Fill inventory_data with struct *item_data through inventory (fill with struct *item)
  * @param sd : player session
@@ -11733,7 +11700,7 @@ int pc_load_combo(struct map_session_data *sd) {
  *------------------------------------------*/
 bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswitch)
 {
-	int i, pos, flag = 0, iflag;
+	int i, pos, pos2, flag = 0, iflag;
 	struct item_data *id;
 	uint8 res = ITEM_EQUIP_ACK_OK;
 	short* equip_index;
@@ -11760,6 +11727,7 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 	if (!(id = sd->inventory_data[n]))
 		return false;
 	pos = pc_equippoint(sd, n); //With a few exceptions, item should go in all specified slots.
+	pos2 = pc_equippoint_sub(sd, sd->inventory_data[n]);
 
 	if(battle_config.battle_log && !equipswitch)
 		ShowInfo("equip %u (%d) %x:%x\n",sd->inventory.u.items_inventory[n].nameid,n,id?id->equip:0,req_pos);
@@ -11778,7 +11746,7 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 		return false;
 	}
 
-	if (!(pos&req_pos) || sd->inventory.u.items_inventory[n].equip != 0 || sd->inventory.u.items_inventory[n].attribute==1 ) { // [Valaris]
+	if (!((pos&req_pos) || (pos2&req_pos)) || sd->inventory.u.items_inventory[n].equip != 0 || sd->inventory.u.items_inventory[n].attribute==1 ) { // [Valaris]
 		if( equipswitch ){
 			clif_equipswitch_add( sd, n, req_pos, ITEM_EQUIP_ACK_FAIL );
 		}else{
@@ -11808,7 +11776,9 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 		}
 		return false;
 	}
-	req_pos = pos = pc_equip_costume_card(sd, n);
+
+	if (sd->inventory_mark[n].EquipLoc)
+		req_pos = pos = sd->inventory_mark[n].EquipLoc;
 
 	equip_index = equipswitch ? sd->equip_switch_index : sd->equip_index;
 
@@ -12381,7 +12351,7 @@ void pc_checkitem(struct map_session_data *sd) {
 			continue;
 		if( !it->equip )
 			continue;
-		if( it->equip&~pc_equip_costume_card(sd,i) ) {
+		if( it->equip&~pc_equippoint(sd,i) ) {
 			pc_unequipitem(sd, i, 2);
 			calc_flag = 1;
 			continue;
