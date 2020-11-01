@@ -417,10 +417,11 @@ struct map_session_data {
 	bool runing_event[NPCE_MAX];
 	int menulist_data;
 	int sleep_mes_active;
+	int dual_weapon;
 	struct s_inventory_mark {
 		unsigned int EquipLoc;
-		char Bound;
-		unsigned Ignore : 1;
+		unsigned IgnoreClass : 1;
+		unsigned IgnoreFunc : 1;
 		unsigned callfunc : 1;
 		unsigned pet : 1;
 		unsigned setmounting : 1;

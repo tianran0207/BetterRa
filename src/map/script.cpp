@@ -10022,7 +10022,8 @@ BUILDIN_FUNC(bonus)
 	switch( type ) {
 		case SP_EQUIPLOC:
 		case SP_EQUIPBOUND:
-		case SP_EQUIPIGNORE:
+		case SP_EQUIPIGNOREFUNC:
+		case SP_EQUIPIGNORECLASS:
 			return SCRIPT_CMD_SUCCESS;
 		case SP_SKILL_AOE:
 		case SP_SKILL_DAMAGE:
@@ -31370,6 +31371,18 @@ BUILDIN_FUNC(array_keys)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(dual_weapon)
+{
+	struct map_session_data* sd = NULL;
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	sd->dual_weapon += script_getnum(st, 2) ? 1 : -1;
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -31661,10 +31674,13 @@ bool script_func_mark_sub(struct map_session_data *sd, int n, script_code *scrip
 					sd->inventory_mark[n].EquipLoc = static_cast<int>(tmp_int);
 					break;
 				case SP_EQUIPBOUND:
-					sd->inventory_mark[n].Bound = static_cast<char>(tmp_int);
+					sd->inventory.u.items_inventory[n].bound = static_cast<char>(tmp_int);
 					break;
-				case SP_EQUIPIGNORE:
-					sd->inventory_mark[n].Ignore = static_cast<char>(tmp_int);
+				case SP_EQUIPIGNOREFUNC:
+					sd->inventory_mark[n].IgnoreFunc = static_cast<char>(tmp_int);
+					break;
+				case SP_EQUIPIGNORECLASS:
+					sd->inventory_mark[n].IgnoreClass = static_cast<char>(tmp_int);
 					break;
 				}
 				break;
@@ -32598,6 +32614,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(log10, "i"),
 	BUILDIN_DEF(unitiswalking, "?"),
 	BUILDIN_DEF(mercenary_delete, "??"),
+	BUILDIN_DEF(dual_weapon, "i?"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),

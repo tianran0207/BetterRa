@@ -1880,7 +1880,7 @@ bool itemdb_isNoFunc(struct map_session_data *sd, struct item_data *id, int pos)
 	if (id->flag.equip_invalid || (pos >= -1 && pos < EQI_MAX && sd->equip_index[pos] != -1 && sd->equip_invalid[pos]))
 		return true;
 
-	if (sd->equip_index[pos] >= 0 && sd->equip_index[pos] < MAX_INVENTORY && sd->inventory_mark[sd->equip_index[pos]].Ignore)
+	if (sd->equip_index[pos] >= 0 && sd->equip_index[pos] < MAX_INVENTORY && sd->inventory_mark[sd->equip_index[pos]].IgnoreFunc)
 		return true;
 
 	flag = map_getmapflag(sd->bl.m, MF_NOITEMFUNC);

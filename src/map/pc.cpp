@@ -989,6 +989,9 @@ int pc_equippoint_sub(struct map_session_data *sd,struct item_data* id){
 	if (!itemdb_isequip2(id))
 		return 0; //Not equippable by players.
 
+	if (sd->dual_weapon > 0 && id->equip == EQP_WEAPON)
+		return EQP_ARMS;
+
 	ep = id->equip;
 	if(id->look == W_DAGGER	|| id->look == W_1HSWORD || id->look == W_1HAXE) {
 		if(pc_checkskill(sd,AS_LEFT) > 0 || (sd->class_&MAPID_UPPERMASK) == MAPID_ASSASSIN || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO) { //Kagerou and Oboro can dual wield daggers. [Rytech]
@@ -1451,6 +1454,9 @@ uint8 pc_isequip(struct map_session_data *sd,int n)
 				}
 		}
 	}
+
+	if (sd->inventory_mark[n].IgnoreClass)
+		return ITEM_EQUIP_ACK_OK;
 
 	//Not equipable by class. [Skotlex]
 	if (!(1ULL << (sd->class_&MAPID_BASEMASK)&item->class_base[(sd->class_&JOBL_2_1) ? 1 : ((sd->class_&JOBL_2_2) ? 2 : 0)]))
