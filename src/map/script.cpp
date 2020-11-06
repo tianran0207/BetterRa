@@ -30236,6 +30236,8 @@ BUILDIN_FUNC(setequipedcard)
 		clif_equiplist(sd);
 	else
 		clif_change_card(sd, equip_bitmask[pos], cardSlot, cardId, cardId == 0 ? 2 : 1);
+
+	script_func_mark(sd, n);
 	status_calc_pc(sd, SCO_NONE);
 	return SCRIPT_CMD_SUCCESS;
 #else
@@ -31383,6 +31385,23 @@ BUILDIN_FUNC(dual_weapon)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(inventory_mark)
+{
+	int type = script_getnum(st, 2);
+
+	switch (type) {
+	case SP_EQUIPLOC:
+	case SP_EQUIPBOUND:
+	case SP_EQUIPIGNOREFUNC:
+	case SP_EQUIPIGNORECLASS:
+		return SCRIPT_CMD_SUCCESS;
+	default:
+		ShowError("inventory_mark: Invalid type of %d.\n", type);
+		return SCRIPT_CMD_FAILURE;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -31664,8 +31683,18 @@ bool script_func_mark_sub(struct map_session_data *sd, int n, script_code *scrip
 			tmp_int = get_num(buf, &i);
 			switch (bonus_check) {
 			case 1:
-				bonus_check = 2;
-				bonus_mark = tmp_int;
+				bonus_check = 0;
+				switch (tmp_int) {
+				case SP_EQUIPIGNOREFUNC:
+					sd->inventory_mark[n].IgnoreFunc = 1;
+					break;
+				case SP_EQUIPIGNORECLASS:
+					sd->inventory_mark[n].IgnoreClass = 1;
+					break;
+				default:
+					bonus_check = 2;
+					bonus_mark = tmp_int;
+				}
 				break;
 			case 2:
 				bonus_check = 0;
@@ -31675,12 +31704,6 @@ bool script_func_mark_sub(struct map_session_data *sd, int n, script_code *scrip
 					break;
 				case SP_EQUIPBOUND:
 					sd->inventory.u.items_inventory[n].bound = static_cast<char>(tmp_int);
-					break;
-				case SP_EQUIPIGNOREFUNC:
-					sd->inventory_mark[n].IgnoreFunc = static_cast<char>(tmp_int);
-					break;
-				case SP_EQUIPIGNORECLASS:
-					sd->inventory_mark[n].IgnoreClass = static_cast<char>(tmp_int);
 					break;
 				}
 				break;
@@ -31696,7 +31719,7 @@ bool script_func_mark_sub(struct map_session_data *sd, int n, script_code *scrip
 				return true;
 			else if (sd == NULL || j < LABEL_START || j >= str_size)
 				;
-			else if (str_data[j].func == buildin_bonus)
+			else if (str_data[j].func == buildin_inventory_mark)
 				bonus_check = 1;
 			else if (str_data[j].func == buildin_callfunc)
 				sd->inventory_mark[n].callfunc = 1;
@@ -32615,6 +32638,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unitiswalking, "?"),
 	BUILDIN_DEF(mercenary_delete, "??"),
 	BUILDIN_DEF(dual_weapon, "i?"),
+	BUILDIN_DEF(inventory_mark, "i?"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),

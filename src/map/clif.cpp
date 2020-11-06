@@ -2811,6 +2811,7 @@ void clif_additem( struct map_session_data *sd, int n, int amount, unsigned char
 		if( n < 0 || n >= MAX_INVENTORY || sd->inventory.u.items_inventory[n].nameid == 0 || sd->inventory_data[n] == nullptr ){
 			return;
 		}
+		script_func_mark(sd, n);
 
 		p.nameid = client_nameid( sd->inventory.u.items_inventory[n].nameid );
 		p.IsIdentified = sd->inventory.u.items_inventory[n].identify ? 1 : 0;

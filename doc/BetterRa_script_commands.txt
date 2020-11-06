@@ -2938,6 +2938,18 @@ Example:
 
 ----------------------------------------
 
+*inventory_mark <类型>{,<参数>};
+
+对一个物品增加标记, 此指令用于物品脚本、卡片脚本或随机属性脚本中, 指令只用于标记物品, 对逻辑判断无效。
+
+类型: 
+	EquipLoc           更改装备穿戴位置, <参数> 为穿戴位置
+	EquipBound         更改装备绑定类型, <参数> 为绑定类型 (BOUND_NONE BOUND_ACCOUNT BOUND_GUILD BOUND_PARTY BOUND_CHAR)
+	EquipIgnoreFunc    无效装备指定属性, <参数> 无效
+	EquipIgnoreClass   移除装备职业限制, <参数> 无效
+
+----------------------------------------
+
 *rfifo_int <读取位置>,<字节数>;
 
 当 OnPCSocketRecvFilter 事件接收到封包时, 可以用本指令获取‘接收封包’中对应位置的数字数据.

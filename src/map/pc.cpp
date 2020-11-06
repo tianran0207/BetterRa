@@ -1012,6 +1012,9 @@ int pc_equippoint_sub(struct map_session_data *sd,struct item_data* id){
 int pc_equippoint(struct map_session_data *sd,int n){
 	nullpo_ret(sd);
 
+	if (sd->inventory_mark[n].EquipLoc)
+		return sd->inventory_mark[n].EquipLoc;
+
 	return pc_equippoint_sub(sd,sd->inventory_data[n]);
 }
 
@@ -5593,6 +5596,7 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 		sd->inventory.u.items_inventory[idx_equip].card[i] = nameid;
 		log_pick_pc(sd, LOG_TYPE_OTHER,  1, &sd->inventory.u.items_inventory[idx_equip]);
 		clif_insert_card(sd,idx_equip,idx_card,0);
+		script_func_mark(sd, idx_equip);
 
 		if (npc_script_event_check(sd, NPCE_CARDINSERTEVENT)) {
 			pc_setreg(sd, add_str("@insert_equip_idx"), idx_equip);
@@ -6091,7 +6095,6 @@ enum e_additem_result pc_additem(struct map_session_data *sd,struct item *item,i
 		if (!itemdb_isstackable2(id) || id->flag.guid)
 			sd->inventory.u.items_inventory[i].unique_id = item->unique_id ? item->unique_id : pc_generate_unique_id(sd);
 
-		script_func_mark(sd,i);
 		clif_additem(sd,i,amount,0);
 	}
 
@@ -11782,9 +11785,6 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos,bool equipswit
 		}
 		return false;
 	}
-
-	if (sd->inventory_mark[n].EquipLoc)
-		req_pos = pos = sd->inventory_mark[n].EquipLoc;
 
 	equip_index = equipswitch ? sd->equip_switch_index : sd->equip_index;
 
