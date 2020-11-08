@@ -136,6 +136,7 @@ TIMER_FUNC(unit_delay_walktobl_timer);
 
 // Causes the target object to stop moving.
 struct autowalk_data *unit_autowalk(struct block_list *bl);
+TIMER_FUNC(unit_autowalk_timer);
 int unit_stop_walking(struct block_list *bl,int type);
 int unit_can_move(struct block_list *bl);
 int unit_is_walking(struct block_list *bl);

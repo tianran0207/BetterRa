@@ -339,8 +339,17 @@ extern struct policies policie[MAX_POLICIES];
 #define MAX_BOT_ITEM_COUNT 10
 #define MAX_BOT_SC_COUNT 10
 
+enum s_ai_mode {
+	BOT_IDEA = 0x01,
+	BOT_SKILL_ATK = 0x02,
+	BOT_WEAPON_ATK = 0x04,
+	BOT_NO_WALK = 0x08,
+	BOT_RANDOM_WALK = 0x10,
+	BOT_ASTAR_WALK = 0x20,
+};
+
 struct bot_data {
-	unsigned running : 1;
+	int ai_mode;
 	struct map_session_data *sd;
 	struct bot_info {
 		t_itemid item_hp_id;			//HPҩˮID
@@ -371,7 +380,6 @@ struct bot_data {
 		int find_fail_fly;
 		int ignore_same_ele;
 		int ignore_warp;
-		int atktype;
 	} info;
 	struct bot_state {
 		short dir;

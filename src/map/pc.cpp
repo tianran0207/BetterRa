@@ -3903,7 +3903,8 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			entry.sk = type2;
 			entry.val = val;
 			sd->skilltoaround.push_back(entry);
-			clif_skillinfo(sd, type2, INF_SELF_SKILL);
+			if(sd->state.pc_loaded)
+				clif_skillinfo(sd, type2, INF_SELF_SKILL);
 		}
 		break;
 	case SP_SKILL_TO_GROUND: // bonus2 bSkillToGround,sk,n;
@@ -3916,7 +3917,8 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			entry.sk = type2;
 			entry.val = val;
 			sd->skilltoground.push_back(entry);
-			clif_skillinfo(sd, type2, INF_GROUND_SKILL);
+			if (sd->state.pc_loaded)
+				clif_skillinfo(sd, type2, INF_GROUND_SKILL);
 		}
 		break;
 	case SP_IGNORE_MDEF_RACE_VAL: // bonus2 bIgnoreMdefRaceVal,r,n;
@@ -15251,26 +15253,20 @@ static int pcbot_check_sc(struct bot_data *bd, t_tick tick)
 
 static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 {
-	t_tick tick;
+	t_tick tick = va_arg(args, t_tick);
 	struct map_session_data *sd;
 	struct block_list *tbl = NULL;
+	nullpo_ret(sd = bd->sd);
 
-	if (!bd->running)
-		return 0;
-
-	nullpo_ret(bd->sd);
-	sd = bd->sd;
-
-	tick = va_arg(args, t_tick);
-
-
-	if (sd->bl.prev == NULL) {
+	if (sd->bl.prev == NULL || sd->state.warping) {
 		if (sd->fd == 0)
 			clif_parse_LoadEndAck(0, sd);
 		bd->state.next_acttime = tick + 1000;
 		return 0;
 	}
 
+	if (bd->ai_mode & BOT_IDEA)
+		return 0;
 	if (pc_isdead(sd))
 		return 0;
 	if (pc_cant_act(sd))
@@ -15301,7 +15297,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		return 0;
 
 	//如果正在攻击
-	if (sd->ud.attacktimer != INVALID_TIMER && (!(bd->info.atktype & BF_MAGIC) || !bd->info.skill_id[0]))
+	if (sd->ud.attacktimer != INVALID_TIMER && (!(bd->ai_mode & BOT_SKILL_ATK) || !bd->info.skill_id[0]))
 		return 0;
 
 	//如果有魔物攻击, 反击
@@ -15319,7 +15315,8 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				return 1;
 			}
 		}
-		return 0;
+		if ((bd->ai_mode & BOT_RANDOM_WALK) || !sd->autowalk.in_bot)
+			return 0;
 	}
 
 	//如果正在攻击, 检查目标的有效性
@@ -15341,7 +15338,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			}
 			int min_chase = bd->min_chase;
 			//满足条件则技能攻击目标
-			if ((bd->info.atktype & BF_MAGIC) && sd->ud.skilltimer == INVALID_TIMER) {
+			if ((bd->ai_mode & BOT_SKILL_ATK) && sd->ud.skilltimer == INVALID_TIMER) {
 				if (pcbot_skill(bd, tbl, tick)){
 					bd->state.next_acttime = tick + 500;
 					return 1;
@@ -15352,7 +15349,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				}
 			}
 			//满足条件则普通攻击目标
-			if ((bd->info.atktype & BF_WEAPON) && sd->ud.attacktimer == INVALID_TIMER) {
+			if ((bd->ai_mode & BOT_WEAPON_ATK) && sd->ud.attacktimer == INVALID_TIMER) {
 				if (pcbot_attack(bd, tbl, tick)) {
 					bd->state.next_acttime = tick + 500;
 					return 1;
@@ -15422,14 +15419,14 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			bd->state.next_acttime = tick + 500;
 			return 0;
 		}
-		if ((bd->info.atktype & BF_MAGIC) && pcbot_check_skill(bd, tick)){
+		if ((bd->ai_mode & BOT_SKILL_ATK) && pcbot_check_skill(bd, tick)){
 			//如果够不到则走近魔物
 			if (unit_can_move(&sd->bl) && !check_distance_bl(&sd->bl, tbl, bd->min_chase))
 				unit_walktobl(&sd->bl, tbl, bd->min_chase, 1);
 			else if (bd->sd->ud.canact_tick < tick)
 				pcbot_skill(bd, tbl, tick);
 		}
-		else if ((bd->info.atktype & BF_WEAPON)) {
+		else if ((bd->ai_mode & BOT_WEAPON_ATK)) {
 			//计算攻击距离
 			bd->min_chase = status_get_status_data(&sd->bl)->rhw.range;
 			//如果够不到则走近魔物
@@ -15440,7 +15437,37 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		}
 		return 1;
 	}
-	if (unit_can_move(&sd->bl)){
+	if ((bd->ai_mode & BOT_NO_WALK)) {
+		bd->state.next_acttime = tick + 500;
+		return 0;
+	}
+	if ((bd->ai_mode & BOT_ASTAR_WALK) && unit_can_move(&sd->bl)) {
+		INT16 x = 0, y = 0, rx = -1, ry = -1;
+		struct step_path *sp;
+		struct autowalk_data *ad = &sd->autowalk;
+		if (ad->path && ad->path->uid && unit_check_step(&sd->bl, ad, tick))
+			return 0;
+		map_search_freecell(&sd->bl, sd->bl.m, &x, &y, rx, ry, 1);
+		if (ad->path) {
+			if (sd->bl.x != x && sd->bl.y != y) {
+				x = *ad->path->x;
+				y = *ad->path->y;
+			}
+			path_free(ad);
+		}
+		if ((sp = path_Astar_steppath(sd->bl.m, sd->bl.x, sd->bl.y, x, y, sd->bl.id)) == NULL)
+			bd->state.move_fail_count++;
+		if (bd->state.move_fail_count > 100) {
+			pcbot_stop(bd->sd, -3);
+			return 0;
+		}
+		ad->path = sp;
+		ad->step = 0;
+		ad->in_bot = 1;
+		unit_check_step(&sd->bl, ad, tick);
+		return 1;
+	}
+	if ((bd->ai_mode & BOT_RANDOM_WALK) && unit_can_move(&sd->bl)){
 		INT16 x = 0, y = 0, rx = 10, ry = 10;
 
 		//寻路达到最大失败次数
@@ -15546,9 +15573,12 @@ void pcbot_reset_state(struct map_session_data *sd)
 	bd->state.offline = pc_readreg(sd, add_str("@offline")) != 0 ? 1 : 0;
 	bd->state.skill_order = pc_readreg(sd, add_str("@skill_order")) != 0 ? 1 : 0;
 
-	bd->info.atktype = pcbot_readparameter(int, "@atktype", 0);
-	bd->info.atktype = (bd->info.atktype & BF_WEAPONMASK) ? bd->info.atktype : BF_WEAPONMASK;
-
+	i = pcbot_readparameter(int, "@atktype", 0);
+	switch (i) {
+	case 0: bd->ai_mode = BOT_SKILL_ATK|BOT_WEAPON_ATK; break;
+	case 1: bd->ai_mode = BOT_WEAPON_ATK; break;
+	case 2: bd->ai_mode = BOT_SKILL_ATK; break;
+	}
 	for (i = 0; i < MAX_BOT_MOB_COUNT; i++)
 		bd->info.mob_id[i] = pcbot_readparameter(uint16, "@mob_id", i);
 	for (i = 0; i < MAX_BOT_ITEM_COUNT; i++)
@@ -15567,7 +15597,7 @@ void pcbot_reset_state(struct map_session_data *sd)
 #undef pcbot_readparameter
 	bd->info.item_heal_delay = bd->info.item_heal_delay > 200 ? bd->info.item_heal_delay : 200;
 	bd->info.item_fly_delay = bd->info.item_fly_delay > 1000 ? bd->info.item_heal_delay : 1000;
-
+	bd->ai_mode |= BOT_ASTAR_WALK;
 	map_addbot(bd);
 }
 
@@ -15601,7 +15631,8 @@ int pcbot_run(struct map_session_data *sd, int64 timeout)
 		clif_authfail_fd(sd->fd, 15);
 		chrif_save(sd, SC_AUTOTRADE);
 	}
-	sd->state.bot = bd->running = 1;
+	bd->ai_mode &= ~BOT_IDEA;
+	sd->state.bot = 1;
 	return 0;
 }
 
@@ -15623,7 +15654,7 @@ int pcbot_stop(struct map_session_data *sd, int logout)
 		npc_script_event_atonce(sd, NPCE_BOTSTOPEVENT);
 		logout = logout < 0 ? static_cast<int>(pc_readreg2(sd, "@offline")) : logout;
 	}
-	sd->state.bot = bd->running = 0;
+	sd->state.bot = 0;
 	sd->state.no_touch_script = 0;
 
 	if (logout < 0)

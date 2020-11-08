@@ -28444,8 +28444,12 @@ static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data){
 		if (!sd->state.active || (!sd->state.autotrade && !sd->state.pc_loaded))
 			add_timer(gettick() + 100, buildin_bot_login_sub, id, data);
 		else {
-			sd->state.bot = 1;
-			clif_parse_LoadEndAck(0, sd);
+			struct bot_data *bd;
+			CREATE(bd, struct bot_data, 1);
+			bd->sd = sd;
+			bd->ai_mode |= BOT_IDEA;
+			map_addbot(bd);
+			pcbot_run(sd, 0);
 		}
 	}
 	return 1;

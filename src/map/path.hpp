@@ -24,10 +24,10 @@ struct astar_path_data {
 #define MAX_PATHSTEP 128
 struct step_path {
 	char pathname[24];
-	unsigned short x[MAX_PATHSTEP];
-	unsigned short y[MAX_PATHSTEP];
+	int16 x[MAX_PATHSTEP], y[MAX_PATHSTEP];
 	int number;
 	unsigned int uid;
+	int walk_timer;
 };
 
 #define MAX_MAPPATH 32
@@ -58,6 +58,7 @@ struct autowalk_data {
 	unsigned short step_range;
 	char eventname[EVENT_NAME_LENGTH];
 	struct s_map_path map_path;
+	unsigned in_bot : 1;
 };
 struct step_path *get_step(const char *key);
 struct step_path *path_Astar_steppath(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, unsigned int uid);

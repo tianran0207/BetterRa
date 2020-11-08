@@ -1001,7 +1001,8 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 					else
 						c += speed;
 				}
-				add_timer(i64max(tick, sd->ud.canmove_tick) + c + 1, unit_autowalk_timer, bl->id, (intptr_t)ad);
+				if (!ad->in_bot)
+					path->walk_timer = add_timer(i64max(tick, sd->ud.canmove_tick) + c + 1, unit_autowalk_timer, bl->id, (intptr_t)ad);
 				break;
 			case BL_NPC:
 				nd = (struct npc_data *)bl;
@@ -1011,7 +1012,7 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 					else
 						c += speed;
 				}
-				add_timer(tick + c + 50, unit_autowalk_timer, bl->id, (intptr_t)ad);
+				path->walk_timer = add_timer(tick + c + 50, unit_autowalk_timer, bl->id, (intptr_t)ad);
 				break;
 			}
 			return true;

@@ -17,6 +17,7 @@
 #include "../common/showmsg.hpp"
 
 #include "battle.hpp"
+#include "unit.hpp"
 #include "map.hpp"
 
 #define SET_OPEN 0
@@ -800,8 +801,13 @@ struct step_path* get_step(const char *key)
 
 void path_free(struct autowalk_data *ad)
 {
+	if (ad->path->walk_timer != INVALID_TIMER) {
+		delete_timer(ad->path->walk_timer, unit_autowalk_timer);
+		ad->path->walk_timer = INVALID_TIMER;
+	}
 	strdb_remove(step_db, ad->path->pathname);
 	ad->path = NULL;
+	ad->in_bot = 0;
 }
 
 // flag?
@@ -830,7 +836,7 @@ struct step_path *path_Astar_steppath(int16 m, int16 x0, int16 y0, int16 x1, int
 		strdb_remove(step_db, pathname);
 		return NULL;
 	}
-	
+	sptmp->walk_timer = INVALID_TIMER;
 	sptmp->uid = uid;
 	return sptmp;
 }
