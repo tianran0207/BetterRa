@@ -15536,13 +15536,15 @@ void pcbot_reset_state(struct map_session_data *sd)
 	struct item_data* id = NULL;
 	int i;
 
-	if (!(bd = map_id2bot(sd->bl.id)))
+	if (!(bd = map_id2bot(sd->bl.id))) {
 		CREATE(bd, struct bot_data, 1);
-
-	memset(bd, 0, sizeof(struct bot_data));
+		bd->sd = sd;
+		map_addbot(bd);
+	}
+	else
+		memset(bd, 0, sizeof(struct bot_data));
 	
 #define pcbot_readparameter(type__,str__, idx__) static_cast< ## type__ >(pc_readreg(sd, reference_uid(add_str(str__), idx__)));
-	bd->sd = sd;
 	bd->info.item_hp_id = pcbot_readparameter(t_itemid, "@item_hp_id", 0);
 	bd->info.item_sp_id = pcbot_readparameter(t_itemid, "@item_sp_id", 0);
 	bd->info.item_heal_delay = pcbot_readparameter(uint16, "@item_heal_delay", 0);
@@ -15597,11 +15599,10 @@ void pcbot_reset_state(struct map_session_data *sd)
 #undef pcbot_readparameter
 	bd->info.item_heal_delay = bd->info.item_heal_delay > 200 ? bd->info.item_heal_delay : 200;
 	bd->info.item_fly_delay = bd->info.item_fly_delay > 1000 ? bd->info.item_heal_delay : 1000;
-	bd->ai_mode |= BOT_ASTAR_WALK;
-	map_addbot(bd);
+	bd->ai_mode |= BOT_RANDOM_WALK;
 }
 
-int pcbot_run(struct map_session_data *sd, int64 timeout)
+int pcbot_run(struct map_session_data *sd, int ai_mode)
 {
 	struct bot_data *bd;
 
@@ -15618,8 +15619,6 @@ int pcbot_run(struct map_session_data *sd, int64 timeout)
 		if (sd->state.processhalt)
 			return -3;
 	}
-	if (timeout)
-		status_change_start(NULL, &sd->bl, SC_BOT, 10000, 0, 0, 0, 0, timeout, SCSTART_NONE);
 
 	if (bd->info.timeout_fly)
 		bd->state.next_flytime = gettick() + bd->info.timeout_fly * 1000;
@@ -15631,7 +15630,11 @@ int pcbot_run(struct map_session_data *sd, int64 timeout)
 		clif_authfail_fd(sd->fd, 15);
 		chrif_save(sd, SC_AUTOTRADE);
 	}
-	bd->ai_mode &= ~BOT_IDEA;
+	if (ai_mode)
+		bd->ai_mode = ai_mode;
+	else
+		bd->ai_mode &= ~(BOT_IDEA | BOT_NO_WALK);
+
 	sd->state.bot = 1;
 	return 0;
 }
@@ -15659,8 +15662,6 @@ int pcbot_stop(struct map_session_data *sd, int logout)
 
 	if (logout < 0)
 		logout = bd->state.offline;
-
-	status_change_end(&sd->bl, SC_BOT, INVALID_TIMER);
 
 	map_delbot(bd);
 	if (logout) {

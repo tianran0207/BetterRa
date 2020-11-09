@@ -28397,13 +28397,36 @@ BUILDIN_FUNC(bot_reset) {
 BUILDIN_FUNC(bot_run)
 {
 	TBL_PC *sd;
+	struct bot_data *bd;
 
 	if (!script_rid2sd(sd))
 		return SCRIPT_CMD_FAILURE;
 
-	pcbot_reset_state(sd);
+	if (!(bd = map_id2bot(sd->bl.id)))
+		pcbot_reset_state(sd);
 
-	script_pushint(st, pcbot_run(sd, pc_readreg(sd, add_str("@run_time"))));
+	if (script_hasdata(st, 3))
+		sc_start(NULL, &sd->bl, SC_BOT, 10000, 0, script_getnum(st, 3));
+	else if (pc_readreg(sd, add_str("@run_time")))
+		sc_start(NULL, &sd->bl, SC_BOT, 10000, 0, pc_readreg(sd, add_str("@run_time")));
+
+	script_pushint(st, pcbot_run(sd, script_hasdata(st, 2) ? script_getnum(st, 2) : 0));
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_setmode)
+{
+	TBL_PC *sd;
+	struct bot_data *bd;
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!(bd = map_id2bot(sd->bl.id)))
+		return SCRIPT_CMD_SUCCESS;
+
+	bd->ai_mode = script_getnum(st, 2);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -28427,6 +28450,7 @@ BUILDIN_FUNC(bot_stop)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
+	status_change_end(&sd->bl, SC_BOT, INVALID_TIMER);
 	pcbot_stop(sd, script_hasdata(st, 2) ? script_getnum(st, 2) : 0);
 
 	return SCRIPT_CMD_SUCCESS;
@@ -32654,8 +32678,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getpolicyinfo, "i?"),
 	//BOTϵͳ
 	BUILDIN_DEF(bot_reset, ""),
-	BUILDIN_DEF(bot_run, ""),
+	BUILDIN_DEF(bot_run, "??"),
 	BUILDIN_DEF(bot_stop, "??"),
+	BUILDIN_DEF(bot_setmode, "i"),
 	BUILDIN_DEF(is_bot, "?"),
 	BUILDIN_DEF(openchat, "s???"),
 	BUILDIN_DEF(openvending, "s*"),

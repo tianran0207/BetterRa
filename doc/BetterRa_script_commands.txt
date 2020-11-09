@@ -1063,13 +1063,34 @@ unitsteppath <GID>,<路点编号>{,<寻路AI>,{<参数>,{<"事件名称">}}};
 
 ---------------------------------------
 
-*bot_run;
+*bot_run {<模式>{,<运行时长>}};
+
+模式:
+	BOT_IDEA 闲置状态
+	BOT_SKILL_ATK 使用技能攻击
+	BOT_WEAPON_ATK 使用普通攻击
+	BOT_NO_WALK 不自动寻路
+	BOT_RANDOM_WALK 使用随机寻路
+	BOT_ASTAR_WALK 使用A*寻路
+	
 
 返回: -1 没有机器人的相关配置
       -2 角色已死亡
 	  -3 角色处于挂店或开启仓库的状态
 
 例子: 请查看 npc\BetterRa\BetterRa_bot.txt
+
+---------------------------------------
+
+*bot_setmode <模式>;
+
+模式:
+	BOT_IDEA 闲置状态
+	BOT_SKILL_ATK 使用技能攻击
+	BOT_WEAPON_ATK 使用普通攻击
+	BOT_NO_WALK 不自动寻路
+	BOT_RANDOM_WALK 使用随机寻路
+	BOT_ASTAR_WALK 使用A*寻路
 
 ---------------------------------------
 

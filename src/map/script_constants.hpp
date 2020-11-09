@@ -594,6 +594,13 @@
 	export_constant2("EquipIgnoreFunc", SP_EQUIPIGNOREFUNC);
 	export_constant2("EquipIgnoreClass", SP_EQUIPIGNORECLASS);
 
+	export_constant(BOT_IDEA);
+	export_constant(BOT_SKILL_ATK);
+	export_constant(BOT_WEAPON_ATK);
+	export_constant(BOT_NO_WALK);
+	export_constant(BOT_RANDOM_WALK);
+	export_constant(BOT_ASTAR_WALK);
+
 	export_constant(MF_TRIBE);
 	export_constant(MF_HIDEGUILDINFO);
 	export_constant(MF_HIDEPARTYINFO);

@@ -1717,7 +1717,7 @@ extern struct s_status_formula status_formula;
 int pc_status_formula_calc(const struct block_list* bl, int type, int val);
 
 void pcbot_reset_state(struct map_session_data *sd);
-int pcbot_run(struct map_session_data *sd, int64 timeout);
+int pcbot_run(struct map_session_data *sd, int ai_mode);
 int pcbot_stop(struct map_session_data *sd, int logout);
 bool pc_manner_check(struct map_session_data* sd, char *mes);
 #endif /* PC_HPP */
