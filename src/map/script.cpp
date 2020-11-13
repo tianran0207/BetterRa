@@ -28383,7 +28383,7 @@ BUILDIN_FUNC(bot_reset) {
 	TBL_PC *sd;
 	struct bot_data *bd;
 
-	if (!script_rid2sd(sd))
+	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	if (!(bd = map_id2bot(sd->bl.id)))
@@ -28399,7 +28399,7 @@ BUILDIN_FUNC(bot_run)
 	TBL_PC *sd;
 	struct bot_data *bd;
 
-	if (!script_rid2sd(sd))
+	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	if (!(bd = map_id2bot(sd->bl.id)))
@@ -28427,6 +28427,27 @@ BUILDIN_FUNC(bot_setmode)
 		return SCRIPT_CMD_SUCCESS;
 
 	bd->ai_mode = script_getnum(st, 2);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_follow)
+{
+	TBL_PC *sd;
+	struct bot_data *bd;
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!(bd = map_id2bot(sd->bl.id)))
+		return SCRIPT_CMD_SUCCESS;
+
+	bd->info.follow_aid = script_getnum(st, 2);
+
+	if (bd->info.follow_aid)
+		bd->ai_mode |= BOT_NO_WALK;
+	else
+		bd->ai_mode &= ~BOT_NO_WALK;
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -32677,10 +32698,12 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getpolicyid, "?"),
 	BUILDIN_DEF(getpolicyinfo, "i?"),
 	//BOTϵͳ
-	BUILDIN_DEF(bot_reset, ""),
+	BUILDIN_DEF(bot_login, "iii"),
+	BUILDIN_DEF(bot_reset, "?"),
 	BUILDIN_DEF(bot_run, "??"),
 	BUILDIN_DEF(bot_stop, "??"),
-	BUILDIN_DEF(bot_setmode, "i"),
+	BUILDIN_DEF(bot_setmode, "i?"),
+	BUILDIN_DEF(bot_follow, "i?"),
 	BUILDIN_DEF(is_bot, "?"),
 	BUILDIN_DEF(openchat, "s???"),
 	BUILDIN_DEF(openvending, "s*"),
@@ -32695,7 +32718,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(instance_enter_left, "?"),
 	BUILDIN_DEF(instance_record, "??"),
 	BUILDIN_DEF(http_get, "sii?"),
-	BUILDIN_DEF(bot_login, "iii"),
 	BUILDIN_DEF2(isequippedcnt, "isequippedcnt2", "i*"),
 	BUILDIN_DEF2(isequippedcnt, "isequippedcnt_enchant", "i*"),
 	BUILDIN_DEF2(isequipped, "isequipped2", "i*"),

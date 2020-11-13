@@ -334,10 +334,9 @@ struct policies {
 };
 extern struct policies policie[MAX_POLICIES];
 
-#define MAX_BOT_MOB_COUNT 10
-#define MAX_BOT_SKILL_COUNT 10
-#define MAX_BOT_ITEM_COUNT 10
-#define MAX_BOT_SC_COUNT 10
+#define MAX_BOT_SKILL_COUNT 20
+#define MAX_BOT_ITEM_COUNT 20
+#define MAX_BOT_SC_COUNT 20
 
 enum s_ai_mode {
 	BOT_IDEA = 0x01,
@@ -346,6 +345,11 @@ enum s_ai_mode {
 	BOT_NO_WALK = 0x08,
 	BOT_RANDOM_WALK = 0x10,
 	BOT_ASTAR_WALK = 0x20,
+};
+struct s_bot_skill {
+	unsigned short id, lv, delay;
+	int sc;
+	t_tick cooldown;
 };
 
 struct bot_data {
@@ -359,19 +363,14 @@ struct bot_data {
 		t_itemid item_fly_id;
 		unsigned short item_fly_delay;
 
-		t_itemid loot_item_id[MAX_BOT_ITEM_COUNT];
+		std::vector<t_itemid> loot_item_id;
 		unsigned short loot_item_acttime;
 
-		unsigned short skill_id[MAX_BOT_SKILL_COUNT];
-		unsigned short skill_lv[MAX_BOT_SKILL_COUNT];
-		unsigned short skill_delay[MAX_BOT_SKILL_COUNT];
-		t_itemid sc_item_id[MAX_BOT_SC_COUNT];
-		int sc_item_sc[MAX_BOT_SC_COUNT];
-		unsigned short sc_skill_id[MAX_BOT_SC_COUNT];
-		unsigned short sc_skill_lv[MAX_BOT_SC_COUNT];
-		t_tick skill_cooldown[MAX_BOT_SKILL_COUNT+MAX_BOT_SC_COUNT];
+		std::vector<s_bot_skill> skill;
+		std::vector<s_bot_skill> skill_sc;
+		std::vector<s_bot_skill> item_sc;
 
-		unsigned short mob_id[MAX_BOT_MOB_COUNT];
+		std::vector<unsigned short> mob_id;
 
 		unsigned short choose_target_acttime;
 		unsigned always_attack_master : 1; //²»¹¥»÷link
@@ -380,12 +379,14 @@ struct bot_data {
 		int find_fail_fly;
 		int ignore_same_ele;
 		int ignore_warp;
+		int follow_aid;
 	} info;
 	struct bot_state {
 		short dir;
 		unsigned offline : 1; //ÀëÏß
 		unsigned skill_order : 1;
 		t_tick next_acttime;
+		t_tick next_followtime;
 		t_tick next_check_sc;
 		t_tick next_heal_delay;
 		t_tick next_fly_delay;
@@ -398,7 +399,8 @@ struct bot_data {
 	int target_id, target_type;
 	int target_dead;
 	int min_chase;            //¹¥»÷¾àÀë
-	int skill_idx;
+	struct s_bot_skill *skill_order;
+	struct s_bot_skill *skill_select;
 	int skill_inf;
 };
 

@@ -14998,18 +14998,19 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap)
 	struct bot_data *bd = va_arg(ap, struct bot_data *);
 	struct block_list **target = va_arg(ap, struct block_list **);
 	struct map_session_data *sd = bd->sd;
-	int dist, i;
+	int dist;
 
 	//检查列表中的魔物
-	if (bd->info.mob_id[0] > 0 && bl->type == BL_MOB) {
+	if (bl->type == BL_MOB && bd->info.mob_id.size()) {
 		struct mob_data *md = (struct mob_data *)bl;
-		for (i = 0; i < MAX_BOT_MOB_COUNT; i++) {
-			if (bd->info.mob_id[i] == 0)
-				return 0;
-			if (bd->info.mob_id[i] == md->mob_id)
-				break;
+		bool is_found = false;
+		for (auto &it : bd->info.mob_id) {
+			if (it != md->mob_id)
+				continue;
+			is_found = true;
+			break;
 		}
-		if (i == MAX_BOT_MOB_COUNT)
+		if (is_found == false)
 			return 0;
 	}
 
@@ -15044,31 +15045,24 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap)
 
 static int pcbot_ai_sub_hard_lootsearch(struct block_list *bl, va_list ap)
 {
-	int dist, i;
+	int dist;
 	struct flooritem_data *fitem = (struct flooritem_data*)bl;
 	struct bot_data *bd = va_arg(ap, struct bot_data *);
 	struct block_list **target = va_arg(ap, struct block_list **);
 	struct map_session_data *sd = bd->sd;
 
 	//检查列表中的物品
-	if (bd->info.loot_item_id[0] > 0) {
-		for (i = 0; i < MAX_BOT_ITEM_COUNT; i++) {
-			if (bd->info.loot_item_id[i] == 0)
+	for (auto &it : bd->info.loot_item_id) {
+		if (it != fitem->item.nameid)
+			continue;
+		dist = distance_bl(&sd->bl, bl);
+		if (((*target) == NULL || !check_distance_bl(&sd->bl, *target, dist)) && dist < 13) {
+
+			if (!path_search(NULL, sd->bl.m, sd->bl.x, sd->bl.y, bl->x, bl->y, 1, CELL_CHKNOPASS))
 				return 0;
-			if (bd->info.loot_item_id[i] == fitem->item.nameid)
-				break;
+
+			(*target) = bl;
 		}
-		if (i == MAX_BOT_ITEM_COUNT)
-			return 0;
-	}
-
-	dist = distance_bl(&sd->bl, bl);
-	if (((*target) == NULL || !check_distance_bl(&sd->bl, *target, dist)) && dist < 13) {
-
-		if (!path_search(NULL, sd->bl.m, sd->bl.x, sd->bl.y, bl->x, bl->y, 1, CELL_CHKNOPASS))
-			return 0;
-
-		(*target) = bl;
 	}
 	return 1;
 }
@@ -15108,34 +15102,36 @@ static int pcbot_fly_away(struct bot_data *bd, t_tick tick)
 static int pcbot_check_skill(struct bot_data *bd, t_tick tick)
 {
 	struct map_session_data *sd = bd->sd;
-	int idx = 0;
+	struct s_bot_skill *bs = NULL;
+	bool next = false;
 
-	if (bd->skill_idx >= 0 && bd->info.skill_id[bd->skill_idx] && bd->info.skill_cooldown[bd->skill_idx] < tick)
-		return 1;
-
-	if (bd->state.skill_order && bd->skill_idx < 0)
-		idx = abs(bd->skill_idx)-1;
-	if (idx >= MAX_BOT_SKILL_COUNT || bd->info.skill_id[idx] == 0)
-		idx = 0;
-
-	for (; idx < MAX_BOT_SKILL_COUNT; idx++) {
-		if (!bd->info.skill_id[idx])
-			break;
-		if (bd->info.skill_cooldown[idx] > tick)
-			continue;
-		if (sd->battle_status.sp < skill_get_sp(bd->info.skill_id[idx], bd->info.skill_lv[idx]))
-			continue;
-		bd->skill_idx = idx;
-		bd->skill_inf = skill_get_pc_inf(sd, bd->info.skill_id[idx]);
-		if (bd->skill_inf & INF_SELF_SKILL)
-			bd->min_chase = skill_get_pc_splash(sd, bd->info.skill_id[idx], bd->info.skill_lv[idx]) / 2;
-		else
-			bd->min_chase = skill_get_range2(&sd->bl, bd->info.skill_id[idx], bd->info.skill_lv[idx], true);
-
-		bd->min_chase = !bd->min_chase ? 1 : bd->min_chase;
+	if (bd->skill_select) {
+		bd->min_chase = skill_get_range2(&sd->bl, bd->skill_select->id, bd->skill_select->lv, true);
 		return 1;
 	}
+	for (auto &it : bd->info.skill) {
+		if (it.cooldown > tick)
+			continue;
+		if (sd->battle_status.sp < skill_get_sp(it.id, it.lv))
+			continue;
+		if (!bs || next)
+			bs = &it;
+		if (bd->state.skill_order) {
+			if (bd->skill_order == &it)
+				next = true;
+			continue;
+		}
+		break;
+	}
+	if ((bd->skill_order = bd->skill_select = bs) != NULL) {
+		bd->skill_inf = skill_get_pc_inf(sd, bs->id);
+		if (bd->skill_inf & INF_SELF_SKILL)
+			bd->min_chase = skill_get_pc_splash(sd, bs->id, bs->lv) / 2;
+		else
+			bd->min_chase = skill_get_range2(&sd->bl, bs->id, bs->lv, true);
 
+		bd->min_chase = !bd->min_chase ? 1 : bd->min_chase;
+	}
 	return 0;
 }
 
@@ -15162,13 +15158,12 @@ static int pcbot_skill_sub(struct bot_data *bd, struct block_list *bl, uint16 sk
 	else
 		bd->state.skill_fail_count = 0;
 
-	bd->skill_idx = !result ? -1 : bd->skill_idx;
 	return result;
 }
 
 static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, t_tick tick)
 {
-	uint16 skill_id, skill_lv;
+	uint16 skill_id, skill_lv, skill_delay;
 	struct block_list *src = &bd->sd->bl, *bl = tbl;
 
 	if (bd->sd->ud.skilltimer != INVALID_TIMER)
@@ -15177,19 +15172,20 @@ static bool pcbot_skill(struct bot_data *bd, struct block_list *tbl, t_tick tick
 		return false;
 	if (!check_distance_bl(&bd->sd->bl, bl, bd->min_chase))
 		return false;
-	if (bd->info.skill_cooldown[bd->skill_idx] > tick)
+	if (bd->skill_select->cooldown > tick)
 		return false;
 
-	skill_id = bd->info.skill_id[bd->skill_idx];
-	skill_lv = bd->info.skill_lv[bd->skill_idx];
+	skill_id = bd->skill_select->id;
+	skill_lv = bd->skill_select->lv;
+	skill_delay = bd->skill_select->delay;
 
 	if (!pcbot_skill_sub(bd, tbl, skill_id, skill_lv))
 		return false;
 
 	//计算下一次使用这个技能的延时
 	int cooldown = max(skill_delayfix(src, skill_id, skill_lv), pc_get_skillcooldown(bd->sd, skill_id, skill_lv));
-	bd->info.skill_cooldown[bd->skill_idx] = (cooldown > bd->info.skill_delay[bd->skill_idx] ? cooldown : bd->info.skill_delay[bd->skill_idx]) + tick + 100;
-	bd->skill_idx = -bd->skill_idx-2;
+	bd->skill_select->cooldown = (cooldown > skill_delay ? cooldown : skill_delay) + tick + 100;
+	bd->skill_select = NULL;
 	return true;
 }
 
@@ -15213,39 +15209,31 @@ static bool pcbot_attack(struct bot_data *bd, struct block_list *tbl, t_tick tic
 static int pcbot_check_sc(struct bot_data *bd, t_tick tick)
 {
 	struct map_session_data *sd = bd->sd;
-	int idx, result = 0;
+	int result = 0;
 
 	if (bd->state.next_check_sc > tick)
 		return 0;
 
-	for (idx = 0; idx < MAX_BOT_SC_COUNT; idx++) {
-		sc_type sc_data;
-		if (bd->info.sc_skill_id[idx] == 0)
-			break;
-		if (bd->info.sc_skill_lv[idx] == 0)
+	for (auto &it : bd->info.skill_sc) {
+		if (it.cooldown > tick)
 			continue;
-		if ((sc_data = status_skill2sc(bd->info.sc_skill_id[idx])) <= SC_NONE || sc_data >= SC_MAX)
+		if (it.sc <= SC_NONE || it.sc >= SC_MAX)
 			continue;
-		if (sd->sc.data[sc_data])
+		if (sd->sc.data[it.sc])
 			continue;
-		if (bd->info.skill_cooldown[MAX_BOT_SC_COUNT + idx] > tick)
-			continue;
-		uint16 skill_id = bd->info.sc_skill_id[idx], skill_lv = bd->info.sc_skill_lv[idx];
-		bd->info.skill_cooldown[MAX_BOT_SC_COUNT+idx] = max(skill_delayfix(&sd->bl, skill_id, skill_lv), pc_get_skillcooldown(bd->sd, skill_id, skill_lv)) + 100;
-		if (pcbot_skill_sub(bd, &sd->bl, skill_id, skill_lv))
+		it.cooldown = max(skill_delayfix(&sd->bl, it.id, it.lv), pc_get_skillcooldown(bd->sd, it.id, it.lv)) + 100;
+		if (pcbot_skill_sub(bd, &sd->bl, it.id, it.lv))
 			return 1;
-		bd->info.sc_skill_lv[idx] = 0;
+		it.sc = SC_NONE;
 	}
-	for (idx = 0; idx < MAX_BOT_SC_COUNT; idx++) {
-		if (bd->info.sc_item_id[idx] == 0)
-			break;
-		if (bd->info.sc_item_sc[idx] <= SC_NONE || bd->info.sc_item_sc[idx] >= SC_MAX)
+	for (auto &it : bd->info.item_sc) {
+		if (it.sc <= SC_NONE || it.sc >= SC_MAX)
 			continue;
-		if (sd->sc.data[bd->info.sc_item_sc[idx]])
+		if (sd->sc.data[it.sc])
 			continue;
-		if (pcbot_useitem(sd, bd->info.sc_item_id[idx]))
+		if (pcbot_useitem(sd, it.id) && sd->sc.data[it.sc])
 			return 1;
-		bd->info.sc_item_sc[idx] = SC_NONE;
+		it.sc = SC_NONE;
 	}
 	bd->state.next_check_sc = tick + 1000;
 	return 0;
@@ -15288,6 +15276,18 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		}
 	}
 
+	if (bd->info.follow_aid && bd->state.next_followtime < tick) {
+		bd->state.next_followtime = tick + 1000;
+		if ((tbl = map_id2bl(bd->info.follow_aid)) != NULL) {
+			if (bd->target_id && distance_bl(&sd->bl, tbl) > 7 || !bd->target_id  && distance_bl(&sd->bl, tbl) > 1) {
+				if (unit_walktobl(&sd->bl, tbl, 1, 0))
+					bd->state.next_followtime = tick + 500;
+				return 1;
+			}
+		} else
+			bd->info.follow_aid = 0;
+	}
+
 	//不允许做任何事
 	if (bd->state.next_acttime > tick)
 		return 0;
@@ -15297,7 +15297,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		return 0;
 
 	//如果正在攻击
-	if (sd->ud.attacktimer != INVALID_TIMER && (!(bd->ai_mode & BOT_SKILL_ATK) || !bd->info.skill_id[0]))
+	if (sd->ud.attacktimer != INVALID_TIMER && (!(bd->ai_mode & BOT_SKILL_ATK) || !bd->info.skill.size()))
 		return 0;
 
 	//如果有魔物攻击, 反击
@@ -15384,7 +15384,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 	}
 
 	//检查拾取物品菜单
-	if (bd->info.loot_item_id[0] > 0) {
+	if (bd->info.loot_item_id.size()) {
 		map_foreachinallrange(pcbot_ai_sub_hard_lootsearch, &sd->bl, 13, BL_ITEM, bd, &tbl);
 		if (tbl) {
 			if (bd->target_id == tbl->id && sd->ud.walktimer != INVALID_TIMER)
@@ -15402,7 +15402,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 
 	if (bd->target_dead == 1) {
 		bd->target_dead = 0;
-		bd->skill_idx = -1;
+		bd->skill_order = bd->skill_select = NULL;
 		bd->state.next_acttime = tick + bd->info.choose_target_acttime;
 		return 1;
 	}
@@ -15581,20 +15581,45 @@ void pcbot_reset_state(struct map_session_data *sd)
 	case 1: bd->ai_mode = BOT_WEAPON_ATK; break;
 	case 2: bd->ai_mode = BOT_SKILL_ATK; break;
 	}
-	for (i = 0; i < MAX_BOT_MOB_COUNT; i++)
-		bd->info.mob_id[i] = pcbot_readparameter(uint16, "@mob_id", i);
-	for (i = 0; i < MAX_BOT_ITEM_COUNT; i++)
-		bd->info.loot_item_id[i] = pcbot_readparameter(t_itemid, "@loot_item_id", i);
+
+	bd->info.mob_id.clear();
+	bd->info.loot_item_id.clear();
+
+	for (i = 0; i < MAX_BOT_ITEM_COUNT; i++) {
+		uint16 mob_id;
+		t_itemid item_id;
+		mob_id = pcbot_readparameter(uint16, "@mob_id", i);
+		if (mobdb_checkid(mob_id))
+			bd->info.mob_id.push_back(mob_id);
+		item_id = pcbot_readparameter(t_itemid, "@loot_item_id", i);
+		if (itemdb_exists(item_id))
+			bd->info.loot_item_id.push_back(item_id);
+	}
+
+	bd->info.skill.clear();
+	bd->info.skill_sc.clear();
+	bd->info.item_sc.clear();
+
+	struct s_bot_skill entry;
 	for (i = 0; i < MAX_BOT_SKILL_COUNT; i++) {
-		bd->info.skill_id[i] = pcbot_readparameter(uint16, "@skill_id", i);
-		bd->info.skill_lv[i] = pcbot_readparameter(uint16, "@skill_lv", i);
-		bd->info.skill_delay[i] = pcbot_readparameter(uint16, "@skill_delay", i);
+		entry.id = pcbot_readparameter(uint16, "@skill_id", i);
+		entry.lv = pcbot_readparameter(uint16, "@skill_lv", i);
+		if (!entry.id || !entry.lv)
+			continue;
+		entry.sc = status_skill2sc(entry.id);
+		entry.delay = pcbot_readparameter(uint16, "@skill_delay", i);
+		bd->info.skill.push_back(entry);
 	}
 	for (i = 0; i < MAX_BOT_SC_COUNT; i++) {
-		bd->info.sc_item_id[i] = pcbot_readparameter(t_itemid, "@sc_item_id", i);
-		bd->info.sc_item_sc[i] = pcbot_readparameter(uint16, "@sc_item_sc", i);
-		bd->info.sc_skill_id[i] = pcbot_readparameter(uint16, "@sc_skill_id", i);
-		bd->info.sc_skill_lv[i] = pcbot_readparameter(uint16, "@sc_skill_lv", i);
+		entry.id = pcbot_readparameter(uint16, "@sc_skill_id", i);
+		entry.lv = pcbot_readparameter(uint16, "@sc_skill_lv", i);
+		if (entry.id && entry.lv)
+			bd->info.skill_sc.push_back(entry);
+
+		entry.id = pcbot_readparameter(uint16, "@sc_item_id", i);
+		entry.sc = pcbot_readparameter(uint16, "@sc_item_sc", i);
+		if (entry.id && entry.sc)
+			bd->info.item_sc.push_back(entry);
 	}
 #undef pcbot_readparameter
 	bd->info.item_heal_delay = bd->info.item_heal_delay > 200 ? bd->info.item_heal_delay : 200;
