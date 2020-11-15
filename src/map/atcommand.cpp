@@ -10632,13 +10632,10 @@ ACMD_FUNC(verification)
 
 ACMD_FUNC(bot)
 {
-	if (atoi(message) != 0) {
-		pcbot_reset_state(sd);
+	if (atoi(message) != 0)
 		pcbot_run(sd, 0);
-	}
-	else {
+	else 
 		pcbot_stop(sd, 0);
-	}
 	return 0;
 }
 

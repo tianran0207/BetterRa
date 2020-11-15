@@ -103,7 +103,7 @@ bonus3 bStatusAddBonus,sc,bonus,n;		µ±×Ô¼ºÓµÓĞ sc ×´Ì¬µÄÊ±ºò, »áÔö¼Ó bonus ²ÎÊıÎ
 										Àı: bonus3 bStatusAddBonus,SC_BLESSING,bStr,20;
 										ËµÃ÷: ÌìÊ¹´Í¸£¶îÍâÔö¼Ó 20µã STR
 bonus4 bStatusAddBonus,sc,bonus,r,n;	µ±×Ô¼ºÓµÓĞ sc ×´Ì¬µÄÊ±ºò, »áÔö¼Ó bonus ²ÎÊıÎª r,n
-										Àı: bonus3 bStatusAddBonus,SC_BLESSING,bSkillHeal,AL_HEAL,100;
+										Àı: bonus4 bStatusAddBonus,SC_BLESSING,bSkillHeal,AL_HEAL,100;
 										ËµÃ÷: ÌìÊ¹´Í¸£¶îÍâÔö¼Ó ÖÎÓúÊõ»Ø¸´Á¿ 100%
 										
 bonus5 bAddStatusVal,sc,val1,val2,val3,val4;	¸³Óè×´Ì¬Ê±, ²ÎÊı·Ö±ğÀÛ¼Ó val1, val2, val3, val4

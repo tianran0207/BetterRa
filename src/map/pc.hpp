@@ -338,39 +338,76 @@ extern struct policies policie[MAX_POLICIES];
 #define MAX_BOT_ITEM_COUNT 20
 #define MAX_BOT_SC_COUNT 20
 
-enum s_ai_mode {
-	BOT_IDEA = 0x01,
-	BOT_SKILL_ATK = 0x02,
-	BOT_WEAPON_ATK = 0x04,
-	BOT_NO_WALK = 0x08,
-	BOT_RANDOM_WALK = 0x10,
-	BOT_ASTAR_WALK = 0x20,
+enum bot_type {
+	BOT_USE_ALWAYS,
+	BOT_USE_MYHPINRATE,
+	BOT_USE_MYSPINRATE,
+	BOT_USE_MYSTATUSON,
+	BOT_USE_MYSTATUSOFF,
+	BOT_USE_FRIENDHPINRATE,
+	BOT_USE_FRIENDSTATUSON,
+	BOT_USE_FRIENDSTATUSOFF,
+	BOT_USE_ATTACKPCGT,
+	BOT_USE_CLOSEDATTACKED,
+	BOT_USE_LONGRANGEATTACKED,
+	BOT_USE_AFTERSKILL,
+	BOT_USE_MOBINCOUNT,
+	BOT_USE_ITEMLESSTHAN,
 };
-struct s_bot_skill {
+
+enum bot_mode : uint16 {
+	BOT_IDEA            = 0x0001,
+	BOT_SKILL_ATK       = 0x0002,
+	BOT_WEAPON_ATK      = 0x0004,
+	BOT_SUPPORT_SELF    = 0x0008,
+	BOT_SUPPORT_FRIEND  = 0x0010,
+	BOT_NO_WALK         = 0x0020,
+	BOT_FOLLOW_WALK     = 0x0040,
+	BOT_RANDOM_WALK     = 0x0080,
+	BOT_ASTAR_WALK      = 0x0100,
+	BOT_IGNORE_TOUCH    = 0x0200,
+	BOT_IGNORE_SAME_ELE = 0x0400,
+	BOT_ALWAYS_MASTER     = 0x0800,
+	BOT_COUNTERATTACK   = 0x1000,
+	BOT_OFFLINE         = 0x2000,
+};
+
+enum bot_reset : uint8 {
+	BOT_REST_SKILL = 0x01,
+	BOT_REST_ITEM  = 0x02,
+	BOT_REST_LOOT  = 0x04,
+	BOT_REST_MOB   = 0x08,
+	BOT_REST_MODE  = 0x10,
+	BOT_REST_ALL   = 0xFF,
+};
+
+struct s_bot_uselist {
 	unsigned short id, lv, delay;
-	int sc;
+	short cond, cond_val[2];
+	int inf;
 	t_tick cooldown;
+};
+
+struct s_bot_moblist {
+	unsigned short id, prior;
+};
+
+struct s_bot_lootlist {
+	t_itemid id;
+	bool rob;
 };
 
 struct bot_data {
 	int ai_mode;
 	struct map_session_data *sd;
+	struct map_session_data *support_sd;
+	struct party_data *pd;
 	struct bot_info {
-		t_itemid item_hp_id;			//HPÒ©Ë®ID
-		t_itemid item_sp_id;
-		unsigned short item_heal_delay;
-
-		t_itemid item_fly_id;
-		unsigned short item_fly_delay;
-
-		std::vector<t_itemid> loot_item_id;
 		unsigned short loot_item_acttime;
-
-		std::vector<s_bot_skill> skill;
-		std::vector<s_bot_skill> skill_sc;
-		std::vector<s_bot_skill> item_sc;
-
-		std::vector<unsigned short> mob_id;
+		std::vector<s_bot_uselist> useskill;
+		std::vector<s_bot_uselist> useitem;
+		std::vector<s_bot_moblist> moblist;
+		std::vector<s_bot_lootlist> lootitem;
 
 		unsigned short choose_target_acttime;
 		unsigned always_attack_master : 1; //²»¹¥»÷link
@@ -378,19 +415,17 @@ struct bot_data {
 		int timeout_fly;
 		int find_fail_fly;
 		int ignore_same_ele;
-		int ignore_warp;
 		int follow_aid;
 	} info;
 	struct bot_state {
 		short dir;
 		unsigned offline : 1; //ÀëÏß
-		unsigned skill_order : 1;
 		t_tick next_acttime;
 		t_tick next_followtime;
-		t_tick next_check_sc;
-		t_tick next_heal_delay;
-		t_tick next_fly_delay;
-		t_tick next_flytime;
+		t_tick next_useitem;
+		t_tick next_skillattack;
+		t_tick next_skillsupport;
+		int enemy_count;
 		int skill_fail_count;
 		int atk_fail_count;
 		int move_fail_count;
@@ -399,8 +434,9 @@ struct bot_data {
 	int target_id, target_type;
 	int target_dead;
 	int min_chase;            //¹¥»÷¾àÀë
-	struct s_bot_skill *skill_order;
-	struct s_bot_skill *skill_select;
+	struct s_bot_uselist *skill_order;
+	struct s_bot_uselist *skill_attack;
+	struct s_bot_uselist *skill_support;
 	int skill_inf;
 };
 
@@ -1718,7 +1754,7 @@ struct s_status_formula {
 extern struct s_status_formula status_formula;
 int pc_status_formula_calc(const struct block_list* bl, int type, int val);
 
-void pcbot_reset_state(struct map_session_data *sd);
+struct bot_data *pcbot_getdata(struct map_session_data *sd);
 int pcbot_run(struct map_session_data *sd, int ai_mode);
 int pcbot_stop(struct map_session_data *sd, int logout);
 bool pc_manner_check(struct map_session_data* sd, char *mes);

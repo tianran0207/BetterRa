@@ -28379,104 +28379,6 @@ BUILDIN_FUNC(getattachnpc)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-BUILDIN_FUNC(bot_reset) {
-	TBL_PC *sd;
-	struct bot_data *bd;
-
-	if (!script_charid2sd(2, sd))
-		return SCRIPT_CMD_FAILURE;
-
-	if (!(bd = map_id2bot(sd->bl.id)))
-		return SCRIPT_CMD_SUCCESS;
-
-	pcbot_reset_state(sd);
-
-	return SCRIPT_CMD_SUCCESS;
-}
-
-BUILDIN_FUNC(bot_run)
-{
-	TBL_PC *sd;
-	struct bot_data *bd;
-
-	if (!script_charid2sd(4, sd))
-		return SCRIPT_CMD_FAILURE;
-
-	if (!(bd = map_id2bot(sd->bl.id)))
-		pcbot_reset_state(sd);
-
-	if (script_hasdata(st, 3))
-		sc_start(NULL, &sd->bl, SC_BOT, 10000, 0, script_getnum(st, 3));
-	else if (pc_readreg(sd, add_str("@run_time")))
-		sc_start(NULL, &sd->bl, SC_BOT, 10000, 0, pc_readreg(sd, add_str("@run_time")));
-
-	script_pushint(st, pcbot_run(sd, script_hasdata(st, 2) ? script_getnum(st, 2) : 0));
-
-	return SCRIPT_CMD_SUCCESS;
-}
-
-BUILDIN_FUNC(bot_setmode)
-{
-	TBL_PC *sd;
-	struct bot_data *bd;
-
-	if (!script_charid2sd(3, sd))
-		return SCRIPT_CMD_FAILURE;
-
-	if (!(bd = map_id2bot(sd->bl.id)))
-		return SCRIPT_CMD_SUCCESS;
-
-	bd->ai_mode = script_getnum(st, 2);
-
-	return SCRIPT_CMD_SUCCESS;
-}
-
-BUILDIN_FUNC(bot_follow)
-{
-	TBL_PC *sd;
-	struct bot_data *bd;
-
-	if (!script_charid2sd(3, sd))
-		return SCRIPT_CMD_FAILURE;
-
-	if (!(bd = map_id2bot(sd->bl.id)))
-		return SCRIPT_CMD_SUCCESS;
-
-	bd->info.follow_aid = script_getnum(st, 2);
-
-	if (bd->info.follow_aid)
-		bd->ai_mode |= BOT_NO_WALK;
-	else
-		bd->ai_mode &= ~BOT_NO_WALK;
-
-	return SCRIPT_CMD_SUCCESS;
-}
-
-BUILDIN_FUNC(is_bot)
-{
-	TBL_PC *sd;
-
-	if (!script_charid2sd(2, sd))
-		return SCRIPT_CMD_FAILURE;
-
-	script_pushint(st, sd->state.bot);
-
-	return SCRIPT_CMD_SUCCESS;
-}
-
-BUILDIN_FUNC(bot_stop)
-{
-	TBL_PC *sd;
-
-	if (!script_charid2sd(3, sd))
-		return SCRIPT_CMD_FAILURE;
-
-	status_change_end(&sd->bl, SC_BOT, INVALID_TIMER);
-	pcbot_stop(sd, script_hasdata(st, 2) ? script_getnum(st, 2) : 0);
-
-	return SCRIPT_CMD_SUCCESS;
-}
-
 static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data){
 	TBL_PC *sd;
 	if (id == 0) {
@@ -28525,6 +28427,233 @@ BUILDIN_FUNC(bot_login)
 	chrif_authreq(sd, true);
 	clif_parse_LoadEndAck(0, sd);
 	add_timer(gettick() + 100, buildin_bot_login_sub, sd->bl.id, 0);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+static bool buildin_bot_addcheck_sub(struct map_session_data *sd, struct s_bot_uselist *list)
+{
+	switch (list->cond) {
+	case BOT_USE_MYHPINRATE:
+	case BOT_USE_MYSPINRATE:
+		if (!list->cond_val[1]) list->cond_val[1] = 100;
+		list->inf = INF_SUPPORT_SKILL | INF_SELF_SKILL;
+		break;
+	case BOT_USE_FRIENDHPINRATE:
+		if (!list->cond_val[1]) list->cond_val[1] = 100;
+		list->inf = INF_SUPPORT_SKILL;
+		break;
+	case BOT_USE_MYSTATUSON:
+	case BOT_USE_MYSTATUSOFF:
+		if (list->cond_val[0] <= SC_NONE || list->cond_val[0] >= SC_MAX) {
+			ShowError("buildin_bot_addcheck_sub: invalid status change (%d)!\n", list->cond_val[0]);
+			return false;
+		}
+		list->inf = INF_SUPPORT_SKILL | INF_SELF_SKILL;
+		break;
+	case BOT_USE_FRIENDSTATUSON:
+	case BOT_USE_FRIENDSTATUSOFF:
+		if (list->cond_val[0] <= SC_NONE || list->cond_val[0] >= SC_MAX) {
+			ShowError("buildin_bot_addcheck_sub: invalid status change (%d)!\n", list->cond_val[0]);
+			return false;
+		}
+		list->inf = INF_SUPPORT_SKILL;
+		break;
+	case BOT_USE_ITEMLESSTHAN:
+		if (!itemdb_exists(list->id)) {
+			ShowWarning("buildin_bot_addcheck_sub: Item ID %u does not exists in the item_db.\n", list->id);
+			return false;
+		}
+		list->inf = INF_SUPPORT_SKILL;
+		break;
+	default:
+		list->inf = 0;
+		break;
+	}
+	return true;
+}
+
+BUILDIN_FUNC(bot_adduseskill)
+{
+	TBL_PC *sd;
+	if (!script_charid2sd(8, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	struct bot_data *bd = pcbot_getdata(sd);
+	struct s_bot_uselist entry;
+	entry.id = script_getnum(st, 2);
+	entry.lv = script_getnum(st, 3);
+	entry.delay = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
+	entry.cond = script_hasdata(st, 5) ? script_getnum(st, 5) : BOT_USE_ALWAYS;
+	entry.cond_val[0] = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+	entry.cond_val[1] = script_hasdata(st, 7) ? script_getnum(st, 7) : 0;
+
+	if (!entry.id || skill_get_index(entry.id) == 0)
+		return SCRIPT_CMD_FAILURE;
+	if (!buildin_bot_addcheck_sub(sd, &entry))
+		return SCRIPT_CMD_FAILURE;
+
+	bd->info.useskill.push_back(entry);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_adduseitem)
+{
+	TBL_PC *sd;
+	if (!script_charid2sd(8, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	struct bot_data *bd = pcbot_getdata(sd);
+	struct s_bot_uselist entry;
+	entry.id = script_getnum(st, 2);
+	entry.lv = script_getnum(st, 3);
+	entry.delay = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
+	entry.cond = script_hasdata(st, 5) ? script_getnum(st, 5) : BOT_USE_ALWAYS;
+	entry.cond_val[0] = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+	entry.cond_val[1] = script_hasdata(st, 7) ? script_getnum(st, 7) : 100;
+
+	if (!itemdb_exists(entry.id)) {
+		ShowWarning("bot_adduseitem: Item ID %u does not exists in the item_db.\n", entry.id);
+		return SCRIPT_CMD_FAILURE;
+	}
+	if (!buildin_bot_addcheck_sub(sd, &entry))
+		return SCRIPT_CMD_FAILURE;
+
+	bd->info.useitem.push_back(entry);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_addlootitem)
+{
+	TBL_PC *sd;
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	struct bot_data *bd = pcbot_getdata(sd);
+	struct s_bot_lootlist entry;
+	entry.id = script_getnum(st, 2);
+	entry.rob = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+
+	bd->info.lootitem.push_back(entry);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_addattackmob)
+{
+	TBL_PC *sd;
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	struct bot_data *bd = pcbot_getdata(sd);
+	struct s_bot_moblist entry;
+	entry.id = script_getnum(st, 2);
+	entry.prior = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+
+	bd->info.moblist.push_back(entry);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_addmode)
+{
+	TBL_PC *sd;
+	int type = script_getnum(st, 2);
+	bool add_mode = !strcmp(script_getfuncname(st), "bot_addmode");
+	int value = script_hasdata(st, 3) && add_mode ? script_getnum(st, 3) : 0;
+
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	struct bot_data *bd = pcbot_getdata(sd);
+	
+	switch (type) {
+	case BOT_IGNORE_SAME_ELE: bd->info.ignore_same_ele = value;      break;
+	case BOT_ALWAYS_MASTER:   bd->info.always_attack_master = value; break;
+	case BOT_COUNTERATTACK:   bd->info.counterattack = value;        break;
+	case BOT_OFFLINE:         bd->state.offline = value;             break;
+	}
+	if (add_mode)
+		bd->ai_mode |= type;
+	else
+		bd->ai_mode &= ~type;
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_reset)
+{
+	TBL_PC *sd;
+	struct bot_data *bd;
+	int type = script_getnum(st, 2);
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!(bd = map_id2bot(sd->bl.id)))
+		return SCRIPT_CMD_SUCCESS;
+
+	if (type & BOT_REST_SKILL)
+		bd->info.useskill.clear();
+	if (type & BOT_REST_ITEM)
+		bd->info.useitem.clear();
+	if (type & BOT_REST_LOOT)
+		bd->info.lootitem.clear();
+	if (type & BOT_REST_MOB)
+		bd->info.moblist.clear();
+	if (type & BOT_REST_MODE) {
+		bd->ai_mode = BOT_IDEA;
+		bd->info.ignore_same_ele = 0;
+		bd->info.always_attack_master = 0;
+		bd->info.counterattack = 0;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+
+BUILDIN_FUNC(is_bot)
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	script_pushint(st, sd->state.bot);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_run)
+{
+	TBL_PC *sd;
+	struct bot_data *bd;
+
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	bd = pcbot_getdata(sd);
+
+	if (script_hasdata(st, 3))
+		sc_start(NULL, &sd->bl, SC_BOT, 10000, 0, script_getnum(st, 3));
+	else if (pc_readreg(sd, add_str("@run_time")))
+		sc_start(NULL, &sd->bl, SC_BOT, 10000, 0, pc_readreg(sd, add_str("@run_time")));
+
+	script_pushint(st, pcbot_run(sd, script_hasdata(st, 2) ? script_getnum(st, 2) : 0));
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_stop)
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	status_change_end(&sd->bl, SC_BOT, INVALID_TIMER);
+	pcbot_stop(sd, script_hasdata(st, 2) ? script_getnum(st, 2) : 0);
+
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -32699,12 +32828,16 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getpolicyinfo, "i?"),
 	//BOTϵͳ
 	BUILDIN_DEF(bot_login, "iii"),
-	BUILDIN_DEF(bot_reset, "?"),
+	BUILDIN_DEF(bot_adduseskill, "ii?????"),
+	BUILDIN_DEF(bot_adduseitem, "i?????"),
+	BUILDIN_DEF(bot_addlootitem, "i??"),
+	BUILDIN_DEF(bot_addattackmob, "i??"),
+	BUILDIN_DEF(bot_addmode, "i??"),
+	BUILDIN_DEF2(bot_addmode, "bot_removemode", "i"),
+	BUILDIN_DEF(bot_reset, "i??"),
+	BUILDIN_DEF(is_bot, "?"),
 	BUILDIN_DEF(bot_run, "??"),
 	BUILDIN_DEF(bot_stop, "??"),
-	BUILDIN_DEF(bot_setmode, "i?"),
-	BUILDIN_DEF(bot_follow, "i?"),
-	BUILDIN_DEF(is_bot, "?"),
 	BUILDIN_DEF(openchat, "s???"),
 	BUILDIN_DEF(openvending, "s*"),
 	BUILDIN_DEF(openbuying, "s*"),

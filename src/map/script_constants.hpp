@@ -594,12 +594,42 @@
 	export_constant2("EquipIgnoreFunc", SP_EQUIPIGNOREFUNC);
 	export_constant2("EquipIgnoreClass", SP_EQUIPIGNORECLASS);
 
+	export_constant2("always", BOT_USE_ALWAYS);
+	export_constant2("myhpinrate", BOT_USE_MYHPINRATE);
+	export_constant2("myspinrate", BOT_USE_MYSPINRATE);
+	export_constant2("mystatuson", BOT_USE_MYSTATUSON);
+	export_constant2("mystatusoff", BOT_USE_MYSTATUSOFF);
+	export_constant2("friendhpinrate", BOT_USE_FRIENDHPINRATE);
+	export_constant2("friendstatuson", BOT_USE_FRIENDSTATUSON);
+	export_constant2("friendstatusoff", BOT_USE_FRIENDSTATUSOFF);
+	export_constant2("attackedgt", BOT_USE_ATTACKPCGT);
+	export_constant2("closedattacked", BOT_USE_CLOSEDATTACKED);
+	export_constant2("longrangeattacked", BOT_USE_LONGRANGEATTACKED);
+	export_constant2("afterskill", BOT_USE_AFTERSKILL);
+	export_constant2("mobincount", BOT_USE_MOBINCOUNT);
+	export_constant2("itemincount", BOT_USE_ITEMLESSTHAN);
+
 	export_constant(BOT_IDEA);
 	export_constant(BOT_SKILL_ATK);
 	export_constant(BOT_WEAPON_ATK);
+	export_constant(BOT_SUPPORT_SELF);
+	export_constant(BOT_SUPPORT_FRIEND);
 	export_constant(BOT_NO_WALK);
+	export_constant(BOT_FOLLOW_WALK);
 	export_constant(BOT_RANDOM_WALK);
 	export_constant(BOT_ASTAR_WALK);
+	export_constant(BOT_IGNORE_TOUCH);
+	export_constant(BOT_IGNORE_SAME_ELE);
+	export_constant(BOT_ALWAYS_MASTER);
+	export_constant(BOT_COUNTERATTACK);
+	export_constant(BOT_OFFLINE);
+
+	export_constant(BOT_REST_SKILL);
+	export_constant(BOT_REST_ITEM);
+	export_constant(BOT_REST_LOOT);
+	export_constant(BOT_REST_MOB);
+	export_constant(BOT_REST_MODE);
+	export_constant(BOT_REST_ALL);
 
 	export_constant(MF_TRIBE);
 	export_constant(MF_HIDEGUILDINFO);
