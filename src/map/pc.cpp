@@ -15047,7 +15047,7 @@ static int pcbot_ai_sub_hard_lootsearch(struct block_list *bl, va_list ap)
 	for (auto &it : bd->info.lootitem) {
 		if (it.id != fitem->item.nameid)
 			continue;
-		if (!it.rob && fitem->first_get_charid == sd->status.char_id)
+		if (!it.rob && fitem->first_get_charid != sd->status.char_id)
 			continue;
 
 		dist = distance_bl(&sd->bl, bl);
@@ -15062,26 +15062,10 @@ static int pcbot_ai_sub_hard_lootsearch(struct block_list *bl, va_list ap)
 	return 1;
 }
 
-static int pcbot_useitem(struct map_session_data *sd, t_itemid itemid)
-{
-	int i;
-
-	if ((i = pc_search_inventory(sd, itemid)) == -1)
-		return 0;
-
-	pc_useitem(sd, i);
-
-	if (npc_script_event_check(sd, NPCE_BOTITEMLACKEVENT) && sd->inventory.u.items_inventory[i].amount == 5) {
-		pc_setreg(sd, add_str("@lack_itemid"), sd->inventory.u.items_inventory[i].nameid);
-		npc_script_event(sd, NPCE_BOTITEMLACKEVENT);
-	}
-	return 1;
-}
-
 static bool pcbot_check_usecond(struct bot_data *bd, struct s_bot_uselist *list, t_tick tick)
 {
 	struct map_session_data *sd = bd->sd;
-	int flag = 0, i;
+	int flag = 0, i, cond = list->cond;
 	struct party_data *p = bd->pd;
 
 	if (list->cooldown > tick)
@@ -15091,10 +15075,16 @@ static bool pcbot_check_usecond(struct bot_data *bd, struct s_bot_uselist *list,
 
 	if (sd->status.party_id && (!p || p->party.party_id != sd->status.party_id)) {
 		p = bd->pd = party_search(sd->status.party_id);
-	}else
+	}else{
 		p = bd->pd = NULL;
+		switch (cond) {
+		case BOT_USE_FRIENDHPINRATE: cond = BOT_USE_MYHPINRATE; break;
+		case BOT_USE_FRIENDSTATUSON: cond = BOT_USE_MYSTATUSON; break;
+		case BOT_USE_FRIENDSTATUSOFF: cond = BOT_USE_MYSTATUSOFF; break;
+		}
+	}
 
-	switch (list->cond) {
+	switch (cond) {
 	case BOT_USE_ALWAYS:
 		return true;
 	case BOT_USE_MYHPINRATE:
@@ -15118,7 +15108,7 @@ static bool pcbot_check_usecond(struct bot_data *bd, struct s_bot_uselist *list,
 			if (!p->party.member[i].map == sd->bl.m || !check_distance_bl(&sd->bl, &bd->support_sd->bl, 5))
 				continue;
 			flag = get_percentage(bd->support_sd->battle_status.hp, bd->support_sd->battle_status.max_hp);
-			if (flag > list->cond_val[0] || flag < list->cond_val[1])
+			if (flag > list->cond_val[0] && flag <= list->cond_val[1])
 				continue;
 			return true;
 		}
@@ -15173,7 +15163,7 @@ static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 		bd->min_chase = skill_get_range2(&sd->bl, bd->skill_attack->id, bd->skill_attack->lv, false);
 		return 1;
 	}
-	if ((inf & INF_SUPPORT_SKILL) && bd->skill_support && check_distance_bl(&sd->bl, &bd->support_sd->bl, 5)) {
+	if ((inf & INF_SUPPORT_SKILL) && bd->skill_support && bd->support_sd && check_distance_bl(&sd->bl, &bd->support_sd->bl, 5)) {
 		bd->min_chase = skill_get_range2(&sd->bl, bd->skill_support->id, bd->skill_support->lv, false);
 		return 1;
 	}
@@ -15200,8 +15190,6 @@ static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 
 		bd->min_chase = !bd->min_chase ? 1 : bd->min_chase;
 	}
-	if ((inf & INF_SUPPORT_SKILL))
-		bd->state.next_skillsupport = tick + 2000;
 
 	return (inf & INF_SUPPORT_SKILL) && bd->skill_support ? 1 : (inf & INF_ATTACK_SKILL) && bd->skill_attack ? 1 : 0;
 }
@@ -15209,17 +15197,24 @@ static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 static bool pcbot_useskill(struct bot_data *bd, struct block_list *tbl, t_tick tick, int inf)
 {
 	struct block_list *src = &bd->sd->bl, *bl = tbl;
-	struct s_bot_uselist *skill;
+	struct s_bot_uselist *skill = bd->skill_attack;
 	int result;
 
 	if (bd->sd->ud.skilltimer != INVALID_TIMER)
 		return false;
-	if (!pcbot_check_useskill(bd, tick, inf))
+	if (!pcbot_check_useskill(bd, tick, inf) && (inf & INF_ATTACK_SKILL))
 		return false;
-	if (!battle_check_range(src, tbl, bd->min_chase))
+	if (inf & INF_SUPPORT_SKILL) {
+		if (bd->support_sd && bd->skill_support) {
+			bl = tbl = &bd->support_sd->bl;
+			skill = bd->skill_support;
+		} else {
+			bd->state.next_skillsupport = tick + 2000;
+			return false;
+		}
+	}
+	if (!skill || !battle_check_range(src, tbl, bd->min_chase))
 		return false;
-
-	skill = (inf & INF_ATTACK_SKILL) ? bd->skill_attack : bd->skill_support;
 
 	if (bd->sd->ud.walktimer != INVALID_TIMER)
 		unit_stop_walking(src, 1);
@@ -15249,14 +15244,14 @@ static bool pcbot_useskill(struct bot_data *bd, struct block_list *tbl, t_tick t
 	bd->support_sd = NULL;
 
 	if ((inf & INF_SUPPORT_SKILL))
-		bd->state.next_skillsupport = tick + max(delayfix, 300);
+		bd->state.next_acttime = bd->state.next_skillsupport = tick + delayfix + 500;
 	else
-		bd->state.next_skillattack = tick + max(delayfix, 200);
+		bd->state.next_acttime = bd->state.next_skillattack = tick + delayfix;
 
 	return true;
 }
 
-static bool pcbot_usesitem(struct bot_data *bd, t_tick tick)
+static bool pcbot_useitem(struct bot_data *bd, t_tick tick)
 {
 	struct map_session_data *sd = bd->sd;
 	struct s_bot_uselist *bs = NULL;
@@ -15265,10 +15260,13 @@ static bool pcbot_usesitem(struct bot_data *bd, t_tick tick)
 	{
 		if (!pcbot_check_usecond(bd, &it, tick))
 			continue;
-		if (pcbot_useitem(sd, it.id)) {
+		if (it.inf < 0 || it.inf >= MAX_INVENTORY || sd->inventory.u.items_inventory[it.inf].nameid != it.id)
+			it.inf = pc_search_inventory(sd, it.id);
+		if (it.inf >= 0 && pc_useitem(sd, it.inf)) {
 			bd->state.next_useitem = tick + 100;
 			return true;
 		}
+		it.cooldown = tick + 10000;
 		break;
 	}
 	bd->state.next_useitem = tick + 2000;
@@ -15313,33 +15311,32 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		return 0;
 	if (pc_cant_act(sd))
 		return 0;
+	//如果正在吟唱
+	if (sd->ud.skilltimer != INVALID_TIMER)
+		return 0;
 
 	//使用道具检查
-	if (bd->state.next_useitem < tick && pcbot_usesitem(bd, tick))
+	if (bd->state.next_useitem < tick && pcbot_useitem(bd, tick))
 		return 1;
 		
 	//使用技能检查
-	if (bd->state.next_skillsupport < tick && pcbot_check_useskill(bd, tick, INF_SUPPORT_SKILL) && pcbot_useskill(bd, &bd->support_sd->bl, tick, INF_SUPPORT_SKILL))
+	if (bd->state.next_skillsupport < tick && pcbot_useskill(bd, NULL, tick, INF_SUPPORT_SKILL))
 		return 1;
 
 	if ((bd->ai_mode & BOT_FOLLOW_WALK) && bd->info.follow_aid && bd->state.next_followtime < tick) {
-		bd->state.next_followtime = tick + 1000;
 		if ((tbl = map_id2bl(bd->info.follow_aid)) != NULL) {
 			if (bd->target_id && distance_bl(&sd->bl, tbl) > 7 || !bd->target_id  && distance_bl(&sd->bl, tbl) > 1) {
 				if (unit_walktobl(&sd->bl, tbl, 1, 0))
 					bd->state.next_followtime = tick + 500;
 				return 1;
 			}
+			bd->state.next_followtime = tick + 1000;
 		} else
-			bd->info.follow_aid = 0;
+			bd->state.next_followtime = tick + 5000;
 	}
 
 	//不允许做任何事
 	if (bd->state.next_acttime > tick)
-		return 0;
-
-	//如果正在吟唱
-	if (sd->ud.skilltimer != INVALID_TIMER)
 		return 0;
 
 	//如果正在攻击
@@ -15423,33 +15420,34 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				return 0;
 			}
 			pc_takeitem(sd, (struct flooritem_data *)tbl);
-			bd->state.next_acttime = tick + bd->info.loot_item_acttime / 2;
+			bd->state.next_acttime = tick + bd->info.lootitem_delay / 2;
 			bd->target_id = bd->target_type = 0;
 			return 1;
 		}
 	}
 
 	//检查拾取物品菜单
-	if (bd->info.lootitem.size()) {
+	if (bd->state.next_lootitem < tick && bd->info.lootitem.size()) {
+		tbl = NULL;
 		map_foreachinallrange(pcbot_ai_sub_hard_lootsearch, &sd->bl, 13, BL_ITEM, bd, &tbl);
 		if (tbl) {
-			if (bd->target_id == tbl->id && sd->ud.walktimer != INVALID_TIMER)
-				return 1; //Already locked.
+			bd->state.next_acttime = tick + bd->info.lootitem_delay / 2;
 
 			if (check_distance_bl(&sd->bl, tbl, 1) || unit_walktobl(&sd->bl, tbl, 1, 1)) {
-				bd->state.next_acttime = tick + bd->info.loot_item_acttime / 2;
 				bd->target_id = tbl->id;
 				bd->target_type = tbl->type;
 				return 1;
 			}
 		}
 		bd->target_id = bd->target_type = 0;
+		bd->state.next_lootitem = tick + 2000;
 	}
 
 	if (bd->target_dead == 1) {
 		bd->target_dead = 0;
 		bd->skill_order = bd->skill_attack = NULL;
-		bd->state.next_acttime = tick + bd->info.choose_target_acttime;
+		bd->state.next_acttime = tick + bd->info.change_delay;
+		bd->state.next_lootitem = tick;
 		return 1;
 	}
 
@@ -15502,6 +15500,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		if ((sp = path_Astar_steppath(sd->bl.m, sd->bl.x, sd->bl.y, x, y, sd->bl.id)) == NULL)
 			bd->state.move_fail_count++;
 		if (bd->state.move_fail_count > 100) {
+			clif_displaymessage(sd->fd, msg_txt(sd, 2346));
 			pcbot_stop(bd->sd, -3);
 			return 0;
 		}
@@ -15538,9 +15537,6 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		}
 		if (map_search_freecell(&sd->bl, sd->bl.m, &x, &y, rx, ry, 3)) {
 			unit_walktoxy(&sd->bl, x, y, 1);
-			if (bd->info.find_fail_fly)
-				bd->state.move_count++;
-			bd->state.move_fail_count = 0;
 			return 1;
 		}
 		bd->state.move_fail_count++;
@@ -15575,6 +15571,8 @@ struct bot_data *pcbot_getdata(struct map_session_data *sd)
 		CREATE(bd, struct bot_data, 1);
 		bd->sd = sd;
 		bd->ai_mode = BOT_IDEA;
+		bd->info.lootitem_delay = 700;
+		bd->info.change_delay = 800;
 		map_addbot(bd);
 		sd->state.bot = 1;
 	}
@@ -15602,7 +15600,7 @@ int pcbot_run(struct map_session_data *sd, int ai_mode)
 	}
 	sd->ud.target = 0;
 
-	if (bd->state.offline) {
+	if (bd->ai_mode&BOT_OFFLINE) {
 		channel_pcquit(sd, 0xF); //leave all chan
 		clif_authfail_fd(sd->fd, 15);
 		chrif_save(sd, SC_AUTOTRADE);
@@ -15628,7 +15626,7 @@ int pcbot_stop(struct map_session_data *sd, int logout)
 		return 0;  
 	}
 	if (npc_script_event_check(sd, NPCE_BOTSTOPEVENT)) {
-		pc_setreg(sd, add_str("@offline"), bd->state.offline);
+		pc_setreg(sd, add_str("@offline"), (bd->ai_mode&BOT_OFFLINE)==BOT_OFFLINE);
 		pc_setreg(sd, add_str("@bot_reason"), logout < 0 ? -logout : 0);
 		npc_script_event_atonce(sd, NPCE_BOTSTOPEVENT);
 		logout = logout < 0 ? static_cast<int>(pc_readreg2(sd, "@offline")) : logout;
@@ -15637,7 +15635,7 @@ int pcbot_stop(struct map_session_data *sd, int logout)
 	sd->state.no_touch_script = 0;
 
 	if (logout < 0)
-		logout = bd->state.offline;
+		logout = (bd->ai_mode&BOT_OFFLINE);
 
 	map_delbot(bd);
 	if (logout) {

@@ -1128,7 +1128,7 @@ unitsteppath <GID>,<路点编号>{,<寻路AI>,{<参数>,{<"事件名称">}}};
 	BOT_ASTAR_WALK       - 范围内没有敌人时, 使用A*路寻找敌人 (优先级大于 BOT_RANDOM_WALK)
 	BOT_IGNORE_TOUCH     - 无视传送点和NPC触发对话
 	BOT_IGNORE_SAME_ELE  - 无视同属性的敌人 (参数为修正值, 参数为50时, 属性修正低于50的魔物不打)
-	BOT_ALWAYS_MASTER      - 只攻击敌人的主人
+	BOT_ALWAYS_MASTER    - 只攻击敌人的主人
 	BOT_COUNTERATTACK    - 对正在攻击机器人的实体进行反击
 	BOT_OFFLINE          - 采用离线挂机模式
 

@@ -28567,13 +28567,18 @@ BUILDIN_FUNC(bot_addmode)
 		return SCRIPT_CMD_FAILURE;
 
 	struct bot_data *bd = pcbot_getdata(sd);
-	
-	switch (type) {
-	case BOT_IGNORE_SAME_ELE: bd->info.ignore_same_ele = value;      break;
-	case BOT_ALWAYS_MASTER:   bd->info.always_attack_master = value; break;
-	case BOT_COUNTERATTACK:   bd->info.counterattack = value;        break;
-	case BOT_OFFLINE:         bd->state.offline = value;             break;
-	}
+
+	if (type&BOT_IGNORE_TOUCH)
+		sd->state.no_touch_script = value ? 1 : 0;
+	if (type&BOT_IGNORE_SAME_ELE)
+		bd->info.ignore_same_ele = value;
+	if (type&BOT_ALWAYS_MASTER)
+		bd->info.always_attack_master = value ? 1 : 0;
+	if (type&BOT_COUNTERATTACK)
+		bd->info.counterattack = value ? 1 : 0;
+	if (type&BOT_FOLLOW_WALK)
+		bd->info.follow_aid = value;
+
 	if (add_mode)
 		bd->ai_mode |= type;
 	else
@@ -28603,6 +28608,7 @@ BUILDIN_FUNC(bot_reset)
 	if (type & BOT_REST_MOB)
 		bd->info.moblist.clear();
 	if (type & BOT_REST_MODE) {
+		sd->state.no_touch_script = 0;
 		bd->ai_mode = BOT_IDEA;
 		bd->info.ignore_same_ele = 0;
 		bd->info.always_attack_master = 0;

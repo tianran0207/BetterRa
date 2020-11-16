@@ -22786,7 +22786,7 @@ static int clif_parse(int fd)
 
 	if (session[fd]->flag.eof) {
 		if (sd) {
-			if (sd->state.bot && map_id2bot(sd->bl.id)->state.offline) {
+			if (sd->state.bot && (map_id2bot(sd->bl.id)->ai_mode&BOT_OFFLINE)) {
 				session[fd]->session_data = NULL;
 				sd->fd = 0;
 				ShowInfo("Character '" CL_WHITE "%s" CL_RESET "' logged off (bot was still running).\n", sd->status.name);

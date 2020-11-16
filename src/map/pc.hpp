@@ -367,12 +367,12 @@ enum bot_mode : uint16 {
 	BOT_ASTAR_WALK      = 0x0100,
 	BOT_IGNORE_TOUCH    = 0x0200,
 	BOT_IGNORE_SAME_ELE = 0x0400,
-	BOT_ALWAYS_MASTER     = 0x0800,
+	BOT_ALWAYS_MASTER   = 0x0800,
 	BOT_COUNTERATTACK   = 0x1000,
 	BOT_OFFLINE         = 0x2000,
 };
 
-enum bot_reset : uint8 {
+enum bot_reset_type : uint8 {
 	BOT_REST_SKILL = 0x01,
 	BOT_REST_ITEM  = 0x02,
 	BOT_REST_LOOT  = 0x04,
@@ -403,26 +403,24 @@ struct bot_data {
 	struct map_session_data *support_sd;
 	struct party_data *pd;
 	struct bot_info {
-		unsigned short loot_item_acttime;
 		std::vector<s_bot_uselist> useskill;
 		std::vector<s_bot_uselist> useitem;
 		std::vector<s_bot_moblist> moblist;
 		std::vector<s_bot_lootlist> lootitem;
 
-		unsigned short choose_target_acttime;
+		unsigned short lootitem_delay;
+		unsigned short change_delay;
 		unsigned always_attack_master : 1; //²»¹¥»÷link
 		unsigned counterattack : 1; //·´»÷
-		int timeout_fly;
-		int find_fail_fly;
 		int ignore_same_ele;
 		int follow_aid;
 	} info;
 	struct bot_state {
 		short dir;
-		unsigned offline : 1; //ÀëÏß
 		t_tick next_acttime;
 		t_tick next_followtime;
 		t_tick next_useitem;
+		t_tick next_lootitem;
 		t_tick next_skillattack;
 		t_tick next_skillsupport;
 		int enemy_count;
