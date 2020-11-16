@@ -15073,10 +15073,10 @@ static bool pcbot_check_usecond(struct bot_data *bd, struct s_bot_uselist *list,
 
 	bd->support_sd = NULL;
 
-	if (sd->status.party_id && (!p || p->party.party_id != sd->status.party_id)) {
+	if ((sd->status.party_id && !p) || (p && p->party.party_id != sd->status.party_id)) {
 		p = bd->pd = party_search(sd->status.party_id);
-	}else{
-		p = bd->pd = NULL;
+	}
+	if (!p){
 		switch (cond) {
 		case BOT_USE_FRIENDHPINRATE: cond = BOT_USE_MYHPINRATE; break;
 		case BOT_USE_FRIENDSTATUSON: cond = BOT_USE_MYSTATUSON; break;
@@ -15105,7 +15105,7 @@ static bool pcbot_check_usecond(struct bot_data *bd, struct s_bot_uselist *list,
 		for (i = 0; i < MAX_PARTY; i++) {
 			if (!p->party.member[i].online || !(bd->support_sd = p->data[i].sd))
 				continue;
-			if (!p->party.member[i].map == sd->bl.m || !check_distance_bl(&sd->bl, &bd->support_sd->bl, 5))
+			if (!p->party.member[i].map == sd->bl.m || !check_distance_bl(&sd->bl, &bd->support_sd->bl, 8))
 				continue;
 			flag = get_percentage(bd->support_sd->battle_status.hp, bd->support_sd->battle_status.max_hp);
 			if (flag > list->cond_val[0] && flag <= list->cond_val[1])
@@ -15117,7 +15117,7 @@ static bool pcbot_check_usecond(struct bot_data *bd, struct s_bot_uselist *list,
 		for (i = 0; i < MAX_PARTY; i++) {
 			if (!p->party.member[i].online || !(bd->support_sd = p->data[i].sd))
 				continue;
-			if (!p->party.member[i].map == sd->bl.m || !check_distance_bl(&sd->bl, &bd->support_sd->bl, 5))
+			if (!p->party.member[i].map == sd->bl.m || !check_distance_bl(&sd->bl, &bd->support_sd->bl, 8))
 				continue;
 			if (!bd->support_sd->sc.data[list->cond_val[0]])
 				continue;
@@ -15128,7 +15128,7 @@ static bool pcbot_check_usecond(struct bot_data *bd, struct s_bot_uselist *list,
 		for (i = 0; i < MAX_PARTY; i++) {
 			if (!p->party.member[i].online || !(bd->support_sd = p->data[i].sd))
 				continue;
-			if (!p->party.member[i].map == sd->bl.m || !check_distance_bl(&sd->bl, &bd->support_sd->bl, 5))
+			if (!p->party.member[i].map == sd->bl.m || !check_distance_bl(&sd->bl, &bd->support_sd->bl, 8))
 				continue;
 			if (bd->support_sd->sc.data[list->cond_val[0]])
 				continue;
@@ -15159,11 +15159,14 @@ static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 	struct s_bot_uselist *bs = NULL;
 	bool support = false;
 
+	if (bd->state.next_useskill > tick)
+		return 0;
+
 	if ((inf & INF_ATTACK_SKILL) && bd->skill_attack) {
 		bd->min_chase = skill_get_range2(&sd->bl, bd->skill_attack->id, bd->skill_attack->lv, false);
 		return 1;
 	}
-	if ((inf & INF_SUPPORT_SKILL) && bd->skill_support && bd->support_sd && check_distance_bl(&sd->bl, &bd->support_sd->bl, 5)) {
+	if ((inf & INF_SUPPORT_SKILL) && bd->skill_support && bd->support_sd && check_distance_bl(&sd->bl, &bd->support_sd->bl, 8)) {
 		bd->min_chase = skill_get_range2(&sd->bl, bd->skill_support->id, bd->skill_support->lv, false);
 		return 1;
 	}
@@ -15202,6 +15205,8 @@ static bool pcbot_useskill(struct bot_data *bd, struct block_list *tbl, t_tick t
 
 	if (bd->sd->ud.skilltimer != INVALID_TIMER)
 		return false;
+	if (bd->state.next_useskill > tick)
+		return 0;
 	if (!pcbot_check_useskill(bd, tick, inf) && (inf & INF_ATTACK_SKILL))
 		return false;
 	if (inf & INF_SUPPORT_SKILL) {
@@ -15240,11 +15245,12 @@ static bool pcbot_useskill(struct bot_data *bd, struct block_list *tbl, t_tick t
 	int delayfix = skill_delayfix(src, skill->id, skill->lv);
 	int cooldown = max(pc_get_skillcooldown(bd->sd, skill->id, skill->lv), delayfix);
 	skill->cooldown = (cooldown > skill->delay ? cooldown : skill->delay) + tick + 100;
+	bd->state.next_useskill = tick + delayfix;;
 	bd->skill_attack = bd->skill_support = NULL;
 	bd->support_sd = NULL;
 
 	if ((inf & INF_SUPPORT_SKILL))
-		bd->state.next_acttime = bd->state.next_skillsupport = tick + delayfix + 500;
+		bd->state.next_acttime = bd->state.next_skillsupport = tick + delayfix;
 	else
 		bd->state.next_acttime = bd->state.next_skillattack = tick + delayfix;
 
@@ -15429,7 +15435,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 	//检查拾取物品菜单
 	if (bd->state.next_lootitem < tick && bd->info.lootitem.size()) {
 		tbl = NULL;
-		map_foreachinallrange(pcbot_ai_sub_hard_lootsearch, &sd->bl, 13, BL_ITEM, bd, &tbl);
+		map_foreachinallrange(pcbot_ai_sub_hard_lootsearch, &sd->bl, bd->state.view_range, BL_ITEM, bd, &tbl);
 		if (tbl) {
 			bd->state.next_acttime = tick + bd->info.lootitem_delay / 2;
 
@@ -15452,7 +15458,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 	}
 
 	tbl = NULL;
-	bd->state.enemy_count = map_foreachinallrange(pcbot_ai_sub_hard_activesearch, &sd->bl, 13, BL_CHAR, bd, &tbl);
+	bd->state.enemy_count = map_foreachinallrange(pcbot_ai_sub_hard_activesearch, &sd->bl, bd->state.view_range, BL_CHAR, bd, &tbl);
 
 	if (tbl) {
 		bd->target_id = tbl->id;
@@ -15609,6 +15615,8 @@ int pcbot_run(struct map_session_data *sd, int ai_mode)
 		bd->ai_mode = ai_mode;
 	else
 		bd->ai_mode &= ~(BOT_IDEA | BOT_NO_WALK);
+
+	bd->state.view_range = (bd->ai_mode & BOT_FOLLOW_WALK) ? 8 : AREA_SIZE - 1;
 
 	return 0;
 }

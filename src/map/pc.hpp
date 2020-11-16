@@ -417,6 +417,7 @@ struct bot_data {
 	} info;
 	struct bot_state {
 		short dir;
+		short view_range;
 		t_tick next_acttime;
 		t_tick next_followtime;
 		t_tick next_useitem;
