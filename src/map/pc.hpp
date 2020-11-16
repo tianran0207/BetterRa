@@ -421,6 +421,7 @@ struct bot_data {
 		t_tick next_acttime;
 		t_tick next_followtime;
 		t_tick next_useitem;
+		t_tick next_useskill;
 		t_tick next_lootitem;
 		t_tick next_skillattack;
 		t_tick next_skillsupport;
