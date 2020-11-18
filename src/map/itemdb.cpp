@@ -1818,18 +1818,23 @@ bool itemdb_read_combos_line(const char *path, int lines, char *line, uint32 *nu
 		// Store into first item
 		item_data *id = itemdb_exists(items[0]);
 
-		for (const auto &it : id->combos) {
-			v = 0;
-			for (const auto nameid : it->nameid) {
-				if (v < retcount && nameid != items[v])
-					break;
-				v++;
+		if (battle_config.combo_mode == 0)
+			return true;
+		else if (battle_config.combo_mode == 2) {
+			for (const auto &it : id->combos) {
+				v = 0;
+				for (const auto nameid : it->nameid) {
+					if (v < retcount && nameid != items[v])
+						break;
+					v++;
+				}
+				if (v == retcount) {
+					if (it->script)
+						script_free_code(it->script);
+					it->script = parse_script(str[1], path, lines, 0);
+				}
 			}
-			if (v == retcount) {
-				if (id->combos[v]->script)
-					script_free_code(id->combos[v]->script);
-				id->combos[v]->script = parse_script(str[1], path, lines, 0);
-			}
+			return true;
 		}
 
 		// Create combo data
@@ -1874,7 +1879,7 @@ static void itemdb_read_combos(const char* basedir, bool silent) {
 		if(silent==0) ShowError("itemdb_read_combos: File not found \"%s\".\n", path);
 		return;
 	}
-	
+
 	// process rows one by one
 	while(fgets_ex(line, sizeof(line), fp)) {
 		lines++;
