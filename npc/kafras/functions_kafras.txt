@@ -299,7 +299,7 @@ function	script	F_KafTele	{
 	else if (@wrpD$[.@j] == "发乐斯灯塔岛") warp "cmd_fild07", 127, 134;
 	else if (@wrpD$[.@j] == "吉芬") warp "geffen", 120, 39;
 	else if (@wrpD$[.@j] == "依斯鲁得岛") {
-		if (checkre(RENEWAL) == true)
+		if (checkre(0) == true)
 			warp "izlude", 128, 98;
 		else
 			warp "izlude", 91, 105;
@@ -324,7 +324,7 @@ function	script	F_KafCart	{
 		mes "[卡普拉 职员]";
 		mes "很抱歉, 手推车租用服务仅提供给";
 
-		if (checkre(RENEWAL) == true)
+		if (checkre(0) == true)
 			mes "商人系职业!";
 		else {
 			mes "商人、铁匠、炼金术师、创造者";
