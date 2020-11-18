@@ -2620,16 +2620,6 @@ void script_warning(const char* src, const char* file, int start_line, const cha
 	StringBuf_Destroy(&buf);
 }
 
-void parse_script_load() {
-	static bool first = true;
-	if (first) {
-		add_buildin_func();
-		read_constdb();
-		script_hardcoded_constants();
-		first = false;
-	}
-}
-
 /*==========================================
  * Analysis of the script
  *------------------------------------------*/
@@ -5138,7 +5128,6 @@ void do_init_script(void) {
 	add_buildin_func();
 	read_constdb();
 	script_hardcoded_constants();
-	parse_script_load();
 }
 
 void script_reload(void) {
@@ -14661,7 +14650,21 @@ BUILDIN_FUNC(getiteminfo)
 			break;
 		}
 		case 17:	script_pushint(st, i_data->flag.no_refine ? 0 : 1); break;
-		case 18:	script_pushint(st, i_data->flag.trade_restriction); break;
+		case 18: {
+			int flag = 0;
+			flag += i_data->flag.trade_restriction.drop ? 1 : 0;
+			flag += i_data->flag.trade_restriction.trade ? 2 : 0;
+			flag += i_data->flag.trade_restriction.trade_partner ? 4 : 0;
+			flag += i_data->flag.trade_restriction.sell ? 8 : 0;
+			flag += i_data->flag.trade_restriction.cart ? 16 : 0;
+			flag += i_data->flag.trade_restriction.storage ? 32 : 0;
+			flag += i_data->flag.trade_restriction.guild_storage ? 64 : 0;
+			flag += i_data->flag.trade_restriction.mail ? 128 : 0;
+			flag += i_data->flag.trade_restriction.auction ? 256 : 0;
+			flag += i_data->flag.trade_restriction.force_vending ? 4096 : 0;
+			script_pushint(st, flag);
+		}
+			break;
 		case 21:	script_pushint(st, script_func_mark_sub(NULL, 0, i_data->script, "pet") ? 1 : 0); break;
 		case 22:	script_pushint(st, script_func_mark_sub(NULL, 0, i_data->script, "callfunc") ? 1 : 0); break;
 		default:
@@ -27241,7 +27244,7 @@ BUILDIN_FUNC(setidxrandomoption)
 
 	id = script_getnum(st, 4);
 
-	if (itemdb_randomopt_exists(id) == NULL) {
+	if (random_option_db.find(static_cast<uint16>(id)) == nullptr) {
 		ShowError("buildin_%s: Invalid random option ID '%d'.\n", command, id);
 		return SCRIPT_CMD_FAILURE;
 	}
@@ -31977,14 +31980,14 @@ void script_func_mark(struct map_session_data *sd, int n)
 			script_func_mark_sub(sd, n, id->script);
 		}
 		for (int i = 0; i < MAX_ITEM_RDM_OPT; i++) {
-			struct s_random_opt_data *data;
+			std::shared_ptr<s_random_opt_data> opt;
 			if (!itm->option[i].id)
 				continue;
-			if ((data = itemdb_randomopt_exists(itm->option[i].id)) == NULL)
+			if ((opt = random_option_db.find(static_cast<uint16>(itm->option[i].id))) == nullptr)
 				continue;
-			if (!data->script)
+			if (!opt->script)
 				continue;
-			script_func_mark_sub(sd, n, data->script);
+			script_func_mark_sub(sd, n, opt->script);
 		}
 	}
 }

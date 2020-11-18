@@ -1715,6 +1715,26 @@ bool itemdb_read_noequip(char* str[], int columns, int current) {
 	return true;
 }
 
+static bool itemdb_read_dropeffect(char* fields[], int columns, int current)
+{
+	t_itemid nameid = strtoul(fields[0], nullptr, 10);
+	struct item_data *id;
+	enum e_item_drop_effect drop_effect;
+
+	if (!(id = itemdb_exists(nameid))) {
+		ShowError("itemdb_read_dropeffect: Invalid item item with id %u\n", nameid);
+		return false;
+	}
+	drop_effect = (enum e_item_drop_effect)atoi(fields[1]);
+
+	if (drop_effect < DROPEFFECT_NONE || drop_effect >= DROPEFFECT_MAX) {
+		ShowError("itemdb_read_dropeffect: Invalid dropeffect item with id %u\n", nameid);
+		return false;
+	}
+	id->flag.dropEffect = drop_effect;
+	return true;
+}
+
 /**
  * @return: amount of retrieved entries.
  **/
@@ -1795,15 +1815,29 @@ bool itemdb_read_combos_line(const char *path, int lines, char *line, uint32 *nu
 		if( v < retcount )
 			return false;
 
+		// Store into first item
+		item_data *id = itemdb_exists(items[0]);
+
+		for (const auto &it : id->combos) {
+			v = 0;
+			for (const auto nameid : it->nameid) {
+				if (v < retcount && nameid != items[v])
+					break;
+				v++;
+			}
+			if (v == retcount) {
+				if (id->combos[v]->script)
+					script_free_code(id->combos[v]->script);
+				id->combos[v]->script = parse_script(str[1], path, lines, 0);
+			}
+		}
+
 		// Create combo data
 		auto entry = std::make_shared<s_item_combo>();
 
 		entry->nameid = {};
 		entry->script = parse_script(str[1], path, lines, 0);
 		entry->id = *number;
-
-		// Store into first item
-		item_data *id = itemdb_exists(items[0]);
 
 		id->combos.push_back(entry);
 
@@ -2733,6 +2767,7 @@ static void itemdb_read(void) {
 #endif
 		itemdb_read_combos(dbsubpath2,i > 0); //TODO change this to sv_read ? id#script ?
 		sv_readdb(dbsubpath2, "item_noequip.txt",       ',', 2, 2, -1, &itemdb_read_noequip, i > 0);
+		sv_readdb(dbsubpath2, "item_dropeffect.txt", ',', 2, 2, -1, &itemdb_read_dropeffect, true);
 		aFree(dbsubpath1);
 		aFree(dbsubpath2);
 	}
@@ -2865,4 +2900,613 @@ void do_init_itemdb(void) {
 
 	if (battle_config.feature_roulette)
 		itemdb_parse_roulette_db();
+}
+
+/**
+ * [RRInd]
+ * For backwards compatibility, in Renewal mode, MATK from weapons comes from the atk slot
+ * We use a ':' delimiter which, if not found, assumes the weapon does not provide any matk.
+ **/
+static void itemdb_split_atoi_sub(char *str, uint32 *val1, uint32 *val2) {
+	uint32 i, val[2];
+
+	for (i=0; i<2; i++) {
+		if (!str) break;
+		val[i] = atoi(str);
+		str = strchr(str,':');
+		if (str)
+			*str++=0;
+	}
+	if( i == 0 ) {
+		*val1 = *val2 = 0;
+		return;//no data found
+	}
+	if( i == 1 ) {//Single Value
+		*val1 = val[0];
+		*val2 = 0;
+		return;
+	}
+	//We assume we have 2 values.
+	*val1 = val[0];
+	*val2 = val[1];
+	return;
+}
+
+static void itemdb_split_atoi_sub2(char *str, uint16 *val1, uint16 *val2)
+{
+	uint32 val[2] = { *val1 , *val2 };
+	itemdb_split_atoi_sub(str, &val[0], &val[1]);
+	*val1 = static_cast<uint16>(val[0]);
+	*val2 = static_cast<uint16>(val[1]);
+	return;
+}
+
+/**
+* Processes one itemdb entry
+*/
+static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scriptopt) {
+	/*
+		+----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+-------------+---------------+-----------------+--------------+-------------+------------+------+--------+--------------+----------------+
+		| 00 |      01      |       02      |  03  |     04    |     05     |   06   |   07   |    08   |   09  |   10  |     11     |      12     |       13      |        14       |      15      |      16     |     17     |  18  |   19   |      20      |        21      |
+		+----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+-------------+---------------+-----------------+--------------+-------------+------------+------+--------+--------------+----------------+
+		| id | name_english | name_japanese | type | price_buy | price_sell | weight | attack | defence | range | slots | equip_jobs | equip_upper | equip_genders | equip_locations | weapon_level | equip_level | refineable | view | script | equip_script | unequip_script |
+		+----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+-------------+---------------+-----------------+--------------+-------------+------------+------+--------+--------------+----------------+
+	*/
+	t_itemid nameid;
+
+	nameid = strtoul(str[0], nullptr, 10);
+
+	if( nameid == 0 || nameid == ITEMID_DUMMY)
+	{
+		ShowWarning("itemdb_parse_dbrow: Invalid id %d in line %d of \"%s\", skipping.\n", nameid, line, source);
+		return false;
+	}
+
+	//ID,Name,Jname,Type,Price,Sell,Weight,ATK,DEF,Range,Slot,Job,Job Upper,Gender,Loc,wLV,eLV,refineable,View
+	std::shared_ptr<item_data> id = item_db.find(nameid);
+	bool exists = id != nullptr;
+
+	if (!exists) {
+		id = std::make_shared<item_data>();
+		id->nameid = nameid;
+		id->flag.available = true;
+	}
+
+	id->name = str[1];
+	id->ename = str[2];
+
+	id->type = static_cast<item_types>(atoi(str[3]));
+
+	if( id->type < 0 || id->type == IT_UNKNOWN || id->type == IT_UNKNOWN2 || ( id->type > IT_SHADOWGEAR && id->type < IT_CASH ) || id->type >= IT_MAX )
+	{// catch invalid item types
+		ShowWarning("itemdb_parse_dbrow: Invalid item type %d for item %u. IT_ETC will be used.\n", id->type, nameid);
+		id->type = IT_ETC;
+	}
+
+	switch (id->type) {
+		case IT_ARMOR:      id->flag.dropEffect = (enum e_item_drop_effect)battle_config.dropeffect_armor;         break;
+		case IT_WEAPON:     id->flag.dropEffect = (enum e_item_drop_effect)battle_config.dropeffect_weapon;        break;
+		case IT_CARD:       id->flag.dropEffect = (enum e_item_drop_effect)battle_config.dropeffect_card;          break;
+		case IT_SHADOWGEAR: id->flag.dropEffect = (enum e_item_drop_effect)battle_config.dropeffect_shadowgear;    break;
+	}
+
+	if (id->type == IT_DELAYCONSUME)
+	{	//Items that are consumed only after target confirmation
+		id->type = IT_USABLE;
+		id->flag.delay_consume |= DELAYCONSUME_TEMP;
+	}
+
+	//When a particular price is not given, we should base it off the other one
+	//(it is important to make a distinction between 'no price' and 0z)
+	if ( str[4][0] )
+		id->value_buy = atoi(str[4]);
+	else
+		id->value_buy = atoi(str[5]) * 2;
+
+	if ( str[5][0] )
+		id->value_sell = atoi(str[5]);
+	else
+		id->value_sell = id->value_buy / 2;
+	/*
+	if ( !str[4][0] && !str[5][0])
+	{
+		ShowWarning("itemdb_parse_dbrow: No buying/selling price defined for item %u (%s), using 20/10z\n", nameid, id->jname);
+		id->value_buy = 20;
+		id->value_sell = 10;
+	} else
+	*/
+	if (id->value_buy/124. < id->value_sell/75.)
+		ShowWarning("itemdb_parse_dbrow: Buying/Selling [%d/%d] price of item %u (%s) allows Zeny making exploit  through buying/selling at discounted/overcharged prices!\n",
+			id->value_buy, id->value_sell, nameid, id->name);
+
+	id->weight = atoi(str[6]);
+#ifdef RENEWAL
+	itemdb_split_atoi_sub(str[7],&id->atk,&id->matk);
+#else
+	id->atk = atoi(str[7]);
+#endif
+	id->def = atoi(str[8]);
+	id->range = atoi(str[9]);
+	id->slots = atoi(str[10]);
+
+	if (id->slots > MAX_SLOTS)
+	{
+		ShowWarning("itemdb_parse_dbrow: Item %u (%s) specifies %d slots, but the server only supports up to %d. Using %d slots.\n", nameid, id->name, id->slots, MAX_SLOTS, MAX_SLOTS);
+		id->slots = MAX_SLOTS;
+	}
+
+	itemdb_jobid2mapid(id->class_base, (e_mapid)strtoull(str[11],NULL,0), true);
+	id->class_upper = atoi(str[12]);
+	id->sex	= atoi(str[13]);
+	id->equip = atoi(str[14]);
+
+	if (!id->equip && itemdb_isequip2(id.get()))
+	{
+		ShowWarning("Item %u (%s) is an equipment with no equip-field! Making it an etc item.\n", nameid, id->name);
+		id->type = IT_ETC;
+	}
+
+	if( id->type != IT_SHADOWGEAR && id->type != IT_CARD && id->equip&EQP_SHADOW_GEAR )
+	{
+		ShowWarning("Item %u (%s) have invalid equipment slot! Making it an etc item.\n", nameid, id->name);
+		id->type = IT_ETC;
+	}
+
+	id->wlv = cap_value(atoi(str[15]), REFINE_TYPE_ARMOR, REFINE_TYPE_MAX);
+	itemdb_split_atoi_sub2(str[16],&id->elv,&id->elvmax);
+	id->flag.no_refine = atoi(str[17]) ? 0 : 1; //FIXME: verify this
+	id->look = atoi(str[18]);
+
+	if (id->type == IT_WEAPON && (id->look < W_FIST || id->look > W_2HSTAFF))
+	{
+		ShowError("itemdb_parse_dbrow: Item %u (%s) weapon type is not exist, Making it an etc item.\n", nameid, id->name);
+		id->type = IT_ETC;
+	}
+
+	id->flag.available = 1;
+	id->view_id = 0;
+	id->sex = itemdb_gendercheck(id.get()); //Apply gender filtering.
+
+	if (id->script) {
+		script_free_code(id->script);
+		id->script = NULL;
+	}
+	if (id->equip_script) {
+		script_free_code(id->equip_script);
+		id->equip_script = NULL;
+	}
+	if (id->unequip_script) {
+		script_free_code(id->unequip_script);
+		id->unequip_script = NULL;
+	}
+
+	if (*str[19])
+		id->script = parse_script(str[19], source, line, scriptopt);
+	if (*str[20])
+		id->equip_script = parse_script(str[20], source, line, scriptopt);
+	if (*str[21])
+		id->unequip_script = parse_script(str[21], source, line, scriptopt);
+
+	if (!exists)
+		item_db.put(nameid, id);
+
+	return true;
+}
+
+/**
+* Read item from item db
+* item_db2 overwriting item_db
+*/
+bool itemdb_readdb_line(const char *path, int lines,char *line) {
+
+	char *str[32], *p;
+	int i;
+	if(line[0] == '/' && line[1] == '/')
+		return false;
+
+	memset(str, 0, sizeof(str));
+
+	p = strstr(line,"//");
+
+	if( p != nullptr ){
+		*p = '\0';
+	}
+
+	p = line;
+	while( ISSPACE(*p) )
+		++p;
+	if( *p == '\0' )
+		return false;// empty line
+	for( i = 0; i < 19; ++i )
+	{
+		str[i] = p;
+		p = strchr(p,',');
+		if( p == NULL )
+			break;// comma not found
+		*p = '\0';
+		++p;
+	}
+
+	if( p == NULL )
+	{
+		ShowError("itemdb_readdb: Insufficient columns in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+		return false;
+	}
+
+	// Script
+	if( *p != '{' )
+	{
+		ShowError("itemdb_readdb: Invalid format (Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+		return false;
+	}
+	str[19] = p + 1;
+	p = strstr(p+1,"},");
+	if( p == NULL )
+	{
+		ShowError("itemdb_readdb: Invalid format (Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+		return false;
+	}
+	*p = '\0';
+	p += 2;
+
+	// OnEquip_Script
+	if( *p != '{' )
+	{
+		ShowError("itemdb_readdb: Invalid format (OnEquip_Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+		return false;
+	}
+	str[20] = p + 1;
+	p = strstr(p+1,"},");
+	if( p == NULL )
+	{
+		ShowError("itemdb_readdb: Invalid format (OnEquip_Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+		return false;
+	}
+	*p = '\0';
+	p += 2;
+
+	// OnUnequip_Script (last column)
+	if( *p != '{' )
+	{
+		ShowError("itemdb_readdb: Invalid format (OnUnequip_Script column) in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+		return false;
+	}
+	str[21] = p;
+	p = &str[21][strlen(str[21]) - 2];
+
+	if ( *p != '}' ) {
+		/* lets count to ensure it's not something silly e.g. a extra space at line ending */
+		int v, lcurly = 0, rcurly = 0;
+
+		for( v = 0; v < strlen(str[21]); v++ ) {
+			if( str[21][v] == '{' )
+				lcurly++;
+			else if (str[21][v] == '}') {
+				rcurly++;
+				p = &str[21][v];
+			}
+		}
+
+		if( lcurly != rcurly ) {
+			ShowError("itemdb_readdb: Mismatching curly braces in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+			return false;
+		}
+	}
+	str[21] = str[21] + 1;  //skip the first left curly
+	*p = '\0';              //null the last right curly
+
+	if (!itemdb_parse_dbrow(str, path, lines, SCRIPT_IGNORE_EXTERNAL_BRACKETS))
+		return false;
+
+	return true;
+}
+
+/** Search by name for the override flags available items (Give item another sprite)
+* Structure: <nameid>,<sprite>
+*/
+bool itemdb_read_itemavail(char* str[], int columns, int current) {
+	t_itemid nameid, sprite;
+	struct item_data *id;
+
+	nameid = strtoul(str[0], nullptr, 10);
+
+	if( ( id = itemdb_exists(nameid) ) == NULL )
+	{
+		ShowWarning("itemdb_read_itemavail: Invalid item id %u.\n", nameid);
+		return false;
+	}
+
+	sprite = strtoul(str[1], nullptr, 10);
+
+	if( sprite > 0 )
+	{
+		id->flag.available = 1;
+		id->view_id = sprite;
+	}
+	else
+	{
+		id->flag.available = 0;
+	}
+
+	return true;
+}
+
+/** Reads item trade restrictions [Skotlex]
+* Structure: <nameid>,<mask>,<gm level>
+*/
+bool itemdb_read_itemtrade(char* str[], int columns, int current) {
+	t_itemid nameid;
+	unsigned short flag, gmlv;
+	struct item_data *id;
+
+	nameid = strtoul(str[0], nullptr, 10);
+
+	if( ( id = itemdb_exists(nameid) ) == NULL )
+	{
+		//ShowWarning("itemdb_read_itemtrade: Invalid item id %u.\n", nameid);
+		//return false;
+		// FIXME: item_trade.txt contains items, which are commented in item database.
+		return true;
+	}
+
+	flag = atoi(str[1]);
+	gmlv = atoi(str[2]);
+
+	if( flag > 8191 ) {//Check range
+		ShowWarning("itemdb_read_itemtrade: Invalid trading mask %hu for item id %u.\n", flag, nameid);
+		return false;
+	}
+	if( gmlv < 1 )
+	{
+		ShowWarning("itemdb_read_itemtrade: Invalid override GM level %hu for item id %u.\n", gmlv, nameid);
+		return false;
+	}
+	id->flag.trade_restriction.drop = (flag&1) ? true : false;
+	id->flag.trade_restriction.trade = (flag&2) ? true : false;
+	id->flag.trade_restriction.trade_partner = (flag&4) ? true : false;
+	id->flag.trade_restriction.sell = (flag&8) ? true : false;
+	id->flag.trade_restriction.cart = (flag&16) ? true : false;
+	id->flag.trade_restriction.storage = (flag&32) ? true : false;
+	id->flag.trade_restriction.guild_storage = (flag&64) ? true : false;
+	id->flag.trade_restriction.mail = (flag&128) ? true : false;
+	id->flag.trade_restriction.auction = (flag&256) ? true : false;
+	id->flag.trade_restriction.force_vending = (flag&4096) ? true : false;
+	id->gm_lv_trade_override = gmlv;
+
+	return true;
+}
+
+
+/** Reads item delay amounts [Paradox924X]
+* Structure: <nameid>,<delay>{,<delay sc group>}
+*/
+static bool itemdb_read_itemdelay(char* str[], int columns, int current) {
+	t_itemid nameid;
+	int delay;
+	struct item_data *id;
+
+	nameid = strtoul(str[0], nullptr, 10);
+
+	if( ( id = itemdb_exists(nameid) ) == NULL )
+	{
+		ShowWarning("itemdb_read_itemdelay: Invalid item id %u.\n", nameid);
+		return false;
+	}
+
+	delay = atoi(str[1]);
+
+	if( delay < 0 )
+	{
+		ShowWarning("itemdb_read_itemdelay: Invalid delay %d for item id %u.\n", delay, nameid);
+		return false;
+	}
+
+	id->delay.duration = delay;
+
+	if (columns == 2)
+		id->delay.sc = SC_NONE;
+	else if( ISDIGIT(str[2][0]) )
+		id->delay.sc = (enum sc_type)atoi(str[2]);
+	else{ // Try read sc group id from const db
+		int64 constant;
+
+		if( !script_get_constant(trim(str[2]), &constant) ){
+			ShowWarning("itemdb_read_itemdelay: Invalid sc group \"%s\" for item id %u.\n", str[2], nameid);
+			return false;
+		}
+
+		id->delay.sc = (enum sc_type)constant;
+	}
+
+	return true;
+}
+
+/** Reads items allowed to be sold in buying stores
+* <nameid>
+*/
+static bool itemdb_read_buyingstore(char* fields[], int columns, int current) {
+	t_itemid nameid;
+	struct item_data* id;
+
+	nameid = strtoul(fields[0], nullptr, 10);
+
+	if( ( id = itemdb_exists(nameid) ) == NULL )
+	{
+		ShowWarning("itemdb_read_buyingstore: Invalid item id %u.\n", nameid);
+		return false;
+	}
+
+	if( !itemdb_isstackable2(id) )
+	{
+		ShowWarning("itemdb_read_buyingstore: Non-stackable item id %u cannot be enabled for buying store.\n", nameid);
+		return false;
+	}
+
+	id->flag.buyingstore = true;
+
+	return true;
+}
+
+/** Misc Item flags
+* <item_id>,<flag>
+* &1 - As dead branch item
+* &2 - As item container
+* &4 - GUID item, cannot be stacked even same or stackable item
+*/
+static bool itemdb_read_flag(char* fields[], int columns, int current) {
+	t_itemid nameid = strtoul(fields[0], nullptr, 10);
+	int flag, flag2;
+	bool set;
+	struct item_data *id;
+
+	if (!(id = itemdb_exists(nameid))) {
+		ShowError("itemdb_read_flag: Invalid item id %u\n", nameid);
+		return true;
+	}
+
+	flag = abs(atoi(fields[1]));
+	flag2 = columns == 3 ? abs(atoi(fields[2])) : 0;
+	set = atoi(fields[1]) > 0;
+
+	if (flag & 1) id->flag.dead_branch = set ? 1 : 0;
+	if (flag & 2) id->flag.group = set ? 1 : 0;
+	if (flag & 4 && itemdb_isstackable2(id)) id->flag.guid = set ? 1 : 0;
+	if (flag & 8) id->flag.bindOnEquip = true;
+	if (flag & 16) id->flag.broadcast = 1;
+	if (flag & 32) id->flag.delay_consume = 2;
+	if (flag & 64) id->flag.forceuse = 1;
+	if (flag & 128) id->flag.no_itemfunc = 1;
+	if (flag & 256) id->flag.delay_consume = 3;
+	if (flag & 512) id->flag.skill_no_consumed = 1;
+	if (flag & 1024) id->flag.item_pckill_drop = 1;
+	if (flag & 2048) id->flag.item_drop_event = 1;
+	if (flag2 & 1) id->flag.costume_card = 1;
+	if (flag2 & 2) id->flag.equip_invalid = 1;
+	if (flag2 & 4) id->flag.item_ignore_autoloot = 1;
+	if (flag2 & 8) id->flag.equipwindow_nolook = 1;
+	return true;
+}
+
+
+/** Random option
+* <ID>,<{Script}>
+*/
+static bool itemdb_read_randomopt(const char* basedir, bool silent) {
+	uint32 lines = 0, count = 0;
+	char line[1024];
+
+	char path[256];
+	FILE* fp;
+
+	sprintf(path, "%s/%s", basedir, "item_randomopt_db.txt");
+
+	if ((fp = fopen(path, "r")) == NULL) {
+		if (silent == 0) ShowError("itemdb_read_randomopt: File not found \"%s\".\n", path);
+		return false;
+	}
+
+	while (fgets_ex(line, sizeof(line), fp)) {
+		char *str[2], *p;
+
+		lines++;
+
+		if (line[0] == '/' && line[1] == '/') // Ignore comments
+			continue;
+
+		memset(str, 0, sizeof(str));
+
+		p = line;
+
+		p = trim(p);
+
+		if (*p == '\0')
+			continue;// empty line
+
+		if (!strchr(p, ','))
+		{
+			ShowError("itemdb_read_randomopt: Insufficient columns in line %d of \"%s\", skipping.\n", lines, path);
+			continue;
+		}
+
+		str[0] = p;
+		p = strchr(p, ',');
+		*p = '\0';
+		p++;
+
+		str[1] = p;
+
+		if (str[1][0] != '{') {
+			ShowError("itemdb_read_randomopt(#1): Invalid format (Script column) in line %d of \"%s\", skipping.\n", lines, path);
+			continue;
+		}
+		/* no ending key anywhere (missing \}\) */
+		if (str[1][strlen(str[1]) - 1] != '}') {
+			ShowError("itemdb_read_randomopt(#2): Invalid format (Script column) in line %d of \"%s\", skipping.\n", lines, path);
+			continue;
+		}
+		else {
+			int id = -1;
+			struct script_code *code;
+
+			str[0] = trim(str[0]);
+			if (ISDIGIT(str[0][0])) {
+				id = atoi(str[0]);
+			}
+			else {
+				int64 id_tmp;
+
+				if (!script_get_constant(str[0], &id_tmp)) {
+					ShowError("itemdb_read_randopt: Unknown random option constant \"%s\".\n", str[0]);
+					continue;
+				}
+				id = static_cast<int>(id_tmp);
+			}
+
+			if (id < 0) {
+				ShowError("itemdb_read_randomopt: Invalid Random Option ID '%s' in line %d of \"%s\", skipping.\n", str[0], lines, path);
+				continue;
+			}
+
+			std::shared_ptr<s_random_opt_data> randopt = random_option_db.find(id);
+			bool exists = randopt != nullptr;
+
+			if (!exists) {
+				randopt = std::make_shared<s_random_opt_data>();
+				randopt->id = id;
+			}
+
+			randopt->id = id;
+			if ((code = parse_script(str[1], path, lines, 0)) == NULL) {
+				ShowWarning("itemdb_read_randomopt: Invalid script on option ID #%d.\n", id);
+				continue;
+			}
+			if (randopt->script) {
+				script_free_code(randopt->script);
+				randopt->script = NULL;
+			}
+			randopt->script = code;
+
+			if (!exists)
+				random_option_db.put(id, randopt);
+		}
+		count++;
+	}
+	fclose(fp);
+
+	ShowStatus("Done reading '" CL_WHITE "%u" CL_RESET "' entries in '" CL_WHITE "%s" CL_RESET "'.\n", count, path);
+
+	return true;
+}
+
+bool ItemDatabase::load() {
+	if (!TypesafeCachedYamlDatabase::load())
+		return false;
+	sv_readdb(db_path_pre, "item_noequip.txt", ',', 2, 2, -1, &itemdb_read_noequip, true);
+	sv_readdb(db_path_pre, "item_trade.txt", ',', 3, 3, -1, &itemdb_read_itemtrade, true);
+	sv_readdb(db_path_pre, "item_delay.txt", ',', 2, 3, -1, &itemdb_read_itemdelay, true);
+	sv_readdb(db_path_pre, "item_buyingstore.txt", ',', 1, 1, -1, &itemdb_read_buyingstore, true);
+	sv_readdb(db_path_pre, "item_flag.txt", ',', 2, 3, -1, &itemdb_read_flag, true);
+	itemdb_read_combos(db_path_pre, true); //TODO change this to sv_read ? id#script ?
+	itemdb_read_randomopt(db_path_pre, true);
+	return true;
 }

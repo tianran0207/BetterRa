@@ -763,6 +763,12 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node& node) {
 	return 1;
 }
 
+bool ItemDatabase::load() {
+	if (!TypesafeCachedYamlDatabase::load())
+		return false;
+	return true;
+}
+
 ItemDatabase item_db;
 
 static bool parse_mob_constants( char* split[], int columns, int current ){

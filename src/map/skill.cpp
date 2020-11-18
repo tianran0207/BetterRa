@@ -24301,13 +24301,13 @@ static void skill_read_pre_db()
 }
 
 bool SkillDatabase::load() {
-	if (!TypesafeYamlDatabase::load())
+	if (!TypesafeCachedYamlDatabase::load())
 		return false;
 	skill_read_pre_db();
 	return true;
 }
 bool SkillDatabase::reload() {
-	if (!TypesafeYamlDatabase::reload())
+	if (!TypesafeCachedYamlDatabase::reload())
 		return false;
 	skill_read_pre_db();
 	return true;

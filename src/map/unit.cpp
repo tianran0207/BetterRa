@@ -730,6 +730,8 @@ int unit_walktoxy( struct block_list *bl, short x, short y, unsigned char flag)
 #endif
 	}
 
+	TBL_PC *sd = BL_CAST(BL_PC, bl);
+
 	if (npc_script_event_check(sd ,NPCE_MOVEFILTER) && (battle_config.player_move_event_type == 2 || (battle_config.player_move_event_type == 1 && sd->state.move_event))) {
 		sd->state.move_event = 0;
 		npc_script_event_atonce(sd, NPCE_MOVEFILTER);
@@ -765,8 +767,6 @@ int unit_walktoxy( struct block_list *bl, short x, short y, unsigned char flag)
 		ud->state.change_walk_target = 1;
 		return 1;
 	}
-
-	TBL_PC *sd = BL_CAST(BL_PC, bl);
 
 	// Start timer to recall summon
 	if( sd != nullptr ){

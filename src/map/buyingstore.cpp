@@ -99,7 +99,7 @@ int buyingstore_currency(struct map_session_data *sd, t_itemid nameid) {
 
 	sd->vend_loot = nameid;
 
-	sprintf(output, msg_txt(sd, 2354), item->jname);
+	sprintf(output, msg_txt(sd, 2354), item->name);
 	clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
 
 	clif_buyingstore_open(sd);
