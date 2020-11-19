@@ -1736,6 +1736,38 @@ static bool itemdb_read_dropeffect(char* fields[], int columns, int current)
 }
 
 /**
+* Extended Vending system [Lilith]
+**/
+static bool itemdb_read_vending(char* fields[], int columns, int current)
+{
+	struct item_data* id;
+	t_itemid nameid;
+
+	nameid = strtoul(fields[0], nullptr, 10);
+
+	if ((id = itemdb_exists(nameid)) == NULL) {
+		ShowWarning("itemdb_read_vending: Invalid item id %u.\n", nameid);
+		return false;
+	}
+
+	if (id->type == IT_ARMOR || id->type == IT_WEAPON) {
+		ShowWarning("itemdb_read_vending: item id %u cannot be equipment or weapon.\n", nameid);
+		return false;
+	}
+
+	if (MAX_VENDINGITEM <= current) {
+		ShowWarning("itemdb_read_vending: Max vending currency is %d. skip itemid %u\n", MAX_VENDINGITEM, nameid);
+		return false;
+	}
+
+	vending_itemid[current].nameid = nameid;
+	vending_itemid[current].tax = columns > 1 ? atoi(fields[1]) : 0;
+	vending_itemid[current].tax_min = columns > 2 ? atoi(fields[2]) : 0;
+
+	return true;
+}
+
+/**
  * @return: amount of retrieved entries.
  **/
 static int itemdb_combo_split_atoi (char *str, t_itemid *val) {
@@ -2772,7 +2804,8 @@ static void itemdb_read(void) {
 #endif
 		itemdb_read_combos(dbsubpath2,i > 0); //TODO change this to sv_read ? id#script ?
 		sv_readdb(dbsubpath2, "item_noequip.txt",       ',', 2, 2, -1, &itemdb_read_noequip, i > 0);
-		sv_readdb(dbsubpath2, "item_dropeffect.txt", ',', 2, 2, -1, &itemdb_read_dropeffect, true);
+		sv_readdb(dbsubpath2, "item_dropeffect.txt",    ',', 2, 2, -1, &itemdb_read_dropeffect, i > 0);
+		sv_readdb(dbsubpath1, "item_vending.txt",       ',', 1, 3, -1, &itemdb_read_vending, i > 0); // Extended Vending system [Lilith]
 		aFree(dbsubpath1);
 		aFree(dbsubpath2);
 	}
@@ -3206,6 +3239,50 @@ bool itemdb_readdb_line(const char *path, int lines,char *line) {
 	return true;
 }
 
+static int itemdb_readdb(const char* basedir, bool silent)
+{
+	uint32 lines = 0, count = 0;
+	char line[1024];
+
+	char path[256];
+	FILE* fp;
+
+	sprintf(path, "%s/item_db.txt", basedir);
+	fp = fopen(path, "r");
+	if( fp == NULL ) {
+		if (silent == 0) ShowError("itemdb_readdb: File not found \"%s\", skipping.\n", path);
+		return false;
+	}
+	// process rows one by one
+	while(fgets_ex(line, sizeof(line), fp))
+	{
+		lines++;
+		if (!itemdb_readdb_line(path, lines, line))
+			continue;
+		count++;
+	}
+	fclose(fp);
+
+	ShowStatus("Done reading '" CL_WHITE "%u" CL_RESET "' entries in '" CL_WHITE "%s" CL_RESET "'.\n", count, path);
+
+	return 0;
+}
+
+static bool itemdb_read_announce(char* str[], int columns, int current) {
+	t_itemid nameid;
+	struct item_data *id;
+
+	nameid = strtoul(str[0], nullptr, 10);
+
+	if ((id = itemdb_exists(nameid)) == NULL)
+	{
+		ShowWarning("item_read_announce: Invalid item id %u.\n", nameid);
+		return false;
+	}
+	id->flag.announce = atoi(str[1]);
+	return true;
+}
+
 /** Search by name for the override flags available items (Give item another sprite)
 * Structure: <nameid>,<sprite>
 */
@@ -3232,6 +3309,72 @@ bool itemdb_read_itemavail(char* str[], int columns, int current) {
 	{
 		id->flag.available = 0;
 	}
+
+	return true;
+}
+
+
+/** Reads item stacking restrictions
+* Structure: <item id>,<stack limit amount>,<type>
+*/
+static bool itemdb_read_stack(char* fields[], int columns, int current) {
+	t_itemid nameid;
+	unsigned short amount;
+	unsigned int type;
+	struct item_data* id;
+
+	nameid = strtoul(fields[0], nullptr, 10);
+
+	if( ( id = itemdb_exists(nameid) ) == NULL )
+	{
+		ShowWarning("itemdb_read_stack: Unknown item id '%u'.\n", nameid);
+		return false;
+	}
+
+	if( !itemdb_isstackable2(id) )
+	{
+		ShowWarning("itemdb_read_stack: Item id '%u' is not stackable.\n", nameid);
+		return false;
+	}
+
+	amount = (unsigned short)strtoul(fields[1], NULL, 10);
+	type = strtoul(fields[2], NULL, 10);
+
+	if( !amount )
+	{// ignore
+		return true;
+	}
+
+	id->stack.amount        = amount;
+	id->stack.inventory     = (type&1)!=0;
+	id->stack.cart          = (type&2)!=0;
+	id->stack.storage       = (type&4)!=0;
+	id->stack.guild_storage = (type&8)!=0;
+
+	return true;
+}
+
+
+/** Item usage restriction (item_nouse.txt)
+* <nameid>,<flag>,<override>
+*/
+static bool itemdb_read_nouse(char* fields[], int columns, int current) {
+	t_itemid nameid;
+	unsigned short flag, override;
+	struct item_data* id;
+
+	nameid = strtoul(fields[0], nullptr, 10);
+
+	if( ( id = itemdb_exists(nameid) ) == NULL ) {
+		ShowWarning("itemdb_read_nouse: Invalid item id %u.\n", nameid);
+		return false;
+	}
+
+	flag = atoi(fields[1]);
+	override = atoi(fields[2]);
+
+	id->item_usage.sitting = flag ? true : false;
+	id->item_usage.override = override;
 
 	return true;
 }
@@ -3392,7 +3535,6 @@ static bool itemdb_read_flag(char* fields[], int columns, int current) {
 	return true;
 }
 
-
 /** Random option
 * <ID>,<{Script}>
 */
@@ -3506,12 +3648,16 @@ static bool itemdb_read_randomopt(const char* basedir, bool silent) {
 bool ItemDatabase::load() {
 	if (!TypesafeCachedYamlDatabase::load())
 		return false;
-	sv_readdb(db_path_pre, "item_noequip.txt", ',', 2, 2, -1, &itemdb_read_noequip, true);
-	sv_readdb(db_path_pre, "item_trade.txt", ',', 3, 3, -1, &itemdb_read_itemtrade, true);
-	sv_readdb(db_path_pre, "item_delay.txt", ',', 2, 3, -1, &itemdb_read_itemdelay, true);
-	sv_readdb(db_path_pre, "item_buyingstore.txt", ',', 1, 1, -1, &itemdb_read_buyingstore, true);
-	sv_readdb(db_path_pre, "item_flag.txt", ',', 2, 3, -1, &itemdb_read_flag, true);
-	itemdb_read_combos(db_path_pre, true); //TODO change this to sv_read ? id#script ?
+	itemdb_readdb(db_path_pre, true);
+	sv_readdb(db_path_pre, "item_announce.txt",      ',', 2, 2, -1, &itemdb_read_announce, true);
+	sv_readdb(db_path_pre, "item_avail.txt",         ',', 2, 2, -1, &itemdb_read_itemavail, true);
+	sv_readdb(db_path_pre, "item_stack.txt",         ',', 3, 3, -1, &itemdb_read_stack, true);
+	sv_readdb(db_path_pre, "item_nouse.txt",         ',', 3, 3, -1, &itemdb_read_nouse, true);
+	sv_readdb(db_path_pre, "item_noequip.txt",       ',', 2, 2, -1, &itemdb_read_noequip, true);
+	sv_readdb(db_path_pre, "item_trade.txt",         ',', 3, 3, -1, &itemdb_read_itemtrade, true);
+	sv_readdb(db_path_pre, "item_delay.txt",         ',', 2, 3, -1, &itemdb_read_itemdelay, true);
+	sv_readdb(db_path_pre, "item_buyingstore.txt",   ',', 1, 1, -1, &itemdb_read_buyingstore, true);
+	sv_readdb(db_path_pre, "item_flag.txt",          ',', 2, 3, -1, &itemdb_read_flag, true);
 	itemdb_read_randomopt(db_path_pre, true);
 	return true;
 }
