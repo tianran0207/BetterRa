@@ -15005,6 +15005,9 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap)
 		if (!bl)
 			return 0;
 	}
+	//检查是否死亡
+	if (status_isdead(bl))
+		return 0;
 
 	//检查是不是敌人
 	if (battle_check_target(&sd->bl, bl, BCT_ENEMY) <= 0)
