@@ -15174,7 +15174,7 @@ static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 		return 1;
 	}
 
-	bd->skill_order = bd->skill_attack = bd->skill_support = NULL;
+	bd->skill_attack = bd->skill_support = NULL;
 
 	for (auto &it : bd->info.useskill)
 	{
@@ -15182,12 +15182,16 @@ static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 			continue;
 		if (!pcbot_check_usecond(bd, &it, tick))
 			continue;
-		if ((inf & INF_SUPPORT_SKILL) && bd->support_sd && (bs = bd->skill_support = &it))
-			break;
-		if ((inf & INF_ATTACK_SKILL) && !bd->support_sd && (bs = bd->skill_attack = &it))
-			break;
+		if ((inf & INF_SUPPORT_SKILL) && bd->support_sd) {
+			if (it.inf & INF_SUPPORT_SKILL) {
+				bs = bd->skill_support = &it;
+				break;
+			}
+		}else if ((inf & INF_ATTACK_SKILL) && !(it.inf & INF_SUPPORT_SKILL))
+			bs = bd->skill_attack = &it;
 	}
 	if (bs) {
+		bd->skill_order = bs;
 		bd->skill_inf = skill_get_pc_inf(sd, bs->id);
 		if (bd->skill_inf & INF_SELF_SKILL)
 			bd->min_chase = skill_get_pc_splash(sd, bs->id, bs->lv) / 2;
@@ -15246,8 +15250,7 @@ static bool pcbot_useskill(struct bot_data *bd, struct block_list *tbl, t_tick t
 
 	//计算下一次使用这个技能的延时
 	int delayfix = skill_delayfix(src, skill->id, skill->lv);
-	int cooldown = max(pc_get_skillcooldown(bd->sd, skill->id, skill->lv), delayfix);
-	skill->cooldown = (cooldown > skill->delay ? cooldown : skill->delay) + tick + 100;
+	skill->cooldown = tick + max(max(pc_get_skillcooldown(bd->sd, skill->id, skill->lv), skill->delay), delayfix);
 	bd->state.next_useskill = tick + delayfix;;
 	bd->skill_attack = bd->skill_support = NULL;
 	bd->support_sd = NULL;
@@ -15345,6 +15348,8 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 	}
 
 	//不允许做任何事
+	if (sd->ud.canact_tick > bd->state.next_acttime)
+		bd->state.next_acttime = bd->sd->ud.canact_tick;
 	if (bd->state.next_acttime > tick)
 		return 0;
 
@@ -15382,10 +15387,6 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			if ((tbl = map_id2bl(bd->target_id)) == NULL || tbl->type != bd->target_type || status_isdead(tbl)) {
 				bd->target_id = bd->target_type = 0;
 				bd->target_dead = 1;
-				return 0;
-			}
-			if (bd->sd->ud.canact_tick > tick) {
-				bd->state.next_acttime = tick + 500;
 				return 0;
 			}
 			int min_chase = bd->min_chase;

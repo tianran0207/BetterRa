@@ -28430,17 +28430,22 @@ BUILDIN_FUNC(bot_login)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-static bool buildin_bot_addcheck_sub(struct map_session_data *sd, struct s_bot_uselist *list)
+static bool buildin_bot_addcheck_sub(struct map_session_data *sd, struct s_bot_uselist *list, enum bl_type type)
 {
+	int inf = INF_PASSIVE_SKILL;
+	if (type == BL_SKILL && !(inf = skill_get_inf(list->id)))
+		return false;
 	switch (list->cond) {
 	case BOT_USE_MYHPINRATE:
 	case BOT_USE_MYSPINRATE:
 		if (!list->cond_val[1]) list->cond_val[1] = 100;
-		list->inf = INF_SUPPORT_SKILL | INF_SELF_SKILL;
+		if (!(inf & INF_ATTACK_SKILL))
+			list->inf = INF_SUPPORT_SKILL;
 		break;
 	case BOT_USE_FRIENDHPINRATE:
 		if (!list->cond_val[1]) list->cond_val[1] = 100;
-		list->inf = INF_SUPPORT_SKILL;
+		if (!(inf & INF_ATTACK_SKILL))
+			list->inf = INF_SUPPORT_SKILL;
 		break;
 	case BOT_USE_MYSTATUSON:
 	case BOT_USE_MYSTATUSOFF:
@@ -28448,7 +28453,8 @@ static bool buildin_bot_addcheck_sub(struct map_session_data *sd, struct s_bot_u
 			ShowError("buildin_bot_addcheck_sub: invalid status change (%d)!\n", list->cond_val[0]);
 			return false;
 		}
-		list->inf = INF_SUPPORT_SKILL | INF_SELF_SKILL;
+		if (!(inf & INF_ATTACK_SKILL))
+			list->inf = INF_SUPPORT_SKILL;
 		break;
 	case BOT_USE_FRIENDSTATUSON:
 	case BOT_USE_FRIENDSTATUSOFF:
@@ -28456,14 +28462,14 @@ static bool buildin_bot_addcheck_sub(struct map_session_data *sd, struct s_bot_u
 			ShowError("buildin_bot_addcheck_sub: invalid status change (%d)!\n", list->cond_val[0]);
 			return false;
 		}
-		list->inf = INF_SUPPORT_SKILL;
+		if (!(inf & INF_ATTACK_SKILL))
+			list->inf = INF_SUPPORT_SKILL;
 		break;
 	case BOT_USE_ITEMLESSTHAN:
 		if (!itemdb_exists(list->id)) {
 			ShowWarning("buildin_bot_addcheck_sub: Item ID %u does not exists in the item_db.\n", list->id);
 			return false;
 		}
-		list->inf = INF_SUPPORT_SKILL;
 		break;
 	default:
 		list->inf = 0;
@@ -28479,7 +28485,7 @@ BUILDIN_FUNC(bot_adduseskill)
 		return SCRIPT_CMD_FAILURE;
 
 	struct bot_data *bd = pcbot_getdata(sd);
-	struct s_bot_uselist entry;
+	struct s_bot_uselist entry = {};
 	entry.id = script_getnum(st, 2);
 	entry.lv = script_getnum(st, 3);
 	entry.delay = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
@@ -28489,7 +28495,7 @@ BUILDIN_FUNC(bot_adduseskill)
 
 	if (!entry.id || skill_get_index(entry.id) == 0)
 		return SCRIPT_CMD_FAILURE;
-	if (!buildin_bot_addcheck_sub(sd, &entry))
+	if (!buildin_bot_addcheck_sub(sd, &entry, BL_SKILL))
 		return SCRIPT_CMD_FAILURE;
 
 	bd->info.useskill.push_back(entry);
@@ -28504,7 +28510,7 @@ BUILDIN_FUNC(bot_adduseitem)
 		return SCRIPT_CMD_FAILURE;
 
 	struct bot_data *bd = pcbot_getdata(sd);
-	struct s_bot_uselist entry;
+	struct s_bot_uselist entry = {};
 	entry.id = script_getnum(st, 2);
 	entry.lv = script_getnum(st, 3);
 	entry.delay = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
@@ -28516,7 +28522,7 @@ BUILDIN_FUNC(bot_adduseitem)
 		ShowWarning("bot_adduseitem: Item ID %u does not exists in the item_db.\n", entry.id);
 		return SCRIPT_CMD_FAILURE;
 	}
-	if (!buildin_bot_addcheck_sub(sd, &entry))
+	if (!buildin_bot_addcheck_sub(sd, &entry, BL_ITEM))
 		return SCRIPT_CMD_FAILURE;
 
 	bd->info.useitem.push_back(entry);
@@ -28531,7 +28537,7 @@ BUILDIN_FUNC(bot_addlootitem)
 		return SCRIPT_CMD_FAILURE;
 
 	struct bot_data *bd = pcbot_getdata(sd);
-	struct s_bot_lootlist entry;
+	struct s_bot_lootlist entry = {};
 	entry.id = script_getnum(st, 2);
 	entry.rob = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
 
@@ -28547,7 +28553,7 @@ BUILDIN_FUNC(bot_addattackmob)
 		return SCRIPT_CMD_FAILURE;
 
 	struct bot_data *bd = pcbot_getdata(sd);
-	struct s_bot_moblist entry;
+	struct s_bot_moblist entry = {};
 	entry.id = script_getnum(st, 2);
 	entry.prior = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
 
