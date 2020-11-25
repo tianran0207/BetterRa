@@ -15148,10 +15148,10 @@ static bool pcbot_check_usecond(struct bot_data *bd, struct s_bot_uselist *list,
 	case BOT_USE_MOBINCOUNT:
 		return (bd->state.enemy_count < list->cond_val[0] || bd->state.enemy_count > list->cond_val[0]);
 	case BOT_USE_ITEMLESSTHAN:
-		if (list->lv == -1 || sd->inventory.u.items_inventory[list->lv].nameid != list->id)
-			list->lv = pc_search_inventory(sd, list->id);
+		if (list->inf == -1 || sd->inventory.u.items_inventory[list->inf].nameid != list->cond_val[0])
+			list->inf = pc_search_inventory(sd, list->cond_val[0]);
 		list->cooldown = tick + 5000;
-		return (list->lv >= 0 && (sd->inventory.u.items_inventory[list->lv].amount < list->cond_val[0] || sd->inventory.u.items_inventory[list->lv].amount > list->cond_val[0]));
+		return (list->inf >= 0 && (sd->inventory.u.items_inventory[list->inf].amount < list->cond_val[1]));
 	}
 	return false;
 }
@@ -15275,7 +15275,8 @@ static bool pcbot_useitem(struct bot_data *bd, t_tick tick)
 		if (it.inf < 0 || it.inf >= MAX_INVENTORY || sd->inventory.u.items_inventory[it.inf].nameid != it.id)
 			it.inf = pc_search_inventory(sd, it.id);
 		if (it.inf >= 0 && pc_useitem(sd, it.inf)) {
-			bd->state.next_useitem = tick + 100;
+			it.cooldown = tick + it.delay;
+			bd->state.next_useitem = min(2000, it.delay);
 			return true;
 		}
 		it.cooldown = tick + 10000;
@@ -15312,7 +15313,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 	if (sd->bl.prev == NULL || sd->state.warping) {
 		if (sd->fd == 0)
 			clif_parse_LoadEndAck(0, sd);
-		bd->state.next_acttime = tick + 1000;
+		bd->state.next_acttime = tick + 2000;
 		bd->state.enemy_count = 0;
 		return 0;
 	}
