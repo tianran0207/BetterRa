@@ -28506,22 +28506,24 @@ BUILDIN_FUNC(bot_adduseskill)
 BUILDIN_FUNC(bot_adduseitem)
 {
 	TBL_PC *sd;
+	struct item_data *item;
 	if (!script_charid2sd(8, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	struct bot_data *bd = pcbot_getdata(sd);
 	struct s_bot_uselist entry = {};
 	entry.id = script_getnum(st, 2);
-	entry.lv = script_getnum(st, 3);
-	entry.delay = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
-	entry.cond = script_hasdata(st, 5) ? script_getnum(st, 5) : BOT_USE_ALWAYS;
-	entry.cond_val[0] = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
-	entry.cond_val[1] = script_hasdata(st, 7) ? script_getnum(st, 7) : 100;
+	entry.delay = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
+	entry.cond = script_hasdata(st, 4) ? script_getnum(st, 4) : BOT_USE_ALWAYS;
+	entry.cond_val[0] = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
+	entry.cond_val[1] = script_hasdata(st, 6) ? script_getnum(st, 6) : 100;
 
-	if (!itemdb_exists(entry.id)) {
+	if (!(item = itemdb_exists(entry.id))) {
 		ShowWarning("bot_adduseitem: Item ID %u does not exists in the item_db.\n", entry.id);
 		return SCRIPT_CMD_FAILURE;
 	}
+	entry.delay = max(item->delay, entry.delay);
+
 	if (!buildin_bot_addcheck_sub(sd, &entry, BL_ITEM))
 		return SCRIPT_CMD_FAILURE;
 
@@ -28574,16 +28576,11 @@ BUILDIN_FUNC(bot_addmode)
 
 	struct bot_data *bd = pcbot_getdata(sd);
 
-	if (type&BOT_IGNORE_TOUCH)
-		sd->state.no_touch_script = value ? 1 : 0;
-	if (type&BOT_IGNORE_SAME_ELE)
-		bd->info.ignore_same_ele = value;
-	if (type&BOT_ALWAYS_MASTER)
-		bd->info.always_attack_master = value ? 1 : 0;
-	if (type&BOT_COUNTERATTACK)
-		bd->info.counterattack = value ? 1 : 0;
-	if (type&BOT_FOLLOW_WALK)
-		bd->info.follow_aid = value;
+	sd->state.no_touch_script = add_mode && (type&BOT_IGNORE_TOUCH) ? 1 : 0;
+	bd->info.ignore_same_ele = add_mode && (type&BOT_IGNORE_SAME_ELE) ? value : 0;
+	bd->info.always_attack_master = add_mode && (type&BOT_ALWAYS_MASTER) ? 1 : 0;
+	bd->info.counterattack = add_mode && (type&BOT_COUNTERATTACK) ? 1 : 0;
+	bd->info.follow_aid = add_mode && (type&BOT_FOLLOW_WALK) ? value : 0;
 
 	if (add_mode)
 		bd->ai_mode |= type;
@@ -31592,6 +31589,12 @@ BUILDIN_FUNC(inventory_mark)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(getskillsc)
+{
+	script_pushint(st, status_skill2sc(script_getnum(st, 2)));
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -32829,6 +32832,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mercenary_delete, "??"),
 	BUILDIN_DEF(dual_weapon, "i?"),
 	BUILDIN_DEF(inventory_mark, "i?"),
+	BUILDIN_DEF(getskillsc, "i"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),
@@ -32841,7 +32845,7 @@ struct script_function buildin_func[] = {
 	//BOTϵͳ
 	BUILDIN_DEF(bot_login, "iii"),
 	BUILDIN_DEF(bot_adduseskill, "ii?????"),
-	BUILDIN_DEF(bot_adduseitem, "i?????"),
+	BUILDIN_DEF(bot_adduseitem, "i????"),
 	BUILDIN_DEF(bot_addlootitem, "i??"),
 	BUILDIN_DEF(bot_addattackmob, "i??"),
 	BUILDIN_DEF(bot_addmode, "i??"),

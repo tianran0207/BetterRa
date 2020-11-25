@@ -607,7 +607,7 @@
 	export_constant2("longrangeattacked", BOT_USE_LONGRANGEATTACKED);
 	export_constant2("afterskill", BOT_USE_AFTERSKILL);
 	export_constant2("mobincount", BOT_USE_MOBINCOUNT);
-	export_constant2("itemincount", BOT_USE_ITEMLESSTHAN);
+	export_constant2("itemlessthan", BOT_USE_ITEMLESSTHAN);
 
 	export_constant(BOT_IDEA);
 	export_constant(BOT_SKILL_ATK);
