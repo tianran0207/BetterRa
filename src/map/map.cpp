@@ -3924,6 +3924,10 @@ int map_getfromcache(struct map_data *m, char *decode_buffer)
 {
 	struct s_map_cache_map_info *mapinfo = (struct s_map_cache_map_info *)strdb_get(map_cache_db, m->name);
 	struct map_cache_map_info *info;
+	struct mapcell cell_template[7] = { 0 };
+
+	for (int i = 0; i < 7; i++) 
+		cell_template[i] = map_gat2cell(i);
 
 	if (!mapinfo)
 		return 0;
@@ -3948,9 +3952,11 @@ int map_getfromcache(struct map_data *m, char *decode_buffer)
 
 		CREATE(m->cell, struct mapcell, size);
 
-
-		for (xy = 0; xy < size; ++xy)
-			m->cell[xy] = map_gat2cell(decode_buffer[xy]);
+		for (xy = 0; xy < size; ++xy) {
+			if (decode_buffer[xy] < 0 || decode_buffer[xy] > 6)
+				continue;
+			memcpy(&m->cell[xy], &cell_template[decode_buffer[xy]], sizeof(struct mapcell));
+		}
 
 		return 1;
 	}
@@ -4225,7 +4231,8 @@ int map_readallmaps (void)
 		struct map_data *mapdata = &map[i];
 
 		// show progress
-		ShowStatus("Loading maps [%i/%i]: %s" CL_CLL "\r", i, map_num, mapdata->name);
+		if (i % 10 == 0)
+			ShowStatus("Loading maps [%i/%i]: %s" CL_CLL "\r", i, map_num, mapdata->name);
 
 		if (enable_grf) {
 			// try to load the map
