@@ -9873,6 +9873,11 @@ void clif_removeSpecialEffect(struct block_list *bl, int effectId, enum send_tar
 		p.aid = -bl->id;
 		clif_send(&p, sizeof(p), bl, SELF);
 	}
+#else
+	if (bl->type == BL_PC)
+		clif_refresh((struct map_session_data *)bl);
+	clif_clearunit_area(bl, CLR_OUTSIGHT);
+	clif_spawn(bl);
 #endif
 }
 

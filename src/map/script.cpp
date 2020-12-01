@@ -31415,9 +31415,10 @@ BUILDIN_FUNC(unitdelaura)
 		for (auto it = ud->aura.begin(); it != ud->aura.end(); ++it) {
 			if (it->eff_id != eff_id)
 				continue;
-			clif_removeSpecialEffect(bl, eff_id, AREA);
-			delete_timer(it->eff_timer, build_unitaura_sub);
 			ud->aura.erase(it);
+			if (it->eff_timer != INVALID_TIMER)
+				delete_timer(it->eff_timer, build_unitaura_sub);
+			clif_removeSpecialEffect(bl, eff_id, AREA);
 			break;
 		}
 	}
