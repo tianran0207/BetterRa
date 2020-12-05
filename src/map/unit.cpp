@@ -2157,7 +2157,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		unit_stop_stepaction(src);
 	// Remember the skill request from the client while walking to the next cell
 	if(src->type == BL_PC && ud->walktimer != INVALID_TIMER && !battle_check_range(src, target, range))
-		unit_stop_walking(src, USW_FIXPOS);
+		unit_stop_walking(src, USW_FIXPOS|USW_MOVE_FULL_CELL);
 
 	// Check range when not using skill on yourself or is a combo-skill during attack
 	// (these are supposed to always have the same range as your attack)
@@ -2497,7 +2497,7 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 		unit_stop_stepaction(src);
 	// Remember the skill request from the client while walking to the next cell
 	if(src->type == BL_PC && ud->walktimer != INVALID_TIMER && !battle_check_range(src, &bl, range))
-		unit_stop_walking(src, USW_FIXPOS);
+		unit_stop_walking(src, USW_FIXPOS|USW_MOVE_FULL_CELL);
 
 	if( skill_get_state(ud->skill_id) == ST_MOVE_ENABLE ) {
 		if( !unit_can_reach_bl(src, &bl, range + 1, 1, NULL, NULL) )
@@ -2770,7 +2770,7 @@ int unit_attack(struct block_list *src,int target_id,int continuous)
 		unit_stop_stepaction(src);
 	// Remember the attack request from the client while walking to the next cell
 	if(src->type == BL_PC && ud->walktimer != INVALID_TIMER && !battle_check_range(src, target, range))
-		unit_stop_walking(src, USW_FIXPOS);
+		unit_stop_walking(src, USW_FIXPOS|USW_MOVE_FULL_CELL);
 	
 	if(DIFF_TICK(ud->attackabletime, gettick()) > 0) // Do attack next time it is possible. [Skotlex]
 		ud->attacktimer=add_timer(ud->attackabletime,unit_attack_timer,src->id,0);
