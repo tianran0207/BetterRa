@@ -9873,6 +9873,11 @@ void clif_removeSpecialEffect(struct block_list *bl, int effectId, enum send_tar
 		p.aid = -bl->id;
 		clif_send(&p, sizeof(p), bl, SELF);
 	}
+#else
+	if (bl->type == BL_PC)
+		clif_refresh((struct map_session_data *)bl);
+	clif_clearunit_area(bl, CLR_OUTSIGHT);
+	clif_spawn(bl);
 #endif
 }
 
@@ -10156,7 +10161,7 @@ void clif_name( struct block_list* src, struct block_list *bl, send_target targe
 				safestrncpy( packet.position_name, md->guardian_data->castle->castle_name, NAME_LENGTH );
 
 				clif_send(&packet, sizeof(packet), src, target);
-			}else if(((flag = map_getmapflag(md->bl.m, MF_MOBINFO)) > 0 || (flag = battle_config.show_mob_info) != 0 ) && flag != -1){
+			}else if(((flag = map_getmapflag(md->bl.m, MF_MOBINFO)) != 0 || (flag = battle_config.show_mob_info) != 0 ) && flag != -1){
 				PACKET_ZC_ACK_REQNAMEALL packet = { 0 };
 
 				packet.packet_id = HEADER_ZC_ACK_REQNAMEALL;
