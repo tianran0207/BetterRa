@@ -99,6 +99,7 @@ $("#channel a").click(function(){
 			case 'GU:':  idx = 2; color = "00cb69"; break;
 			case 'PR:':  idx = 3; color = "eb9001"; break;
 			case 'WS:':  idx = 4; color = "005aff"; break;
+			case 'CO:':  idx = 9; color = "000000"; break;
 		}
 		value = makemsg(idx, value, color);
 		if (idx == channel || channel == 0) 
@@ -135,16 +136,16 @@ function makemsg(idx, msg, color){
 	
 	switch (idx){
 	case 0: 
-		msg = '[公开]' + msg;
+		msg = '[公开]&nbsp;' + msg;
 		break;
 	case 1: 
 		msg = msg;
 		break;
 	case 2: 
-		msg = '[公会]' + msg;
+		msg = '[公会]&nbsp;' + msg;
 		break;
 	case 3: 
-		msg = '[队伍]' + msg;
+		msg = '[队伍]&nbsp;' + msg;
 		break;
 	case 4: 
 		if(msg.indexOf("|#|") != -1)
@@ -169,6 +170,7 @@ function JoinMsg(msg){
 		case 'GU:':  idx = 2; color = "00cb69"; break;
 		case 'PR:':  idx = 3; color = "eb9001"; break;
 		case 'WS:':  idx = 4; color = "005aff"; break;
+		case 'CO:':  idx = 9; color = "000000"; break;
 	}
 	if(idx != 0){
 		num = $("#channel li:nth-child("+(idx+1)+") a span").text();

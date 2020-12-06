@@ -420,6 +420,7 @@ struct bot_data {
 		short view_range;
 		t_tick next_acttime;
 		t_tick next_followtime;
+		t_tick next_othertime;
 		t_tick next_useitem;
 		t_tick next_useskill;
 		t_tick next_lootitem;
@@ -1754,6 +1755,8 @@ struct s_status_formula {
 extern struct s_status_formula status_formula;
 int pc_status_formula_calc(const struct block_list* bl, int type, int val);
 
+int pcbot_login(uint32 char_id, const char *name);
+int pcbot_login_sub(uint32 account_id, uint32 char_id, int sex);
 struct bot_data *pcbot_getdata(struct map_session_data *sd);
 int pcbot_run(struct map_session_data *sd, int ai_mode);
 int pcbot_stop(struct map_session_data *sd, int logout);

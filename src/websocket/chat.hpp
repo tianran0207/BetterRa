@@ -15,7 +15,9 @@ struct ChatServ_Config {
 	char bind_ip_str[128];
 	uint32 bind_ip;
 	uint16 chat_port;
-	uint32 listen_group;
+	uint32 listen_message;
+	uint32 listen_console;
+	int console_atcommand;
 	uint32 global_min_group;
 	uint32 global_min_reg_time;
 	char global_world_clan[NAME_LENGTH];
@@ -35,22 +37,13 @@ struct chat_session_data {
 	uint32 group_id;
 	char nickname[NAME_LENGTH];
 
+	int web_count;
 	t_tick beattick;
 	t_tick global_tick;
 	unsigned int state;
 	time_t unban_time;
 	time_t expiration_time;
 
-	int fd;
-};
-
-struct online_chat_data {
-	uint32 account_id;
-	uint32 char_id;
-	uint32 party_id;
-	uint32 guild_id;
-	uint32 group_id;
-	char nickname[NAME_LENGTH];
 	int fd;
 };
 

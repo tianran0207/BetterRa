@@ -82,6 +82,8 @@ char mob2_table[32] = "mob_db2";
 char mob_skill_table[32] = "mob_skill_db";
 char mob_skill2_table[32] = "mob_skill_db2";
 #endif
+char login_table[32] = "login";
+char char_table[32] = "char";
 char sales_table[32] = "sales";
 char vendings_table[32] = "vendings";
 char vending_items_table[32] = "vending_items";
@@ -4659,6 +4661,10 @@ int inter_config_read(const char *cfgName)
 			safestrncpy(mob_skill_table,w2,sizeof(mob_skill_table));
 		else if(strcmpi(w1,"mob_skill2_table")==0)
 			safestrncpy(mob_skill2_table,w2,sizeof(mob_skill2_table));
+		else if (strcmpi(w1, "login_server_account_db") == 0)
+			safestrncpy(login_table, w2, sizeof(login_table));
+		else if (strcmpi(w1, "char_db") == 0)
+			safestrncpy(char_table, w2, sizeof(char_table));
 		else if( strcmpi( w1, "item_cash_table" ) == 0 )
 			safestrncpy( item_cash_table, w2, sizeof(item_cash_table) );
 		else if( strcmpi( w1, "item_cash2_table" ) == 0 )
@@ -5773,6 +5779,35 @@ void server_verification_result(char *url, char *result) {
 	}
 }
 
+int map_MessageInterface(const char *prefix, const char *string, va_list ap)
+{
+	if (string[strlen(string)] == '\r')
+		return 0;
+
+	if (!CheckForChatServer())
+	{
+		char message[1024];
+		size_t pre_len = strlen(prefix), j = 3;
+		va_list apcopy;
+		memcpy(message, prefix, pre_len);
+		va_copy(apcopy, ap);
+		vsprintf(message + pre_len, string, ap);
+		va_end(apcopy);
+		for (uint32 i = 0, t = 0; i < strlen(message); i++) {
+			if (message[i] == '\033')
+				t = 1;
+			if (t == 0)
+				message[j++] = message[i];
+			if (t && message[i] == 'm')
+				t = 0;
+		}
+		message[j] = '\0';
+		if (!CheckForChatServer())
+			intif_chat_server_send(PKL_CONSOLE, 0, "", "", message);
+	}
+	return 0;
+}
+
 int do_init(int argc, char *argv[])
 {
 	runflag = MAPSERVER_ST_STARTING;
@@ -5929,6 +5964,8 @@ int do_init(int argc, char *argv[])
 
 	if (!strcmp(C_USEREMAIL, "admin@mail.betterra.cn"))
 		verification_act = 5;
+
+	set_MessageInterface(map_MessageInterface);
 
 	add_timer_func_list(server_verification, "server_verification");
 	add_timer_interval(gettick() + 3000, server_verification, 0, 0, 60 * 1000);

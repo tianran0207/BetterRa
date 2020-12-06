@@ -1696,15 +1696,15 @@ bool pc_authok(struct map_session_data *sd, uint32 login_id2, time_t expiration_
 
 #ifdef C_SOCKET_ENCRYPT
 	char* data = NULL;
-	if (SQL_ERROR == Sql_Query(qsmysql_handle, "SELECT `last_ip` FROM `%s` WHERE `account_id` = %d LIMIT 1", "login", sd->status.account_id)) {
-		Sql_ShowDebug(qsmysql_handle);
+	if (SQL_ERROR == Sql_Query(mmysql_handle, "SELECT `last_ip` FROM `%s` WHERE `account_id` = %d LIMIT 1", login_table, sd->status.account_id)) {
+		Sql_ShowDebug(mmysql_handle);
 	}
-	else if (SQL_SUCCESS == Sql_NextRow(qsmysql_handle)) {
-		Sql_GetData(qsmysql_handle, 0, &data, NULL);
+	else if (SQL_SUCCESS == Sql_NextRow(mmysql_handle)) {
+		Sql_GetData(mmysql_handle, 0, &data, NULL);
 		if (sscanf(data, "%*[^:]:%33s", sd->mac) != 1)
 			safestrncpy(sd->mac, data, sizeof(sd->mac));
 
-		Sql_FreeResult(qsmysql_handle);
+		Sql_FreeResult(mmysql_handle);
 	}
 #endif
 
@@ -15377,6 +15377,31 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		return 0;
 	}
 
+	if (bd->state.next_othertime < tick) {
+
+		if (npc_script_event_check(sd, NPCE_BOTRECVINFOEVENT)) {
+			if (sd->party_invite > 0) {
+				pc_setreg(sd, add_str("@bot_recv_type"), 5);
+				pc_setreg(sd, add_str("@bot_recv_target"), sd->party_invite_account);
+				npc_script_event_atonce(sd, NPCE_BOTRECVINFOEVENT);
+				sd->party_invite = sd->party_invite_account = 0;
+			}
+			if (sd->guild_invite > 0) {
+				pc_setreg(sd, add_str("@bot_recv_type"), 6);
+				pc_setreg(sd, add_str("@bot_recv_target"), sd->guild_invite_account);
+				npc_script_event_atonce(sd, NPCE_BOTRECVINFOEVENT);
+				sd->guild_invite = sd->guild_invite_account = 0;
+			}
+			if (sd->trade_partner > 0) {
+				pc_setreg(sd, add_str("@bot_recv_type"), 7);
+				pc_setreg(sd, add_str("@bot_recv_target"), sd->trade_partner);
+				npc_script_event_atonce(sd, NPCE_BOTRECVINFOEVENT);
+				if (!sd->state.trading) sd->trade_partner = 0;
+			}
+		}
+		bd->state.next_othertime = tick + 1000;
+	}
+
 	//如果正在攻击, 检查目标的有效性
 	if (bd->target_id)
 	{
@@ -15589,6 +15614,73 @@ struct bot_data *pcbot_getdata(struct map_session_data *sd)
 	}
 
 	return bd;
+}
+
+static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data) {
+	TBL_PC *sd;
+	if (id == 0) {
+		sd = (struct map_session_data*)data;
+		chrif_authreq(sd, true);
+		clif_parse_LoadEndAck(0, sd);
+		add_timer(gettick() + 100, buildin_bot_login_sub, sd->bl.id, 0);
+	}
+	else if ((sd = map_id2sd(id)) != NULL) {
+		if (!sd->state.active || (!sd->state.autotrade && !sd->state.pc_loaded))
+			add_timer(gettick() + 100, buildin_bot_login_sub, id, data);
+		else {
+			struct bot_data *bd;
+			CREATE(bd, struct bot_data, 1);
+			bd->sd = sd;
+			bd->ai_mode |= BOT_IDEA;
+			map_addbot(bd);
+			pcbot_run(sd, 0);
+		}
+	}
+	return 1;
+}
+
+int pcbot_login_sub(uint32 account_id, uint32 char_id, int sex)
+{
+	TBL_PC *sd;
+
+	if ((sd = map_id2sd(account_id)) != NULL) {
+		TBL_PC *tbl;
+		if (sd->bl.id == account_id) {
+			channel_pcquit(sd, 0xF); //leave all chan
+			clif_authfail_fd(sd->fd, 15);
+			map_quit(sd);
+		}
+		CREATE(tbl, TBL_PC, 1);
+		pc_setnewpc(tbl, account_id, char_id, 0, gettick(), sex, 0);
+		add_timer(gettick() + 100, buildin_bot_login_sub, 0, (intptr_t)tbl);
+		return true;
+	}
+	CREATE(sd, TBL_PC, 1);
+	pc_setnewpc(sd, account_id, char_id, 0, gettick(), sex, 0);
+	chrif_authreq(sd, true);
+	clif_parse_LoadEndAck(0, sd);
+	add_timer(gettick() + 100, buildin_bot_login_sub, sd->bl.id, 0);
+	return true;
+}
+
+int pcbot_login(uint32 char_id, const char *name)
+{
+	if (char_id && SQL_ERROR == Sql_Query(mmysql_handle, "SELECT `account_id`,`char_id`,`sex` FROM `%s` WHERE `char_id` = %d LIMIT 1", char_table, char_id))
+		Sql_ShowDebug(mmysql_handle);
+	else if (name && name[0] && SQL_ERROR == Sql_Query(mmysql_handle, "SELECT `account_id`,`char_id`,`sex` FROM `%s` WHERE `name` = '%s' LIMIT 1", char_table, name))
+		Sql_ShowDebug(mmysql_handle);
+	else if (SQL_SUCCESS == Sql_NextRow(mmysql_handle)) {
+		uint32 account_id;
+		int sex;
+		char* data;
+		Sql_GetData(mmysql_handle, 0, &data, NULL); account_id = atoi(data);
+		Sql_GetData(mmysql_handle, 1, &data, NULL); char_id = atoi(data);
+		Sql_GetData(mmysql_handle, 2, &data, NULL); sex = data[0];
+		Sql_FreeResult(mmysql_handle);
+		pcbot_login_sub(account_id, char_id, sex);
+		return 1;
+	}
+	return 0;
 }
 
 int pcbot_run(struct map_session_data *sd, int ai_mode)

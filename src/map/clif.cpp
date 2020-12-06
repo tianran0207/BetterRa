@@ -10571,6 +10571,7 @@ void clif_msg_color( struct map_session_data *sd, uint16 msg_id, uint32 color ){
 /// Returns true if the packet was parsed successfully.
 /// Formats: false - <packet id>.w <packet len>.w (<name> : <message>).?B 00
 ///          true - <packet id>.w <packet len>.w <name>.24B <message>.?B 00
+static void clif_message_check(struct map_session_data *sd, struct s_packet_db *info, char* out_name, char* out_message);
 static bool clif_process_message(struct map_session_data* sd, bool whisperFormat, char* out_name, char* out_message, char* out_full_message ){
 	const char* seperator = " : ";
 	int fd;
@@ -10728,9 +10729,6 @@ static bool clif_process_message(struct map_session_data* sd, bool whisperFormat
 		sprintf( out_full_message, "%s%s%s", out_name, seperator, out_message );
 	}
 
-	if (battle_config.chat_server_interface)
-		intif_chat_server_send(sd, info, out_name, out_full_message);
-
 	if( is_atcommand( fd, sd, out_message, 1 )  )
 		return false;
 
@@ -10747,6 +10745,8 @@ static bool clif_process_message(struct map_session_data* sd, bool whisperFormat
 		sd->idletime = last_tick;
 	if (battle_config.hom_idle_no_share && sd->hd && battle_config.idletime_hom_option&IDLE_CHAT)
 		sd->idletime_hom = last_tick;
+
+	clif_message_check(sd, info, out_name, out_message);
 
 	return true;
 }
@@ -23204,4 +23204,70 @@ void do_init_clif(void) {
 
 void do_final_clif(void) {
 	ers_destroy(delay_clearunit_ers);
+}
+
+static int clif_message_check_sub_(struct block_list* bl, va_list ap)
+{
+	struct map_session_data *sd = va_arg(ap, struct map_session_data *);
+	struct map_session_data *tsd = BL_CAST(BL_PC, bl);
+	enum e_chat_type type = va_arg(ap, enum e_chat_type);
+	int group_id = va_arg(ap, int);
+	char *out_name = va_arg(ap, char*);
+	char *out_message = va_arg(ap, char*);
+	if (sd && sd->state.bot && npc_script_event_check(sd, NPCE_BOTRECVINFOEVENT)) {
+		pc_setreg(sd, add_str("@bot_recv_type"), type);
+		pc_setreg(sd, add_str("@bot_recv_target"), tsd->bl.id);
+		pc_setregstr(sd, add_str("@bot_recv_name$"), out_name);
+		pc_setregstr(sd, add_str("@bot_recv_message$"), out_message);
+		npc_script_event_atonce(sd, NPCE_BOTRECVINFOEVENT);
+	}
+	if (battle_config.chat_server_interface) {
+		intif_chat_server_send(type, group_id, sd ? sd->status.name : "", out_name, out_message);
+	}
+
+	return 1;
+}
+
+static int clif_message_check_sub(struct block_list* bl, ...)
+{
+	int returnCount = 0;
+	va_list ap;
+	va_start(ap, bl);
+	clif_message_check_sub_(bl, ap);
+	va_end(ap);
+	return returnCount;
+}
+
+static void clif_message_check(struct map_session_data *sd, struct s_packet_db *info, char* out_name, char* out_message)
+{
+	struct map_session_data *tsd = NULL;
+	struct bot_data *bd = NULL;
+
+	if (info->func == clif_parse_GlobalMessage) {
+		map_foreachinrange(clif_message_check_sub_, &sd->bl, AREA_SIZE, BL_PC, sd, PKL_GLOBAL, -1, out_name, out_message);
+	}
+	else if (info->func == clif_parse_PartyMessage) {
+		struct party_data *pd = party_search(sd->status.party_id);
+		if (pd == NULL)
+			return;
+		for (int i = 0; i < MAX_PARTY; i++) {
+			if (!pd->party.member->online || !pd->data[i].sd)
+				continue;
+			clif_message_check_sub(&pd->data[i].sd->bl, sd, PKL_PARTY, sd->status.party_id, out_name, out_message);
+		}
+	}
+	else if (info->func == clif_parse_GuildMessage) {
+		struct guild *gd = guild_search(sd->status.guild_id);
+		if (gd == NULL)
+			return;
+		for (int i = 0; i < MAX_GUILD; i++) {
+			if (!gd->member->online || !gd->member[i].sd)
+				continue;
+			clif_message_check_sub(&gd->member[i].sd->bl, sd, PKL_GUILD, sd->status.guild_id, out_name, out_message);
+		}
+	}
+	else if (info->func == clif_parse_WisMessage) {
+		clif_message_check_sub(&tsd->bl, sd, PKL_WHISPER, -1, out_name, out_message);
+	}
+	return;
 }

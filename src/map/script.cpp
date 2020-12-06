@@ -356,7 +356,7 @@ struct Script_Config script_config = {
 	"OnPCGetRouletteFilter", //roulette_get_filter_name
 	"OnPCCloseRouletteEvent", //roulette_colse_event_name
 	"OnBOTStartFilter", //bot_start_filter_name
-	"OnBOTLackItemEvent", //bot_lack_item_event_name
+	"OnBOTRecvInfoEvent", //bot_recv_event_name
 	"OnBOTStopEvent", //bot_stop_event_name
 	"OnHTTPReceivedEvent", //http_received_event_name
 	"OnPCInsertCardFilter", //card_insert_filter_name
@@ -28385,54 +28385,15 @@ BUILDIN_FUNC(getattachnpc)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data){
-	TBL_PC *sd;
-	if (id == 0) {
-		sd = (struct map_session_data*)data;
-		chrif_authreq(sd, true);
-		clif_parse_LoadEndAck(0, sd);
-		add_timer(gettick() + 100, buildin_bot_login_sub, sd->bl.id, 0);
-	}
-	else if ((sd = map_id2sd(id)) != NULL) {
-		if (!sd->state.active || (!sd->state.autotrade && !sd->state.pc_loaded))
-			add_timer(gettick() + 100, buildin_bot_login_sub, id, data);
-		else {
-			struct bot_data *bd;
-			CREATE(bd, struct bot_data, 1);
-			bd->sd = sd;
-			bd->ai_mode |= BOT_IDEA;
-			map_addbot(bd);
-			pcbot_run(sd, 0);
-		}
-	}
-	return 1;
-}
-
 BUILDIN_FUNC(bot_login)
 {
-	TBL_PC *sd;
-	int account_id = script_getnum(st, 2);
-	int char_id = script_getnum(st, 3);
-	int sex = script_getnum(st, 4);
-
-	if ((sd = map_id2sd(account_id)) != NULL) {
-		TBL_PC *tbl;
-		if (sd->bl.id == account_id) {
-			script_detach_rid(st);
-			channel_pcquit(sd, 0xF); //leave all chan
-			clif_authfail_fd(sd->fd, 15);
-			map_quit(sd);
-		}
-		CREATE(tbl, TBL_PC, 1);
-		pc_setnewpc(tbl, account_id, char_id, 0, gettick(), sex, 0);
-		add_timer(gettick() + 100, buildin_bot_login_sub, 0, (intptr_t)tbl);
-		return SCRIPT_CMD_SUCCESS;
-	}
-	CREATE(sd, TBL_PC, 1);
-	pc_setnewpc(sd, account_id, char_id, 0, gettick(), sex, 0);
-	chrif_authreq(sd, true);
-	clif_parse_LoadEndAck(0, sd);
-	add_timer(gettick() + 100, buildin_bot_login_sub, sd->bl.id, 0);
+	if (script_lastdata(st) == 2) {
+		if (script_isstring(st, 2))
+			pcbot_login(0, script_getstr(st, 2));
+		else if (script_isint(st, 2))
+			pcbot_login(script_getnum(st, 2), NULL);
+	}else
+		pcbot_login_sub(script_getnum(st, 2), script_getnum(st, 3), script_getnum(st, 4));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -32850,7 +32811,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getpolicyid, "?"),
 	BUILDIN_DEF(getpolicyinfo, "i?"),
 	//BOTϵͳ
-	BUILDIN_DEF(bot_login, "iii"),
+	BUILDIN_DEF(bot_login, "v??"),
 	BUILDIN_DEF(bot_adduseskill, "ii?????"),
 	BUILDIN_DEF(bot_adduseitem, "i????"),
 	BUILDIN_DEF(bot_addlootitem, "i??"),

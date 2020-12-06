@@ -716,6 +716,18 @@ struct guild_castle {
 	int temp_guardians_max;
 };
 
+enum e_chat_type : uint8 {
+	PKL_NONE = 0,
+	PKL_PING,
+	PKL_LOGIN,
+	PKL_LOGOUT,
+	PKL_GLOBAL,
+	PKL_PARTY,
+	PKL_GUILD,
+	PKL_WHISPER,
+	PKL_CONSOLE,
+};
+
 /// Enum for guild castle data script commands
 enum e_castle_data : uint8 {
 	CD_NONE = 0,

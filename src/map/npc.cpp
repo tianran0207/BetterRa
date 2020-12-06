@@ -5244,8 +5244,8 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.roulette_colse_event_name;
 	case NPCE_BOTSTARTFILTER:
 		return script_config.bot_start_filter_name;
-	case NPCE_BOTITEMLACKEVENT:
-		return script_config.bot_lack_item_event_name;
+	case NPCE_BOTRECVINFOEVENT:
+		return script_config.bot_recv_event_name;
 	case NPCE_BOTSTOPEVENT:
 		return script_config.bot_stop_event_name;
 	case NPCE_CARDINSERTFILTER:

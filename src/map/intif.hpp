@@ -22,15 +22,16 @@ struct map_session_data;
 extern int chat_fd;
 void do_init_chat();
 void do_final_chat();
+int CheckForChatServer(void);
 int intif_chat_check(int account_id, char *name);
 int intif_chat_server_recv(int fd);
-int intif_chat_server_send(struct map_session_data *sd, struct s_packet_db *info, char* out_name, char* out_full_message);
+int intif_chat_server_send(enum e_chat_type type, int group_id, char* in_name, char* out_name, char* out_message);
 
 int intif_parse(int fd);
 
 int intif_broadcast(const char* mes, int len, int type);
 int intif_broadcast2(const char* mes, int len, unsigned long fontColor, short fontType, short fontSize, short fontAlign, short fontY);
-int intif_broadcast_obtain_special_item(struct map_session_data *sd, t_itemid nameid, unsigned int sourceid, unsigned char type);
+int intif_broadcast_obtain_special_item(struct map_session_data *sd, t_itemid nameid, t_itemid sourceid, unsigned char type);
 int intif_broadcast_obtain_special_item_npc(struct map_session_data *sd, t_itemid nameid);
 int intif_main_message(struct map_session_data* sd, const char* message);
 

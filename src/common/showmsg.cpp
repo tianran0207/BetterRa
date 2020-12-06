@@ -51,6 +51,14 @@ int msg_silent = 0; //Specifies how silent the console is.
 int console_msg_log = 0;//[Ind] msg error logging
 char console_log_filepath[32] = "./log/unknown.log";
 
+typedef int(*InterfaceFunc)(const char *prefix, const char *string, va_list ap);
+int null_Interface(const char *prefix, const char *string, va_list ap) { return 0; }
+InterfaceFunc MessageInterface = null_Interface;
+void set_MessageInterface(InterfaceFunc defaultparse)
+{
+	MessageInterface = defaultparse;
+}
+
 #if !defined(MINICORE) && defined(BRA_MSG_TRANSLATE)
 static DBMap* msg_translation = NULL;
 static config_t translation_config;
@@ -791,6 +799,7 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap)
 			safestrncpy(prefix, prefixlist[flag - 1].name, sizeof(prefix));
 	}
 #endif // !BRA_MSG_TRANSLATE
+	MessageInterface(prefix, string, ap);
 
 	if (flag == MSG_ERROR || flag == MSG_FATALERROR || flag == MSG_SQL)
 	{	//Send Errors to StdErr [Skotlex]

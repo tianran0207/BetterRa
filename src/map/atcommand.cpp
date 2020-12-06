@@ -10558,6 +10558,10 @@ ACMD_FUNC(policy)
 {
 	int val;
 	nullpo_retr(-1, sd);
+
+	if (!message || !*message)
+		return -1;
+
 	val = atoi(message);
 
 	if (val < 0 || val >= MAX_POLICIES) {
@@ -10592,6 +10596,10 @@ ACMD_FUNC(title)
 {
 	int title_id;
 	nullpo_retr(-1, sd);
+
+	if (!message || !*message)
+		return -1;
+
 	title_id = atoi(message);
 
 	sd->status.title_id = title_id;
@@ -10607,6 +10615,10 @@ ACMD_FUNC(homattack)
 
 	int val;
 	nullpo_retr(-1, sd);
+
+	if (!message || !*message)
+		return -1;
+
 	val = atoi(message);
 
 	if (!hom_is_active(sd->hd)) {
@@ -10630,11 +10642,26 @@ ACMD_FUNC(verification)
 	return 0;
 }
 
+ACMD_FUNC(botlogin)
+{
+	if (!message || !*message)
+		return -1;
+
+	if (atoi(message) != 0)
+		pcbot_login(atoi(message), NULL);
+	else
+		pcbot_login(0, message);
+	return 0;
+}
+
 ACMD_FUNC(bot)
 {
+	if (!message || !*message)
+		return -1;
+
 	if (atoi(message) != 0)
 		pcbot_run(sd, 0);
-	else 
+	else
 		pcbot_stop(sd, 0);
 	return 0;
 }
@@ -10659,7 +10686,7 @@ ACMD_FUNC(cashshopsale)
 	t_tick start_tick;
 	struct tm info = { 0 };
 
-	if (sscanf(message, "%d %d %d-%d-%d %d:%d:%d %d", &itemid, &count, &info.tm_year, &info.tm_mon, &info.tm_mday, &info.tm_hour, &info.tm_min, &info.tm_sec, &minute_) < 8)
+	if (!message || !*message || sscanf(message, "%d %d %d-%d-%d %d:%d:%d %d", &itemid, &count, &info.tm_year, &info.tm_mon, &info.tm_mday, &info.tm_hour, &info.tm_min, &info.tm_sec, &minute_) < 8)
 		return -1;
 
 	info.tm_mon = info.tm_mon - 1;
@@ -10994,6 +11021,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(killmonsterall),
 		ACMD_DEF(refineui),
 		ACMD_DEF(verification),
+		ACMD_DEF(botlogin),
 		ACMD_DEF(bot),
 		ACMD_DEF(cashshopsale),
 		ACMD_DEF(mapname),

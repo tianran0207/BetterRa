@@ -21,6 +21,7 @@
 #include "elemental.hpp"
 #include "guild.hpp"
 #include "homunculus.hpp"
+#include "atcommand.hpp"
 #include "log.hpp"
 #include "mail.hpp"
 #include "map.hpp"
@@ -3894,15 +3895,6 @@ int intif_parse(int fd)
 	return 1;
 }
 
-//type 0: chat server login
-//type 1: ping
-//type 2: 世界发言包
-//type 3: 队伍发言包
-//type 4: 公会发言包
-//type 5: 私聊发言包
-//type 10: login
-//type 11: logout
-
 #include "channel.hpp"
 struct s_chat_data {
 	uint32 account_id, char_id, group_id;
@@ -3910,7 +3902,7 @@ struct s_chat_data {
 };
 
 DBMap* chat_server_data = NULL;
-static int CheckForChatServer(void)
+int CheckForChatServer(void)
 {
 	return ((chat_fd <= 0) || session[chat_fd] == NULL || session[chat_fd]->wdata == NULL);
 }
@@ -3926,14 +3918,15 @@ void do_final_chat()
 		db_destroy(chat_server_data);
 }
 
-static int intif_chat_error(int fd, int account_id, char error)
+static int intif_chat_info(int fd, int account_id, enum e_chat_type type, int count)
 {
-	WFIFOHEAD(fd, 9);
+	WFIFOHEAD(fd, 13);
 	WFIFOW(fd, 0) = 0xFC33;
-	WFIFOW(fd, 2) = 9;
+	WFIFOW(fd, 2) = 13;
 	WFIFOL(fd, 4) = account_id;
-	WFIFOB(fd, 8) = error;
-	WFIFOSET(fd, 9);
+	WFIFOB(fd, 8) = type;
+	WFIFOL(fd, 9) = count;
+	WFIFOSET(fd, 13);
 	return 1;
 }
 
@@ -3960,8 +3953,7 @@ int intif_chat_check(int account_id, char *name)
 
 int intif_chat_server_recv(int fd)
 {
-	int type, account_id, packet_len;
-	int guild_id, party_id, i;
+	int account_id, group_id, packet_len, send_count = 0;
 	struct guild *g;
 	struct party_data *p;
 	struct map_session_data *sd;
@@ -3969,7 +3961,7 @@ int intif_chat_server_recv(int fd)
 
 	if (!battle_config.chat_server_interface) {
 		ShowWarning("Chat-Server connection failure. Interface disable..\n");
-		intif_chat_error(fd, 0, -1);
+		intif_chat_info(fd, 0, PKL_NONE, 1);
 		set_eof(fd);
 		return 0;
 	}
@@ -3981,25 +3973,25 @@ int intif_chat_server_recv(int fd)
 	if (RFIFOREST(fd) < packet_len)
 		return 0;
 
-	type = RFIFOW(fd, 4);
+	enum e_chat_type type = (enum e_chat_type)RFIFOB(fd, 4);
 
-	if (CheckForChatServer() && type != 0) {
+	if (CheckForChatServer() && type != PKL_NONE) {
 		set_eof(fd);
 		return 0;
 	}
 
 	switch (type) {
-	case 0: {
+	case PKL_NONE: {
 		char userid[NAME_LENGTH];
 		char passwd[NAME_LENGTH];
 		char chname[NAME_LENGTH];
 		struct Channel *channel = NULL;
 
-		safestrncpy(userid, RFIFOCP(fd, 6), NAME_LENGTH);
-		safestrncpy(passwd, RFIFOCP(fd, 30), NAME_LENGTH);
-		safestrncpy(chname, RFIFOCP(fd, 54), NAME_LENGTH);
+		safestrncpy(userid, RFIFOCP(fd, 5), NAME_LENGTH);
+		safestrncpy(passwd, RFIFOCP(fd, 29), NAME_LENGTH);
+		safestrncpy(chname, RFIFOCP(fd, 53), NAME_LENGTH);
 		if (!chrif_checkuserid(userid, passwd)) {
-			intif_chat_error(fd, 0, 0);
+			intif_chat_info(fd, 0, PKL_NONE, 2);
 			set_eof(fd);
 			return 0;
 		}
@@ -4017,135 +4009,128 @@ int intif_chat_server_recv(int fd)
 		ShowStatus("Chat-server is connected with ip '" CL_WHITE "%s" CL_RESET "'\n", ip2str(session[fd]->client_addr, NULL));
 		}
 		break;
-	case 1: // ping
+	case PKL_PING: // ping
 		WFIFOHEAD(fd, 4);
 		WFIFOW(fd, 0) = 0xFC31;
 		WFIFOW(fd, 2) = 4;
 		WFIFOSET(fd, 4);
 		break;
-	case 2: {
-		const char *fontColor = RFIFOCP(fd, 6); //0xRRGGBB\0
-		mes = RFIFOCP(fd, 15);
-		if (strlen(mes) > CHAT_SIZE_MAX)
-			break;
-		intif_broadcast2(mes, (int)strlen(mes) + 1, strtol(fontColor, (char **)NULL, 0), FW_NORMAL, 12, 0, 0);
-		}
-		break;
-	case 3:
-		account_id = RFIFOL(fd, 6);
-		party_id = RFIFOL(fd, 10);
+	case PKL_GLOBAL: {
+		const char *fontColor = RFIFOCP(fd, 5); //0xRRGGBB\0
 		mes = RFIFOCP(fd, 14);
 		if (strlen(mes) > CHAT_SIZE_MAX)
 			break;
-		if ((p = party_search(party_id)) != NULL) {
-			ARR_FIND(0, MAX_PARTY, i, p->party.member[i].account_id == account_id);
-			if (i != MAX_PARTY) {
+		struct s_mapiterator* iter = mapit_getallusers();
+		while ((sd = (map_session_data*)mapit_next(iter)) != nullptr) {
+			if (!session_isActive(sd->fd))
+				continue;
+			send_count++;
+			clif_broadcast2(&sd->bl, mes, (int)strlen(mes) + 1, strtol(fontColor, (char **)NULL, 0), FW_NORMAL, 12, 0, 0, SELF);
+		}
+		mapit_free(iter);
+		intif_chat_info(fd, 0, type, send_count);
+	}
+		break;
+	case PKL_PARTY:
+		account_id = RFIFOL(fd, 5);
+		group_id = RFIFOL(fd, 9);
+		mes = RFIFOCP(fd, 13);
+		if (strlen(mes) > CHAT_SIZE_MAX)
+			break;
+		if ((p = party_search(group_id)) != NULL) {
+			for (int i = 0; i < MAX_PARTY; i++) {
+				if (!p->party.member[i].online || !p->data[i].sd)
+					continue;
+				send_count++;
 				clif_party_message(p, account_id, mes, (int)strlen(mes) + 1);
-				break;
 			}
 		}
-		intif_chat_error(fd, account_id, 3);
+		intif_chat_info(fd, account_id, type, send_count);
 		break;
-	case 4:
-		account_id = RFIFOL(fd, 6);
-		guild_id = RFIFOL(fd, 10);
-		mes = RFIFOCP(fd, 14);
+	case PKL_GUILD:
+		account_id = RFIFOL(fd, 5);
+		group_id = RFIFOL(fd, 9);
+		mes = RFIFOCP(fd, 13);
 		if (strlen(mes) > CHAT_SIZE_MAX)
 			break;
-		if ((g = guild_search(guild_id)) != NULL) {
-			ARR_FIND(0, g->max_member, i, g->member[i].account_id == account_id);
-			if (i != g->max_member) {
+		if ((g = guild_search(group_id)) != NULL) {
+			for (int i = 0; i < g->max_member; i++) {
+				if (!g->member[i].online || !g->member[i].sd)
+					continue;
+				send_count++;
 				clif_guild_message(g, account_id, mes, (int)strlen(mes) + 1);
+			}
+		}
+		intif_chat_info(fd, account_id, type, send_count);
+		break;
+	case PKL_WHISPER:
+		account_id = RFIFOL(fd, 5); //aid
+		nick = RFIFOCP(fd, 9); //NAME_LENGTH
+		sendnick = RFIFOCP(fd, 9 + NAME_LENGTH); //NAME_LENGTH
+		mes = RFIFOCP(fd, 9 + NAME_LENGTH * 2);
+		if (strlen(mes) > CHAT_SIZE_MAX)
+			break;
+		if (!strcmp(nick, "console")) {
+			struct s_chat_data *cd = (struct s_chat_data *)uidb_get(chat_server_data, account_id);
+			if (cd && !(sd = map_nick2sd(sendnick, false)) && cd->group_id == 99) {
+				char atcommand[CHAT_SIZE_MAX];
+				safesnprintf(atcommand, CHAT_SIZE_MAX, "admin:%s", strchr(mes, ' ') + 1);
+				parse_console(atcommand);
+				break;
+			}
+			if (cd && sd && cd->group_id == 99) {
+				sd->group_id = cd->group_id;
+				pc_group_pc_load(sd);
+				is_atcommand(sd->fd, sd, strchr(mes, ' ') + 1, 1);
 				break;
 			}
 		}
-		intif_chat_error(fd, account_id, 4);
-		break;
-	case 5: 
-		nick = RFIFOCP(fd, 10); //NAME_LENGTH
-		sendnick = RFIFOCP(fd, 10 + NAME_LENGTH); //NAME_LENGTH
-		account_id = RFIFOL(fd, 6); //aid
-		mes = RFIFOCP(fd, 10 + NAME_LENGTH * 2);
-		if (strlen(mes) > CHAT_SIZE_MAX)
-			break;
 		sd = map_nick2sd(nick, false);
 		if (sd) {
 			clif_wis_message(sd, sendnick, mes, (int)strlen(mes) + 1, 0);
-			break;
+			send_count++;
 		}
-		intif_chat_error(fd, account_id, 5);
+		intif_chat_info(fd, account_id, type, send_count);
 		break;
-	case 10: {
-		account_id = RFIFOL(fd, 6);
+	case PKL_LOGIN: {
+		account_id = RFIFOL(fd, 5);
 		struct s_chat_data *cd = (struct s_chat_data *)uidb_get(chat_server_data, account_id);
-		if (cd == NULL)
+		if (cd == NULL) {
 			CREATE(cd, struct s_chat_data, 1);
-		cd->account_id = RFIFOL(fd, 6);
-		cd->char_id = RFIFOL(fd, 10);
-		cd->group_id = RFIFOW(fd, 14);
-		memcpy(cd->name, RFIFOCP(fd, 16), NAME_LENGTH);
-		uidb_put(chat_server_data, account_id, cd);
+			uidb_put(chat_server_data, account_id, cd);
+		}
+		cd->account_id = account_id;
+		cd->char_id = RFIFOL(fd, 9);
+		cd->group_id = RFIFOW(fd, 13);
+		memcpy(cd->name, RFIFOCP(fd, 15), NAME_LENGTH);
 		}
 		break;
-	case 11:
-		account_id = RFIFOL(fd, 6);
+	case PKL_LOGOUT:
+		account_id = RFIFOL(fd, 5);
 		uidb_remove(chat_server_data, account_id);
-		break;
-	default:
 		break;
 	}
 	RFIFOSKIP(fd, packet_len);
 	return 1;
 }
 
-extern void clif_parse_GlobalMessage(int fd, struct map_session_data* sd);
-extern void clif_parse_PartyMessage(int fd, struct map_session_data* sd);
-extern void clif_parse_GuildMessage(int fd, struct map_session_data* sd);
-extern void clif_parse_WisMessage(int fd, struct map_session_data* sd);
-
-int intif_chat_server_send(struct map_session_data *sd, struct s_packet_db *info, char* out_name, char* out_full_message) {
-
+int intif_chat_server_send(enum e_chat_type type, int group_id, char* in_name, char* out_name, char* out_message)
+{
 	int len;
-	char message[1024];
 
 	if (CheckForChatServer())
 		return 0;
 
-	if (info->func == clif_parse_GlobalMessage) {
-		len = 4 + strlen(out_full_message) + 1;
-		WFIFOHEAD(chat_fd, len);
-		WFIFOW(chat_fd, 0) = 0xFC41;
-		WFIFOW(chat_fd, 2) = len;
-		safestrncpy(WFIFOCP(chat_fd, 4), out_full_message, len - 4);
-		WFIFOSET(chat_fd, len);
-	}
-	else if (info->func == clif_parse_PartyMessage) {
-		len = 8 + strlen(out_full_message) + 1;
-		WFIFOHEAD(chat_fd, len);
-		WFIFOW(chat_fd, 0) = 0xFC42;
-		WFIFOW(chat_fd, 2) = len;
-		WFIFOL(chat_fd, 4) = sd->status.party_id;
-		safestrncpy(WFIFOCP(chat_fd, 8), out_full_message, len - 8);
-		WFIFOSET(chat_fd, len);
-	}
-	else if (info->func == clif_parse_GuildMessage) {
-		len = 8 + strlen(out_full_message) + 1;
-		WFIFOHEAD(chat_fd, len);
-		WFIFOW(chat_fd, 0) = 0xFC43;
-		WFIFOW(chat_fd, 2) = len;
-		WFIFOL(chat_fd, 4) = sd->status.guild_id;
-		safestrncpy(WFIFOCP(chat_fd, 8), out_full_message, len - 8);
-		WFIFOSET(chat_fd, len);
-	}
-	else if (info->func == clif_parse_WisMessage) {
-		sprintf(message, "%s : %s", sd->status.name, out_full_message + 24);
-		len = 4 + NAME_LENGTH + strlen(message) + 1;
-		WFIFOHEAD(chat_fd, len);
-		WFIFOW(chat_fd, 0) = 0xFC44;
-		WFIFOW(chat_fd, 2) = len;
-		safestrncpy(WFIFOCP(chat_fd, 4), out_name, NAME_LENGTH);
-		safestrncpy(WFIFOCP(chat_fd, 4 + NAME_LENGTH), message, strlen(message) + 1);
-		WFIFOSET(chat_fd, len);
-	}
+	len = 9 + NAME_LENGTH*2 + strlen(out_message)+1;
+
+	WFIFOHEAD(chat_fd, len);
+	WFIFOW(chat_fd, 0) = 0xFC32;
+	WFIFOW(chat_fd, 2) = len;
+	WFIFOB(chat_fd, 4) = type;
+	WFIFOL(chat_fd, 5) = group_id;
+	safestrncpy(WFIFOCP(chat_fd, 9), in_name, NAME_LENGTH);
+	safestrncpy(WFIFOCP(chat_fd, 9+NAME_LENGTH), out_name, NAME_LENGTH);
+	safestrncpy(WFIFOCP(chat_fd, 9+NAME_LENGTH*2), out_message, strlen(out_message)+1);
+	WFIFOSET(chat_fd, len);
 	return 1;
 }

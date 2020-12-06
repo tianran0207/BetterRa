@@ -75,8 +75,14 @@ static bool websocket_config_read(const char* cfgName) {
 		else if (strcmpi(w1, "map_port") == 0) {
 			chatserv_config.map_port = atoi(w2);
 		}
-		else if (strcmpi(w1, "listen_group") == 0) {
-			chatserv_config.listen_group = atoi(w2);
+		else if (strcmpi(w1, "listen_message") == 0) {
+			chatserv_config.listen_message = atoi(w2);
+		}
+		else if (strcmpi(w1, "listen_console") == 0) {
+			chatserv_config.listen_console = atoi(w2);
+		}
+		else if (strcmpi(w1, "console_atcommand") == 0) {
+			chatserv_config.console_atcommand = config_switch(w2);
 		}
 		else if (strcmpi(w1, "global_min_group") == 0) {
 			chatserv_config.global_min_group = atoi(w2);
@@ -177,7 +183,7 @@ int websocket_send(int fd, char *buf, int len, enum WSFrameType type)
 		len += 8;
 	}
 	if (!session[fd] || !session[fd]->session_data)
-		return 1;
+		return 0;
 	WFIFOHEAD(fd, len);
 	memcpy(WFIFOCP(fd, 0), temp, len);
 	WFIFOSET(fd, len);
@@ -188,7 +194,7 @@ int websocket_send_str(int fd, char *buf)
 {
 	char sendbuf[2048];
 	if (!gbk2utf8(buf, (char *)sendbuf, 2048))
-		return 1;
+		return 0;
 
 	return websocket_send(fd, sendbuf, strlen(sendbuf), TEXT_FRAME);
 }
