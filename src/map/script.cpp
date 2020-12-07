@@ -28387,13 +28387,14 @@ BUILDIN_FUNC(getattachnpc)
 
 BUILDIN_FUNC(bot_login)
 {
-	if (script_lastdata(st) == 2) {
+	if (script_hasdata(st, 3))
+		pcbot_login(script_getnum(st, 3), NULL);
+	else {
 		if (script_isstring(st, 2))
 			pcbot_login(0, script_getstr(st, 2));
 		else if (script_isint(st, 2))
 			pcbot_login(script_getnum(st, 2), NULL);
-	}else
-		pcbot_login_sub(script_getnum(st, 2), script_getnum(st, 3), script_getnum(st, 4));
+	}
 	return SCRIPT_CMD_SUCCESS;
 }
 

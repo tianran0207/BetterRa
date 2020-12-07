@@ -15306,9 +15306,9 @@ static bool pcbot_attack(struct bot_data *bd, struct block_list *tbl, t_tick tic
 static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 {
 	t_tick tick = va_arg(args, t_tick);
-	struct map_session_data *sd;
+	struct map_session_data *sd = bd->sd;
 	struct block_list *tbl = NULL;
-	nullpo_ret(sd = bd->sd);
+	nullpo_ret(sd);
 
 	if (sd->bl.prev == NULL || sd->state.warping) {
 		if (sd->fd == 0)
@@ -15631,8 +15631,10 @@ static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data) {
 			struct bot_data *bd;
 			CREATE(bd, struct bot_data, 1);
 			bd->sd = sd;
+			bd->src_id = sd->bl.id;
 			bd->ai_mode |= BOT_IDEA;
 			map_addbot(bd);
+			sd->state.bot = 1;
 			pcbot_run(sd, 0);
 		}
 	}
@@ -15725,11 +15727,6 @@ int pcbot_stop(struct map_session_data *sd, int logout)
 	if (!(bd = map_id2bot(sd->bl.id)))
 		return 0;
 
-	if (sd != bd->sd) {
-		map_delbot(bd);
-		ShowError("pcbot_stop: sd != bd->sd, bot delete.\n");
-		return 0;  
-	}
 	if (npc_script_event_check(sd, NPCE_BOTSTOPEVENT)) {
 		pc_setreg(sd, add_str("@offline"), (bd->ai_mode&BOT_OFFLINE)==BOT_OFFLINE);
 		pc_setreg(sd, add_str("@bot_reason"), logout < 0 ? -logout : 0);

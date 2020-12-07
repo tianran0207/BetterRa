@@ -140,6 +140,8 @@ void do_init_robrowser(void)
 		ShowFatalError("Failed to bind to port '" CL_WHITE "%d" CL_RESET "'\n", robrowser_config.robrowser_port);
 		exit(EXIT_FAILURE);
 	}
+
+	ShowStatus("The chat-server is " CL_GREEN "ready" CL_RESET " (Server is listening on the port %d).\n", robrowser_config.robrowser_port);
 }
 
 void do_final_robrowser(void)

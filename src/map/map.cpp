@@ -6061,15 +6061,13 @@ void map_foreachbot(int(*func)(struct bot_data *bd, va_list args), ...)
 
 void map_addbot(struct bot_data *bd) {
 	nullpo_retv(bd);
-	nullpo_retv(bd->sd);
-	idb_put(bot_db, bd->sd->bl.id, bd);
+	idb_put(bot_db, bd->src_id, bd);
 }
 
 void map_delbot(struct bot_data *bd)
 {
 	nullpo_retv(bd);
-	nullpo_retv(bd->sd);
-	idb_remove(bot_db, bd->sd->bl.id);
+	idb_remove(bot_db, bd->src_id);
 }
 
 int map_checknear_sub(struct block_list* bl, va_list args) {

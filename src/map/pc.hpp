@@ -432,6 +432,7 @@ struct bot_data {
 		int move_fail_count;
 		int move_count;
 	} state;
+	int src_id;
 	int target_id, target_type;
 	int target_dead;
 	int min_chase;            //¹¥»÷¾àÀë

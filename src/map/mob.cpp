@@ -6399,7 +6399,7 @@ void mob_aggro_free(struct mob_data *md)
 	while (node) {
 		struct s_aggro_entry *entry = ((struct s_aggro_entry *)node->data);
 
-		if (entry->sd && !linkdb_erase(&entry->sd->aggro.head, (void *)(md->bl.id)))
+		if ((entry->sd = map_id2sd(entry->src_id)) && !linkdb_erase(&entry->sd->aggro.head, (void *)(md->bl.id)))
 			ShowError("mob_aggro_free: Player '%d' has not monster '%d' logs.\n", entry->src_id, md->bl.id);
 
 		aFree(entry);
