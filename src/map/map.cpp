@@ -5779,12 +5779,12 @@ void server_verification_result(char *url, char *result) {
 	}
 }
 
-int map_MessageInterface(const char *prefix, const char *string, va_list ap)
+int map_MessageInterface(enum msg_type flag, const char *prefix, const char *string, va_list ap)
 {
 	if (string[strlen(string)] == '\r')
 		return 0;
 
-	if (!CheckForChatServer())
+	if (!CheckForChatServer() || global_event.show_console)
 	{
 		char message[1024];
 		size_t pre_len = strlen(prefix), j = 3;
@@ -5803,7 +5803,17 @@ int map_MessageInterface(const char *prefix, const char *string, va_list ap)
 		}
 		message[j] = '\0';
 		if (!CheckForChatServer())
-			intif_chat_server_send(PKL_CONSOLE, 0, "", "", message);
+			intif_chat_server_send(PKL_CONSOLE, flag, "", "", message);
+
+		if (global_event.show_console) {
+			memcpy(message, "   ", 3);
+			struct map_session_data *sd = map_id2sd(global_event.show_console);
+			if (sd && sd->fd)
+				clif_displaymessage(sd->fd, message);
+			else
+				global_event.show_console = 0;
+		}
+
 	}
 	return 0;
 }

@@ -10642,7 +10642,7 @@ ACMD_FUNC(verification)
 	return 0;
 }
 
-ACMD_FUNC(botlogin)
+ACMD_FUNC(bot_login)
 {
 	if (!message || !*message)
 		return -1;
@@ -10707,6 +10707,19 @@ ACMD_FUNC(mapname)
 		return -1;
 
 	clif_displaymessage(fd, map_getmapdata(mapid)->name);
+	return 0;
+}
+
+ACMD_FUNC(showconsole)
+{
+	if (!message || !*message)
+		return -1;
+
+	if (atoi(message) != 0)
+		global_event.show_console = sd->bl.id;
+	else
+		global_event.show_console = 0;
+
 	return 0;
 }
 
@@ -11021,10 +11034,11 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(killmonsterall),
 		ACMD_DEF(refineui),
 		ACMD_DEF(verification),
-		ACMD_DEF(botlogin),
+		ACMD_DEF(bot_login),
 		ACMD_DEF(bot),
 		ACMD_DEF(cashshopsale),
 		ACMD_DEF(mapname),
+		ACMD_DEF(showconsole),
 		ACMD_DEFR(camerainfo, ATCMD_NOCONSOLE|ATCMD_NOAUTOTRADE),
 		ACMD_DEFR(resurrect, ATCMD_NOCONSOLE),
 		ACMD_DEF2("setquest", quest),

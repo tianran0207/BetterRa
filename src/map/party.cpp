@@ -459,7 +459,7 @@ int party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 		}
 	}
 
-	if (!tsd->fd) { //You can't invite someone who has already disconnected.
+	if (!tsd->fd && !tsd->state.bot) { //You can't invite someone who has already disconnected.
 		clif_party_invite_reply(sd,tsd->status.name,PARTY_REPLY_REJECTED);
 		return 0;
 	}

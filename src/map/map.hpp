@@ -1327,7 +1327,9 @@ struct s_use_skill_event {
 };
 struct s_global_event {
 	int killed_gid, killed_rid, killer_rid;
+	int show_console;
 };
+
 extern struct s_packet_event packet_event;
 extern struct s_use_skill_event use_skill_event;
 extern struct s_global_event global_event;

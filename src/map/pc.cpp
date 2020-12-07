@@ -15318,6 +15318,31 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		return 0;
 	}
 
+	if (bd->state.next_othertime < tick) {
+
+		if (npc_script_event_check(sd, NPCE_BOTRECVACTEVENT)) {
+			if (sd->party_invite > 0) {
+				pc_setreg(sd, add_str("@bot_recv_type"), 5);
+				pc_setreg(sd, add_str("@bot_recv_target"), sd->party_invite_account);
+				npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
+				sd->party_invite = sd->party_invite_account = 0;
+			}
+			if (sd->guild_invite > 0) {
+				pc_setreg(sd, add_str("@bot_recv_type"), 6);
+				pc_setreg(sd, add_str("@bot_recv_target"), sd->guild_invite_account);
+				npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
+				sd->guild_invite = sd->guild_invite_account = 0;
+			}
+			if (sd->trade_partner > 0) {
+				pc_setreg(sd, add_str("@bot_recv_type"), 7);
+				pc_setreg(sd, add_str("@bot_recv_target"), sd->trade_partner);
+				npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
+				if (!sd->state.trading) sd->trade_partner = 0;
+			}
+		}
+		bd->state.next_othertime = tick + 1000;
+	}
+
 	if (bd->ai_mode & BOT_IDEA)
 		return 0;
 	if (pc_isdead(sd))
@@ -15375,31 +15400,6 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			}
 		}
 		return 0;
-	}
-
-	if (bd->state.next_othertime < tick) {
-
-		if (npc_script_event_check(sd, NPCE_BOTRECVINFOEVENT)) {
-			if (sd->party_invite > 0) {
-				pc_setreg(sd, add_str("@bot_recv_type"), 5);
-				pc_setreg(sd, add_str("@bot_recv_target"), sd->party_invite_account);
-				npc_script_event_atonce(sd, NPCE_BOTRECVINFOEVENT);
-				sd->party_invite = sd->party_invite_account = 0;
-			}
-			if (sd->guild_invite > 0) {
-				pc_setreg(sd, add_str("@bot_recv_type"), 6);
-				pc_setreg(sd, add_str("@bot_recv_target"), sd->guild_invite_account);
-				npc_script_event_atonce(sd, NPCE_BOTRECVINFOEVENT);
-				sd->guild_invite = sd->guild_invite_account = 0;
-			}
-			if (sd->trade_partner > 0) {
-				pc_setreg(sd, add_str("@bot_recv_type"), 7);
-				pc_setreg(sd, add_str("@bot_recv_target"), sd->trade_partner);
-				npc_script_event_atonce(sd, NPCE_BOTRECVINFOEVENT);
-				if (!sd->state.trading) sd->trade_partner = 0;
-			}
-		}
-		bd->state.next_othertime = tick + 1000;
 	}
 
 	//如果正在攻击, 检查目标的有效性

@@ -372,6 +372,15 @@ enum bot_mode : uint16 {
 	BOT_OFFLINE         = 0x2000,
 };
 
+enum bot_act : uint16 {
+	BOT_ACT_REFUSE,
+	BOT_ACT_ACCEPT,
+	BOT_ACT_ADDITEM,
+	BOT_ACT_ADDZENY,
+	BOT_ACT_OK,
+	BOT_ACT_CANCEL,
+};
+
 enum bot_reset_type : uint8 {
 	BOT_REST_SKILL = 0x01,
 	BOT_REST_ITEM  = 0x02,

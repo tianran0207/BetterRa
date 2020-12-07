@@ -23214,12 +23214,18 @@ static int clif_message_check_sub_(struct block_list* bl, va_list ap)
 	int group_id = va_arg(ap, int);
 	char *out_name = va_arg(ap, char*);
 	char *out_message = va_arg(ap, char*);
-	if (sd && sd->state.bot && npc_script_event_check(sd, NPCE_BOTRECVINFOEVENT)) {
-		pc_setreg(sd, add_str("@bot_recv_type"), type);
-		pc_setreg(sd, add_str("@bot_recv_target"), tsd->bl.id);
-		pc_setregstr(sd, add_str("@bot_recv_name$"), out_name);
-		pc_setregstr(sd, add_str("@bot_recv_message$"), out_message);
-		npc_script_event_atonce(sd, NPCE_BOTRECVINFOEVENT);
+	if (npc_script_event_check(sd, NPCE_BOTRECVACTEVENT)) {
+		if (type == PKL_WHISPER) {
+			tsd = map_nick2sd(out_name, false);
+			out_name = sd->status.name;
+		}
+		if (tsd && tsd->state.bot) {
+			pc_setreg(tsd, add_str("@bot_recv_type"), type);
+			pc_setreg(tsd, add_str("@bot_recv_target"), tsd->bl.id);
+			pc_setregstr(tsd, add_str("@bot_recv_name$"), out_name);
+			pc_setregstr(tsd, add_str("@bot_recv_message$"), out_message);
+			npc_script_event_atonce(tsd, NPCE_BOTRECVACTEVENT);
+		}
 	}
 	if (battle_config.chat_server_interface) {
 		intif_chat_server_send(type, group_id, sd ? sd->status.name : "", out_name, out_message);

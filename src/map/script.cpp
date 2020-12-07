@@ -61,6 +61,7 @@
 #include "pet.hpp"
 #include "quest.hpp"
 #include "storage.hpp"
+#include "trade.hpp"
 
 using namespace rathena;
 
@@ -356,7 +357,7 @@ struct Script_Config script_config = {
 	"OnPCGetRouletteFilter", //roulette_get_filter_name
 	"OnPCCloseRouletteEvent", //roulette_colse_event_name
 	"OnBOTStartFilter", //bot_start_filter_name
-	"OnBOTRecvInfoEvent", //bot_recv_event_name
+	"OnBOTRecvActEvent", //bot_recv_event_name
 	"OnBOTStopEvent", //bot_stop_event_name
 	"OnHTTPReceivedEvent", //http_received_event_name
 	"OnPCInsertCardFilter", //card_insert_filter_name
@@ -28588,6 +28589,83 @@ BUILDIN_FUNC(bot_reset)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(bot_trade)
+{
+	TBL_PC *sd;
+
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!sd->state.bot)
+		return SCRIPT_CMD_SUCCESS;
+
+	switch (script_getnum(st, 2)) {
+	case BOT_ACT_ACCEPT:
+		trade_tradeack(sd, 3);
+		break;
+	case BOT_ACT_REFUSE:
+		trade_tradeack(sd, 4);
+		break;
+	case BOT_ACT_ADDITEM:
+		trade_tradeadditem(sd, script_getnum(st, 3) + 2, script_getnum(st, 4));
+		break;
+	case BOT_ACT_ADDZENY:
+		trade_tradeaddzeny(sd, script_getnum(st, 3));
+		break;
+	case BOT_ACT_OK:
+		trade_tradeok(sd);
+		trade_tradecommit(sd);
+		break;
+	case BOT_ACT_CANCEL:
+		trade_tradecancel(sd);
+		break;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_party)
+{
+	TBL_PC *sd;
+
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!sd->state.bot)
+		return SCRIPT_CMD_SUCCESS;
+
+	switch (script_getnum(st, 2)) {
+	case BOT_ACT_ACCEPT:
+		party_reply_invite(sd, sd->party_invite, 1);
+		break;
+	case BOT_ACT_REFUSE:
+		party_reply_invite(sd, sd->party_invite, 0);
+		break;
+	}
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_guild)
+{
+	TBL_PC *sd;
+
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!sd->state.bot)
+		return SCRIPT_CMD_SUCCESS;
+
+	switch (script_getnum(st, 2)) {
+	case BOT_ACT_ACCEPT:
+		guild_reply_invite(sd, sd->guild_invite, 1);
+		break;
+	case BOT_ACT_REFUSE:
+		guild_reply_invite(sd, sd->guild_invite, 0);
+		break;
+	}
+
+	return SCRIPT_CMD_SUCCESS;
+}
 
 BUILDIN_FUNC(is_bot)
 {
@@ -32819,6 +32897,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bot_addattackmob, "i??"),
 	BUILDIN_DEF(bot_addmode, "i??"),
 	BUILDIN_DEF2(bot_addmode, "bot_removemode", "i"),
+	BUILDIN_DEF(bot_trade, "i??"),
+	BUILDIN_DEF(bot_party, "i"),
+	BUILDIN_DEF(bot_guild, "i"),
 	BUILDIN_DEF(bot_reset, "i??"),
 	BUILDIN_DEF(is_bot, "?"),
 	BUILDIN_DEF(bot_run, "??"),

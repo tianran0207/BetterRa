@@ -100,7 +100,7 @@ extern void ShowDebug(const char *, ...);
 extern void ShowError(const char *, ...);
 extern void ShowFatalError(const char *, ...);
 extern void ShowConfigWarning(config_setting_t *config, const char *string, ...);
-typedef int(*InterfaceFunc)(const char *prefix, const char *string, va_list ap);
+typedef int(*InterfaceFunc)(enum msg_type flag, const char *prefix, const char *string, va_list ap);
 void set_MessageInterface(InterfaceFunc defaultparse);
 void showmsg_init();
 void showmsg_final();

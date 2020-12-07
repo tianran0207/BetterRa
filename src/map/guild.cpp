@@ -721,7 +721,7 @@ int guild_invite(struct map_session_data *sd, struct map_session_data *tsd) {
 		}
 	}
 
-	if (!tsd->fd) { //You can't invite someone who has already disconnected.
+	if (!tsd->fd && !tsd->state.bot) { //You can't invite someone who has already disconnected.
 		clif_guild_inviteack(sd,1);
 		return 0;
 	}

@@ -624,6 +624,9 @@
 	export_constant(BOT_COUNTERATTACK);
 	export_constant(BOT_OFFLINE);
 
+	export_constant(BOT_ACT_ACCEPT);
+	export_constant(BOT_ACT_REFUSE);
+
 	export_constant(BOT_REST_SKILL);
 	export_constant(BOT_REST_ITEM);
 	export_constant(BOT_REST_LOOT);
