@@ -15635,7 +15635,6 @@ static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data) {
 			bd->ai_mode |= BOT_IDEA;
 			map_addbot(bd);
 			sd->state.bot = 1;
-			pcbot_run(sd, 0);
 		}
 	}
 	return 1;
