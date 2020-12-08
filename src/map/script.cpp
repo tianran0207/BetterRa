@@ -28476,7 +28476,7 @@ BUILDIN_FUNC(bot_adduseitem)
 {
 	TBL_PC *sd;
 	struct item_data *item;
-	if (!script_charid2sd(8, sd))
+	if (!script_charid2sd(7, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	struct bot_data *bd = pcbot_getdata(sd);
@@ -28497,6 +28497,25 @@ BUILDIN_FUNC(bot_adduseitem)
 		return SCRIPT_CMD_FAILURE;
 
 	bd->info.useitem.push_back(entry);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_addevent)
+{
+	TBL_PC *sd;
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	struct bot_data *bd = pcbot_getdata(sd);
+	struct s_bot_eventlist entry = {};
+	safestrncpy(entry.eventname, script_getstr(st, 2), EVENT_NAME_LENGTH);
+	entry.delay = script_hasdata(st, 3) ? script_getnum(st, 3) : 1000;
+	entry.cond = script_hasdata(st, 4) ? script_getnum(st, 4) : BOT_USE_ALWAYS;
+	entry.cond_val[0] = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
+	entry.cond_val[1] = script_hasdata(st, 6) ? script_getnum(st, 6) : 100;
+
+	bd->info.eventlist.push_back(entry);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -32891,8 +32910,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getpolicyinfo, "i?"),
 	//BOTϵͳ
 	BUILDIN_DEF(bot_login, "v??"),
-	BUILDIN_DEF(bot_adduseskill, "ii?????"),
-	BUILDIN_DEF(bot_adduseitem, "i????"),
+	BUILDIN_DEF(bot_adduseskill, "ii??????"),
+	BUILDIN_DEF(bot_adduseitem, "i?????"),
+	BUILDIN_DEF(bot_addevent, "s?????"),
 	BUILDIN_DEF(bot_addlootitem, "i??"),
 	BUILDIN_DEF(bot_addattackmob, "i??"),
 	BUILDIN_DEF(bot_addmode, "i??"),

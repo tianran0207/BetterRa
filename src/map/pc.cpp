@@ -15286,36 +15286,34 @@ static bool pcbot_useitem(struct bot_data *bd, t_tick tick)
 	return false;
 }
 
-static bool pcbot_attack(struct bot_data *bd, struct block_list *tbl, t_tick tick)
+static bool pcbot_doevent(struct bot_data *bd, t_tick tick)
 {
 	struct map_session_data *sd = bd->sd;
+	struct s_bot_uselist *bs = NULL;
 
-	bd->min_chase = status_get_status_data(&sd->bl)->rhw.range;
-	if (!check_distance_bl(&sd->bl, tbl, bd->min_chase))
-		return false;
-
-	if (!unit_attack(&sd->bl, tbl->id, 1) && sd->ud.attacktimer == INVALID_TIMER)
+	for (auto &it : bd->info.doevent)
 	{
-		bd->state.atk_fail_count++;
-		return false;
+		if (!pcbot_check_usecond(bd, &it, tick))
+			continue;
+
+		npc_event(sd, it.eventname, 0);
+		it.cooldown = tick + it.delay;
+		break;
 	}
-	bd->state.atk_fail_count = 0;
-	return true;
+	bd->state.next_doevent = tick + 1000;
+	return false;
 }
 
-static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
+static bool pcbot_nocond_event(struct bot_data *bd, t_tick tick)
 {
-	t_tick tick = va_arg(args, t_tick);
 	struct map_session_data *sd = bd->sd;
-	struct block_list *tbl = NULL;
-	nullpo_ret(sd);
 
 	if (sd->bl.prev == NULL || sd->state.warping) {
 		if (sd->fd == 0)
 			clif_parse_LoadEndAck(0, sd);
 		bd->state.next_acttime = tick + 2000;
 		bd->state.enemy_count = 0;
-		return 0;
+		return true;
 	}
 
 	if (bd->state.next_othertime < tick) {
@@ -15342,21 +15340,57 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		}
 		bd->state.next_othertime = tick + 1000;
 	}
+	return false;
+}
 
-	if (bd->ai_mode & BOT_IDEA)
+static bool pcbot_attack(struct bot_data *bd, struct block_list *tbl, t_tick tick)
+{
+	struct map_session_data *sd = bd->sd;
+
+	bd->min_chase = status_get_status_data(&sd->bl)->rhw.range;
+	if (!check_distance_bl(&sd->bl, tbl, bd->min_chase))
+		return false;
+
+	if (!unit_attack(&sd->bl, tbl->id, 1) && sd->ud.attacktimer == INVALID_TIMER)
+	{
+		bd->state.atk_fail_count++;
+		return false;
+	}
+	bd->state.atk_fail_count = 0;
+	return true;
+}
+
+static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
+{
+	t_tick tick = va_arg(args, t_tick);
+	struct map_session_data *sd = bd->sd;
+	struct block_list *tbl = NULL;
+	nullpo_ret(sd);
+
+	//无条件事件检查
+	if (pcbot_nocond_event(bd, tick))
 		return 0;
+
 	if (pc_isdead(sd))
 		return 0;
 	if (pc_cant_act(sd))
 		return 0;
-	//如果正在吟唱
-	if (sd->ud.skilltimer != INVALID_TIMER)
+
+	if (bd->ai_mode & BOT_IDEA)
 		return 0;
+
+	//有条件事件检查
+	if (bd->state.next_doevent < tick && pcbot_doevent(bd, tick))
+		return 1;
 
 	//使用道具检查
 	if (bd->state.next_useitem < tick && pcbot_useitem(bd, tick))
 		return 1;
-		
+
+	//如果正在吟唱
+	if (sd->ud.skilltimer != INVALID_TIMER)
+		return 0;
+
 	//使用技能检查
 	if (bd->state.next_skillsupport < tick && pcbot_useskill(bd, NULL, tick, INF_SUPPORT_SKILL))
 		return 1;

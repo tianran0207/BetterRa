@@ -395,6 +395,7 @@ struct s_bot_uselist {
 	short cond, cond_val[2];
 	int inf;
 	t_tick cooldown;
+	char eventname[EVENT_NAME_LENGTH];
 };
 
 struct s_bot_moblist {
@@ -414,6 +415,7 @@ struct bot_data {
 	struct bot_info {
 		std::vector<s_bot_uselist> useskill;
 		std::vector<s_bot_uselist> useitem;
+		std::vector<s_bot_uselist> doevent;
 		std::vector<s_bot_moblist> moblist;
 		std::vector<s_bot_lootlist> lootitem;
 
@@ -435,6 +437,7 @@ struct bot_data {
 		t_tick next_lootitem;
 		t_tick next_skillattack;
 		t_tick next_skillsupport;
+		t_tick next_doevent;
 		int enemy_count;
 		int skill_fail_count;
 		int atk_fail_count;
