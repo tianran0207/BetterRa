@@ -56,6 +56,7 @@
 #include "searchstore.hpp"  // struct s_search_store_info
 #include "status.hpp" // OPTION_*, struct weapon_atk
 #include "storage.hpp"
+#include "trade.hpp"
 #include "unit.hpp" // unit_stop_attack(), unit_stop_walking()
 #include "vending.hpp" // struct s_vending
 
@@ -15319,26 +15320,47 @@ static bool pcbot_nocond_event(struct bot_data *bd, t_tick tick)
 	if (bd->state.next_othertime < tick) {
 
 		if (npc_script_event_check(sd, NPCE_BOTRECVACTEVENT)) {
-			if (sd->party_invite > 0) {
+			if (sd->party_invite) {
 				pc_setreg(sd, add_str("@bot_recv_type"), 5);
 				pc_setreg(sd, add_str("@bot_recv_target"), sd->party_invite_account);
 				npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
 				sd->party_invite = sd->party_invite_account = 0;
 			}
-			if (sd->guild_invite > 0) {
+			if (sd->guild_invite) {
 				pc_setreg(sd, add_str("@bot_recv_type"), 6);
 				pc_setreg(sd, add_str("@bot_recv_target"), sd->guild_invite_account);
 				npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
 				sd->guild_invite = sd->guild_invite_account = 0;
 			}
-			if (sd->trade_partner > 0) {
-				pc_setreg(sd, add_str("@bot_recv_type"), 7);
-				pc_setreg(sd, add_str("@bot_recv_target"), sd->trade_partner);
-				npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
-				if (!sd->state.trading) sd->trade_partner = 0;
+			if (sd->trade_partner && sd->state.deal_locked != 2) {
+				struct map_session_data *tsd = map_id2sd(sd->trade_partner);
+				if (!sd->state.trading && !tsd->state.deal_locked) {
+					pc_setreg(sd, add_str("@bot_recv_type"), 7);
+					pc_setreg(sd, add_str("@bot_recv_target"), sd->trade_partner);
+					npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
+					trade_tradeack(sd, 4);
+					bd->state.trade = 1;
+					bd->state.next_tradetime = tick + 60000;
+				} else if (tsd->state.deal_locked && bd->state.trade){
+					pc_setreg(sd, add_str("@bot_recv_type"), 8);
+					pc_setreg(sd, add_str("@bot_recv_target"), sd->trade_partner);
+					for (int i = 0; i < 10; i++) {
+						pc_setreg(sd, reference_uid(add_str("@bot_recv_idx"), i), tsd->deal.item[i].amount ? tsd->deal.item[i].index : -1);
+						pc_setreg(sd, reference_uid(add_str("@bot_recv_nameid"), i), tsd->deal.item[i].amount ? tsd->inventory.u.items_inventory[tsd->deal.item[i].index].nameid : 0);
+						pc_setreg(sd, reference_uid(add_str("@bot_recv_amount"), i), tsd->deal.item[i].amount);
+					}
+					pc_setreg(sd, add_str("@bot_recv_zeny"), tsd->deal.zeny);
+					npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
+					bd->state.trade = 0;
+				} else if (sd->state.deal_locked == 1 && tsd->state.deal_locked)
+					trade_tradecommit(sd);
+				if (sd->state.trading && bd->state.next_tradetime < tick)
+					trade_tradecancel(sd);
 			}
-		}
-		bd->state.next_othertime = tick + 1000;
+			bd->state.next_othertime = tick + 2000;
+		}else
+			bd->state.next_othertime = tick + 60000;
+		
 	}
 	return false;
 }

@@ -384,9 +384,10 @@ enum bot_act : uint16 {
 enum bot_reset_type : uint8 {
 	BOT_REST_SKILL = 0x01,
 	BOT_REST_ITEM  = 0x02,
-	BOT_REST_LOOT  = 0x04,
-	BOT_REST_MOB   = 0x08,
-	BOT_REST_MODE  = 0x10,
+	BOT_REST_EVENT = 0x04,
+	BOT_REST_LOOT  = 0x08,
+	BOT_REST_MOB   = 0x10,
+	BOT_REST_MODE  = 0x20,
 	BOT_REST_ALL   = 0xFF,
 };
 
@@ -432,12 +433,14 @@ struct bot_data {
 		t_tick next_acttime;
 		t_tick next_followtime;
 		t_tick next_othertime;
+		t_tick next_tradetime;
 		t_tick next_useitem;
 		t_tick next_useskill;
 		t_tick next_lootitem;
 		t_tick next_skillattack;
 		t_tick next_skillsupport;
 		t_tick next_doevent;
+		int trade;
 		int enemy_count;
 		int skill_fail_count;
 		int atk_fail_count;

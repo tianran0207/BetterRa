@@ -28508,14 +28508,14 @@ BUILDIN_FUNC(bot_addevent)
 		return SCRIPT_CMD_FAILURE;
 
 	struct bot_data *bd = pcbot_getdata(sd);
-	struct s_bot_eventlist entry = {};
+	struct s_bot_uselist entry = {};
 	safestrncpy(entry.eventname, script_getstr(st, 2), EVENT_NAME_LENGTH);
 	entry.delay = script_hasdata(st, 3) ? script_getnum(st, 3) : 1000;
 	entry.cond = script_hasdata(st, 4) ? script_getnum(st, 4) : BOT_USE_ALWAYS;
 	entry.cond_val[0] = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
 	entry.cond_val[1] = script_hasdata(st, 6) ? script_getnum(st, 6) : 100;
 
-	bd->info.eventlist.push_back(entry);
+	bd->info.doevent.push_back(entry);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -28594,6 +28594,8 @@ BUILDIN_FUNC(bot_reset)
 		bd->info.useskill.clear();
 	if (type & BOT_REST_ITEM)
 		bd->info.useitem.clear();
+	if (type & BOT_REST_EVENT)
+		bd->info.doevent.clear();
 	if (type & BOT_REST_LOOT)
 		bd->info.lootitem.clear();
 	if (type & BOT_REST_MOB)
@@ -28611,12 +28613,15 @@ BUILDIN_FUNC(bot_reset)
 BUILDIN_FUNC(bot_trade)
 {
 	TBL_PC *sd;
-
+	int npc_id;
 	if (!script_rid2sd(sd))
 		return SCRIPT_CMD_FAILURE;
 
 	if (!sd->state.bot)
 		return SCRIPT_CMD_SUCCESS;
+
+	npc_id = sd->npc_id;
+	sd->npc_id = 0;
 
 	switch (script_getnum(st, 2)) {
 	case BOT_ACT_ACCEPT:
@@ -28632,15 +28637,79 @@ BUILDIN_FUNC(bot_trade)
 		trade_tradeaddzeny(sd, script_getnum(st, 3));
 		break;
 	case BOT_ACT_OK:
-		trade_tradeok(sd);
-		trade_tradecommit(sd);
+		if (sd->state.deal_locked == 0)
+			trade_tradeok(sd);
 		break;
 	case BOT_ACT_CANCEL:
 		trade_tradecancel(sd);
 		break;
 	}
+
+	sd->npc_id = npc_id;
 	return SCRIPT_CMD_SUCCESS;
 }
+
+BUILDIN_FUNC(pctalk)
+{
+	TBL_PC *sd, *tsd;
+	struct guild *g;
+	struct party_data *p;
+	char mes[CHAT_SIZE_MAX];
+
+	if (!script_charid2sd(4,sd))
+		return SCRIPT_CMD_FAILURE;
+
+	int target = script_getnum(st, 2);
+	safesnprintf(mes, CHAT_SIZE_MAX, "%s : %s", sd->status.name, script_getstr(st, 3));
+
+	if (target == 0) {
+		clif_GlobalMessage(&sd->bl, mes, sd->chatID ? CHAT_WOS : AREA_CHAT_WOC);
+	}
+	else if (target == sd->status.party_id && (p = party_search(sd->status.party_id)) != NULL) {
+		for (int i = 0; i < MAX_PARTY; i++) {
+			if (!p->party.member[i].online || !p->data[i].sd)
+				continue;
+			clif_party_message(p, sd->status.account_id, mes, (int)strlen(mes) + 1);
+		}
+	}
+	else if (target == sd->status.guild_id && (g = guild_search(sd->status.guild_id)) != NULL) {
+		for (int i = 0; i < g->max_member; i++) {
+			if (!g->member[i].online || !g->member[i].sd)
+				continue;
+			clif_guild_message(g, sd->status.account_id, mes, (int)strlen(mes) + 1);
+		}
+	}
+	else if ((tsd = map_id2sd(target)) != NULL)
+		clif_wis_message(tsd, sd->status.name, mes, (int)strlen(mes) + 1, 0);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(pcjoinchat)
+{
+	TBL_PC *sd;
+	struct block_list *bl;
+	const char *password;
+
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	password = script_hasdata(st, 3) ? script_getstr(st, 3) : "";
+
+	switch (bl->type) {
+	case BL_PC:
+		chat_joinchat(sd, ((TBL_PC *)bl)->chatID, password);
+		break;
+	case BL_NPC:
+		chat_joinchat(sd, ((TBL_NPC *)bl)->chat_id, password);
+		break;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
 
 BUILDIN_FUNC(bot_party)
 {
@@ -32899,6 +32968,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(dual_weapon, "i?"),
 	BUILDIN_DEF(inventory_mark, "i?"),
 	BUILDIN_DEF(getskillsc, "i"),
+	BUILDIN_DEF(pctalk, "is?"),
+	BUILDIN_DEF(pcjoinchat, "i??"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),

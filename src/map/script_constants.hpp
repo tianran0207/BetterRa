@@ -609,6 +609,12 @@
 	export_constant2("mobincount", BOT_USE_MOBINCOUNT);
 	export_constant2("itemlessthan", BOT_USE_ITEMLESSTHAN);
 
+	export_constant(PKL_GLOBAL);
+	export_constant(PKL_PUBLIC);
+	export_constant(PKL_PARTY);
+	export_constant(PKL_GUILD);
+	export_constant(PKL_WHISPER);
+
 	export_constant(BOT_IDEA);
 	export_constant(BOT_SKILL_ATK);
 	export_constant(BOT_WEAPON_ATK);
@@ -626,9 +632,14 @@
 
 	export_constant(BOT_ACT_ACCEPT);
 	export_constant(BOT_ACT_REFUSE);
+	export_constant(BOT_ACT_ADDITEM);
+	export_constant(BOT_ACT_ADDZENY);
+	export_constant(BOT_ACT_OK);
+	export_constant(BOT_ACT_CANCEL);
 
 	export_constant(BOT_REST_SKILL);
 	export_constant(BOT_REST_ITEM);
+	export_constant(BOT_REST_EVENT);
 	export_constant(BOT_REST_LOOT);
 	export_constant(BOT_REST_MOB);
 	export_constant(BOT_REST_MODE);

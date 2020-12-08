@@ -722,6 +722,7 @@ enum e_chat_type : uint8 {
 	PKL_LOGIN,
 	PKL_LOGOUT,
 	PKL_GLOBAL,
+	PKL_PUBLIC,
 	PKL_PARTY,
 	PKL_GUILD,
 	PKL_WHISPER,
