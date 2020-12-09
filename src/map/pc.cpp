@@ -15672,6 +15672,7 @@ struct bot_data *pcbot_getdata(struct map_session_data *sd)
 	return bd;
 }
 
+std::map<uint32, struct script_state *> bot_attach_st;
 static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data) {
 	TBL_PC *sd;
 	if (id == 0) {
@@ -15691,25 +15692,53 @@ static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data) {
 			bd->ai_mode |= BOT_IDEA;
 			map_addbot(bd);
 			sd->state.bot = 1;
+			auto it = bot_attach_st.find(sd->status.char_id);
+			if (it != bot_attach_st.end()) {
+				struct script_state *st = it->second;
+				if (st->state == RERUNLINE) {
+					script_detach_rid(st);
+					st->rid = sd->status.account_id;
+					script_attach_state(st);
+					run_script_main(st);
+				}
+				bot_attach_st.erase(sd->status.char_id);
+			}
 		}
 	}
 	return 1;
 }
 
-int pcbot_login_sub(uint32 account_id, uint32 char_id, int sex)
+int pcbot_login(uint32 char_id, const char *name, struct script_state *st)
 {
+	uint32 account_id;
 	TBL_PC *sd;
+	int sex;
+	char* data;
 
+	if (char_id && SQL_ERROR == Sql_Query(mmysql_handle, "SELECT `account_id`,`char_id`,`sex` FROM `%s` WHERE `char_id` = %d LIMIT 1", char_table, char_id))
+		Sql_ShowDebug(mmysql_handle);
+	else if (name && name[0] && SQL_ERROR == Sql_Query(mmysql_handle, "SELECT `account_id`,`char_id`,`sex` FROM `%s` WHERE `name` = '%s' LIMIT 1", char_table, name))
+		Sql_ShowDebug(mmysql_handle);
+	else if (SQL_SUCCESS != Sql_NextRow(mmysql_handle)) {
+		Sql_FreeResult(mmysql_handle);
+		return 0;
+	}
+	if (st)
+		bot_attach_st[char_id] = st;
+
+	Sql_GetData(mmysql_handle, 0, &data, NULL); account_id = atoi(data);
+	Sql_GetData(mmysql_handle, 1, &data, NULL); char_id = atoi(data);
+	Sql_GetData(mmysql_handle, 2, &data, NULL); sex = data[0];
+	Sql_FreeResult(mmysql_handle);
 	if ((sd = map_id2sd(account_id)) != NULL) {
-		TBL_PC *tbl;
 		if (sd->bl.id == account_id) {
 			channel_pcquit(sd, 0xF); //leave all chan
 			clif_authfail_fd(sd->fd, 15);
 			map_quit(sd);
 		}
-		CREATE(tbl, TBL_PC, 1);
-		pc_setnewpc(tbl, account_id, char_id, 0, gettick(), sex, 0);
-		add_timer(gettick() + 100, buildin_bot_login_sub, 0, (intptr_t)tbl);
+		CREATE(sd, TBL_PC, 1);
+		pc_setnewpc(sd, account_id, char_id, 0, gettick(), sex, 0);
+		add_timer(gettick() + 100, buildin_bot_login_sub, 0, (intptr_t)sd);
 		return true;
 	}
 	CREATE(sd, TBL_PC, 1);
@@ -15717,27 +15746,7 @@ int pcbot_login_sub(uint32 account_id, uint32 char_id, int sex)
 	chrif_authreq(sd, true);
 	clif_parse_LoadEndAck(0, sd);
 	add_timer(gettick() + 100, buildin_bot_login_sub, sd->bl.id, 0);
-	return true;
-}
-
-int pcbot_login(uint32 char_id, const char *name)
-{
-	if (char_id && SQL_ERROR == Sql_Query(mmysql_handle, "SELECT `account_id`,`char_id`,`sex` FROM `%s` WHERE `char_id` = %d LIMIT 1", char_table, char_id))
-		Sql_ShowDebug(mmysql_handle);
-	else if (name && name[0] && SQL_ERROR == Sql_Query(mmysql_handle, "SELECT `account_id`,`char_id`,`sex` FROM `%s` WHERE `name` = '%s' LIMIT 1", char_table, name))
-		Sql_ShowDebug(mmysql_handle);
-	else if (SQL_SUCCESS == Sql_NextRow(mmysql_handle)) {
-		uint32 account_id;
-		int sex;
-		char* data;
-		Sql_GetData(mmysql_handle, 0, &data, NULL); account_id = atoi(data);
-		Sql_GetData(mmysql_handle, 1, &data, NULL); char_id = atoi(data);
-		Sql_GetData(mmysql_handle, 2, &data, NULL); sex = data[0];
-		Sql_FreeResult(mmysql_handle);
-		pcbot_login_sub(account_id, char_id, sex);
-		return 1;
-	}
-	return 0;
+	return 1;
 }
 
 int pcbot_run(struct map_session_data *sd, int ai_mode)

@@ -1771,7 +1771,7 @@ struct s_status_formula {
 extern struct s_status_formula status_formula;
 int pc_status_formula_calc(const struct block_list* bl, int type, int val);
 
-int pcbot_login(uint32 char_id, const char *name);
+int pcbot_login(uint32 char_id, const char *name, struct script_state *st = NULL);
 int pcbot_login_sub(uint32 account_id, uint32 char_id, int sex);
 struct bot_data *pcbot_getdata(struct map_session_data *sd);
 int pcbot_run(struct map_session_data *sd, int ai_mode);

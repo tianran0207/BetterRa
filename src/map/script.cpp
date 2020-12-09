@@ -28388,14 +28388,22 @@ BUILDIN_FUNC(getattachnpc)
 
 BUILDIN_FUNC(bot_login)
 {
-	if (script_hasdata(st, 3))
-		pcbot_login(script_getnum(st, 3), NULL);
-	else {
-		if (script_isstring(st, 2))
-			pcbot_login(0, script_getstr(st, 2));
-		else if (script_isint(st, 2))
-			pcbot_login(script_getnum(st, 2), NULL);
+	TBL_PC *sd;
+	int char_id = script_hasdata(st, 3) ? script_getnum(st, 3) : script_isint(st, 2) ? script_getnum(st, 2) : 0;
+	const char * name = script_isstring(st, 2) ? script_getstr(st, 2) : NULL;
+	if (st->state == RERUNLINE) {
+		if ((char_id && (sd = map_charid2sd(char_id))) || (name && (sd = map_nick2sd(name, false))))
+			script_pushint(st, sd->status.account_id);
+		else
+			script_pushint(st, 0);
+
+		st->state = RUN;
+		return SCRIPT_CMD_SUCCESS;
 	}
+	else
+		pcbot_login(char_id, name, st);
+	
+	st->state = RERUNLINE;
 	return SCRIPT_CMD_SUCCESS;
 }
 
