@@ -28574,8 +28574,6 @@ BUILDIN_FUNC(bot_addmode)
 
 	sd->state.no_touch_script = add_mode && (type&BOT_IGNORE_TOUCH) ? 1 : 0;
 	bd->info.ignore_same_ele = add_mode && (type&BOT_IGNORE_SAME_ELE) ? value : 0;
-	bd->info.always_attack_master = add_mode && (type&BOT_ALWAYS_MASTER) ? 1 : 0;
-	bd->info.counterattack = add_mode && (type&BOT_COUNTERATTACK) ? 1 : 0;
 	bd->info.follow_aid = add_mode && (type&BOT_FOLLOW_WALK) ? value : 0;
 
 	if (add_mode)
@@ -28612,8 +28610,7 @@ BUILDIN_FUNC(bot_reset)
 		sd->state.no_touch_script = 0;
 		bd->ai_mode = BOT_IDEA;
 		bd->info.ignore_same_ele = 0;
-		bd->info.always_attack_master = 0;
-		bd->info.counterattack = 0;
+		bd->info.follow_aid = 0;
 	}
 	return SCRIPT_CMD_SUCCESS;
 }

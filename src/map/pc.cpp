@@ -15015,7 +15015,7 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap)
 		return 0;
 
 	//检查是否有主人
-	if (bd->info.always_attack_master && (bl = battle_get_master(bl)) == NULL)
+	if ((bd->ai_mode & BOT_ALWAYS_MASTER) && (bl = battle_get_master(bl)) == NULL)
 		return 0;
 
 	//检查属性修正是否小于50
@@ -15441,7 +15441,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 
 	//如果有魔物攻击, 反击
 	if (sd->ud.walktimer != INVALID_TIMER ) {
-		if (bd->info.counterattack && sd->enemy_id && sd->enemy_id != bd->target_id) {
+		if ((bd->ai_mode & BOT_COUNTERATTACK) && sd->enemy_id && sd->enemy_id != bd->target_id) {
 			tbl = map_id2bl(sd->enemy_id);
 			sd->enemy_id = 0;
 			//检查属性修正是否小于50
@@ -15523,13 +15523,15 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		tbl = NULL;
 		map_foreachinallrange(pcbot_ai_sub_hard_lootsearch, &sd->bl, bd->state.view_range, BL_ITEM, bd, &tbl);
 		if (tbl) {
-			bd->state.next_acttime = tick + bd->info.lootitem_delay / 2;
-
 			if (check_distance_bl(&sd->bl, tbl, 1) || unit_walktobl(&sd->bl, tbl, 1, 1)) {
+				const struct TimerData* td;
+				if ((td = get_timer(sd->ud.walktimer)))
+					bd->state.next_acttime = td->tick + bd->info.lootitem_delay / 2;
 				bd->target_id = tbl->id;
 				bd->target_type = tbl->type;
 				return 1;
 			}
+			bd->state.next_acttime = tick + bd->info.lootitem_delay / 2;
 		}
 		bd->target_id = bd->target_type = 0;
 		bd->state.next_lootitem = tick + 2000;

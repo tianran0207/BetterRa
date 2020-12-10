@@ -422,8 +422,6 @@ struct bot_data {
 
 		unsigned short lootitem_delay;
 		unsigned short change_delay;
-		unsigned always_attack_master : 1; //²»¹¥»÷link
-		unsigned counterattack : 1; //·´»÷
 		int ignore_same_ele;
 		int follow_aid;
 	} info;
