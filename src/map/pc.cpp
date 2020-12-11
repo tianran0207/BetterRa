@@ -14986,6 +14986,30 @@ static int pcbot_check_ele(struct map_session_data *sd, struct block_list *bl, s
 	return 1;
 }
 
+static int pcbot_delay(struct bot_data *bd, enum bot_delay type)
+{
+	struct s_bot_delay *delay;
+	int range;
+
+	switch (type) {
+	case BOT_DELAY_LOOT:
+		delay = &bd->info.loot_delay;
+		break;
+	case BOT_DELAY_CHOOSE:
+		delay = &bd->info.choose_delay;
+		break;
+	case BOT_DELAY_SKILL:
+		delay = &bd->info.skill_delay;
+		break;
+	default:
+		return 1000;
+	}
+
+	range = delay->max - delay->min + 1;
+
+	return rnd() % range + delay->min;
+}
+
 static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap)
 {
 	struct bot_data *bd = va_arg(ap, struct bot_data *);
@@ -15252,7 +15276,7 @@ static bool pcbot_useskill(struct bot_data *bd, struct block_list *tbl, t_tick t
 	//计算下一次使用这个技能的延时
 	int delayfix = skill_delayfix(src, skill->id, skill->lv);
 	skill->cooldown = tick + max(max(pc_get_skillcooldown(bd->sd, skill->id, skill->lv), skill->delay), delayfix);
-	bd->state.next_useskill = tick + delayfix;;
+	bd->state.next_useskill = tick + delayfix + pcbot_delay(bd, BOT_DELAY_SKILL);
 	bd->skill_attack = bd->skill_support = NULL;
 	bd->support_sd = NULL;
 
@@ -15365,6 +15389,19 @@ static bool pcbot_nocond_event(struct bot_data *bd, t_tick tick)
 	return false;
 }
 
+static bool pcbot_walk_fail_event(struct bot_data *bd, t_tick tick)
+{
+	struct map_session_data *sd = bd->sd;
+
+	if (npc_script_event_check(sd, NPCE_BOTRECVACTEVENT)) {
+		pc_setreg(sd, add_str("@bot_recv_type"), 0);
+		pc_setreg(sd, add_str("@bot_recv_target"), sd->bl.id);
+		npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
+	}
+	return true;
+}
+
+
 static bool pcbot_attack(struct bot_data *bd, struct block_list *tbl, t_tick tick)
 {
 	struct map_session_data *sd = bd->sd;
@@ -15402,11 +15439,11 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		return 0;
 
 	//有条件事件检查
-	if (bd->state.next_doevent < tick && pcbot_doevent(bd, tick))
+	if (bd->state.next_doevent <= tick && pcbot_doevent(bd, tick))
 		return 1;
 
 	//使用道具检查
-	if (bd->state.next_useitem < tick && pcbot_useitem(bd, tick))
+	if (bd->state.next_useitem <= tick && pcbot_useitem(bd, tick))
 		return 1;
 
 	//如果正在吟唱
@@ -15414,7 +15451,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		return 0;
 
 	//使用技能检查
-	if (bd->state.next_skillsupport < tick && pcbot_useskill(bd, NULL, tick, INF_SUPPORT_SKILL))
+	if (bd->state.next_skillsupport <= tick && pcbot_useskill(bd, NULL, tick, INF_SUPPORT_SKILL))
 		return 1;
 
 	if ((bd->ai_mode & BOT_FOLLOW_WALK) && bd->info.follow_aid && bd->state.next_followtime < tick) {
@@ -15431,7 +15468,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 
 	//不允许做任何事
 	if (sd->ud.canact_tick > bd->state.next_acttime)
-		bd->state.next_acttime = bd->sd->ud.canact_tick;
+		bd->state.next_acttime = sd->ud.canact_tick;
 	if (bd->state.next_acttime > tick)
 		return 0;
 
@@ -15480,7 +15517,8 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				}
 				if (bd->state.skill_fail_count > 20) {
 					clif_displaymessage(sd->fd, msg_txt(sd, 2347));
-					pcbot_stop(bd->sd, -1);
+					pcbot_stop(sd, -1);
+					return 1;
 				}
 			}
 			//满足条件则普通攻击目标
@@ -15491,7 +15529,8 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				}
 				if (bd->state.atk_fail_count > 20) {
 					clif_displaymessage(sd->fd, msg_txt(sd, 2347));
-					pcbot_stop(bd->sd, -2);
+					pcbot_stop(sd, -2);
+					return 1;
 				}
 			}
 			bd->state.next_acttime = tick + 500;
@@ -15512,7 +15551,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				return 0;
 			}
 			pc_takeitem(sd, (struct flooritem_data *)tbl);
-			bd->state.next_acttime = tick + bd->info.lootitem_delay / 2;
+			bd->state.next_acttime = tick + pcbot_delay(bd, BOT_DELAY_LOOT);
 			bd->target_id = bd->target_type = 0;
 			return 1;
 		}
@@ -15526,12 +15565,13 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			if (check_distance_bl(&sd->bl, tbl, 1) || unit_walktobl(&sd->bl, tbl, 1, 1)) {
 				const struct TimerData* td;
 				if ((td = get_timer(sd->ud.walktimer)))
-					bd->state.next_acttime = td->tick + bd->info.lootitem_delay / 2;
+					bd->state.next_acttime = td->tick + 300;
 				bd->target_id = tbl->id;
 				bd->target_type = tbl->type;
 				return 1;
 			}
-			bd->state.next_acttime = tick + bd->info.lootitem_delay / 2;
+			bd->state.next_acttime = tick + 300;
+			return 1;
 		}
 		bd->target_id = bd->target_type = 0;
 		bd->state.next_lootitem = tick + 2000;
@@ -15540,8 +15580,8 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 	if (bd->target_dead == 1) {
 		bd->target_dead = 0;
 		bd->skill_order = bd->skill_attack = NULL;
-		bd->state.next_acttime = tick + bd->info.change_delay;
-		bd->state.next_lootitem = tick;
+		bd->state.next_acttime = tick + pcbot_delay(bd, BOT_DELAY_CHOOSE);
+		bd->state.next_lootitem = tick + pcbot_delay(bd, BOT_DELAY_LOOT);
 		return 1;
 	}
 
@@ -15559,7 +15599,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			//如果够不到则走近魔物
 			if (unit_can_move(&sd->bl) && !check_distance_bl(&sd->bl, tbl, bd->min_chase))
 				unit_walktobl(&sd->bl, tbl, bd->min_chase, 1);
-			else if (bd->sd->ud.canact_tick < tick)
+			else if (sd->ud.canact_tick < tick)
 				pcbot_useskill(bd, tbl, tick, INF_ATTACK_SKILL);
 		}
 		else if ((bd->ai_mode & BOT_WEAPON_ATK)) {
@@ -15591,13 +15631,17 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			}
 			path_free(ad);
 		}
-		if ((sp = path_Astar_steppath(sd->bl.m, sd->bl.x, sd->bl.y, x, y, sd->bl.id)) == NULL)
+		if ((sp = path_Astar_steppath(sd->bl.m, sd->bl.x, sd->bl.y, x, y, sd->bl.id)) == NULL) {
+			if (++bd->state.move_fail_count > 4) {
+				clif_displaymessage(sd->fd, msg_txt(sd, 2346));
+				pcbot_stop(sd, -3);
+				return 1;
+			}
 			bd->state.move_fail_count++;
-		if (bd->state.move_fail_count > 100) {
-			clif_displaymessage(sd->fd, msg_txt(sd, 2346));
-			pcbot_stop(bd->sd, -3);
+			pcbot_walk_fail_event(bd, tick);
 			return 0;
 		}
+
 		ad->path = sp;
 		ad->step = 0;
 		ad->in_bot = 1;
@@ -15629,22 +15673,25 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			rx = 3; ry = 9;
 			break;
 		}
-		if (map_search_freecell(&sd->bl, sd->bl.m, &x, &y, rx, ry, 3)) {
-			unit_walktoxy(&sd->bl, x, y, 1);
+		if (map_search_freecell(&sd->bl, sd->bl.m, &x, &y, rx, ry, 3) && (unit_walktoxy(&sd->bl, x, y, 1) || unit_walktoxy(&sd->bl, x, y, 0)))
 			return 1;
-		}
-		bd->state.move_fail_count++;
+
 		bd->state.dir += (rnd() % 2) ? 1 : -1;
+
 		if (bd->state.dir == -1)
 			bd->state.dir = 3;
 		else if (bd->state.dir == 4)
 			bd->state.dir = 0;
 
-		if (bd->state.move_fail_count > 100) {
+		if (++bd->state.move_fail_count > 100) {
 			clif_displaymessage(sd->fd, msg_txt(sd, 2346));
-			pcbot_stop(bd->sd, -3);
+			pcbot_stop(sd, -3);
 			return 0;
 		}
+
+		if (bd->state.move_fail_count % 8 == 0)
+			pcbot_walk_fail_event(bd, tick);
+
 		return 1;
 	}
 	bd->state.next_acttime = tick + 500;
@@ -15664,11 +15711,15 @@ struct bot_data *pcbot_getdata(struct map_session_data *sd)
 	if (!(bd = map_id2bot(sd->bl.id))) {
 		CREATE(bd, struct bot_data, 1);
 		bd->sd = sd;
+		bd->src_id = sd->bl.id;
 		bd->ai_mode = BOT_IDEA;
-		bd->info.lootitem_delay = 700;
-		bd->info.change_delay = 800;
+		bd->info.loot_delay.min = 300;
+		bd->info.loot_delay.max = 800;
+		bd->info.choose_delay.min = 800;
+		bd->info.choose_delay.max = 1300;
+		bd->info.skill_delay.min = 300;
+		bd->info.skill_delay.max = 800;
 		map_addbot(bd);
-		sd->state.bot = 1;
 	}
 
 	return bd;
@@ -15687,13 +15738,11 @@ static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data) {
 		if (!sd->state.active || (!sd->state.autotrade && !sd->state.pc_loaded))
 			add_timer(gettick() + 100, buildin_bot_login_sub, id, data);
 		else {
-			struct bot_data *bd;
-			CREATE(bd, struct bot_data, 1);
+			struct bot_data *bd = pcbot_getdata(sd);
 			bd->sd = sd;
 			bd->src_id = sd->bl.id;
 			bd->ai_mode |= BOT_IDEA;
 			map_addbot(bd);
-			sd->state.bot = 1;
 			auto it = bot_attach_st.find(sd->status.char_id);
 			if (it != bot_attach_st.end()) {
 				struct script_state *st = it->second;
@@ -15799,7 +15848,6 @@ int pcbot_stop(struct map_session_data *sd, int logout)
 		npc_script_event_atonce(sd, NPCE_BOTSTOPEVENT);
 		logout = logout < 0 ? static_cast<int>(pc_readreg2(sd, "@offline")) : logout;
 	}
-	sd->state.bot = 0;
 	sd->state.no_touch_script = 0;
 
 	if (logout < 0)

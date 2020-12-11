@@ -23220,7 +23220,7 @@ static int clif_message_check_sub_(struct block_list* bl, va_list ap)
 			out_name = sd->status.name;
 		}
 		if (tsd && tsd->state.bot) {
-			pc_setreg(tsd, add_str("@bot_recv_type"), type);
+			pc_setreg(tsd, add_str("@bot_recv_type"), type-PKL_PUBLIC+1);
 			pc_setreg(tsd, add_str("@bot_recv_target"), tsd->bl.id);
 			pc_setregstr(tsd, add_str("@bot_recv_name$"), out_name);
 			pc_setregstr(tsd, add_str("@bot_recv_message$"), out_message);

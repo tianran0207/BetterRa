@@ -372,6 +372,12 @@ enum bot_mode : uint16 {
 	BOT_OFFLINE         = 0x2000,
 };
 
+enum bot_delay : uint16 {
+	BOT_DELAY_LOOT = 1,
+	BOT_DELAY_CHOOSE,
+	BOT_DELAY_SKILL,
+};
+
 enum bot_act : uint16 {
 	BOT_ACT_REFUSE,
 	BOT_ACT_ACCEPT,
@@ -408,6 +414,10 @@ struct s_bot_lootlist {
 	bool rob;
 };
 
+struct s_bot_delay {
+	int min, max;
+};
+
 struct bot_data {
 	int ai_mode;
 	struct map_session_data *sd;
@@ -419,9 +429,7 @@ struct bot_data {
 		std::vector<s_bot_uselist> doevent;
 		std::vector<s_bot_moblist> moblist;
 		std::vector<s_bot_lootlist> lootitem;
-
-		unsigned short lootitem_delay;
-		unsigned short change_delay;
+		struct s_bot_delay loot_delay, choose_delay, skill_delay;
 		int ignore_same_ele;
 		int follow_aid;
 	} info;

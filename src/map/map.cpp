@@ -6070,13 +6070,17 @@ void map_foreachbot(int(*func)(struct bot_data *bd, va_list args), ...)
 }
 
 void map_addbot(struct bot_data *bd) {
+	struct map_session_data* sd = map_id2sd(bd->src_id);
 	nullpo_retv(bd);
+	if (sd) sd->state.bot = 1;
 	idb_put(bot_db, bd->src_id, bd);
 }
 
 void map_delbot(struct bot_data *bd)
 {
+	struct map_session_data* sd = map_id2sd(bd->src_id);
 	nullpo_retv(bd);
+	if (sd) sd->state.bot = 0;
 	idb_remove(bot_db, bd->src_id);
 }
 
