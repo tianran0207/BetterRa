@@ -15742,7 +15742,6 @@ static int buildin_bot_login_sub(int tid, t_tick tick, int id, intptr_t data) {
 			bd->sd = sd;
 			bd->src_id = sd->bl.id;
 			bd->ai_mode |= BOT_IDEA;
-			map_addbot(bd);
 			auto it = bot_attach_st.find(sd->status.char_id);
 			if (it != bot_attach_st.end()) {
 				struct script_state *st = it->second;
