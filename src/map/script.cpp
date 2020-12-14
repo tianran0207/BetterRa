@@ -26356,8 +26356,10 @@ BUILDIN_FUNC(logout)
 	if (sd) {
 		if (sd->fd > 0)
 			clif_authfail_fd(sd->fd, 15);
-		else
+		else {
+			script_detach_rid(st);
 			map_quit(sd);
+		}
 		script_pushint(st, 1);	
 	}
 	else {
