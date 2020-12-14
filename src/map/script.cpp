@@ -28662,12 +28662,13 @@ BUILDIN_FUNC(pctalk)
 	struct guild *g;
 	struct party_data *p;
 	char mes[CHAT_SIZE_MAX];
+	const char *mes_pr = script_getstr(st, 3);
 
 	if (!script_charid2sd(4,sd))
 		return SCRIPT_CMD_FAILURE;
 
 	int target = script_getnum(st, 2);
-	safesnprintf(mes, CHAT_SIZE_MAX, "%s : %s", sd->status.name, script_getstr(st, 3));
+	safesnprintf(mes, CHAT_SIZE_MAX, "%s : %s", sd->status.name, mes_pr);
 
 	if (target == 0) {
 		clif_GlobalMessage(&sd->bl, mes, sd->chatID ? CHAT_WOS : AREA_CHAT_WOC);
@@ -28687,7 +28688,7 @@ BUILDIN_FUNC(pctalk)
 		}
 	}
 	else if ((tsd = map_id2sd(target)) != NULL)
-		clif_wis_message(tsd, sd->status.name, mes, (int)strlen(mes) + 1, 0);
+		clif_wis_message(tsd, sd->status.name, mes_pr, (int)strlen(mes_pr) + 1, 0);
 
 	return SCRIPT_CMD_SUCCESS;
 }

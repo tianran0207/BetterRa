@@ -23221,7 +23221,7 @@ static int clif_message_check_sub_(struct block_list* bl, va_list ap)
 		}
 		if (tsd && tsd->state.bot) {
 			pc_setreg(tsd, add_str("@bot_recv_type"), type-PKL_PUBLIC+1);
-			pc_setreg(tsd, add_str("@bot_recv_target"), tsd->bl.id);
+			pc_setreg(tsd, add_str("@bot_recv_target"), sd->bl.id);
 			pc_setregstr(tsd, add_str("@bot_recv_name$"), out_name);
 			pc_setregstr(tsd, add_str("@bot_recv_message$"), out_message);
 			npc_script_event_atonce(tsd, NPCE_BOTRECVACTEVENT);
