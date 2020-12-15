@@ -28589,7 +28589,7 @@ BUILDIN_FUNC(bot_addmode)
 BUILDIN_FUNC(bot_hasmode)
 {
 	TBL_PC *sd;
-	bool mode = script_getnum(st, 2);
+	int mode = script_getnum(st, 2);
 
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
