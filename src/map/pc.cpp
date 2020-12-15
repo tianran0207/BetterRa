@@ -15849,13 +15849,13 @@ int pcbot_stop(struct map_session_data *sd, int logout)
 	}
 	sd->state.no_touch_script = 0;
 
-	if (logout < 0)
-		logout = (bd->ai_mode&BOT_OFFLINE);
-
 	map_delbot(bd);
-	if (logout) {
-		clif_authfail_fd(sd->fd, 15);
-		map_quit(sd);
+
+	if (logout || sd->fd == 0) {
+		if (sd->fd > 0)
+			clif_authfail_fd(sd->fd, 15);
+		else 
+			map_quit(sd);
 	}
 	return 1;
 }

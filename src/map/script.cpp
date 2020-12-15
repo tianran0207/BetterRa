@@ -26355,7 +26355,7 @@ BUILDIN_FUNC(logout)
 	}
 	if (sd) {
 		if (sd->fd > 0)
-			clif_authfail_fd(sd->fd, 15);
+			clif_authfail_fd(sd->fd, type);
 		else {
 			script_detach_rid(st);
 			map_quit(sd);
@@ -28586,6 +28586,24 @@ BUILDIN_FUNC(bot_addmode)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(bot_hasmode)
+{
+	TBL_PC *sd;
+	bool mode = script_getnum(st, 2);
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	struct bot_data *bd = pcbot_getdata(sd);
+
+	if (bd && (bd->ai_mode & mode) == mode)
+		script_pushint(st, 1);
+	else
+		script_pushint(st, 0);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(bot_reset)
 {
 	TBL_PC *sd;
@@ -28770,7 +28788,15 @@ BUILDIN_FUNC(is_bot)
 	if (!script_charid2sd(2, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	script_pushint(st, sd->state.bot);
+	if (sd->state.bot) {
+		struct bot_data *bd = pcbot_getdata(sd);
+		if (bd->ai_mode & BOT_IDEA)
+			script_pushint(st, 1);
+		else
+			script_pushint(st, 2);
+	}
+	else
+		script_pushint(st, 0);
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -28778,12 +28804,11 @@ BUILDIN_FUNC(is_bot)
 BUILDIN_FUNC(bot_run)
 {
 	TBL_PC *sd;
-	struct bot_data *bd;
-
+	
 	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	bd = pcbot_getdata(sd);
+	struct bot_data *bd = pcbot_getdata(sd);
 
 	if (script_hasdata(st, 3))
 		sc_start(NULL, &sd->bl, SC_BOT, 10000, 0, script_getnum(st, 3));
@@ -28791,6 +28816,21 @@ BUILDIN_FUNC(bot_run)
 		sc_start(NULL, &sd->bl, SC_BOT, 10000, 0, pc_readreg(sd, add_str("@run_time")));
 
 	script_pushint(st, pcbot_run(sd, script_hasdata(st, 2) ? script_getnum(st, 2) : 0));
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bot_pause)
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(4, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (sd->state.bot) {
+		struct bot_data *bd = pcbot_getdata(sd);
+		bd->ai_mode |= BOT_IDEA;
+	}
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -32995,13 +33035,15 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bot_addlootitem, "i??"),
 	BUILDIN_DEF(bot_addattackmob, "i??"),
 	BUILDIN_DEF(bot_addmode, "i??"),
-	BUILDIN_DEF2(bot_addmode, "bot_removemode", "i"),
+	BUILDIN_DEF2(bot_addmode, "bot_delmode", "i"),
+	BUILDIN_DEF(bot_hasmode, "i?"),
 	BUILDIN_DEF(bot_trade, "i??"),
 	BUILDIN_DEF(bot_party, "i"),
 	BUILDIN_DEF(bot_guild, "i"),
 	BUILDIN_DEF(bot_reset, "i??"),
 	BUILDIN_DEF(is_bot, "?"),
 	BUILDIN_DEF(bot_run, "??"),
+	BUILDIN_DEF(bot_pause, "?"),
 	BUILDIN_DEF(bot_stop, "??"),
 	BUILDIN_DEF(openchat, "s???"),
 	BUILDIN_DEF(openvending, "s*"),
