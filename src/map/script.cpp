@@ -28469,8 +28469,9 @@ BUILDIN_FUNC(bot_adduseskill)
 	entry.lv = script_getnum(st, 3);
 	entry.delay = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
 	entry.cond = script_hasdata(st, 5) ? script_getnum(st, 5) : BOT_USE_ALWAYS;
-	entry.cond_val[0] = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
-	entry.cond_val[1] = script_hasdata(st, 7) ? script_getnum(st, 7) : 0;
+	entry.cond_lv = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+	entry.cond_val[0] = script_hasdata(st, 7) ? script_getnum(st, 7) : 0;
+	entry.cond_val[1] = script_hasdata(st, 8) ? script_getnum(st, 8) : 0;
 
 	if (!entry.id || skill_get_index(entry.id) == 0)
 		return SCRIPT_CMD_FAILURE;
@@ -28494,8 +28495,9 @@ BUILDIN_FUNC(bot_adduseitem)
 	entry.id = script_getnum(st, 2);
 	entry.delay = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
 	entry.cond = script_hasdata(st, 4) ? script_getnum(st, 4) : BOT_USE_ALWAYS;
-	entry.cond_val[0] = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
-	entry.cond_val[1] = script_hasdata(st, 6) ? script_getnum(st, 6) : 100;
+	entry.cond_lv = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
+	entry.cond_val[0] = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+	entry.cond_val[1] = script_hasdata(st, 7) ? script_getnum(st, 7) : 100;
 
 	if (!(item = itemdb_exists(entry.id))) {
 		ShowWarning("bot_adduseitem: Item ID %u does not exists in the item_db.\n", entry.id);
@@ -28522,8 +28524,9 @@ BUILDIN_FUNC(bot_addevent)
 	safestrncpy(entry.eventname, script_getstr(st, 2), EVENT_NAME_LENGTH);
 	entry.delay = script_hasdata(st, 3) ? script_getnum(st, 3) : 1000;
 	entry.cond = script_hasdata(st, 4) ? script_getnum(st, 4) : BOT_USE_ALWAYS;
-	entry.cond_val[0] = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
-	entry.cond_val[1] = script_hasdata(st, 6) ? script_getnum(st, 6) : 100;
+	entry.cond_lv = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
+	entry.cond_val[0] = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+	entry.cond_val[1] = script_hasdata(st, 7) ? script_getnum(st, 7) : 100;
 
 	bd->info.doevent.push_back(entry);
 

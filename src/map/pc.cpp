@@ -15185,6 +15185,7 @@ static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 {
 	struct map_session_data *sd = bd->sd;
 	struct s_bot_uselist *bs = NULL;
+	short cond_lv = SHRT_MIN;
 	bool support = false;
 
 	if (bd->state.next_useskill > tick)
@@ -15207,13 +15208,16 @@ static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 			continue;
 		if (!pcbot_check_usecond(bd, &it, tick))
 			continue;
-		if ((inf & INF_SUPPORT_SKILL) && bd->support_sd) {
-			if (it.inf & INF_SUPPORT_SKILL) {
-				bs = bd->skill_support = &it;
-				break;
-			}
-		}else if ((inf & INF_ATTACK_SKILL) && !(it.inf & INF_SUPPORT_SKILL))
+		if (it.cond_lv < cond_lv)
+			continue;
+		if ((inf & it.inf & INF_SUPPORT_SKILL) && bd->support_sd) {
+			bs = bd->skill_support = &it;
+			cond_lv = it.cond_lv;
+		}
+		else if ((inf & it.inf & INF_ATTACK_SKILL)) {
 			bs = bd->skill_attack = &it;
+			cond_lv = it.cond_lv;
+		}
 	}
 	if (bs) {
 		bd->skill_order = bs;
@@ -15292,21 +15296,28 @@ static bool pcbot_useitem(struct bot_data *bd, t_tick tick)
 {
 	struct map_session_data *sd = bd->sd;
 	struct s_bot_uselist *bs = NULL;
+	short cond_lv = SHRT_MIN;
 
 	for (auto &it : bd->info.useitem)
 	{
 		if (!pcbot_check_usecond(bd, &it, tick))
 			continue;
-		if (it.inf < 0 || it.inf >= MAX_INVENTORY || sd->inventory.u.items_inventory[it.inf].nameid != it.id)
-			it.inf = pc_search_inventory(sd, it.id);
-		if (it.inf >= 0 && pc_useitem(sd, it.inf)) {
-			it.cooldown = tick + it.delay;
-			bd->state.next_useitem = min(2000, it.delay);
-			return true;
+		if (it.cond_lv < cond_lv)
+			continue;
+		if ((it.inf < 0 || it.inf >= MAX_INVENTORY || sd->inventory.u.items_inventory[it.inf].nameid != it.id) &&
+			(it.inf = pc_search_inventory(sd, it.id)) < 0) {
+			it.cooldown = tick + 10000;
+			continue;
 		}
-		it.cooldown = tick + 10000;
-		break;
+		bs = &it;
+		cond_lv = it.cond_lv;
 	}
+	if (bs && bs->inf >= 0) {
+		pc_useitem(sd, bs->inf);
+		bs->cooldown = tick + bs->delay;
+		bd->state.next_useitem = min(2000, bs->delay);
+	}
+
 	bd->state.next_useitem = tick + 2000;
 	return false;
 }
@@ -15315,15 +15326,20 @@ static bool pcbot_doevent(struct bot_data *bd, t_tick tick)
 {
 	struct map_session_data *sd = bd->sd;
 	struct s_bot_uselist *bs = NULL;
+	short cond_lv = SHRT_MIN;
 
 	for (auto &it : bd->info.doevent)
 	{
 		if (!pcbot_check_usecond(bd, &it, tick))
 			continue;
-
-		npc_event(sd, it.eventname, 0);
-		it.cooldown = tick + it.delay;
-		break;
+		if (it.cond_lv < cond_lv)
+			continue;
+		bs = &it;
+		cond_lv = it.cond_lv;
+	}
+	if (bs) {
+		npc_event(sd, bs->eventname, 0);
+		bs->cooldown = tick + bs->delay;
 	}
 	bd->state.next_doevent = tick + 1000;
 	return false;
@@ -15842,7 +15858,7 @@ int pcbot_stop(struct map_session_data *sd, int logout)
 		return 0;
 
 	if (npc_script_event_check(sd, NPCE_BOTSTOPEVENT)) {
-		pc_setreg(sd, add_str("@offline"), (bd->ai_mode&BOT_OFFLINE)==BOT_OFFLINE);
+		pc_setreg(sd, add_str("@offline"), (bd->ai_mode&BOT_OFFLINE) ? 1 : 0);
 		pc_setreg(sd, add_str("@bot_reason"), logout < 0 ? -logout : 0);
 		npc_script_event_atonce(sd, NPCE_BOTSTOPEVENT);
 		logout = logout < 0 ? static_cast<int>(pc_readreg2(sd, "@offline")) : logout;
