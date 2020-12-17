@@ -4814,7 +4814,8 @@ void map_remove_questinfo(int m, struct npc_data *nd) {
 	for (int i = 0; i < mapdata->qi_data.size(); i++) {
 		qi = &mapdata->qi_data[i];
 		if (qi && qi->nd == nd) {
-			script_free_code(qi->condition);
+			if (qi->condition)
+				script_free_code(qi->condition);
 			mapdata->qi_data.erase(mapdata->qi_data.begin() + i);
 		}
 	}

@@ -15185,7 +15185,7 @@ static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 {
 	struct map_session_data *sd = bd->sd;
 	struct s_bot_uselist *bs = NULL;
-	short cond_lv = SHRT_MIN;
+	short prior = SHRT_MIN;
 	bool support = false;
 
 	if (bd->state.next_useskill > tick)
@@ -15208,16 +15208,18 @@ static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 			continue;
 		if (!pcbot_check_usecond(bd, &it, tick))
 			continue;
-		if (it.cond_lv < cond_lv)
+		if (it.prior < prior)
 			continue;
-		if ((inf & it.inf & INF_SUPPORT_SKILL) && bd->support_sd) {
+		if (inf & INF_SUPPORT_SKILL) {
+			if (!(it.inf & INF_SUPPORT_SKILL) || !bd->support_sd)
+				continue;
 			bs = bd->skill_support = &it;
-			cond_lv = it.cond_lv;
-		}
-		else if ((inf & it.inf & INF_ATTACK_SKILL)) {
+		} else {
+			if ((it.inf & INF_SUPPORT_SKILL))
+				continue;
 			bs = bd->skill_attack = &it;
-			cond_lv = it.cond_lv;
 		}
+		prior = it.prior;
 	}
 	if (bs) {
 		bd->skill_order = bs;
@@ -15296,13 +15298,13 @@ static bool pcbot_useitem(struct bot_data *bd, t_tick tick)
 {
 	struct map_session_data *sd = bd->sd;
 	struct s_bot_uselist *bs = NULL;
-	short cond_lv = SHRT_MIN;
+	short prior = SHRT_MIN;
 
 	for (auto &it : bd->info.useitem)
 	{
 		if (!pcbot_check_usecond(bd, &it, tick))
 			continue;
-		if (it.cond_lv < cond_lv)
+		if (it.prior < prior)
 			continue;
 		if ((it.inf < 0 || it.inf >= MAX_INVENTORY || sd->inventory.u.items_inventory[it.inf].nameid != it.id) &&
 			(it.inf = pc_search_inventory(sd, it.id)) < 0) {
@@ -15310,7 +15312,7 @@ static bool pcbot_useitem(struct bot_data *bd, t_tick tick)
 			continue;
 		}
 		bs = &it;
-		cond_lv = it.cond_lv;
+		prior = it.prior;
 	}
 	if (bs && bs->inf >= 0) {
 		pc_useitem(sd, bs->inf);
@@ -15326,16 +15328,16 @@ static bool pcbot_doevent(struct bot_data *bd, t_tick tick)
 {
 	struct map_session_data *sd = bd->sd;
 	struct s_bot_uselist *bs = NULL;
-	short cond_lv = SHRT_MIN;
+	short prior = SHRT_MIN;
 
 	for (auto &it : bd->info.doevent)
 	{
 		if (!pcbot_check_usecond(bd, &it, tick))
 			continue;
-		if (it.cond_lv < cond_lv)
+		if (it.prior < prior)
 			continue;
 		bs = &it;
-		cond_lv = it.cond_lv;
+		prior = it.prior;
 	}
 	if (bs) {
 		npc_event(sd, bs->eventname, 0);

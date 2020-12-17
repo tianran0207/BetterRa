@@ -26104,7 +26104,7 @@ BUILDIN_FUNC(refreshinventory)
 	else
 		idx = script_hasdata(st, 2) ? script_getnum(st, 2) : -1;
 
-	if (idx > -1 && idx < MAX_INVENTORY && inv_info.sd == sd && inv_info.it == &sd->inventory.u.items_inventory[idx]) {
+	if (idx > -1 && idx < MAX_INVENTORY && inv_info.sd == sd && inv_info.it == &sd->inventory.u.items_inventory[idx] && memcmp(inv_info.it, &inv_info.item, sizeof(struct item))) {
 		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->inventory.u.items_inventory[idx]);
 		memcpy(&sd->inventory.u.items_inventory[idx], &inv_info.item, sizeof(struct item));
 		log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->inventory.u.items_inventory[idx]);
@@ -26112,13 +26112,15 @@ BUILDIN_FUNC(refreshinventory)
 			clif_inventorylist(sd);
 		else
 			clif_equiplist(sd);
-		memset(&inv_info, 0, sizeof(struct s_setinventory));
+
+		clif_item_preview(sd, idx);
 	}
 	else if (strstr(command, "equip"))
 		clif_equiplist(sd);
 	else
 		clif_inventorylist(sd);
 
+	memset(&inv_info, 0, sizeof(struct s_setinventory));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -28468,8 +28470,8 @@ BUILDIN_FUNC(bot_adduseskill)
 	entry.id = script_getnum(st, 2);
 	entry.lv = script_getnum(st, 3);
 	entry.delay = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
-	entry.cond = script_hasdata(st, 5) ? script_getnum(st, 5) : BOT_USE_ALWAYS;
-	entry.cond_lv = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+	entry.prior = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
+	entry.cond = script_hasdata(st, 6) ? script_getnum(st, 6) : BOT_USE_ALWAYS;
 	entry.cond_val[0] = script_hasdata(st, 7) ? script_getnum(st, 7) : 0;
 	entry.cond_val[1] = script_hasdata(st, 8) ? script_getnum(st, 8) : 0;
 
@@ -28494,8 +28496,8 @@ BUILDIN_FUNC(bot_adduseitem)
 	struct s_bot_uselist entry = {};
 	entry.id = script_getnum(st, 2);
 	entry.delay = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
-	entry.cond = script_hasdata(st, 4) ? script_getnum(st, 4) : BOT_USE_ALWAYS;
-	entry.cond_lv = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
+	entry.prior = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
+	entry.cond = script_hasdata(st, 5) ? script_getnum(st, 5) : BOT_USE_ALWAYS;
 	entry.cond_val[0] = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
 	entry.cond_val[1] = script_hasdata(st, 7) ? script_getnum(st, 7) : 100;
 
@@ -28523,8 +28525,8 @@ BUILDIN_FUNC(bot_addevent)
 	struct s_bot_uselist entry = {};
 	safestrncpy(entry.eventname, script_getstr(st, 2), EVENT_NAME_LENGTH);
 	entry.delay = script_hasdata(st, 3) ? script_getnum(st, 3) : 1000;
-	entry.cond = script_hasdata(st, 4) ? script_getnum(st, 4) : BOT_USE_ALWAYS;
-	entry.cond_lv = script_hasdata(st, 5) ? script_getnum(st, 5) : 0;
+	entry.prior = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
+	entry.cond = script_hasdata(st, 5) ? script_getnum(st, 5) : BOT_USE_ALWAYS;
 	entry.cond_val[0] = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
 	entry.cond_val[1] = script_hasdata(st, 7) ? script_getnum(st, 7) : 100;
 
@@ -28570,16 +28572,19 @@ BUILDIN_FUNC(bot_addmode)
 	TBL_PC *sd;
 	int type = script_getnum(st, 2);
 	bool add_mode = !strcmp(script_getfuncname(st), "bot_addmode");
-	int value = script_hasdata(st, 3) && add_mode ? script_getnum(st, 3) : 0;
+	int value = script_hasdata(st, 3) ? script_getnum(st, 3) : 0;
 
 	if (!script_charid2sd(4, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	struct bot_data *bd = pcbot_getdata(sd);
 
-	sd->state.no_touch_script = add_mode && (type&BOT_IGNORE_TOUCH) ? 1 : 0;
-	bd->info.ignore_same_ele = add_mode && (type&BOT_IGNORE_SAME_ELE) ? value : 0;
-	bd->info.follow_aid = add_mode && (type&BOT_FOLLOW_WALK) ? value : 0;
+	if (type&BOT_IGNORE_TOUCH)
+		sd->state.no_touch_script = add_mode ? value : 0;
+	if (type&BOT_IGNORE_SAME_ELE)
+		bd->info.ignore_same_ele = add_mode ? value : 0;
+	if (type&BOT_FOLLOW_WALK)
+		bd->info.follow_aid = add_mode ? value : 0;
 
 	if (add_mode)
 		bd->ai_mode |= type;
@@ -30625,7 +30630,7 @@ BUILDIN_FUNC(itempreview)
 		return SCRIPT_CMD_FAILURE;
 
 	clif_item_preview(sd, script_getnum(st, 2));
-	return true;
+	return SCRIPT_CMD_SUCCESS;
 }
 
 BUILDIN_FUNC(mesf)
@@ -33033,8 +33038,8 @@ struct script_function buildin_func[] = {
 	//BOTϵͳ
 	BUILDIN_DEF(bot_login, "v??"),
 	BUILDIN_DEF(bot_adduseskill, "ii??????"),
-	BUILDIN_DEF(bot_adduseitem, "i?????"),
-	BUILDIN_DEF(bot_addevent, "s?????"),
+	BUILDIN_DEF(bot_adduseitem, "i??????"),
+	BUILDIN_DEF(bot_addevent, "s??????"),
 	BUILDIN_DEF(bot_addlootitem, "i??"),
 	BUILDIN_DEF(bot_addattackmob, "i??"),
 	BUILDIN_DEF(bot_addmode, "i??"),

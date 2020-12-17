@@ -7052,7 +7052,7 @@ void clif_item_preview(struct map_session_data *sd, int n)
 {
 #if PACKETVER_MAIN_NUM >= 20170726 || PACKETVER_RE_NUM >= 20170621 || defined(PACKETVER_ZERO)
 	nullpo_retv(sd);
-	if (n >= 0 && n < MAX_INVENTORY)
+	if (n < 0 && n >= MAX_INVENTORY)
 		return;
 
 	struct PACKET_ZC_ITEM_PREVIEW p;
