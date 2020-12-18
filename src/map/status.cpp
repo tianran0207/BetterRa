@@ -714,9 +714,19 @@ void initChangeTables(void)
 	set_sc( NPC_WIDEHELLDIGNITY	, SC_HELLPOWER		, EFST_HELLPOWER		, SCB_NONE );
 	set_sc( NPC_INVINCIBLE		, SC_INVINCIBLE		, EFST_INVINCIBLE		, SCB_SPEED );
 	set_sc( NPC_INVINCIBLEOFF	, SC_INVINCIBLEOFF	, EFST_BLANK		, SCB_SPEED );
+	set_sc( NPC_WIDEHEALTHFEAR  , SC_FEAR           , EFST_BLANK            , SCB_FLEE|SCB_HIT );
+	set_sc( NPC_WIDEBODYBURNNING, SC_BURNING        , EFST_BODYSTATE_BURNNING , SCB_MDEF);
+	set_sc( NPC_WIDEFROSTMISTY  , SC_FREEZING       , EFST_FROSTMISTY       , SCB_ASPD|SCB_SPEED|SCB_DEF);
+	set_sc( NPC_WIDECOLD        , SC_CRYSTALIZE     , EFST_COLD             , SCB_NONE);
+	set_sc( NPC_WIDE_DEEP_SLEEP , SC_DEEPSLEEP      , EFST_HANDICAPSTATE_DEEP_SLEEP, SCB_NONE );
+	add_sc( NPC_WIDESIREN       , SC_VOICEOFSIREN     );
+
 	set_sc( NPC_COMET			, SC_BURNING		, EFST_BURNT		, SCB_MDEF );
 	set_sc_with_vfx( NPC_MAXPAIN	,	 SC_MAXPAIN	, EFST_MAXPAIN	, SCB_NONE );
 	add_sc( NPC_JACKFROST        , SC_FREEZE		  );
+
+	set_sc( NPC_WIDEWEB         , SC_SPIDERWEB      , EFST_SPIDERWEB        , SCB_FLEE);
+	set_sc( NPC_ALL_STAT_DOWN   , SC_ALL_STAT_DOWN  , EFST_ALL_STAT_DOWN    , SCB_ALL);
 
 	set_sc( CASH_BLESSING		, SC_BLESSING		, EFST_BLESSING		, SCB_STR|SCB_INT|SCB_DEX );
 	set_sc( CASH_INCAGI		, SC_INCREASEAGI	, EFST_INC_AGI, SCB_AGI|SCB_SPEED );
@@ -6348,6 +6358,8 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 #endif
 	if (sc->data[SC_UNIVERSESTANCE])
 		str += sc->data[SC_UNIVERSESTANCE]->val2;
+	if (sc->data[SC_ALL_STAT_DOWN])
+		str -= sc->data[SC_ALL_STAT_DOWN]->val2;
 
 	return (unsigned short)cap_value(str,0,USHRT_MAX);
 }
@@ -6430,6 +6442,8 @@ static unsigned short status_calc_agi(struct block_list *bl, struct status_chang
 #endif
 	if (sc->data[SC_UNIVERSESTANCE])
 		agi += sc->data[SC_UNIVERSESTANCE]->val2;
+	if (sc->data[SC_ALL_STAT_DOWN])
+		agi -= sc->data[SC_ALL_STAT_DOWN]->val2;
 
 	return (unsigned short)cap_value(agi,0,USHRT_MAX);
 }
@@ -6502,6 +6516,8 @@ static unsigned short status_calc_vit(struct block_list *bl, struct status_chang
 #endif
 	if (sc->data[SC_UNIVERSESTANCE])
 		vit += sc->data[SC_UNIVERSESTANCE]->val2;
+	if (sc->data[SC_ALL_STAT_DOWN])
+		vit -= sc->data[SC_ALL_STAT_DOWN]->val2;
 
 	return (unsigned short)cap_value(vit,0,USHRT_MAX);
 }
@@ -6589,6 +6605,8 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 	if (sc->data[SC_NIBELUNGEN] && sc->data[SC_NIBELUNGEN]->val2 == RINGNBL_ALLSTAT)
 		int_ += 15;
 #endif
+	if (sc->data[SC_ALL_STAT_DOWN])
+		int_ -= sc->data[SC_ALL_STAT_DOWN]->val2;
 
 	return (unsigned short)cap_value(int_,0,USHRT_MAX);
 }
@@ -6673,6 +6691,8 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 #endif
 	if (sc->data[SC_UNIVERSESTANCE])
 		dex += sc->data[SC_UNIVERSESTANCE]->val2;
+	if (sc->data[SC_ALL_STAT_DOWN])
+		dex -= sc->data[SC_ALL_STAT_DOWN]->val2;
 
 	return (unsigned short)cap_value(dex,0,USHRT_MAX);
 }
@@ -6743,6 +6763,8 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 #endif
 	if (sc->data[SC_UNIVERSESTANCE])
 		luk += sc->data[SC_UNIVERSESTANCE]->val2;
+	if (sc->data[SC_ALL_STAT_DOWN])
+		luk -= sc->data[SC_ALL_STAT_DOWN]->val2;
 
 	return (unsigned short)cap_value(luk,0,USHRT_MAX);
 }
@@ -12507,7 +12529,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_SP_SHA:
 			val2 = 50; // Move speed reduction
 			break;
-
+		case SC_ALL_STAT_DOWN:
+			val2 = val1 < 5 ? 10 + 2 * (val1 - 1) : 100;
+			break;
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] == -1 && StatusIconChangeTable[type] == EFST_BLANK ) {
 				// Status change with no calc, no icon, and no skill associated...?

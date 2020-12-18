@@ -16700,6 +16700,172 @@ Body:
     FixedCastTime: -1
     Requires:
       SpCost: 1
+  - Id: 700
+    Name: NPC_WIDEHEALTHFEAR
+    Description: Wide Health Fear
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
+    SplashArea:
+      - Level: 1
+        Area: 2
+      - Level: 2
+        Area: 5
+      - Level: 3
+        Area: 8
+      - Level: 4
+        Area: 11
+      - Level: 5
+        Area: 14
+    Duration2: 15000
+    FixedCastTime: -1
+  - Id: 701
+    Name: NPC_WIDEBODYBURNNING
+    Description: Wide Body Burnning
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
+    SplashArea:
+      - Level: 1
+        Area: 2
+      - Level: 2
+        Area: 5
+      - Level: 3
+        Area: 8
+      - Level: 4
+        Area: 11
+      - Level: 5
+        Area: 14
+    Duration2: 10000
+    FixedCastTime: -1
+  - Id: 702
+    Name: NPC_WIDEFROSTMISTY
+    Description: Wide Frosty Misty
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
+    SplashArea:
+      - Level: 1
+        Area: 2
+      - Level: 2
+        Area: 5
+      - Level: 3
+        Area: 8
+      - Level: 4
+        Area: 11
+      - Level: 5
+        Area: 14
+    Duration2: 10000
+    FixedCastTime: -1
+  - Id: 703
+    Name: NPC_WIDECOLD
+    Description: Wide Wide Cold
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
+    SplashArea:
+      - Level: 1
+        Area: 2
+      - Level: 2
+        Area: 5
+      - Level: 3
+        Area: 8
+      - Level: 4
+        Area: 11
+      - Level: 5
+        Area: 14
+    Duration2: 20000
+    FixedCastTime: -1
+  - Id: 704
+    Name: NPC_WIDE_DEEP_SLEEP
+    Description: Wide Deep Sleep
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
+    SplashArea:
+      - Level: 1
+        Area: 2
+      - Level: 2
+        Area: 5
+      - Level: 3
+        Area: 8
+      - Level: 4
+        Area: 11
+      - Level: 5
+        Area: 14
+    Duration2: 30000
+    FixedCastTime: -1
+  - Id: 705
+    Name: NPC_WIDESIREN
+    Description: Wide Siren
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
+    SplashArea:
+      - Level: 1
+        Area: 2
+      - Level: 2
+        Area: 5
+      - Level: 3
+        Area: 8
+      - Level: 4
+        Area: 11
+      - Level: 5
+        Area: 14
+    Duration2:
+      - Level: 1
+        Time: 15000
+      - Level: 2
+        Time: 18000
+      - Level: 3
+        Time: 21000
+      - Level: 4
+        Time: 24000
+      - Level: 5
+        Time: 27000
+    FixedCastTime: -1
   - Id: 706
     Name: NPC_VENOMFOG
     Description: Venom Fog
@@ -16913,6 +17079,33 @@ Body:
       - Level: 5
         Time: 32500
     FixedCastTime: -1
+  - Id: 721
+    Name: NPC_WIDEWEB
+    Description: Wide web
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
+    SplashArea: 7
+  - Id: 722
+    Name: NPC_WIDESUCK
+    Description: Wide Suck
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
   - Id: 725
     Name: NPC_REVERBERATION
     Description: Reverberation 2
@@ -17026,6 +17219,22 @@ Body:
       - Level: 10
         Area: 5
     CastCancel: true
+  - Id: 751
+    Name: NPC_ALL_STAT_DOWN
+    Description: All Stat Down
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
+    SplashArea: 9
+    Duration2: 10000
+    FixedCastTime: -1
   - Id: 1001
     Name: KN_CHARGEATK
     Description: Charge Attack

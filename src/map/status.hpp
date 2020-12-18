@@ -967,6 +967,8 @@ enum sc_type : int16 {
 	SC_IGNORE_RETURN,
 	SC_ATK_ATTR_FIX,
 	SC_DEF_ATTR_FIX,
+	SC_ALL_STAT_DOWN,
+	SC_GRADUAL_GRAVITY,
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 };
 
