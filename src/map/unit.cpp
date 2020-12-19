@@ -2156,8 +2156,13 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	if(ud->stepaction || ud->steptimer != INVALID_TIMER)
 		unit_stop_stepaction(src);
 	// Remember the skill request from the client while walking to the next cell
-	if(src->type == BL_PC && ud->walktimer != INVALID_TIMER && !battle_check_range(src, target, range))
-		unit_stop_walking(src, USW_FIXPOS|USW_MOVE_FULL_CELL);
+	if(src->type == BL_PC && ud->walktimer != INVALID_TIMER && !battle_check_range(src, target, range-1)) {
+		ud->stepaction = true;
+		ud->target_to = target_id;
+		ud->stepskill_id = skill_id;
+		ud->stepskill_lv = skill_lv;
+		return 0; // Attacking will be handled by unit_walktoxy_timer in this case
+	}
 
 	// Check range when not using skill on yourself or is a combo-skill during attack
 	// (these are supposed to always have the same range as your attack)
@@ -2496,8 +2501,15 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 	if(ud->stepaction || ud->steptimer != INVALID_TIMER)
 		unit_stop_stepaction(src);
 	// Remember the skill request from the client while walking to the next cell
-	if(src->type == BL_PC && ud->walktimer != INVALID_TIMER && !battle_check_range(src, &bl, range))
-		unit_stop_walking(src, USW_FIXPOS|USW_MOVE_FULL_CELL);
+	if(src->type == BL_PC && ud->walktimer != INVALID_TIMER && !battle_check_range(src, &bl, range-1)) {
+		struct map_data *md = &map[src->m];
+		// Convert coordinates to target_to so we can use it as target later
+		ud->stepaction = true;
+		ud->target_to = (skill_x + skill_y*md->xs);
+		ud->stepskill_id = skill_id;
+		ud->stepskill_lv = skill_lv;
+		return 0; // Attacking will be handled by unit_walktoxy_timer in this case
+	}
 
 	if( skill_get_state(ud->skill_id) == ST_MOVE_ENABLE ) {
 		if( !unit_can_reach_bl(src, &bl, range + 1, 1, NULL, NULL) )
@@ -2769,8 +2781,13 @@ int unit_attack(struct block_list *src,int target_id,int continuous)
 	if(ud->stepaction || ud->steptimer != INVALID_TIMER)
 		unit_stop_stepaction(src);
 	// Remember the attack request from the client while walking to the next cell
-	if(src->type == BL_PC && ud->walktimer != INVALID_TIMER && !battle_check_range(src, target, range))
-		unit_stop_walking(src, USW_FIXPOS|USW_MOVE_FULL_CELL);
+	if(src->type == BL_PC && ud->walktimer != INVALID_TIMER && !battle_check_range(src, target, range-1)) {
+		ud->stepaction = true;
+		ud->target_to = ud->target;
+		ud->stepskill_id = 0;
+		ud->stepskill_lv = 0;
+		return 0; // Attacking will be handled by unit_walktoxy_timer in this case
+	}
 	
 	if(DIFF_TICK(ud->attackabletime, gettick()) > 0) // Do attack next time it is possible. [Skotlex]
 		ud->attacktimer=add_timer(ud->attackabletime,unit_attack_timer,src->id,0);

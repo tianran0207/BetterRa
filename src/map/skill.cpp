@@ -16047,6 +16047,7 @@ bool skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_i
 				return false;
 			}
 			//Consume
+			sd->skillitem = sd->skillitemlv = sd->skillitem_keep_requirement = 0;
 			sd->itemid = 0;
 			sd->itemindex = -1;
 			if( (skill_id == WZ_EARTHSPIKE && sc && sc->data[SC_EARTHSCROLL] && rnd()%100 > sc->data[SC_EARTHSCROLL]->val2) || sd->inventory_data[i]->flag.delay_consume >= 2 ) // [marquis007]
