@@ -727,7 +727,19 @@ void initChangeTables(void)
 
 	set_sc( NPC_WIDEWEB         , SC_SPIDERWEB      , EFST_SPIDERWEB        , SCB_FLEE);
 	set_sc( NPC_ALL_STAT_DOWN   , SC_ALL_STAT_DOWN  , EFST_ALL_STAT_DOWN    , SCB_ALL);
-
+	set_sc( NPC_GRADUAL_GRAVITY , SC_GRADUAL_GRAVITY, EFST_GRADUAL_GRAVITY  , SCB_NONE);
+	set_sc( NPC_DAMAGE_HEAL     , SC_DAMAGE_HEAL    , EFST_DAMAGE_HEAL      , SCB_NONE);
+	add_sc( NPC_IMMUNE_PROPERTY , SC_IMMUNE_PROPERTY  );
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_NOTHING, EFST_IMMUNE_PROPERTY_NOTHING, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_WATER, EFST_IMMUNE_PROPERTY_WATER, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_GROUND, EFST_IMMUNE_PROPERTY_GROUND, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_FIRE, EFST_IMMUNE_PROPERTY_FIRE, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_WIND, EFST_IMMUNE_PROPERTY_WIND, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_POISON, EFST_IMMUNE_PROPERTY_POISON, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_SAINT, EFST_IMMUNE_PROPERTY_SAINT, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_DARKNESS, EFST_IMMUNE_PROPERTY_DARKNESS, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_TELEKINESIS, EFST_IMMUNE_PROPERTY_TELEKINESIS, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_UNDEAD, EFST_IMMUNE_PROPERTY_UNDEAD, SCB_NONE);
 	set_sc( CASH_BLESSING		, SC_BLESSING		, EFST_BLESSING		, SCB_STR|SCB_INT|SCB_DEX );
 	set_sc( CASH_INCAGI		, SC_INCREASEAGI	, EFST_INC_AGI, SCB_AGI|SCB_SPEED );
 	set_sc( CASH_ASSUMPTIO		, SC_ASSUMPTIO		,
@@ -12532,6 +12544,14 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_ALL_STAT_DOWN:
 			val2 = val1 < 5 ? 10 + 2 * (val1 - 1) : 100;
 			break;
+		case SC_GRADUAL_GRAVITY:
+			val2 = 10 * val1;
+			tick_time = 1000;
+			val4 = tick / tick_time;
+			break;
+		case SC_DAMAGE_HEAL:
+			val2 = (val1 == 3) ? BF_WEAPONMASK : val1;
+			break;
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] == -1 && StatusIconChangeTable[type] == EFST_BLANK ) {
 				// Status change with no calc, no icon, and no skill associated...?
@@ -15287,6 +15307,18 @@ TIMER_FUNC(status_change_timer){
 		if (--(sce->val4) >= 0) {
 			status_heal(bl, 1000, 350, 2);
 			sc_timer_next(1000 + tick);
+			return 0;
+		}
+		break;
+	case SC_GRADUAL_GRAVITY:
+		if (--(sce->val4) >= 0) {
+			int64 damage = status->max_hp * sce->val2 / 100; // Suggestion 1% each second
+			map_freeblock_lock();
+			status_fix_damage(bl, bl, damage, clif_damage(bl, bl, tick, status->amotion, status->dmotion, damage, 1, DMG_NORMAL, 0, false),0);
+			if (sc->data[type]) {
+				sc_timer_next(1000 + tick);
+			}
+			map_freeblock_unlock();
 			return 0;
 		}
 		break;

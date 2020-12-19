@@ -9906,6 +9906,27 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				skill_castend_nodamage_id);
 		}
 		break;
+	case NPC_ALL_STAT_DOWN:
+	case NPC_GRADUAL_GRAVITY:
+	case NPC_DAMAGE_HEAL:
+		clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
+		sc_start(src, bl, type, 100, skill_lv, skill_get_time(skill_id, skill_lv));
+		break;
+	case NPC_IMMUNE_PROPERTY:
+		clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
+		sc_start2(src, bl, type, 100, skill_lv, skill_lv-1, skill_get_time(skill_id, skill_lv));
+		sc_start(src, bl, (enum sc_type)(type+skill_lv), 100, skill_lv,skill_get_time(skill_id, skill_lv));
+		break;
+	case NPC_MOVE_COORDINATE:
+		if (src != bl) {
+			clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
+			int x = src->x, y = src->y;
+			if (unit_movepos(src,bl->x,bl->y,0,0) && unit_movepos(bl, x, y, 0, 0)) {
+				clif_blown(src);
+				clif_blown(bl);
+			}
+		}
+		break;
 	case ALL_PARTYFLEE:
 		if( sd  && !(flag&1) ) {
 			if( !sd->status.party_id ) {

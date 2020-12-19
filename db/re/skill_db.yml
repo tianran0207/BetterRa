@@ -17222,19 +17222,64 @@ Body:
   - Id: 751
     Name: NPC_ALL_STAT_DOWN
     Description: All Stat Down
+    MaxLevel: 3
+    TargetType: Attack
+    DamageFlags:
+      NoDamage: true
+    Flags:
+      IsNpc: true
+    Hit: Single
+    HitCount: 1
+    Range: 9
+    Duration2: 10000
+  - Id: 752
+    Name: NPC_GRADUAL_GRAVITY
+    Description: All Gradual Gravity
     MaxLevel: 5
+    TargetType: Attack
+    DamageFlags:
+      NoDamage: true
+    Flags:
+      IsNpc: true
+    Hit: Single
+    HitCount: 1
+    Range: 9
+    Duration1: 3000
+  - Id: 753
+    Name: NPC_DAMAGE_HEAL
+    Description: Damage Heal
+    MaxLevel: 3
     TargetType: Self
     DamageFlags:
       NoDamage: true
-      Splash: true
-    Flags:
-      IsNpc: true
-      ShowScale: true
     Hit: Single
     HitCount: 1
-    SplashArea: 9
-    Duration2: 10000
-    FixedCastTime: -1
+    Duration1: 30000
+  - Id: 754
+    Name: NPC_IMMUNE_PROPERTY
+    Description: Immune Property
+    MaxLevel: 10
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    Flags:
+      IsNpc: true
+    Hit: Single
+    HitCount: 1
+    Duration1: 30000
+  - Id: 755
+    Name: NPC_MOVE_COORDINATE
+    Description: Move Coordinate
+    MaxLevel: 1
+    TargetType: attack
+    DamageFlags:
+      NoDamage: true
+    Flags:
+      IsNpc: true
+    Hit: Single
+    HitCount: 1
+    Range: 9
+    Duration1: 30000
   - Id: 1001
     Name: KN_CHARGEATK
     Description: Charge Attack
