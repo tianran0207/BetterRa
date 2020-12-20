@@ -1355,7 +1355,6 @@ const char *npc_get_script_event_name(int npce_index);
 
 void npc_setcells(struct npc_data* nd);
 void npc_unsetcells(struct npc_data* nd);
-bool npc_movenpc(struct npc_data* nd, int16 x, int16 y);
 bool npc_is_cloaked(struct npc_data* nd, struct map_session_data* sd);
 bool npc_check_ontouch(struct npc_data* nd, struct map_session_data* sd);
 unsigned int npc_check_option(struct npc_data* nd, struct map_session_data* sd);

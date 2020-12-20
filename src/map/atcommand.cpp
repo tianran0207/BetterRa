@@ -5685,7 +5685,7 @@ ACMD_FUNC(npcmove)
 		return -1;
 	}
 
-	if ( npc_movenpc( nd, x, y ) ) 
+	if ( unit_move( &nd->bl, x, y ) ) 
 	{ //actually failed to move
 		clif_displaymessage(fd, msg_txt(sd,1154)); // NPC is not on this map.
 		return -1;	//Not on a map.

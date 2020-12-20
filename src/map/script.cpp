@@ -15866,7 +15866,7 @@ BUILDIN_FUNC(movenpc)
 
 	if (script_hasdata(st,5))
 		nd->ud.dir = script_getnum(st,5) % 8;
-	npc_movenpc(nd, x, y);
+	unit_move(&nd->bl, x, y);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -28744,6 +28744,38 @@ BUILDIN_FUNC(pcjoinchat)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(unitblown)
+{
+	struct block_list *bl;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	int type = script_hasdata(st, 5) ? script_getnum(st, 5) : 1;
+
+	if (unit_movepos(bl, script_getnum(st, 3), script_getnum(st, 4), type, 1)) {
+		clif_blown(bl);
+		clif_changed_dir(bl, AREA);
+	}
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(unitmove)
+{
+	struct block_list *bl;
+
+	if (!script_rid2bl(2, bl))
+		return SCRIPT_CMD_FAILURE;
+
+	unit_stop_walking(bl, 1);
+	unit_stop_attack(bl);
+	unit_move(bl, script_getnum(st, 3), script_getnum(st, 4));
+	if (bl->type == BL_PC)
+		clif_blown(bl);
+
+	return SCRIPT_CMD_SUCCESS;
+}
 
 BUILDIN_FUNC(bot_party)
 {
@@ -33026,6 +33058,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getskillsc, "i"),
 	BUILDIN_DEF(pctalk, "is?"),
 	BUILDIN_DEF(pcjoinchat, "i??"),
+	BUILDIN_DEF(unitblown, "iii?"),
+	BUILDIN_DEF(unitmove, "iii"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),

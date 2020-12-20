@@ -1565,6 +1565,22 @@ enum e_unit_blown unit_blown_immune(struct block_list* bl, uint8 flag)
 	return UB_KNOCKABLE;
 }
 
+bool unit_move(struct block_list *bl, int16 x, int16 y)
+{
+	if (bl->m < 0 || bl->prev == NULL)
+		return false;	//Not on a map.
+
+	struct map_data *mapdata = map_getmapdata(bl->m);
+
+	x = cap_value(x, 0, mapdata->xs - 1);
+	y = cap_value(y, 0, mapdata->ys - 1);
+
+	map_foreachinallrange(clif_outsight, bl, AREA_SIZE, BL_PC, bl);
+	map_moveblock(bl, x, y, gettick());
+	map_foreachinallrange(clif_insight, bl, AREA_SIZE, BL_PC, bl);
+	return true;
+}
+
 /**
  * Warps a unit to a map/position
  * pc_setpos is used for player warping
