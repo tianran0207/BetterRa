@@ -9874,28 +9874,28 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				skill_castend_nodamage_id);
 		}
 		break;
-	case NPC_WIDEWEB:
-		if (flag&1)
-			skill_unitsetting(src, PF_SPIDERWEB, skill_lv, bl->x, bl->y, 0);
-		else {
-			skill_area_temp[2] = 0; //For SD_PREAMBLE
-			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-			map_foreachinallrange(skill_area_sub, bl,
-				skill_get_splash(skill_id, skill_lv),BL_CHAR,
-				src,skill_id,skill_lv,tick, flag|BCT_ENEMY|SD_PREAMBLE|1,
-				skill_castend_nodamage_id);
-		}
-		break;
-	case NPC_WIDESUCK:
 	case NPC_WIDESOULDRAIN:
-		if (flag & 1) {
-			if (skill_id == NPC_WIDESOULDRAIN)
-				status_percent_damage(src,bl,0,((skill_lv-1)%5+1)*20,false);
-			else {
-				int heal = status_get_max_hp(bl) * ((skill_lv-1)%5+1)*20/100;
+	case NPC_WIDESUCK:
+	case NPC_WIDEWEB:
+	case NPC_WIDEDISPEL:
+		if (flag&1){
+			switch (skill_id) {
+			case NPC_WIDEWEB:
+				skill_unitsetting(src, PF_SPIDERWEB, skill_lv, bl->x, bl->y, 0);
+				break;
+			case NPC_WIDEDISPEL:
+				skill_castend_nodamage_id(src, bl, SA_DISPELL, 5, tick, flag);
+				break;
+			case NPC_WIDESOULDRAIN:
+				status_percent_damage(src, bl, 0, ((skill_lv - 1) % 5 + 1) * 20, false);
+				break;
+			case NPC_WIDESUCK:	{
+				int heal = status_get_max_hp(bl) * ((skill_lv - 1) % 5 + 1) * 20 / 100;
 				status_damage(src, bl, heal, 0, status_get_amotion(src), 0, skill_id);
 				status_heal(src, heal, 0, 0);
 				clif_skill_nodamage(NULL, src, AL_HEAL, heal, 1);
+				break;
+				}
 			}
 		} else {
 			skill_area_temp[2] = 0; //For SD_PREAMBLE
