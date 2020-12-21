@@ -17245,6 +17245,53 @@ Body:
       - Level: 5
         Area: 14
     FixedCastTime: -1
+  - Id: 747
+    Name: NPC_LEASH
+    Description: Leash
+    MaxLevel: 5
+    TargetType: Attack
+    DamageFlags:
+      NoDamage: true
+    Flags:
+      IsNpc: true
+    Hit: Single
+    HitCount: 1
+    Range:
+      - Level: 1
+        Size: 5
+      - Level: 2
+        Size: 10
+      - Level: 3
+        Size: 15
+      - Level: 4
+        Size: 20
+      - Level: 5
+        Size: 25
+  - Id: 748
+    Name: NPC_WIDELEASH
+    Description: Wide Leash
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
+    SplashArea:
+      - Level: 1
+        Area: 5
+      - Level: 2
+        Area: 10
+      - Level: 3
+        Area: 15
+      - Level: 4
+        Area: 20
+      - Level: 5
+        Area: 25
+    FixedCastTime: -1
   - Id: 751
     Name: NPC_ALL_STAT_DOWN
     Description: All Stat Down
@@ -17257,7 +17304,7 @@ Body:
     Hit: Single
     HitCount: 1
     Range: 9
-    Duration2: 10000
+    Duration1: 10000
   - Id: 752
     Name: NPC_GRADUAL_GRAVITY
     Description: All Gradual Gravity
@@ -17304,7 +17351,7 @@ Body:
       IsNpc: true
     Hit: Single
     HitCount: 1
-    Range: 9
+    Range: 14
     Duration1: 30000
   - Id: 1001
     Name: KN_CHARGEATK

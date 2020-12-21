@@ -1986,6 +1986,11 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 
 		if( sc->data[SC__DEADLYINFECT] && (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT && damage > 0 && rnd()%100 < 30 + 10 * sc->data[SC__DEADLYINFECT]->val1 )
 			status_change_spread(bl, src, 1); // Deadly infect attacked side
+		if ((sce = sc->data[SC_DAMAGE_HEAL]) && (sce->val2&flag)) {
+			status_heal(bl, damage, 0, 1);
+			clif_skill_nodamage(NULL, bl, AL_HEAL, static_cast<int>(damage), 1);
+			damage = 0;
+		}
 
 	} //End of target SC_ check
 
@@ -2051,11 +2056,6 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 			damage += damage * sc->data[SC_DANCEWITHWUG]->val1 / 100;
 		if (sc->data[SC_UNLIMITEDHUMMINGVOICE] && flag&BF_MAGIC)
 			damage += damage * sc->data[SC_UNLIMITEDHUMMINGVOICE]->val3 / 100;
-		if ((sce = sc->data[SC_DAMAGE_HEAL]) && (sce->val2&flag)) {
-			status_heal(bl, damage, 0, 1);
-			clif_skill_nodamage(NULL, bl, AL_HEAL, static_cast<int>(damage), 1);
-			damage = 0;
-		}
 
 		if (tsd && (sce = sc->data[SC_SOULREAPER])) {
 			if (rnd()%100 < sce->val2 && tsd->soulball < MAX_SOUL_BALL) {

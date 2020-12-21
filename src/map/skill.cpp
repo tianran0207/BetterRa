@@ -9878,6 +9878,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 	case NPC_WIDESUCK:
 	case NPC_WIDEWEB:
 	case NPC_WIDEDISPEL:
+	case NPC_WIDELEASH:
 		if (flag&1){
 			switch (skill_id) {
 			case NPC_WIDEWEB:
@@ -9896,14 +9897,18 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				clif_skill_nodamage(NULL, src, AL_HEAL, heal, 1);
 				break;
 				}
+			case NPC_WIDELEASH:
+				unit_setdir(src, map_calc_dir(src, bl->x, bl->y));
+				skill_blown(src, bl, distance_bl(src, bl) - 1, unit_getdir(src), BLOWN_NONE);
+				break;
 			}
 		} else {
 			skill_area_temp[2] = 0; //For SD_PREAMBLE
-			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 			map_foreachinallrange(skill_area_sub, bl,
 				skill_get_splash(skill_id, skill_lv),BL_CHAR,
 				src,skill_id,skill_lv,tick, flag|BCT_ENEMY|SD_PREAMBLE|1,
 				skill_castend_nodamage_id);
+			clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
 		}
 		break;
 	case NPC_ALL_STAT_DOWN:
@@ -9914,7 +9919,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		break;
 	case NPC_IMMUNE_PROPERTY:
 		clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
-		sc_start2(src, bl, type, 100, skill_lv, skill_lv-1, skill_get_time(skill_id, skill_lv));
+		sc_start(src, bl, type, 100, skill_lv, skill_get_time(skill_id, skill_lv));
 		sc_start(src, bl, (enum sc_type)(type+skill_lv), 100, skill_lv,skill_get_time(skill_id, skill_lv));
 		break;
 	case NPC_MOVE_COORDINATE:
@@ -9926,6 +9931,11 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				clif_blown(bl);
 			}
 		}
+		break;
+	case NPC_LEASH:
+		unit_setdir(src, map_calc_dir(src, bl->x, bl->y));
+		clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
+		skill_blown(src, bl, distance_bl(src, bl) - 1, unit_getdir(src), BLOWN_NONE);
 		break;
 	case ALL_PARTYFLEE:
 		if( sd  && !(flag&1) ) {
