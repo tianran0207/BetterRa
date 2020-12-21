@@ -5693,7 +5693,7 @@ void clif_skillinfo(struct map_session_data *sd,int skill_id, int inf)
 	WFIFOHEAD(fd,packet_len(0x7e1));
 	WFIFOW(fd,0) = 0x7e1;
 	WFIFOW(fd,2) = skill_id;
-	WFIFOL(fd,4) = inf?inf:skill_get_inf(skill_id);
+	WFIFOL(fd,4) = inf?inf:skill_get_pc_inf(sd, skill_id);
 	WFIFOW(fd,8) = sd->status.skill[idx].lv;
 	WFIFOW(fd,10) = skill_get_sp(skill_id,sd->status.skill[idx].lv);
 	WFIFOW(fd,12) = skill_get_range2(&sd->bl,skill_id,sd->status.skill[idx].lv,false);
@@ -13040,7 +13040,7 @@ void clif_parse_skill_toid( struct map_session_data* sd, uint16 skill_id, uint16
 
 	if( skill_lv < 1 ) skill_lv = 1; //No clue, I have seen the client do this with guild skills :/ [Skotlex]
 
-	int inf = skill_get_pc_inf(sd, skill_id, NULL, 0xFF&~INF_GROUND_SKILL, target_id);
+	int inf = skill_get_pc_inf(sd, skill_id);
 	if (inf&INF_GROUND_SKILL || !inf)
 		return; //Using a ground/passive skill on a target? WRONG.
 
@@ -13165,7 +13165,7 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, uin
 {
 	t_tick tick = gettick();
 
-	if(!(skill_get_pc_inf(sd, skill_id, NULL, INF_GROUND_SKILL)&INF_GROUND_SKILL) )
+	if(!(skill_get_pc_inf(sd, skill_id)&INF_GROUND_SKILL) )
 		return; //Using a target skill on the ground? WRONG.
 
 	if (sd->state.block_action & PCBLOCK_SKILL) {

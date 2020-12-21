@@ -533,7 +533,7 @@ e_cast_type skill_get_casttype(uint16 skill_id); //[Skotlex]
 const char*	skill_get_name( uint16 skill_id ); 	// [Skotlex]
 const char*	skill_get_desc( uint16 skill_id ); 	// [Skotlex]
 int skill_tree_get_max( uint16 skill_id, int b_class );	// Celest
-int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range = NULL, int infcmp = 0, int target_id = 0);
+int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range = NULL);
 int skill_get_pc_splash(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv);
 
 // Accessor to the skills database
@@ -1514,6 +1514,27 @@ enum e_skill {
 	NPC_DAMAGE_HEAL,
 	NPC_IMMUNE_PROPERTY,
 	NPC_MOVE_COORDINATE,
+	NPC_WIDEBLEEDING2,
+	NPC_WIDESILENCE2,
+	NPC_WIDESTUN2,
+	NPC_WIDESTONE2,
+	NPC_WIDESLEEP2,
+	NPC_WIDECURSE2,
+	NPC_WIDECONFUSE2,
+	NPC_WIDEFREEZE2,
+	NPC_BLEEDING2,
+	NPC_ICEBREATH2,
+	NPC_ACIDBREATH2,
+	NPC_EVILLAND2,
+	NPC_HELLJUDGEMENT2,
+	NPC_RAINOFMETEOR,
+	NPC_GROUNDDRIVE,
+	NPC_RELIEVE_ON,
+	NPC_RELIEVE_OFF,
+	NPC_LOCKON_LASER,
+	NPC_LOCKON_LASER_ATK,
+	NPC_SEEDTRAP,
+	NPC_LAST,
 
 	KN_CHARGEATK = 1001,
 	CR_SHRINK,

@@ -376,7 +376,7 @@ int skill_tree_get_max(uint16 skill_id, int b_class)
 		return skill_get_max(skill_id);
 }
 
-int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range, int infcmp, int target_id)
+int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range)
 {
 	int inf = skill_get_inf(skill_id);
 
@@ -395,10 +395,6 @@ int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range, i
 		if (range) *range = it.val;
 		return INF_SELF_SKILL;
 	}
-	if (infcmp && !(infcmp&inf))
-		clif_skillinfo(sd, skill_id, inf);
-	if (target_id && target_id == sd->bl.id)
-		clif_skillinfo(sd, skill_id, inf);
 
 	return inf;
 }
@@ -11974,9 +11970,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
  * @param skill_lv
  * @return -1 success, others are failed @see enum useskill_fail_cause.
  **/
-static int8 skill_castend_id_check(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, bool check_target) {
+static int8 skill_castend_id_check(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv) {
 	std::shared_ptr<s_skill_db> skill = skill_db.find(skill_id);
-	int inf = skill->inf;
+	int inf = skill_get_pc_inf(BL_CAST(BL_PC, src), skill_id);
 	struct status_change *tsc = status_get_sc(target);
 
 	if (src != target && (status_bl_has_mode(target,MD_SKILL_IMMUNE) || (status_get_class(target) == MOBID_EMPERIUM && !skill->inf2[INF2_TARGETEMPERIUM])) && skill_get_casttype(skill_id) == CAST_NODAMAGE)
@@ -12086,7 +12082,7 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 			break;
 	}
 
-	if (check_target && inf && battle_check_target(src, target, inf) <= 0) {
+	if (inf && battle_check_target(src, target, inf) <= 0) {
 		switch(skill_id) {
 			case RK_PHANTOMTHRUST:
 			case AB_CLEARANCE:
@@ -12302,7 +12298,7 @@ TIMER_FUNC(skill_castend_id){
 		}
 
 		// Failing
-		if (fail || (res = skill_castend_id_check(src, target, ud->skill_id, ud->skill_lv, !skilltoaround)) >= 0) {
+		if (fail || (res = skill_castend_id_check(src, target, ud->skill_id, ud->skill_lv)) >= 0) {
 			if (sd && res != USESKILL_FAIL_MAX)
 				clif_skill_fail(sd, ud->skill_id, (enum useskill_fail_cause)res, 0);
 			break;

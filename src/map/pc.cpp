@@ -3892,6 +3892,8 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			entry.sk = type2;
 			entry.val = val;
 			sd->skillrange.push_back(entry);
+			if (sd->state.pc_loaded)
+				clif_skillinfo(sd, type2, 0);
 		}
 		break;
 	case SP_SKILL_TO_AROUND: // bonus2 bSkillToAround,sk,n;
@@ -3904,8 +3906,8 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			entry.sk = type2;
 			entry.val = val;
 			sd->skilltoaround.push_back(entry);
-			if(sd->state.pc_loaded)
-				clif_skillinfo(sd, type2, INF_SELF_SKILL);
+			if (sd->state.pc_loaded)
+				clif_skillinfo(sd, type2, 0);
 		}
 		break;
 	case SP_SKILL_TO_GROUND: // bonus2 bSkillToGround,sk,n;
@@ -3919,7 +3921,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			entry.val = val;
 			sd->skilltoground.push_back(entry);
 			if (sd->state.pc_loaded)
-				clif_skillinfo(sd, type2, INF_GROUND_SKILL);
+				clif_skillinfo(sd, type2, 0);
 		}
 		break;
 	case SP_IGNORE_MDEF_RACE_VAL: // bonus2 bIgnoreMdefRaceVal,r,n;
