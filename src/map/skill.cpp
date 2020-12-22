@@ -399,6 +399,31 @@ int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range)
 	return inf;
 }
 
+void skill_refresh(struct map_session_data *sd)
+{
+	std::vector<int16> skillrefresh(sd->skillrefresh);
+
+	sd->skillrefresh.clear();
+	for (auto &it : sd->skilltoaround)
+		if (!util::vector_exists(sd->skillrefresh, it.sk))
+			sd->skillrefresh.push_back(it.sk);
+	for (auto &it : sd->skilltoground)
+		if (!util::vector_exists(sd->skillrefresh, it.sk))
+			sd->skillrefresh.push_back(it.sk);
+	for (auto &it : sd->skillrange)
+		if (!util::vector_exists(sd->skillrefresh, it.sk))
+			sd->skillrefresh.push_back(it.sk);
+	for (auto &it : sd->skillrefresh) {
+		auto skit = std::find(skillrefresh.begin(), skillrefresh.end(), it);
+		if (skit != skillrefresh.end())
+			skillrefresh.erase(skit);
+		else
+			clif_skillinfo(sd, it, 0);
+	}
+	for (auto &it : skillrefresh)
+		clif_skillinfo(sd, it, 0);
+}
+
 int skill_frostjoke_scream(struct block_list *bl,va_list ap);
 int skill_attack_area(struct block_list *bl,va_list ap);
 struct skill_unit_group *skill_locate_element_field(struct block_list *bl); // [Skotlex]
