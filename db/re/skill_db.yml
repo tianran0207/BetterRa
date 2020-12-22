@@ -16889,6 +16889,19 @@ Body:
       Flag:
         NoOverlap: true
         PathCheck: true
+  - Id: 707
+    Name: NPC_MILLENNIUMSHIELD
+    Description: Millenium Shield
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    Flags:
+      IsNpc: true
+    Hit: Single
+    HitCount: 1
+    Duration1: 900000
+    FixedCastTime: -1
   - Id: 708
     Name: NPC_COMET
     Description: Comet 2
@@ -17270,6 +17283,31 @@ Body:
   - Id: 748
     Name: NPC_WIDELEASH
     Description: Wide Leash
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
+    SplashArea:
+      - Level: 1
+        Area: 5
+      - Level: 2
+        Area: 10
+      - Level: 3
+        Area: 15
+      - Level: 4
+        Area: 20
+      - Level: 5
+        Area: 25
+    FixedCastTime: -1
+  - Id: 749
+    Name: NPC_WIDECRITICALWOUND
+    Description: Wide Critical Wounds
     MaxLevel: 5
     TargetType: Self
     DamageFlags:

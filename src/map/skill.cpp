@@ -9900,6 +9900,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 	case NPC_WIDEWEB:
 	case NPC_WIDEDISPEL:
 	case NPC_WIDELEASH:
+	case NPC_WIDECRITICALWOUND:
 		if (flag&1){
 			switch (skill_id) {
 			case NPC_WIDEWEB:
@@ -9922,6 +9923,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				unit_setdir(src, map_calc_dir(src, bl->x, bl->y));
 				skill_blown(src, bl, distance_bl(src, bl) - 1, unit_getdir(src), BLOWN_NONE);
 				break;
+			case NPC_WIDECRITICALWOUND:
+				skill_castend_damage_id(src, bl, NPC_CRITICALWOUND, skill_lv, tick, flag);
+				break;
 			}
 		} else {
 			skill_area_temp[2] = 0; //For SD_PREAMBLE
@@ -9932,6 +9936,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
 		}
 		break;
+	case NPC_MILLENNIUMSHIELD:
 	case NPC_ALL_STAT_DOWN:
 	case NPC_GRADUAL_GRAVITY:
 	case NPC_DAMAGE_HEAL:
