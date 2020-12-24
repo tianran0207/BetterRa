@@ -1036,8 +1036,8 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 						ele_fix += tsd->magic_subdefele[s_defele] + tsd->magic_subdefele[ELE_ALL];
 					cardfix = cardfix * (100 - MAX100(ele_fix)) / 100;
 				}
-				cardfix = cardfix * (100 - MAX100(tsd->subsize[sstatus->size] - tsd->subsize[SZ_ALL])) / 100;
-				cardfix = cardfix * (100 - MAX100(tsd->magic_subsize[sstatus->size] - tsd->magic_subsize[SZ_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->subsize[sstatus->size] + tsd->subsize[SZ_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->magic_subsize[sstatus->size] + tsd->magic_subsize[SZ_ALL])) / 100;
 				cardfix = cardfix * (100 - MAX100(tsd->subrace2[s_race2])) / 100;
 				int race_fix = tsd->subrace[sstatus->race] + tsd->subrace[RC_ALL];
 				for (const auto &it : tsd->subrace3) {
@@ -1050,7 +1050,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 					race_fix += it.rate;
 				}
 				cardfix = cardfix * (100 - MAX100(race_fix)) / 100;
-				cardfix = cardfix * (100 - MAX100(tsd->subclass[sstatus->class_] - tsd->subclass[CLASS_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->subclass[sstatus->class_] + tsd->subclass[CLASS_ALL])) / 100;
 
 				for (const auto &it : tsd->add_mdef) {
 					if (it.id == s_class) {
@@ -1244,9 +1244,9 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 						cardfix = cardfix * (100 - MAX100(ele_fix_lh)) / 100;
 					}
 
-					cardfix = cardfix * (100 - MAX100(tsd->subdefele[s_defele] - tsd->subdefele[ELE_ALL])) / 100;
+					cardfix = cardfix * (100 - MAX100(tsd->subdefele[s_defele] + tsd->subdefele[ELE_ALL])) / 100;
 				}
-				cardfix = cardfix * (100 - MAX100(tsd->subsize[sstatus->size] - tsd->subsize[SZ_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->subsize[sstatus->size] + tsd->subsize[SZ_ALL])) / 100;
 				cardfix = cardfix * (100 - MAX100(tsd->subrace2[s_race2])) / 100;
 				int race_fix = tsd->subrace[sstatus->race] + tsd->subrace[RC_ALL];
 				for (const auto &it : tsd->subrace3) {
@@ -1259,7 +1259,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 					race_fix += it.rate;
 				}
 				cardfix = cardfix * (100 - MAX100(race_fix)) / 100;
-				cardfix = cardfix * (100 - MAX100(tsd->subclass[sstatus->class_] - tsd->subclass[CLASS_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->subclass[sstatus->class_] + tsd->subclass[CLASS_ALL])) / 100;
 				for (const auto &it : tsd->add_def) {
 					if (it.id == s_class) {
 						cardfix = cardfix * (100 - MAX100(it.val)) / 100;
@@ -1307,9 +1307,9 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 				}
 				cardfix = cardfix * (100 - MAX100(race_fix)) / 100;
 
-				cardfix = cardfix * (100 - MAX100(tsd->subsize[sstatus->size] - tsd->subsize[SZ_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->subsize[sstatus->size] + tsd->subsize[SZ_ALL])) / 100;
 				cardfix = cardfix * (100 - MAX100(tsd->subrace2[s_race2])) / 100;
-				cardfix = cardfix * (100 - MAX100(tsd->subclass[sstatus->class_] - tsd->subclass[CLASS_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->subclass[sstatus->class_] + tsd->subclass[CLASS_ALL])) / 100;
 				cardfix = cardfix * (100 - MAX100(tsd->bonus.misc_def_rate)) / 100;
 				if( flag&BF_SHORT )
 					cardfix = cardfix * (100 - MAX100(tsd->bonus.near_attack_def_rate)) / 100;
@@ -7026,6 +7026,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						if( sc && sc->data[SC_CURSED_SOIL_OPTION] )
 							skillratio += (sd ? sd->status.job_level * 5 : 0);
 						break;
+					case NPC_PSYCHIC_WAVE:
 					case SO_PSYCHIC_WAVE:
 						skillratio += -100 + 70 * skill_lv + 3 * sstatus->int_;
 						RE_LVL_DMOD(100);

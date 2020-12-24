@@ -17233,6 +17233,46 @@ Body:
       - Level: 10
         Area: 5
     CastCancel: true
+  - Id: 736
+    Name: NPC_PSYCHIC_WAVE
+    Description: Psychic Wave
+    MaxLevel: 5
+    Type: Magic
+    TargetType: Ground
+    Range: 9
+    Hit: Single
+    HitCount: 1
+    CastCancel: true
+    Duration1:
+      - Level: 1
+        Time: 1200
+      - Level: 2
+        Time: 1700
+      - Level: 3
+        Time: 2200
+      - Level: 4
+        Time: 2700
+      - Level: 5
+        Time: 3200
+    FixedCastTime: -1
+    Unit:
+      Id: Psychic_Wave
+      Range:
+        - Level: 1
+          Size: 3
+        - Level: 2
+          Size: 3
+        - Level: 3
+          Size: 4
+        - Level: 4
+          Size: 4
+        - Level: 5
+          Size: 5
+      Interval: 500
+      Target: Enemy
+      Flag:
+        NoOverlap: true
+        PathCheck: true
   - Id: 746
     Name: NPC_WIDEDISPEL
     Description: Wide Dispell
