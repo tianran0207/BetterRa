@@ -4011,16 +4011,6 @@ int map_delmap(char* mapname){
 	return 0;
 }
 
-static int map_copymap(char* str) {
-	char src[MAP_NAME_LENGTH], target[MAP_NAME_LENGTH];
-	if (sscanf(str, "%11[^ ] %11[^\r\n]", target, src) < 2)
-		return 1;
-	if (map_addmap(src) && map_num == 0)
-		return 1;
-	safestrncpy(map[map_num - 1].target, target, MAP_NAME_LENGTH);
-	return 0;
-}
-
 /// Initializes map flags and adjusts them depending on configuration.
 void map_flags_init(void){
 	for (int i = 0; i < map_num; i++) {
@@ -4257,7 +4247,6 @@ int map_readallmaps (void)
 		if (success && mapdata->target && mapdata->target[0]) {
 			safestrncpy(mapdata->name, mapdata->target, MAP_NAME_LENGTH);
 			memset(mapdata->target, 0, MAP_NAME_LENGTH * sizeof(char));
-			mapindex_addmap(-1, mapdata->name);
 		}
 
 		// The map was not found - remove it
@@ -4506,8 +4495,6 @@ int map_config_read(const char *cfgName)
 			map_port = (atoi(w2));
 		} else if (strcmpi(w1, "map") == 0)
 			map_addmap(w2);
-		else if (strcmpi(w1, "copy") == 0)
-			map_copymap(w2);
 		else if (strcmpi(w1, "delmap") == 0)
 			map_delmap(w2);
 		else if (strcmpi(w1, "npc") == 0)
@@ -5819,6 +5806,15 @@ int map_MessageInterface(enum msg_type flag, const char *prefix, const char *str
 	return 0;
 }
 
+static int map_copy(char *src_name, char *dst_name)
+{
+	if (!mapindex_name2idx(dst_name, src_name))
+		return 0;
+	map_addmap((char *)dst_name);
+	safestrncpy(map[map_num-1].target, src_name, MAP_NAME_LENGTH);
+	return 1;
+}
+
 int do_init(int argc, char *argv[])
 {
 	runflag = MAPSERVER_ST_STARTING;
@@ -5912,7 +5908,7 @@ int do_init(int argc, char *argv[])
 	if (log_config.sql_logs)
 		log_sql_init();
 
-	mapindex_init();
+	mapindex_init(map_copy);
 	if(enable_grf)
 		grfio_init(GRF_PATH_FILENAME);
 

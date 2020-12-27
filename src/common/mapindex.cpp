@@ -128,12 +128,12 @@ const char* mapindex_idx2name(unsigned short id, const char *func) {
 	return indexes[id].name;
 }
 
-void mapindex_init(void) {
+void mapindex_init(int(*func)(char *src_map, char *dst_map)) {
 	FILE *fp;
 	char line[1024];
 	int last_index = -1;
 	int index;
-	char map_name[MAP_NAME_LENGTH];
+	char map_name[MAP_NAME_LENGTH], dst_map_name[MAP_NAME_LENGTH];
 	char path[255];
 	const char* mapindex_cfgfile[] = {
 		"map_index.txt",
@@ -165,6 +165,11 @@ void mapindex_init(void) {
 				case 1: //Map with no ID given, auto-assign
 					index = last_index+1;
 				case 2: //Map with ID given
+					if (!strncmp(map_name, "copy", 4) && sscanf(line, "copy: %11s %11s", map_name, dst_map_name) == 2) {
+						if (func)
+							func(map_name, dst_map_name);
+						index = last_index + 1;
+					}
 					mapindex_addmap(index,map_name);
 					break;
 				default:
