@@ -28462,7 +28462,7 @@ static bool buildin_bot_addcheck_sub(struct map_session_data *sd, struct s_bot_u
 BUILDIN_FUNC(bot_adduseskill)
 {
 	TBL_PC *sd;
-	if (!script_charid2sd(8, sd))
+	if (!script_charid2sd(9, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	struct bot_data *bd = pcbot_getdata(sd);
@@ -28489,7 +28489,7 @@ BUILDIN_FUNC(bot_adduseitem)
 {
 	TBL_PC *sd;
 	struct item_data *item;
-	if (!script_charid2sd(7, sd))
+	if (!script_charid2sd(8, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	struct bot_data *bd = pcbot_getdata(sd);
@@ -28518,7 +28518,7 @@ BUILDIN_FUNC(bot_adduseitem)
 BUILDIN_FUNC(bot_addevent)
 {
 	TBL_PC *sd;
-	if (!script_charid2sd(4, sd))
+	if (!script_charid2sd(8, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	struct bot_data *bd = pcbot_getdata(sd);
@@ -28580,7 +28580,7 @@ BUILDIN_FUNC(bot_addmode)
 	struct bot_data *bd = pcbot_getdata(sd);
 
 	if (type&BOT_IGNORE_TOUCH)
-		sd->state.no_touch_script = add_mode ? value : 0;
+		sd->state.no_touch_script = add_mode ? 1 : 0;
 	if (type&BOT_IGNORE_SAME_ELE)
 		bd->info.ignore_same_ele = add_mode ? value : 0;
 	if (type&BOT_FOLLOW_WALK)
