@@ -15313,10 +15313,11 @@ static bool pcbot_useitem(struct bot_data *bd, t_tick tick)
 	if (bs && bs->inf >= 0) {
 		pc_useitem(sd, bs->inf);
 		bs->cooldown = tick + bs->delay;
-		bd->state.next_useitem = min(2000, bs->delay);
+		bd->state.next_useitem = min(200, bs->delay);
 	}
+	else
+		bd->state.next_useitem = tick + 1000;
 
-	bd->state.next_useitem = tick + 2000;
 	return false;
 }
 
