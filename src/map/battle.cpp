@@ -354,6 +354,15 @@ int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target,
 	struct map_session_data* sd = BL_CAST(BL_PC, src);
 	struct status_data *status = status_get_status_data(target);
 
+	if (sd) {
+		int rate = 0;
+		for (const auto &it : sd->multidamage) {
+			if (!(it.atk_type&flag) || rnd() % 1000 > it.rate)
+				continue;
+			rate += it.n;
+		}
+		if (rate) damage = damage * rate / 100;
+	}
 	if (sd && (flag & BF_SKILL)) {
 		for (auto &it : sd->skilldamage) {
 			if (it.sk != skill_id)
@@ -1720,11 +1729,6 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 		if (flag&BF_MISC && tsd->c_bonus.misc_add_damage)
 			damage += tsd->c_bonus.misc_add_damage;
 
-		for (const auto &it : tsd->multidamage) {
-			if (it.atk_type&flag && rnd() % 1000 < it.rate) {
-				damage += damage * it.n / 100;
-			}
-		}
 	}
 
 	if (src->type & battle_config.enable_damage_rate) {
