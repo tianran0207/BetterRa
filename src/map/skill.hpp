@@ -173,6 +173,7 @@ enum e_skill_unit_flag : uint8 {
 	UF_REMOVEDBYFIRERAIN,	// removed by Fire Rain
 	UF_KNOCKBACKGROUP,	// knockback skill unit with its group instead of single unit
 	UF_HIDDENTRAP,	// Hidden trap [Cydh]
+	UF_AURA,
 	UF_MAX,
 };
 
@@ -318,6 +319,7 @@ struct s_skill_db {
 		uint16 rate;
 		uint16 flag, range;
 	}aggro;
+	uint16 NpcCloneId;
 };
 
 class SkillDatabase : public TypesafeCachedYamlDatabase <uint16, s_skill_db> {
@@ -394,6 +396,7 @@ struct skill_unit_group {
 		unsigned ammo_consume : 1; // Need to consume ammo
 		unsigned song_dance : 2; //0x1 Song/Dance, 0x2 Ensemble
 		unsigned guildaura : 1; // Guild Aura
+		unsigned skillaura : 1;
 	} state;
 };
 
@@ -586,6 +589,7 @@ int skill_get_ammo_qty( uint16 skill_id, uint16 skill_lv );
 int skill_get_state(uint16 skill_id);
 int skill_get_status_count( uint16 skill_id );
 int skill_get_spiritball( uint16 skill_id, uint16 skill_lv );
+int skill_get_clone(uint16 skill_id);
 unsigned short skill_dummy2skill_id(unsigned short skill_id);
 
 uint16 skill_name2id(const char* name);
@@ -645,6 +649,7 @@ int skill_check_pc_partner(struct map_session_data *sd, uint16 skill_id, uint16 
 int skill_unit_move(struct block_list *bl,t_tick tick,int flag);
 void skill_unit_move_unit_group( struct skill_unit_group *group, int16 m,int16 dx,int16 dy);
 void skill_unit_move_unit(struct block_list *bl, int dx, int dy);
+void skill_unit_aura(struct block_list* bl, int16 dx, int16 dy);
 
 int skill_sit(struct map_session_data *sd, bool sitting);
 void skill_repairweapon(struct map_session_data *sd, int idx);

@@ -8099,6 +8099,7 @@
 	export_constant(UF_REMOVEDBYFIRERAIN);
 	export_constant(UF_KNOCKBACKGROUP);
 	export_constant(UF_HIDDENTRAP);
+	export_constant(UF_AURA);
 
 	/* battle check target */
 	export_constant(BCT_SELF);

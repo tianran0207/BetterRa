@@ -5262,7 +5262,8 @@ bool mob_parse_row_mobskilldb(char** str, int columns, int current)
 			ShowError("mob_parse_row_mobskilldb: Invalid Skill ID (%d) for mob %d (%s)\n", j, mob_id, mob->sprite);
 		return false;
 	}
-	ms->skill_id = j;
+	uint16 clone_id = skill_get_clone(j);
+	ms->skill_id = clone_id ? clone_id : j;
 
 	//Skill lvl
 	j = atoi(str[4]) <= 0 ? 1 : atoi(str[4]);

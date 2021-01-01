@@ -405,6 +405,7 @@ void initChangeTables(void)
 	add_sc( WZ_VERMILION		, SC_BLIND		);
 	add_sc( WZ_FROSTNOVA		, SC_FREEZE		);
 	add_sc( WZ_STORMGUST		, SC_FREEZE		);
+	add_sc( NPC_STORMGUST2		, SC_FREEZE		);
 	set_sc( WZ_QUAGMIRE		, SC_QUAGMIRE		, EFST_QUAGMIRE		, SCB_AGI|SCB_DEX|SCB_ASPD|SCB_SPEED );
 	add_sc( BS_HAMMERFALL		, SC_STUN		);
 	set_sc( BS_ADRENALINE		, SC_ADRENALINE		, EFST_ADRENALINE		, SCB_ASPD
@@ -726,6 +727,7 @@ void initChangeTables(void)
 	add_sc( NPC_JACKFROST        , SC_FREEZE		  );
 
 	set_sc( NPC_WIDEWEB         , SC_SPIDERWEB      , EFST_SPIDERWEB        , SCB_FLEE);
+	set_sc( NPC_MANDRAGORA      , SC_MANDRAGORA     , EFST_MANDRAGORA       , SCB_INT);
 	set_sc( NPC_ALL_STAT_DOWN   , SC_ALL_STAT_DOWN  , EFST_ALL_STAT_DOWN    , SCB_ALL);
 	set_sc( NPC_GRADUAL_GRAVITY , SC_GRADUAL_GRAVITY, EFST_GRADUAL_GRAVITY  , SCB_NONE);
 	set_sc( NPC_DAMAGE_HEAL     , SC_DAMAGE_HEAL    , EFST_DAMAGE_HEAL      , SCB_NONE);
@@ -852,7 +854,7 @@ void initChangeTables(void)
 	set_sc( GC_POISONINGWEAPON	, SC_POISONINGWEAPON	, EFST_POISONINGWEAPON	, SCB_NONE );
 	set_sc( GC_WEAPONBLOCKING	, SC_WEAPONBLOCKING	, EFST_WEAPONBLOCKING	, SCB_NONE );
 	set_sc( GC_CLOAKINGEXCEED	, SC_CLOAKINGEXCEED	, EFST_CLOAKINGEXCEED	, SCB_SPEED );
-	set_sc( GC_HALLUCINATIONWALK	, SC_HALLUCINATIONWALK	, EFST_HALLUCINATIONWALK	, SCB_FLEE );
+	set_sc_with_vfx( GC_HALLUCINATIONWALK	, SC_HALLUCINATIONWALK	, EFST_HALLUCINATIONWALK	, SCB_FLEE );
 	set_sc( GC_ROLLINGCUTTER	, SC_ROLLINGCUTTER	, EFST_ROLLINGCUTTER	, SCB_NONE );
 	set_sc_with_vfx( GC_DARKCROW	, SC_DARKCROW		, EFST_DARKCROW		, SCB_NONE );
 
@@ -2606,7 +2608,7 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 			return false;
 		if(!skill_id && tsc->data[SC_TRICKDEAD])
 			return false;
-		if((skill_id == WZ_STORMGUST || skill_id == WZ_FROSTNOVA || skill_id == NJ_HYOUSYOURAKU)
+		if((skill_id == WZ_STORMGUST || skill_id == NPC_STORMGUST2 || skill_id == WZ_FROSTNOVA || skill_id == NJ_HYOUSYOURAKU)
 			&& tsc->data[SC_FREEZE])
 			return false;
 		if(skill_id == PR_LEXAETERNA && (tsc->data[SC_FREEZE] || (tsc->data[SC_STONE] && tsc->opt1 == OPT1_STONE)))

@@ -549,6 +549,8 @@ int map_moveblock(struct block_list *bl, int x1, int y1, t_tick tick)
 			}
 		}
 
+		skill_unit_aura(bl, x1-x0, y1-y0);
+
 		if (sc && sc->count) {
 			if (sc->data[SC_DANCING])
 				skill_unit_move_unit_group(skill_id2group(sc->data[SC_DANCING]->val2), bl->m, x1-x0, y1-y0);

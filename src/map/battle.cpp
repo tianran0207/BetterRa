@@ -3054,6 +3054,7 @@ static bool is_attack_critical(struct Damage* wd, struct block_list *src, struct
 #ifdef RENEWAL
 			case ASC_BREAKER:
 #endif
+			case NPC_IGNITIONBREAK:
 			case RK_IGNITIONBREAK:
 			case GC_CROSSIMPACT:
 				cri /= 2;
@@ -4261,6 +4262,9 @@ static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *
 		case NPC_PULSESTRIKE:
 			skillratio += 100 * (skill_lv - 1);
 			break;
+		case NPC_PULSESTRIKE2:
+			skillratio += 100 * skill_lv;
+			break;
 		case NPC_REVERBERATION_ATK:
 			skillratio += 400 + 200 * skill_lv;
 			break;
@@ -4627,6 +4631,7 @@ static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *
 				skillratio += -100 + 300 * skill_lv;
 			RE_LVL_DMOD(100);
 			break;
+		case NPC_IGNITIONBREAK:
 		case RK_IGNITIONBREAK:
 			skillratio += -100 + 400 * skill_lv;
 			RE_LVL_DMOD(100);
@@ -4636,6 +4641,7 @@ static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *
 			RE_LVL_DMOD(100);
 			break;
 		case RK_PHANTOMTHRUST: // ATK = [{(Skill Level x 50) + (Spear Master Level x 10)} x Caster's Base Level / 150] %
+		case NPC_PHANTOMTHRUST:
 			skillratio += -100 + 50 * skill_lv + 10 * (sd ? pc_checkskill(sd,KN_SPEARMASTERY) : 5);
 			RE_LVL_DMOD(150); // Base level bonus.
 			break;
@@ -6784,6 +6790,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += 40 * skill_lv;
 #endif
 						break;
+					case NPC_STORMGUST2:
+						skillratio = 200 * skill_lv;
+						break;
 #ifdef RENEWAL
 					case WZ_EARTHSPIKE:
 						skillratio += 100;
@@ -7107,6 +7116,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case NPC_HELLBURNING:
 						skillratio += 900;
+						break;
+					case NPC_FIRESTORM:
+						skillratio += 100 * (skill_lv -1);
 						break;
 					case SP_CURSEEXPLOSION:
 						if (tsc && tsc->data[SC_SOULCURSE])

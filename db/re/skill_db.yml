@@ -16669,6 +16669,20 @@ Body:
       IsNpc: true
     AfterCastActDelay: 12000
     FixedCastTime: -1
+  - Id: 696
+    Name: NPC_CHANGEUNDEAD2
+    Description: Undead Attribute Change2
+    MaxLevel: 1
+    Type: Magic
+    TargetType: Attack
+    DamageFlags:
+      NoDamage: true
+    Flags:
+      IsNpc: true
+    Range: 9
+    HitCount: 1
+    Element: Undead
+    Duration1: 30000
   - Id: 697
     Name: ALL_REVERSEORCISH
     Description: Reverse Orcish
@@ -16978,6 +16992,50 @@ Body:
         NoOverlap: true
         PathCheck: true
         RemovedByFireRain: true
+  - Id: 712
+    Name: NPC_PULSESTRIKE2
+    Description: Pulse Strike2
+    MaxLevel: 1
+    Type: Weapon
+    TargetType: Self
+    DamageFlags:
+      Splash: true
+    Flags:
+      IsNpc: true
+      TargetTrap: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
+    SplashArea: 5
+    Knockback: 7
+  - Id: 713
+    Name: NPC_DANCINGBLADE
+    Description: Dancing Blade
+    MaxLevel: 1
+    Type: Weapon
+    TargetType: Attack
+    DamageFlags:
+      NoDamage: true
+    Flags:
+      IsNpc: true
+    Flags:
+      AlterRangeRadius: true
+    Range: 11
+    Hit: Single
+    HitCount: 1
+    AfterCastActDelay: 3000
+    FixedCastTime: 1000
+  - Id: 714
+    Name: NPC_DANCINGBLADE_ATK
+    Description: Dancing Blade Attack
+    MaxLevel: 1
+    Type: Weapon
+    TargetType: Attack
+    Flags:
+      IsNpc: true
+    Range: 11
+    Hit: Single
+    HitCount: 1
   - Id: 715
     Name: NPC_DARKPIERCING
     Description: Dark Piercing
@@ -17120,6 +17178,57 @@ Body:
     Hit: Single
     HitCount: 1
     SplashArea: 14
+  - Id: 723
+    Name: NPC_STORMGUST2
+    Description: Storm Gust2
+    MaxLevel: 3
+    Type: Magic
+    TargetType: Self
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Range: 1
+    Hit: Single
+    HitCount: 1
+    SplashArea: 5
+    Element: Water
+    Knockback: 2
+    Duration1: 4500
+    Duration2: 30000
+    Unit:
+      Id: Dummyskill
+      Layout: 4
+      Range: 1
+      Interval: 450
+      Target: Enemy
+      Flag:
+        NoOverlap: true
+        PathCheck: true
+        Aura: true
+  - Id: 724
+    Name: NPC_FIRESTORM
+    Description: Fire Storm
+    MaxLevel: 3
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Multi_Hit
+    HitCount:
+      - Level: 1
+        Count: 1
+      - Level: 2
+        Count: 2
+      - Level: 3
+        Count: 3
+    SplashArea: 3
+    FixedCastTime: -1
   - Id: 725
     Name: NPC_REVERBERATION
     Description: Reverberation 2
@@ -17233,6 +17342,122 @@ Body:
       - Level: 10
         Area: 5
     CastCancel: true
+  - Id: 729
+    Name: NPC_CHEAL
+    Description: Coluceo Heal
+    MaxLevel: 10
+    Type: Magic
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
+    Element: Holy
+    SplashArea:
+      - Level: 1
+        Area: 3
+      - Level: 2
+        Area: 5
+      - Level: 3
+        Area: 7
+      - Level: 4
+        Area: 9
+      - Level: 5
+        Area: 11
+    FixedCastTime: -1
+  - Id: 730
+    Name: NPC_SR_CURSEDCIRCLE
+    Description: Cursed Circle
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Range: 1
+    Hit: Single
+    HitCount: 1
+    SplashArea:
+      - Level: 1
+        Area: 1
+      - Level: 2
+        Area: 2
+      - Level: 3
+        Area: 3
+      - Level: 4
+        Area: 4
+      - Level: 5
+        Area: 5
+    Duration1: 7000
+    FixedCastTime: -1
+  - Id: 731
+    Name: NPC_DRAGONBREATH
+    Description: Dragon Breath
+    MaxLevel: 5
+    NpcCloneId: 2008
+  - Id: 732
+    Name: NPC_FATALMENACE
+    Description: Fatal Menace
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Range: 1
+    Hit: Single
+    HitCount: 1
+    SplashArea:
+      - Level: 1
+        Area: 1
+      - Level: 2
+        Area: 2
+      - Level: 3
+        Area: 3
+      - Level: 4
+        Area: 4
+      - Level: 5
+        Area: 5
+    FixedCastTime: -1
+  - Id: 733
+    Name: NPC_MAGMA_ERUPTION
+    Description: Magma Eruption
+    MaxLevel: 5
+    NpcCloneId: 5006
+  - Id: 735
+    Name: NPC_MANDRAGORA
+    Description: Howling of Mandragora
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Range: 1
+    Hit: Single
+    HitCount: 1
+    SplashArea:
+      - Level: 1
+        Area: 5
+      - Level: 2
+        Area: 6
+      - Level: 3
+        Area: 7
+      - Level: 4
+        Area: 8
+      - Level: 5
+        Area: 9
+    FixedCastTime: -1
   - Id: 736
     Name: NPC_PSYCHIC_WAVE
     Description: Psychic Wave
@@ -17273,6 +17498,109 @@ Body:
       Flag:
         NoOverlap: true
         PathCheck: true
+  - Id: 737
+    Name: NPC_RAYOFGENESIS
+    Description: Ray of Genesis
+    MaxLevel: 10
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+      Splash: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Range: 1
+    Hit: Single
+    HitCount: 1
+    SplashArea:
+      - Level: 1
+        Area: 5
+      - Level: 2
+        Area: 5
+      - Level: 3
+        Area: 8
+      - Level: 4
+        Area: 8
+      - Level: 5
+        Area: 11
+      - Level: 6
+        Area: 11
+      - Level: 7
+        Area: 13
+      - Level: 8
+        Area: 13
+      - Level: 9
+        Area: 13
+      - Level: 10
+        Area: 13
+    FixedCastTime: -1
+  - Id: 738
+    Name: NPC_VENOMIMPRESS
+    Description: Venom Impress
+    MaxLevel: 5
+    NpcCloneId: 2021
+  - Id: 739
+    Name: NPC_CLOUD_KILL
+    Description: Cloud Kill
+    MaxLevel: 5
+    NpcCloneId: 2450
+  - Id: 740
+    Name: NPC_IGNITIONBREAK
+    Description: Ignition Break
+    MaxLevel: 5
+    Type: Weapon
+    TargetType: Self
+    DamageFlags:
+      Splash: true
+      Critical: true
+    Flags:
+      IsNpc: true
+      ShowScale: true
+    Hit: Single
+    HitCount: 1
+    Element: Weapon
+    SplashArea: 5
+    FixedCastTime: -1
+  - Id: 741
+    Name: NPC_PHANTOMTHRUST
+    Description: Phantom Thrust
+    MaxLevel: 5
+    Type: Weapon
+    TargetType: Attack
+    Range:
+      - Level: 1
+        Size: 6
+      - Level: 2
+        Size: 8
+      - Level: 3
+        Size: 10
+      - Level: 4
+        Size: 12
+      - Level: 5
+        Size: 14
+    Hit: Single
+    HitCount: 1
+    Element: Weapon
+  - Id: 742
+    Name: NPC_POISON_BUSTER
+    Description: Poison Buster
+    MaxLevel: 5
+    NpcCloneId: 2448
+  - Id: 743
+    Name: NPC_HALLUCINATIONWALK
+    Description: Hallucination Walk
+    MaxLevel: 5
+    NpcCloneId: 2035
+  - Id: 744
+    Name: NPC_ELECTRICWALK
+    Description: Electric Walk
+    MaxLevel: 5
+    NpcCloneId: 2444
+  - Id: 745
+    Name: NPC_FIREWALK
+    Description: Fire Walk
+    MaxLevel: 5
+    NpcCloneId: 2443
   - Id: 746
     Name: NPC_WIDEDISPEL
     Description: Wide Dispell
@@ -17370,6 +17698,11 @@ Body:
       - Level: 5
         Area: 25
     FixedCastTime: -1
+  - Id: 750
+    Name: NPC_EARTHQUAKE_K
+    Description: Earthquake
+    MaxLevel: 10
+    NpcCloneId: 653
   - Id: 751
     Name: NPC_ALL_STAT_DOWN
     Description: All Stat Down
