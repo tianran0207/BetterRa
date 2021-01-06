@@ -3970,6 +3970,12 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			}
 		}
 		break;
+	case SP_REBORN: //bonus2 bReborn,r,n;
+		if (sd->state.lr_flag != 2) {
+			sd->c_bonus.reborn.rate = type2;
+			sd->c_bonus.reborn.heal = val;
+		}
+		break;
 	case SP_ADDELE: // bonus2 bAddEle,e,x;
 		PC_BONUS_CHK_ELEMENT(type2,SP_ADDELE);
 		if(!sd->state.lr_flag || sd->state.lr_flag == 3)
@@ -9465,6 +9471,11 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 				pc_respawn_timer(INVALID_TIMER, gettick(), sd->bl.id, 0);
 			return 0;
 		}
+	}
+	if (sd->c_bonus.reborn.rate && rnd()%100 <= sd->c_bonus.reborn.rate) {
+		status_percent_heal(&sd->bl, sd->c_bonus.reborn.heal, 0);
+		clif_skill_nodamage(&sd->bl, &sd->bl, ALL_RESURRECTION, 1, 1);
+		return 0;
 	}
 
 	for(k = 0; k < MAX_DEVOTION; k++) {

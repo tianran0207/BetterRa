@@ -588,6 +588,7 @@
 	export_constant2("bDefSize", SP_DEFSIZE);
 	export_constant2("bDefRace", SP_DEFRACE);
 	export_constant2("bDefEleLevel", SP_DEFELELEVEL);
+	export_constant2("bReborn", SP_REBORN);
 
 	export_constant2("EquipLoc", SP_EQUIPLOC);
 	export_constant2("EquipBound", SP_EQUIPBOUND);
