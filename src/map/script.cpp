@@ -572,7 +572,7 @@ static void script_dump_stack(struct script_state* st)
 #endif
 
 /// Reports on the console the src of a script error.
-static void script_reportsrc_(struct script_state *st, const char *func)
+static void script_reportsrc(struct script_state *st)
 {
 	if( st->oid == 0 )
 		return; //Can't report source.
@@ -585,19 +585,18 @@ static void script_reportsrc_(struct script_state *st, const char *func)
 	switch( bl->type ) {
 		case BL_NPC:
 			if( bl->m >= 0 )
-				ShowDebug("%s: Source (NPC): %s at %s (%d,%d)\n", func, ((struct npc_data *)bl)->name, map_mapid2mapname(bl->m), bl->x, bl->y);
+				ShowDebug("Source (NPC): %s at %s (%d,%d)\n", ((struct npc_data *)bl)->name, map_mapid2mapname(bl->m), bl->x, bl->y);
 			else
-				ShowDebug("%s: Source (NPC): %s (invisible/not on a map)\n", func, ((struct npc_data *)bl)->name);
+				ShowDebug("Source (NPC): %s (invisible/not on a map)\n", ((struct npc_data *)bl)->name);
 			break;
 		default:
 			if( bl->m >= 0 )
-				ShowDebug("%s: Source (Non-NPC type %d): name %s at %s (%d,%d)\n", func, bl->type, status_get_name(bl), map_mapid2mapname(bl->m), bl->x, bl->y);
+				ShowDebug("Source (Non-NPC type %d): name %s at %s (%d,%d)\n", bl->type, status_get_name(bl), map_mapid2mapname(bl->m), bl->x, bl->y);
 			else
-				ShowDebug("%s: Source (Non-NPC type %d): name %s (invisible/not on a map)\n", func, bl->type, status_get_name(bl));
+				ShowDebug("Source (Non-NPC type %d): name %s (invisible/not on a map)\n", bl->type, status_get_name(bl));
 			break;
 	}
 }
-#define script_reportsrc(st) script_reportsrc_(st, __FUNCTION__)
 
 /// Reports on the console information about the script data.
 static void script_reportdata(struct script_data* data)
