@@ -10028,9 +10028,11 @@ BUILDIN_FUNC(bonus)
 			return SCRIPT_CMD_SUCCESS;
 		case SP_SKILLCRITICAL:
 		case SP_SKILL_ATTR:
-			if (script_isstring(st, 3) && !(val1 = skill_name2id(script_getstr(st, 3)))) {
-				ShowError("buildin_bonus: Invalid skill name %s passed to item bonus. Skipping.\n", script_getstr(st, 3));
-				return SCRIPT_CMD_FAILURE;
+			if (script_isstring(st, 3)) {
+				if (!(val1 = skill_name2id(script_getstr(st, 3)))) {
+					ShowError("buildin_bonus: Invalid skill name %s passed to item bonus. Skipping.\n", script_getstr(st, 3));
+					return SCRIPT_CMD_FAILURE;
+				}
 			} else
 				val1 = script_getnum(st, 3);
 			break;
