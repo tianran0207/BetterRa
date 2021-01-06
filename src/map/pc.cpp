@@ -9473,6 +9473,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		}
 	}
 	if (sd->c_bonus.reborn.rate && rnd()%100 <= sd->c_bonus.reborn.rate) {
+		pc_setrestartvalue(sd, 1);
 		status_percent_heal(&sd->bl, sd->c_bonus.reborn.heal, 0);
 		clif_skill_nodamage(&sd->bl, &sd->bl, ALL_RESURRECTION, 1, 1);
 		return 0;
