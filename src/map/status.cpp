@@ -8859,6 +8859,7 @@ void status_set_viewdata(struct block_list *bl, int class_)
 				nd->vd.class_ = class_;
 				nd->vd.hair_style = cap_value(nd->vd.hair_style, MIN_HAIR_STYLE, MAX_HAIR_STYLE);
 			} else {
+				ShowError("status_set_viewdata (NPC): No view data for class %d\n", class_);
 				if (bl->m >= 0)
 					ShowDebug("Source (NPC): %s at %s (%d,%d)\n", nd->name, map_mapid2mapname(bl->m), bl->x, bl->y);
 				else
