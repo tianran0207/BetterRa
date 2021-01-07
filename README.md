@@ -2,6 +2,97 @@
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
 # 更新日志
+* 20210106  [修复] 物品附加 bSkillCritical bSkillAttribute 使用技能名称无效的问题
+* 20210106  [添加] 当加载NPC时所使用的外观无效时, 增加详细报错
+* 20210106  [添加] 物品附加 bReborn 当玩家死亡时有 r% 的概率复活并恢复 n% 的血量
+* 20210101  [添加] 魔物技能 ID: 696 NPC_CHANGEUNDEAD2 转为不死属性
+* 20210101  [添加] 魔物技能 ID: 712 NPC_PULSESTRIKE2 脉冲攻击
+* 20210101  [添加] 魔物技能 ID: 713 NPC_DANCINGBLADE 刃舞
+* 20210101  [添加] 魔物技能 ID: 723 NPC_STORMGUST2 暴风雪
+* 20210101  [添加] 魔物技能 ID: 729 NPC_CHEAL 治愈之光
+* 20210101  [添加] 魔物技能 ID: 730 NPC_SR_CURSEDCIRCLE 咒缚阵
+* 20210101  [添加] 魔物技能 ID: 731 NPC_DRAGONBREATH 龙之气息
+* 20210101  [添加] 魔物技能 ID: 732 NPC_FATALMENACE 致命威胁
+* 20210101  [添加] 魔物技能 ID: 733 NPC_MAGMA_ERUPTION 熔岩喷发
+* 20210101  [添加] 魔物技能 ID: 735 NPC_MANDRAGORA 曼陀罗魔花的尖叫
+* 20210101  [添加] 魔物技能 ID: 737 NPC_RAYOFGENESIS 创世之光
+* 20210101  [添加] 魔物技能 ID: 738 NPC_VENOMIMPRESS 毒抗性弱化
+* 20210101  [添加] 魔物技能 ID: 739 NPC_CLOUD_KILL 毒云术
+* 20210101  [添加] 魔物技能 ID: 740 NPC_IGNITIONBREAK 致命爆裂
+* 20210101  [添加] 魔物技能 ID: 741 NPC_PHANTOMTHRUST 幻影刺击
+* 20210101  [添加] 魔物技能 ID: 742 NPC_POISON_BUSTER 剧毒爆发
+* 20210101  [添加] 魔物技能 ID: 743 NPC_HALLUCINATIONWALK 疾风步
+* 20210101  [添加] 魔物技能 ID: 744 NPC_ELECTRICWALK 电流路径
+* 20210101  [添加] 魔物技能 ID: 745 NPC_FIREWALK 火焰路径
+* 20210101  [添加] 魔物技能 ID: 750 NPC_EARTHQUAKE_K 地崩术
+* 20201227  [修复] 移除 conf/maps_athena.conf 中的 copy 关键字, 移动至 db/map_index.txt 中
+* 20201224  [添加] 魔物技能 ID: 736 NPC_PSYCHIC_WAVE 精神冲击
+* 20201222  [添加] 魔物技能 ID: 707 NPC_MILLENNIUMSHIELD 千年神盾
+* 20201222  [添加] 魔物技能 ID: 749 NPC_WIDECRITICALWOUND 广范围致命伤害
+* 20201222  [优化] 物品附加函数带来的技能更新算法
+* 20201221  [添加] 魔物技能 ID:747 NPC_LEASH 死亡之手
+* 20201221  [添加] 魔物技能 ID:748 NPC_WIDELEASH 广范围死亡之手
+* 20201220  [添加] 魔物技能 ID: 746 NPC_WIDEDISPEL 广范围魔法效果解除
+* 20201220  [添加] 脚本指令 unitblown 移动个体到指定的坐标
+* 20201220  [添加] 脚本指令 unitmove 移动个体到指定的坐标
+* 20201219  [添加] 魔物技能 ID:700 NPC_WIDEHEALTHFEAR 广范围恐惧
+* 20201219  [添加] 魔物技能 ID:701 NPC_WIDEBODYBURNNING 广范围燃烧
+* 20201219  [添加] 魔物技能 ID:702 NPC_WIDEFROSTMISTY 广范围冰洁
+* 20201219  [添加] 魔物技能 ID:703 NPC_WIDECOLD 广范围冰冻
+* 20201219  [添加] 魔物技能 ID:704 NPC_WIDE_DEEP_SLEEP 广范围沉睡
+* 20201219  [添加] 魔物技能 ID:705 NPC_WIDESIREN 广范围魅惑
+* 20201219  [添加] 魔物技能 ID:721 NPC_WIDEWEB 广范围易燃之网
+* 20201219  [添加] 魔物技能 ID:722 NPC_WIDESUCK 广范围吸血
+* 20201219  [添加] 魔物技能 ID:751 NPC_ALL_STAT_DOWN 全素质下降
+* 20201219  [添加] 魔物技能 ID:752 NPC_GRADUAL_GRAVITY 重力增加
+* 20201219  [添加] 魔物技能 ID:753 NPC_DAMAGE_HEAL 转祸为福
+* 20201219  [添加] 魔物技能 ID:754 NPC_IMMUNE_PROPERTY 属性免疫
+* 20201219  [添加] 魔物技能 ID:755 NPC_MOVE_COORDINATE 位置转换
+* 20201215  [添加] 脚本指令 bot_delmode 移除机器人的AI模式
+* 20201215  [添加] 脚本指令 bot_hasmode 检查机器人的AI模式
+* 20201215  [添加] 脚本指令 bot_pause 暂停机器人
+* 20201215  [优化] 脚本指令 is_bot 加入检查BOT是否处于闲置状态还是运行状态
+* 20201215  [优化] 脚本指令 bot_stop 当玩家离线挂机时, BOT停止后会被踢掉线
+* 20201215  [修复] 脚本事件 OnBOTRecvActEvent 返回值不正确的问题
+* 20201215  [修复] 脚本指令 pctalk 私聊返回两次名字的问题
+* 20201209  [优化] 脚本指令 bot_login 支持 角色ID 玩家名直接登陆BOT账号
+* 20201209  [优化] 脚本指令 bot_login 登陆过程中, 脚本暂停等待登陆完成后, 脚本关联会转移至登陆的BOT账号
+* 20201209  [移除] 脚本事件 OnBOTLackItemEvent 当BOT自动使用物品后少于指定数量触发该事件
+* 20201209  [添加] 脚本事件 OnBOTRecvActEvent 当BOT接收到指定请求或聊天信息时触发该事件
+* 20201209  [添加] 脚本指令 bot_trade 当BOT收到交易请求时, 可以通过这个指令操作BOT交易
+* 20201209  [添加] 脚本指令 bot_party 当BOT收到加入队伍请求时, 可以通过这个指令操作BOT接受或拒绝申请
+* 20201209  [添加] 脚本指令 bot_guild 当BOT收到加入公会请求时, 可以通过这个指令操作BOT接受或拒绝申请
+* 20201209  [添加] 脚本指令 pctalk 发送一条聊天信息给指定目标或群组
+* 20201209  [添加] 脚本指令 pcjoinchat 加入一个与指定GID的玩家或NPC相关的聊天室
+* 20201208  [添加] GM指令 showconsole 可在游戏中查看 map-server.exe 的输出信息
+* 20201208  [添加] 机器人实现加入组队、加入公会、交易、聊天触发和邀请触发事件的功能
+* 20201207  [修复] 机器人账号在机器人运行时登录的延迟下线的问题
+* 20201207  [修复] 因上次修改机器登陆AI, 导致的登陆机器人指令造成的宕机
+* 20201207  [修复] 仇恨系统在释放时造成的宕机
+* 20201205  [修复] 规避玩家走近目标使用技能时, 客户端与服务端行走时间计算规范的问题
+* 20201201  [修复] 脚本指令 unitdelaura 删除无效指针的问题
+* 20201201  [修复] 当地图标记 mobinfo等于 -1 时不能移除名称扩展显示的问题
+* 20201126  [优化] 优化 mapcache 读取时内存读写, 优化加载速度
+* 20201125  [添加] 脚本指令 getskillsc 获取技能使用后给玩家附加的状态ID, 可用于BOT相关的状态条件
+* 20201123  [修复] 机器人不检查目标死亡状态的问题
+* 20201113  [添加] 脚本指令 bot_follow 机器人自动跟随一个玩家
+* 20201108  [修复] 物品附加 bSkillToAround 和 bSkillToGround 重登后不能将技能移入技能栏的问题
+* 20201108  [修复] 使用脚本指令 bot_login 登录的玩家不能被移动的问题
+* 20201101  [添加] 物品附加 bEquipIgnore 无效装备指定属性
+* 20201101  [添加] 物品附加 bEquipIgnoreClass 移除装备职业限制
+* 20201101  [添加] 脚本指令 dual_weapon 允许玩家双持武器
+* 20201030  [添加] 物品附加 bEquipLoc 更改装备穿戴位置
+* 20201030  [添加] 物品附加 bEquipBound 修改物品绑定类型
+* 20201030  [添加] 物品附加 bEquipIgnore 无效装备指定属性
+* 20201026  [修复] 脚本指令 instance_npcname 无法获取 copynpc 生成的NPC真实名称的问题
+* 20201026  [优化] 脚本指令 duplicate copynpc dupnpc 脚本说明
+* 20201026  [优化] 脚本指令 unloadduplicate unloadcopynpc 脚本说明
+* 20201026  [修复] 脚本指令 logout 无法使离线挂机和离线挂店的人下线的问题
+* 20201024  [修复] 配置选项 min_storechat_distance 可以重叠挂店开聊天室的问题
+* 20201024  [修复] 技能数据文件中 IgnoreLandProtector配置 不能无视地领的问题
+* 20201024  [修复] 脚本指令 logout 使用玩家名时无法正确退出游戏的问题
+* 20201019  [修复] GM指令 whodrops 不能正常获取掉率的问题
+* 20201019  [修复] 无法点击魔物墓碑的问题
 * 20201018  [修复] 自动挂机机器人系统卡AI的问题
 * 20201016  [修复] 音速投掷伤害公式
 * 20201014  [优化] 修改文件 db/mob_item_ratefix.txt 可通过此文件修改魔物掉率和显示掉率
