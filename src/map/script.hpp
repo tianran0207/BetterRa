@@ -2072,7 +2072,7 @@ enum e_special_effects {
 	EF_MAX
 };
 
-enum e_hat_effects {
+enum e_hat_effects : int16{
 	HAT_EF_MIN = 0,
 	HAT_EF_BLOSSOM_FLUTTERING,
 	HAT_EF_MERMAID_LONGING,
@@ -2269,7 +2269,6 @@ void script_error(const char* src, const char* file, int start_line, const char*
 void script_warning(const char* src, const char* file, int start_line, const char* error_msg, const char* error_pos);
 
 bool is_number(const char *p);
-void parse_script_load();
 struct script_code* parse_script(const char* src,const char* file,int line,int options);
 void run_script(struct script_code *rootscript,int pos,int rid,int oid);
 

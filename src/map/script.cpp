@@ -2621,16 +2621,6 @@ void script_warning(const char* src, const char* file, int start_line, const cha
 	StringBuf_Destroy(&buf);
 }
 
-void parse_script_load() {
-	static bool first = true;
-	if (first) {
-		add_buildin_func();
-		read_constdb();
-		script_hardcoded_constants();
-		first = false;
-	}
-}
-
 /*==========================================
  * Analysis of the script
  *------------------------------------------*/
@@ -5136,7 +5126,9 @@ void do_init_script(void) {
 	next_id = 0;
 
 	mapreg_init();
-	parse_script_load();
+	add_buildin_func();
+	read_constdb();
+	script_hardcoded_constants();
 }
 
 void script_reload(void) {
@@ -9453,7 +9445,7 @@ BUILDIN_FUNC(getequipname)
 
 	item = sd->inventory_data[i];
 	if( item != 0 )
-		script_pushstrcopy(st,item->jname);
+		script_pushstrcopy(st,item->ename.c_str());
 	else
 		script_pushconststr(st,"");
 
@@ -11232,7 +11224,7 @@ BUILDIN_FUNC(getmobdrops)
 			continue;
 
 		mapreg_setreg(reference_uid(add_str("$@MobDrop_item"), j), mob->dropitem[i].nameid);
-		mapreg_setreg(reference_uid(add_str("$@MobDrop_rate"), j), mob->dropitem[i].p);
+		mapreg_setreg(reference_uid(add_str("$@MobDrop_rate"), j), mob->dropitem[i].rate);
 
 		j++;
 	}
@@ -13958,7 +13950,7 @@ BUILDIN_FUNC(getequipcardcnt)
 	}
 
 	count = 0;
-	for( j = 0; j < sd->inventory_data[i]->slot; j++ )
+	for( j = 0; j < sd->inventory_data[i]->slots; j++ )
 		if( sd->inventory.u.items_inventory[i].card[j] && itemdb_type(sd->inventory.u.items_inventory[i].card[j]) == IT_CARD )
 			count++;
 
@@ -13990,7 +13982,7 @@ BUILDIN_FUNC(successremovecards) {
 	if(itemdb_isspecial(sd->inventory.u.items_inventory[i].card[0]))
 		return SCRIPT_CMD_SUCCESS;
 
-	for( c = sd->inventory_data[i]->slot - 1; c >= 0; --c ) {
+	for( c = sd->inventory_data[i]->slots - 1; c >= 0; --c ) {
 		if( sd->inventory.u.items_inventory[i].card[c] && itemdb_type(sd->inventory.u.items_inventory[i].card[c]) == IT_CARD ) {// extract this card from the item
 			unsigned char flag = 0;
 			struct item item_tmp;
@@ -14007,7 +13999,7 @@ BUILDIN_FUNC(successremovecards) {
 	}
 
 	if(cardflag == 1) {//if card was remove remplace item with no card
-		unsigned char flag = 0, j;
+		unsigned char flag = 0;
 		struct item item_tmp;
 		memset(&item_tmp,0,sizeof(item_tmp));
 
@@ -14018,10 +14010,10 @@ BUILDIN_FUNC(successremovecards) {
 		item_tmp.expire_time = sd->inventory.u.items_inventory[i].expire_time;
 		item_tmp.bound       = sd->inventory.u.items_inventory[i].bound;
 
-		for (j = sd->inventory_data[i]->slot; j < MAX_SLOTS; j++)
+		for (int j = sd->inventory_data[i]->slots; j < MAX_SLOTS; j++)
 			item_tmp.card[j]=sd->inventory.u.items_inventory[i].card[j];
 		
-		for (j = 0; j < MAX_ITEM_RDM_OPT; j++){
+		for (int j = 0; j < MAX_ITEM_RDM_OPT; j++){
 			item_tmp.option[j].id=sd->inventory.u.items_inventory[i].option[j].id;
 			item_tmp.option[j].value=sd->inventory.u.items_inventory[i].option[j].value;
 			item_tmp.option[j].param=sd->inventory.u.items_inventory[i].option[j].param;
@@ -14066,7 +14058,7 @@ BUILDIN_FUNC(failedremovecards) {
 	if(itemdb_isspecial(sd->inventory.u.items_inventory[i].card[0]))
 		return SCRIPT_CMD_SUCCESS;
 
-	for( c = sd->inventory_data[i]->slot - 1; c >= 0; --c ) {
+	for( c = sd->inventory_data[i]->slots - 1; c >= 0; --c ) {
 		if( sd->inventory.u.items_inventory[i].card[c] && itemdb_type(sd->inventory.u.items_inventory[i].card[c]) == IT_CARD ) {
 			cardflag = 1;
 
@@ -14091,7 +14083,7 @@ BUILDIN_FUNC(failedremovecards) {
 		if(typefail == 0 || typefail == 2){	// destroy the item
 			pc_delitem(sd,i,1,0,2,LOG_TYPE_SCRIPT);
 		}else if(typefail == 1){ // destroy the card
-			unsigned char flag = 0, j;
+			unsigned char flag = 0;
 			struct item item_tmp;
 
 			memset(&item_tmp,0,sizeof(item_tmp));
@@ -14103,10 +14095,10 @@ BUILDIN_FUNC(failedremovecards) {
 			item_tmp.expire_time = sd->inventory.u.items_inventory[i].expire_time;
 			item_tmp.bound       = sd->inventory.u.items_inventory[i].bound;
 
-			for (j = sd->inventory_data[i]->slot; j < MAX_SLOTS; j++)
+			for (int j = sd->inventory_data[i]->slots; j < MAX_SLOTS; j++)
 				item_tmp.card[j]=sd->inventory.u.items_inventory[i].card[j];
 			
-			for (j = 0; j < MAX_ITEM_RDM_OPT; j++){
+			for (int j = 0; j < MAX_ITEM_RDM_OPT; j++){
 				item_tmp.option[j].id=sd->inventory.u.items_inventory[i].option[j].id;
 				item_tmp.option[j].value=sd->inventory.u.items_inventory[i].option[j].value;
 				item_tmp.option[j].param=sd->inventory.u.items_inventory[i].option[j].param;
@@ -14575,7 +14567,7 @@ BUILDIN_FUNC(getitemname)
 	}
 	item_name=(char *)aMalloc(ITEM_NAME_LENGTH*sizeof(char));
 
-	memcpy(item_name, i_data->jname, ITEM_NAME_LENGTH);
+	memcpy(item_name, i_data->ename.c_str(), ITEM_NAME_LENGTH);
 	script_pushstr(st,item_name);
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -14592,7 +14584,7 @@ BUILDIN_FUNC(getitemslots)
 	i_data = itemdb_exists(item_id);
 
 	if (i_data)
-		script_pushint(st,i_data->slot);
+		script_pushint(st,i_data->slots);
 	else
 		script_pushint(st,-1);
 	return SCRIPT_CMD_SUCCESS;
@@ -14626,32 +14618,66 @@ BUILDIN_FUNC(getitemslots)
  *------------------------------------------*/
 BUILDIN_FUNC(getiteminfo)
 {
-	unsigned short n;
-	struct item_data *i_data;
-
 	t_itemid item_id = script_getnum(st,2);
-	n	= script_getnum(st,3);
-	i_data = itemdb_exists(item_id);
+	item_data *i_data = itemdb_exists(item_id);
 
-	if (i_data && n <= 16) {
-		int *item_arr = (int*)&i_data->value_buy;
-#ifndef RENEWAL
-		if (n == 16)
-			script_pushint(st, 0);
-		else
-#endif
-			script_pushint(st, item_arr[n]);
+	if (i_data == nullptr) {
+		script_pushint(st, -1);
+		return SCRIPT_CMD_SUCCESS;
 	}
-	else if (i_data && n > 16) {
-		switch (n) {
+	switch( script_getnum(st, 3) ) {
+		case 0: script_pushint(st, i_data->value_buy); break;
+		case 1: script_pushint(st, i_data->value_sell); break;
+		case 2: script_pushint(st, i_data->type); break;
+		case 3: script_pushint(st, i_data->maxchance); break;
+		case 4: script_pushint(st, i_data->sex); break;
+		case 5: script_pushint(st, i_data->equip); break;
+		case 6: script_pushint(st, i_data->weight); break;
+		case 7: script_pushint(st, i_data->atk); break;
+		case 8: script_pushint(st, i_data->def); break;
+		case 9: script_pushint(st, i_data->range); break;
+		case 10: script_pushint(st, i_data->slots); break;
+		case 11:
+			if (i_data->type == IT_WEAPON || i_data->type == IT_AMMO) {	// keep old compatibility
+				script_pushint(st, i_data->subtype);
+			} else {
+				script_pushint(st, i_data->look);
+			}
+			break;
+		case 12: script_pushint(st, i_data->elv); break;
+		case 13: script_pushint(st, i_data->wlv); break;
+		case 14: script_pushint(st, i_data->view_id); break;
+		case 15: script_pushint(st, i_data->elvmax); break;
+		case 16: {
+#ifdef RENEWAL
+			script_pushint(st, i_data->matk);
+#else
+			script_pushint(st, 0);
+#endif
+			break;
+		}
 		case 17:	script_pushint(st, i_data->flag.no_refine ? 0 : 1); break;
-		case 18:	script_pushint(st, i_data->flag.trade_restriction); break;
+		case 18: {
+			int flag = 0;
+			flag += i_data->flag.trade_restriction.drop ? 1 : 0;
+			flag += i_data->flag.trade_restriction.trade ? 2 : 0;
+			flag += i_data->flag.trade_restriction.trade_partner ? 4 : 0;
+			flag += i_data->flag.trade_restriction.sell ? 8 : 0;
+			flag += i_data->flag.trade_restriction.cart ? 16 : 0;
+			flag += i_data->flag.trade_restriction.storage ? 32 : 0;
+			flag += i_data->flag.trade_restriction.guild_storage ? 64 : 0;
+			flag += i_data->flag.trade_restriction.mail ? 128 : 0;
+			flag += i_data->flag.trade_restriction.auction ? 256 : 0;
+			flag += i_data->flag.trade_restriction.force_vending ? 4096 : 0;
+			script_pushint(st, flag);
+		}
+			break;
 		case 21:	script_pushint(st, script_func_mark_sub(NULL, 0, i_data->script, "pet") ? 1 : 0); break;
 		case 22:	script_pushint(st, script_func_mark_sub(NULL, 0, i_data->script, "callfunc") ? 1 : 0); break;
-		default:	script_pushint(st, -1); break;
-		}
-	} else
-		script_pushint(st,-1);
+		default:
+			script_pushint(st, -1);
+			break;
+	}
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -14682,27 +14708,51 @@ BUILDIN_FUNC(getiteminfo)
  *------------------------------------------*/
 BUILDIN_FUNC(setiteminfo)
 {
-	int n,value;
-	struct item_data *i_data;
-
 	t_itemid item_id = script_getnum(st,2);
-	n	= script_getnum(st,3);
-	value	= script_getnum(st,4);
-	i_data = itemdb_exists(item_id);
+	item_data *i_data = itemdb_exists(item_id);
 
-#ifndef RENEWAL
-	if( n == 16 ){
-		script_pushint( st, -1 );
+	if (i_data == nullptr) {
+		script_pushint(st, -1);
 		return SCRIPT_CMD_SUCCESS;
 	}
-#endif
+	int value = script_getnum(st,4);
 
-	if (i_data && n>=0 && n<=16) {
-		int *item_arr = (int*)&i_data->value_buy;
-		item_arr[n] = value;
-		script_pushint(st,value);
-	} else
-		script_pushint(st,-1);
+	switch( script_getnum(st, 3) ) {
+		case 0: i_data->value_buy = static_cast<uint32>(value); break;
+		case 1: i_data->value_sell = static_cast<uint32>(value); break;
+		case 2: i_data->type = static_cast<item_types>(value); break;
+		case 3: i_data->maxchance = static_cast<int>(value); break;
+		case 4: i_data->sex = static_cast<uint8>(value); break;
+		case 5: i_data->equip = static_cast<uint32>(value); break;
+		case 6: i_data->weight = static_cast<uint32>(value); break;
+		case 7: i_data->atk = static_cast<uint32>(value); break;
+		case 8: i_data->def = static_cast<uint32>(value); break;
+		case 9: i_data->range = static_cast<uint16>(value); break;
+		case 10: i_data->slots = static_cast<uint16>(value); break;
+		case 11:
+			if (i_data->type == IT_WEAPON || i_data->type == IT_AMMO) {	// keep old compatibility
+				i_data->subtype = static_cast<uint8>(value);
+			} else {
+				i_data->look = static_cast<uint32>(value);
+			}
+			break;
+		case 12: i_data->elv = static_cast<uint16>(value); break;
+		case 13: i_data->wlv = static_cast<uint16>(value); break;
+		case 14: i_data->view_id = static_cast<t_itemid>(value); break;
+		case 15: i_data->elvmax = static_cast<uint16>(value); break;
+		case 16: {
+#ifdef RENEWAL
+			i_data->matk = static_cast<uint32>(value);
+#else
+			value = 0;
+#endif
+			break;
+		}
+		default:
+			script_pushint(st, -1);
+			break;
+	}
+	script_pushint(st, value);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -15815,7 +15865,7 @@ BUILDIN_FUNC(checkequipedcard)
 			if(sd->inventory.u.items_inventory[i].nameid > 0 && sd->inventory.u.items_inventory[i].amount && sd->inventory_data[i]){
 				if (itemdb_isspecial(sd->inventory.u.items_inventory[i].card[0]))
 					continue;
-				for(n=0;n<sd->inventory_data[i]->slot;n++){
+				for(n=0;n<sd->inventory_data[i]->slots;n++){
 					if(sd->inventory.u.items_inventory[i].card[n] == c) {
 						script_pushint(st,1);
 						return SCRIPT_CMD_SUCCESS;
@@ -16392,7 +16442,7 @@ BUILDIN_FUNC(isequippedcnt)
 			} else { //Count cards.
 				if (itemdb_isspecial(sd->inventory.u.items_inventory[index].card[0]))
 					continue; //No cards
-				for (short k = 0; k < sd->inventory_data[index]->slot; k++) {
+				for (short k = 0; k < sd->inventory_data[index]->slots; k++) {
 					if (sd->inventory.u.items_inventory[index].card[k] == id)
 						ret++; //[Lupus]
 				}
@@ -16441,7 +16491,7 @@ BUILDIN_FUNC(isequipped)
 			if(!sd->inventory_data[index])
 				continue;
 
-			int maxslot = !strcmp(script_getfuncname(st), "isequipped2") ? MAX_SLOTS : sd->inventory_data[index]->slot;
+			int maxslot = !strcmp(script_getfuncname(st), "isequipped2") ? MAX_SLOTS : sd->inventory_data[index]->slots;
 
 			if (itemdb_type(id) != IT_CARD) {
 				if (sd->inventory_data[index]->nameid != id)
@@ -16524,7 +16574,7 @@ BUILDIN_FUNC(cardscnt)
 		} else {
 			if (itemdb_isspecial(sd->inventory.u.items_inventory[index].card[0]))
 				continue;
-			for(k=0; k<sd->inventory_data[index]->slot; k++) {
+			for(k=0; k<sd->inventory_data[index]->slots; k++) {
 				if (sd->inventory.u.items_inventory[index].card[k] == id)
 					ret++;
 			}
@@ -17987,7 +18037,7 @@ BUILDIN_FUNC(addmonsterdrop)
 		}
 		if(c) { //Fill in the slot with the item and rate
 			mob->dropitem[c].nameid = item_id;
-			mob->dropitem[c].p = (rate > 10000)?10000:rate;
+			mob->dropitem[c].rate = (rate > 10000)?10000:rate;
 			mob_reload_itemmob_data(); // Reload the mob search data stored in the item_data
 			script_pushint(st,1);
 		} else //No place to put the new drop
@@ -18029,7 +18079,7 @@ BUILDIN_FUNC(delmonsterdrop)
 		for(i = 0; i < MAX_MOB_DROP_TOTAL; i++) {
 			if(mob->dropitem[i].nameid == item_id) {
 				mob->dropitem[i].nameid = 0;
-				mob->dropitem[i].p = 0;
+				mob->dropitem[i].rate = 0;
 				mob_reload_itemmob_data(); // Reload the mob search data stored in the item_data
 				script_pushint(st,1);
 				return SCRIPT_CMD_SUCCESS;
@@ -23976,47 +24026,34 @@ BUILDIN_FUNC(recalculatestat) {
 }
 
 BUILDIN_FUNC(hateffect){
-#if PACKETVER >= 20150513
+#if PACKETVER_MAIN_NUM >= 20150507 || PACKETVER_RE_NUM >= 20150429 || defined(PACKETVER_ZERO)
 	struct map_session_data* sd;
-	bool enable;
-	int i, effectID;
 
 	if( !script_rid2sd(sd) )
 		return SCRIPT_CMD_FAILURE;
 
-	effectID = script_getnum(st,2);
-	enable = script_getnum(st,3) ? true : false;
+	int16 effectID = script_getnum(st,2);
+	bool enable = script_getnum(st,3) ? true : false;
 
 	if( effectID <= HAT_EF_MIN || effectID >= HAT_EF_MAX ){
 		ShowError( "buildin_hateffect: unsupported hat effect id %d\n", effectID );
 		return SCRIPT_CMD_FAILURE;
 	}
 
-	ARR_FIND( 0, sd->hatEffectCount, i, sd->hatEffectIDs[i] == effectID );
+	auto it = util::vector_get( sd->hatEffects, effectID );
 
 	if( enable ){
-		if( i < sd->hatEffectCount ){
+		if( it != sd->hatEffects.end() ){
 			return SCRIPT_CMD_SUCCESS;
 		}
 
-		RECREATE(sd->hatEffectIDs,uint32,sd->hatEffectCount+1);
-		sd->hatEffectIDs[sd->hatEffectCount] = effectID;
-		sd->hatEffectCount++;
+		sd->hatEffects.push_back( effectID );
 	}else{
-		if( i == sd->hatEffectCount ){
+		if( it == sd->hatEffects.end() ){
 			return SCRIPT_CMD_SUCCESS;
 		}
 
-		for( ; i < sd->hatEffectCount - 1; i++ ){
-			sd->hatEffectIDs[i] = sd->hatEffectIDs[i+1];
-		}
-
-		sd->hatEffectCount--;
-
-		if( !sd->hatEffectCount ){
-			aFree(sd->hatEffectIDs);
-			sd->hatEffectIDs = NULL;
-		}
+		util::vector_erase_if_exists( sd->hatEffects, effectID );
 	}
 
 	if( !sd->state.connect_new ){
@@ -24117,7 +24154,6 @@ BUILDIN_FUNC(getequiprandomoption) {
 */
 BUILDIN_FUNC(setrandomoption) {
 	struct map_session_data *sd;
-	struct s_random_opt_data *opt;
 	int pos, index, id, value, param, ep;
 	int i = -1;
 	if (!script_charid2sd(7, sd))
@@ -24128,7 +24164,9 @@ BUILDIN_FUNC(setrandomoption) {
 	value = script_getnum(st, 5);
 	param = script_getnum(st, 6);
 
-	if ((opt = itemdb_randomopt_exists((short)id)) == NULL) {
+	std::shared_ptr<s_random_opt_data> opt = random_option_db.find(static_cast<uint16>(id));
+
+	if (opt == nullptr) {
 		ShowError("buildin_setrandomoption: Random option ID %d does not exists.\n", id);
 		script_pushint(st, 0);
 		return SCRIPT_CMD_FAILURE;
@@ -27215,7 +27253,7 @@ BUILDIN_FUNC(setidxrandomoption)
 
 	id = script_getnum(st, 4);
 
-	if (itemdb_randomopt_exists(id) == NULL) {
+	if (random_option_db.find(static_cast<uint16>(id)) == nullptr) {
 		ShowError("buildin_%s: Invalid random option ID '%d'.\n", command, id);
 		return SCRIPT_CMD_FAILURE;
 	}
@@ -29374,7 +29412,7 @@ BUILDIN_FUNC(mobdrop)
 	maxrate = script_hasdata(st, 5) ? script_getnum(st, 5) : 10000;
 	for (i = 0; i < MAX_MOB_DROP; i++) {
 		
-		droprate = rate == 100 ? db->dropitem[i].p : db->dropitem[i].p * rate / 100;
+		droprate = rate == 100 ? db->dropitem[i].rate : db->dropitem[i].rate * rate / 100;
 		droprate = droprate > maxrate ? maxrate : droprate;
 		if (droprate < rnd() % 10000)
 			continue;
@@ -32134,14 +32172,14 @@ void script_func_mark(struct map_session_data *sd, int n)
 			script_func_mark_sub(sd, n, id->script);
 		}
 		for (int i = 0; i < MAX_ITEM_RDM_OPT; i++) {
-			struct s_random_opt_data *data;
+			std::shared_ptr<s_random_opt_data> opt;
 			if (!itm->option[i].id)
 				continue;
-			if ((data = itemdb_randomopt_exists(itm->option[i].id)) == NULL)
+			if ((opt = random_option_db.find(static_cast<uint16>(itm->option[i].id))) == nullptr)
 				continue;
-			if (!data->script)
+			if (!opt->script)
 				continue;
-			script_func_mark_sub(sd, n, data->script);
+			script_func_mark_sub(sd, n, opt->script);
 		}
 	}
 }
