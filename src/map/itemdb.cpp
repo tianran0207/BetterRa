@@ -1029,6 +1029,7 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node &node) {
 }
 
 ItemDatabase item_db;
+ItemDatabase item_db_reload;
 
 /**
  * Check if combo exists
@@ -2773,7 +2774,10 @@ static void itemdb_read(void) {
 	
 	if (db_use_sqldbs)
 		itemdb_read_sqldb();
-	else
+	else if (item_db_reload.size()){
+		item_db = item_db_reload;
+		item_db_reload.clear();
+	}else
 		item_db.load();
 	
 	for(i=0; i<ARRAYLENGTH(dbsubpath); i++){
@@ -2870,9 +2874,25 @@ int item_data::inventorySlotNeeded(int quantity)
 /**
 * Reload Item DB
 */
+#include "../common/winapi.hpp"
+TIMER_FUNC(itemdb_reload_redo) {
+	itemdb_reload();
+	return 1;
+}
+DWORD WINAPI itemdb_reload_sub(LPVOID lpParameter) {
+	item_db_reload.load();
+	add_timer(gettick(), itemdb_reload_redo, 0, NULL);
+	return 1;
+}
+
 void itemdb_reload(void) {
 	struct s_mapiterator* iter;
 	struct map_session_data* sd;
+
+	if (!item_db_reload.size()) {
+		CreateThread(NULL, 0, itemdb_reload_sub, NULL, 0, NULL);
+		return;
+	}
 
 	item_db.clear();
 	itemdb_combo.clear();

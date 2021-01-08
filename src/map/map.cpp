@@ -5781,7 +5781,7 @@ void server_verification_result(char *url, char *result) {
 
 int map_MessageInterface(enum msg_type flag, const char *prefix, const char *string, va_list ap)
 {
-	if (string[strlen(string)] == '\r')
+	if (string[strlen(string)-1] == '\r')
 		return 0;
 
 	if (!CheckForChatServer() || global_event.show_console)

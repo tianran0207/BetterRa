@@ -28539,7 +28539,7 @@ BUILDIN_FUNC(bot_adduseitem)
 		ShowWarning("bot_adduseitem: Item ID %u does not exists in the item_db.\n", entry.id);
 		return SCRIPT_CMD_FAILURE;
 	}
-	entry.delay = max(item->delay, entry.delay);
+	entry.delay = max(item->delay.duration, entry.delay);
 
 	if (!buildin_bot_addcheck_sub(sd, &entry, BL_ITEM))
 		return SCRIPT_CMD_FAILURE;
