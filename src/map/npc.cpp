@@ -633,6 +633,28 @@ int npc_event_doall_id(const char* name, int rid)
 	return c;
 }
 
+// runs the specified event on all NPCs with the given path
+int npc_event_doall_path( const char* event_name, const char* path ){
+	s_mapiterator* iter = mapit_geteachnpc();
+	npc_data* nd;
+	int count = 0;
+
+	while( ( nd = (npc_data*)mapit_next( iter ) ) != nullptr ){
+		if( nd->path && strcasecmp( nd->path, path ) == 0 ){
+			char name[EVENT_NAME_LENGTH];
+
+			safesnprintf( name, EVENT_NAME_LENGTH, "%s::%s", nd->exname, event_name );
+
+			count += npc_event_do( name );
+		}
+	}
+
+	ShowStatus( "Event '" CL_WHITE "%s" CL_RESET "' executed with '" CL_WHITE "%d" CL_RESET "' NPCs.\n", event_name, count );
+
+	mapit_free(iter);
+	return count;
+}
+
 /*==========================================
  * Clock event execution
  * OnMinute/OnClock/OnHour/OnDay/OnDDHHMM
@@ -2714,7 +2736,7 @@ int npc_addsrcfile(const char* name, bool loadscript)
 		file_prev->next = file;
 
 	if (loadscript)
-		return npc_parsesrcfile(file->name, true, NULL);
+		return npc_parsesrcfile(file->name);
 
 	return 1;
 }
@@ -3436,7 +3458,7 @@ static const char* npc_skip_script(const char* start, const char* buffer, const 
  * @param filepath : filename with path wich we are parsing
  * @return new index for next parsing
  */
-static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath, bool runOnInit) {
+static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath) {
 	int16 dir = 0;
 	short m, x, y, xs = 0, ys = 0; // [Valaris] thanks to fov
 	struct script_code *script;
@@ -3547,20 +3569,6 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 	}
 
 	nd->u.scr.timerid = INVALID_TIMER;
-
-	if( runOnInit ) {
-		char evname[EVENT_NAME_LENGTH];
-		struct event_data *ev;
-
-		snprintf(evname, ARRAYLENGTH(evname), "%s::%s", nd->exname, script_config.init_event_name);
-
-		if( ( ev = (struct event_data*)strdb_get(ev_db, evname) ) ) {
-
-			//Execute OnInit
-			run_script(nd->u.scr.script,ev->pos,0,nd->bl.id);
-
-		}
-	}
 
 	return end;
 }
@@ -4716,7 +4724,7 @@ void npc_database_reload(char *type)
 		memcpy(otherbuf, StringBuf_Value(buf), len);
 		otherbuf[len+1] = '\0';
 		sprintf(filepath, "npc_reload_%s", type);
-		npc_parsesrcfile(filepath, false, otherbuf);
+		npc_parsesrcfile(filepath, otherbuf);
 	}
 	dbi_destroy(iter);
 }
@@ -4829,7 +4837,7 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
  * @param runOnInit :  should we exec OnInit when it's done ?
  * @return 0:error, 1:success
  */
-int npc_parsesrcfile(const char* filepath, bool runOnInit, char *other_buffer)
+int npc_parsesrcfile(const char* filepath, char *other_buffer)
 {
 	int16 m, x, y;
 	int lines = 0;
@@ -5019,7 +5027,7 @@ int npc_parsesrcfile(const char* filepath, bool runOnInit, char *other_buffer)
 			if( strcasecmp(w1,"function") == 0 )
 				p = npc_parse_function(w1, w2, w3, w4, p, buffer, filepath);
 			else
-				p = npc_parse_script(w1,w2,w3,w4, p, buffer, filepath,runOnInit);
+				p = npc_parse_script(w1,w2,w3,w4, p, buffer, filepath);
 		}
 		else if( (i=0, sscanf(w2,"duplicate%n",&i), (i > 0 && w2[i] == '(')) && count > 3 )
 			p = npc_parse_duplicate(w1,w2,w3,w4, p, buffer, filepath);
@@ -5456,7 +5464,7 @@ int npc_reload(void) {
 	// Reloading npcs now
 	for (nsl = npc_src_files; nsl; nsl = nsl->next) {
 		ShowStatus("Loading NPC file: %s" CL_CLL "\r", nsl->name);
-		npc_parsesrcfile(nsl->name,false,NULL);
+		npc_parsesrcfile(nsl->name);
 	}
 	ShowInfo ("Done loading '" CL_WHITE "%d" CL_RESET "' NPCs:" CL_CLL "\n"
 		"\t-'" CL_WHITE "%d" CL_RESET "' Warps\n"
@@ -5625,7 +5633,7 @@ void do_init_npc(void){
 	ShowStatus("Loading NPCs...\r");
 	for( file = npc_src_files; file != NULL; file = file->next ) {
 		ShowStatus("Loading NPC file: %s" CL_CLL "\r", file->name);
-		npc_parsesrcfile(file->name,false,NULL);
+		npc_parsesrcfile(file->name);
 	}
 	ShowInfo ("Done loading '" CL_WHITE "%d" CL_RESET "' NPCs:" CL_CLL "\n"
 		"\t-'" CL_WHITE "%d" CL_RESET "' Warps\n"

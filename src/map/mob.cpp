@@ -387,6 +387,24 @@ struct view_data * mob_get_viewdata(int mob_id)
 	return &db->vd;
 }
 
+e_mob_bosstype mob_db::get_bosstype(){
+	if( status_has_mode( &this->status, MD_MVP ) ){
+		return BOSSTYPE_MVP;
+	}else if( this->status.class_ == CLASS_BOSS ){
+		return BOSSTYPE_MINIBOSS;
+	}else{
+		return BOSSTYPE_NONE;
+	}
+}
+
+e_mob_bosstype mob_data::get_bosstype(){
+	if( this->db != nullptr ){
+		return this->db->get_bosstype();
+	}else{
+		return BOSSTYPE_NONE;
+	}
+}
+
 /**
  * Create unique view data associated to a spawned monster.
  * @param md: Mob to adjust
@@ -573,7 +591,7 @@ bool mob_ksprotected (struct block_list *src, struct block_list *target)
 		if( mapdata->flag[MF_ALLOWKS] || mapdata_flag_ks(mapdata) )
 			return false; // Ignores GVG, PVP and AllowKS map flags
 
-		if( md->db->mexp || md->master_id )
+		if( md->get_bosstype() == BOSSTYPE_MVP || md->master_id )
 			return false; // MVP, Slaves mobs ignores KS
 
 		if( (sce = md->sc.data[SC_KSPROTECTED]) == nullptr )
@@ -2475,7 +2493,7 @@ void mob_log_damage(struct mob_data *md, struct block_list *src, int damage)
 				md->dmglog[i].id  = char_id;
 				md->dmglog[i].flag= flag;
 
-				if(md->db->mexp)
+				if( md->get_bosstype() == BOSSTYPE_MVP )
 					pc_damage_log_add(map_charid2sd(char_id),md->bl.id);
 				break;
 			}
@@ -2492,7 +2510,7 @@ void mob_log_damage(struct mob_data *md, struct block_list *src, int damage)
 			md->dmglog[minpos].flag= flag;
 			md->dmglog[minpos].dmg = damage;
 
-			if(md->db->mexp)
+			if( md->get_bosstype() == BOSSTYPE_MVP )
 				pc_damage_log_add(map_charid2sd(char_id),md->bl.id);
 		}
 	}
@@ -2563,7 +2581,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	struct {
 		struct party_data *p;
 		int id,zeny;
-		unsigned int base_exp,job_exp;
+		t_exp base_exp;
+		t_exp job_exp;
 	} pt[DAMAGELOG_SIZE];
 	int i, temp, count, m = md->bl.m;
 	int dmgbltypes = 0;  // bitfield of all bl types, that caused damage to the mob and are elligible for exp distribution
@@ -2677,7 +2696,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 		for(i = 0; i < DAMAGELOG_SIZE && md->dmglog[i].id; i++) {
 			int flag=1,zeny=0;
-			unsigned int base_exp, job_exp;
+			t_exp base_exp, job_exp;
 			double per; //Your share of the mob's exp
 
 			if (!tmpsd[i]) continue;
@@ -2716,7 +2735,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			if(battle_config.zeny_from_mobs && md->level) {
 				 // zeny calculation moblv + random moblv [Valaris]
 				zeny=(int) ((md->level+rnd()%md->level)*per*bonus/100.);
-				if(md->db->mexp > 0)
+				if( md->get_bosstype() == BOSSTYPE_MVP )
 					zeny*=rnd()%250;
 			}
 
@@ -2727,7 +2746,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				exp = apply_rate(exp, bonus);
 				exp = apply_rate(exp, map_getmapflag(m, MF_BEXP));
 				if (sd && sd->policies) exp = apply_rate(exp, policie[sd->policies].base_exp_rate);
-				base_exp = (unsigned int)cap_value(exp, 1, UINT_MAX);
+				base_exp = (t_exp)cap_value(exp, 1, MAX_EXP);
 			}
 
 			if (map_getmapflag(m, MF_NOJOBEXP) || !md->db->job_exp
@@ -2741,7 +2760,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				exp = apply_rate(exp, bonus);
 				exp = apply_rate(exp, map_getmapflag(m, MF_JEXP));
 				if (sd && sd->policies) exp = apply_rate(exp, policie[sd->policies].job_exp_rate);
-				job_exp = (unsigned int)cap_value(exp, 1, UINT_MAX);
+				job_exp = (t_exp)cap_value(exp, 1, MAX_EXP);
 			}
 
 			if ((base_exp > 0 || job_exp > 0) && md->dmglog[i].flag == MDLF_HOMUN && homkillonly && battle_config.hom_idle_no_share && pc_isidle_hom(tmpsd[i]))
@@ -2762,16 +2781,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 						flag = 0;
 					}
 				} else {	//Add to total
-					if (pt[j].base_exp > UINT_MAX - base_exp)
-						pt[j].base_exp = UINT_MAX;
-					else
-						pt[j].base_exp += base_exp;
-
-					if (pt[j].job_exp > UINT_MAX - job_exp)
-						pt[j].job_exp = UINT_MAX;
-					else
-						pt[j].job_exp += job_exp;
-
+					pt[j].base_exp = util::safe_addition_cap( pt[j].base_exp, base_exp, MAX_EXP );
+					pt[j].job_exp = util::safe_addition_cap( pt[j].job_exp, job_exp, MAX_EXP );
 					pt[j].zeny += zeny;  // zeny share [Valaris]
 					flag = 0;
 				}
@@ -2787,12 +2798,12 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				if(base_exp || job_exp) {
 					if( md->dmglog[i].flag != MDLF_PET || battle_config.pet_attack_exp_to_master ) {
 #ifdef RENEWAL_EXP
-						int rate = pc_level_penalty_mod(md->level - tmpsd[i]->status.base_level, md->status.class_, md->status.mode, 1);
+						int rate = pc_level_penalty_mod( tmpsd[i], PENALTY_EXP, nullptr, md );
 						if (rate != 100) {
 							if (base_exp)
-								base_exp = (unsigned int)cap_value(apply_rate(base_exp, rate), 1, UINT_MAX);
+								base_exp = (t_exp)cap_value(apply_rate(base_exp, rate), 1, MAX_EXP);
 							if (job_exp)
-								job_exp = (unsigned int)cap_value(apply_rate(job_exp, rate), 1, UINT_MAX);
+								job_exp = (t_exp)cap_value(apply_rate(job_exp, rate), 1, MAX_EXP);
 						}
 #endif
 						pc_gainexp(tmpsd[i], &md->bl, base_exp, job_exp, 0);
@@ -2802,7 +2813,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 					pc_getzeny(tmpsd[i], zeny, LOG_TYPE_PICKDROP_MONSTER, NULL);
 			}
 
-			if( md->db->mexp )
+			if( md->get_bosstype() == BOSSTYPE_MVP )
 				pc_damage_log_clear(tmpsd[i],md->bl.id);
 		}
 
@@ -2822,10 +2833,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		struct item_data* it = NULL;
 		int drop_rate;
 #ifdef RENEWAL_DROP
-		int drop_modifier = mvp_sd    ? pc_level_penalty_mod(md->level - mvp_sd->status.base_level, md->status.class_, md->status.mode, 2)   :
-							second_sd ? pc_level_penalty_mod(md->level - second_sd->status.base_level, md->status.class_, md->status.mode, 2):
-							third_sd  ? pc_level_penalty_mod(md->level - third_sd->status.base_level, md->status.class_, md->status.mode, 2) :
-							100; // No player was attached, we don't use any modifier (100 = rates are not touched)
+		int drop_modifier = pc_level_penalty_mod( mvp_sd != nullptr ? mvp_sd : second_sd != nullptr ? second_sd : third_sd, PENALTY_DROP, nullptr, md );
 #endif
 		dlist->m = md->bl.m;
 		dlist->x = md->bl.x;
@@ -3077,28 +3085,35 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		add_timer(tick + (!battle_config.delay_battle_damage?500:0), mob_delay_item_drop, 0, (intptr_t)dlist);
 	}
 
-	if(mvp_sd && md->db->mexp > 0 && !md->special_state.ai) {
+	if( mvp_sd && md->get_bosstype() == BOSSTYPE_MVP ){
 		t_itemid log_mvp_nameid = 0;
 		t_exp log_mvp_exp = 0;
-		unsigned int mexp;
-		struct item item;
-		double exp;
+
+		clif_mvp_effect( mvp_sd );
 
 		//mapflag: noexp check [Lorky]
-		if (map_getmapflag(m, MF_NOBASEEXP) || type&2)
-			exp =1;
-		else {
-			exp = md->db->mexp;
-			if (count > 1)
-				exp += exp*(battle_config.exp_bonus_attacker*(count-1))/100.; //[Gengar]
+		if( md->db->mexp > 0 && !( map_getmapflag( m, MF_NOBASEEXP ) || type&2 ) ){
+			log_mvp_exp = md->db->mexp;
+
+#if defined(RENEWAL_EXP)
+			int penalty = pc_level_penalty_mod( mvp_sd, PENALTY_MVP_EXP, nullptr, md );
+
+			log_mvp_exp = cap_value( apply_rate( log_mvp_exp, penalty ), 0, MAX_EXP );
+#endif
+
+			if( battle_config.exp_bonus_attacker > 0 && count > 1 ){
+				if( count > battle_config.exp_bonus_max_attacker ){
+					count = battle_config.exp_bonus_max_attacker;
+				}
+
+				log_mvp_exp += log_mvp_exp * ( battle_config.exp_bonus_attacker * ( count - 1 ) ) / 100;
+			}
+
+			log_mvp_exp = cap_value( log_mvp_exp, 1, MAX_EXP );
+
+			clif_mvp_exp( mvp_sd, log_mvp_exp );
+			pc_gainexp( mvp_sd, &md->bl, log_mvp_exp, 0, 0 );
 		}
-
-		mexp = (unsigned int)cap_value(exp, 1, UINT_MAX);
-
-		clif_mvp_effect(mvp_sd);
-		clif_mvp_exp(mvp_sd,mexp);
-		pc_gainexp(mvp_sd, &md->bl, mexp,0, 0);
-		log_mvp_exp = mexp;
 
 		if( !(map_getmapflag(m, MF_NOMVPLOOT) || type&1) ) {
 			//Order might be random depending on item_drop_mvp_mode config setting
@@ -3126,6 +3141,10 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				}
 			}
 
+#if defined(RENEWAL_DROP)
+			int penalty = pc_level_penalty_mod( mvp_sd, PENALTY_MVP_DROP, nullptr, md );
+#endif
+
 			for(i = 0; i < MAX_MVP_DROP_TOTAL; i++) {
 				struct item_data *i_data;
 
@@ -3133,6 +3152,11 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 					continue;
 
 				temp = mdrop[i].rate;
+
+#if defined(RENEWAL_DROP)
+				temp = cap_value( apply_rate( temp, penalty ), 0, 10000 );
+#endif
+
 				if (temp != 10000) {
 					if (map_getmapflag(md->bl.m, MF_MVPDROPRATE))
 						temp = temp * map_getmapflag(md->bl.m, MF_MVPDROPRATE) / 100;
@@ -3142,7 +3166,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 						continue;
 				}
 
-				memset(&item,0,sizeof(item));
+				struct item item = {};
 				item.nameid=mdrop[i].nameid;
 				item.identify= itemdb_isidentified(item.nameid, 4);
 				clif_mvp_item(mvp_sd,item.nameid);
@@ -4465,11 +4489,11 @@ static bool mob_parse_dbrow(char** str)
 	status->max_hp = atoi(str[5]);
 	status->max_sp = atoi(str[6]);
 
-	exp = (double)atoi(str[7]) * (double)battle_config.base_exp_rate / 100.;
-	entry.base_exp = (unsigned int)cap_value(exp, 0, UINT_MAX);
+	exp = (double)strtoull(str[7],nullptr,10) * (double)battle_config.base_exp_rate / 100.;
+	entry.base_exp = (t_exp)cap_value(exp, 0, MAX_EXP);
 
-	exp = (double)atoi(str[8]) * (double)battle_config.job_exp_rate / 100.;
-	entry.job_exp = (unsigned int)cap_value(exp, 0, UINT_MAX);
+	exp = (double)strtoull(str[8],nullptr,10) * (double)battle_config.job_exp_rate / 100.;
+	entry.job_exp = (t_exp)cap_value(exp, 0, MAX_EXP);
 
 	status->rhw.range = atoi(str[9]);
 #ifdef RENEWAL
@@ -4573,7 +4597,7 @@ static bool mob_parse_dbrow(char** str)
 	// MVP EXP Bonus: MEXP
 	// Some new MVP's MEXP multipled by high exp-rate cause overflow. [LuzZza]
 	exp = (double)atoi(str[30]) * (double)battle_config.mvp_exp_rate / 100.;
-	entry.mexp = (unsigned int)cap_value(exp, 0, UINT_MAX);
+	entry.mexp = (t_exp)cap_value(exp, 0, MAX_EXP);
 
 	//Now that we know if it is an mvp or not, apply battle_config modifiers [Skotlex]
 	maxhp = (double)status->max_hp;
@@ -5810,8 +5834,8 @@ static void mob_drop_ratio_adjust(void){
 				ratemin = battle_config.item_drop_treasure_min;
 				ratemax = battle_config.item_drop_treasure_max;
 			} else {
-				bool is_mvp = status_has_mode(&mob->status,MD_MVP);
-				bool is_boss = (mob->status.class_ == CLASS_BOSS);
+				bool is_mvp = mob->get_bosstype() == BOSSTYPE_MVP;
+				bool is_boss = mob->get_bosstype() == BOSSTYPE_MINIBOSS;
 
 				is_treasurechest = false;
 

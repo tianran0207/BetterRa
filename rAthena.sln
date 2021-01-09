@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1082
 MinimumVisualStudioVersion = 12.0.40629.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3rdparty", "3rdparty", "{6ABA1767-6242-4CA0-BA22-A30972DC8918}"
 EndProject
@@ -82,6 +82,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "websocket-server", "src\websocket\websocket-server.vcxproj", "{4B1E1F3E-2484-4F05-AEC1-25BAF7C59AB5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559} = {F8FD7B1E-8E1C-4CC3-9CD1-2E28F77B6559}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yaml2sql", "src\tool\yaml2sql.vcxproj", "{CDBBB260-B245-44EC-80FB-3F9421885E40}"
 	ProjectSection(ProjectDependencies) = postProject
 		{61D6A599-6BED-4154-A9FC-40553BD972E0} = {61D6A599-6BED-4154-A9FC-40553BD972E0}
