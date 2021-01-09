@@ -2884,7 +2884,7 @@ void itemdb_reload(void) {
 	struct s_mapiterator* iter;
 	struct map_session_data* sd;
 
-	if (!item_db_reload.size()) {
+	if (battle_config.itemdb_reload_thread && !item_db_reload.size()) {
 		CreateThread(NULL, 0, itemdb_reload_sub, NULL, 0, NULL);
 		return;
 	}

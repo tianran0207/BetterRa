@@ -273,6 +273,7 @@ struct Battle_Config
 	int damage_return_mode;
 	int ignore_insert_card_specific;
 	int mob_dmgrate_db;
+	int itemdb_reload_thread;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;
