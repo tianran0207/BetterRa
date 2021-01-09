@@ -1041,7 +1041,7 @@ void ItemDatabase::loadingFinished(){
 		dummy_item->ename = "Unknown Item";
 		dummy_item->view_id = UNKNOWN_ITEM_ID;
 
-		item_db.put( ITEMID_DUMMY, dummy_item );
+		this->put( ITEMID_DUMMY, dummy_item );
 	}
 }
 
@@ -2870,10 +2870,24 @@ int item_data::inventorySlotNeeded(int quantity)
 /**
 * Reload Item DB
 */
+#include "../common/winapi.hpp"
+TIMER_FUNC(itemdb_reload_redo) {
+	itemdb_reload();
+	return 1;
+}
+DWORD WINAPI itemdb_reload_sub(LPVOID lpParameter) {
+	item_db_reload.loadyml();
+	add_timer(gettick(), itemdb_reload_redo, 0, NULL);
+	return 1;
+}
 void itemdb_reload(void) {
 	struct s_mapiterator* iter;
 	struct map_session_data* sd;
 
+	if (!item_db_reload.size()) {
+		CreateThread(NULL, 0, itemdb_reload_sub, NULL, 0, NULL);
+		return;
+	}
 	item_db.clear();
 	itemdb_combo.clear();
 	itemdb_group->clear(itemdb_group, itemdb_group_free);
@@ -3644,8 +3658,15 @@ static bool itemdb_read_randomopt(const char* basedir, bool silent) {
 	return true;
 }
 
+bool ItemDatabase::loadyml() {
+	return TypesafeCachedYamlDatabase::load();
+}
 bool ItemDatabase::load() {
-	if (!TypesafeCachedYamlDatabase::load())
+	if (item_db_reload.size()) {
+		item_db = item_db_reload;
+		item_db_reload.clear();
+	}
+	else if (!this->loadyml())
 		return false;
 	itemdb_readdb(db_path_pre, true);
 	sv_readdb(db_path_pre, "item_announce.txt",      ',', 2, 2, -1, &itemdb_read_announce, true);

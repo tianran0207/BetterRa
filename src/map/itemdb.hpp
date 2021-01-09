@@ -1032,6 +1032,7 @@ public:
 	const std::string getDefaultLocation();
 	uint64 parseBodyNode(const YAML::Node& node);
 	bool load();
+	bool loadyml();
 	void loadingFinished();
 };
 
