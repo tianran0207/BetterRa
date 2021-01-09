@@ -5732,7 +5732,7 @@ void clif_skillinfo(struct map_session_data *sd,int skill_id, int inf)
 	WFIFOHEAD(fd,packet_len(0x7e1));
 	WFIFOW(fd,0) = 0x7e1;
 	WFIFOW(fd,2) = skill_id;
-	WFIFOL(fd,4) = inf?inf:skill_get_inf(skill_id);
+	WFIFOL(fd,4) = inf?inf:skill_get_pc_inf(sd, skill_id);
 	WFIFOW(fd,8) = sd->status.skill[idx].lv;
 	WFIFOW(fd,10) = skill_get_sp(skill_id,sd->status.skill[idx].lv);
 	WFIFOW(fd,12) = skill_get_range2(&sd->bl,skill_id,sd->status.skill[idx].lv,false);
@@ -6019,7 +6019,6 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,t_tick tick,
 
 /// Ground skill attack effect and damage (ZC_NOTIFY_SKILL_POSITION).
 /// 0115 <skill id>.W <src id>.L <dst id>.L <tick>.L <src delay>.L <dst delay>.L <x>.W <y>.W <damage>.W <level>.W <div>.W <type>.B
-/*
 int clif_skill_damage2(struct block_list *src,struct block_list *dst,t_tick tick,int sdelay,int ddelay,int damage,int div,uint16 skill_id,uint16 skill_lv,enum e_damage_type type)
 {
 	unsigned char buf[64];
@@ -6073,8 +6072,6 @@ int clif_skill_damage2(struct block_list *src,struct block_list *dst,t_tick tick
 	//Because the damage delay must be synced with the client, here is where the can-walk tick must be updated. [Skotlex]
 	return clif_calc_walkdelay(dst,ddelay,type,damage,div);
 }
-*/
-
 
 /// Non-damaging skill effect
 /// 011a <skill id>.W <heal>.W <dst id>.L <src id>.L <result>.B (ZC_USE_SKILL).
@@ -7106,7 +7103,7 @@ void clif_item_preview(struct map_session_data *sd, int n)
 {
 #if PACKETVER_MAIN_NUM >= 20170726 || PACKETVER_RE_NUM >= 20170621 || defined(PACKETVER_ZERO)
 	nullpo_retv(sd);
-	if (n >= 0 && n < MAX_INVENTORY)
+	if (n < 0 && n >= MAX_INVENTORY)
 		return;
 
 	struct PACKET_ZC_ITEM_PREVIEW p;
@@ -13109,7 +13106,7 @@ void clif_parse_skill_toid( struct map_session_data* sd, uint16 skill_id, uint16
 
 	if( skill_lv < 1 ) skill_lv = 1; //No clue, I have seen the client do this with guild skills :/ [Skotlex]
 
-	int inf = skill_get_pc_inf(sd, skill_id, NULL, 0xFF&~INF_GROUND_SKILL, target_id);
+	int inf = skill_get_pc_inf(sd, skill_id);
 	if (inf&INF_GROUND_SKILL || !inf)
 		return; //Using a ground/passive skill on a target? WRONG.
 
@@ -13234,7 +13231,7 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, uin
 {
 	t_tick tick = gettick();
 
-	if(!(skill_get_pc_inf(sd, skill_id, NULL, INF_GROUND_SKILL)&INF_GROUND_SKILL) )
+	if(!(skill_get_pc_inf(sd, skill_id)&INF_GROUND_SKILL) )
 		return; //Using a target skill on the ground? WRONG.
 
 	if (sd->state.block_action & PCBLOCK_SKILL) {

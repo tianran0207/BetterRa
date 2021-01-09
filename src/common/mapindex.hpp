@@ -66,7 +66,7 @@ int mapindex_removemap(int index);
 
 void mapindex_check_mapdefault(const char *mapname);
 
-void mapindex_init(void);
+void mapindex_init(int(*func)(char *src_map, char *dst_map) = NULL);
 void mapindex_final(void);
 
 #endif /* MAPINDEX_HPP */

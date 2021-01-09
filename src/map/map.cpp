@@ -549,6 +549,8 @@ int map_moveblock(struct block_list *bl, int x1, int y1, t_tick tick)
 			}
 		}
 
+		skill_unit_aura(bl, x1-x0, y1-y0);
+
 		if (sc && sc->count) {
 			if (sc->data[SC_DANCING])
 				skill_unit_move_unit_group(skill_id2group(sc->data[SC_DANCING]->val2), bl->m, x1-x0, y1-y0);
@@ -4012,16 +4014,6 @@ int map_delmap(char* mapname){
 	return 0;
 }
 
-static int map_copymap(char* str) {
-	char src[MAP_NAME_LENGTH], target[MAP_NAME_LENGTH];
-	if (sscanf(str, "%11[^ ] %11[^\r\n]", target, src) < 2)
-		return 1;
-	if (map_addmap(src) && map_num == 0)
-		return 1;
-	safestrncpy(map[map_num - 1].target, target, MAP_NAME_LENGTH);
-	return 0;
-}
-
 /// Initializes map flags and adjusts them depending on configuration.
 void map_flags_init(void){
 	for (int i = 0; i < map_num; i++) {
@@ -4258,7 +4250,6 @@ int map_readallmaps (void)
 		if (success && mapdata->target && mapdata->target[0]) {
 			safestrncpy(mapdata->name, mapdata->target, MAP_NAME_LENGTH);
 			memset(mapdata->target, 0, MAP_NAME_LENGTH * sizeof(char));
-			mapindex_addmap(-1, mapdata->name);
 		}
 
 		// The map was not found - remove it
@@ -4507,8 +4498,6 @@ int map_config_read(const char *cfgName)
 			map_port = (atoi(w2));
 		} else if (strcmpi(w1, "map") == 0)
 			map_addmap(w2);
-		else if (strcmpi(w1, "copy") == 0)
-			map_copymap(w2);
 		else if (strcmpi(w1, "delmap") == 0)
 			map_delmap(w2);
 		else if (strcmpi(w1, "npc") == 0)
@@ -4815,7 +4804,8 @@ void map_remove_questinfo(int m, struct npc_data *nd) {
 	for (int i = 0; i < mapdata->qi_data.size(); i++) {
 		qi = &mapdata->qi_data[i];
 		if (qi && qi->nd == nd) {
-			script_free_code(qi->condition);
+			if (qi->condition)
+				script_free_code(qi->condition);
 			mapdata->qi_data.erase(mapdata->qi_data.begin() + i);
 		}
 	}
@@ -5819,6 +5809,15 @@ int map_MessageInterface(enum msg_type flag, const char *prefix, const char *str
 	return 0;
 }
 
+static int map_copy(char *src_name, char *dst_name)
+{
+	if (!mapindex_name2idx(dst_name, src_name))
+		return 0;
+	map_addmap((char *)dst_name);
+	safestrncpy(map[map_num-1].target, src_name, MAP_NAME_LENGTH);
+	return 1;
+}
+
 int do_init(int argc, char *argv[])
 {
 	runflag = MAPSERVER_ST_STARTING;
@@ -5912,7 +5911,7 @@ int do_init(int argc, char *argv[])
 	if (log_config.sql_logs)
 		log_sql_init();
 
-	mapindex_init();
+	mapindex_init(map_copy);
 	if(enable_grf)
 		grfio_init(GRF_PATH_FILENAME);
 

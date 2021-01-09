@@ -173,6 +173,7 @@ enum e_skill_unit_flag : uint8 {
 	UF_REMOVEDBYFIRERAIN,	// removed by Fire Rain
 	UF_KNOCKBACKGROUP,	// knockback skill unit with its group instead of single unit
 	UF_HIDDENTRAP,	// Hidden trap [Cydh]
+	UF_AURA,
 	UF_MAX,
 };
 
@@ -318,6 +319,7 @@ struct s_skill_db {
 		uint16 rate;
 		uint16 flag, range;
 	}aggro;
+	uint16 NpcCloneId;
 };
 
 class SkillDatabase : public TypesafeCachedYamlDatabase <uint16, s_skill_db> {
@@ -394,6 +396,7 @@ struct skill_unit_group {
 		unsigned ammo_consume : 1; // Need to consume ammo
 		unsigned song_dance : 2; //0x1 Song/Dance, 0x2 Ensemble
 		unsigned guildaura : 1; // Guild Aura
+		unsigned skillaura : 1;
 	} state;
 };
 
@@ -533,8 +536,9 @@ e_cast_type skill_get_casttype(uint16 skill_id); //[Skotlex]
 const char*	skill_get_name( uint16 skill_id ); 	// [Skotlex]
 const char*	skill_get_desc( uint16 skill_id ); 	// [Skotlex]
 int skill_tree_get_max( uint16 skill_id, int b_class );	// Celest
-int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range = NULL, int infcmp = 0, int target_id = 0);
+int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range = NULL);
 int skill_get_pc_splash(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv);
+void skill_refresh(struct map_session_data *sd);
 
 // Accessor to the skills database
 uint16 skill_get_index_(uint16 skill_id, bool silent, const char *func, const char *file, int line);
@@ -585,6 +589,7 @@ int skill_get_ammo_qty( uint16 skill_id, uint16 skill_lv );
 int skill_get_state(uint16 skill_id);
 int skill_get_status_count( uint16 skill_id );
 int skill_get_spiritball( uint16 skill_id, uint16 skill_lv );
+int skill_get_clone(uint16 skill_id);
 unsigned short skill_dummy2skill_id(unsigned short skill_id);
 
 uint16 skill_name2id(const char* name);
@@ -644,6 +649,7 @@ int skill_check_pc_partner(struct map_session_data *sd, uint16 skill_id, uint16 
 int skill_unit_move(struct block_list *bl,t_tick tick,int flag);
 void skill_unit_move_unit_group( struct skill_unit_group *group, int16 m,int16 dx,int16 dy);
 void skill_unit_move_unit(struct block_list *bl, int dx, int dy);
+void skill_unit_aura(struct block_list* bl, int16 dx, int16 dy);
 
 int skill_sit(struct map_session_data *sd, bool sitting);
 void skill_repairweapon(struct map_session_data *sd, int idx);
@@ -1514,6 +1520,27 @@ enum e_skill {
 	NPC_DAMAGE_HEAL,
 	NPC_IMMUNE_PROPERTY,
 	NPC_MOVE_COORDINATE,
+	NPC_WIDEBLEEDING2,
+	NPC_WIDESILENCE2,
+	NPC_WIDESTUN2,
+	NPC_WIDESTONE2,
+	NPC_WIDESLEEP2,
+	NPC_WIDECURSE2,
+	NPC_WIDECONFUSE2,
+	NPC_WIDEFREEZE2,
+	NPC_BLEEDING2,
+	NPC_ICEBREATH2,
+	NPC_ACIDBREATH2,
+	NPC_EVILLAND2,
+	NPC_HELLJUDGEMENT2,
+	NPC_RAINOFMETEOR,
+	NPC_GROUNDDRIVE,
+	NPC_RELIEVE_ON,
+	NPC_RELIEVE_OFF,
+	NPC_LOCKON_LASER,
+	NPC_LOCKON_LASER_ATK,
+	NPC_SEEDTRAP,
+	NPC_LAST,
 
 	KN_CHARGEATK = 1001,
 	CR_SHRINK,

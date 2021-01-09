@@ -25,7 +25,8 @@ bonus2 bSkillTreeCooldown,jobid,n;		职业技能公共技能延迟调整
 bonus2 bSkillTreeDelayRate,jobid,n;		职业技能独立技能延迟按百分比调整
 bonus2 bSkillTreeDelay,jobid,n;			职业技能独立技能延迟调整
 
-bonus2 bBlockStatus,x,n;                固定玩家属性 x 为 n
+bonus2 bReborn,r,n;						当玩家死亡时有 r% 的概率复活并恢复 n% 的血量
+bonus2 bBlockStatus,x,n;				固定玩家属性 x 为 n
 										x 支持	STATUS_MAXHP STATUS_MAXSP 
 												STATUS_STR STATUS_AGI STATUS_VIT STATUS_INT STATUS_DEX STATUS_LUK
 												STATUS_ATK_L STATUS_ATK_R STATUS_MATK_L STATUS_MATK_R

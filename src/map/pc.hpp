@@ -408,7 +408,7 @@ enum bot_reset_type : uint8 {
 
 struct s_bot_uselist {
 	unsigned short id, lv, delay;
-	short cond, cond_val[2];
+	short cond, cond_val[2], prior;
 	int inf;
 	t_tick cooldown;
 	char eventname[EVENT_NAME_LENGTH];
@@ -819,6 +819,9 @@ struct map_session_data {
 	struct s_custom_bonus {
 		int weapon_add_damage, magic_add_damage, misc_add_damage, add_mastery;
 		char def_size, def_race, def_ele_lv;
+		struct s_reborn {
+			short rate, heal;
+		}reborn;
 		struct s_job_cooldown {
 			int c_idxrate;
 			int c_cooldownrate;
@@ -870,6 +873,7 @@ struct map_session_data {
 	std::vector<s_status_bonus> statusbonus;
 	std::vector<s_status_val> addstatusval;
 	std::vector<s_item_bonus> subreseff;
+	std::vector<int16> skillrefresh;
 
 	struct autowalk_data autowalk;
 

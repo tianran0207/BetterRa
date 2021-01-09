@@ -4087,22 +4087,6 @@ void npc_unsetcells(struct npc_data* nd)
 	map_foreachinallarea( npc_unsetcells_sub, m, x0, y0, x1, y1, BL_NPC, nd->bl.id );
 }
 
-bool npc_movenpc(struct npc_data* nd, int16 x, int16 y)
-{
-	if (nd->bl.m < 0 || nd->bl.prev == NULL) 
-		return false;	//Not on a map.
-
-	struct map_data *mapdata = map_getmapdata(nd->bl.m);
-
-	x = cap_value(x, 0, mapdata->xs-1);
-	y = cap_value(y, 0, mapdata->ys-1);
-
-	map_foreachinallrange(clif_outsight, &nd->bl, AREA_SIZE, BL_PC, &nd->bl);
-	map_moveblock(&nd->bl, x, y, gettick());
-	map_foreachinallrange(clif_insight, &nd->bl, AREA_SIZE, BL_PC, &nd->bl);
-	return true;
-}
-
 /// Changes the display name of the npc.
 ///
 /// @param nd Target npc

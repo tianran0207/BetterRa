@@ -405,6 +405,7 @@ void initChangeTables(void)
 	add_sc( WZ_VERMILION		, SC_BLIND		);
 	add_sc( WZ_FROSTNOVA		, SC_FREEZE		);
 	add_sc( WZ_STORMGUST		, SC_FREEZE		);
+	add_sc( NPC_STORMGUST2		, SC_FREEZE		);
 	set_sc( WZ_QUAGMIRE		, SC_QUAGMIRE		, EFST_QUAGMIRE		, SCB_AGI|SCB_DEX|SCB_ASPD|SCB_SPEED );
 	add_sc( BS_HAMMERFALL		, SC_STUN		);
 	set_sc( BS_ADRENALINE		, SC_ADRENALINE		, EFST_ADRENALINE		, SCB_ASPD
@@ -714,10 +715,34 @@ void initChangeTables(void)
 	set_sc( NPC_WIDEHELLDIGNITY	, SC_HELLPOWER		, EFST_HELLPOWER		, SCB_NONE );
 	set_sc( NPC_INVINCIBLE		, SC_INVINCIBLE		, EFST_INVINCIBLE		, SCB_SPEED );
 	set_sc( NPC_INVINCIBLEOFF	, SC_INVINCIBLEOFF	, EFST_BLANK		, SCB_SPEED );
+	set_sc( NPC_WIDEHEALTHFEAR  , SC_FEAR           , EFST_BLANK            , SCB_FLEE|SCB_HIT );
+	set_sc( NPC_WIDEBODYBURNNING, SC_BURNING        , EFST_BODYSTATE_BURNNING , SCB_MDEF);
+	set_sc( NPC_WIDEFROSTMISTY  , SC_FREEZING       , EFST_FROSTMISTY       , SCB_ASPD|SCB_SPEED|SCB_DEF);
+	set_sc( NPC_WIDECOLD        , SC_CRYSTALIZE     , EFST_COLD             , SCB_NONE);
+	set_sc( NPC_WIDE_DEEP_SLEEP , SC_DEEPSLEEP      , EFST_HANDICAPSTATE_DEEP_SLEEP, SCB_NONE );
+	add_sc( NPC_WIDESIREN       , SC_VOICEOFSIREN     );
+
 	set_sc( NPC_COMET			, SC_BURNING		, EFST_BURNT		, SCB_MDEF );
 	set_sc_with_vfx( NPC_MAXPAIN	,	 SC_MAXPAIN	, EFST_MAXPAIN	, SCB_NONE );
 	add_sc( NPC_JACKFROST        , SC_FREEZE		  );
 
+	set_sc( NPC_WIDEWEB         , SC_SPIDERWEB      , EFST_SPIDERWEB        , SCB_FLEE);
+	set_sc( NPC_MANDRAGORA      , SC_MANDRAGORA     , EFST_MANDRAGORA       , SCB_INT);
+	set_sc( NPC_ALL_STAT_DOWN   , SC_ALL_STAT_DOWN  , EFST_ALL_STAT_DOWN    , SCB_ALL);
+	set_sc( NPC_GRADUAL_GRAVITY , SC_GRADUAL_GRAVITY, EFST_GRADUAL_GRAVITY  , SCB_NONE);
+	set_sc( NPC_DAMAGE_HEAL     , SC_DAMAGE_HEAL    , EFST_DAMAGE_HEAL      , SCB_NONE);
+	add_sc( NPC_IMMUNE_PROPERTY , SC_IMMUNE_PROPERTY  );
+	set_sc( NPC_MILLENNIUMSHIELD, SC_MILLENNIUMSHIELD, EFST_REUSE_MILLENNIUMSHIELD, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_NOTHING, EFST_IMMUNE_PROPERTY_NOTHING, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_WATER, EFST_IMMUNE_PROPERTY_WATER, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_GROUND, EFST_IMMUNE_PROPERTY_GROUND, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_FIRE, EFST_IMMUNE_PROPERTY_FIRE, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_WIND, EFST_IMMUNE_PROPERTY_WIND, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_POISON, EFST_IMMUNE_PROPERTY_POISON, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_SAINT, EFST_IMMUNE_PROPERTY_SAINT, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_DARKNESS, EFST_IMMUNE_PROPERTY_DARKNESS, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_TELEKINESIS, EFST_IMMUNE_PROPERTY_TELEKINESIS, SCB_NONE);
+	set_sc_with_vfx(NPC_IMMUNE_PROPERTY, SC_IMMUNE_PROPERTY_UNDEAD, EFST_IMMUNE_PROPERTY_UNDEAD, SCB_NONE);
 	set_sc( CASH_BLESSING		, SC_BLESSING		, EFST_BLESSING		, SCB_STR|SCB_INT|SCB_DEX );
 	set_sc( CASH_INCAGI		, SC_INCREASEAGI	, EFST_INC_AGI, SCB_AGI|SCB_SPEED );
 	set_sc( CASH_ASSUMPTIO		, SC_ASSUMPTIO		,
@@ -833,7 +858,7 @@ void initChangeTables(void)
 	set_sc( GC_POISONINGWEAPON	, SC_POISONINGWEAPON	, EFST_POISONINGWEAPON	, SCB_NONE );
 	set_sc( GC_WEAPONBLOCKING	, SC_WEAPONBLOCKING	, EFST_WEAPONBLOCKING	, SCB_NONE );
 	set_sc( GC_CLOAKINGEXCEED	, SC_CLOAKINGEXCEED	, EFST_CLOAKINGEXCEED	, SCB_SPEED );
-	set_sc( GC_HALLUCINATIONWALK	, SC_HALLUCINATIONWALK	, EFST_HALLUCINATIONWALK	, SCB_FLEE );
+	set_sc_with_vfx( GC_HALLUCINATIONWALK	, SC_HALLUCINATIONWALK	, EFST_HALLUCINATIONWALK	, SCB_FLEE );
 	set_sc( GC_ROLLINGCUTTER	, SC_ROLLINGCUTTER	, EFST_ROLLINGCUTTER	, SCB_NONE );
 	set_sc_with_vfx( GC_DARKCROW	, SC_DARKCROW		, EFST_DARKCROW		, SCB_NONE );
 
@@ -2587,7 +2612,7 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 			return false;
 		if(!skill_id && tsc->data[SC_TRICKDEAD])
 			return false;
-		if((skill_id == WZ_STORMGUST || skill_id == WZ_FROSTNOVA || skill_id == NJ_HYOUSYOURAKU)
+		if((skill_id == WZ_STORMGUST || skill_id == NPC_STORMGUST2 || skill_id == WZ_FROSTNOVA || skill_id == NJ_HYOUSYOURAKU)
 			&& tsc->data[SC_FREEZE])
 			return false;
 		if(skill_id == PR_LEXAETERNA && (tsc->data[SC_FREEZE] || (tsc->data[SC_STONE] && tsc->opt1 == OPT1_STONE)))
@@ -4432,6 +4457,8 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	if (npc_script_event_check(sd, NPCE_STATCALC))
 		npc_script_event_atonce(sd, NPCE_STATCALC);
 	running_npc_stat_calc_event = false;
+
+	skill_refresh(sd);
 
 	base_status->size = sd->c_bonus.def_size ? sd->c_bonus.def_size - 1 : base_status->size;
 	base_status->race = sd->c_bonus.def_race ? sd->c_bonus.def_race - 1 : base_status->race;
@@ -6310,6 +6337,8 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 #endif
 	if (sc->data[SC_UNIVERSESTANCE])
 		str += sc->data[SC_UNIVERSESTANCE]->val2;
+	if (sc->data[SC_ALL_STAT_DOWN])
+		str -= sc->data[SC_ALL_STAT_DOWN]->val2;
 
 	return (unsigned short)cap_value(str,0,USHRT_MAX);
 }
@@ -6392,6 +6421,8 @@ static unsigned short status_calc_agi(struct block_list *bl, struct status_chang
 #endif
 	if (sc->data[SC_UNIVERSESTANCE])
 		agi += sc->data[SC_UNIVERSESTANCE]->val2;
+	if (sc->data[SC_ALL_STAT_DOWN])
+		agi -= sc->data[SC_ALL_STAT_DOWN]->val2;
 
 	return (unsigned short)cap_value(agi,0,USHRT_MAX);
 }
@@ -6464,6 +6495,8 @@ static unsigned short status_calc_vit(struct block_list *bl, struct status_chang
 #endif
 	if (sc->data[SC_UNIVERSESTANCE])
 		vit += sc->data[SC_UNIVERSESTANCE]->val2;
+	if (sc->data[SC_ALL_STAT_DOWN])
+		vit -= sc->data[SC_ALL_STAT_DOWN]->val2;
 
 	return (unsigned short)cap_value(vit,0,USHRT_MAX);
 }
@@ -6551,6 +6584,8 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 	if (sc->data[SC_NIBELUNGEN] && sc->data[SC_NIBELUNGEN]->val2 == RINGNBL_ALLSTAT)
 		int_ += 15;
 #endif
+	if (sc->data[SC_ALL_STAT_DOWN])
+		int_ -= sc->data[SC_ALL_STAT_DOWN]->val2;
 
 	return (unsigned short)cap_value(int_,0,USHRT_MAX);
 }
@@ -6635,6 +6670,8 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 #endif
 	if (sc->data[SC_UNIVERSESTANCE])
 		dex += sc->data[SC_UNIVERSESTANCE]->val2;
+	if (sc->data[SC_ALL_STAT_DOWN])
+		dex -= sc->data[SC_ALL_STAT_DOWN]->val2;
 
 	return (unsigned short)cap_value(dex,0,USHRT_MAX);
 }
@@ -6705,6 +6742,8 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 #endif
 	if (sc->data[SC_UNIVERSESTANCE])
 		luk += sc->data[SC_UNIVERSESTANCE]->val2;
+	if (sc->data[SC_ALL_STAT_DOWN])
+		luk -= sc->data[SC_ALL_STAT_DOWN]->val2;
 
 	return (unsigned short)cap_value(luk,0,USHRT_MAX);
 }
@@ -8784,6 +8823,7 @@ void status_set_viewdata(struct block_list *bl, int class_)
 				nd->vd.class_ = class_;
 				nd->vd.hair_style = cap_value(nd->vd.hair_style, MIN_HAIR_STYLE, MAX_HAIR_STYLE);
 			} else {
+				ShowError("status_set_viewdata (NPC): No view data for class %d\n", class_);
 				if (bl->m >= 0)
 					ShowDebug("Source (NPC): %s at %s (%d,%d)\n", nd->name, map_mapid2mapname(bl->m), bl->x, bl->y);
 				else
@@ -12479,7 +12519,17 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_SP_SHA:
 			val2 = 50; // Move speed reduction
 			break;
-
+		case SC_ALL_STAT_DOWN:
+			val2 = val1 < 5 ? 10 + 2 * (val1 - 1) : 100;
+			break;
+		case SC_GRADUAL_GRAVITY:
+			val2 = 10 * val1;
+			tick_time = 1000;
+			val4 = tick / tick_time;
+			break;
+		case SC_DAMAGE_HEAL:
+			val2 = (val1 == 3) ? BF_WEAPONMASK : val1;
+			break;
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] == -1 && StatusIconChangeTable[type] == EFST_BLANK ) {
 				// Status change with no calc, no icon, and no skill associated...?
@@ -15240,6 +15290,18 @@ TIMER_FUNC(status_change_timer){
 		if (--(sce->val4) >= 0) {
 			status_heal(bl, 1000, 350, 2);
 			sc_timer_next(1000 + tick);
+			return 0;
+		}
+		break;
+	case SC_GRADUAL_GRAVITY:
+		if (--(sce->val4) >= 0) {
+			int64 damage = status->max_hp * sce->val2 / 100; // Suggestion 1% each second
+			map_freeblock_lock();
+			status_fix_damage(bl, bl, damage, clif_damage(bl, bl, tick, status->amotion, status->dmotion, damage, 1, DMG_NORMAL, 0, false),0);
+			if (sc->data[type]) {
+				sc_timer_next(1000 + tick);
+			}
+			map_freeblock_unlock();
 			return 0;
 		}
 		break;

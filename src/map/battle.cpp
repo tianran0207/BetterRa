@@ -354,6 +354,15 @@ int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target,
 	struct map_session_data* sd = BL_CAST(BL_PC, src);
 	struct status_data *status = status_get_status_data(target);
 
+	if (sd) {
+		int rate = 0;
+		for (const auto &it : sd->multidamage) {
+			if (!(it.atk_type&flag) || rnd() % 1000 > it.rate)
+				continue;
+			rate += it.n;
+		}
+		if (rate) damage = damage * rate / 100;
+	}
 	if (sd && (flag & BF_SKILL)) {
 		for (auto &it : sd->skilldamage) {
 			if (it.sk != skill_id)
@@ -917,6 +926,12 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 				}
 				break;
 		}
+		if (tsc->data[SC_IMMUNE_PROPERTY] && tsc->data[SC_IMMUNE_PROPERTY]->val2 == atk_elem)
+#ifdef RENEWAL
+			ratio = 0;
+#else
+			damage = 0;
+#endif
 
 		if (tsc->data[SC_MAGIC_POISON])
 #ifdef RENEWAL
@@ -1030,10 +1045,10 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 						ele_fix += tsd->indexed_bonus.magic_subdefele[s_defele] + tsd->indexed_bonus.magic_subdefele[ELE_ALL];
 					cardfix = cardfix * (100 - MAX100(ele_fix)) / 100;
 				}
-				cardfix = cardfix * (100 - MAX100(tsd->indexed_bonus.subsize[sstatus->size] - tsd->indexed_bonus.subsize[SZ_ALL])) / 100;
-				cardfix = cardfix * (100 - MAX100(tsd->indexed_bonus.magic_subsize[sstatus->size] - tsd->indexed_bonus.magic_subsize[SZ_ALL])) / 100;
-				cardfix = cardfix * (100 - MAX100(tsd->indexed_bonus.subrace2[s_race2])) / 100;
-				int race_fix = tsd->indexed_bonus.subrace[sstatus->race] + tsd->indexed_bonus.subrace[RC_ALL];
+				cardfix = cardfix * (100 - MAX100(tsd->subsize[sstatus->size] + tsd->subsize[SZ_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->magic_subsize[sstatus->size] + tsd->magic_subsize[SZ_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->subrace2[s_race2])) / 100;
+				int race_fix = tsd->subrace[sstatus->race] + tsd->subrace[RC_ALL];
 				for (const auto &it : tsd->subrace3) {
 					if (it.race != sstatus->race && it.race != RC_ALL)
 						continue;
@@ -1044,7 +1059,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 					race_fix += it.rate;
 				}
 				cardfix = cardfix * (100 - MAX100(race_fix)) / 100;
-				cardfix = cardfix * (100 - MAX100(tsd->indexed_bonus.subclass[sstatus->class_] - tsd->indexed_bonus.subclass[CLASS_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->subclass[sstatus->class_] + tsd->subclass[CLASS_ALL])) / 100;
 
 				for (const auto &it : tsd->add_mdef) {
 					if (it.id == s_class) {
@@ -1238,11 +1253,11 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 						cardfix = cardfix * (100 - MAX100(ele_fix_lh)) / 100;
 					}
 
-					cardfix = cardfix * (100 - MAX100(tsd->indexed_bonus.subdefele[s_defele] - tsd->indexed_bonus.subdefele[ELE_ALL])) / 100;
+					cardfix = cardfix * (100 - MAX100(tsd->subdefele[s_defele] + tsd->subdefele[ELE_ALL])) / 100;
 				}
-				cardfix = cardfix * (100 - MAX100(tsd->indexed_bonus.subsize[sstatus->size] - tsd->indexed_bonus.subsize[SZ_ALL])) / 100;
-				cardfix = cardfix * (100 - MAX100(tsd->indexed_bonus.subrace2[s_race2])) / 100;
-				int race_fix = tsd->indexed_bonus.subrace[sstatus->race] + tsd->indexed_bonus.subrace[RC_ALL];
+				cardfix = cardfix * (100 - MAX100(tsd->subsize[sstatus->size] + tsd->subsize[SZ_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->subrace2[s_race2])) / 100;
+				int race_fix = tsd->subrace[sstatus->race] + tsd->subrace[RC_ALL];
 				for (const auto &it : tsd->subrace3) {
 					if (it.race != sstatus->race && it.race != RC_ALL)
 						continue;
@@ -1253,7 +1268,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 					race_fix += it.rate;
 				}
 				cardfix = cardfix * (100 - MAX100(race_fix)) / 100;
-				cardfix = cardfix * (100 - MAX100(tsd->indexed_bonus.subclass[sstatus->class_] - tsd->indexed_bonus.subclass[CLASS_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->subclass[sstatus->class_] + tsd->subclass[CLASS_ALL])) / 100;
 				for (const auto &it : tsd->add_def) {
 					if (it.id == s_class) {
 						cardfix = cardfix * (100 - MAX100(it.val)) / 100;
@@ -1301,9 +1316,9 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 				}
 				cardfix = cardfix * (100 - MAX100(race_fix)) / 100;
 
-				cardfix = cardfix * (100 - MAX100(tsd->indexed_bonus.subsize[sstatus->size] - tsd->indexed_bonus.subsize[SZ_ALL])) / 100;
-				cardfix = cardfix * (100 - MAX100(tsd->indexed_bonus.subrace2[s_race2])) / 100;
-				cardfix = cardfix * (100 - MAX100(tsd->indexed_bonus.subclass[sstatus->class_] - tsd->indexed_bonus.subclass[CLASS_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->subsize[sstatus->size] + tsd->subsize[SZ_ALL])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->subrace2[s_race2])) / 100;
+				cardfix = cardfix * (100 - MAX100(tsd->subclass[sstatus->class_] + tsd->subclass[CLASS_ALL])) / 100;
 				cardfix = cardfix * (100 - MAX100(tsd->bonus.misc_def_rate)) / 100;
 				if( flag&BF_SHORT )
 					cardfix = cardfix * (100 - MAX100(tsd->bonus.near_attack_def_rate)) / 100;
@@ -1697,8 +1712,8 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 			return 0;
 	}
 
-	if (src->type == BL_PC) {
-		struct map_session_data *tsd = (struct map_session_data *)src;
+	if (tsd) {
+
 		if (flag&BF_WEAPON && tsd->c_bonus.weapon_add_damage)
 			damage += tsd->c_bonus.weapon_add_damage;
 
@@ -1708,11 +1723,6 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 		if (flag&BF_MISC && tsd->c_bonus.misc_add_damage)
 			damage += tsd->c_bonus.misc_add_damage;
 
-		for (const auto &it : tsd->multidamage) {
-			if (it.atk_type&flag && rnd() % 1000 < it.rate) {
-				damage += damage * it.n / 100;
-			}
-		}
 	}
 
 	if (src->type & battle_config.enable_damage_rate) {
@@ -1974,6 +1984,11 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 
 		if( sc->data[SC__DEADLYINFECT] && (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT && damage > 0 && rnd()%100 < 30 + 10 * sc->data[SC__DEADLYINFECT]->val1 )
 			status_change_spread(bl, src, 1); // Deadly infect attacked side
+		if ((sce = sc->data[SC_DAMAGE_HEAL]) && (sce->val2&flag)) {
+			status_heal(bl, damage, 0, 1);
+			clif_skill_nodamage(NULL, bl, AL_HEAL, static_cast<int>(damage), 1);
+			damage = 0;
+		}
 
 	} //End of target SC_ check
 
@@ -3064,6 +3079,7 @@ static bool is_attack_critical(struct Damage* wd, struct block_list *src, struct
 #ifdef RENEWAL
 			case ASC_BREAKER:
 #endif
+			case NPC_IGNITIONBREAK:
 			case RK_IGNITIONBREAK:
 			case GC_CROSSIMPACT:
 				cri /= 2;
@@ -4293,6 +4309,9 @@ static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *
 		case NPC_PULSESTRIKE:
 			skillratio += 100 * (skill_lv - 1);
 			break;
+		case NPC_PULSESTRIKE2:
+			skillratio += 100 * skill_lv;
+			break;
 		case NPC_REVERBERATION_ATK:
 			skillratio += 400 + 200 * skill_lv;
 			break;
@@ -4659,6 +4678,7 @@ static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *
 				skillratio += -100 + 300 * skill_lv;
 			RE_LVL_DMOD(100);
 			break;
+		case NPC_IGNITIONBREAK:
 		case RK_IGNITIONBREAK:
 			skillratio += -100 + 400 * skill_lv;
 			RE_LVL_DMOD(100);
@@ -4668,6 +4688,7 @@ static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *
 			RE_LVL_DMOD(100);
 			break;
 		case RK_PHANTOMTHRUST: // ATK = [{(Skill Level x 50) + (Spear Master Level x 10)} x Caster's Base Level / 150] %
+		case NPC_PHANTOMTHRUST:
 			skillratio += -100 + 50 * skill_lv + 10 * (sd ? pc_checkskill(sd,KN_SPEARMASTERY) : 5);
 			RE_LVL_DMOD(150); // Base level bonus.
 			break;
@@ -6772,6 +6793,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += 40 * skill_lv;
 #endif
 						break;
+					case NPC_STORMGUST2:
+						skillratio = 200 * skill_lv;
+						break;
 #ifdef RENEWAL
 					case WZ_EARTHSPIKE:
 						skillratio += 100;
@@ -7014,6 +7038,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						if( sc && sc->data[SC_CURSED_SOIL_OPTION] )
 							skillratio += (sd ? sd->status.job_level * 5 : 0);
 						break;
+					case NPC_PSYCHIC_WAVE:
 					case SO_PSYCHIC_WAVE:
 						skillratio += -100 + 70 * skill_lv + 3 * sstatus->int_;
 						RE_LVL_DMOD(100);
@@ -7094,6 +7119,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case NPC_HELLBURNING:
 						skillratio += 900;
+						break;
+					case NPC_FIRESTORM:
+						skillratio += 100 * (skill_lv -1);
 						break;
 					case SP_CURSEEXPLOSION:
 						if (tsc && tsc->data[SC_SOULCURSE])
