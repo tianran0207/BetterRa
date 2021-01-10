@@ -2884,10 +2884,12 @@ void itemdb_reload(void) {
 	struct s_mapiterator* iter;
 	struct map_session_data* sd;
 
+#ifndef _DEBUG
 	if (battle_config.itemdb_reload_thread && !item_db_reload.size()) {
 		CreateThread(NULL, 0, itemdb_reload_sub, NULL, 0, NULL);
 		return;
 	}
+#endif
 	item_db.clear();
 	itemdb_combo.clear();
 	itemdb_group->clear(itemdb_group, itemdb_group_free);
@@ -3666,8 +3668,25 @@ bool ItemDatabase::load() {
 		item_db = item_db_reload;
 		item_db_reload.clear();
 	}
+#ifdef _DEBUG
+	else {
+		itemdb_readdb(db_path_debug, true);
+		sv_readdb(db_path_debug, "item_announce.txt", ',', 2, 2, -1, &itemdb_read_announce, true);
+		sv_readdb(db_path_debug, "item_avail.txt", ',', 2, 2, -1, &itemdb_read_itemavail, true);
+		sv_readdb(db_path_debug, "item_stack.txt", ',', 3, 3, -1, &itemdb_read_stack, true);
+		sv_readdb(db_path_debug, "item_nouse.txt", ',', 3, 3, -1, &itemdb_read_nouse, true);
+		sv_readdb(db_path_debug, "item_noequip.txt", ',', 2, 2, -1, &itemdb_read_noequip, true);
+		sv_readdb(db_path_debug, "item_trade.txt", ',', 3, 3, -1, &itemdb_read_itemtrade, true);
+		sv_readdb(db_path_debug, "item_delay.txt", ',', 2, 3, -1, &itemdb_read_itemdelay, true);
+		sv_readdb(db_path_debug, "item_buyingstore.txt", ',', 1, 1, -1, &itemdb_read_buyingstore, true);
+		sv_readdb(db_path_debug, "item_flag.txt", ',', 2, 3, -1, &itemdb_read_flag, true);
+		itemdb_read_randomopt(db_path_debug, true);
+		item_db.loadingFinished();
+	}
+#else
 	else if (!this->loadyml())
 		return false;
+#endif
 	itemdb_readdb(db_path_pre, true);
 	sv_readdb(db_path_pre, "item_announce.txt",      ',', 2, 2, -1, &itemdb_read_announce, true);
 	sv_readdb(db_path_pre, "item_avail.txt",         ',', 2, 2, -1, &itemdb_read_itemavail, true);

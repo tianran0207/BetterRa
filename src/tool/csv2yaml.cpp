@@ -219,6 +219,7 @@ static bool itemdb_read_randomopt_group(char *str[], int columns, int current);
 static bool itemdb_randomopt_group_yaml(void);
 static bool pc_readdb_levelpenalty(char* fields[], int columns, int current);
 static bool pc_levelpenalty_yaml();
+static bool item_db_yaml2csv(const std::string &file, const std::string &outpaths);
 
 // Constants for conversion
 std::unordered_map<t_itemid, std::string> aegis_itemnames;
@@ -417,10 +418,67 @@ bool process( const std::string& type, uint32 version, const std::vector<std::st
 	return true;
 }
 
+YAML::Node inNode;
+template<typename Func>
+bool process_yml2csv( const std::string& type, uint32 version, const std::vector<std::string>& paths, const std::string& name, const std::string& outpath, Func lambda ){
+	for( const std::string& path : paths ){
+		const std::string name_ext = name + ".yml";
+		const std::string from = path + name_ext;
+
+		if( fileExists( from ) ){
+			inNode.reset();
+
+			try {
+				inNode = YAML::LoadFile(from);
+			} catch (YAML::Exception &e) {
+				ShowError("%s (Line %d: Column %d)\n", e.msg.c_str(), e.mark.line, e.mark.column);
+				continue;
+			}
+
+			if (!inNode["Body"].IsDefined())
+				continue;
+			if( !lambda( path, name_ext , outpath) ){
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 int do_init( int argc, char** argv ){
 	const std::string path_db = std::string( db_path );
 	const std::string path_db_mode = path_db + "/" + DBPATH;
 	const std::string path_db_import = path_db + "/" + DBIMPORT + "/";
+
+	// Load constants
+#define export_constant_npc(a) export_constant(a)
+	init_random_option_constants();
+#include "../map/script_constants.hpp"
+
+	std::vector<std::string> root_paths = {
+		path_db,
+		path_db_mode,
+		path_db_import
+	};
+
+#ifdef  _DEBUG
+	std::vector<std::string> item_table_suffixes = {
+		"usable",
+		"equip",
+		"etc"
+	};
+	std::string outpaths = "tools/BetterRA_Tool/item_db_csv/";
+	for (const std::string& suffix : item_table_suffixes) {
+		if (!process_yml2csv("ITEM_DB", 1, root_paths, "item_db_" + suffix, outpaths, [](const std::string& path, const std::string& name_ext, const std::string& outpaths) -> bool {
+			return item_db_yaml2csv(path + name_ext, outpaths);
+		})) {
+			return 0;
+		}
+	}
+	item_db_yaml2csv("", "");
+	return 0;
+#endif //  _DEBUG
 
 	// Loads required conversion constants
 	if (fileExists(item_db.getDefaultLocation())) {
@@ -437,17 +495,6 @@ int do_init( int argc, char** argv ){
 		sv_readdb(path_db_mode.c_str(), "skill_db.txt", ',', 18, 18, -1, parse_skill_constants_txt, false);
 		sv_readdb(path_db_import.c_str(), "skill_db.txt", ',', 18, 18, -1, parse_skill_constants_txt, false);
 	}
-
-	// Load constants
-	#define export_constant_npc(a) export_constant(a)
-	init_random_option_constants();
-	#include "../map/script_constants.hpp"
-
-	std::vector<std::string> root_paths = {
-		path_db,
-		path_db_mode,
-		path_db_import
-	};
 
 	if( !process( "GUILD_SKILL_TREE_DB", 1, root_paths, "guild_skill_tree", []( const std::string& path, const std::string& name_ext ) -> bool {
 		return sv_readdb( path.c_str(), name_ext.c_str(), ',', 2 + MAX_GUILD_SKILL_REQUIRE * 2, 2 + MAX_GUILD_SKILL_REQUIRE * 2, -1, &guild_read_guildskill_tree_db, false );
@@ -1734,6 +1781,16 @@ std::string name2Upper(std::string name) {
 	}
 
 	return name;
+}
+
+char *strtoupper(char *str) {
+	char *cursor = str;
+
+	while (*cursor != '\0') {
+		*cursor = TOUPPER(*cursor);
+		cursor++;
+	}
+	return str;
 }
 
 // Copied and adjusted from skill.cpp
@@ -3854,5 +3911,276 @@ void init_random_option_constants() {
 	export_constant2("RDMOPT_MELEE_ATTACK_DAMAGE_TARGET", 219);
 	export_constant2("RDMOPT_MELEE_ATTACK_DAMAGE_USER", 220);
 
+	for (const auto &it : um_mapid2jobname)
+		export_constant2(it.first.c_str(), 1ULL << it.second);
+
 	#undef export_constant2
+}
+
+std::string string_trim(const std::string &s) {
+	const std::string WHITESPACE = " \r\n\t\f\v";
+	std::string escaped;
+	size_t n = s.length();
+	unsigned char v = 0;
+	for (size_t i = 0; i < n; ++i) {
+		if (s[i] == '\r')
+			continue;
+		if (s[i] == '\t')
+			continue;
+		if (s[i] == '\n' && (i + 1) < n) {
+			escaped += " ";
+			v++;
+			continue;
+		}
+		if (s[i] == ' ') {
+			if (v++)
+				continue;
+		}else
+			v = 0;
+		
+		escaped += s[i];
+	}
+	size_t start = escaped.find_first_not_of(WHITESPACE);
+	size_t end = escaped.find_last_not_of(WHITESPACE);
+	return (end == std::string::npos) ? "" : escaped.substr(start, end+1);
+}
+
+static bool appendcsv(const YAML::Node &node, std::ofstream &output, char *defstr = NULL, char comma = ',') {
+
+	if (comma)
+		output << comma;
+	if (node.IsDefined())
+		output << string_trim(node.as<std::string>());
+	else if (defstr)
+		output << defstr;
+	return true;
+}
+
+static bool appendcsv_int(int64 num, std::ofstream &output, char *defstr = NULL, char comma = ',') {
+
+	if (comma)
+		output << comma;
+
+	if (!num && defstr)
+		output << defstr;
+	else
+		output << num;
+
+	return true;
+}
+
+static bool appendcsv_str(const char *str, std::ofstream &output, char *defstr = NULL, char comma = ',') {
+
+	if (comma)
+		output << comma;
+
+	if (!str && defstr)
+		output << defstr;
+	else
+		output << str;
+
+	return true;
+}
+
+static bool item_db_yaml2csv(const std::string &file, const std::string &outpaths) {
+
+	static std::ofstream item_db, item_stack, item_nouse, item_trade, item_delay, item_buyingstore, item_flag;
+	
+	if (file.size() && !item_db.is_open()) {
+		item_db.open(outpaths + "item_db.txt");
+		if (!item_db.is_open()) {
+			ShowError("Can not open file \"%s\" for writing.\n", (outpaths + "item_db.txt").c_str());
+			return false;
+		}
+		item_stack.open(outpaths + "item_stack.txt");
+		item_nouse.open(outpaths + "item_nouse.txt");
+		item_trade.open(outpaths + "item_trade.txt");
+		item_delay.open(outpaths + "item_delay.txt");
+		item_buyingstore.open(outpaths + "item_buyingstore.txt");
+		item_flag.open(outpaths + "item_flag.txt");
+	} else if (!file.size()) {
+		item_db.close();
+		item_stack.close();
+		item_nouse.close();
+		item_trade.close();
+		item_delay.close();
+		item_buyingstore.close();
+		item_flag.close();
+		return false;
+	}
+
+	size_t entries = 0;
+	for (const YAML::Node &input : inNode["Body"]) {
+		int64 job_base = 0, class_base = 0, type, sex = 2, loc = 0, nameid;
+		char hex[256];
+		nameid = input["Id"].as<int>();
+		appendcsv(input["Id"], item_db, NULL, 0);
+		appendcsv(input["AegisName"], item_db);
+		appendcsv(input["Name"], item_db);
+		type = constant_lookup_int(string_trim("IT_" + input["Type"].as<std::string>()).c_str());
+		appendcsv_int(type, item_db);
+		appendcsv(input["Buy"], item_db, "0");
+		appendcsv(input["Sell"], item_db);
+		appendcsv(input["Weight"], item_db);
+		appendcsv(input["Attack"], item_db);
+#ifdef RENEWAL
+		if (input["MagicAttack"].IsDefined())
+			appendcsv(input["MagicAttack"], item_db, NULL, ':');
+#endif
+		appendcsv(input["Defense"], item_db);
+		appendcsv(input["Range"], item_db);
+		if (type == IT_ARMOR || type == IT_WEAPON || type == IT_SHADOWGEAR)
+			appendcsv(input["Slots"], item_db, "0");
+		else
+			appendcsv(input["Slots"], item_db);
+
+		for (const auto &jobit : input["Jobs"]) {
+			std::string jobName = jobit.first.as<std::string>();
+
+			// Skipped because processed above the loop
+			if (jobName.compare("All") == 0) {
+				job_base = UINT32_MAX;
+				continue;
+			}
+			if (jobit.second.as<bool>())
+				job_base |= constant_lookup_int(jobName.c_str());
+			else
+				job_base &= ~constant_lookup_int(jobName.c_str());
+		}
+		for (const auto &classit : input["Classes"]) {
+			std::string className = classit.first.as<std::string>();
+			class_base |= constant_lookup_int(("ITEMJ_" + className).c_str());
+		}
+		if (input["Gender"].IsDefined())
+			sex = constant_lookup_int(string_trim("SEX_" + input["Gender"].as<std::string>()).c_str());
+		if (job_base){
+			sprintf(hex,"0x%08x", static_cast<int>(job_base));
+			strtoupper(hex + 2);
+			appendcsv_str(hex, item_db);
+			if (class_base)
+				appendcsv_int(job_base, item_db);
+			else
+				appendcsv_int(63, item_db);
+			appendcsv_int(sex, item_db);
+		} else if (type != IT_ETC && type != IT_CARD && type != IT_PETEGG && type != IT_PETARMOR)
+			appendcsv_str("0xFFFFFFFF,63,2", item_db);
+		else
+			appendcsv_str(",,", item_db);
+
+		for (const auto &locit : input["Locations"]) {
+			std::string locName = locit.first.as<std::string>();
+			loc |= constant_lookup_int(("EQP_"+locName).c_str());
+		}
+		appendcsv_int(loc, item_db, "");
+		appendcsv(input["WeaponLevel"], item_db);
+		if (type == IT_ARMOR || type == IT_WEAPON || type == IT_SHADOWGEAR)
+			appendcsv(input["EquipLevelMin"], item_db, "0");
+		else
+			appendcsv(input["EquipLevelMin"], item_db);
+
+		if (input["EquipLevelMax"].IsDefined())
+			appendcsv(input["EquipLevelMax"], item_db, NULL, ':');
+
+		if (type == IT_ARMOR || type == IT_WEAPON || type == IT_SHADOWGEAR)
+			appendcsv_int(input["Refineable"].IsDefined(), item_db);
+		else
+			appendcsv_str("", item_db);
+
+		if (input["SubType"].IsDefined())
+			appendcsv_int(constant_lookup_int(("W_" + input["SubType"].as<std::string>()).c_str()), item_db);
+		else if (type == IT_ARMOR || type == IT_WEAPON || type == IT_SHADOWGEAR)
+			appendcsv(input["View"], item_db, "0");
+		else
+			appendcsv(input["View"], item_db, "");
+
+		item_db << ",{";
+		if (input["Script"].IsDefined()) {
+			item_db << " ";
+			appendcsv(input["Script"], item_db, NULL, '\0');
+			item_db << " ";
+		}
+		item_db << "},{";
+		if (input["equip_script"].IsDefined()) {
+			item_db << " ";
+			appendcsv(input["equip_script"], item_db, NULL, '\0');
+			item_db << " ";
+		}
+		item_db << "},{";
+		if (input["unequip_script"].IsDefined()) {
+			item_db << " ";
+			appendcsv(input["unequip_script"], item_db, NULL, '\0');
+			item_db << " ";
+		}
+		item_db << "}\n";
+
+		if (input["Flags"].IsDefined()) {
+			int flag = 0;
+			const YAML::Node &flags = input["Flags"];
+			if (flags["BuyingStore"].IsDefined())
+				appendcsv(input["Id"], item_buyingstore, NULL, '\n');
+			if (flags["DeadBranch"].IsDefined()) flag |= 1;
+			if (flags["Container"].IsDefined()) flag |= 2;
+			if (flags["UniqueId"].IsDefined()) flag |= 4;
+			if (flags["BindOnEquip"].IsDefined()) flag |= 8;
+			if (flags["DropAnnounce"].IsDefined()) flag |= 16;
+			if (flags["NoConsume"].IsDefined()) flag |= 32;
+			if (flag) {
+				appendcsv_int(nameid, item_flag, NULL, '\0');
+				appendcsv_int(flag, item_flag);
+				item_flag << "\n";
+			}
+		}
+		if (input["Delay"].IsDefined()) {
+			appendcsv_int(nameid, item_delay, NULL, '\0');
+			const YAML::Node &delay = input["Delay"];
+			appendcsv(delay["Duration"], item_delay);
+			if (delay["Status"].IsDefined()) {
+				sprintf(hex, "%s", ("SC_" + delay["Status"].as<std::string>()).c_str());
+				appendcsv_str(strtoupper(hex), item_delay);
+			}
+			item_delay << "\n";
+		}
+		if (input["Stack"].IsDefined()) {
+			int flag = 0;
+			appendcsv_int(nameid, item_stack, NULL, '\0');
+			const YAML::Node &stack = input["Stack"];
+			appendcsv(stack["Amount"], item_stack);
+			if (stack["Inventory"].IsDefined()) flag |= 1;
+			if (stack["Cart"].IsDefined()) flag |= 2;
+			if (stack["Storage"].IsDefined()) flag |= 4;
+			if (stack["GuildStorage"].IsDefined()) flag |= 8;
+			appendcsv_int(flag, item_stack);
+			item_stack << "\n";
+		}
+		if (input["NoUse"].IsDefined()) {
+			appendcsv_int(nameid, item_nouse, NULL, '\0');
+			const YAML::Node &nouse = input["NoUse"];
+			appendcsv_int(1, item_nouse);
+			if (nouse["Override"].IsDefined())
+				appendcsv(nouse["Override"], item_nouse);
+			item_nouse << "\n";
+		}
+		if (input["Trade"].IsDefined()) {
+			int flag = 0;
+			const YAML::Node &trade = input["Trade"];
+			appendcsv_int(nameid, item_trade, NULL, '\0');
+			if (trade["NoDrop"].IsDefined()) flag |= 1;
+			if (trade["NoTrade"].IsDefined()) flag |= 2;
+			if (trade["TradePartner"].IsDefined()) flag |= 4;
+			if (trade["NoSell"].IsDefined()) flag |= 8;
+			if (trade["NoCart"].IsDefined()) flag |= 16;
+			if (trade["NoStorage"].IsDefined()) flag |= 32;
+			if (trade["NoGuildStorage"].IsDefined()) flag |= 64;
+			if (trade["NoMail"].IsDefined()) flag |= 128;
+			if (trade["NoAuction"].IsDefined()) flag |= 256;
+			appendcsv_int(flag, item_trade);
+			if (trade["Override"].IsDefined())
+				appendcsv(trade["Override"], item_trade);
+			item_trade << "\n";
+		}
+		entries++;
+	}
+	ShowStatus("Done converting '" CL_WHITE "%d" CL_RESET "' items in '" CL_WHITE "%s" CL_RESET "'.\n", entries, file.c_str());
+
+	return true;
 }
