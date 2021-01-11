@@ -23337,7 +23337,7 @@ static void clif_message_check(struct map_session_data *sd, struct s_packet_db *
 	struct bot_data *bd = NULL;
 
 	if (info->func == clif_parse_GlobalMessage) {
-		map_foreachinrange(clif_message_check_sub_, &sd->bl, AREA_SIZE, BL_PC, sd, PKL_GLOBAL, -1, out_name, out_message);
+		map_foreachinrange(clif_message_check_sub_, &sd->bl, AREA_SIZE, BL_PC, sd, PKL_PUBLIC, -1, out_name, out_message);
 	}
 	else if (info->func == clif_parse_PartyMessage) {
 		struct party_data *pd = party_search(sd->status.party_id);
