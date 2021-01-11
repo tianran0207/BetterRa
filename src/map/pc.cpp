@@ -15659,20 +15659,23 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			path_free(ad);
 		}
 		if ((sp = path_Astar_steppath(sd->bl.m, sd->bl.x, sd->bl.y, x, y, sd->bl.id)) == NULL) {
-			if (++bd->state.move_fail_count > 4) {
+			if (bd->state.move_fail_count > 8) {
 				clif_displaymessage(sd->fd, msg_txt(sd, 2346));
 				pcbot_stop(sd, -3);
 				return 1;
 			}
+			if (bd->state.move_fail_count == 4)
+				pcbot_walk_fail_event(bd, tick);
+
 			bd->state.move_fail_count++;
-			pcbot_walk_fail_event(bd, tick);
 			return 0;
 		}
 
 		ad->path = sp;
 		ad->step = 0;
 		ad->in_bot = 1;
-		unit_check_step(&sd->bl, ad, tick);
+		if (unit_check_step(&sd->bl, ad, tick))
+			bd->state.move_fail_count = 0;
 		return 1;
 	}
 	if ((bd->ai_mode & BOT_RANDOM_WALK) && unit_can_move(&sd->bl)){
@@ -15700,8 +15703,10 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			rx = 3; ry = 9;
 			break;
 		}
-		if (map_search_freecell(&sd->bl, sd->bl.m, &x, &y, rx, ry, 3) && (unit_walktoxy(&sd->bl, x, y, 1) || unit_walktoxy(&sd->bl, x, y, 0)))
+		if (map_search_freecell(&sd->bl, sd->bl.m, &x, &y, rx, ry, 3) && (unit_walktoxy(&sd->bl, x, y, 1) || unit_walktoxy(&sd->bl, x, y, 0))){
+			bd->state.move_fail_count = 0;
 			return 1;
+		}
 
 		bd->state.dir += (rnd() % 2) ? 1 : -1;
 
@@ -15710,15 +15715,16 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		else if (bd->state.dir == 4)
 			bd->state.dir = 0;
 
-		if (++bd->state.move_fail_count > 100) {
+		if (bd->state.move_fail_count > 80) {
 			clif_displaymessage(sd->fd, msg_txt(sd, 2346));
 			pcbot_stop(sd, -3);
 			return 0;
 		}
 
-		if (bd->state.move_fail_count % 8 == 0)
+		if (bd->state.move_fail_count == 40)
 			pcbot_walk_fail_event(bd, tick);
 
+		bd->state.move_fail_count++;
 		return 1;
 	}
 	bd->state.next_acttime = tick + 500;
