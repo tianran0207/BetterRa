@@ -12193,18 +12193,19 @@ TIMER_FUNC( skill_keep_using ){
 
 int skill_castend_for_AOE(struct block_list *bl, va_list ap)
 {
-	struct block_list *src;
+	struct block_list *src, *target;
 	struct unit_data *ud;
 	int maxcount;
 	int *count, inf;
 	t_tick tick;
 
 	src = va_arg(ap, struct block_list *);
+	target = va_arg(ap, struct block_list *);
 	tick = va_arg(ap, t_tick);
 	count = va_arg(ap, int *);
 	maxcount = va_arg(ap, int);
 
-	if ((ud = unit_bl2ud(src)) == NULL || ud->target == bl->id)
+	if (target == bl || !(ud = unit_bl2ud(src)))
 		return 0;
 
 	std::shared_ptr<s_skill_db> skill = skill_db.find(ud->skill_id);
@@ -12490,7 +12491,7 @@ TIMER_FUNC(skill_castend_id){
 
 		map_freeblock_lock();
 
-		if (sd && skilltoaround) { int count = 0; map_foreachinrange(skill_castend_for_AOE, src, skilltoaround, BL_CHAR, src, tick, &count, 0); } else
+		if (sd && skilltoaround) { int count = 0; map_foreachinrange(skill_castend_for_AOE, src, skilltoaround, BL_CHAR, src, target, tick, &count, 0); } else
 
 		if (skill_get_casttype(ud->skill_id) == CAST_NODAMAGE)
 			skill_castend_nodamage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
@@ -12508,7 +12509,7 @@ TIMER_FUNC(skill_castend_id){
 			for (const auto &it : sd->skillforaoe) {
 				if (it.sk != ud->skill_id || rnd() % 1000 > it.rate)
 					continue;
-				map_foreachinrange(skill_castend_for_AOE, target, it.range, BL_CHAR, src, tick, &count, it.quantity);
+				map_foreachinrange(skill_castend_for_AOE, target, it.range, BL_CHAR, src, target, tick, &count, it.quantity);
 			}
 		}
 
