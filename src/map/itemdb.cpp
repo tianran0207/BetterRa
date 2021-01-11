@@ -1427,7 +1427,79 @@ static void itemdb_jobid2mapid(uint64 bclass[3], e_mapid jobmask, bool active)
 			bclass[i] &= ~temp_mask[i];
 	}
 }
+static void itemdb_jobid2mapid_csv(uint64 bclass[3], e_mapid jobmask)
+{
+	int i;
 
+	bclass[0] = bclass[1] = bclass[2] = 0;
+
+	//Base classes
+	if (jobmask & 1ULL<<JOB_NOVICE) {
+		//Both Novice/Super-Novice are counted with the same ID
+		bclass[0] |= 1ULL<<MAPID_NOVICE;
+		bclass[1] |= 1ULL<<MAPID_NOVICE;
+	}
+	for (i = JOB_NOVICE + 1; i <= JOB_THIEF; i++) {
+		if (jobmask & 1ULL <<i)
+			bclass[0] |= 1ULL<<(MAPID_NOVICE + i);
+	}
+	//2-1 classes
+	if (jobmask & 1ULL<<JOB_KNIGHT)
+		bclass[1] |= 1ULL<<MAPID_SWORDMAN;
+	if (jobmask & 1ULL<<JOB_PRIEST)
+		bclass[1] |= 1ULL<<MAPID_ACOLYTE;
+	if (jobmask & 1ULL<<JOB_WIZARD)
+		bclass[1] |= 1ULL<<MAPID_MAGE;
+	if (jobmask & 1ULL<<JOB_BLACKSMITH)
+		bclass[1] |= 1ULL<<MAPID_MERCHANT;
+	if (jobmask & 1ULL<<JOB_HUNTER)
+		bclass[1] |= 1ULL<<MAPID_ARCHER;
+	if (jobmask & 1ULL<<JOB_ASSASSIN)
+		bclass[1] |= 1ULL<<MAPID_THIEF;
+	//2-2 classes
+	if (jobmask & 1ULL<<JOB_CRUSADER)
+		bclass[2] |= 1ULL<<MAPID_SWORDMAN;
+	if (jobmask & 1ULL<<JOB_MONK)
+		bclass[2] |= 1ULL<<MAPID_ACOLYTE;
+	if (jobmask & 1ULL<<JOB_SAGE)
+		bclass[2] |= 1ULL<<MAPID_MAGE;
+	if (jobmask & 1ULL<<JOB_ALCHEMIST)
+		bclass[2] |= 1ULL<<MAPID_MERCHANT;
+	if (jobmask & 1ULL<<JOB_BARD)
+		bclass[2] |= 1ULL<<MAPID_ARCHER;
+//	Bard/Dancer share the same slot now.
+//	if (jobmask & 1ULL<<JOB_DANCER)
+//		bclass[2] |= 1ULL<<MAPID_ARCHER;
+	if (jobmask & 1ULL<<JOB_ROGUE)
+		bclass[2] |= 1ULL<<MAPID_THIEF;
+	//Special classes that don't fit above.
+	if (jobmask & 1ULL<<21) //Taekwon
+		bclass[0] |= 1ULL<<MAPID_TAEKWON;
+	if (jobmask & 1ULL<<22) //Star Gladiator
+		bclass[1] |= 1ULL<<MAPID_TAEKWON;
+	if (jobmask & 1ULL<<23) //Soul Linker
+		bclass[2] |= 1ULL<<MAPID_TAEKWON;
+	if (jobmask & 1ULL<<JOB_GUNSLINGER) { // Rebellion job can equip Gunslinger equips.
+		bclass[0] |= 1ULL<<MAPID_GUNSLINGER;
+		bclass[1] |= 1ULL<<MAPID_GUNSLINGER;
+	}
+	if (jobmask & 1ULL<<JOB_NINJA) { //Kagerou/Oboro jobs can equip Ninja equips. [Rytech]
+		bclass[0] |= 1ULL<<MAPID_NINJA;
+		bclass[1] |= 1ULL<<MAPID_NINJA;
+	}
+	if (jobmask & 1ULL<<26) //Bongun/Munak
+		bclass[0] |= 1ULL<<MAPID_GANGSI;
+	if (jobmask & 1ULL<<27) //Death Knight
+		bclass[1] |= 1ULL<<MAPID_GANGSI;
+	if (jobmask & 1ULL<<28) //Dark Collector
+		bclass[2] |= 1ULL<<MAPID_GANGSI;
+	if (jobmask & 1ULL<<29) //Kagerou / Oboro
+		bclass[1] |= 1ULL<<MAPID_NINJA;
+	if (jobmask & 1ULL<<30) //Rebellion
+		bclass[1] |= 1ULL<<MAPID_GUNSLINGER;
+	if (jobmask & 1ULL<<31) //Summoner
+		bclass[0] |= 1ULL<<MAPID_SUMMONER;
+}
 /*==========================================
  * Loads an item from the db. If not found, it will return the dummy item.
  * @param nameid
@@ -3088,7 +3160,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 		id->slots = MAX_SLOTS;
 	}
 
-	itemdb_jobid2mapid(id->class_base, (e_mapid)strtoull(str[11],NULL,0), true);
+	itemdb_jobid2mapid_csv(id->class_base, (e_mapid)strtoull(str[11],NULL,0));
 	id->class_upper = atoi(str[12]);
 	id->sex	= atoi(str[13]);
 	id->equip = atoi(str[14]);
