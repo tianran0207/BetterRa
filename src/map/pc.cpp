@@ -15023,21 +15023,8 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap)
 	struct bot_data *bd = va_arg(ap, struct bot_data *);
 	struct block_list **target = va_arg(ap, struct block_list **);
 	struct map_session_data *sd = bd->sd;
-	struct mob_data *md = BL_CAST(BL_MOB, bl);
 	int dist;
 
-	//检查列表中的魔物
-	if (md && bd->info.moblist.size()) {
-		bl = NULL;
-		for (auto &it : bd->info.moblist) {
-			if (it.id != md->mob_id)
-				continue;
-			bl = &md->bl;
-			break;
-		}
-		if (!bl)
-			return 0;
-	}
 	//检查是否死亡
 	if (status_isdead(bl))
 		return 0;
@@ -15052,19 +15039,30 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap)
 
 	//检查属性修正是否小于50
 	if (bd->info.ignore_same_ele && !pcbot_check_ele(sd, bl, bd))
-		return 0;
-		
+		return 1;
+
+	//检查列表中的魔物
+	if (bl->type == BL_MOB && bd->info.moblist.size()) {
+		struct mob_data *md = BL_CAST(BL_MOB, bl);
+		for (auto &it : bd->info.moblist) {
+			if (it.id != md->mob_id)
+				continue;
+			md = NULL;
+			break;
+		}
+		if (md) return 1;
+	}
+
 	//找到离得最近的魔物
 	dist = distance_bl(&sd->bl, bl);
-	if (((*target) == NULL || !check_distance_bl(&sd->bl, *target, dist)) &&
-		battle_check_range(&sd->bl, bl, 12)
-		) { 
+	if (((*target) == NULL || !check_distance_bl(&sd->bl, *target, dist)))
+	{ 
 		struct status_change *sc = status_get_sc(bl);
 		if (sc && (sc->data[SC_HIDING] || sc->data[SC_CLOAKING] || sc->data[SC_TRICKDEAD] || sc->data[SC_CLOAKINGEXCEED]))
 			return 0;
 
-		if (!path_search(NULL, sd->bl.m, sd->bl.x, sd->bl.y, bl->x, bl->y, 1, CELL_CHKNOPASS)) // Count walk path cells
-			return 0;
+		if (!path_search_long(NULL,sd->bl.m,sd->bl.x,sd->bl.y,bl->x,bl->y,CELL_CHKPASS)) // Count walk path cells
+			return 1;
 
 		(*target) = bl;
 	}
@@ -15174,12 +15172,21 @@ static bool pcbot_check_usecond(struct bot_data *bd, struct s_bot_uselist *list,
 	case BOT_USE_ATTACKPCGT:
 		return (sd->ud.target_count > list->cond_val[0]);
 	case BOT_USE_CLOSEDATTACKED:
+		if (sd->enemy.nearatk_id) {
+			sd->enemy.nearatk_id = 0;
+			return true;
+		}
+		break;
 	case BOT_USE_LONGRANGEATTACKED:
+		if (sd->enemy.longatk_id) {
+			sd->enemy.longatk_id = 0;
+			return true;
+		}
 		break;
 	case BOT_USE_AFTERSKILL:
 		return (bd->skill_order && bd->skill_order->id == list->cond_val[0]);
 	case BOT_USE_MOBINCOUNT:
-		return (bd->state.enemy_count < list->cond_val[0] || bd->state.enemy_count > list->cond_val[0]);
+		return (bd->state.enemy_count != -1 && (bd->state.enemy_count < list->cond_val[0] || bd->state.enemy_count > list->cond_val[1]));
 	case BOT_USE_ITEMLESSTHAN:
 		if (list->inf == -1 || sd->inventory.u.items_inventory[list->inf].nameid != list->cond_val[0])
 			list->inf = pc_search_inventory(sd, list->cond_val[0]);
@@ -15364,7 +15371,7 @@ static bool pcbot_nocond_event(struct bot_data *bd, t_tick tick)
 		if (sd->fd == 0)
 			clif_parse_LoadEndAck(0, sd);
 		bd->state.next_acttime = tick + 2000;
-		bd->state.enemy_count = 0;
+		bd->state.enemy_count = -1;
 		return true;
 	}
 
@@ -15504,10 +15511,12 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		return 0;
 
 	//如果有魔物攻击, 反击
-	if (sd->ud.walktimer != INVALID_TIMER ) {
-		if ((bd->ai_mode & BOT_COUNTERATTACK) && sd->enemy_id && sd->enemy_id != bd->target_id) {
-			tbl = map_id2bl(sd->enemy_id);
-			sd->enemy_id = 0;
+	if (sd->ud.walktimer != INVALID_TIMER && (bd->ai_mode & BOT_COUNTERATTACK) && bd->state.next_counterattack <= tick) {
+		if (sd->enemy.bot_id && sd->enemy.bot_id != bd->target_id) {
+			tbl = map_id2bl(sd->enemy.bot_id);
+			sd->enemy.bot_id = 0;
+			bd->state.next_counterattack = tick + 1000;
+
 			//检查属性修正是否小于50
 			if (tbl && bd->info.ignore_same_ele && !pcbot_check_ele(sd, tbl, bd))
 				return 0;

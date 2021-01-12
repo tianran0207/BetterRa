@@ -446,6 +446,7 @@ struct bot_data {
 		t_tick next_skillattack;
 		t_tick next_skillsupport;
 		t_tick next_doevent;
+		t_tick next_counterattack;
 		int trade;
 		int enemy_count;
 		int skill_fail_count;
@@ -479,7 +480,6 @@ struct map_session_data {
 	struct regen_data_sub sregen, ssregen;
 	unsigned int packet_account;
 	int policies;
-	int enemy_id;
 	int nodecrypt;
 	char mac[33];
 	int runing_event_type;
@@ -487,6 +487,9 @@ struct map_session_data {
 	int menulist_data;
 	int sleep_mes_active;
 	int dual_weapon;
+	struct s_enemy {
+		int bot_id, hombot_id, longatk_id, nearatk_id;
+	}enemy;
 	struct s_inventory_mark {
 		unsigned int EquipLoc;
 		unsigned IgnoreClass : 1;

@@ -289,6 +289,18 @@ void battle_damage(struct block_list *src, struct block_list *target, int64 dama
 		if (damage && (attack_type&BF_NORMAL)) // Monsters differentiate whether they have been attacked by a skill or a normal attack
 			md->norm_attacked_id = md->attacked_id;
 	}
+	if (target->type == BL_PC) {
+		struct map_session_data *sd = BL_CAST(BL_PC, target);
+
+		if (!status_isdead(target) && src != target) {
+			if (sd->state.bot || sd->state.hombot)
+				sd->enemy.bot_id = sd->enemy.hombot_id = src->id;
+			if (attack_type&BF_SHORT)
+				sd->enemy.nearatk_id = src->id;
+			else if (attack_type&BF_LONG && !(attack_type&BF_MAGIC))
+				sd->enemy.longatk_id = src->id;
+		}
+	}
 	map_freeblock_unlock();
 }
 

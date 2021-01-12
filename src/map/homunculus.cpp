@@ -1745,9 +1745,9 @@ static int hombot_ai_lazy(struct map_session_data *sd, va_list args){
 
 	can_move = unit_can_move(bl);
 
-	if (sd->enemy_id) {
-		tbl = map_id2bl(sd->enemy_id);
-		sd->enemy_id = 0;
+	if (sd->enemy.hombot_id) {
+		tbl = map_id2bl(sd->enemy.hombot_id);
+		sd->enemy.hombot_id = 0;
 	}
 	if (!tbl && (!hd->ud.target || !(tbl = map_id2bl(hd->ud.target))))
 		map_foreachinallrange(hombot_ai_sub_hard_activesearch, &sd->bl, 9, BL_CHAR, sd, &tbl);

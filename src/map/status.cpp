@@ -1977,10 +1977,6 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 		return 0;
 	}
 
-	if (src != NULL && target->type == BL_PC) {
-		((struct map_session_data *)target)->enemy_id = src->id;
-	}
-
 	status = status_get_status_data(target);
 	if(!status || status == &dummy_status )
 		return 0;
