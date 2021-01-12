@@ -31824,7 +31824,7 @@ BUILDIN_FUNC(refineui_result)
 {
 	struct map_session_data* sd = NULL;
 
-	if (!script_charid2sd(5, sd))
+	if (!script_rid2sd(sd))
 		return SCRIPT_CMD_FAILURE;
 
 	if (!sd->state.halt[NPCE_REFINEUIFILTER]) {
@@ -33100,7 +33100,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(pcjoinchat, "i??"),
 	BUILDIN_DEF(unitblown, "iii?"),
 	BUILDIN_DEF(unitmove, "iii"),
-	BUILDIN_DEF(refineui_result, "iii?"),
+	BUILDIN_DEF(refineui_result, "iii"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),
