@@ -22688,8 +22688,10 @@ void clif_parse_StartUseSkillToId( int fd, struct map_session_data* sd ){
 	if( sd->skill_keep_using.skill_id != 0 ){
 		return;
 	}
-
-	sd->skill_keep_using.tid = INVALID_TIMER;
+	if (sd->skill_keep_using.tid != INVALID_TIMER) {
+		delete_timer(sd->skill_keep_using.tid, skill_keep_using);
+		sd->skill_keep_using.tid = INVALID_TIMER;
+	}
 	sd->skill_keep_using.skill_id = p->skillId;
 	sd->skill_keep_using.level = p->skillLv;
 	sd->skill_keep_using.target = p->targetId;
