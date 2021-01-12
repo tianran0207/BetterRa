@@ -1159,6 +1159,8 @@ void clif_weight_limit( struct map_session_data* sd );
 
 void clif_guild_storage_log( struct map_session_data* sd, std::vector<struct guild_log_entry>& log, enum e_guild_storage_log result );
 
+void clif_refineui_info(struct map_session_data* sd, uint16 index);
+
 void clif_camerainfo( struct map_session_data* sd, bool show, float range = 0.0f, float rotation = 0.0f, float latitude = 0.0f );
 
 /// Equip Switch System

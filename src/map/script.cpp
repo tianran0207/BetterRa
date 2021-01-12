@@ -31820,6 +31820,44 @@ BUILDIN_FUNC(getskillsc)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(refineui_result)
+{
+	struct map_session_data* sd = NULL;
+
+	if (!script_charid2sd(5, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!sd->state.halt[NPCE_REFINEUIFILTER]) {
+		ShowError("buildin_refineui_result: The function must run in OnPCRefineUIFilter with halt the event.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	int idx = script_getnum(st, 2);
+	int type = script_getnum(st, 3);
+
+	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+		struct item *item = &sd->inventory.u.items_inventory[idx];
+		struct item_data *id = sd->inventory_data[idx];
+
+		item->refine = cap_value(script_getnum(st, 4), 0, MAX_REFINE);
+		clif_refine(sd->fd, type, idx, item->refine);
+		if (type == 0) {
+			clif_misceffect(&sd->bl, 3);
+			achievement_update_objective(sd, AG_REFINE_SUCCESS, 2, id->wlv, item->refine);
+			clif_refineui_info(sd, idx);
+		}
+		else {
+			clif_misceffect(&sd->bl, 2);
+			if (type == 1)
+				pc_delitem(sd, idx, 1, 0, 0, LOG_TYPE_CONSUME);
+			else
+				clif_refineui_info(sd, idx);
+			achievement_update_objective(sd, AG_REFINE_FAIL, 1, 1);
+		}
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -33062,6 +33100,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(pcjoinchat, "i??"),
 	BUILDIN_DEF(unitblown, "iii?"),
 	BUILDIN_DEF(unitmove, "iii"),
+	BUILDIN_DEF(refineui_result, "iii?"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),
