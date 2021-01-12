@@ -1072,7 +1072,7 @@ unitsteppath <GID>,<路点编号>{,<寻路AI>,{<参数>,{<"事件名称">}}};
 	myspinrate			当自己的 HP 在限定范围内 ( 小于 <参数1> 或大于 <参数2> 时 ).
 	mystatuson			当自己拥有指定状态时 ( <参数1> 为指定的状态ID ).
 	mystatusoff			当自己失去指定状态时 ( <参数1> 为指定的状态ID ).
-	friendhpinrate		当队友(包括自己)的 HP 在限定范围内 ( 大于 <参数1> 或小于 <参数2> 时 ).
+	friendhpinrate		当队友(包括自己)的 HP 在限定范围内 ( 小于 <参数1> 或大于 <参数2> 时 ).
 	friendstatuson		当队友(包括自己)拥有指定状态时 ( <参数1> 为指定的状态ID ).
 	friendstatusoff		当队友(包括自己)失去指定状态时 ( <参数1> 为指定的状态ID ).
 	attackedgt			当攻击自己的敌人超过指定数量时 ( <参数1> 为攻击自己的数量 ).
