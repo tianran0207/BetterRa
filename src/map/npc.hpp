@@ -23,16 +23,22 @@ struct npc_label_list {
 	int pos;
 };
 
+struct npc_barter_currency {
+	int nameid;
+	int refine;
+	int amount;
+};
+
 /// Item list for NPC sell/buy list
 struct npc_item_list {
 	t_itemid nameid;
 	unsigned int value;
 #if PACKETVER >= 20131223
-	unsigned short qty; ///< Stock counter (Market shop)
+	int qty; ///< Stock counter (Market shop)
 	uint8 flag; ///< 1: Item added by npcshopitem/npcshopadditem, force load! (Market shop)
 #endif
-	t_itemid currencyNameid;
-	uint32 currencyAmount;
+	int value2;
+	struct npc_barter_currency *currency;
 };
 
 #if !defined(sun) && (!defined(__NETBSD__) || __NetBSD_Version__ >= 600000000) // NetBSD 5 and Solaris don't like pragma pack but accept the packed attribute
@@ -55,7 +61,7 @@ struct s_npc_barter_buy_list {
 #else
 	uint16 nameid;	///< ID of item will be bought
 #endif
-	unsigned short qty;
+	unsigned short amount;
 	int removeIndex;
 	int shopIndex;
 };

@@ -22979,6 +22979,82 @@ static int clif_parse(int fd)
 	return 0;
 }
 
+
+void clif_npc_barter_open(struct map_session_data *sd, struct npc_data *nd)
+{
+#if PACKETVER_MAIN_NUM >= 20190116 || PACKETVER_RE_NUM >= 20190116 || PACKETVER_ZERO_NUM >= 20181226
+	nullpo_retv(sd);
+	nullpo_retv(nd);
+
+	int fd = sd->fd;
+	sd->npc_shopid = nd->bl.id;
+
+	WFIFOHEAD(fd, sizeof(struct PACKET_ZC_NPC_BARTER_OPEN) + nd->u.shop.count * sizeof(struct PACKET_ZC_NPC_BARTER_OPEN_sub));
+	struct PACKET_ZC_NPC_BARTER_OPEN *p = (struct PACKET_ZC_NPC_BARTER_OPEN *)WFIFOP(fd, 0);
+	p->packetType = HEADER_ZC_NPC_BARTER_OPEN;
+
+	int count = 0;
+	for( int i = 0; i < nd->u.shop.count; i++ ){
+		struct npc_item_list *item = &nd->u.shop.shop_item[i];
+
+		if( !item->nameid ){
+			continue;
+		}
+
+		struct item_data *id = itemdb_exists( item->nameid );
+
+		if( !id ){
+			continue;
+		}
+		p->list[count].nameid = client_nameid( item->nameid );
+		p->list[count].type = itemtype( item->nameid );
+		p->list[count].amount = item->qty;
+		p->list[count].currencyNameid = item->value;
+		p->list[count].currencyAmount = item->value2;
+		p->list[count].weight = id->weight * 10;
+		p->list[count].index = i;
+		count++;
+	}
+	p->packetLength = sizeof(struct PACKET_ZC_NPC_BARTER_OPEN) + sizeof(struct PACKET_ZC_NPC_BARTER_OPEN_sub) * count;
+	clif_send(p, p->packetLength, &sd->bl, SELF);
+#endif
+}
+
+static void clif_parse_NPCBarterPurchase(int fd, struct map_session_data *sd)
+{
+#if PACKETVER_MAIN_NUM >= 20190116 || PACKETVER_RE_NUM >= 20190116 || PACKETVER_ZERO_NUM >= 20181226
+
+	if (pc_istrading(sd) || pc_isdead(sd))
+		return;
+
+	const struct PACKET_CZ_NPC_BARTER_PURCHASE *p = (struct PACKET_CZ_NPC_BARTER_PURCHASE *)RFIFOP( fd, 0 );
+
+	int count = ( p->packetLength - sizeof( struct PACKET_CZ_NPC_BARTER_PURCHASE ) ) / sizeof( struct PACKET_CZ_NPC_BARTER_PURCHASE_sub );
+
+	struct s_npc_barter_buy_list *list;
+
+	CREATE( list, struct s_npc_barter_buy_list, count );
+
+	// Sadly order is reverse
+	for( int i = 0; i < count; i++ ){
+		list[i].nameid = p->list[i].itemId;
+		list[i].amount = p->list[i].amount;
+		list[i].removeIndex = p->list[i].invIndex - 2;
+		list[i].shopIndex = p->list[i].shopIndex;
+	}
+
+	uint8 res = npc_barter_buylist( sd, count, list );
+	clif_npc_buy_result(sd, res);
+
+	aFree( list );
+#endif
+}
+
+void clif_parse_NPCBarterClosed(int fd, struct map_session_data *sd)
+{
+	sd->npc_shopid = 0;
+}
+
 void packetdb_addpacket( uint16 cmd, uint16 length, const char *command, void (*func)(int, struct map_session_data *), ... ){
 	va_list argp;
 	int i;
@@ -23275,72 +23351,3 @@ static void clif_message_check(struct map_session_data *sd, struct s_packet_db *
 	return;
 }
 
-void clif_npc_barter_open(struct map_session_data *sd, struct npc_data *nd)
-{
-#if PACKETVER_MAIN_NUM >= 20190116 || PACKETVER_RE_NUM >= 20190116 || PACKETVER_ZERO_NUM >= 20181226
-	nullpo_retv(sd);
-	nullpo_retv(nd);
-
-	int fd = sd->fd;
-	sd->npc_shopid = nd->bl.id;
-
-	WFIFOHEAD(fd, sizeof(struct PACKET_ZC_NPC_BARTER_OPEN) + nd->u.shop.count * sizeof(struct PACKET_ZC_NPC_BARTER_OPEN_sub));
-	struct PACKET_ZC_NPC_BARTER_OPEN *p = (struct PACKET_ZC_NPC_BARTER_OPEN *)WFIFOP(fd, 0);
-	p->packetType = HEADER_ZC_NPC_BARTER_OPEN;
-
-	int count = 0;
-	for( int i = 0; i < nd->u.shop.count; i++ ){
-		struct npc_item_list *item = &nd->u.shop.shop_item[i];
-
-		if( !item->nameid ){
-			continue;
-		}
-
-		struct item_data *id = itemdb_exists( item->nameid );
-
-		if( !id ){
-			continue;
-		}
-		p->list[count].nameid = client_nameid( item->nameid );
-		p->list[count].type = itemtype( item->nameid );
-		p->list[count].amount = item->qty;
-		p->list[count].currencyNameid = item->currencyNameid;
-		p->list[count].currencyAmount = item->currencyAmount;
-		p->list[count].weight = id->weight;
-		p->list[count].index = i;
-		count++;
-	}
-	p->packetLength = sizeof(struct PACKET_ZC_NPC_BARTER_OPEN) + sizeof(struct PACKET_ZC_NPC_BARTER_OPEN_sub) * count;
-	clif_send(p, p->packetLength, &sd->bl, SELF);
-#endif
-}
-
-static void clif_parse_NPCBarterPurchase(int fd, struct map_session_data *sd)
-{
-#if PACKETVER_MAIN_NUM >= 20190116 || PACKETVER_RE_NUM >= 20190116 || PACKETVER_ZERO_NUM >= 20181226
-
-	if (pc_istrading(sd) || pc_isdead(sd))
-		return;
-
-	const struct PACKET_CZ_NPC_BARTER_PURCHASE *p = (struct PACKET_CZ_NPC_BARTER_PURCHASE *)RFIFOP( fd, 0 );
-
-	int count = ( p->packetLength - sizeof( struct PACKET_CZ_NPC_BARTER_PURCHASE ) ) / sizeof( struct PACKET_CZ_NPC_BARTER_PURCHASE_sub );
-
-	struct s_npc_barter_buy_list *list;
-
-	CREATE( list, struct s_npc_barter_buy_list, count );
-
-	// Sadly order is reverse
-	for( int i = 0; i < count; i++ ){
-		list[i].nameid = p->list[i].itemId;
-		list[i].qty = p->list[i].amount;
-		list[i].removeIndex = p->list[i].invIndex - 2;
-		list[i].shopIndex = p->list[i].shopIndex;
-	}
-
-	uint8 res = npc_barter_buylist( sd, count, list );
-	clif_npc_buy_result(sd, res);
-
-	aFree( list );
-#endif
-}
