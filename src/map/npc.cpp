@@ -1611,6 +1611,9 @@ int npc_click(struct map_session_data* sd, struct npc_data* nd)
 			}
 #endif
 			break;
+		case NPCTYPE_BARTERSHOP:
+			clif_npc_barter_open(sd, nd);
+			break;
 		case NPCTYPE_SCRIPT:
 			run_script(nd->u.scr.script,0,sd->bl.id,nd->bl.id);
 			break;
@@ -2263,6 +2266,108 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list *
 		}
 	}
 
+	return 0;
+}
+
+/**
+ * Processes incoming npc barter purchase list
+ **/
+uint8 npc_barter_buylist(struct map_session_data *sd, uint16 n, struct s_npc_barter_buy_list *item_list)
+{
+	struct npc_data* nd;
+	struct npc_item_list *shop = NULL;
+	int i,w,j,k,new_;
+	int items[MAX_INVENTORY] = { 0 };
+
+	nullpo_retr(3, sd);
+	nullpo_retr(3, item_list);
+
+	nd = npc_checknear(sd,map_id2bl(sd->npc_shopid));
+	if( nd == NULL )
+		return 11;
+	if( nd->subtype != NPCTYPE_BARTERSHOP )
+		return 11;
+	if (!item_list || !n)
+		return 11;
+
+	w = 0;
+	new_ = 0;
+
+	// process entries in buy list, one by one
+	for( i = 0; i < n; ++i ) {
+		struct item_data *id;
+		j = item_list[i].shopIndex;
+		k = item_list[i].removeIndex;
+		if (k < 0 || k >= MAX_INVENTORY)
+			return 11;  // wrong inventory index
+		if (sd->inventory.u.items_inventory[k].nameid != itemdb_viewid(shop[j].currencyNameid))
+			return 13;
+		if (sd->inventory.u.items_inventory[k].amount > shop[j].currencyAmount*item_list[i].qty)
+			return 14;
+		if (item_list[i].shopIndex < 0 || item_list[i].shopIndex >= nd->u.shop.count)
+			return 13;  // no such item in shop
+		if (item_list[i].nameid != shop[j].nameid && item_list[i].nameid == itemdb_viewid(shop[j].nameid))
+			return 13;
+		if (!(id = itemdb_exists(item_list[i].nameid)))
+			return 13; // item no longer in itemdb
+		if ((int)shop[j].qty != -1 && item_list[i].qty > (int)shop[j].qty)
+			return 14;  // not enough item amount in shop
+		if (!itemdb_isstackable2(id) && item_list[i].qty > 1) { //Exploit? You can't buy more than 1 of equipment types o.O
+			ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable item %u!\n",
+				sd->status.name, sd->status.account_id, sd->status.char_id, item_list[i].qty, item_list[i].nameid);
+			item_list[i].qty = 1;
+		}
+
+		items[k] += shop[j].currencyAmount*item_list[i].qty;
+
+		switch( pc_checkadditem(sd, item_list[i].nameid, item_list[i].qty) ) {
+			case CHKADDITEM_EXIST:
+				break;
+			case CHKADDITEM_NEW:
+				new_ += id->inventorySlotNeeded(item_list[i].qty);
+				break;
+			case CHKADDITEM_OVERAMOUNT:
+				return 2;
+		}
+
+		w += itemdb_weight(item_list[i].nameid)*item_list[i].qty;
+		w -= itemdb_weight(shop[j].currencyNameid) * shop[j].currencyAmount*item_list[i].qty;
+	}
+
+	if( w + sd->weight > sd->max_weight )
+		return 2;	// Too heavy
+	if( pc_inventoryblank(sd) < new_ )
+		return 3;	// Not enough space to store items
+
+	for (int i = 0; i < MAX_INVENTORY; ++i) {
+		if (items[i] == 0)
+			continue;
+		if (pc_delitem(sd, i, items[i], 0, 6, LOG_TYPE_NPC) != 0)
+			return 11;  // unknown exploit
+	}
+
+	for( i = 0; i < n; ++i ) {
+		t_itemid nameid = item_list[i].nameid;
+		unsigned short amount = item_list[i].qty;
+
+		if (itemdb_type(nameid) == IT_PETEGG)
+			pet_create_egg(sd, nameid);
+		else {
+			unsigned short get_amt = amount;
+
+			if ((itemdb_search(nameid))->flag.guid)
+				get_amt = 1;
+
+			for (k = 0; k < amount; k += get_amt) {
+				struct item item_tmp;
+				memset(&item_tmp, 0, sizeof(item_tmp));
+				item_tmp.nameid = nameid;
+				item_tmp.identify = 1;
+
+				pc_additem(sd,&item_tmp,get_amt,LOG_TYPE_NPC);
+			}
+		}
+	}
 	return 0;
 }
 
@@ -3093,6 +3198,8 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 		type = NPCTYPE_POINTSHOP;
 	else if( !strcasecmp(w2, "marketshop") )
 		type = NPCTYPE_MARKETSHOP;
+	else if (!strcasecmp(w2, "bartershop"))
+		type = NPCTYPE_BARTERSHOP;
 	else
 		type = NPCTYPE_SHOP;
 
@@ -3178,6 +3285,13 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 				}
 #endif
 				break;
+			case NPCTYPE_BARTERSHOP:
+				if (sscanf(p, ",%u:%u:%6hu", &nameid2, &nameid, &qty) != 3 || !itemdb_exists(nameid)) {
+					ShowError("npc_parse_shop: (BARTERSHOP) Invalid item definition in file '%s', line '%d'. Ignoring the rest of the line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer, start - buffer), w1, w2, w3, w4);
+					skip = true;
+				}
+				value = 0;
+				break;
 			default:
 				if (sscanf(p, ",%u:%11d", &nameid2, &value) != 2) {
 					ShowError("npc_parse_shop: Invalid item definition in file '%s', line '%d'. Ignoring the rest of the line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer, start - buffer), w1, w2, w3, w4);
@@ -3238,6 +3352,11 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 		if (type == NPCTYPE_MARKETSHOP )
 			nd->u.shop.shop_item[nd->u.shop.count].qty = qty;
 #endif
+		if (type == NPCTYPE_BARTERSHOP ) {
+			nd->u.shop.shop_item[nd->u.shop.count].currencyNameid = nameid;
+			nd->u.shop.shop_item[nd->u.shop.count].currencyAmount = qty;
+			nd->u.shop.shop_item[nd->u.shop.count].qty = UINT16_MAX;
+		}
 		nd->u.shop.count++;
 		p = strchr(p+1,',');
 	}
@@ -4997,7 +5116,7 @@ int npc_parsesrcfile(const char* filepath, bool runOnInit, char *other_buffer)
 
 		if((strcasecmp(w2,"warp") == 0 || strcasecmp(w2,"warp2") == 0) && count > 3)
 			p = npc_parse_warp(w1,w2,w3,w4, p, buffer, filepath);
-		else if( (!strcasecmp(w2,"shop") || !strcasecmp(w2,"cashshop") || !strcasecmp(w2,"itemshop") || !strcasecmp(w2,"pointshop") || !strcasecmp(w2,"marketshop") ) && count > 3 )
+		else if( (!strcasecmp(w2,"shop") || !strcasecmp(w2,"cashshop") || !strcasecmp(w2,"itemshop") || !strcasecmp(w2,"pointshop") || !strcasecmp(w2,"marketshop") || !strcasecmp(w2,"bartershop") ) && count > 3 )
 			p = npc_parse_shop(w1,w2,w3,w4, p, buffer, filepath);
 		else if( strcasecmp(w2,"script") == 0 && count > 3 ) {
 			if( strcasecmp(w1,"function") == 0 )

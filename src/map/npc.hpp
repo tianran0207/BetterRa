@@ -31,6 +31,8 @@ struct npc_item_list {
 	unsigned short qty; ///< Stock counter (Market shop)
 	uint8 flag; ///< 1: Item added by npcshopitem/npcshopadditem, force load! (Market shop)
 #endif
+	t_itemid currencyNameid;
+	uint32 currencyAmount;
 };
 
 #if !defined(sun) && (!defined(__NETBSD__) || __NetBSD_Version__ >= 600000000) // NetBSD 5 and Solaris don't like pragma pack but accept the packed attribute
@@ -46,6 +48,17 @@ struct s_npc_buy_list {
 	uint16 nameid;	///< ID of item will be bought
 #endif
 } __attribute__((packed));
+
+struct s_npc_barter_buy_list {
+#if PACKETVER_MAIN_NUM >= 20181121 || PACKETVER_RE_NUM >= 20180704 || PACKETVER_ZERO_NUM >= 20181114
+	uint32 nameid;	///< ID of item will be bought
+#else
+	uint16 nameid;	///< ID of item will be bought
+#endif
+	unsigned short qty;
+	int removeIndex;
+	int shopIndex;
+};
 
 #if !defined(sun) && (!defined(__NETBSD__) || __NetBSD_Version__ >= 600000000) // NetBSD 5 and Solaris don't like pragma pack but accept the packed attribute
 #pragma pack(pop)
@@ -1345,6 +1358,7 @@ bool npc_scriptcont(struct map_session_data* sd, int id, bool closing);
 struct npc_data* npc_checknear(struct map_session_data* sd, struct block_list* bl);
 int npc_buysellsel(struct map_session_data* sd, int id, int type);
 uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list *item_list);
+uint8 npc_barter_buylist(struct map_session_data *sd, uint16 n, struct s_npc_barter_buy_list *item_list);
 static int npc_buylist_sub(struct map_session_data* sd, uint16 n, struct s_npc_buy_list *item_list, struct npc_data* nd);
 uint8 npc_selllist(struct map_session_data* sd, int n, unsigned short *item_list);
 void npc_parse_mob2(struct spawn_data* mob);
