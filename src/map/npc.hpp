@@ -41,6 +41,12 @@ struct npc_item_list {
 	struct npc_barter_currency *currency;
 };
 
+struct npc_barter_shop {
+	struct npc_item_list *shop_item;
+	uint16 count;
+	bool disable;
+};
+
 #if !defined(sun) && (!defined(__NETBSD__) || __NetBSD_Version__ >= 600000000) // NetBSD 5 and Solaris don't like pragma pack but accept the packed attribute
 #pragma pack(push, 1)
 #endif // not NetBSD < 6 / Solaris
@@ -107,6 +113,7 @@ struct npc_data {
 			struct npc_timerevent_list *timer_event;
 			int label_list_num;
 			struct npc_label_list *label_list;
+			struct npc_barter_shop *shop;
 		} scr;
 		struct {
 			struct npc_item_list *shop_item;

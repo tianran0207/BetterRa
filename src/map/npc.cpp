@@ -2276,7 +2276,8 @@ uint8 npc_barter_buylist(struct map_session_data *sd, uint16 n, struct s_npc_bar
 {
 	struct npc_data* nd;
 	struct npc_item_list *shop = NULL;
-	int i,w,j,k,new_;
+	int i,w,j,k,new_,count;
+	int64 z = 0;
 	int items[MAX_INVENTORY] = { 0 };
 
 	nullpo_retr(3, sd);
@@ -2285,41 +2286,37 @@ uint8 npc_barter_buylist(struct map_session_data *sd, uint16 n, struct s_npc_bar
 	nd = npc_checknear(sd,map_id2bl(sd->npc_shopid));
 	if( nd == NULL )
 		return 11;
-	if( nd->subtype != NPCTYPE_BARTERSHOP )
+	if( nd->subtype != NPCTYPE_BARTERSHOP && (nd->subtype != NPCTYPE_SCRIPT || !nd->u.scr.shop))
 		return 11;
 	if (!item_list || !n)
 		return 11;
 
 	w = 0;
 	new_ = 0;
-
-	shop = nd->u.shop.shop_item;
+	if (nd->subtype == NPCTYPE_BARTERSHOP) {
+		shop = nd->u.shop.shop_item;
+		count = nd->u.shop.count;
+	} else {
+		shop = nd->u.scr.shop->shop_item;
+		count = nd->u.scr.shop->count;
+	}
 	// process entries in buy list, one by one
 	for( i = 0; i < n; ++i ) {
 		struct item_data *id;
 		j = item_list[i].shopIndex;
-		k = item_list[i].removeIndex;
-		if (k < 0 || k >= MAX_INVENTORY)
-			return 11;  // wrong inventory index
-		if (sd->inventory.u.items_inventory[k].nameid != shop[j].value && sd->inventory.u.items_inventory[k].nameid != itemdb_viewid(shop[j].value))
-			return 13;
-		if (sd->inventory.u.items_inventory[k].amount > shop[j].value2*item_list[i].amount)
-			return 14;
-		if (item_list[i].shopIndex < 0 || item_list[i].shopIndex >= nd->u.shop.count)
+		if (j < 0 || j >= count)
 			return 13;  // no such item in shop
 		if (item_list[i].nameid != shop[j].nameid && item_list[i].nameid != itemdb_viewid(shop[j].nameid))
 			return 13;
 		if (!(id = itemdb_exists(item_list[i].nameid)))
 			return 13; // item no longer in itemdb
-		if ((int)shop[j].qty != -1 && item_list[i].amount > (int)shop[j].qty)
+		if (shop[j].qty != -1 && item_list[i].amount > shop[j].qty)
 			return 14;  // not enough item amount in shop
 		if (!itemdb_isstackable2(id) && item_list[i].amount > 1) { //Exploit? You can't buy more than 1 of equipment types o.O
 			ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable item %u!\n",
 				sd->status.name, sd->status.account_id, sd->status.char_id, item_list[i].amount, item_list[i].nameid);
 			item_list[i].amount = 1;
 		}
-
-		items[k] += shop[j].value2*item_list[i].amount;
 
 		switch( pc_checkadditem(sd, item_list[i].nameid, item_list[i].amount) ) {
 			case CHKADDITEM_EXIST:
@@ -2332,9 +2329,36 @@ uint8 npc_barter_buylist(struct map_session_data *sd, uint16 n, struct s_npc_bar
 		}
 
 		w += itemdb_weight(item_list[i].nameid)*item_list[i].amount;
+	}
+	for (i = 0; i < n && item_list[i].removeIndex != -1; ++i) {
+		k = item_list[i].removeIndex;
+		if (k < 0 || k >= MAX_INVENTORY)
+			return 11;  // wrong inventory index
+		if (sd->inventory.u.items_inventory[k].nameid != shop[j].value && sd->inventory.u.items_inventory[k].nameid != itemdb_viewid(shop[j].value))
+			return 13;
+		if (sd->inventory.u.items_inventory[k].amount < shop[j].value2*item_list[i].amount)
+			return 14;
+		items[k] += shop[j].value2*item_list[i].amount;
 		w -= itemdb_weight(shop[j].value)*shop[j].value2*item_list[i].amount;
 	}
+	for (i = 0; i < n && item_list[i].removeIndex == -1; ++i) {
+		j = item_list[i].shopIndex;
+		for (int m = 0; m < shop[j].value2; m++) {
+			struct npc_barter_currency *currency = &shop[j].currency[m];
+			ARR_FIND(0, MAX_INVENTORY, k, sd->inventory.u.items_inventory[k].nameid == currency->nameid &&
+				(currency->refine == -1 || sd->inventory.u.items_inventory[k].refine == currency->refine));
+			if (k == MAX_INVENTORY)
+				return 14;
+			if (items[k] > sd->inventory.u.items_inventory[k].amount)
+				return 14;
+			items[k] += currency->amount * item_list[i].amount;
+			w -= itemdb_weight(currency->nameid) * currency->amount * item_list[i].amount;
+		}
+		z += (int64)shop[j].value * item_list[i].amount;
+	}
 
+	if (z > sd->status.zeny)
+		return 3; // Not enough Zeny
 	if( w + sd->weight > sd->max_weight )
 		return 2;	// Too heavy
 	if( pc_inventoryblank(sd) < new_ )
@@ -2346,10 +2370,15 @@ uint8 npc_barter_buylist(struct map_session_data *sd, uint16 n, struct s_npc_bar
 		if (pc_delitem(sd, i, items[i], 0, 6, LOG_TYPE_NPC) != 0)
 			return 11;  // unknown exploit
 	}
+	pc_payzeny(sd, (int)z, LOG_TYPE_NPC, NULL);
 
 	for( i = 0; i < n; ++i ) {
 		t_itemid nameid = item_list[i].nameid;
 		unsigned short amount = item_list[i].amount;
+		j = item_list[i].shopIndex;
+
+		if (shop[j].qty != -1 && shop[j].qty >= amount)
+			shop[j].qty -= amount;
 
 		if (itemdb_type(nameid) == IT_PETEGG)
 			pet_create_egg(sd, nameid);
@@ -2676,11 +2705,23 @@ int npc_unload(struct npc_data* nd, bool single) {
 	if( single && nd->bl.m != -1 )
 		map_remove_questinfo(nd->bl.m, nd);
 
-	if( (nd->subtype == NPCTYPE_SHOP || nd->subtype == NPCTYPE_CASHSHOP || nd->subtype == NPCTYPE_ITEMSHOP || nd->subtype == NPCTYPE_POINTSHOP || nd->subtype == NPCTYPE_MARKETSHOP)) //src check for duplicate shops [Orcao]
+	if ((nd->subtype == NPCTYPE_SHOP || nd->subtype == NPCTYPE_CASHSHOP || nd->subtype == NPCTYPE_ITEMSHOP || nd->subtype == NPCTYPE_POINTSHOP || nd->subtype == NPCTYPE_MARKETSHOP)) { //src check for duplicate shops [Orcao]
+		if(nd->u.shop.shop_item->currency)
+			aFree(nd->u.shop.shop_item->currency);
 		aFree(nd->u.shop.shop_item);
+	}
 	else if( nd->subtype == NPCTYPE_SCRIPT ) {
 		struct s_mapiterator* iter;
 		struct block_list* bl;
+
+		if (nd->u.scr.shop) {
+			if (nd->u.scr.shop->shop_item) {
+				if (nd->u.scr.shop->shop_item->currency)
+					aFree(nd->u.scr.shop->shop_item->currency);
+				aFree(nd->u.scr.shop->shop_item);
+			}
+			aFree(nd->u.scr.shop);
+		}
 
 		if( single )
 			ev_db->foreach(ev_db,npc_unload_ev,nd->exname); //Clean up all events related

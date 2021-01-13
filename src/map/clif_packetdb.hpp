@@ -2476,10 +2476,10 @@
 	parseable_packet( 0x0b4c, 2, clif_parse_dull, 0 );
 #endif
 
-//#if PACKETVER_MAIN_NUM >= 20190904 || PACKETVER_RE_NUM >= 20190904 || PACKETVER_ZERO_NUM >= 20190828
-//	parseable_packet( HEADER_CZ_NPC_EXPANDED_BARTER_PURCHASE, -1, clif_parse_NPCBarterPurchase, 0 );
-//	parseable_packet( HEADER_CZ_NPC_EXPANDED_BARTER_CLOSE, -1, clif_parse_npc_expanded_barter_closed, 0 );
-//#endif
+#if PACKETVER_MAIN_NUM >= 20190904 || PACKETVER_RE_NUM >= 20190904 || PACKETVER_ZERO_NUM >= 20190828
+	parseable_packet( HEADER_CZ_NPC_EXPANDED_BARTER_PURCHASE, -1, clif_parse_NPCBarterPurchase_ex, 0 );
+	parseable_packet( HEADER_CZ_NPC_EXPANDED_BARTER_CLOSE, sizeof( HEADER_CZ_NPC_EXPANDED_BARTER_CLOSE ), clif_parse_NPCBarterClosed_ex, 0 );
+#endif
 
 #if PACKETVER_MAIN_NUM >= 20190116 || PACKETVER_RE_NUM >= 20190116 || PACKETVER_ZERO_NUM >= 20181226
 	parseable_packet( HEADER_CZ_NPC_BARTER_PURCHASE, -1, clif_parse_NPCBarterPurchase, 0 );

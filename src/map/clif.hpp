@@ -612,6 +612,7 @@ void clif_selllist(struct map_session_data *sd);	//self
 void clif_selllist_filter(struct map_session_data *sd, int shopid, const char *filter);	//self
 void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd);
 void clif_npc_barter_open(struct map_session_data *sd, struct npc_data *nd);
+void clif_npc_barter_open_ex(struct map_session_data *sd, struct npc_data *nd);
 void clif_parse_NPCMarketClosed(int fd, struct map_session_data *sd);
 void clif_parse_NPCMarketPurchase(int fd, struct map_session_data *sd);
 void clif_scriptmes(struct map_session_data *sd, int npcid, const char *mes);	//self
