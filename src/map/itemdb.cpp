@@ -1141,7 +1141,7 @@ static int itemdb_combo_split_atoi (char *str, int *val) {
 /**
  * <combo{:combo{:combo:{..}}}>,<{ script }>
  **/
-static bool itemdb_combos_contrast(struct item_data * id, const int *item, int retcount, int *idx) {
+bool itemdb_combos_contrast(struct item_data * id, const int *item, int retcount, int *idx) {
 	int i, m, n, count = 0, itemid;
 	
 	*(idx) = 0;
