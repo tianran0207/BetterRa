@@ -3794,7 +3794,7 @@ struct PACKET_ZC_NPC_EXPANDED_BARTER_OPEN_sub {
 	uint16 nameid;
 #endif
 	uint16 type;
-	uint32 amount;
+	int32 amount;
 	uint32 weight;
 	uint32 index;
 	uint32 zeny;

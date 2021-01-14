@@ -31930,19 +31930,18 @@ BUILDIN_FUNC(startsellitem)
 	int value2 = 0;
 	int qty = 0;
 
-	if (!(nd = map_id2nd(st->oid))) {
-		ShowWarning("buildin_startsellitem: trying to run without a proper NPC!\n");
-		return SCRIPT_CMD_FAILURE;
-	} else if (!(it = itemdb_exists(id))) {
-		ShowWarning("buildin_startsellitem: unknown item id '%d'!\n", id);
+	if (!(nd = map_id2nd(st->oid)) || nd->subtype != NPCTYPE_SCRIPT) {
+		ShowError("buildin_startsellitem: trying to run without a script NPC!\n");
 		return SCRIPT_CMD_FAILURE;
 	}
-
-	if (nd->subtype != NPCTYPE_SCRIPT) {
-		ShowWarning("script_startsellitem: can works only for script");
+	if (nd->u.scr.shop->disable) {
+		ShowError("script_startsellitem: the bartershop is already in editing state!\n");
 		return SCRIPT_CMD_FAILURE;
 	}
-
+	if (!(it = itemdb_exists(id))) {
+		ShowError("buildin_startsellitem: unknown item id '%d'!\n", id);
+		return SCRIPT_CMD_FAILURE;
+	}
 	if ((qty = script_getnum(st, 3)) <= 0 && qty != -1) {
 		ShowError("buildin_startsellitem: invalid 'qty' for expanded barter type shop!\n");
 		return SCRIPT_CMD_FAILURE;
@@ -31973,15 +31972,18 @@ BUILDIN_FUNC(startsellitem)
 BUILDIN_FUNC(sellitemcurrency)
 {
 	struct npc_data *nd;
-	if ((nd = map_id2nd(st->oid)) == NULL) {
-		ShowWarning("buildin_sellitemcurrency: trying to run without a proper NPC!\n");
+	if ((nd = map_id2nd(st->oid)) == NULL || nd->u.scr.shop == NULL || nd->subtype != NPCTYPE_SCRIPT) {
+		ShowWarning("buildin_sellitemcurrency: trying to run without a bartershop NPC!\n");
 		return SCRIPT_CMD_FAILURE;
 	}
-	if (nd->u.scr.shop == NULL || nd->subtype != NPCTYPE_SCRIPT || !nd->u.scr.shop->disable) {
-		ShowWarning("buildin_sellitemcurrency: this command can be used only affter 'startsellitem' function!\n");
+	if (!nd->u.scr.shop->disable) {
+		ShowWarning("buildin_sellitemcurrency: the bartershop is not in editing state, please use 'startsellitem' script command!\n");
 		return SCRIPT_CMD_FAILURE;
 	}
-
+	if (!itemdb_exists(script_getnum(st, 2))) {
+		ShowError("buildin_sellitemcurrency: unknown item id '%d'!\n", script_getnum(st, 2));
+		return SCRIPT_CMD_FAILURE;
+	}
 	struct npc_item_list *item = &nd->u.scr.shop->shop_item[nd->u.scr.shop->count-1];
 	RECREATE(item->currency, struct npc_barter_currency, item->value2 + 1);
 
@@ -31994,12 +31996,12 @@ BUILDIN_FUNC(sellitemcurrency)
 BUILDIN_FUNC(endsellitem)
 {
 	struct npc_data *nd;
-	if ((nd = map_id2nd(st->oid)) == NULL) {
-		ShowWarning("buildin_sellitemcurrency: trying to run without a proper NPC!\n");
+	if ((nd = map_id2nd(st->oid)) == NULL || nd->u.scr.shop == NULL || nd->subtype != NPCTYPE_SCRIPT) {
+		ShowWarning("buildin_endsellitem: trying to run without a bartershop NPC!\n");
 		return SCRIPT_CMD_FAILURE;
 	}
-	if (nd->u.scr.shop == NULL || nd->subtype != NPCTYPE_SCRIPT || !nd->u.scr.shop->disable) {
-		ShowWarning("buildin_sellitemcurrency: this command can be used only affter 'startsellitem' function!\n");
+	if (!nd->u.scr.shop->disable) {
+		ShowWarning("buildin_endsellitem: the bartershop is not in editing state, please use 'startsellitem' script command!\n");
 		return SCRIPT_CMD_FAILURE;
 	}
 	nd->u.scr.shop->disable = false;
@@ -32011,12 +32013,12 @@ BUILDIN_FUNC(bartershop)
 	struct map_session_data* sd;
 	struct npc_data *nd;
 	
-	if (!script_rid2sd(sd))
+	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
 	int id = script_hasdata(st, 2) ? script_getnum(st, 2) : st->oid;
 	if ((nd = map_id2nd(id)) == NULL || !nd->u.scr.shop) {
-		ShowWarning("buildin_bartershop: trying to run without a proper NPC!\n");
+		ShowWarning("buildin_bartershop: trying to run without a barter NPC!\n");
 		return SCRIPT_CMD_FAILURE;
 	}
 	if (nd->u.scr.shop->disable) {
@@ -33275,7 +33277,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(startsellitem, "iii"),
 	BUILDIN_DEF(sellitemcurrency, "ii?"),
 	BUILDIN_DEF(endsellitem, ""),
-	BUILDIN_DEF(bartershop, "?"),
+	BUILDIN_DEF(bartershop, "??"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),
