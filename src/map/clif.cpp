@@ -22381,6 +22381,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		pc_setreg(sd, add_str("@refine_idx"), index);
 		pc_setreg(sd, add_str("@refine_nameid"), id->nameid);
 		pc_setreg(sd, add_str("@refine_rate"), materials[i].chance);
+		pc_setreg(sd, add_str("@refine_zeny"), materials[i].cost.zeny);
 		pc_setreg(sd, add_str("@refine_cost"), materials[i].cost.nameid);
 		pc_setreg(sd, add_str("@refine_blessing"), (use_blacksmith_blessing ? materials[REFINEUI_MAT_BLESSING].blessing : 0));
 		npc_script_event_atonce(sd, NPCE_REFINEUIFILTER);
@@ -22438,7 +22439,6 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		pc_setreg(sd, add_str("@refine_nameid"), id->nameid);
 		pc_setreg(sd, add_str("@refine_success"), success ? 1 : 0);
 		pc_setreg(sd, add_str("@refine_blessing"), use_blacksmith_blessing ? 1 : 0);
-		pc_setreg(sd, add_str("@refine_refine"), isboom ? -1 : sd->inventory.u.items_inventory[index].refine);
 		npc_script_event_atonce(sd, NPCE_REFINEUIEVENT);
 	}
 #endif
