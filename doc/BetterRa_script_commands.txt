@@ -3199,6 +3199,42 @@ refineui_result <背包位置序号>,<动画类型>,<精炼后等级>;
 
 ----------------------------------------
 
+*getitemcombo(<物品ID>,<索引>,<返回数组>{,<角色ID>});
+
+返回物品所绑定的套装属性
+
+注意:
+	该指令不会重置返回数组, 请在传入返回数组时重置该数组
+
+返回值:
+	数组中所保存的物品数量
+	
+例子:
+	// 运行与物品ID为24090绑定的所有套装效果
+	while(getitemcombo(24090, .@idx++, .@combo)){
+		.@combo_str$ = "";
+		for (.@i = 0; .@i < getarraysize(.@combo); .@i++)
+			.@combo_str$ += ""+.@combo[.@i]+":";
+		dispbottom .@combo_str$;
+		runcomboscript .@combo;
+		deletearray .@combo;
+	}
+
+----------------------------------------
+
+*runcomboscript <套装数组>{,<角色ID>};
+
+运行套装数组所保存的套装效果
+
+返回值:
+	运行成功返回 1 失败返回 0
+
+例子:
+	setarray .@combo[0],24090,24091,24092;
+	runcomboscript .@combo;
+
+----------------------------------------
+
 *rfifo_int <读取位置>,<字节数>;
 
 当 OnPCSocketRecvFilter 事件接收到封包时, 可以用本指令获取‘接收封包’中对应位置的数字数据.

@@ -30271,6 +30271,70 @@ BUILDIN_FUNC(runitemscript)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(runcomboscript)
+{
+	int items[MAX_ITEMS_PER_COMBO], idx;
+	struct map_session_data *sd;
+	struct script_data *data;
+	int id, i, array_size;
+	struct reg_db *ref = NULL;
+	struct item_data *item;
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	data = script_getdata(st, 2);
+	ref = reference_getref(data);
+	id = reference_getid(data);
+
+	if (!data_isreference(data) || is_string_variable(reference_getname(data))) {
+		ShowError("buildin_runcomboscript: 1th parm is not a int variable\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	array_size = script_array_highest_key(st, sd, reference_getname(data), ref);
+	for (i = 0; i < array_size; ++i)
+		items[i] = static_cast<int>(get_val2_num(st, reference_uid(id, i), ref));
+
+	item = itemdb_exists(items[0]);
+	if (item && itemdb_combos_contrast(item, items, array_size, &idx) && item->combos[idx]->script) {
+		run_script(item->combos[idx]->script, 0, sd->bl.id, 0);
+		script_pushint(st, 1);
+	}else
+		script_pushint(st, 0);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getitemcombo)
+{
+	struct item_data *item = itemdb_exists(script_getnum(st, 2));
+	struct map_session_data *sd = NULL;
+	int idx = script_getnum(st, 3), id;
+	struct script_data *data = script_getdata(st, 4);
+	struct reg_db *ref = NULL;
+	const char *name;
+
+	name = reference_getname(data);
+	if (!data_isreference(data) || is_string_variable(name)) {
+		ShowError("buildin_getitemcombo: 3th parm is not a int variable\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	if (not_server_variable(*name) && !script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!item || idx < 0 || idx >= item->combos_count) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	id = reference_getid(data);
+	ref = reference_getref(data);
+	for (int i = 0; i < item->combos[idx]->count; i++)
+		set_reg_num(st, sd, reference_uid(id, i), name, item->combos[idx]->nameid[i], ref);
+
+	script_pushint(st, item->combos[idx]->count);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(pcdead)
 {
 	struct map_session_data *sd;
@@ -32977,6 +33041,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(unitatkeventmark, "unitatkedeventmark", "ii"),
 	BUILDIN_DEF(setquesttime, "ii?"),
 	BUILDIN_DEF(runitemscript, "i??"),
+	BUILDIN_DEF(runcomboscript, "r?"),
+	BUILDIN_DEF(getitemcombo, "iir?"),
 	BUILDIN_DEF(pcdead, "?"),
 	BUILDIN_DEF2(pcdead, "pcisdead", "?"),
 	BUILDIN_DEF(unitdamage, "ii?"),
