@@ -3145,7 +3145,7 @@ struct PACKET_ZC_NPC_BARTER_OPEN_sub {
 	uint16 nameid;
 #endif
 	uint8 type;
-	uint32 amount;
+	int32 amount;
 #if PACKETVER_MAIN_NUM >= 20181121 || PACKETVER_RE_NUM >= 20180704 || PACKETVER_ZERO_NUM >= 20181114
 	uint32 currencyNameid;
 #else

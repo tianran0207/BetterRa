@@ -2476,6 +2476,16 @@
 	parseable_packet( 0x0b4c, 2, clif_parse_dull, 0 );
 #endif
 
+#if PACKETVER_MAIN_NUM >= 20190904 || PACKETVER_RE_NUM >= 20190904 || PACKETVER_ZERO_NUM >= 20190828
+	parseable_packet( HEADER_CZ_NPC_EXPANDED_BARTER_PURCHASE, -1, clif_parse_NPCBarterPurchase_ex, 0 );
+	parseable_packet( HEADER_CZ_NPC_EXPANDED_BARTER_CLOSE, sizeof( HEADER_CZ_NPC_EXPANDED_BARTER_CLOSE ), clif_parse_NPCBarterClosed_ex, 0 );
+#endif
+
+#if PACKETVER_MAIN_NUM >= 20190116 || PACKETVER_RE_NUM >= 20190116 || PACKETVER_ZERO_NUM >= 20181226
+	parseable_packet( HEADER_CZ_NPC_BARTER_PURCHASE, -1, clif_parse_NPCBarterPurchase, 0 );
+	parseable_packet( HEADER_CZ_NPC_BARTER_CLOSE, sizeof( PACKET_CZ_NPC_BARTER_CLOSE ), clif_parse_NPCBarterClosed, 0 );
+#endif
+
 #if PACKETVER >= 20191224
 	parseable_packet( HEADER_CZ_SE_CASHSHOP_OPEN2, sizeof( struct PACKET_CZ_SE_CASHSHOP_OPEN2 ), clif_parse_cashshop_open_request, 0 );
 #endif
