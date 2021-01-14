@@ -31934,7 +31934,7 @@ BUILDIN_FUNC(startsellitem)
 		ShowError("buildin_startsellitem: trying to run without a script NPC!\n");
 		return SCRIPT_CMD_FAILURE;
 	}
-	if (nd->u.scr.shop->disable) {
+	if (nd->u.scr.shop && nd->u.scr.shop->disable) {
 		ShowError("script_startsellitem: the bartershop is already in editing state!\n");
 		return SCRIPT_CMD_FAILURE;
 	}
@@ -31976,7 +31976,7 @@ BUILDIN_FUNC(sellitemcurrency)
 		ShowWarning("buildin_sellitemcurrency: trying to run without a bartershop NPC!\n");
 		return SCRIPT_CMD_FAILURE;
 	}
-	if (!nd->u.scr.shop->disable) {
+	if (!nd->u.scr.shop || !nd->u.scr.shop->disable) {
 		ShowWarning("buildin_sellitemcurrency: the bartershop is not in editing state, please use 'startsellitem' script command!\n");
 		return SCRIPT_CMD_FAILURE;
 	}
@@ -32000,7 +32000,7 @@ BUILDIN_FUNC(endsellitem)
 		ShowWarning("buildin_endsellitem: trying to run without a bartershop NPC!\n");
 		return SCRIPT_CMD_FAILURE;
 	}
-	if (!nd->u.scr.shop->disable) {
+	if (!nd->u.scr.shop || !nd->u.scr.shop->disable) {
 		ShowWarning("buildin_endsellitem: the bartershop is not in editing state, please use 'startsellitem' script command!\n");
 		return SCRIPT_CMD_FAILURE;
 	}
