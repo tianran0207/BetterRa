@@ -30362,6 +30362,70 @@ BUILDIN_FUNC(runitemscript)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(runcomboscript)
+{
+	int items[MAX_ITEMS_PER_COMBO], idx;
+	struct map_session_data *sd;
+	struct script_data *data;
+	int id, i, array_size;
+	struct reg_db *ref = NULL;
+	struct item_data *item;
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	data = script_getdata(st, 2);
+	ref = reference_getref(data);
+	id = reference_getid(data);
+
+	if (!data_isreference(data) || is_string_variable(reference_getname(data))) {
+		ShowError("buildin_runcomboscript: 1th parm is not a int variable\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	array_size = script_array_highest_key(st, sd, reference_getname(data), ref);
+	for (i = 0; i < array_size; ++i)
+		items[i] = static_cast<int>(get_val2_num(st, reference_uid(id, i), ref));
+
+	item = itemdb_exists(items[0]);
+	if (item && itemdb_combos_contrast(item, items, array_size, &idx) && item->combos[idx]->script) {
+		run_script(item->combos[idx]->script, 0, sd->bl.id, 0);
+		script_pushint(st, 1);
+	}else
+		script_pushint(st, 0);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getitemcombo)
+{
+	struct item_data *item = itemdb_exists(script_getnum(st, 2));
+	struct map_session_data *sd = NULL;
+	int idx = script_getnum(st, 3), id;
+	struct script_data *data = script_getdata(st, 4);
+	struct reg_db *ref = NULL;
+	const char *name;
+
+	name = reference_getname(data);
+	if (!data_isreference(data) || is_string_variable(name)) {
+		ShowError("buildin_getitemcombo: 3th parm is not a int variable\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	if (not_server_variable(*name) && !script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!item || idx < 0 || idx >= item->combos_count) {
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+	id = reference_getid(data);
+	ref = reference_getref(data);
+	for (int i = 0; i < item->combos[idx]->count; i++)
+		set_reg_num(st, sd, reference_uid(id, i), name, item->combos[idx]->nameid[i], ref);
+
+	script_pushint(st, item->combos[idx]->count);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(pcdead)
 {
 	struct map_session_data *sd;
@@ -31911,6 +31975,151 @@ BUILDIN_FUNC(getskillsc)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(refineui_result)
+{
+	struct map_session_data* sd = NULL;
+
+	if (!script_rid2sd(sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (!sd->state.halt[NPCE_REFINEUIFILTER]) {
+		ShowError("buildin_refineui_result: The function must run in OnPCRefineUIFilter with halt the event.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	int idx = script_getnum(st, 2);
+	int type = script_getnum(st, 3);
+
+	if (idx > -1 && idx < MAX_INVENTORY && sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].amount > 0) {
+		struct item *item = &sd->inventory.u.items_inventory[idx];
+		struct item_data *id = sd->inventory_data[idx];
+
+		item->refine = cap_value(script_getnum(st, 4), 0, MAX_REFINE);
+		clif_refine(sd->fd, type, idx, item->refine);
+		if (type == 0) {
+			clif_misceffect(&sd->bl, 3);
+			achievement_update_objective(sd, AG_REFINE_SUCCESS, 2, id->wlv, item->refine);
+			clif_refineui_info(sd, idx);
+		}
+		else {
+			clif_misceffect(&sd->bl, 2);
+			if (type == 1)
+				pc_delitem(sd, idx, 1, 0, 0, LOG_TYPE_CONSUME);
+			else
+				clif_refineui_info(sd, idx);
+			achievement_update_objective(sd, AG_REFINE_FAIL, 1, 1);
+		}
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(startsellitem)
+{
+	struct npc_data *nd;
+	struct item_data *it;
+	int i = 0, id = script_getnum(st,2);
+	int value2 = 0;
+	int qty = 0;
+
+	if (!(nd = map_id2nd(st->oid)) || nd->subtype != NPCTYPE_SCRIPT) {
+		ShowError("buildin_startsellitem: trying to run without a script NPC!\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	if (nd->u.scr.shop && nd->u.scr.shop->disable) {
+		ShowError("script_startsellitem: the bartershop is already in editing state!\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	if (!(it = itemdb_exists(id))) {
+		ShowError("buildin_startsellitem: unknown item id '%d'!\n", id);
+		return SCRIPT_CMD_FAILURE;
+	}
+	if ((qty = script_getnum(st, 3)) <= 0 && qty != -1) {
+		ShowError("buildin_startsellitem: invalid 'qty' for expanded barter type shop!\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	if (!nd->u.scr.shop)
+		CREATE(nd->u.scr.shop, struct npc_barter_shop, 1);
+
+	int value = script_hasdata(st, 4) ? script_getnum(st, 4) : it->value_buy;
+	if (value == -1)
+		value = it->value_buy;
+
+	struct npc_barter_shop *shop = nd->u.scr.shop;
+	RECREATE(shop->shop_item, struct npc_item_list, shop->count + 1);
+
+	shop->shop_item[shop->count].nameid = it->nameid;
+	shop->shop_item[shop->count].value = value;
+	shop->shop_item[shop->count].value2 = 0;
+	shop->shop_item[shop->count].qty = qty;
+	shop->shop_item[shop->count].currency = NULL;
+	shop->count++;
+
+	shop->disable = true;
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(sellitemcurrency)
+{
+	struct npc_data *nd;
+	if ((nd = map_id2nd(st->oid)) == NULL || nd->u.scr.shop == NULL || nd->subtype != NPCTYPE_SCRIPT) {
+		ShowWarning("buildin_sellitemcurrency: trying to run without a bartershop NPC!\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	if (!nd->u.scr.shop || !nd->u.scr.shop->disable) {
+		ShowWarning("buildin_sellitemcurrency: the bartershop is not in editing state, please use 'startsellitem' script command!\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	if (!itemdb_exists(script_getnum(st, 2))) {
+		ShowError("buildin_sellitemcurrency: unknown item id '%d'!\n", script_getnum(st, 2));
+		return SCRIPT_CMD_FAILURE;
+	}
+	struct npc_item_list *item = &nd->u.scr.shop->shop_item[nd->u.scr.shop->count-1];
+	RECREATE(item->currency, struct npc_barter_currency, item->value2 + 1);
+
+	item->currency[item->value2].nameid = script_getnum(st, 2);
+	item->currency[item->value2].amount = script_getnum(st, 3);
+	item->currency[item->value2].refine = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
+	item->value2++;
+	return SCRIPT_CMD_SUCCESS;
+}
+BUILDIN_FUNC(endsellitem)
+{
+	struct npc_data *nd;
+	if ((nd = map_id2nd(st->oid)) == NULL || nd->u.scr.shop == NULL || nd->subtype != NPCTYPE_SCRIPT) {
+		ShowWarning("buildin_endsellitem: trying to run without a bartershop NPC!\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	if (!nd->u.scr.shop || !nd->u.scr.shop->disable) {
+		ShowWarning("buildin_endsellitem: the bartershop is not in editing state, please use 'startsellitem' script command!\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	nd->u.scr.shop->disable = false;
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(bartershop)
+{
+	struct map_session_data* sd;
+	struct npc_data *nd;
+	
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	int id = script_hasdata(st, 2) ? script_getnum(st, 2) : st->oid;
+	if ((nd = map_id2nd(id)) == NULL || !nd->u.scr.shop) {
+		ShowWarning("buildin_bartershop: trying to run without a barter NPC!\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	if (nd->u.scr.shop->disable) {
+		ShowWarning("buildin_bartershop: the bartershop is being edited!\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+	clif_npc_barter_open_ex(sd, nd);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -33031,6 +33240,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(unitatkeventmark, "unitatkedeventmark", "ii"),
 	BUILDIN_DEF(setquesttime, "ii?"),
 	BUILDIN_DEF(runitemscript, "i??"),
+	BUILDIN_DEF(runcomboscript, "r?"),
+	BUILDIN_DEF(getitemcombo, "iir?"),
 	BUILDIN_DEF(pcdead, "?"),
 	BUILDIN_DEF2(pcdead, "pcisdead", "?"),
 	BUILDIN_DEF(unitdamage, "ii?"),
@@ -33154,6 +33365,11 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(pcjoinchat, "i??"),
 	BUILDIN_DEF(unitblown, "iii?"),
 	BUILDIN_DEF(unitmove, "iii"),
+	BUILDIN_DEF(refineui_result, "iii"),
+	BUILDIN_DEF(startsellitem, "iii"),
+	BUILDIN_DEF(sellitemcurrency, "ii?"),
+	BUILDIN_DEF(endsellitem, ""),
+	BUILDIN_DEF(bartershop, "??"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),

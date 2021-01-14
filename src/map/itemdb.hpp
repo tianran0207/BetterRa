@@ -1105,6 +1105,7 @@ bool itemdb_isNoEquip(struct item_data *id, uint16 m);
 bool itemdb_isNoFunc(struct map_session_data *sd, struct item_data *id, int pos = -1);
 
 s_item_combo *itemdb_combo_exists(uint32 combo_id);
+bool itemdb_combos_contrast(struct item_data * id, const int *item, int retcount, int *idx);
 
 struct s_item_group_db *itemdb_group_exists(unsigned short group_id);
 bool itemdb_group_item_exists(unsigned short group_id, t_itemid nameid);

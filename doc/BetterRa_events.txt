@@ -655,8 +655,12 @@ BetterRa 在官方的基础上做了以下改进:
 	@refine_idx			精炼物品的在背包中的序列
 	@refine_nameid		精炼物品的物品ID
 	@refine_rate		精炼概率（可以通过修改这个数值更改精炼概率）
+	@refine_zeny		精炼时消耗的zeny
 	@refine_cost		精炼时消耗的精炼道具ID
 	@refine_blessing	精炼是否使用祝福矿石
+	
+注意:
+	可以通过脚本指令 refine_result 来自定义精炼UI
 	
 中断说明: 
 	中断后服务端会忽略本次精炼请求
@@ -670,8 +674,9 @@ BetterRa 在官方的基础上做了以下改进:
 参数说明:
 	@refine_idx			精炼物品的在背包中的序列
 	@refine_nameid		精炼物品的物品ID
+	@refine_blessing	精炼是否使用祝福矿石
 	@refine_success     精炼成功返回 1 否则返回 0
-
+	
 ---------------------------------------
 
 *OnPCCashShopOpenFilter:
@@ -1184,7 +1189,7 @@ BetterRa 在官方的基础上做了以下改进:
 	当BOT接收到指定请求或聊天信息时触发该事件
 
 参数说明:
-	@bot_recv_type     收到信息的类型(1:公开聊天 2:队伍聊天 3:公会聊天 4:私人聊天 5:队伍申请 6:公会申请 7:交易申请 8:交易锁定)
+	@bot_recv_type     收到信息的类型(0: 寻路失败 1:公开聊天 2:队伍聊天 3:公会聊天 4:私人聊天 5:队伍申请 6:公会申请 7:交易申请 8:交易锁定)
 	@bot_recv_target   收到来该AID玩家的信息
 	
 	当收到聊天信息时, 返回对方发送的聊天信息

@@ -1861,6 +1861,37 @@ static int itemdb_combo_split_atoi (char *str, t_itemid *val) {
 	return i;
 }
 
+/**
+ * <combo{:combo{:combo:{..}}}>,<{ script }>
+ **/
+bool itemdb_combos_contrast(struct item_data * id, const int *item, int retcount, int *idx) {
+	int i, m, n, count = 0, itemid;
+	
+	*(idx) = 0;
+	if (id->combos == NULL)
+		return false;
+
+	
+	for (i = 0; i < id->combos_count; i++) {
+		
+		if (id->combos[i]->count != retcount)
+			continue;
+
+		count = 0;
+		for (m = 0; m < id->combos[i]->count; m++) {
+			ARR_FIND(0, retcount, n, id->combos[i]->nameid[m] == (itemid = *(item + n)));
+			if (n < retcount)
+				count++;
+		}
+		if (count == retcount) {
+			*(idx) = i;
+			return true;
+		}
+			
+	}
+	return false;
+}
+
 bool itemdb_read_combos_line(const char *path, int lines, char *line, uint32 *number) {
 	char *str[2], *p;
 

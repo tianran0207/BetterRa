@@ -611,6 +611,8 @@ void clif_buylist(struct map_session_data *sd, struct npc_data *nd);	//self
 void clif_selllist(struct map_session_data *sd);	//self
 void clif_selllist_filter(struct map_session_data *sd, int shopid, const char *filter);	//self
 void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd);
+void clif_npc_barter_open(struct map_session_data *sd, struct npc_data *nd);
+void clif_npc_barter_open_ex(struct map_session_data *sd, struct npc_data *nd);
 void clif_parse_NPCMarketClosed(int fd, struct map_session_data *sd);
 void clif_parse_NPCMarketPurchase(int fd, struct map_session_data *sd);
 void clif_scriptmes(struct map_session_data *sd, int npcid, const char *mes);	//self
@@ -1158,6 +1160,8 @@ void clif_attendence_response( struct map_session_data *sd, int32 data );
 void clif_weight_limit( struct map_session_data* sd );
 
 void clif_guild_storage_log( struct map_session_data* sd, std::vector<struct guild_log_entry>& log, enum e_guild_storage_log result );
+
+void clif_refineui_info(struct map_session_data* sd, uint16 index);
 
 void clif_camerainfo( struct map_session_data* sd, bool show, float range = 0.0f, float rotation = 0.0f, float latitude = 0.0f );
 
