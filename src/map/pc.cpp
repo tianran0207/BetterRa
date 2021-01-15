@@ -15061,7 +15061,7 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap)
 		if (sc && (sc->data[SC_HIDING] || sc->data[SC_CLOAKING] || sc->data[SC_TRICKDEAD] || sc->data[SC_CLOAKINGEXCEED]))
 			return 0;
 
-		if (!path_search_long(NULL,sd->bl.m,sd->bl.x,sd->bl.y,bl->x,bl->y,CELL_CHKPASS)) // Count walk path cells
+		if (!path_search(NULL,sd->bl.m,sd->bl.x,sd->bl.y,bl->x,bl->y,1,CELL_CHKNOPASS)) // Count walk path cells
 			return 1;
 
 		(*target) = bl;
@@ -15372,6 +15372,7 @@ static bool pcbot_nocond_event(struct bot_data *bd, t_tick tick)
 			clif_parse_LoadEndAck(0, sd);
 		bd->state.next_acttime = tick + 2000;
 		bd->state.enemy_count = -1;
+		bd->target_id = 0;
 		return true;
 	}
 
