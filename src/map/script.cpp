@@ -27858,10 +27858,6 @@ static int buildin_unitskillwide_sub2(int tid, t_tick tick, int id, intptr_t dat
 
 BUILDIN_FUNC(unitskilltowide)
 {
-#ifndef SCRIPT_UNITSKILLTOWIDE
-	not_free(script_getfuncname(st));
-	return SCRIPT_CMD_FAILURE;
-#endif 
 	int x, y, step, range, delay, steplen = 0, type, reallen;
 	uint16 skill_id, skill_lv;
 	struct block_list* bl;
@@ -27958,10 +27954,6 @@ int buildin_unitskilltoAOE_sub(struct block_list *bl, va_list ap)
 
 BUILDIN_FUNC(unitskilltoAOE)
 {
-#ifndef BONUS_SKILL_AOE
-	not_free(script_getfuncname(st));
-	return SCRIPT_CMD_FAILURE;
-#endif 
 	int range, maxcount, count = 0;
 	uint16 skill_id, skill_lv;
 	struct block_list* bl;

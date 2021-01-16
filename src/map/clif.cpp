@@ -5608,6 +5608,20 @@ void clif_skillinfoblock(struct map_session_data *sd)
  * Server tells client 'sd' to add skill of id 'id' to it's skill tree (e.g. with Ice Falcion item)
  **/
 
+void clif_skillchange(struct map_session_data *sd, struct s_skill *skill)
+{
+	int i, fd = sd->fd;
+	for (i = 0; i < MAX_SKILL; i++) {
+		if (!sd->status.skill[i].id && skill[i].id) {
+			WFIFOHEAD(fd, packet_len(0x441));
+			WFIFOW(fd, 0) = 0x441;
+			WFIFOW(fd, 2) = skill[i].id;
+			WFIFOSET(fd, packet_len(0x441));
+		}
+	}
+	clif_skillinfoblock(sd);
+}
+
 /// Adds new skill to the skill tree (ZC_ADD_SKILL).
 /// 0111 <skill id>.W <type>.L <level>.W <sp cost>.W <attack range>.W <skill name>.24B <upgradable>.B
 void clif_addskill(struct map_session_data *sd, int skill_id)

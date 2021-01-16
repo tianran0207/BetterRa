@@ -147,7 +147,6 @@
 	#define BONUS_SKILL_NO_CAST             // 忽略技能消耗
 	#define BONUS_STATUS_ADD_BONUS          // 当获得状态时增加新的bonus
 	#define BONUS_ADD_STATUS_VAL            // 赋予状态时状态参数累加
-	#define SCRIPT_UNITSKILLTOWIDE          // 技能扩散
 	#define SCRIPT_ROULETTE                 // 转盘规则
 	#define SCRIPT_MAGICSHIELD              // 魔法护盾
 	#define C_UTF8_CODE                     // 支持UTF8编码文件
