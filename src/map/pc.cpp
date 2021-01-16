@@ -8938,7 +8938,7 @@ int pc_allskillup(struct map_session_data *sd)
 			std::shared_ptr<s_skill_db> skill = skill_db.find(sk_id);
 
 			if (
-				(skill->inf2[INF2_ISQUEST] && !battle_config.quest_skill_learn) ||
+				//(skill->inf2[INF2_ISQUEST] && !battle_config.quest_skill_learn) ||
 				((skill->inf2[INF2_ISWEDDING] || skill->inf2[INF2_ISSPIRIT])) ||
 				sk_id == SG_DEVIL
 			)
