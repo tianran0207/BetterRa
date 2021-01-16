@@ -1338,7 +1338,7 @@ extern char verification_act;
 void not_free(const char *name);
 int map_checknear(struct block_list* bl, int range, int cell);
 bool http_get(const char *url, int timeout, bool forscript, bool loadfile, int num, int retry);
-bool BetterRA_Log(const char* filename, struct map_session_data *sd, char *text, bool crypt, int type = 0);
+bool BetterRA_Log(const char* filename, struct map_session_data *sd, char *text, int type = 0);
 void map_line(void(*func)(int, int, void*), int x1, int y1, int x2, int y2, void* data);
 void map_circle(void(*func)(int, int, void*), int xc, int yc, int r, void *data);
 
