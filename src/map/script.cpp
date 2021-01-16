@@ -30364,10 +30364,10 @@ BUILDIN_FUNC(runitemscript)
 
 BUILDIN_FUNC(runcomboscript)
 {
-	int items[MAX_ITEMS_PER_COMBO], idx;
+	t_itemid items[MAX_ITEMS_PER_COMBO];
 	struct map_session_data *sd;
 	struct script_data *data;
-	int id, i, array_size;
+	int id, i, array_size, idx;
 	struct reg_db *ref = NULL;
 	struct item_data *item;
 
@@ -30419,15 +30419,11 @@ BUILDIN_FUNC(getitemcombo)
 	}
 	id = reference_getid(data);
 	ref = reference_getref(data);
-	for (const auto &it : item->combos) {
-		if (idx--)
-			continue;
-		for (const auto nameid : it->nameid)
-			set_reg_num(st, sd, reference_uid(id, i++), name, item->combos[idx]->nameid[i], ref);
-		break;
-	}
 
-	script_pushint(st, i-1);
+	for (const auto nameid : item->combos[idx]->nameid)
+		set_reg_num(st, sd, reference_uid(id, i++), name, nameid, ref);
+
+	script_pushint(st, item->combos[idx]->nameid.size());
 	return SCRIPT_CMD_SUCCESS;
 }
 

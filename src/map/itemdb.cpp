@@ -1864,21 +1864,20 @@ static int itemdb_combo_split_atoi (char *str, t_itemid *val) {
 /**
  * <combo{:combo{:combo:{..}}}>,<{ script }>
  **/
-bool itemdb_combos_contrast(struct item_data * id, const int *item, int retcount, int *idx) {
-	int v, idx_ = 0;
-	
-	for (const auto &it : id->combos) {
+bool itemdb_combos_contrast(struct item_data * id, t_itemid *item, int retcount, int *idx) {
+	int v;
+
+	for (int i = 0; i < id->combos.size(); i++) {
 		v = 0;
-		for (const auto nameid : it->nameid) {
+		for (const auto nameid : id->combos[i]->nameid) {
 			if (v < retcount && nameid != item[v])
 				break;
 			v++;
 		}
 		if (v == retcount) {
-			*(idx) = idx_;
+			*(idx) = i;
 			return true;
 		}
-		idx_++;
 	}
 	return false;
 }
@@ -1946,20 +1945,12 @@ bool itemdb_read_combos_line(const char *path, int lines, char *line, uint32 *nu
 		if (battle_config.combo_mode == 0)
 			return true;
 		else if (battle_config.combo_mode == 2) {
-			for (const auto &it : id->combos) {
-				v = 0;
-				for (const auto nameid : it->nameid) {
-					if (v < retcount && nameid != items[v])
-						break;
-					v++;
-				}
-				if (v == retcount) {
-					if (it->script)
-						script_free_code(it->script);
-					it->script = parse_script(str[1], path, lines, 0);
-				}
+			if (itemdb_combos_contrast(id, items, retcount, &v)) {
+				if (id->combos[v]->script)
+					script_free_code(id->combos[v]->script);
+				id->combos[v]->script = parse_script(str[1], path, lines, 0);
+				return true;
 			}
-			return true;
 		}
 
 		// Create combo data
