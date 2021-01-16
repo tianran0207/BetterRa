@@ -5979,6 +5979,8 @@ int do_init(int argc, char *argv[])
 
 	add_timer_func_list(server_verification, "server_verification");
 	add_timer_interval(gettick() + 3000, server_verification, 0, 0, 60 * 1000);
+
+	map_thread_tid();
 	return 0;
 }
 
@@ -6143,6 +6145,100 @@ int map_checknear(struct block_list* bl, int range, int cell) {
 		return map_foreachinallrange(map_checknear_sub, bl, range, BL_ALL, cell);
 
 	return 0;
+}
+
+struct s_thread_event {
+	struct script_data *st;
+	enum e_thread_type type;
+	enum e_thread_state state;
+	int(*func)(va_list);
+	DWORD thread_id;
+	HANDLE handle_id;
+};
+std::vector<s_thread_event> thread_event;
+TIMER_FUNC(map_thread_main)
+{
+	std::vector<s_thread_event>::iterator it = thread_event.begin();
+
+	while( it != thread_event.end() ){
+		struct s_thread_event b = *it;
+
+		if (b.state == THREAD_STATE_RUNNING) {
+			it++;
+			continue;
+		}
+		if (b.state == THREAD_STATE_RESULT) {
+			switch (b.type) {
+			case THREAD_TYPE_RELOADITEM:
+				itemdb_reload();
+				break;
+			case THREAD_TYPE_SCRIPT:
+				break;
+			}
+			CloseHandle(b.handle_id);
+		}
+		it = thread_event.erase(it);
+	}
+	return 1;
+}
+
+int map_thread_tid()
+{
+	static int tid = 0;
+	if (!tid) {
+		add_timer_func_list(map_thread_main, "map_thread_main");
+		tid = add_timer_interval(gettick() + 1000, map_thread_main, 0, 0, 10000);
+	}
+	return tid;
+}
+
+DWORD WINAPI map_thread_run(LPVOID lpParameter) {
+	DWORD thread_id = GetCurrentThreadId();
+	for (auto &it : thread_event) {
+		if (it.thread_id != thread_id)
+			continue;
+		switch (it.type) {
+		case THREAD_TYPE_RELOADITEM:
+			it.func(NULL);
+			map_thread_result(it.type);
+			break;
+		}
+	}
+	return 1;
+}
+
+int map_thread_create(enum e_thread_type type, int(*func)(va_list), void *lpParameter)
+{
+	for (auto &it : thread_event) {
+		switch (type) {
+		case THREAD_TYPE_RELOADITEM:
+			return 0;
+		}
+	}
+	struct s_thread_event entry = {};
+	entry.type = type;
+	entry.state = THREAD_STATE_RUNNING;
+	entry.func = func;
+	entry.handle_id = CreateThread(NULL, 0, map_thread_run, lpParameter, CREATE_SUSPENDED, &entry.thread_id);
+	thread_event.push_back(entry);
+	ResumeThread(entry.handle_id);
+	return 1;
+}
+
+int map_thread_result(enum e_thread_type type)
+{
+	DWORD thread_id = GetCurrentThreadId();
+	struct TimerData * timer_data;
+	for (auto &it : thread_event) {
+		if (it.thread_id != thread_id)
+			continue;
+		it.state = THREAD_STATE_RESULT;
+		break;
+	}
+	timer_data = (struct TimerData *)get_timer(map_thread_tid());
+	if (timer_data != NULL)
+		timer_data->tick = gettick();
+	return 1;
 }
 
 struct http_session_data {

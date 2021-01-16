@@ -1865,29 +1865,20 @@ static int itemdb_combo_split_atoi (char *str, t_itemid *val) {
  * <combo{:combo{:combo:{..}}}>,<{ script }>
  **/
 bool itemdb_combos_contrast(struct item_data * id, const int *item, int retcount, int *idx) {
-	int i, m, n, count = 0, itemid;
+	int v, idx_ = 0;
 	
-	*(idx) = 0;
-	if (id->combos == NULL)
-		return false;
-
-	
-	for (i = 0; i < id->combos_count; i++) {
-		
-		if (id->combos[i]->count != retcount)
-			continue;
-
-		count = 0;
-		for (m = 0; m < id->combos[i]->count; m++) {
-			ARR_FIND(0, retcount, n, id->combos[i]->nameid[m] == (itemid = *(item + n)));
-			if (n < retcount)
-				count++;
+	for (const auto &it : id->combos) {
+		v = 0;
+		for (const auto nameid : it->nameid) {
+			if (v < retcount && nameid != item[v])
+				break;
+			v++;
 		}
-		if (count == retcount) {
-			*(idx) = i;
+		if (v == retcount) {
+			*(idx) = idx_;
 			return true;
 		}
-			
+		idx_++;
 	}
 	return false;
 }
@@ -2973,23 +2964,18 @@ int item_data::inventorySlotNeeded(int quantity)
 /**
 * Reload Item DB
 */
-#include "../common/winapi.hpp"
-TIMER_FUNC(itemdb_reload_redo) {
-	itemdb_reload();
-	return 1;
-}
-DWORD WINAPI itemdb_reload_sub(LPVOID lpParameter) {
+int itemdb_reload(va_list args) {
 	item_db_reload.loadyml();
-	add_timer(gettick(), itemdb_reload_redo, 0, NULL);
 	return 1;
 }
+
 void itemdb_reload(void) {
 	struct s_mapiterator* iter;
 	struct map_session_data* sd;
 
 #ifndef _DEBUG
 	if (battle_config.itemdb_reload_thread && !item_db_reload.size()) {
-		CreateThread(NULL, 0, itemdb_reload_sub, NULL, 0, NULL);
+		map_thread_create(THREAD_TYPE_RELOADITEM, itemdb_reload, NULL);
 		return;
 	}
 #endif

@@ -30400,7 +30400,7 @@ BUILDIN_FUNC(getitemcombo)
 {
 	struct item_data *item = itemdb_exists(script_getnum(st, 2));
 	struct map_session_data *sd = NULL;
-	int idx = script_getnum(st, 3), id;
+	int idx = script_getnum(st, 3), id, i = 0;
 	struct script_data *data = script_getdata(st, 4);
 	struct reg_db *ref = NULL;
 	const char *name;
@@ -30413,16 +30413,21 @@ BUILDIN_FUNC(getitemcombo)
 	if (not_server_variable(*name) && !script_rid2sd(sd))
 		return SCRIPT_CMD_FAILURE;
 
-	if (!item || idx < 0 || idx >= item->combos_count) {
+	if (!item || idx < 0 || idx >= item->combos.size()) {
 		script_pushint(st, 0);
 		return SCRIPT_CMD_SUCCESS;
 	}
 	id = reference_getid(data);
 	ref = reference_getref(data);
-	for (int i = 0; i < item->combos[idx]->count; i++)
-		set_reg_num(st, sd, reference_uid(id, i), name, item->combos[idx]->nameid[i], ref);
+	for (const auto &it : item->combos) {
+		if (idx--)
+			continue;
+		for (const auto nameid : it->nameid)
+			set_reg_num(st, sd, reference_uid(id, i++), name, item->combos[idx]->nameid[i], ref);
+		break;
+	}
 
-	script_pushint(st, item->combos[idx]->count);
+	script_pushint(st, i-1);
 	return SCRIPT_CMD_SUCCESS;
 }
 

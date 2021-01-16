@@ -1333,10 +1333,25 @@ struct s_global_event {
 	int killed_gid, killed_rid, killer_rid;
 	int show_console;
 };
+enum e_thread_type {
+	THREAD_TYPE_SCRIPT = 0,
+	THREAD_TYPE_RELOADITEM,
+	THREAD_TYPE_MAX,
+};
+enum e_thread_state {
+	THREAD_STATE_WAITTING = 0,
+	THREAD_STATE_RUNNING,
+	THREAD_STATE_RESULT,
+};
+
+int map_thread_tid();
+int map_thread_create(enum e_thread_type type, int(*func)(va_list), void *lpParameter);
+int map_thread_result(enum e_thread_type type);
 
 extern struct s_packet_event packet_event;
 extern struct s_use_skill_event use_skill_event;
 extern struct s_global_event global_event;
+
 extern char verification_act;
 void not_free(const char *name);
 int map_checknear(struct block_list* bl, int range, int cell);
