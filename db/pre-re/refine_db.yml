@@ -1,0 +1,236 @@
+###########################################################################
+# Pre-Renewal Refine Database
+###########################################################################
+# StatsPerLevel 精炼每增加一级固定增加多少bonus奖励
+# RandomBonusStartLevel 当精炼等级大于该参数时，每大于一级增加 0~RandomBonusValue 倍固定伤害
+# RandomBonusValue 精炼增加的固定伤害值
+# MaxLevel 精炼最大值
+# Costs 消耗
+#    - Type 精炼类型
+#    - Price 相应精炼类型，每次精炼消耗的Zeny数量
+#    - Material 相应精炼类型，每次精炼消耗的精炼材料
+#    - Breakable 是否在精炼过程中损坏
+# Rates 概率
+#    - Level 精炼后的等级
+#    - Bonus 精炼后增加的攻击力（实际增加 Bonus / 100）、防御力（实际增加 (Bonus + 50)/ 100）
+#    - NormalChance 使用 铝/神金（混沌金属/魔力之石） 精炼时的成功率 （百分率）
+#    - EnrichedChance 使用 浓缩铝/浓缩神金（高密度混沌金属/高密度魔力之石） 精炼时的成功率 （百分率）
+#    - EventNormalChance 当 conf 配置中 event_refine_chance 打开时，使用 铝/神金（混沌金属/魔力之石） 精炼时的陈功率 （百分率）
+#    - EventEnrichedChance 当 conf 配置中 event_refine_chance 打开时，使用 浓缩铝/浓缩神金（高密度混沌金属/高密度魔力之石） 精炼时的陈功率 （百分率）
+
+Armor:
+  StatsPerLevel: 66
+  RandomBonusStartLevel: 0
+  RandomBonusValue: 0
+  Costs:
+    - Type: REFINE_COST_NORMAL
+      Price: 2000
+      Material: 985
+    - Type: REFINE_COST_ENRICHED
+      Price: 2000
+      Material: 7619
+  Rates:
+    - Level: 5
+      NormalChance: 60
+      EnrichedChance: 90
+      EventNormalChance: 60
+      EventEnrichedChance: 95
+    - Level: 6
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 80
+    - Level: 7
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 80
+    - Level: 8
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 50
+    - Level: 9
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 50
+    - Level: 10
+      NormalChance: 9
+      EnrichedChance: 20
+      EventNormalChance: 9
+      EventEnrichedChance: 35
+WeaponLv1:
+  StatsPerLevel: 200
+  RandomBonusStartLevel: 8
+  RandomBonusValue: 300
+  Costs:
+    - Type: REFINE_COST_NORMAL
+      Price: 50
+      Material: 1010
+    - Type: REFINE_COST_ENRICHED
+      Price: 2000
+      Material: 7620
+  Rates:
+    - Level: 8
+      NormalChance: 60
+      EnrichedChance: 90
+      EventNormalChance: 60
+      EventEnrichedChance: 95
+    - Level: 9
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 85
+    - Level: 10
+      NormalChance: 19
+      EnrichedChance: 30
+      EventNormalChance: 19
+      EventEnrichedChance: 55
+WeaponLv2:
+  StatsPerLevel: 300
+  RandomBonusStartLevel: 7
+  RandomBonusValue: 500
+  Costs:
+    - Type: REFINE_COST_NORMAL
+      Price: 200
+      Material: 1011
+    - Type: REFINE_COST_ENRICHED
+      Price: 2000
+      Material: 7620
+  Rates:
+    - Level: 7
+      NormalChance: 60
+      EnrichedChance: 90
+      EventNormalChance: 60
+      EventEnrichedChance: 95
+    - Level: 8
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 85
+    - Level: 9
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 60
+    - Level: 10
+      NormalChance: 19
+      EnrichedChance: 30
+      EventNormalChance: 19
+      EventEnrichedChance: 45
+WeaponLv3:
+  StatsPerLevel: 500
+  RandomBonusStartLevel: 6
+  RandomBonusValue: 800
+  Costs:
+    - Type: REFINE_COST_NORMAL
+      Price: 5000
+      Material: 984
+    - Type: REFINE_COST_ENRICHED
+      Price: 2000
+      Material: 7620
+  Rates:
+    - Level: 6
+      NormalChance: 60
+      EnrichedChance: 90
+      EventNormalChance: 60
+      EventEnrichedChance: 95
+    - Level: 7
+      NormalChance: 50
+      EnrichedChance: 80
+      EventNormalChance: 50
+      EventEnrichedChance: 90
+    - Level: 8
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 70
+    - Level: 9
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 60
+    - Level: 10
+      NormalChance: 19
+      EnrichedChance: 30
+      EventNormalChance: 19
+      EventEnrichedChance: 45
+WeaponLv4:
+  StatsPerLevel: 700
+  RandomBonusStartLevel: 5
+  RandomBonusValue: 1300
+  Costs:
+    - Type: REFINE_COST_NORMAL
+      Price: 20000
+      Material: 984
+    - Type: REFINE_COST_ENRICHED
+      Price: 2000
+      Material: 7620
+  Rates:
+    - Level: 5
+      NormalChance: 60
+      EnrichedChance: 90
+      EventNormalChance: 60
+      EventEnrichedChance: 95
+    - Level: 6
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 80
+    - Level: 7
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 80
+    - Level: 8
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 60
+    - Level: 9
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 50
+    - Level: 10
+      NormalChance: 9
+      EnrichedChance: 20
+      EventNormalChance: 9
+      EventEnrichedChance: 35
+Shadow:
+  StatsPerLevel: 0
+  RandomBonusStartLevel: 0
+  RandomBonusValue: 0
+  MaxLevel: 10
+  Rates:
+    - Level: 5
+      NormalChance: 60
+      EnrichedChance: 90
+      EventNormalChance: 60
+      EventEnrichedChance: 95
+    - Level: 6
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 80
+    - Level: 7
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 80
+    - Level: 8
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 50
+    - Level: 9
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 50
+    - Level: 10
+      NormalChance: 9
+      EnrichedChance: 20
+      EventNormalChance: 9
+      EventEnrichedChance: 35

@@ -1,0 +1,83 @@
+//===== rAthena Script ======================================= 
+//= Port Malaya Guides
+//===== By: ================================================== 
+//= Euphy
+//===== Current Version: ===================================== 
+//= 1.1
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= Guides for the city of Malaya.
+//===== Additional Comments: ================================= 
+//= 1.0 First version. [Euphy]
+//= 1.1 Navigation system update. [Euphy]
+//============================================================ 
+
+malaya,71,72,4	script	马来港导览员#01::GuideMalaya	579,{
+	mes "[马来港导览员]";
+	mes "这里是蕴藏有各种文化和传说，";
+	mes "活力十足的^8B4513马来港^000000！";
+	mes "欢迎您的光临。";
+	mes "我会为您介绍这里的，有什麽疑问都可以尽量问我。";
+	F_Navi("[马来港导览员]");
+	while(1) {
+		next;
+		switch(select("[ 卡普拉 职员 ]:[ 旅馆 & 酒店 ]:[ 武器商店 ]:[ 道具商店 ]:[ 医院 ]:[ 公园 ]:[ 港口 ]:删除小地图标示:结束")) {
+		case 1:
+			callsub L_Mark, "^0000FF卡普拉 职员^000000",1;
+			viewpoint 1,71,79,0,0x0A82FF;
+			viewpoint 1,234,204,1,0x0A82FF;
+			break;
+		case 2:
+			callsub L_Mark, F_Navi("旅馆 & 酒店","malaya,193,215","^006400");
+			viewpoint 1,193,215,2,0xAAFF00;
+			break;
+		case 3:
+			callsub L_Mark, F_Navi("武器商店","malaya,114,212","^008080");
+			viewpoint 1,114,212,3,0x4F543C;
+			break;
+		case 4:
+			callsub L_Mark, F_Navi("道具商店","malaya,297,167","^FF1493");
+			viewpoint 1,297,167,4,0xFF1493;
+			break;
+		case 5:
+			callsub L_Mark, F_Navi("医院","malaya,50,75","^8B4513");
+			viewpoint 1,50,75,5,0x8B4513;
+			break;
+		case 6:
+			callsub L_Mark, F_Navi("公园","malaya,280,371","^8B4513");
+			viewpoint 1,280,371,6,0x8B4513;
+			break;
+		case 7:
+			callsub L_Mark, F_Navi("港口","malaya,276,55","^8A2BE2");
+			viewpoint 1,276,55,7,0x8A2BE2;
+			break;
+		case 8:
+			mes "[马来港导览员]";
+			mes "已删除小地图上的标志了，";
+			mes "还需要其它服务吗?";
+			viewpoint 2,1,1,0,0xFFFFFF;
+			viewpoint 2,1,1,1,0xFFFFFF;
+			viewpoint 2,1,1,2,0xFFFFFF;
+			viewpoint 2,1,1,3,0xFFFFFF;
+			viewpoint 2,1,1,4,0xFFFFFF;
+			viewpoint 2,1,1,5,0xFFFFFF;
+			viewpoint 2,1,1,6,0xFFFFFF;
+			viewpoint 2,1,1,7,0xFFFFFF;
+			break;
+		case 9:
+			mes "[马来港导览员]";
+			mes "祝福您旅途愉快";
+			close;
+		}
+	}
+	end;
+L_Mark:
+	mes "[马来港导览员]";
+	mes ""+getarg(0)+"的";
+	mes "位置在点按小地图的箱子模样图示，就会进行导览了。";
+	mes "需要其它的导览吗?";
+	return;
+}
+malaya,250,83,6	duplicate(GuideMalaya)	马来港导览员#02	579
+malaya,224,204,6	duplicate(GuideMalaya)	马来港导览员#03	579

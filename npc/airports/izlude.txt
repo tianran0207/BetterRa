@@ -1,0 +1,48 @@
+//===== rAthena Script ======================================= 
+//= Izlude Airport NPCs
+//===== By: ================================================== 
+//= rAthena Dev Team
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= Izlude Airport NPCs
+//===== Additional Comments: ================================= 
+//= 1.0 First version.
+//============================================================ 
+
+-	script	::Airship_Staff_izlude	-1,{
+	mes "[机场 职员]";
+	mes "您好, 冒险家, 欢迎光临!";
+	mes "是否想要搭乘飞空艇前往朱诺/拉赫呢?";
+	next;
+	if (select("我想搭乘前往朱诺/拉赫的飞空艇:取消") == 1) {
+		mes "[机场 职员]";
+		mes "搭乘飞空艇需要 1,200 金币.";
+		mes "但是如果您有飞空艇免费搭乘劵的话,";
+		mes "就可以免费搭乘飞空艇.";
+		mes "您是否还想要搭乘飞空艇呢?";
+		next;
+		if (select("是的:不要") == 1) {
+			if (countitem(7311) > 0) {
+				delitem 7311,1; //Free_Flying_Ship_Ticket
+				warp "airplane_01",244,58;
+				end;
+			}
+			if (Zeny >= 1200) {
+				set Zeny, Zeny - 1200;
+				warp "airplane_01",244,58;
+				end;
+			}
+			mes "[机场 职员]";
+			mes "很抱歉, 您身上并没有 1,200 金币";
+			mes "可用于支付飞空艇的搭乘费用!";
+			close;
+		}
+	}
+	mes "[机场 职员]";
+	mes "感谢您对我们的支持, 欢迎再来.";
+	mes "祝您有个美好的一天~";
+	close;
+}

@@ -1,0 +1,3410 @@
+//===== BetterRa 文档 =======================================
+//= BetterRa 脚本指令说明文件
+//===== 作者: ================================================
+//= BetterRa 开发团队
+//===== 最后更新: ============================================
+//= 20161005
+//===== 文档简介: ============================================
+//= BetterRa 是基于 rAthena 进行二次开发的, 在 rAthena 官方支
+//= 持的脚本指令基础上, BetterRa 也拓展了一些脚本指令, 请参阅
+//= 下面的说明, 它会重点介绍脚本指令的参数和用法.
+//============================================================
+
+脚本指令别名表
+--------------
+
+为了兼容一些其他服务端的脚本, 部分脚本指令拥有别名, 使用别名和使用原名的语法和效果是一样的.
+
+┌──────────────────────────────┬─────────────────────────────┐
+│ 指令原名 (推荐使用)          │ 指令的别名                  │
+├──────────────────────────────┼─────────────────────────────┤
+│ *itemexists                  │ *existitem                  │
+├──────────────────────────────┼─────────────────────────────┤
+│ *setrenttime                 │ *resume                     │
+├──────────────────────────────┼─────────────────────────────┤
+│ *getequipexpiretick          │ *isrental                   │
+├──────────────────────────────┼─────────────────────────────┤
+│ *gethotkey                   │ *get_hotkey                 │
+├──────────────────────────────┼─────────────────────────────┤
+│ *sethotkey                   │ *set_hotkey                 │
+├──────────────────────────────┼─────────────────────────────┤
+│ *recalculatestat             │ *statuscalc 或 *status_calc │
+├──────────────────────────────┼─────────────────────────────┤
+│ *copynpc                     │ *dupnpc                     │
+└──────────────────────────────┴─────────────────────────────┘
+
+
+脚本指令说明
+------------
+
+*warpparty2 "<目标地图名称>",<x>,<y>,<队伍编号>,{"<来自的地图名称>"};
+
+用法和 warpparty 一样, 都是将指定队伍的全部队员统一传送到指定的目的地. 如果指定了最后一个参数, 那么只有位于“来自的地图名称”的队员会被传送.
+
+两者之间的区别在于: 
+	warpparty 对已经死亡的队友则无效(死亡的队友会被留在原地), 而 warpparty2 对已经死亡的队友有效(会被立刻以 1HP 的血量复活, 并一起被传送走).
+
+---------------------------------------
+
+*getheaddir({<角色编号>});
+
+获取角色的脑袋朝向
+
+朝向编号:
+	0为正前方
+	1为向右看
+	2为向左看
+
+返回值:
+	脑袋朝向
+
+---------------------------------------
+
+*getbodydir({<角色编号>});
+
+获取角色身体的朝向
+
+朝向编号:
+	DIR_NORTH 北 
+	DIR_NORTHWEST 西北 
+	DIR_WEST 西 
+	DIR_SOUTHWEST 西南 
+	DIR_SOUTH 南 
+	DIR_SOUTHEAST 东南 
+	DIR_EAST 东 
+	DIR_NORTHEAST 东北
+
+返回值:
+	身体朝向
+
+---------------------------------------
+
+*setheaddir <朝向编号>{,<角色编号>};
+
+用于调整角色的脑袋朝向.
+
+朝向编号:
+	0为正前方
+	1为向右看
+	2为向左看
+
+---------------------------------------
+
+*setbodydir <朝向编号>{,<角色编号>};
+
+用于调整角色身体的朝向.
+
+朝向编号:
+	DIR_NORTH 北 
+	DIR_NORTHWEST 西北 
+	DIR_WEST 西 
+	DIR_SOUTHWEST 西南 
+	DIR_SOUTH 南 
+	DIR_SOUTHEAST 东南 
+	DIR_EAST 东 
+	DIR_NORTHEAST 东北
+
+---------------------------------------
+
+*party_leave {<角色编号>};
+
+用于让指定的角色立刻退出队伍.
+
+返回值:
+	若指定角色不在线或不在队伍中, 则返回 0, 成功则返回 1
+
+---------------------------------------
+
+*openbank {<角色编号>};
+
+用于让指定的角色立刻打开银行界面(只对拥有账号随身银行的客户端版本有效).
+
+返回值:
+	若指定角色不在线, 则返回 0, 成功则返回 1
+
+---------------------------------------
+
+*instance_users <副本的实例编号>;
+
+用于获取指定的副本实例中的参与人数.
+
+返回值:
+	成功直接返回副本中的人数, 副本不存在或副本中无人存在则返回 0
+
+---------------------------------------
+
+*mesclear;
+
+清空当前NPC的对话框内容, 借此你可以在无需玩家点击"Next"按钮的情况下, 使用 mes 指令来刷新对话窗口的内容.
+
+---------------------------------------
+
+*cap_value <数值>,<最小值>,<最大值>;
+
+用来确保数值变量不会低于最小值, 超过最大值. 
+
+返回值:
+	如果低于最小值则直接返回最小值, 如果超过最大值则直接返回最大值, 如果在两者之间则原样返回数值.
+
+---------------------------------------
+
+*mobremove <魔物的GID>;
+
+根据GID移除一个魔物(只是移除, 不会让魔物死亡), 合适用来编写副本剧情.
+
+---------------------------------------
+
+*getsameipinfo {<"IP地址">};
+
+获得某个IP在线的玩家数以及玩家的角色编号等信息.
+
+如果执行成功的话, 会赋予以下数组在线玩家的信息:
+
+$@sameip_aid[]		使用指定IP在线的玩家账号编号数组(AccountID)
+$@sameip_cid[]		使用指定IP在线的玩家角色编号数组(CharID)
+$@sameip_name$[]	使用指定IP在线的玩家角色名数组
+
+$@sameip_amount 目前使用指定IP登录的玩家个数.
+
+---------------------------------------
+
+*logout <登出理由编号>{,"<角色名称>"|<账号编号>|<角色编号>};
+
+使指定的角色立刻登出游戏(踢下线), 这里的"登出理由编号"只能做参考, 不同的理由编号会让客户端给玩家显示不同的提示文本(下面的信息会在以后汉化):
+
+	0 = BAN_UNFAIR
+	1 = server closed -> MsgStringTable[4]
+	2 = ID already logged in -> MsgStringTable[5]
+	3 = timeout/too much lag -> MsgStringTable[241]
+	4 = server full -> MsgStringTable[264]
+	5 = underaged -> MsgStringTable[305]
+	8 = Server sill recognizes last connection -> MsgStringTable[441]
+	9 = too many connections from this ip -> MsgStringTable[529]
+	10 = out of available time paid for -> MsgStringTable[530]
+	11 = BAN_PAY_SUSPEND
+	12 = BAN_PAY_CHANGE
+	13 = BAN_PAY_WRONGIP
+	14 = BAN_PAY_PNGAMEROOM
+	15 = disconnected by a GM -> if( servicetype == taiwan ) MsgStringTable[579]
+	16 = BAN_JAPAN_REFUSE1
+	17 = BAN_JAPAN_REFUSE2
+	18 = BAN_INFORMATION_REMAINED_ANOTHER_ACCOUNT
+	100 = BAN_PC_IP_UNFAIR
+	101 = BAN_PC_IP_COUNT_ALL
+	102 = BAN_PC_IP_COUNT
+	103 = BAN_GRAVITY_MEM_AGREE
+	104 = BAN_GAME_MEM_AGREE
+	105 = BAN_HAN_VALID
+	106 = BAN_PC_IP_LIMIT_ACCESS
+	107 = BAN_OVER_CHARACTER_LIST
+	108 = BAN_IP_BLOCK
+	109 = BAN_INVALID_PWD_CNT
+	110 = BAN_NOT_ALLOWED_JOBCLASS
+	? = disconnected -> MsgStringTable[3]
+
+---------------------------------------
+
+*searcharray <数组变量>,<要查询的内容>;
+
+查询数组中第一次出现待查询内容的索引序号, 使用它来搜索数组内容很方便(用法比较丰富, 以后再举例细说).
+
+返回值:
+	若查不到结果则返回 -1, 否则返回大于等于 0 的序号
+
+---------------------------------------
+
+*getinventorylist {<角色编号>,<类型>};
+*getcartlist {<角色编号>,<类型>};
+*getstoragelist {<角色编号>,<类型>};
+
+返回背包、手推车、仓库清单。
+
+在原来返回的数组基础上, BetterRa 新增了以下返回数组:
+
+	- @inventorylist_idx[] 背包位置序号.
+	- @inventorylist_uid$[] 装备唯一编号(字符串类型数组).
+	- @inventorylist_favorite[] 是否被玩家收藏.
+	- @inventorylist_equipswich[] 快速切换装备的位置.
+
+类型: 因每次获取清单都会有大量的变量被赋值, 经常调用会导致服务器卡顿问题, 
+      特添加返回类型, 可通过 | 运算返回多组数据
+	  
+	- INV_ID           物品ID - @inventorylist_id[]
+	- INV_AMOUNT       物品数量 - @inventorylist_amount[]
+	- INV_EQUIP        现装备位置 - @inventorylist_equip[]
+	- INV_REFINE       精炼等级 - @inventorylist_refine[]
+	- INV_IDENTIFY     是否鉴定 - @inventorylist_identify[]
+	- INV_ATTRIBUTE    属性 - @inventorylist_attribute[]
+	- INV_EXPIRE       租赁时间 - @inventorylist_expire[]
+	- INV_BOUND        绑定 - @inventorylist_bound[]
+	- INV_CARD         卡片 - @inventorylist_card[]
+	- INV_OPTION       随机属性 - @inventorylist_option_id[] @inventorylist_option_value[] inventorylist_option_parameter[]
+	- INV_IDX          位置序列 - @inventorylist_idx[]
+	- INV_FAVORITE     是否收藏 - @inventorylist_favorite[]
+	- INV_UID          物品UID - @inventorylist_uid$[] 或 @inventorylist_uid[]
+	- INV_TRADABLE     是否可交易 - @inventorylist_tradable[]
+	- INV_EQUIPSWITCH  切换位置 - @inventorylist_equipswich[]
+	- INV_ALL          获取所有(默认)
+
+例: 获取背包物品id、数量和背包中的序列
+	getinventorylist getcharid(0),INV_ID|INV_AMOUNT|INV_IDX;
+
+注意:
+	背包位置序号每一次登录、每一次玩家在自己的背包中增删物品(包括但不限: 
+	存仓、存手推车、丢弃、购买和使用道具等操作)都可能会导致背包位置序号有变化. 
+	所以请注意在一段连续、玩家不可能会停下来做其他动作的脚本中去使用“背包位置序号”. 
+	否则, 只要你在 getinventorylist 之后, 还给玩家空隙去进行道具的增删, 
+	那么 @inventorylist_idx[] 中的数据将不再可靠.
+	
+---------------------------------------
+
+*searchinventory <物品ID>{,<条件>{,<角色ID>}};
+*searchcart <物品ID>{,<条件>{,<角色ID>}};
+*searchstorage <物品ID>{,<条件>{,<仓库ID>{,<角色ID>}}};
+*searchguildstorage <物品ID>{,<条件>{,<角色ID>}};
+
+过滤并查找背包、手推车、仓库中的物品.
+
+条件: (多个条件相加或使用与运算)
+	- 1  未精炼过的道具
+	- 2  非租赁道具
+	- 4  非绑定道具
+	- 8  没有卡片和附魔的道具
+	- 16 没有随机属性标签的道具
+
+返回数组:
+	- @inventorylist_idx[] 背包位置序号
+	- @inventorylist_amount[] 背包中的数量
+	- @inventorylist_count 上面数组的成员数
+	
+例: 
+	searchinventory 501,1|2|4|8|16;
+	
+返回值:
+	操作成功返回物品在背包中的总数量 (@inventorylist_amount[]的和)
+	当仓库被占用或找不到仓库则返回 -1
+
+---------------------------------------
+
+*delinventory <背包位置序号>,<要移除的数量>;
+
+移除指定背包序号指定数量的道具. 
+
+这里的背包位置序号可以通过 getinventorylist 脚本指令的 @inventorylist_idx[] 数组来获得.
+
+返回值:
+	操作成功则返回 1, 失败或没那么多道具可以删则返回 0
+
+---------------------------------------
+
+*countinventory <背包位置序号>;
+
+根据指定背包序号, 获取该道具在背包中的数量.
+
+返回值:
+	直接返回物品的数量, 若改背包序号的物品不存在则返回 0
+
+---------------------------------------
+
+*identifybyidx <背包位置序号>;
+
+根据指定的背包序号, 对该道具进行鉴定操作.
+
+---------------------------------------
+
+*equipinventory <背包位置序号>;
+
+穿戴指定背包位置的装备.
+
+这里的背包位置序号可以通过 getinventorylist 脚本指令的 @inventorylist_idx[] 数组来获得.
+
+返回值:
+	操作操作成功则返回 1, 失败则返回 0
+
+---------------------------------------
+
+*unequipinventory <背包位置序号>;
+
+脱下指定背包位置的装备.
+
+这里的背包位置序号可以通过 getinventorylist 脚本指令的 @inventorylist_idx[] 数组来获得.
+
+返回值:
+	操作操作成功则返回 1, 失败则返回 0
+
+---------------------------------------
+
+*getinventoryinfo <背包位置序号>,<要查看的信息类型>{,<角色ID>};
+*getcartinfo <手推车位置序号>,<要查看的信息类型>{,<角色ID>};
+*getstorageinfo <仓库位置序号>,<要查看的信息类型>{,<仓库ID>{,<角色ID>}};
+*getguildstorageinfo <仓库位置序号>,<要查看的信息类型>{,<角色ID>};
+
+查看背包、手推车、仓库、公会仓库相应位置的道具信息.
+
+这里的背包位置序号可以通过 getinventorylist 脚本指令的 @inventorylist_idx[] 数组来获得.
+
+要查看的信息类型:
+	0 	- 物品编号
+	1 	- 堆叠数量
+	2 	- 装备的穿戴位置(如果为 0 则表示还没穿戴在身上, 位置请参考 EQP_* 开头的常量)
+	3 	- 精炼值
+	4 	- 是否已经鉴定(1为已鉴定, 0为未鉴定)
+	5 	- 属性(说是属性, 其实最常用是用来判断物品是否损坏, 若损坏则返回1, 没坏则返回 0)
+	6 	- 第一个卡槽的卡片编号
+	7 	- 第二个卡槽的卡片编号
+	8 	- 第三个卡槽的卡片编号
+	9 	- 第四个卡槽的卡片编号
+	10	- 过期时间(Unix时间戳, 0 表示永不过期)
+	11	- 绑定类型
+	12	- 装备的唯一编号(unique_id)
+	13	- 装备的换装穿戴位置(equipSwitch)
+	16  - 是否被玩家收藏.
+
+	
+	.@uid$ = getinventoryinfo(背包序号, 11);	
+	.@uid = getinventoryinfo(背包序号, 11);		
+	
+返回值:
+	失败则返回 -1, 成功则返回你所查询的信息的值
+
+---------------------------------------
+
+*putcartbyidx <背包位置序号>,<数量>{,<是否触发事件>{,<角色ID>}};
+*putstoragebyidx <背包位置序号>,<数量>{,<仓库ID>{,<是否触发事件>{,<角色ID>}}};
+*putguildstoragebyidx <仓库位置序号>,<数量>{,<是否触发事件>{,<角色ID>}};
+
+将背包中的物品放入手推车、仓库或公会仓库 
+
+是否触发事件,为全局事件 OnPCStorageAddFilter OnPCCartAddFilter OnPCCartAddFilter, 默认触发。
+
+返回值:
+	成功返回 1, 失败返回 0
+
+---------------------------------------
+
+*getcartbyidx <手推车位置序号>,<数量>{,<是否触发事件>{,<角色ID>}};
+*getstoragebyidx <仓库位置序号>,<数量>{,<仓库ID>{,<是否触发事件>{,<角色ID>}}};
+*getguildstoragebyidx <仓库位置序号>,<数量>{,<是否触发事件>{,<角色ID>}};
+
+将手推车、仓库或公会仓库的物品拿到背包中
+
+返回值:
+	成功返回 1, 失败返回 0
+
+---------------------------------------
+
+*delinventorybyidx <背包位置序号>,<数量>{,<是否触发事件>{,<角色ID>}};
+*delcartbyidx <手推车位置序号>,<数量>{,<是否触发事件>{,<角色ID>}};
+*delstoragebyidx <仓库位置序号>,<数量>{,<仓库ID>{,<是否触发事件>{,<角色ID>}}};
+*delguildstoragebyidx <仓库位置序号>,<数量>{,<是否触发事件>{,<角色ID>}};
+
+将背包、手推车、仓库或公会仓库中的物品删除
+
+返回值:
+	成功返回 1, 失败返回 0
+
+---------------------------------------
+
+*viewequip <对方的账号编号>{,<是否强制查看>};
+
+查看指定账号在线角色的装备信息(这里只需要提供账号编号, 程序会根据账号编号找到他目前在线的角色).
+
+是否强制查看:
+	0	- 如果对方禁止其他玩家查看装备, 那么就不查看
+	1	- 就算对方禁止其它玩家查看他的装备, 也强制进行查看
+
+返回值:
+	若指定的目标不在线则返回 -1, 若查看成功则返回 1, 若查看失败(比如对方禁止查看)则返回 0
+
+---------------------------------------
+
+*itemexists <物品编号>;
+*itemexists "物品名称";
+*existitem <物品编号>;
+*existitem "物品名称";
+
+确认服务器的 item_db 中是否存在指定物品, 在由玩家输入一些物品编号来执行功能时, 先使用该指令判断一下可以防止直接 getitem 或者 delitem 导致地图服务器终端显示报错信息.
+
+返回值:
+	若服务器中不存在此道具则返回0, 若物品存在且可叠加则返回"正数"的物品编号, 若不可堆叠则返回"负数"的物品编号.
+
+---------------------------------------
+
+*setrenttime <装备位置编号>,<增减的时间秒数>{,<角色编号>};
+*resume <装备位置编号>,<增减的时间秒数>{,<角色编号>};
+
+增加/减少指定位置装备的租赁时间(如果要减少租赁时间的话, 第二个参数请使用负数).
+
+装备位置编号: 是指 EQI_* 开头的位置常量.
+
+返回值:
+	如果指定的装备位置无效或者没有装备则返回 -1, 返回 0 表示此物品不是租赁道具(永不过期), 如果返回大于 0 的数则表示此物品是租赁道具(返回值就是它被您增减时间之后, 剩余时间的秒数)	
+
+---------------------------------------
+
+*battleignore <开关标记>{,<角色编号>};
+
+将指定的角色设置为魔物无视状态(魔物会无视此玩家的存在, 因此不会攻击该玩家, 或许可以叫无敌状态), 避免被魔物攻击.
+
+开关标记:
+	0 关闭无视(角色会被魔物看见), 1 打开无视(角色不会被魔物看见, 也不会被攻击)
+
+---------------------------------------
+
+*getequipexpiretick <装备位置编号>{,<角色编号>};
+*isrental <装备位置编号>{,<角色编号>};
+
+获得指定位置装备的租赁到期剩余秒数.
+
+返回值:
+	如果指定的装备位置无效或者没有装备则返回 -1, 返回 0 表示此物品不是租赁道具(永不过期), 如果返回大于 0 的数则表示此物品是租赁道具(返回值就是它剩余时间的秒数)	
+
+---------------------------------------
+
+*sc_check <状态编号>{,<gid>};
+
+用于判断指定的状态(Buff)是否存在, 并取得状态参数.
+
+当返回值为1的时候, 可以通过以下变量来读取状态的参数:
+
+@sc_val1		状态的第1个参数(如果是技能对应的状态的话, 往往这个参数都是技能等级)
+@sc_val2		状态的第2个参数
+@sc_val3		状态的第3个参数
+@sc_val4		状态的第4个参数
+@sc_tickleft	状态的剩余时间(单位为毫秒)
+
+返回值:
+	0 表示玩家身上没有你指定的状态(Buff), 1 表示玩家身上拥有你指定的状态(Buff)
+
+---------------------------------------
+
+*when_pcmove_doevent;
+
+当玩家的角色在下一次移动时, 触发 OnPCMoveFilter 事件.
+
+注意: 只有当 conf/battle/extend.conf 的 pc_move_event_trigger_type 选项为 1 时, 该脚本指令才会有价值.
+
+---------------------------------------
+
+*processhalt;
+*halt;
+
+在部分支持的事件处理脚本中使用后, 能够在事件脚本结束时, 中断源代码的后续逻辑. 
+此功能仅供脚本专家们使用, 没弄明白它的工作逻辑之前, 请慎重使用.
+
+真心话:
+	由于事件队列机制的影响, 这个功能远比想象的要鸡肋, 只是为了兼容一下 SeAr, 能不用就尽量别用吧.
+
+该指令特定情况下会失效:
+	该指令的使用流程中, 在使用 processhalt 之前不能出现 sleep、sleep2、next、close2、menu、
+	select、prompt、input、progressbar 等会导致脚本暂停的指令, 否则它的中断效果将失效.
+	
+	主要原因是: 如果你执行了这些指令, 那么服务端需要等待客户端或者玩家做出响应, 
+	而一旦出现这种情况服务端会立刻将此事件认为“执行告一段落”, 然后就立刻去判断是否需要中断, 
+	但是由于你 processhalt 写在了这些会导致脚本暂停的指令后面, 
+	所以在还没来得及执行 processhalt 的时候服务端就会认为不需要中断而结束.
+
+失效可能会带来效果错乱:
+	此外如果错误的使用了 processhalt 的执行顺序, 也会影响到下一次此事件的触发效果,
+	下一次触发此事件时不管是否执行过 processhalt, 都会被认为需要中断.
+
+事件队列机制的影响说明:
+	举个例子, 我们可能需要使用 processhalt 在特定的情况下中断 OnPCEquipFilter 事件,
+	以达到禁止玩家穿戴装备的目的. 但是只这么做是不完善的,  在特定情况下可能完全失效.
+	
+	为了避免一个玩家同时执行多个脚本带来的冲突, rAthena 的脚本引擎实现了一个“事件队列”功能,
+	此功能能够当玩家在执行某个脚本的时候, 将接下来可能需要玩家执行的脚本预先存放到队列里面,
+	等玩家执行完上个脚本再继续触发执行下一个脚本的内容.
+	
+	这将导致出现一种情况, 如果玩家在和 NPC 对话的情况下去穿戴装备的话, 
+	那么此时 OnPCEquipFilter 事件将会被放进队列中而不会立刻执行. 
+	您的脚本代码无法对 OnPCEquipFilter 事件进行 processhalt 处理, 
+	进而地图服务器会认为玩家穿戴装备这个事情没有被中断, 而允许成功穿戴装备.
+
+支持的事件以及其中断作用说明请见: doc\BetterRa_events.txt
+
+---------------------------------------
+
+*script4each "{<脚本>}",<覆盖范围>{,<参数>...};
+*script4each "NPCNAME::EVENT",<覆盖范围>{,<参数>...};
+*script4eachmob "{<脚本>}",<覆盖范围>{,<参数>...};
+*script4eachmob "NPCNAME::EVENT",<覆盖范围>{,<参数>...};
+*script4eachnpc "{<脚本>}",<覆盖范围>{,<参数>...};
+*script4eachnpc "NPCNAME::EVENT",<覆盖范围>{,<参数>...};
+
+对指定范围的玩家、魔物、NPC执行相同的一段脚本，在"{<脚本>}或NPCNAME::EVENT"中使用 $@gid 来获取和脚本关联的玩家、魔物、NPC的 GID. 阵营魔物同样可以使用本指令.
+
+全服				  - script4each "{<脚本>}或NPCNAME::EVENT",0;
+指定地图			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP,"地图名";
+指定区域			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP_RANGE,"地图名",中心坐标x,中心坐标y,范围;
+指定地图上的队伍	- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP_PARTY,"地图名",队伍编号;
+指定地图上的公会	- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP_GUILD,"地图名",公会编号;
+指定区域			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP_AREA,"地图名",坐标x0,坐标y0,坐标x1,坐标y1;
+指定队伍			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_PARTY,队伍编号;
+指定公会			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_GUILD,公会编号;
+指定地图上的阵营	- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP_TRIBE,"地图名",Tribe阵营编号;
+指定阵营			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_TRIBE,Tribe阵营编号;
+指定地图上的阵营	- script4each "{<脚本>}或NPCNAME::EVENT",SFE_MAP_BG,"地图名",BG阵营编号;
+指定阵营			- script4each "{<脚本>}或NPCNAME::EVENT",SFE_BG,BG阵营编号;
+
+例:
+	script4eachmob "{unittalk $@gid,\"123456\";}",1,"prontera";
+
+	等价于
+	script4eachmob "NPCNAME::OnTalk",1,"prontera";
+	end;
+OnTalk:
+	unittalk $@gid,"123456";
+
+注意: 
+	如果<脚本>中有使用到大括号的话, 需要在大括号的左侧使用 \ 来进行转义, 例如:
+	script4each "{ if (BaseLevel >= 10) \{ getitem 501, 10;\} }",0;
+
+警告:
+	目前 script4each 所执行的脚本中, 禁止出现会导致脚本进入暂停状态的指令.
+	比如 sleep、sleep2、next、close2、menu、select、prompt、input、progressbar 等, 他们的特点是执行这些指令时, 
+	都需要等待客户端/玩家返回一定的信息或做出选择才能继续往下执行.
+
+---------------------------------------
+
+*gethotkey <快捷键位置编号>{,<要获取的数据类型>};
+*get_hotkey <快捷键位置编号>{,<要获取的数据类型>};
+
+获取指定快捷键位置的信息, 快捷键位置编号必须大于 0 小于等于 MAX_HOTKEYS (这是个常量, 脚本中可以直接使用).
+
+要获取的数据类型:
+	0	- 获取快捷键的类型 (0 表示该位置的快捷键上放的是一个物品, 1 表示该位置的快捷键上放的是一个技能)
+	1	- 获取技能编号或物品的编号
+	2	- 获取登记在快捷键上的技能等级
+
+返回值:
+	如果参数不合法则返回 -1, 否则返回的是你想要获取的数据内容
+
+---------------------------------------
+
+*sethotkey <快捷键位置编号>,<快捷键的类型>,<物品编号/技能编号>,<技能等级>;
+*set_hotkey <快捷键位置编号>,<快捷键的类型>,<物品编号/技能编号>,<技能等级>;
+
+设置玩家快捷键上的内容, 快捷键位置编号必须大于 0 小于等于 MAX_HOTKEYS (这是个常量, 脚本中可以直接使用).
+
+快捷键的类型:
+	0	- 这个快捷键位置想放置一个物品 (若使用该值, 则最末尾的"技能等级"参数无意义, 请直接给"技能等级"参数传 0 )
+	1	- 这个快捷键位置想放置一个技能
+
+返回值:
+	设置成功则返回 1, 设置失败则返回 0
+
+---------------------------------------
+
+*bonus_script_remove "<要移除的脚本代码>"{,<角色编号>};
+
+移除指定的 bonus_script 效果
+
+---------------------------------------
+
+*setpolicyid <行为策略编号>{,<角色编号>};
+
+设置指定玩家的行为策略编号, 配合 conf/policies.conf 中定义的规则来使用.
+
+行为策略编号:
+	即在 conf/policies.conf 定义的 policy_id 编号.
+
+返回值:
+	设置成功则返回 1, 设置失败则返回 0
+
+---------------------------------------
+
+*getpolicyid {<角色编号>};
+
+获得指定玩家的行为策略编号, 配合 conf/policies.conf 中定义的规则来使用.
+
+返回值:
+	设置成功则返回行为策略编号, 设置失败则返回 -1
+
+---------------------------------------
+
+*getpolicyinfo <行为策略信息编号>{,<角色编号>};
+
+获得指定玩家当前的行为策略详情, 配合 conf/policies.conf 中定义的规则来使用.
+
+行为策略信息编号(与 conf/policies.conf 中的字段对应):
+	0	- base_exp_rate
+	1	- job_exp_rate
+	2	- drop_rate
+	3	- look_head_top
+	4	- bind_group_id
+
+返回值:
+	成功则获得你想要查询的信息的值, 失败则返回 -1
+
+---------------------------------------
+
+*setchartitle <称号ID>{,<角色编号>};
+
+设置指定玩家的称号ID, 该指令只在客户端版本号大于等于 20150513 的时候有效.
+
+称号ID:
+	这个称号的ID在客户端的 data\luafiles514\lua files\datainfo\titletable.lub 中获取. 例如: 1000
+
+返回值:
+	设置成功则返回 1, 设置失败则返回 0
+
+---------------------------------------
+
+*getchartitle {<角色编号>};
+
+获得指定玩家的称号ID, 该指令只在客户端版本号大于等于 20150513 的时候有效.
+
+返回值:
+	设置成功则返回目标玩家的称号ID(若为 0 则表示此玩家没有称号), 设置失败则返回 -1
+
+---------------------------------------
+
+*query_multidb "拓展数据库的连接名称","SQL查询语句"{, <数组变量1>{, <数组变量2>{, ...}}};
+
+对拓展数据库执行SQL查询, 用法和 query_sql 类似, 只是多了一个"拓展数据库的连接名称"参数, 用来指定要操作的拓展数据库.
+
+拓展数据库的定义:
+	在默认情况下, rAthena 提供的脚本指令只能操作主数据库(query_sql)和日志数据库(query_logsql), 但如果我们需要操作第三个数据库(比如 DiscuzX 论坛数据库) 的时候, rAthena 自带的指令就无能为力了. 为了拓展脚本的能力, BetterRa 能够允许你通过 conf/multidb_athena.conf 配置文件来定义拓展数据库, 并使用 query_multidb 对其进行操作.
+
+返回值:
+	与 query_sql、query_logsql 类似, 不再敷述
+
+---------------------------------------
+
+*recalculatestat;
+*statuscalc;
+*status_calc;
+
+该指令的原名 recalculatestat 是 rAthena 的官方自带脚本指令, 在此为了兼容一些脚本, 赋予了 statuscalc 和 status_calc 两个别名给它.
+
+---------------------------------------
+
+*getequipidx <装备位置编号>,{<角色编号>};
+
+用来获取穿戴在指定位置的装备的“背包位置序号”.
+
+注意: “装备位置编号”和 getequipid 一样, 是 EQI_* 开头的常量(而不是 EQP_* 开头的常量).
+
+返回值:
+	-1	- 在指定的位置找不到装备
+	-2	- 装备位置编号无效
+	其他大于等于 0 的数值, 则表示成功, 返回值就是所查位置装备的“背包位置序号”.
+
+---------------------------------------
+
+*bounditembyidx <背包序号>,<绑定类型>{,<角色ID>};
+*bounditembypos <装备编号>,<绑定类型>{,<角色ID>};
+
+绑定 背包序号/装备编号 指定道具的道具
+
+绑定类型: 
+	BOUND_NONE    不绑定
+	BOUND_ACCOUNT 账号绑定
+	BOUND_GUILD   公会绑定
+	BOUND_PARTY   队伍绑定
+	BOUND_CHAR    角色绑定
+	
+---------------------------------------
+
+*setoptionbyidx <背包序号>,<Random Option ID数组>,<Random Option value数组>,<Random Option param数组>;
+*setoptionbypos <装备编号>,<Random Option ID数组>,<Random Option value数组>,<Random Option param数组>;
+
+设置 背包序号/装备编号 指定道具的 Random Option 属性.
+
+装备编号: 是指 EQI_* 开头的位置常量.
+
+此选项会在 picklog 日志表中留下道具的变化痕迹.
+
+---------------------------------------
+
+*resetoptionbyidx <背包序号>;
+*resetoptionbypos <装备编号>;
+
+清空 背包序号/装备编号 指定物品的 Random Option 内容.
+
+此选项会在 picklog 日志表中留下道具的变化痕迹.
+
+返回值:
+	操作成功则返回 1, 失败则返回 0
+
+---------------------------------------
+
+*getoptionbyidx <背包序号>;
+*getoptionbypos <装备编号>;
+
+获取 背包序号/装备编号 指定道具的 Random Option 属性的值.
+
+调用指令后, 装备的 Random Option 属性的值保存在三个数组中 @option_id @option_value @option_param
+
+---------------------------------------
+
+*getidxrandomoption(<背包序号>,<Random Option序号>,<要修改的数据类型>{,<角色编号>});
+*getposrandomoption(<装备编号>,<Random Option序号>,<要修改的数据类型>{,<角色编号>});
+
+获取 背包序号/装备编号 指定道具的 Random Option 属性的值.
+
+装备编号: 是指 EQI_* 开头的位置常量.
+
+要修改的数据类型:
+	ROA_ID - 随机属性的ID, 要和 db/re/item_randomopt_db.txt 中的对应
+	ROA_VALUE - 随机属性的值
+	ROA_PARAM - 随机属性的参数(这个参数的作用取决于item_randomopt_db.txt中如何使用ROA_PARAM, 目前看来所有官方的随机属性都没有用到这个参数)
+
+返回值:
+	操作成功则返回查询的值, 失败则返回 -1, 如果因为请求的<类型>无效而失败则返回 0
+
+---------------------------------------
+
+*setidxrandomoption(<背包序号>,<Random Option序号>,<id>,<value>,<param>{,<角色编号>});
+*setposrandomoption(<装备编号>,<Random Option序号>,<id>,<value>,<param>{,<角色编号>});
+
+设置 背包序号/装备编号 指定道具的 Random Option 属性.
+
+装备编号: 是指 EQI_* 开头的位置常量.
+
+如果被设定的道具未被穿戴, 那么会先告诉客户端该道具被删除, 
+然后完成对道具的属性修改后, 再告诉客户端你获得了一个新道具, 此时聊天栏会有个提示.
+
+如果被设定的道具已被穿戴, 那么会先将装备脱下, 然后告诉客户端该道具被删除, 
+接着完成对道具的属性修改后, 再告诉客户端你获得了一个新道具, 并自动将装备穿戴上.
+
+该道具的背包序号不会因为该指令的操作而被修改.
+
+此选项会在 picklog 日志表中留下道具的变化痕迹.
+
+返回值:
+	操作成功则返回 1, 失败则返回 0
+
+---------------------------------------
+
+*getiteminfo(<物品编号>,<类型>)
+
+在原来类型的基础上, BetterRa 新增了以下类型:
+
+17 - 是否可精炼, 1表示可以精炼, 0表示不能精炼
+18 - 交易限制掩码, 将返回该物品在 item_trade 数据库中第二列定义的值
+19 - 不会因玩家主动使用而被消耗, 1表示是, 0表示否
+20 - 不会被技能当做消耗品而消耗, 1表示是, 0表示否
+21 - 是否为宠物捕捉道具, 0表示否, 若是则返回能捕获的魔物编号
+22 - 是否在其使用脚本中调用了 callfunc 指令, 1表示是, 0表示否 (复兴前版本返回 -1)
+
+---------------------------------------
+
+*duplicate("<复制出来的新NPC所在地图名称>,<X坐标>,<Y坐标>,<朝向编号>","duplicate(<来源NPC名称>)","<复制出来的新NPC名称>","<角色编号>");
+*duplicate("<复制出来的新NPC所在地图名称>,<X坐标>,<Y坐标>,<朝向编号>%TAB%duplicate(<来源NPC名称>)%TAB%<复制出来的新NPC名称>%TAB%<角色编号>");
+*copynpc("<复制出来的新NPC所在地图名称>,<X坐标>,<Y坐标>,<朝向编号>","duplicate(<来源NPC名称>)","<复制出来的新NPC名称>","<角色编号>");
+*copynpc("<复制出来的新NPC所在地图名称>,<X坐标>,<Y坐标>,<朝向编号>%TAB%duplicate(<来源NPC名称>)%TAB%<复制出来的新NPC名称>%TAB%<角色编号>");
+*dupnpc("<复制出来的新NPC所在地图名称>,<X坐标>,<Y坐标>,<朝向编号>","duplicate(<来源NPC名称>)","<复制出来的新NPC名称>","<角色编号>");
+
+将一个指定的NPC复制到一个新的位置.
+主要的参数是4个字符串, 这四个字符串与使用 duplicate 进行静态复制时候的四个用 %TAB% 分隔的内容是一样的.
+脚本指令可以将NPC复制到副本中, 复制到副本中名称会改变, 请使用 instance_npcname 获得NPC的真实名称.
+
+假设有以下NPC, 我们想把它复制一个新的出来:
+
+	prontera,146,99,2    script    PVP管理员::PVPCOPYTEST    917,{
+		mes "[PVP管理员]";
+		mes "场地正在修理, 请稍后再来...";
+		close;
+	}
+
+通常的做法是在脚本中, 使用 duplicate 指令进行静态复制, 如:
+
+	prontera,156,99,2	duplicate(PVPCOPYTEST)	PVP管理员#1	917
+
+现在你可以使用 copynpc 脚本指令, 将上面这一行静态复制代码按 %TAB% 分割为4个字段, 然后以字符串形式传递给 copynpc 脚本指令, 如:
+
+	copynpc "prontera,156,99,2","duplicate(PVPCOPYTEST)","PVP管理员#1","917";
+
+同时此函数支持返回复制出来的新NPC的GID, 方便你使用 unit 系列指令对其进行操作, 如:
+	
+	.@gid = copynpc("prontera,156,99,2	duplicate(PVPCOPYTEST)	PVP管理员#1	917");
+	.@gid = copynpc("prontera,156,99,2","duplicate(PVPCOPYTEST)","PVP管理员#1","917");
+	unittalk .@gid, "My GID is : " + .@gid;
+	
+如何在副本中使用:
+
+	.@w1 = instance_mapname("1@tower") + ",156,99,2";
+	.@w2 = "duplicate(PVPCOPYTEST)";
+	.@w3 = "PVP管理员::0";
+	.@w4 = "917";
+	
+	copynpc .@w1, .@w2, .@w3, .@w4;
+	npctalk "我是复制自 PVPCOPYTEST 的NPC", instance_npcname("PVPCOPYTEST::1");
+	
+注意: 1. NPC名称中必须带有 ::XXX 才能复制成功, XXX最好为数字
+	  2. 当在副本中复制多个相同的NPC时, 通过修改 ::XXX 来避免NPC名称重复
+	  3. 可以通过 instance_npcname("来源NPC名称::XXX"); 获取NPC的真实名称. 
+ 
+	// 复制相同源生成的NPC
+	copynpc instance_mapname("1@tower") + ",156,100,2", "duplicate(PVPCOPYTEST)", "PVP管理员::1", "917";
+	copynpc instance_mapname("1@tower") + ",156,101,2", "duplicate(PVPCOPYTEST)", "PVP管理员::2", "917";
+	copynpc instance_mapname("1@tower") + ",156,102,2", "duplicate(PVPCOPYTEST)", "PVP管理员::3", "917";
+	copynpc instance_mapname("1@tower") + ",156,103,2", "duplicate(PVPCOPYTEST)", "PVP管理员::4", "917";
+	sleep 3000;
+	// 移除相同源生成的NPC
+	unloadcopynpc instance_npcname("PVPCOPYTEST::1");
+	unloadcopynpc instance_npcname("PVPCOPYTEST::2");
+	unloadcopynpc instance_npcname("PVPCOPYTEST::3");
+	unloadcopynpc instance_npcname("PVPCOPYTEST::4");
+
+返回值:
+	复制成功, 则返回复制出来的新NPC的GID, 失败则返回 0
+
+---------------------------------------
+
+*unloadduplicate "<NPC名称>";
+*unloadcopynpc "<NPC名称>";
+
+卸载掉复制的NPC, 具体使用方法请查看指令 copynpc
+
+如果是副本中的NPC请先用 instance_npcname 指令返回NPC名字, 也可以通过 strnpcinfo(3) 获取NPC名称.
+
+---------------------------------------
+
+*getareagid("<地图名>",<查询的单位类型>,<x0>,<y0>,<x1>,<y1>,<返回数组>);
+*getareagid("<地图名>",<查询的单位类型>,<中心坐标x>,<中心坐标y>,<半径>,<返回数组>);
+*getareagid("<地图名>",<查询的单位类型>,<返回数组>);
+
+当地图名为 this 时, 表示为执行脚本的玩家所在的地图, 此时脚本必须关联玩家.
+
+查询的单位类型:
+	BL_PC		- 玩家单位
+	BL_MOB		- 魔物单位
+	BL_PET		- 宠物单位
+	BL_HOM		- 人工生命体单位
+	BL_MER		- 佣兵单位
+	BL_ITEM		- 物品单位 (拿到了也暂时用不上)
+	BL_SKILL	- 技能单位 (拿到了也暂时用不上)
+	BL_NPC		- NPC单位
+	BL_CHAT		- 聊天室单位 (拿到了也暂时用不上)
+	BL_ELEM		- 元素精灵单位 (拿到了也暂时用不上)
+
+返回数组:
+	填写一个你希望查到的 GID 存储的数字类型数组的变量名, 比如 .@gids
+	
+	注意: 这里给定的变量名, 务必要考虑执行该指令的时候, 脚本是否关联了玩家, 
+	如果没有关联的话需要使用和玩家无关的变量类型, 比如 $@ 开头的变量
+	
+举个例子:
+prontera,150,90,4	script	getareagid_test	123,{
+	.@result = getareagid("this", BL_NPC, .@gids);
+	if (.@result < 0) {
+		dispbottom "执行 getareagid 时发生了错误, 返回值为: " + .@result;
+	}
+	
+	for (.@i = 0; .@i < .@result; .@i++) {
+		dispbottom ".@gids[" + .@i + "] = " + .@gids[.@i] + " NPC名称为: " + getunitname(.@gids[.@i]);
+	}
+}
+
+返回值:
+	返回大于 0 的数值: 表示找到了单位, 返回的数值为找到的单位个数
+	返回 -1 : 指定地图为 this 但是没有关联玩家
+	返回 -2 : 给定的地图名字是无效的, 找不到地图
+	返回 -3 : 传递的参数个数不对, 必须是3个、6个或者7个参数
+	返回 -4 : 给定的"返回数组"类型不对, 不能是一个字符串或数值常量, 也不能是字符串数组
+	返回 -5 : 给定的"返回数组"是一个需要依赖玩家的变量类型, 但是没有关联玩家 (比如 . 或 .@ 开头的数字类型数组)
+	
+---------------------------------------
+
+mail_create <发件人名>,<题目>,<内容>{,<ZENY>}
+mail_additem、mail_additem2、mail_additem3、mail_additembound、mail_additembound2、mail_additembound3 与相应的getitem指令参数相同
+mail_send {<收件人CID 或 收件人名>} 通过CID发送邮件只能发送给在线玩家
+
+发送邮件指令, 注意mail_create\mail_additem*\mail_send 指令必须连续使用.否则有可能造成发送邮件物品错误的情况.
+当你创建完邮件并添加物品到邮件后, 可以连续使用 mail_send 来进行群发..
+
+---------------------------------------
+
+*sendmail(<收件人角色编号>,"<发送者名称>","<标题>","<内容>"{,<附件中的金币>{,<附件一的物品编号>,<附件一的物品数量>{,<附件二的物品编号>,<附件二的物品数量>{,<附件三的物品编号>,<附件三的物品数量>{,<附件四的物品编号>,<附件四的物品数量>{,<附件五的物品编号>,<附件五的物品数量>}}}}}});
+*sendmail2(<收件人角色编号>,"<发送者名称>","<标题>","<内容>"{,<附件中的金币>{,<附件一的物品编号>,<附件一的物品数量>,<附件一是否已鉴定>,<附件一的精炼值>,<附件一的属性>,<附件一的第一张卡片>,<附件一的第二张卡片>,<附件一的第三张卡片>,<附件一的第四张卡片>{,<附件二的物品编号>,<附件二的物品数量>,<附件二是否已鉴定>,<附件二的精炼值>,<附件二的属性>,<附件二的第一张卡片>,<附件二的第二张卡片>,<附件二的第三张卡片>,<附件二的第四张卡片>{,<附件三的物品编号>,<附件三的物品数量>,<附件三是否已鉴定>,<附件三的精炼值>,<附件三的属性>,<附件三的第一张卡片>,<附件三的第二张卡片>,<附件三的第三张卡片>,<附件三的第四张卡片>{,<附件四的物品编号>,<附件四的物品数量>,<附件四是否已鉴定>,<附件四的精炼值>,<附件四的属性>,<附件四的第一张卡片>,<附件四的第二张卡片>,<附件四的第三张卡片>,<附件四的第四张卡片>{,<附件五的物品编号>,<附件五的物品数量>,<附件五是否已鉴定>,<附件五的精炼值>,<附件五的属性>,<附件五的第一张卡片>,<附件五的第二张卡片>,<附件五的第三张卡片>,<附件五的第四张卡片>}}}}}});
+*sendmail3(<收件人角色编号>,"<发送者名称>","<标题>","<内容>"{,<附件中的金币>{,<附件一的物品编号>,<附件一的物品数量>,<附件一是否已鉴定>,<附件一的精炼值>,<附件一的属性>,<附件一的第一张卡片>,<附件一的第二张卡片>,<附件一的第三张卡片>,<附件一的第四张卡片>,<附件一的RandomIDArray>,<附件一的RandomValueArray>,<附件一的RandomParamArray>{,<附件二的物品编号>,<附件二的物品数量>,<附件二是否已鉴定>,<附件二的精炼值>,<附件二的属性>,<附件二的第一张卡片>,<附件二的第二张卡片>,<附件二的第三张卡片>,<附件二的第四张卡片>,<附件二的RandomIDArray>,<附件二的RandomValueArray>,<附件二的RandomParamArray>{,<附件三的物品编号>,<附件三的物品数量>,<附件三是否已鉴定>,<附件三的精炼值>,<附件三的属性>,<附件三的第一张卡片>,<附件三的第二张卡片>,<附件三的第三张卡片>,<附件三的第四张卡片>,<附件三的RandomIDArray>,<附件三的RandomValueArray>,<附件三的RandomParamArray>{,<附件四的物品编号>,<附件四的物品数量>,<附件四是否已鉴定>,<附件四的精炼值>,<附件四的属性>,<附件四的第一张卡片>,<附件四的第二张卡片>,<附件四的第三张卡片>,<附件四的第四张卡片>,<附件四的RandomIDArray>,<附件四的RandomValueArray>,<附件四的RandomParamArray>{,<附件五的物品编号>,<附件五的物品数量>,<附件五是否已鉴定>,<附件五的精炼值>,<附件五的属性>,<附件五的第一张卡片>,<附件五的第二张卡片>,<附件五的第三张卡片>,<附件五的第四张卡片>,<附件五的RandomIDArray>,<附件五的RandomValueArray>,<附件五的RandomParamArray>}}}}}});
+
+使用该指令, 可以给指定的玩家发送一封邮件. 三个不同版本的指令其实只是支持的参数有所不同.
+
+版本区别:
+	sendmail 	可以发送简单的附件(无任何卡片或者精练值的道具, 药水等)
+	sendmail2	可以发送比较复杂的附件(可设定卡片、精炼值等)
+	sendmail3	除了卡片和精炼值之外, 还可以支持 Random Options (随机属性)
+
+演示脚本:
+	关于这一系列的指令使用方法, 可以参考 npc\BetterRa\BetterRa_sendmail.txt 演示脚本
+
+注意事项:
+	这一系列的指令不会去尝试判断收件人角色编号是否合法, 需要自己做判断.
+	若客户端不支持RODEX的话, 那么附件只有第一个会有效.
+
+---------------------------------------
+
+getservantgid <类型>{,<角色编号>};
+
+获得相应类型的跟随者的GID.
+
+查询的单位类型:
+	BL_PC		- 玩家单位
+	BL_PET		- 宠物单位
+	BL_HOM		- 人工生命体单位
+	BL_MER		- 佣兵单位
+
+---------------------------------------
+
+unitremove <GID>,<特效编号>;
+
+用于移除某个GID实体, 并播放某个动画.
+可以移除:  - 玩家单位
+           - 魔物单位
+           - 宠物单位
+           - 人工生命体单位
+           - 佣兵单位
+           - 物品单位 (拿到了也暂时用不上)
+           - 技能单位 (拿到了也暂时用不上)
+           - NPC单位
+		   - 元素精灵单位 (拿到了也暂时用不上)
+		   
+特效编号:  
+	0: 没有特效
+	1: 登出特效
+	2: 瞬移特效
+	3: 死亡特效
+
+---------------------------------------
+
+tribe_setteam <阵营编号>;
+tribe_setteam <GID>,<阵营编号>;
+
+设置玩家或魔物的阵营组. 不同的阵营组之间是有仇恨的, 也就是说 魔物和魔物之间可以打, 默认阵营为0;
+阵营系统只有在拥有tribe这个 mapflag 标签的时候才有效
+
+---------------------------------------
+
+tribe_getteam {<GID>};
+
+通过GID获取某个实体的阵营编号.
+
+---------------------------------------
+
+tribe_mobteam <阵营编号>;
+
+设置通过 monster, areamonster 召唤出来的魔物的阵营编号..必须在monster或areamonster之后使用.
+
+例子:(召唤并设置10个波利为阵营1)
+	monster "prontera",0,0,"Quest Poring",1002,10;
+	tribe_mobteam 1;
+
+---------------------------------------
+
+tribe_monster <阵营编号>,"<地图名字>",<x坐标>,<y坐标>,"<魔物名字>",<魔物ID>,"<事件标签>";
+
+召唤一个怪物并返回新招换的魔物的魔物ID. 可通过 playerattached 判断是否是玩家杀死的魔物。
+
+事件返回变量:
+	
+	注意: 因事件在遇到玩家正在运行时会排队, 所以与玩家关联时使用全局变量返回值会被其他击杀覆盖, 
+	如果你开启了 disable_mobdead_queue 则无需顾虑此问题可以直接使用全局变量
+	
+	如果是玩家杀死, 则返回:
+		killedgid			被杀死魔物的GID
+		killedrid			被杀死魔物的魔物编号(MobID)
+		killerrid			杀死魔物的实体GID
+	
+	如果是魔物杀死, 则返回: 
+		$killedgid			被杀死魔物的GID
+		$killedrid			被杀死魔物的魔物编号(MobID)
+		$killerrid			杀死魔物的实体GID
+
+例子:
+
+	tribe_monster .@tribe_id,"prontera",100,100,"Food Depot",1910,"Feed Depot#1::OnMyMobDead";
+	end;
+
+	set .@monster_gid, tribe_monster(.@tribe_id,"prontera",100,104,"Guardian",1949,"NPCNAME::OnMyMobDead");
+	end;
+
+---------------------------------------
+
+unitsteppath <GID>,"<路点名>"{,<寻路AI>,{<参数>,{<"事件名称">}}};
+unitsteppath <GID>,<路点编号>{,<寻路AI>,{<参数>,{<"事件名称">}}};
+
+给魔物设置自动行走路径, 设置自动行走路径后, 魔物将会按照路径的坐标一个一个的按照顺序走下去,直到走到重点为止.
+
+"<路点名>"\<路点编号> 为 step_path.txt 中的第一个字段.
+
+寻路AI:
+	PH_WALKBACK: 离开路径<参数>格或遇到障碍时, 不再追踪, 自动行走返回路径. (默认)
+	PH_WARPBACK: 离开路径直到失去目标后, 传送回路径继续走完路径.
+	PH_IGNOREWALK: 永远不追踪目标, 但如果目标在攻击(拾取)范围内, 依然会攻击(拾取).
+	PH_IGNOREALL: 永远不做任何其他事情, 一路走到路点结束.
+	PH_ASTARTWALK: 离开路径后, 调用A*算法计算路径, 并走到最终规定的路点终点.
+	PH_ASTARTWALKBACK: 离开路径后, 调用A*算法计算返回路径.
+
+<参数> 默认为 25, 为 PH_WALKBACK 提供返回距离， 当魔物离开路径 <参数> 格时，魔物不在追踪返回路径。
+<"事件名称"> 为路径点走完以后调用的事件，魔物路径寻路失败也会执行此命令, 事件可通过 $@steppath_gid 获得触发事件魔物的GID, $@steppath_fail 返回到达终点.
+
+---------------------------------------
+
+*bot_login <char_id>;
+*bot_login "<玩家名>";
+*bot_login <account_id>,<char_id>,<性别>;
+
+	登陆一个数据库中已有的账号. 
+	登陆过程中, 脚本暂停等待登陆完成后, 脚本关联会转移至登陆的BOT账号
+	
+返回值:
+	返回 BOT 的 AID
+
+---------------------------------------
+
+*bot_adduseskill <技能ID>,<技能等级>{,<使用间隔>{,<优先级>{,<使用条件>{,<参数1>{,<参数2>{,<角色ID>}}}}}};
+
+	添加技能到使用列表, 在满足条件时, 机器人会自动释放技能.
+
+使用间隔:
+	技能释放后, 需要间隔多久才能再次释放.
+
+优先级:
+	优先级较高的技能满足条件会优先释放.
+
+使用条件:
+	always				无条件 ( 默认, 没有参数 ).
+	myhpinrate			当自己的 HP 在限定范围内 ( 小于 <参数1> 或大于 <参数2> 时 ).
+	myspinrate			当自己的 HP 在限定范围内 ( 小于 <参数1> 或大于 <参数2> 时 ).
+	mystatuson			当自己拥有指定状态时 ( <参数1> 为指定的状态ID ).
+	mystatusoff			当自己失去指定状态时 ( <参数1> 为指定的状态ID ).
+	friendhpinrate		当队友(包括自己)的 HP 在限定范围内 ( 小于 <参数1> 或大于 <参数2> 时 ).
+	friendstatuson		当队友(包括自己)拥有指定状态时 ( <参数1> 为指定的状态ID ).
+	friendstatusoff		当队友(包括自己)失去指定状态时 ( <参数1> 为指定的状态ID ).
+	attackedgt			当攻击自己的敌人超过指定数量时 ( <参数1> 为攻击自己的数量 ).
+	closedattacked		当被近距离攻击时 ( 没有参数 ).
+	longrangeattacked	当被远距离攻击时 ( 没有参数 ).
+	afterskill			当使用指定技能后 ( <参数1> 为指定的技能ID ).
+	mobincount			当可视范围内魔物数量在限定范围内 ( 小于 <参数1> 或大于 <参数2> 时 ).
+	itemlessthan		当背包中指定物品数量在小于指定数值时 ( 物品ID为 <参数1> 的物品小于 <参数2> 个时 ).
+
+---------------------------------------
+
+*bot_adduseitem <物品ID>{,<使用延时>{,<优先级>{,<使用条件>{,<参数1>{,<参数2>{,<角色ID>}}}}}};
+
+	添加物品到使用列表, 在满足条件时, 机器人会自动使用物品.
+
+使用间隔:
+	物品使用后, 需要间隔多久才能再次使用.
+	
+优先级:
+	优先级较高的物品满足条件会优先使用.
+
+使用条件:
+	具体条件请参照 bot_adduseskill 指令
+
+---------------------------------------
+
+*bot_addevent <"事件名称">{,<触发延迟>{,<优先级>{,<触发条件>{,<参数1>{,<参数2>{,<角色ID>}}}}}};
+
+	机器人触发事件, 在满足条件时, 机器人会自动使用物品.
+
+触发间隔:
+	间隔多久检测一次事件满足条件, 默认 1000 毫秒.
+
+优先级:
+	优先级较高的事件满足条件会优先触发.
+
+触发条件:
+	具体条件请参照 bot_adduseskill 指令
+
+---------------------------------------
+
+*bot_addlootitem <物品ID>{,<拾取别人的战利品>{,<角色ID>}};
+
+	添加物品到拾取列表, 当打怪完成后会拾取附近的道具, 默认拾取别人的战利品
+
+---------------------------------------
+
+*bot_addattackmob <魔物ID>{,<优先级>{,<角色ID>}};
+
+	添加魔物到攻击列表, 当选择魔物时, 优先选择优先度高的魔物
+	当魔物列表中有魔物时, 则不会攻击攻击列表中没有的魔物
+
+---------------------------------------
+
+*bot_addmode <模式>{,<参数>{,<角色ID>}};
+
+	添加机器人的模式
+
+模式:
+	BOT_IDEA             - 闲置状态, 可通过 bot_run 移除此状态.
+	BOT_SKILL_ATK        - 使用技能攻击
+	BOT_WEAPON_ATK       - 使用普通攻击
+	BOT_SUPPORT_SELF     - 使用技能辅助自己
+	BOT_SUPPORT_FRIEND   - 使用技能辅助队友
+	BOT_NO_WALK          - 不自动寻路 (遇敌依然会走过去攻击)
+	BOT_FOLLOW_WALK      - 跟随指定的AID (参数为被跟随玩家的AID)
+	BOT_RANDOM_WALK      - 范围内没有敌人时, 使用随机寻路寻找敌人
+	BOT_ASTAR_WALK       - 范围内没有敌人时, 使用A*路寻找敌人 (优先级大于 BOT_RANDOM_WALK)
+	BOT_IGNORE_TOUCH     - 无视传送点和NPC触发对话
+	BOT_IGNORE_SAME_ELE  - 无视同属性的敌人 (参数为修正值, 参数为50时, 属性修正低于50的魔物不打)
+	BOT_ALWAYS_MASTER    - 只攻击敌人的主人
+	BOT_COUNTERATTACK    - 对正在攻击机器人的实体进行反击
+	BOT_OFFLINE          - 采用离线挂机模式
+
+---------------------------------------
+
+*bot_delmode <模式>{,<角色ID>};
+
+	移除机器人的模式
+
+模式: 
+	请查看 bot_addmode 指令
+
+---------------------------------------
+
+*bot_hasmode <模式>{,<角色ID>};
+
+	判断机器人是否有相关的模式, 判断多个模式可以相加
+
+模式: 
+	请查看 bot_addmode 指令
+
+---------------------------------------
+
+*bot_trade <类型>;
+*bot_trade <类型>,<背包序号>,<交易数量>;
+*bot_trade <类型>,<ZENY数量>;
+
+	当BOT收到交易请求时, 可以通过这个指令操作BOT交易
+
+类型:
+	BOT_ACT_ACCEPT  同意交易并进入交易窗口
+	BOT_ACT_REFUSE  拒绝交易
+	BOT_ACT_ADDITEM 在交易窗口中添加道具(必须在交易窗口下使用, 否则无效果)
+	BOT_ACT_ZENY    在交易窗口中添加ZENY(必须在交易窗口下使用, 否则无效果)
+	BOT_ACT_OK      确认交易
+	
+注意: 该指令需要配合 OnBOTRecvActEvent 脚本事件一起使用
+
+---------------------------------------
+
+*bot_party <类型>;
+
+	当BOT收到加入队伍请求时, 可以通过这个指令操作BOT接受或拒绝申请
+
+类型:
+	BOT_ACT_ACCEPT  同意加入
+	BOT_ACT_REFUSE  拒绝加入
+	
+注意: 该指令需要配合 OnBOTRecvActEvent 脚本事件一起使用
+
+---------------------------------------
+
+*bot_guild <类型>;
+
+	当BOT收到加入公会请求时, 可以通过这个指令操作BOT接受或拒绝申请
+	
+类型:
+	BOT_ACT_ACCEPT  同意加入
+	BOT_ACT_REFUSE  拒绝加入
+		
+注意: 该指令需要配合 OnBOTRecvActEvent 脚本事件一起使用
+
+---------------------------------------
+
+*bot_reset {<类型>{,<角色ID>}};
+
+	重置机器人相关信息, 多个重置将类型相加即可
+
+类型: 
+	BOT_REST_SKILL  - 重置技能列表
+	BOT_REST_ITEM   - 重置物品列表
+	BOT_REST_EVENT  - 重置事件列表
+	BOT_REST_LOOT   - 重置拾取列表
+	BOT_REST_MOB    - 重置魔物列表
+	BOT_REST_MODE   - 重置机器人模式, 并将机器人设置为闲置(BOT_IDEA)状态
+	BOT_REST_ALL    - 重置以上所有
+	  
+---------------------------------------
+
+*is_bot {<角色ID>};
+
+	用于判断玩家是否是机器人
+	
+注意:当对玩家使用除bot_stop以外的指令时, 玩家则会被判定为机器人
+
+返回: 0 时玩家不是BOT, 1 时BOT为闲置(BOT_IDEA)状态, 2 时BOT为运行状态
+
+---------------------------------------
+
+*bot_run {<运行时长>{,<角色ID>}}};
+
+	启动机器人, 用于移除机器人的闲置(BOT_IDEA)状态, 效果等同于 bot_delmode(BOT_IDEA).
+
+返回: -1 没有机器人的相关配置
+      -2 角色已死亡
+	  -3 角色处于挂店或开启仓库的状态
+
+例子: 请查看 npc\BetterRa\BetterRa_bot.txt
+
+---------------------------------------
+
+*bot_pause {<角色ID>};
+
+	暂停机器人, 用于为机器人添加闲置(BOT_IDEA)状态, 效果等同于 bot_addmode(BOT_IDEA).
+
+---------------------------------------
+
+*bot_stop {<是否登出>{,<角色ID>}};
+
+	释放一个机器人
+	
+是否登出:
+	1 - 登出
+	0 - 保持在线, 如果BOT为离线挂机则无效果
+	
+---------------------------------------
+
+*openchat "<标题>"{,<人数上限>{,"<密码>"{,<角色ID>}}};
+
+开启一个聊天窗口
+
+---------------------------------------
+
+*openvending "<商店名称>"{,<物品ID>,<物品数量>,<物品售价>{,<物品ID>,<物品数量>,<物品售价>...{,<角色ID>}}};
+
+开启一个贩卖商店, 手推车中必须有这些物品.
+
+---------------------------------------
+
+*openbuying "<商店名称>"{,<物品ID>,<物品数量>,<物品售价>{,<物品ID>,<物品数量>,<物品售价>...{,<角色ID>}}}
+
+开启一个采购商店, 最多只能同时采购 3 个物品.
+
+---------------------------------------
+
+*http_get "<URL>",<超时时间(秒)>,<获取后是否当做NPC文件加载>{,<保存数字>};
+
+发送GET指令. 通过 OnHTTPReceivedEvent 事件返回GET内容, 注意本指令不支持HTTPS链接..
+
+<获取后是否当做NPC文件加载> 0为否, 1为是, 加载的脚本可以为网络上的加密脚本
+<保存数字> 可以保存玩家的CID或者AID 可以在 OnHTTPReceivedEvent 事件后 $@http_num 变量返回, 用于绑定角色
+
+注意!!加载脚本设置为是的时候 将不会触发事件, 直接会被加载...
+
+OnHTTPReceivedEvent 事件返回变量:
+	
+	$@http_code           HTTP 返回代码（200 404 301 302 502等）
+	$@http_name$          HTTP header 返回名(数组),
+	$@http_val$           HTTP header 值(数组),
+	$@http_header_count   HTTP header 数组长度.
+
+	$@http_url$     为 http_get脚本指令中的 <URL>
+	$@http_host$    为 http_get脚本指令中的 <网址>
+	$@http_folder$  为 http_get脚本指令中的 <网址剩余部分>
+	$@http_num      为 http_get脚本指令中的 <保存数字>
+	$@http_str$     为返回的内容
+	
+授权例子: 
+	http_get("http://www.example.com/login.php?account=name&passworld=123456",3,0); 登陆后端获取的IP地址并落地并返回yes
+
+	OnHTTPReceivedEvent:
+		
+		//判定网址和登陆页面, 并判断返回内容是否为yes(为yes则为登陆成功)..
+		if($@http_host$ == "www.example.com" && compare($@http_folder$,"login.php") && $@http_str$ == "yes"){
+			
+			//在后端用登陆时的IP决定是否返回NPC脚本
+			http_get("http://www.example.com/script.php?npc=test0.txt",3,1);
+			http_get("http://www.example.com/script.php?npc=test1.txt",3,1);
+			http_get("http://www.example.com/script.php?npc=test2.txt",3,1);
+			http_get("http://www.example.com/script.php?npc=test3.txt",3,1);
+		}
+	
+---------------------------------------
+
+*callshop "<商店名字>",<配置>,"<过滤文本>";
+
+配置为10时, 为打开向NPC出售的贩卖菜单, 菜单可以使用过滤文本.
+过滤为本: "type:物品类型{,物品类型}..;item:物品ID{,物品ID}..;"
+例: callshop "shoptest",10, "type:6;item:501,502;" 弹出贩卖菜单, 菜单只显示卡片\红色药水\赤色药水, 如果玩家身上有相应物品时才会被显示...
+
+---------------------------------------
+
+*unit_Astar_walkto <GID>,<x坐标>,<y坐标>{,<自动释放>{,<寻路AI>,{<参数>,{<"事件名称">}}}};
+
+全图寻路，玩家、魔物或NPC可行走至地图上的任意一点。
+<自动释放> 默认为1，如果需要被多次调用可以将自动释放设置为 0， 将会一直存在路点系统中。
+
+寻路AI:
+	PH_WALKBACK: 离开路径<参数>格或遇到障碍时, 不再追踪, 自动行走返回路径. (默认)
+	PH_WARPBACK: 离开路径直到失去目标后, 传送回路径继续走完路径.
+	PH_IGNOREWALK: 永远不追踪目标, 但如果目标在攻击(拾取)范围内, 依然会攻击(拾取).
+	PH_IGNOREALL: 永远不做任何其他事情, 一路走到路点结束.
+	PH_ASTARTWALK: 离开路径后, 调用A*算法计算路径, 并走到最终规定的路点终点).
+	PH_ASTARTWALKBACK: 离开路径后, 调用A*算法计算返回路径.
+
+<参数> 默认为 25, 为 PH_WALKBACK 提供返回距离， 当魔物离开路径 <参数> 格时，魔物不在追踪返回路径。
+<"事件名称"> 为路径点走完以后调用的事件，魔物路径寻路失败也会执行此命令。可通过$@gid获得触发事件魔物的GID
+
+---------------------------------------
+
+*unit_cross_map_walkto <GID>,"<地图名>",<x坐标>,<y坐标>{,<寻路AI>,{<参数>,{<"事件名称">}}};
+
+穿越地图的全图寻路，玩家、魔物或NPC可通过传送点走至指定地图上的任意一点。
+<自动释放> 默认为1，如果需要被多次调用可以将自动释放设置为 0， 将会一直存在路点系统中。
+
+寻路AI:
+	PH_WALKBACK: 离开路径<参数>格或遇到障碍时, 不再追踪, 自动行走返回路径. (默认)
+	PH_WARPBACK: 离开路径直到失去目标后, 传送回路径继续走完路径.
+	PH_IGNOREWALK: 永远不追踪目标, 但如果目标在攻击(拾取)范围内, 依然会攻击(拾取).
+	PH_IGNOREALL: 永远不做任何其他事情, 一路走到路点结束.
+	PH_ASTARTWALK: 离开路径后, 调用A*算法计算路径, 并走到最终规定的路点终点.
+	PH_ASTARTWALKBACK: 离开路径后, 调用A*算法计算返回路径.
+
+<参数> 默认为 25, 为 PH_WALKBACK 提供返回距离， 当魔物离开路径 <参数> 格时，魔物不在追踪返回路径。
+<"事件名称"> 为路径点走完以后调用的事件，魔物路径寻路失败也会执行此命令。可通过$@gid获得触发事件魔物的GID
+
+---------------------------------------
+
+*mobstaypos <GID>,<x坐标>,<y坐标>{,<追踪距离>};
+
+将魔物固定于一点，被固定的魔物只能在坐标点周围活动。
+<追踪距离> 当目标大于追踪距离时则返回。
+
+---------------------------------------
+
+*instance_name {<副本ID>};
+
+获取玩家所拥有的副本的名字。副本ID 通过 instance_id 指令获取。
+
+---------------------------------------
+
+*magicshield <种族>,<护盾血量>,<持续时间>;
+
+在持续时间内，抵挡相应种族的伤害。
+
+参数<种族>: 
+	RC_Angel		天使系
+	RC_Brute		动物系
+	RC_DemiHuman	人形系
+	RC_Demon		恶魔系
+	RC_Dragon		龙系
+	RC_Fish			鱼贝系
+	RC_Formless		无形系
+	RC_Insect		昆虫系
+	RC_Plant		植物系
+	RC_Player		玩家
+	RC_Undead		不死系
+	RC_All			所有种族
+	
+---------------------------------------
+
+*getbonus <类型>,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>}}}};
+*getcharbonus <类型>,<参数或变量>,<角色ID>;
+*getcharbonus <类型>,<参数或变量>,<参数或变量>,<角色ID>;
+*getcharbonus <类型>,<参数或变量>,<参数或变量>,<参数或变量>,<角色ID>;
+*getcharbonus <类型>,<参数或变量>,<参数或变量>,<参数或变量>,<参数或变量>,<角色ID>;
+*getcharbonus <类型>,<参数或变量>,<参数或变量>,<参数或变量>,<参数或变量>,<参数或变量>,<角色ID>;
+
+用来获取 bonus 的参数，当参数填写变量时则获取相应位置上的参数。
+
+注: 
+	getcharbonus 用法与getbonus相同, 只是最后一个参数为玩家的角色ID, 用来获取指定玩家的 bonus 参数
+	当 bf 参数为 -1 时 则忽略 bf参数, 获取的结果为所有满足条件之和
+	
+例：
+
+	getbonus bAddEle,Ele_Dark,.@val;
+	dispbottom "你对属性 Ele_Dark 增加 "+.@val+" 的伤害";
+	getbonus bAddEle,Ele_Dark,.@val,BF_SHORT;	
+	dispbottom "近距离物理攻击时, 你对属性 Ele_Dark 增加 "+.@val+" 的伤害";
+	
+	
+支持的 Bonus 列表:
+	bonus2 bAddEle,e,x;
+	bonus3 bAddEle,e,x,bf;
+	bonus2 bMagicAddEle,e,x;
+	bonus2 bSubEle,e,x;
+	bonus3 bSubEle,e,x,bf;
+	bonus2 bSubDefEle,e,x;
+	
+	bonus2 bAddRace,r,x;
+	bonus2 bMagicAddRace,r,x;
+	bonus2 bSubRace,r,x;
+	
+	bonus2 bAddClass,c,x;
+	bonus2 bMagicAddClass,c,x;
+	bonus2 bSubClass,c,x;
+	
+	bonus2 bAddSize,s,x;
+	bonus2 bMagicAddSize,s,x;
+	bonus2 bSubSize,s,x;
+	
+	bonus2 bAddDamageClass,mid,x;
+	bonus2 bAddMagicDamageClass,mid,x;
+	bonus2 bAddDefMonster,mid,x;
+	bonus2 bAddMDefMonster,mid,x;
+	
+	bonus2 bAddRace2,mr,x;
+	bonus2 bSubRace2,mr,x;
+	bonus2 bMagicAddRace2,mr,x;
+	
+	bonus2 bSubSkill,sk,n;
+	
+	bonus2 bResEff,eff,n;
+	
+	bonus bCastrate,n;
+	bonus2 bCastrate,sk,n;
+	bonus bFixedCastrate,n;
+	bonus2 bFixedCastrate,sk,n;
+	bonus bDelayrate,n;
+	bonus2 bSkillCooldown,sk,t;
+	
+---------------------------------------
+
+*bonus_minfix <类型>,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>}}}},<最小值>;
+*bonus_maxfix <类型>,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>}}}},<最大值>;
+
+此指令可用在 OnPCStatCalcEvent 事件下面用来修正相应的bonus数值。
+
+例:
+	bonus_maxfix bAddEle,Ele_Dark,.@val,BF_SHORT,80; // 近距离攻击时的暗属性修正不能大于80%, .@val 获取最终的值
+	bonus_minfix bAddEle,Ele_Dark,.@val,10; // 暗属性修正不能小于10%, .@val 获取最终的值
+	
+支持的 Bonus 列表同getbonus.
+
+---------------------------------------
+
+*bonus_ratefix <类型>,<最大值>{,<角色ID>};
+
+此指令可用在 OnPCStatCalcEvent 事件下面用来修正相应的bonus数值。
+
+例：
+	bonus_ratefix bAddEle,50; // bAddEle属性修正不能大于50%
+	
+支持的 Bonus 列表同getbonus.
+	
+---------------------------------------
+
+*getrateidx <概率数组>;
+*getrateidx <概率>{,<概率>{,<概率>....}};
+
+根据提供的概率返回该概率值在数组中的位置，被概率值越大选中的概率越大。
+
+例：
+	setarray .@item[0],501,502,503;
+	setarray .@rate[0],1000,20,10;
+	getitem .@item[getrateidx(.@rate)],1;
+	
+	// 有 1000/(1000+20+10) 的概率获得红色药水(501)
+	// 有 20/(1000+20+10) 的概率获得赤色药水(502)
+	// 有 10/(1000+20+10) 的概率获得黄色药水(503)
+	
+---------------------------------------
+
+*readstatus <参数>;
+
+获取属性的总量。
+
+参数: 
+    bStr:  获取玩家所拥有的 STR 总数值
+	bAgi:  获取玩家所拥有的 AGI 总数值
+	bVit:  获取玩家所拥有的 VIT 总数值
+	bInt:  获取玩家所拥有的 INT 总数值
+	bDex:  获取玩家所拥有的 DEX 总数值
+	bLuk:  获取玩家所拥有的 LUK 总数值
+	
+---------------------------------------
+
+*getareamember <团队类型>,{<范围>{,<角色ID>}};
+
+获取指定玩家范围内同组队、公会、战场成员数量及AID
+
+类型：
+	PARTY_AREA:  范围内的队伍成员
+	GUILD_AREA:  范围内的公会成员
+	BG_AREA:     范围内的战场成员
+
+返回值:
+	成员数数量
+
+返回变量:
+	@member_aid 储存成员AID
+
+---------------------------------------
+
+*getmapmember <团队类型>,"<地图名>",<团队ID>;
+
+获取地图内指定组队、公会、战场成员数量及AID
+
+类型：
+	PARTY_AREA:  范围内的队伍成员
+	GUILD_AREA:  范围内的公会成员
+	BG_AREA:     范围内的战场成员
+
+返回值:
+	成员数数量
+
+返回变量:
+	$@member_aid 储存成员AID
+	
+---------------------------------------
+
+*addatkevent <攻击类型>,<概率>,<次数>,"<事件>",<触发时间间隔>{,<角色ID>};
+
+添加攻击事件, 达到攻击触发的事件条件后, 事件将会自动触发..
+
+攻击类型:
+按攻击范围:
+	BF_SHORT:  近距离攻击
+	BF_LONG:   远距离攻击
+	默认:   BF_SHORT+BF_LONG
+按攻击类型:
+	BF_WEAPON: 物理攻击
+	BF_MAGIC:  魔法攻击
+	BF_MISC:   混合攻击
+	默认:   BF_WEAPON
+按技能类型:
+	BF_NORMAL: 普通攻击
+	BF_SKILL:  技能攻击
+	默认:   如果攻击类型是 BF_WEAPON (only) BF_NORMAL, 否则 BF_SKILL+BF_NORMAL.
+
+概率: 为千分率, 触发事件的概率
+次数: 攻击打到次数后触发事件
+触发时间间隔: 每次触发时间后隔多少毫秒以后才可以触发下一次
+
+注意!! 如果概率和次数同时被填写, 那么两个条件必须都满足才会触发...
+事件: 被触发的事件名, 格式为"NPCNAME::EVENTNAME"..
+
+注意!!!!!!!!如果概率和次数都填写0的话, 每次攻击都会触发事件, 这两个参数请根据情况填写, 如果事件触发太频繁, 可能会因为事件下的代码调用过于频繁造成服务器CPU资源被大量占用的情况..
+
+---------------------------------------
+
+*delatkevent <攻击类型>{,<角色ID>};
+
+删除按攻击类型触发的事件的条件.
+
+---------------------------------------
+
+
+*getatkevent <攻击类型>,<标签>{,<角色ID>};
+
+获得按攻击类型触发的事件的条件.
+
+<标签>:
+	为 1 时, 返回 攻击过多少次, 当达到最高次时清零, 并触发事件.
+	为 2 时, 返回 addatkevent指令中第2个参数(<概率>)
+	为 3 时, 返回 addatkevent指令中第3个参数(<次数>)
+	为 4 时, 返回 addatkevent指令中第4个参数("<事件>")
+	为 5 时, 返回 addatkevent指令中第5个参数(<触发时间间隔>)
+
+---------------------------------------
+
+*gettarget{<GID>};
+
+获取正在攻击目标的GID..
+
+---------------------------------------
+
+*unitskillfixed <GID>,<技能ID>,<念咒修正>,<伤害修正>,<修正类型>{,<持续时间>};
+
+持续时间内, 对技能的念咒时间, 伤害进行修正, 如果设置修正类型为 0, 则直接增加修正的相应数量. 
+
+技能ID:
+	如果技能ID为-1, 对所有技能攻击进行修正
+	如果技能ID为-2, 对所有普通攻击进行修正
+	如果技能ID为-3, 对所有普通攻击和技能攻击进行修正
+
+修正类型(掩码计算:选择多项掩码相加):
+	&0: 念咒和伤害在原有基础上累加(优先级小于下列所有)
+	&1: 念咒直接修正(<念咒修正>提供的数据就是念咒总时长, 优先级大于 &4)
+	&2: 伤害直接修正(<伤害修正>提供的数据就是技能总伤害, 优先级大于 &8)
+	&4: 念咒根据百分比修正(<念咒修正>提供修正的百分比)
+	&8: 伤害修正根据百分比修正(<伤害修正>提供修正的百分比)
+
+例:
+	unitskillfixed 19,1000,5000000,3; //将下一次火箭术技能的念咒修改为1秒, 伤害修改为 5000000
+	unitskillfixed 19,1000,5000000,0; //将下一次火箭术技能的念咒累加1秒, 伤害累加 5000000
+	unitskillfixed 19,1000,5000000,2; //将下一次火箭术技能的念咒累加1秒, 伤害修改为 5000000
+
+---------------------------------------
+
+*unitskillfixedreset <GID>;
+
+将之前的修正清零.
+
+---------------------------------------
+
+*gettarget {<GID>};
+
+获取正在攻击目标的GID。
+
+---------------------------------------
+
+*homattack <攻击类型>;
+
+开启关闭生命体自动攻击, 因为在2017年的一次更新中禁用了生命体自动攻击, 所以添加此指令.
+
+<攻击类型> 0: 关闭
+           1: 只会普通攻击
+           2：普通攻击和单体技能
+           3：普通攻击和群体技能
+		   
+---------------------------------------
+
+*mobdrop <GID>,<魔物ID>{,<掉落倍率>{,<最大掉落概率>}}
+
+模拟魔物掉落, 该魔物数据库中的掉落物品会依次计算掉落（多个物品可以同时掉落）, 
+掉落位置为<GID>所在的位置，如果<GID>为 0 则物品直接给予脚本相关联的玩家，对于玩家来说AID既是GID。
+掉落概率 = 魔物数据库中物品的掉落概率 x <掉落倍率> / 100
+<最大掉落概率>用来约束最终掉落概率
+
+---------------------------------------
+
+*sortarray <数组>{,<标签>};
+*sortarray <参考数组>,<排序数组>,<标签>;
+
+对数组进行排序。
+
+<标签>(掩码选项)
+	&1 : 正序排列
+	&2 : 倒序排列
+	&4 : 根据<参考数组>的值对<排序数组>的值进行排序
+	&8 : 根据<参考数组>的值对<参考数组>的键进行排序, 此时<参考数组>正常进行排序, <排序数组>为对键重排的结果的存储数组
+
+说明：
+	键为中括号里面的数字值为变量中保存的数字，.@example[键] = 值;
+	排序键值不受限制
+	
+例1：
+	.@example[100005] = 1;
+	.@example[982254] = 2;
+	.@example[852742] = 3;
+	.@example[758787] = 4;
+	
+	sortarray(.@example, .@result, 1 | 8);  //根据.@example值的顺序对.@exampl的键进行正序排序
+	// .@example 为 1,2,3,4
+	// .@result 为 100005,982254,852742,758787
+	
+	sortarray(.@example, 2); //对值进行反序排序
+	// .@example 为 4,3,2,1
+例2：
+	setarray .@example[10],10,1,3,8,9,5,7,2,4,6,0;
+	
+	sortarray(.@example); //对值进行正序排序
+	// .@example 为 0,1,2,3,4,5,6,7,8,9,10
+	sortarray(.@example, 2); //对值进行反序排序
+	// .@example 为 10,9,8,7,6,5,4,3,2,1,0
+例3：
+	setarray .@example[0],5,1,4,2,3;
+	setarray .@result[0],10,20,30,40,50;
+	
+	sortarray(.@example, .@result, 2 | 4); //根据.@example值的顺序对.@result的值进行反序排序
+	// .@example 为 5,4,3,2,1 
+	// .@result 为 10,30,50,40,20
+	
+	sortarray(.@example, .@result, 1 | 4); //根据.@example值的顺序对.@result的值进行正序排序
+	// .@example 为 1,2,3,4,5
+	// .@result 为 20,40,50,30,10
+	
+例4：
+	setarray .@example[0],5,1,4,2,3;
+	setarray .@result[0],0,0,0,0,0;
+	
+	sortarray(.@example, .@result, 2 | 8); //根据.@example值的顺序对.@exampl的键进行反序排序
+	// .@example 为 5,4,3,2,1
+	// .@result 为 0,2,4,3,1
+
+---------------------------------------
+
+*npcshopattach "<name>"{,<flag>};
+
+拓展 OnSellItem 事件添加返回 @sold_idx 数组，返回物品在背包中的序列。
+
+---------------------------------------
+
+*getdaytick("<标准时间格式>");
+*getdaytick(<年>,<月>,<日>{,<时>{,<分>{,<秒>}}});
+
+根据所提供的时间返回时间戳。从1970年1月1日至提供时间。
+标准时间格式为 "年-月-日 时:分:秒" 或 "年-月-日"
+
+返回值:
+	返回时间戳, 时间戳为数字
+	
+例:
+	getdaytick("2018-12-31");
+	getdaytick(2018,12,31);
+	getdaytick("2018-12-31 5:23:31");
+
+---------------------------------------
+
+*unitmasterid(<gid>);
+
+获得GID对应的主人的GID, 支持宠物、魔物、生命体、佣兵、元素精灵、技能
+
+返回值:
+	主人的GID，如果没有找到主人的话则返回0
+
+---------------------------------------
+
+*is_attach({<角色ID>});
+
+获取玩家是否跟脚本有关联, 一般用来判断玩家是否正在跟NPC对话
+一般用在脚本外使用, 如果在脚本外获取 GID 则使用 getattachnpc 指令
+
+例:
+501,Vip_list,VIP菜单,11,10,,70,,,,,0xFFFFFFFF,63,2,,,,,,{ if (is_attach()) dispbottom "使用VIP菜单请先关闭与 "+getunitname(is_attach())+" 的交谈"; },{},{}
+
+prontera,153,179,5	script	is_attach测试	56,{
+	mes "正在与NPC对话,请不要点击关闭,并尝试使用VIP菜单";
+	close;
+}
+
+返回值:
+	正在对话则返回上层关联 NPC 的 GID , 没有在对话返回0;
+
+---------------------------------------
+
+*getattachnpc({<角色ID>});
+
+获得玩家当前激活的 NPC 的 GID.
+
+prontera,153,179,5	script	getattachnpc测试	56,{
+	mes "正在与NPC对话, NPC 名称: "+getunitname(getattachnpc());
+	close;
+}
+
+返回值:
+	NPC 的 GID , 没有在对话返回0;
+	
+---------------------------------------
+
+*unitskilluse <GID>,<技能ID>,<技能等级>{,<目标GID>,<吟唱时间>{,<是否可打断>}};
+*unitskilluse <GID>,"<技能名称>",<技能等级>{,<目标GID>,<吟唱时间>{,<是否可打断>}};
+
+对目标使用技能, 效果类似于unitskilluseid, 但指令会自动判断地面技能还是目标技能, 当使用技能为地面技能时将会以目标为中心释放技能。
+当是否打断被省略时，技能会根据 skill_db.txt 中的 castcancel 来判断是否可打断。
+
+---------------------------------------
+
+* mobskill <魔物GID>,<技能ID>,<技能等级>,<咏唱时间(秒)>,<是否可打断>,<目标类型>{,<偏移x>,<偏移y>};
+* mobskill <魔物GID>,<"技能名称">,<技能等级>,<咏唱时间(秒)>,<是否可打断>,<目标类型>{,<偏移x>,<偏移y>};
+
+魔物使用技能, 如果怪物正在咏唱则取消目前释放的技能, 此指令对写脚本的人非常友好.
+作者kuku
+
+<是否可打断>
+   0: 不可打断
+   1: 可以打断
+
+<目标类型>
+   0: 自己
+   1: 怪物当前目标
+   2: 怪物的主人
+   3: 随机目标
+   
+<偏移x> 地面技能相对于目标坐标x轴的偏移量
+<偏移y> 地面技能相对于目标坐标y轴的偏移量
+
+---------------------------------------
+
+*sleep3 <时间>
+
+延时函数, 不会丢失与玩家的关联, 但是玩家与脚本没有关联也不会报错.
+
+---------------------------------------
+
+*unitgettarget(<GID>);
+*gettarget(<GID>);
+
+获取GID对象正在攻击的目标的GID.
+
+---------------------------------------
+
+*when_progressbar_abort_doevent;
+*when_progressbar_abort_doevent(<角色ID>);
+
+使用此脚本后 progressbar 被打断后的事件 OnPCProgressAbortEvent 才会被触发.
+
+---------------------------------------
+
+*isequippedcnt2(<物品ID>{,<物品ID>{,<物品ID>{,<物品ID>}}});
+
+用法同 isequippedcnt 可以支持任何物品ID, 主要用于拓展附魔道具. 
+
+返回值:
+	返回数量
+
+---------------------------------------
+
+*isequipped2(<物品ID>{,<物品ID>{,<物品ID>{,<物品ID>}}})
+
+用法同 isequipped 可以支持任何物品ID, 主要用于拓展附魔道具. 
+
+返回值:
+	返回数量
+
+---------------------------------------
+
+*instance_enter_left {<角色编号>};
+
+返回上次离开副本的位置..必须在 BatterRA.conf 中配置 instance_leave_record 才能生效
+该函数通过解析 instance_record$ 得到副本信息, 可自行判断变量中数据的合法性
+不是同一个副本不会被传入, 可用于掉线重进进入副本, 也可用于离开副本后重回副本
+
+返回值：
+	参考 instance_enter
+
+---------------------------------------
+
+*instance_record {<标签>{,<角色ID>}};
+
+可用来检查变量 instance_record$ 保存的数据是现在玩家正在进行的副本
+可用于获取变量 instance_record$ 中保存的地图、X坐标、Y坐标
+
+<标签>
+	留空 ：检查 instance_record$ 保存的数据是现在玩家正在进行的副本, 合法返回1, 否则返回0
+	1 : 返回副本的原地图 可通过 instance_map函数获取副本地图, 失败返回0
+	2 ：返回X坐标, 失败返回0
+	3 ：返回Y坐标, 失败返回0
+
+---------------------------------------
+
+*getmobdmglog(<魔物GID>,<CID变量>,<伤害变量>{,<最大获取数量>{,<根据伤害降序排序>})};
+
+用来获取对魔物造成伤害排名数据, 数据存入<存储变量>, 玩家下线, 死亡后重新开始则该玩家的相应数据会被清空。
+此指令最多只能获得30个伤害数据。
+
+<CID变量>
+	用于存储玩家CID
+	
+<伤害变量>
+	用于存储伤害数值
+	
+<根据伤害降序排序>
+	0 : 否 (根据玩家伤害顺序排序)
+	1 : 是 (默认自动排序)
+
+返回值:
+	返回<存储变量>中数据的个数。
+
+---------------------------------------
+
+*charid2rid(角色ID);
+
+返回角色ID(charid)对应的账号ID(rid, gid, aid)
+
+返回值:
+	返回AID
+
+---------------------------------------
+
+*unithide <GID>,<角色ID>{,<特效编号>};
+
+临时隐藏某个GID，隐藏只针对<角色ID>，当玩家离开再回来时还可以看到这个目标。
+可通过NPC事件 OnDisplay 配合长期对某个玩家隐藏/显示指定NPC，OnDisplay使用方法参见 npc\BetterRa\BetterRa_event_demo.txt
+
+特效编号:  
+	0: 没有特效
+	1: 登出特效
+	2: 瞬移特效(默认)
+	3: 死亡特效
+
+---------------------------------------
+
+*unitshow <GID>,<角色ID>;
+
+临时显示某个GID，显示只针对<角色ID>，当玩家离开再回来时还是看不到这个目标。
+可通过NPC事件 OnDisplay 配合长期对某个玩家隐藏/显示指定NPC，OnDisplay使用方法参见 npc\BetterRa\BetterRa_event_demo.txt
+
+---------------------------------------
+
+*preg_match(<匹配正则>,<匹配文本>{,<索引位置>});
+
+此指令为官方指令，BetterRA支持取出匹配子项，匹配文本被保存在 $@p$[0] 中。
+子项被保存在$@p$[1]、$@p$[2]、$@p$[3]、$@p$[4].....中
+
+返回值：
+	匹配数量(即$@p$数组成员数)
+
+---------------------------------------
+
+*showvending("<NPC名称>",<是否显示>{,"<招牌名称>"});
+
+使指定<NPC名称>头上显示露天商店的招牌, 点击招牌可触发NPC
+
+是否显示:
+	0 - 隐藏招牌
+	1 - 显示招牌
+	
+别名: showvend
+
+用法:
+prontera,150,150,4	shop	Vend_Title_Test	48,501:-1
+
+-	script	NPC_Vend	-1,{
+	end;
+	OnInit:
+		showvending("Vend_Title_Test", 1, "有招牌的商店");
+	end;
+}
+
+返回值:
+	操作成功则返回 1, 失败则返回 0
+
+---------------------------------------
+
+*showbuying("<NPC名称>",<是否显示>{,"<招牌名称>"});
+
+使指定<NPC名称>头上显示采购商店的招牌, 点击招牌可触发NPC
+
+是否显示:
+	0 - 隐藏招牌
+	1 - 显示招牌
+
+用法:
+prontera,150,150,4	shop	Buy_Title_Test	48,501:-1
+
+-	script	NPC_BUY	-1,{
+	end;
+	OnInit:
+		showbuying("Buy_Title_Test", 1, "有招牌的商店");
+	end;
+}
+
+返回值:
+	操作成功则返回 1, 失败则返回 0
+
+---------------------------------------
+
+*killaroundmonster <GID>,<范围>,<魔物mode>;
+
+杀死GID范围内的魔物, 带有<魔物mode>的魔物不会被炸死
+
+<魔物mode>参数可以多选, 用|连接
+
+注意：指令对无敌的魔物(UMOB_DMGIMMUNE)、华丽水晶和守护石无效
+
+列：
+    killaroundmonster getcharid(3),10,MD_MVP; //杀死除了MVP之外的10格范围内的魔物
+	
+---------------------------------------
+
+*isloggedin2 <角色ID>;
+
+获取玩家是否在线, 在线则返回账号ID (account id) 不在线则返回 0
+
+---------------------------------------
+
+*unitatkeventmark <GID>,<标记值>;
+
+指令为 OnPCAttackFilter 事件的标记指令, 用于标记玩家、魔物、宠物、生命体、佣兵等。
+当被标记的魔物被攻击时会强制触发 OnPCAttackFilter 事件, 无视 BetterRA.conf 中 attack_event 配置,
+事件中返回的 dmg_mark 为此处设定的 <标记值>
+
+---------------------------------------
+
+*unitatkedeventmark <GID>,<标记值>;
+
+指令为 OnPCAttackedFilter 事件的标记指令, 用于标记玩家、魔物、宠物、生命体、佣兵等。
+当被标记的魔物被攻击时会强制触发 OnPCAttackedFilter 事件, 无视 BetterRA.conf 中 attacked_event 配置,
+事件中返回的 dmg_mark 为此处设定的 <标记值>
+
+---------------------------------------
+
+*setcell "<地图名称>",<x1>,<y1>,<x2>,<y2>,<类型>,<开关>;
+
+加入新类型 CELL_SAFEZONE 设置安全区, 安全区外的玩家或魔物不可以以安全区内的玩家为目标(包括GVG, PVP地图)
+
+---------------------------------------
+
+*checkcell ("<地图名称>",<x坐标>,<y坐标>,<类型>);
+
+加入新类型 CELL_CHKSAFEZONE 安全区检查
+
+---------------------------------------
+
+*setquesttime <任务ID>,<时间(秒)>{,<角色ID>};
+
+设置任务到期时间, 如果玩家没有任务时, 赋予任务并设置到期时间, 到期时间无视 quest_db.txt 中的第二项
+当玩家有该任务时, 则只设置任务到期时间
+
+---------------------------------------
+
+*runitemscript <物品ID>,{<类型>{,<角色ID>}};
+
+运行物品的脚本..
+
+<类型>:
+ 0 - Script
+ 1 - OnEquip_Script
+ 2 - OnUnequip_Script
+
+成功返回1, 失败返回0
+
+---------------------------------------
+
+*pcisdead {<GID>};
+
+检查玩家是否死亡, 死亡返回 1, 未死亡或者不在线时返回 0 
+
+---------------------------------------
+
+*unitdamage <GID>,<伤害值>{,<打击次数>};
+*unitdamagerate <GID>,<伤害扣除MAXHP比例>{,<打击次数>};
+
+使目标受到伤害值, 可以显示伤害数字, 当受到伤害为玩家时, 多次打击没有黄色伤害值.
+
+---------------------------------------
+
+*unitsleep <GID>,<时间毫秒>;
+
+延迟一定时间, 指令与GID绑定, 当GID在延迟过程中不存在时返回 0
+
+---------------------------------------
+
+*unitsleepend <GID>,<时间毫秒>;
+
+延迟一定时间, 指令与GID绑定, 当GID在延迟过程中不存在时脚本停止
+
+---------------------------------------
+
+*unitspecialeffect <GID>,<特效ID>{,<发送目标>{{,<目标GID>}});
+
+使指定实体<GID>显示一个特效效果, 类似于 specialeffect 不过他可以显示给任何目标
+
+发送目标
+   AREA - 发送给可视范围内的玩家(默认)
+   SELF - 发送给自己, 如果指定<目标GID> 则特效只能指定玩家看到
+   PARTY_AREA - 发送给可视范围内的指定队伍
+   GUILD_AREA - 发送给可视范围内的指定公会
+   BG_AREA - 发送给可视范围内的指定BG队伍
+   
+---------------------------------------
+
+*specialeffectnum(<特效ID>,<特效参数>{,<发送目标>{,<源GID>{,<目标GID>}}});
+*specialeffectnum(<特效ID>,<特效参数>{,<发送目标>{,"<源NPC名>"{,<目标GID>}}});
+
+使目标显示一个带参数的特效效果, 如果指定 <源GID>("<源NPC名>") 则特效会显示在指定的源实体上
+
+发送目标
+   AREA - 发送给可视范围内的玩家(默认)
+   SELF - 发送给自己, 如果指定<目标GID> 则特效只能指定玩家看到
+   PARTY_AREA - 发送给可视范围内的指定队伍
+   GUILD_AREA - 发送给可视范围内的指定公会
+   BG_AREA - 发送给可视范围内的指定BG队伍
+
+---------------------------------------
+
+*removespecialeffect(<特效ID>{,<发送目标>{,<源GID>{,<目标GID>}}});
+*removespecialeffect(<特效ID>{,<发送目标>{,"<源NPC名>"{,<目标GID>}}});
+
+移除目标身上的一个特效效果, 如果指定 <源GID>("<源NPC名>") 则特效会显示在指定的源实体上
+
+发送目标
+   AREA - 发送给可视范围内的玩家(默认)
+   SELF - 发送给自己, 如果指定<目标GID> 则特效只能指定玩家看到
+   PARTY_AREA - 发送给可视范围内的指定队伍
+   GUILD_AREA - 发送给可视范围内的指定公会
+   BG_AREA - 发送给可视范围内的指定BG队伍
+
+注意: 本指令只在 20181002 以上客户端有效. 
+
+---------------------------------------
+
+*getcomputeruid {<角色ID>};
+
+获取玩家机器码, 只有客户端加载了防外挂dll才可以使用
+
+---------------------------------------
+
+*getsameuidinfo {<玩家机器码>};
+
+获得某个机器码在线的玩家数以及玩家的角色编号等信息.
+
+如果执行成功的话, 会赋予以下数组在线玩家的信息:
+
+$@sameuid_aid[]		使用指定机器码在线的玩家账号编号数组(AccountID)
+$@sameuid_cid[]		使用指定机器码在线的玩家角色编号数组(CharID)
+$@sameuid_name$[]	使用指定机器码在线的玩家角色名数组
+
+$@sameuid_amount 使用指定机器码登录的玩家个数.
+
+---------------------------------------
+
+*countrentitem(<物品ID>{,<账号ID>})
+*countrentitem2(<物品ID>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>{,<账号ID>})
+*countrentitem3(<物品ID>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<RandomIDArray>,<RandomValueArray>,<RandomParamArray>{,<accountID>})
+*countrentitem3("<item name>",<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<RandomIDArray>,<RandomValueArray>,<RandomParamArray>{,<accountID>})
+
+指令用于获取租赁物品的数量, 可以用于制作的时候, 通过 (countitem - countrentitem) 计算出非租赁物品的数量, 用法请参考 countitem
+
+---------------------------------------
+
+*monster     "<地图名>",<x>,<y>,"<显示的名称>",<魔物ID>,<数量>{,"<死亡触发标签>",<体型>,<AI>};
+*areamonster "<地图名>",<x1>,<y1>,<x2>,<y2>,"<显示的名称>",<魔物ID>,<数量>{,"<死亡触发标签>",<体型>,<AI>};
+
+指令返返回最后一个召唤魔物的GID, 召唤失败返回0, 此指令只在原指令上做了返回ID的优化, 便于写脚本
+
+---------------------------------------
+
+*getbrokencount({<角色ID>});
+
+获取背包中损坏装备的数量。
+
+---------------------------------------
+
+*mobattached();
+
+脚本是否与魔物相关联, 是则返回魔物GID, 否则返回 0;
+一般用于 OnTouchNPC 获取关联魔物, 与 getattachedrid + getunittype 用法相同。
+
+---------------------------------------
+
+*setgroupid <权限等级>{,<角色ID>};
+*setgroupid <权限等级>{,<"角色名">};
+
+赋予玩家新的权限等级, 玩家不在线会失败并报错.
+
+---------------------------------------
+
+getunitstatus <GID>,<类型>;
+getunitstatus <类型>;
+
+获得相应GID (玩家、魔物、宠物、生命体、佣兵、元素、NPC) 的战斗属性.
+
+类型:
+	STATUS_HP			血量
+	STATUS_SP			蓝量
+	STATUS_MAXHP		最大血量
+	STATUS_MAXSP		最大蓝量
+	STATUS_STR			总力量值
+	STATUS_AGI			总敏捷值
+	STATUS_VIT			总体力值
+	STATUS_INT			总智力值
+	STATUS_DEX			总灵巧值
+	STATUS_LUK			总幸运值
+	STATUS_ATK			总物攻
+	STATUS_ATK_L		物攻(左值) 或 除玩家外获得最小物攻
+	STATUS_ATK_R 		物攻(右值) 或 除玩家外获得最大物攻
+	STATUS_MATK			总魔攻
+	STATUS_MATK_L		魔攻(左值) 或 除玩家外获得最小魔攻
+	STATUS_MATK_R		魔攻(右值) 或 除玩家外获得最大魔攻
+	STATUS_SPEED		移动速度
+	STATUS_ADELAY		攻击后延迟
+	STATUS_AMOTION		攻击后行走延迟
+	STATUS_DMOTION		被攻击后延迟
+	STATUS_MODE			MODE
+	STATUS_HIT			命中率
+	STATUS_FLEE_L		回避率
+	STATUS_FLEE_R		完全回避
+	STATUS_CRI			暴击率
+	STATUS_DEF_L		物防(左值)
+	STATUS_DEF_R		物防(右值)
+	STATUS_MDEF_L		魔防(左值)
+	STATUS_MDEF_R		魔防(右值)
+	STATUS_ATK_ELE		攻击属性
+	STATUS_ATK_RANGE	攻击范围
+	STATUS_DEF_ELE		防御属性
+	STATUS_DEF_ELE_LV 	防御属性等级
+	STATUS_SIZE			体型
+	STATUS_RACE			种族
+	STATUS_CLASS		职业(外观ID)
+	STATUS_ASPD			攻速
+	
+返回值:
+	相应的战斗属性
+
+----------------------------------------
+
+*skf_src_status <类型>;
+
+获取攻击者的基础属性, 用于自定义技能公式, 必须在 skill_formula_db.yml 文件中使用..
+
+类型:
+	参考 getunitstatus 指令
+
+----------------------------------------
+
+*skf_target_status <类型>;
+
+获取目标(被攻击者)的基础属性, 用于自定义技能公式, 必须在 skill_formula_db.yml 文件中使用..
+
+类型:
+	参考 getunitstatus 指令
+
+----------------------------------------
+
+*skf_attr_fix <伤害>;
+
+计算本次伤害的属性修正, 用于自定义技能公式, 必须在 skill_formula_db.yml 中的 Formula 部分使用..
+
+----------------------------------------
+
+*skf_card_fix <伤害>,<攻击类型>{,<NK>{,<左手右手>}};
+
+计算本次伤害的 BONUS 修正, 用于自定义技能公式, 必须在 skill_formula_db.yml 中的 Formula 部分使用..
+
+攻击类型:
+按攻击范围:
+	BF_SHORT:  近距离攻击
+	BF_LONG:   远距离攻击
+	默认:   BF_SHORT+BF_LONG
+按攻击类型:
+	BF_WEAPON: 物理攻击
+	BF_MAGIC:  魔法攻击
+	BF_MISC:   混合攻击
+	默认:   BF_WEAPON
+按技能类型:
+	BF_NORMAL: 普通攻击
+	BF_SKILL:  技能攻击
+	默认:   如果攻击类型是 BF_WEAPON (only) BF_NORMAL, 否则 BF_SKILL+BF_NORMAL.
+	
+NK: 为 skill_db.txt 中的 NK项 填写-1为技能默认
+	0x01 - No damage skill
+	0x02 - Has splash area
+	0x04 - Damage should be split among targets
+	0x08 - Skill ignores caster's % damage cards (misc type always ignores)
+	0x10 - Skill ignores elemental adjustments
+	0x20 - Skill ignores target's defense (misc type always ignores)
+	0x40 - Skill ignores target's flee (magic type always ignores)
+	0x80 - Skill ignores target's def cards
+	0x100 - Skill can critical (蓝色框框显示伤害)
+
+<左手右手>
+BF_MISC and BF_MAGIC ignore flag value
+	3: Calculates attacker bonuses in both hands.
+	2: Calculates attacker bonuses in right-hand only.
+	0 or 1: Only calculates target bonuses.
+
+----------------------------------------
+
+*atcommand <"GM指令">{,<标签>};
+*useatcmd <"GM指令">{,<标签>};
+
+让玩家使用一个GM指令, atcommand忽略指令权限, 添加标签参数, 控制是否显示指令输出信息 (绿色字)
+
+标签:
+	1 不输出GM指令信息
+	0 或 忽略 输出GM指令标签
+
+----------------------------------------
+
+*progressbar_unit("<颜色>",<秒>{,<GID>});
+
+在GID对应的目标头上显示一个读条进度
+与 progressbar(progressbar_npc)不同的是, 脚本不会暂停, 而是会继续运行
+如果GID不存在则进度会显示在与脚本关联的玩家头上
+
+----------------------------------------
+
+*getvariableofpc(<变量>,<玩家AID>{,<默认值>});
+
+脚本返回指定玩家的变量, 如果玩家不存在则返回默认值
+
+例子:
+
+//将返回玩家名为 player 的 @var 变量, 如果玩家不存在则返回0
+	.@v = getvariableofpc(@var, getcharid(CHAR_ID_ACCOUNT, "player"));
+
+//设置玩家名为 player 的 @var 变量为 1
+	set(getvariableofpc(@var, getcharid(CHAR_ID_ACCOUNT, "player")), 1);
+
+----------------------------------------
+
+*getcalendartime(<时>,<分>{,<月份的第几天>{,<每周的第几天>}});
+
+指令返回下次出现指定时间的时间戳
+
+月份的第几天介于 1 至 31 之间, 默认值为 -1 即忽略月份.
+每周的第几天的值为:
+	0 - SUNDAY
+	1 - MONDAY
+	2 - TUESDAY
+	3 - WEDNESDAY
+	4 - THURSDAY
+	5 - FRIDAY
+	6 - SATURDAY
+
+如果设置每周的第几天与每月的第几天冲突
+如果想获取每周第几天某个时段的时间戳, 则每月的第几天必须为 -1. 否则返回 -1.
+
+例子:
+	getcalendartime(19, 00); // 获得下次 19:00 的时间戳
+	getcalendartime(19, 00, 6); // 获得下次 6号 19:00的时间戳
+	getcalendartime(19, 10, -1, 1); // 获得下次 周一 19:10 的时间戳
+	
+----------------------------------------
+
+*sprintf(<格式文本>{,参数{,参数{, ...}}});
+
+C语言样式的sprintf. 将参数带入格式并输出最终字符串.
+
+格式字符串可以使用以下结构：
+
+  %[参数排序符][flags][width]specifier
+
+格式文本支持以下说明符:
+
+%%: 输出一个 '%' (特殊情况，不支持参数、标志、宽度)
+%d, %i: 有符号十进制整数
+%u: 无符号十进制整数
+%x: 无符号十六进制整数
+%X: 无符号十六进制整数（大写字母）
+%o: 有符号八进制
+%s: 字符的字符串
+%c: 字符（仅使用字符串的第一个字符）
+
+格式文本不支持以下说明符：
+
+%n (出于安全考虑不支持)
+%f, %F, %e, %E, %g, %G (脚本引擎不支持浮点类型)
+%p (脚本引擎不支持指针)
+%a, %A (不支持, 请分别使用 0x%x 和 0x%X 替代)
+
+参数排序符:
+
+可以通过 'x$' 指定格式文本中的说明符分别使用哪个参数 ( x 是一个数字, 代表引用第几个参数),
+他可以将参数重新排序 (这在翻译字符串中可能有用，因为句子顺序可能与原始顺序不同). 
+
+例子:
+	// 当翻译成其他语言时, 可能因为参数的顺序不同, 而需要颠倒参数的情况, 可以通过 'x$' 重新排序参数
+	mes(sprintf("Hello, It's %d minutes after %d o'clock.", gettime(DT_MINUTE), gettime(DT_HOUR))); // 例句
+	mes(sprintf("你好, 现在是 %2$d点 %1$d分", gettime(DT_MINUTE), gettime(DT_HOUR))); // 译句
+
+格式文本支持的 flags（标识）有:
+
+- (减号): 在给定的字段宽度内左对齐，默认是右对齐（参见 width 子说明符）
++ (加好): 强制在结果之前显示加号或减号（+ 或 -），即正数前面会显示 + 号。默认情况下，只有负数前面会显示一个 - 号。
+(空格): 如果没有写入任何符号，则在该值前面插入一个空格。
+0 (零): 在指定填充 padding 的数字左边放置零（0），而不是空格（参见 width 子说明符）
+
+	mes(sprintf("现在的温度是 %+d 摄氏度", 25)); // 数值前面保留 '+' 号
+	.@map_name$ = sprintf("quiz_%02d", .@i); // 位数不组宽度 2, 在前面填充 0, 所以输出 "quiz_00"
+
+可以在参数中指定字段宽度，以确保至少填充多少个字符。如果使用('*')作为指定宽度，
+则宽度将作为sprintf()函数的参数读取
+
+	sprintf("%04d", 10) // Returns "0010"
+	sprintf("%0*d", 5, 10) // Returns "00010"
+	sprintf("%5d", 10) // Returns "   10"
+	sprintf("%-5d", 10) // Returns "10   "
+	sprintf("%10s", "Hello") // Returns "     Hello";
+	sprintf("%-10s", "Hello") // Returns "Hello    ";
+
+精度 ('.precision') 和 长度 ('hh', 'h', 'l', 'll', 'L', 'z', 'j', 't') 未实现, 脚本引擎不需要.
+
+例子:
+	.@format$ = "The %s contains %d monkeys";
+	dispbottom(sprintf(.@format$, "zoo", 5));
+	//prints "The zoo contains 5 monkeys"
+
+	dispbottom(sprintf(.@format$, "barrel", 82));
+	//prints "The barrel contains 82 monkeys"
+	
+----------------------------------------
+
+*mesf <格式文本>{,参数{,参数{, ...}}};
+
+在NPC对话框打印一句话, 同 mes,具体使用方法参见 sprintf
+
+例句:
+
+	mesf("你好, 我是 %s, 一名等级为 %d 的 %s", strcharinfo(PC_NAME), BaseLevel, jobname(Class));
+	// is equivalent to:
+	mes(sprintf("你好, 我是 %s, 一名等级为 %d 的 %s", strcharinfo(PC_NAME), BaseLevel, jobname(Class)));
+
+指令是 mes() 和 sprintf() 的简化版.
+
+----------------------------------------
+
+*consolemes("<类型>","<格式文本>"{,<参数>{,<参数>{, ...}}})
+
+在控制台打印文本, 第2个参数往后使用的是类似于sprintf的格式
+
+<类型>:
+	MSG_DEBUG		调试信息
+	MSG_ERROR		错误信息
+	MSG_WARNING		警告信息
+	MSG_INFORMATION	普通信息
+	MSG_STATUS 		状态信息
+	MSG_NOTICE 		注意信息
+Example:
+
+	consolemes(CONSOLEMES_DEBUG, "%s 点击了我!", strcharinfo(PC_NAME));
+	consolemes(CONSOLEMES_DEBUG, "\033[0;32mHello World"); // 支持颜色代码
+
+----------------------------------------
+	
+*setequipedcard <装备位置编号>,<第几个卡槽>,<物品ID>{,<角色ID>};
+
+在已装备的道具中设置相应卡槽中的物品, 不会在窗口提示卸下再穿上装备.
+如果 卡片ID 为 0 则拆下相应卡槽的道具
+注意: 设置卡槽不会对背包中任何道具增加或删除
+
+<装备位置编号> 是指 EQI_* 开头的位置常量
+<第几个卡槽> 从0开始 0~3的数字
+<物品ID> 为你想要插入卡槽的物品, 可以是任何物品
+
+----------------------------------------
+
+*abs(<数字>);
+
+返回数字绝对值
+
+----------------------------------------
+
+*addmobskill <GID>,"<技能格式>";
+
+给指定GID的魔物增加一个技能, 不影响其他魔物, <技能格式> 参见 mob_skill_db.txt 文本格式
+注意: 一个魔物最多只能有50个技能
+
+例子:
+// monster "prontera",155,106,"12345",1029,1;
+// addmobskill $@mobid,"1029,Scorpion@NPC_FIREATTACK,attack,14,10,10000,0,0,yes,target,always,0,,,,,,,"; 
+
+----------------------------------------
+
+*delmobskill <GID>,<技能ID>;
+
+给指定GID的魔物删除技能, 魔物拥有的指定技能都会被删除
+
+特殊情况:
+技能ID为0, 还原魔物为原版的技能列表
+技能ID为1, 则删除该魔物的所有技能
+
+----------------------------------------
+
+*mapcutin "<地图名称>","<文件名>",<位置>;
+
+给指定地图上的所有玩家都显示同一张照片, 参数参考 cutin
+
+----------------------------------------
+
+*end2;
+
+只结束脚本不影响NPC对话和商店
+
+----------------------------------------
+
+*battle_check(<GID>,<GID>,<关系掩码>)
+
+判断两个GID之间是否是所提供的敌对/友好关系
+
+战斗关系掩码:
+	BCT_SELF		= 0x010000, ///< 自己, 如果两个GID为相同时, 返回真
+	BCT_ENEMY		= 0x020000, ///< 敌对
+	BCT_PARTY		= 0x040000, ///< 队友
+	BCT_GUILDALLY	= 0x080000, ///< 公会盟友关系, 但非同公会
+	BCT_NEUTRAL		= 0x100000, ///< 中立
+	BCT_SAMEGUILD	= 0x200000, ///< 同公会, 非公会盟友
+
+	BCT_GUILD		= BCT_SAMEGUILD|BCT_GUILDALLY,	///< 公会成员和盟友
+	BCT_NOGUILD		= BCT_ALL&~BCT_GUILD,			///< 非公会同盟
+	BCT_NOPARTY		= BCT_ALL&~BCT_PARTY,			///< 非队友
+	BCT_NOENEMY		= BCT_ALL&~BCT_ENEMY,			///< 非敌对
+
+返回值:
+  返回 0 两者无任何关系, 不能作为目标(例 玩家和NPC 魔物和魔物之间), 
+  返回 1 关系成立
+  返回 -1 关系不成立
+
+----------------------------------------
+
+*instance_addmap(<"地图名称">{{,<是否复制NPC>},<副本ID>});
+
+在副本中添加任意地图, 副本中不能同时存在两个同样的地图, 可以删除副本地图后重新加入
+
+是否复制NPC: (默认复制)
+	为 1 时 复制 
+	为 0 时 不复制
+
+返回值:
+	成功返回 1 失败返回 0
+	
+----------------------------------------
+
+*instance_delmap(<"地图名称">,<副本ID>);
+
+删除副本中已存在的地图
+
+返回值:
+	成功返回 1 失败返回 0
+
+----------------------------------------
+
+*itemlist <物品数组>{,<角色ID>};
+
+生成一个物品选择框, 返回选中的物品ID, 失败返回 0 
+
+----------------------------------------
+
+*skilllist <技能数组>{,<角色ID>};
+
+生成一个物品选择框, 返回选中的技能ID, 失败返回 0
+
+----------------------------------------
+
+*getconstantstr <"常量前缀">,<常量值>;
+
+通过数值获取常量的字符串, 加常量前缀可以增加获得常量字符串的准确度
+
+例:
+	dispbottom getconstantstr("b",2010); // 输出 bUnbreakableHelm
+
+返回值:
+	成功返回常量字符串, 失败返回空白字符串
+
+----------------------------------------
+
+*next_dropitem_special <是否绑定>,<租赁时长>,<掉落光环颜色>;
+
+下一次掉落在地上的物品, 会按照本次设定的特殊要求掉落
+对玩家和魔物掉落同样有效, 如果只想对 makeitem、makeitem2、makeitem3 有效, 请在此指令下紧接着使用makeitem
+
+是否绑定:
+	1 为绑定 0为不绑定
+	
+租赁时长:
+	单位 秒
+	
+掉落光环颜色:
+	// -1 - 默认光环
+	//  0 - 无光效
+	//  1 - 客户端定义的光效
+	//  2 - 白色柱形掉落光效
+	//  3 - 蓝色柱形掉落光效
+	//  4 - 黄色柱形掉落光效
+	//  5 - 紫色柱形掉落光效
+	//  6 - 橙色柱形掉落光效
+
+----------------------------------------
+
+*unitdefratefixed <GID>,<倍率>{,<倍率分母>{,<最小伤害>{,<最大伤害>}}};
+
+使对应的对象获得的伤害变为倍率后的伤害, 最小伤害不低于<最小伤害>, 最大伤害不高于<最大伤害> 
+
+例:
+	monster "prontera",155,106,"12345",1002,1;
+	unitdefratefixed $@mobid[0],1000,10000;
+
+<倍率分母> 默认 100
+
+----------------------------------------
+
+*settitleicon <GID>,<图标组ID>,<标题>;
+
+使某个GID显示图标和标题, 对任意单位都有效
+用于玩家时不能正常显示图标, 指令可以屏蔽掉公会队伍等信息
+用于其他单位时, 可在名字上面显示额外的文字, 并在左侧显示标题
+
+---------------------------------------
+
+*setinventoryinfo <背包位置序号>,<要设置的类型>,<要设置的数字>{,<角色ID>};
+*setequipedinfo <装备位置编号>,<要设置的类型>,<要设置的数字>{,<角色ID>};
+
+改变背包中的物品/装备相应的数据, 将指定指定背包/装备的 <要设置的类型> 改变为 <要设置的数字>
+注意!! 如果设置多项内容, 必须连续使用指令, 否则可能会造成设置失败的问题
+注意!! 设置完成后不会立即改变背包中的内容, 必须紧跟着使用 refreshinventory 刷新一下道具装备才会改变
+
+要设置的类型:
+	0 	- 物品编号
+	1 	- 堆叠数量
+	2 	- 装备的穿戴位置(如果为 0 则表示还没穿戴在身上, 位置请参考 EQP_* 开头的常量)
+	3 	- 精炼值
+	4 	- 是否已经鉴定(1为已鉴定, 0为未鉴定)
+	5 	- 属性(说是属性, 其实最常用是用来判断物品是否损坏, 若损坏则返回1, 没坏则返回 0)
+	6 	- 第一个卡槽的卡片编号
+	7 	- 第二个卡槽的卡片编号
+	8 	- 第三个卡槽的卡片编号
+	9 	- 第四个卡槽的卡片编号
+	10	- 过期时间(Unix时间戳, 0 表示永不过期)
+	11	- 绑定类型
+	12	- 装备的唯一编号(unique_id)
+	13	- 装备的换装穿戴位置(equipSwitch)
+	16  - 是否被玩家收藏.
+	
+设置物品的 option 格式如下:
+特例格式: setinventoryinfo <背包位置序号>,<Random Option序号>,<id>,<value>,<param>{,<角色ID>};
+特例格式: setequipedinfo <装备位置编号>,<Random Option序号>,<id>,<value>,<param>{,<角色ID>};
+
+---------------------------------------
+
+*refreshinventory {<背包位置序号>{,<角色ID>}};
+*refreshequip {<装备位置编号>{,<角色ID>}};
+
+刷新背包中的内容, 如果不提供参数, 则刷新所有的内容.
+
+如果刷新 setinventoryinfo 设置的物品时, 必须提供 <背包位置序号>, 否则刷新无效
+如果刷新 setequipedinfo 设置的装备时, 必须提供 <装备位置编号>, 否则刷新无效
+
+---------------------------------------
+
+*getskillinfo <类型>,<技能ID>{,<其他参数>};
+
+获取技能信息
+
+类型:
+	1 	- 返回技能施放类型 0 为地面技能, 1 为伤害技能, 2 为无伤害技能
+	2	- 返回技能名称 skill_db 中的 name
+	3	- 返回技能说明 skill_db 中的 desc
+	4	- 返回技能树种的最大等级 <其他参数> 传入职业代码
+	5	- 返回技能攻击类型 返回 BF_WEAPON BF_MAGIC BF_MISC skill_db 中的 attack type
+	6	- 返回打击类型 skill_db 中的 hit
+	7	- 返回技能类型1 skill_db 中的 inf
+	8	- 返回技能属性 skill_db 中的 element <其他参数> 传入技能等级
+	9	- 返回技能伤害类型 skill_db 中的 nk
+	10	- 返回技能最大等级 skill_db 中的 max
+	11	- 返回技能攻击距离 skill_db 中的 range <其他参数> 传入技能等级
+	12	- 返回技能溅射范围 skill_db 中的 splash <其他参数> 传入技能等级
+	13	- 返回技能打击次数 skill_db 中的 list_num <其他参数> 传入技能等级
+	14	- 返回技能吟唱时间 skill_cast_db 中的 CastingTime <其他参数> 传入技能等级
+	15	- 返回技能公共延迟 skill_cast_db 中的 AfterCastActDelay <其他参数> 传入技能等级
+	16	- 返回技能攻击僵直 skill_cast_db 中的 AfterCastWalkDelay <其他参数> 传入技能等级
+	17	- 返回技能时刻参数 skill_cast_db 中的 Duration1 <其他参数> 传入技能等级
+	18	- 返回技能时刻参数 skill_cast_db 中的 Duration2 <其他参数> 传入技能等级
+	19	- 返回技能吟唱计算 skill_castnodex_db 中的 Cast
+	20	- 返回技能延迟计算 skill_castnodex_db 中的 Delay
+	21	- 返回技能施法期间防御降低倍率 skill_db 中的 cast_def_rate
+	22	- 返回技能使用限制 skill_nocast_db 中的 Flag
+	23	- 返回地面技能单位ID skill_unit_db 中的 Unit id  <其他参数> 传入 Flag
+	24	- 返回技能类型2 skill_db 中的 inf2
+	25	- 返回技能是否可被打断 skill_db 中的 castcancel
+	26	- 返回技能最大数量 skill_db 中的 maxcount <其他参数> 传入技能等级
+	27	- 返回技能击退距离 skill_db 中的 Blowcount <其他参数> 传入技能等级
+	28	- 返回地面技能标记 skill_unit_db 中的 Flag
+	29	- 返回技能冷却 skill_cast_db 中的 Cool Down <其他参数> 传入技能等级
+	30	- 返回地面技能目标 skill_unit_db 中的 Target
+	31	- 返回技能类型3 skill_db 中的 inf3
+	32	- 返回技能消耗的HP skill_require_db 中的 HPCost <其他参数> 传入技能等级
+	33	- 返回技能有多少HP才可能使用 skill_require_db 中的 MaxHPTrigger <其他参数> 传入技能等级
+	34	- 返回技能消耗的SP skill_require_db 中的 SPCost <其他参数> 传入技能等级
+	35	- 返回技能消耗的百分比HP skill_require_db 中的 HPRateCost <其他参数> 传入技能等级
+	36	- 返回技能消耗的百分比SP skill_require_db 中的 SPRateCost <其他参数> 传入技能等级
+	37	- 返回技能消耗的Zeny skill_require_db 中的 ZenyCost <其他参数> 传入技能等级
+	38	- 返回技能所需的武器类型 skill_require_db 中的 RequiredWeapons
+	39	- 返回技能所需的弹药类型 skill_require_db 中的 RequiredAmmoTypes
+	40	- 返回技能所需的弹药数量 skill_require_db 中的 RequiredAmmoAmount <其他参数> 传入技能等级
+	41	- 返回技能所需的特殊状态 skill_require_db 中的 RequiredState
+	42	- 预留
+	43	- 返回技能所需的一般状态个数 skill_require_db 中的 RequiredStatuses 个数
+	44	- 返回技能所需气球个数 skill_require_db 中的 SpiritSphereCost
+	45	- 返回技能所需物品ID skill_require_db 中的 RequiredItemID <其他参数> 传入第几项消耗品
+	46	- 返回技能所需物品数量 skill_require_db 中的 RequiredItemAmount <其他参数> 传入第几项消耗品
+
+---------------------------------------
+
+*getequipinfo {<获取类型>};
+
+ 在装备的 item_script 中使用可以获得装备在背包中的IDX 和 装备ID
+
+<获取类型>:
+
+	- INV_ID   装备ID
+	- INV_IDX  装备在背包中的IDX(默认)
+
+---------------------------------------
+
+*getcardinfo {<获取类型>};
+
+ 在卡片的 item_script 中使用可以获得卡片在装备卡槽中的IDX 和 卡片ID
+
+<获取类型>:
+	- INV_ID   卡片ID
+	- INV_IDX  卡片在装备卡槽中的IDX(默认)
+
+---------------------------------------
+
+*getrandomoptinfo(<获取类型>);
+
+官方指令, 请查看 doc\script_commands.txt
+
+---------------------------------------
+
+*mobaggroswitch <GID>,<开关状态>;
+
+打开或关闭指定魔物的仇恨系统, 当战斗配置 mob_aggro_all_mob 关闭时有效
+
+<开关状态>:
+	- 1 开启魔物的仇恨系统
+	- 0 关闭魔物的仇恨系统
+
+---------------------------------------
+
+*instance_id(<模式>{,<角色ID>});
+
+获取副本ID, 可通过角色ID获取角色的副本ID, 当模式为 IM_NONE 时, 不判定副本模式
+
+---------------------------------------
+
+*broadcast_item(<玩家AID>,<物品ID1>,<物品ID2>,<公告类型>);
+
+弹出一条物品广播
+
+公告类型：
+	- 0 和 1 公告 msgstring.txt 中的 1629 行
+	- 2 公告  msgstring.txt 中的 1870 行, 此时 <物品ID2> 无效
+
+----------------------------------------
+
+*getmapinfo("<地图名称>",<类型>{,<角色ID>});
+
+获取地图相关的信息, 当地图名称为 "this" 时表示获取关联(指定)玩家所在地图的地图信息
+
+类型:
+	- 1: 地图ID
+	- 2: 地图名称
+	- 3: 地图的副本ID
+	- 4: 地图宽度
+	- 5: 地图长度
+	- 6: 地图魔物刷新数据 (返回条数, 魔物ID和数量存在数组 $@spawn_mobid, $@spawn_amount 中)
+
+----------------------------------------
+
+*getmobspawninfo(<魔物ID>);
+
+获取魔物在哪些地图生成
+	
+如果执行成功的话, 会赋予以下数组魔物生成的信息:
+
+	$@spawn_mapname$[]		地图名称
+	$@spawn_amount[]		生成数量
+	
+指令返回获取到的个数, 即变量的成员数量
+
+----------------------------------------
+
+*getbossinfo({"<地图名>"{,<魔物ID>}});
+
+获取使用 boss_monster 标签召唤出来的魔物的信息
+当地图名为 "all" 时为所有地图, "this" 时为关联玩家所在地图
+	
+如果执行成功的话, 会赋予以下数组魔物生成的信息:
+
+	$@boss_gid[]		魔物的gid(可通过 getmobdata 获取其他信息)
+	$@boss_spawn[]		魔物重生倒数(毫秒, 0 表示已重生)
+	
+指令返回获取到的个数, 即变量的成员数量
+
+----------------------------------------
+
+*checktrade({<角色ID>});
+
+检查玩家是否正在交易, 并返回交易对方的 AID
+
+----------------------------------------
+
+*checkcashshop({<角色ID>});
+
+检查玩家是否正在使用 cashshop 现金商城
+
+----------------------------------------
+
+*checkmailwriting({<角色ID>});
+
+检查玩家是否正在写邮件
+
+----------------------------------------
+
+*checkrefineui({<角色ID>});
+
+检查玩家是否正在使用精炼UI
+
+----------------------------------------
+
+*unitaura <GID>,<特效ID>{,<间隔时间>};
+
+为指定实体增加一个光环特效, 如果是短特效则每过间隔时间播放一次特效
+
+----------------------------------------
+
+*unitdelaura <GID>,<特效ID>;
+
+为指定实体移除一个光环特效
+在客户端版本大于 20181002 会直接移除特效
+
+----------------------------------------
+
+*disablenpc "<NPC名称>"{,<角色ID>};
+*enablenpc "<NPC名称>"{,<角色ID>};
+*hideonnpc "<NPC名称>"{,<角色ID>};
+*hideoffnpc "<NPC名称>"{,<角色ID>};
+*cloakonnpc "<NPC名称>"{,<角色ID>};
+*cloakoffnpc "<NPC名称>"{,<角色ID>};
+
+从之前指令基础上增加了对单个玩家的支持, 单个玩家支持只对当前登陆有效
+如果想让此长期有效则需使用 OnPCLoginEvent 对NPC进行隐藏
+
+----------------------------------------
+
+*disableontouch "<NPC名称>"{,<角色ID>};
+*enableontouch "<NPC名称>"{,<角色ID>};
+
+开启或关闭NPC的 OnTouch 触发, 可针对角色使用
+本指令 覆盖 disablenpc enablenpc hideonnpc hideoffnpc cloakonnpc cloakoffnpc 的默认触发配置
+
+----------------------------------------
+
+*setwall "<地图名>",<x>,<y>,<长度>,<角度>,<是否可以穿透攻击>,"<墙名字>"{,<召唤魔物ID>,"<召唤魔物名字>"};
+*setwallline "<地图名>",<x0>,<y0>,<x1>,<y1>,<是否可以穿透攻击>,"<墙名字>"{,<召唤魔物ID>,"<召唤魔物名字>"};
+*setwallcircle "<地图名>",<x>,<y>,<半径>,<是否可以穿透攻击>,"<墙名字>"{,<召唤魔物ID>,"<召唤魔物名字>"};
+
+在地图上生成一堵墙, 可在墙的坐标点召唤不能被攻击的魔物作为标记
+
+指令 setwall 为原版指令
+指令 setwallline 由坐标 (x0,y0) 到 (x1,y1) 画直线, 画线, 本指令采用 Bresenham 算法
+指令 setwallcircle 以坐标 (x,y) 为圆心, 以<半径>画圆, 本指令采用 Bresenham 算法
+
+当生成副本时, 副本源地图上如果有墙时, 墙可以被复制到副本中, 副本中的墙可以通过 delwall 删除
+本指令经过优化, 可以在副本中随意使用, 在执行 @reloadscript 墙会被释放通过 OnInit 重新画墙, 副本中的墙也会被重置
+
+----------------------------------------
+
+*delwall "<墙名字>"{,<副本ID>};
+
+通过墙名字删除墙, 当删除副本中的墙时, 必须加入副本ID
+
+----------------------------------------
+
+*checkwall "<墙名字>"{,<副本ID>};
+
+查询墙是否存在, 当查询副本中的墙时, 必须加入副本ID
+
+----------------------------------------
+
+*delwallmap "<地图名>";
+
+删除地图上的所有墙
+
+----------------------------------------
+
+*getlinexy <x0>,<y0>,<x1>,<y1>,<返回x坐标数组>,<返回y坐标数组>;
+
+获得坐标 (x0,y0) 到 (x1,y1) 直线上的坐标, 并存入<返回x坐标数组>,<返回y坐标数组>中
+----------------------------------------
+
+*getcirclexy <x>,<y>,<半径>,<返回x坐标数组>,<返回y坐标数组>;
+
+获得坐标 (x,y) 为圆心, 以<半径>圆的坐标, 并存入<返回x坐标数组>,<返回y坐标数组>中
+
+----------------------------------------
+
+*array_keys <数组>,<存入数组>;
+
+获取数组中所有值非0(非空字符串)的键, 并将键存入指定的数组中, 主要用于以玩家的aid或cid作为键值的数组(.@damage[getcharid(0)] += 100)
+
+什么是键? 
+	数组变量[键] = 值; 其中键即中括号中改的内容
+
+例: 
+	.@test[5] = 1;
+	.@test[3] = 2;
+	.@test[1024] = 9918;
+	.@test[789523] = 12345678;
+	array_keys .@test,.@idx;
+	for (.@i = 0; .@i < getarraysize(.@idx); .@i++)
+		dispbottom "key: "+.@idx[.@i]+" value: "+.@test[.@idx[.@i]];
+	// 输出:
+	// 	key: 5 value: 1;
+	// 	key: 3 value: 2;
+	// 	key: 1024 value: 9918;
+	// 	key: 789523 value: 12345678;
+	
+返回值: 
+	获取到键的数量
+
+----------------------------------------
+
+*getarrayindex <数组>;
+
+获取数组变量中的 key 值, 一般用在函数调用中获取传参 getarg() 的源变量中括号中的数字
+
+什么是键? 
+	数组变量[键] = 值; 其中键即中括号中改的内容
+
+例子:
+	getarrayindex(.@foo[42]); // 42
+	
+	getindex(.@foo[36]);
+	function	script	getindex	{
+		getarrayindex(getarg(0)); // 36
+	}
+
+----------------------------------------
+
+*countnameditem(<物品ID>, "<角色名>")
+*countnameditem(<物品ID>, <角色ID>)
+*countnameditem("<物品名>", "<角色名>")
+*countnameditem("<物品名>", <角色ID>)
+
+获取身上有多少个署名物品, 具体参考 getnameditem. 
+
+---------------------------------------
+
+*getguildinfo(<信息类型>{,<公会ID>})
+*getguildinfo(<信息类型>{,"<公会名称>"})
+
+获取指定类型的公会相关数据
+
+<信息类型>:
+	GUILDINFO_NAME          - 公会名称
+	GUILDINFO_ID            - 公会ID
+	GUILDINFO_LEVEL         - 公会等级
+	GUILDINFO_EXP           - 公会经验
+	GUILDINFO_NEXT_EXP      - 距离下一级升级的经验
+	GUILDINFO_SKILL_POINTS  - 公会剩余技能点数
+	GUILDINFO_ONLINE        - 公会在线人数
+	GUILDINFO_AV_LEVEL      - 公会成员平均等级
+	GUILDINFO_MAX_MEMBERS   - 公会最大成员数
+	GUILDINFO_MASTER_NAME   - 公会会长名称
+	GUILDINFO_MASTER_CID    - 公会会长角色ID
+
+例子:
+	getguildinfo(GUILDINFO_MASTER_NAME, getcharid(2, "Haru"))
+
+---------------------------------------
+
+*gettimer(<类型>{,<角色ID>{,"<事件>"}})
+
+返回由 addtimer() 创建的玩家时钟的相关信息. 如果未指定事件则为所有事件
+
+<类型>:
+	TIMER_COUNT       - 玩家有多少个 "<事件>" 相关的时钟.
+    TIMER_TICK_NEXT   - 玩家触发下一次 "<事件>" 还有多少毫秒.
+    TIMER_TICK_LAST	  - 玩家触发最后一次 "<事件>" 还有多少毫秒.
+
+---------------------------------------
+
+*setnpcdistance(<距离>)
+
+指令玩家距必须靠近NPC多少格之内才可以点击, 一般使用在 OnInit 事件下设置.
+
+例子:
+	OnInit:
+		setnpcdistance(1);
+
+---------------------------------------
+
+*getdatatype(<参数>)
+
+返回给定<参数>的原始类型. 返回的类型是掩码类型.
+
+返回类型:
+	DATATYPE_NIL
+	DATATYPE_STR
+	DATATYPE_INT
+	DATATYPE_CONST
+	DATATYPE_PARAM
+	DATATYPE_VAR
+	DATATYPE_LABEL
+
+例子:
+	getdatatype() // DATATYPE_NIL
+	getdatatype("foo") // DATATYPE_STR
+	getdatatype(@foo$) // (DATATYPE_VAR | DATATYPE_STR)
+
+---------------------------------------
+
+*tostring(<参数>)
+
+将给定的参数转换为字符串类型.
+
+例子:
+	tostring(DATATYPE_VAR) // "DATATYPE_VAR"
+	tostring(.@foo) // ".@foo"
+	
+---------------------------------------
+
+*chr(<数字>)
+
+返回整数对应的 ASCII 字符.
+
+例子:
+    chr(99); //returns "c"
+
+---------------------------------------
+
+*ord(<字符>)
+
+返回字符对应的 ASCII 数值.
+
+例子:
+    ord("c"); //returns 99
+
+---------------------------------------
+
+*log10(<数值>)
+
+返回传入数值 log 10 的结果.
+
+例子:
+	.@i = log10(100); // 2
+
+---------------------------------------
+
+*swap(<变量>,<变量>)
+
+交换两个变量的值, 两边必须同时为整数或字符串类型.
+
+例子:
+	.@var1 = 111;
+	.@var2 = 222;
+	swap(.@var1, .@var2);
+	mes("var1 = "+ .@var1); // return 222
+	mes("var2 = "+ .@var2); // return 111
+
+---------------------------------------
+
+*unitiswalking({<GID>})
+
+指令检查一个单位是否在行走. 省略 GID 则为关联玩家
+
+返回值:
+	1 为正在行走, 0 为没有行走
+
+---------------------------------------
+
+*mercenary_delete({<角色ID>,<忠诚更新>})
+
+删除指定玩家的佣兵.
+
+忠诚更新:
+    0 - 佣兵忠诚增加 1，类似于合同结束 (默认).
+    1 - 佣兵忠诚降低 1，类似于佣兵死亡.
+	2 - 佣兵忠诚不变.
+
+---------------------------------------
+
+*msgtable(<信息ID>{,<颜色代码>})
+
+显示一条 msgtable.txt 中的字符串
+
+颜色代码:
+	COLOR_DEFAULT       - 默认
+	COLOR_RED           - 红色
+	COLOR_WHITE         - 白色
+	COLOR_YELLOW        - 黄色
+	COLOR_CYAN          - 青色
+	COLOR_LIGHT_GREEN   - 浅绿
+
+---------------------------------------
+
+*monster     "<地图名>",<x>,<y>,"<显示名称>",<魔物ID>,<数量>{,"<触发事件>",<体型大小>,<魔物ai>};
+*areamonster "<地图名>",<x1>,<y1>,<x2>,<y2>,"<显示名称>",<魔物ID>,<数量>{,"<地图名>",<体型大小>,<魔物ai>};
+*bg_monster <战场分组>,"<地图名>",<x>,<y>,"<显示名称>",<魔物ID>，"<触发事件>";
+*tribe_monster <阵营编号>,"<地图名字>",<x>,<y>,"<魔物名字>",<魔物ID>,"<事件标签>";
+*guardian "<地图名>",<x>,<y>,"<显示名称>",魔物ID>{,"<触发事件>"{,<guardian index>}};
+
+可通过 playerattached 判断是否是玩家杀死的魔物。
+
+事件返回变量:
+	
+	注意: 因事件在遇到玩家正在运行时会排队, 所以与玩家关联时使用全局变量返回值会被其他击杀覆盖, 
+	如果你开启了 disable_mobdead_queue 则无需顾虑此问题可以直接使用全局变量
+	
+	如果是玩家杀死, 则返回:
+		killedgid			被杀死魔物的GID
+		killedrid			被杀死魔物的魔物编号(MobID)
+		killerrid			杀死魔物的实体GID
+	
+	如果是魔物杀死, 则返回: 
+		$killedgid			被杀死魔物的GID
+		$killedrid			被杀死魔物的魔物编号(MobID)
+		$killerrid			杀死魔物的实体GID
+
+---------------------------------------
+
+*dual_weapon <开关>{,<角色ID>};
+
+允许玩家双持武器, 如果打开两次双持后, 必须关闭两次才会取消玩家双持.
+
+<开关>: 
+	1为开 0为关
+
+----------------------------------------
+
+*inventory_mark <类型>{,<参数>};
+
+对一个物品增加标记, 此指令用于物品脚本、卡片脚本或随机属性脚本中, 指令只用于标记物品, 对逻辑判断无效。
+
+类型: 
+	EquipLoc           更改装备穿戴位置, <参数> 为穿戴位置
+	EquipBound         更改装备绑定类型, <参数> 为绑定类型 (BOUND_NONE BOUND_ACCOUNT BOUND_GUILD BOUND_PARTY BOUND_CHAR)
+	EquipIgnoreFunc    无效装备指定属性, <参数> 无效
+	EquipIgnoreClass   移除装备职业限制, <参数> 无效
+
+----------------------------------------
+
+*itempreview <背包位置序号>;
+
+刷新正在打开浏览的物品说明
+本指令只能在客户端版本大于 20170726 之后的版本才能使用 
+
+----------------------------------------
+
+*getskillsc(<技能ID>);
+
+获取技能使用后给玩家附加的状态ID, 可用于BOT相关的状态条件
+
+----------------------------------------
+
+*pctalk <目标>,"<信息内容>"{,<角色ID>};
+
+发送一条聊天信息给指定目标或群组
+
+<目标>
+	0       - 公开发言
+	队伍ID  - 队伍发言(队伍ID必须是发言玩家自己的队伍)
+	公会ID  - 公会发言(公会ID必须是发言玩家自己的公会)
+	玩家AID - 私聊玩家(玩家必须在线)
+
+----------------------------------------
+
+*pcjoinchat <GID>{,<角色ID>};
+
+加入一个与指定GID的玩家或NPC相关的聊天室
+
+----------------------------------------
+
+*unitblown <GID>,<坐标X>,<坐标Y>{,<是否检查>};
+
+移动个体到指定的坐标, 移动玩家时没有黑屏的传送动画, 移动过程中检查路径, 遇到墙会移动失败
+
+是否检查:
+	是否检查玩家移动到目标点的路径(默认: 2)
+	1 - A*检查是否能移动到终点
+	2 - 简单检查
+	3 - 长距检查
+	
+----------------------------------------
+
+*unitmove <GID>,<坐标X>,<坐标Y>;
+
+移动个体到指定的坐标, 移动玩家时没有黑屏的传送动画, 不做任何检查, 甚至可以移动到无法移动的坐标
+当魔物移动到无法移动的格子时, 请先禁止其移动, 否则移动足够多次数后服务端会报错
+
+----------------------------------------
+
+refineui_result <背包位置序号>,<动画类型>,<精炼后等级>;
+
+指令用于自定义精炼UI, 播放精炼动画, 并修改物品精炼值
+
+动画类型:
+	0 - 精炼成功
+	1 - 精炼失败, 装备消失
+	2 - 精炼失败, 精炼降级
+	3 - 精炼失败, 精炼被铁匠的祝福保级
+	
+注意: 
+	1 - 当 OnPCRefineUIFilter 事件被打断后才可以使用该指令
+	2 - 精炼成功或精炼失败, 都会将物品精炼等级直接设置为 <精炼后等级>
+	3 - 此精炼不消耗任何道具, 请使用 delitem 删除精炼材料
+
+----------------------------------------
+
+*getitemcombo(<物品ID>,<索引>,<返回数组>{,<角色ID>});
+
+返回物品所绑定的套装属性
+
+注意:
+	该指令不会重置返回数组, 请在传入返回数组时重置该数组
+
+返回值:
+	数组中所保存的物品数量
+	
+例子:
+	// 运行与物品ID为24090绑定的所有套装效果
+	while(getitemcombo(24090, .@idx++, .@combo)){
+		.@combo_str$ = "";
+		for (.@i = 0; .@i < getarraysize(.@combo); .@i++)
+			.@combo_str$ += ""+.@combo[.@i]+":";
+		dispbottom .@combo_str$;
+		runcomboscript .@combo;
+		deletearray .@combo;
+	}
+
+----------------------------------------
+
+*runcomboscript <套装数组>{,<角色ID>};
+
+运行套装数组所保存的套装效果
+
+返回值:
+	运行成功返回 1 失败返回 0
+
+例子:
+	setarray .@combo[0],24090,24091,24092;
+	runcomboscript .@combo;
+
+----------------------------------------
+
+*startsellitem <物品ID>,<数量>{,<价格>};
+
+为 NPC 绑定的兑换商店增加一个可兑换道具, 并将兑换商店置于编辑状态
+
+数量:
+	当数量为 -1 时为不限兑换数量商店
+	
+----------------------------------------
+
+*sellitemcurrency <物品ID>,<数量>{,<精炼等级>};
+
+为兑换物品添加一项所需道具, 只能在兑换商店处于编辑状态时使用
+	
+----------------------------------------
+
+*endsellitem;
+
+完成兑换道具添加, 结束道具添加的编辑状态
+
+----------------------------------------
+
+*bartershop {<NPC ID>{,<角色ID>}};
+
+为指定角色开启一个兑换商店UI
+
+例子:
+	// 使用 红色药水x2 赤色药水x4 黄色药水x8 和 100000Z 兑换一张波利卡片 
+	prontera,156,116,0	script	test	56,{
+		bartershop;
+		end;
+	Oninit:
+		startsellitem 4001,-1,100000;
+		sellitemcurrency 501,2;
+		sellitemcurrency 502,4;
+		sellitemcurrency 503,8;
+		endsellitem;
+	}
+
+
+扩展:	简易NPC兑换商店可以直接通过商店模式打开一个兑换商店
+		简易兑换商店只能通过一样物品兑换另一样物品
+
+简易NPC兑换商店例子: 50个红色药水兑换一张波利卡片.....
+	prontera,156,118,0	bartershop	简易兑换商店	65,4001:501:50,4002:502:50,4003:503:50
+
+----------------------------------------
+
+*rfifo_int <读取位置>,<字节数>;
+
+当 OnPCSocketRecvFilter 事件接收到封包时, 可以用本指令获取‘接收封包’中对应位置的数字数据.
+
+<字节数>
+	1 - 读取字节型数据
+	2 - 读取短整型数据
+	4 - 读取整数型数据
+	8 - 读取长整型数据
+	
+指令返回获取到的数字数据
+
+----------------------------------------
+
+*rfifo_str <读取位置>;
+
+当 OnPCSocketRecvFilter 事件接收到封包时, 可以用本指令获取‘接收封包’中的文本数据.
+
+指令返回获取到的文本数据
+
+----------------------------------------
+
+*wfifo_int <写入位置>,<写入数字>,<字节数>;
+
+当 OnPCSocketRecvFilter 事件接收到封包时, 可以用本指令改写‘发送封包’的数字数据
+使用该指令后 ‘发送封包’ 将在事件结束后发送给客户端, 可通过 fifo_debug 取消发送.
+
+<字节数>
+	1 - 读取字节型数据
+	2 - 读取短整型数据
+	4 - 读取整数型数据
+	8 - 读取长整型数据
+
+----------------------------------------
+
+*wfifo_str <写入位置>,<写入文本>{,<写入长度>};
+
+当 OnPCSocketRecvFilter 事件接收到封包时, 可以用本指令改写‘发送封包’的文本数据
+使用该指令后 ‘发送封包’ 将在事件结束后发送给客户端, 可通过 fifo_debug 取消发送.
+如果 <写入长度> 大于 <写入文本> 长度, 则填充空字符.
+
+----------------------------------------
+
+*fifo_debug <掩码>;
+
+将 ‘发送封包’ 或 ‘接收封包’ 打印到控制台, 或是禁止事件结束后发送 ‘发送封包’ 给客户端.
+
+<掩码>
+	&1 - 打印接收封包
+	&2 - 打印发送封包
+	&4 - 取消将 wfifo_int wfifo_str 两个指令整理的封包发送给客户端
+
+----------------------------------------
+--         以下功能为付费功能         --
+-- 收费功能可在官网直接下载测试端测试 --
+----------------------------------------
+
+*unitskilltowide <GID>,<技能ID>,<技能等级>,<扩散方向>,<步进长度>,<步进范围>,<步进延时>;
+*unitskilltowide <GID>,"<技能名称>",<技能等级>,<扩散方向>,<步进长度>,<步进范围>,<步进延时>;
+*unitskilltowide2 <GID>,<技能ID>,<技能等级>,<扩散方向>,<步进长度>,<步进范围>,<步进延时>;
+*unitskilltowide2 <GID>,"<技能名称>",<技能等级>,<扩散方向>,<步进长度>,<步进范围>,<步进延时>;
+
+使魔物释放大规模的魔法攻击, 这个指令只能释放地面技能, 下面有个例子可以直观感受一下
+
+扩散方式(掩码选项)
+	&1 东-西方向
+	&2 南-北方向
+	&4 西南-东北方向
+	&8 东南-西北方向
+	
+实现方式
+	unitskilltowide 是通过召唤魔物释放技能后瞬间删除实现的
+	unitskilltowide2 是通过无视技能释放距离咏唱等, 连续释放实现的
+	
+例:
+	unitskilltowide getcharid(3),21,5,15,2,15,1000;
+	sleep2 2000;
+	unitskilltowide getcharid(3),21,5,15,2,15,0;
+	
+---------------------------------------
+
+*unitskilltoAOE <GID>,<技能ID>,<技能等级>,<范围>{,<最大数量>};
+
+指令对周围的敌人使用相同的技能, 这个指令只能释放目标锁定技能
+
+---------------------------------------
+
+*roulette_bonus <物品ID>{,<角色ID>};
+
+设置幸运大转盘的 bonus 物品。该指令只有打开转盘的时候有效。
+bonus 物品必须为当前摇奖中的物品时才会显示。
+可以配合 OnPCStartRouletteFilter 事件，重定义转盘规则。
+
+---------------------------------------
+
+*roulette_iteminfo <标签>,<行>,<列>{,<角色ID>};
+
+获得幸运大转盘中物品信息。行数从下往上数。
+可以配合 OnPCStartRouletteFilter 事件, 重定义转盘规则。
+
+<标签>: 
+	1 : 物品ID
+	2 : 获得物品的数量
+	3 : flag 对应数据库转盘数据中的flag
+
+---------------------------------------
+
+*roulette_open {<行>{,<列>{,<bonus物品>{,<角色ID>}}}};
+
+打开幸运大转盘, 并且定位到相应位置，如果列为-1时，下次摇奖行会定位到 (行+1)，或设置bonus物品。行数从下往上数
+bonus 物品必须为当前摇奖中的物品时才会显示。
+可以配合 OnPCStartRouletteFilter 事件，重定义转盘规则。
+
+---------------------------------------
+
+*roulette_generate <结果>,<行>,<列>,<bonus物品>{,<角色ID>};
+
+转盘开始转动, 停在指定的位置, 并显示当前摇奖的bonus物品。行数从下往上数
+bonus 物品必须为当前摇奖中的物品时才会显示。
+可以配合 OnPCStartRouletteFilter 事件，重定义转盘规则。
+
+<结果>:
+	0 : 成功 下次摇奖行会定位到(行+1)
+	1 : 提示失败, 不会摇奖
+	2 : 提示没有足够的硬币, 不会摇奖
+	3 : 失败 下次摇奖会定位到第一行

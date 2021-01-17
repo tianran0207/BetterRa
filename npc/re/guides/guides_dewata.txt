@@ -1,0 +1,84 @@
+//===== rAthena Script ======================================= 
+//= Dewata Guide
+//===== By: ================================================== 
+//= Muad_Dib
+//===== Current Version: ===================================== 
+//= 1.1
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Guide for the city of Dewata.
+//===== Additional Comments: ================================= 
+//= 1.0 First version. [Lemongrass]
+//= 1.1 Navigation system update. [Euphy]
+//============================================================ 
+
+dewata,202,106,4	script	德瓦他导游#dewata01	4_M_DEWWOMAN,{
+	mes "[德瓦他导游]";
+	mes "欢迎莅临拥有";
+	mes "美丽沙滩的日景与";
+	mes "夕照的^8B4513德瓦他^000000，";
+	mes "我负责导览村落，";
+	mes "随时为您服务哦!";
+	next;
+	F_Navi("[德瓦他导游]");
+	while (1) {
+		next;
+		switch(select("[ 卡普拉职员 ]:[ 武器商人 ]:[ 防具商人 ]:[ 道具商人 ]:[ 餐厅老板 ]:[ 喀拉喀托火山 ]:[ 艾尔贝塔方向船员 ]:删除小地图的标记:结束对话")) {
+		case 1:
+			callsub L_Mark, "^0000FF卡普拉职员^000000";
+			viewpoint 1,202,184,0,0x000FFF;
+			break;
+		case 2:
+			callsub L_Mark, F_Navi("武器商人","dewata,218,164","^008080");
+			viewpoint 1,218,163,1,0x008080;
+			break;
+		case 3:
+			callsub L_Mark, F_Navi("防具商人","dewata,158,182","^008080");
+			viewpoint 1,158,182,2,0x008080;
+			break;
+		case 4:
+			callsub L_Mark, F_Navi("道具商人","dewata,182,164","^FF1493");
+			viewpoint 1,182,164,3,0xFF1493;
+			break;
+		case 5:
+			callsub L_Mark, F_Navi("餐厅老板","dewata,146,109","^FF1493");
+			viewpoint 1,146,109,4,0xFF1493;
+			break;
+		case 6:
+			callsub L_Mark, F_Navi("喀拉喀托火山","dewata,235,56","^8A2BE2");
+			viewpoint 1,235,56,5,0x8A2BE2;
+			break;
+		case 7:
+			callsub L_Mark, F_Navi("艾尔贝塔方向船员","dewata,229,49","^00BFFF");
+			viewpoint 1,229,49,6,0x00BFFF;
+			break;
+		case 8:
+			mes "[德瓦他导游]";
+			mes "已删除小地图上的标志了，";
+			mes "还需要其它服务吗?";
+			viewpoint 2,202,184,0,0xFFFFFF;
+			viewpoint 2,218,163,1,0xFFFFFF;
+			viewpoint 2,158,182,2,0xFFFFFF;
+			viewpoint 2,182,164,3,0xFFFFFF;
+			viewpoint 2,232,59,4,0xFFFFFF;
+			viewpoint 2,195,235,5,0xFFFFFF;
+			viewpoint 2,230,52,6,0xFFFFFF;
+			break;
+		case 9:
+			mes "[德瓦他导游]";
+			mes "Enjoy your trip!!";
+			close;
+		}
+	}
+
+L_Mark:
+	mes "[德瓦他导游]";
+	mes "The "+getarg(0)+" is";
+	mes "marked on your mini-map.";
+	mes "Check your mini-map.";
+	mes "还需要其它服务吗?";
+	return;
+}
+dewata,197,184,4	duplicate(德瓦他导游#dewata01)	德瓦他导游#dewata02	535

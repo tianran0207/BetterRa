@@ -1,0 +1,71 @@
+# 本系统用于定义每一种状态在特定的条件下的进行清除、保留。
+# 主要目的为开发各种药水、卷轴、消费品，也可以对触发状态的技能进行修正
+#
+# Type 对谁生效（掩码选项）:
+#	- 1 玩家
+#	- 2 魔物
+# Condition 赋予/消失条件（填 true 清除，填 false 保留，不填保持默认）
+#   - Dead             死亡
+#   - Logout           离线
+#   - Gospel           被圣音后
+#   - Dispell          被魔法效果解除后
+#   - Clearance        被驱散后
+#   - Hermode          被海罗默德的手杖后
+#   - Tarotcard        被命运塔罗牌后
+#   - Banishing_Buster 被强制驱逐后
+#   - Inspiration      被圣灵感应后
+#   - Refresh          被精力重生后
+#   - Luxanima         RK某个技能, 有知道的麻烦告知一下, 技能ID 5005
+#   - NoMagicDamage    黄金盗虫抵御的状态
+#   - ScriptSCend      脚本指令 sc_end 移除全部状态时
+# RemoveStatus 赋予状态时移除掉的状态（如果想写成互不共存请在另一个状态写入移除对应状态）
+# Restricted 生效的地图（掩码选项 默认全部地图）
+#   1    - 在普通地图 中生效
+#   2    - 在 PVP地图 中生效 (若已启用 PK模式 的话, 请用此选项来取代1)
+#   4    - 在 GVG地图 中生效
+#   8    - 在战场地图 中生效
+#   16   - 在  TE地图 中生效
+#   区域限制 - 请参考 npc\mapflag\restricted.txt 脚本所使用的方法, 来为地图划分区域
+#   32   - 在 1号区域 中生效 (艾尔帕兰追逐赛地图)
+#   64   - 在 2号区域 中生效 (监狱地图)
+#   128  - 在 3号区域 中生效 (依斯鲁德竞技场地图)
+#   256  - 在 4号区域 中生效 (华丽金属之战:第二版本地图)
+#   512  - 在 5号区域 中生效 (封闭的地下墓穴地图)
+#   1024 - 在 6号区域 中生效 (无尽之塔地图)
+#   2048 - 在 7号区域 中生效 (城镇地图)
+#   4096 - 在 8号区域 中生效 (尚未被分配)
+#
+# 例1: 天使赐福与加速术不能共存
+#
+#  - Id: SC_INCREASEAGI
+#    RemoveStatus:
+#      - Id: SC_BLESSING
+#      
+#  - Id: SC_BLESSING
+#    RemoveStatus:
+#      - Id: SC_INCREASEAGI
+#
+# 例2: 加速术死亡不消失，下线状态消失
+#
+#  - Id: SC_INCREASEAGI
+#    Condition: 
+#      Dead: false
+#      Logout: true
+
+Header:
+  Type: STATUS_CHANGE_DB
+  Version: 1
+  
+Body:
+#  - Id: SC_INCREASEAGI
+#    Condition: 
+#      Dead: false
+#      Logout: true
+#    RemoveStatus:
+#      - Id: SC_BLESSING
+#    Restricted: 1
+#      
+#  - Id: SC_BLESSING
+#    RemoveStatus:
+#      - Id: SC_INCREASEAGI
+#    Restricted: 1

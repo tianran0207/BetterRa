@@ -1,0 +1,442 @@
+//===== rAthena Script ======================================= 
+//= Malangdo Town
+//===== By: ================================================== 
+//= Muad_Dib
+//===== Current Version: ===================================== 
+//= 1.5
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Malangdo Town Script
+//===== Additional Comments: ================================= 
+//= 1.0 First version. [Euphy]
+//= 1.1 Added entrance scripts.
+//= 1.2 Moved "Odgnalam" coordinates.
+//= 1.3 Fixed dialogues.
+//= 1.4 Dialogue edits, source iRO.
+//= 1.5 Added Izlude duplicates.
+//============================================================
+
+// Malangdo Transportation :: malangdo_go
+//============================================================
+-	script	Dolangmal	-1,{
+	if (checkquest(5091) == -1) {
+		mes "[猫绵绵]";
+		mes "嘿~! 人类你好呀~ 我是猫绵绵. 哇咔咔~";
+		next;
+		mes "[猫绵绵]";
+		mes "我是被派来接你去猫咪的乐园^A2314B绵绵岛^000000的.";
+		next;
+		mes "[猫绵绵]";
+		set .@s$,"有啥理由不去^A2314B绵绵岛^000000呢?";
+		switch(atoi(strnpcinfo(2))) {
+			case 1: mes "怎么样? 虽然人声鼎沸的普隆德拉也不错啦, 但你有考虑过去我们猫咪的乐园^A2314B绵绵岛^000000一探究竟吗?"; break;
+			case 2: mes "与其来充斥着死脑筋魔法师的吉芬, 不如去美丽的猫咪乐园^A2314B绵绵岛^000000吧! 怎么样?"; break;
+			case 3: mes "虽然斐杨的空气很不错, 但是美丽的猫咪乐园^A2314B绵绵岛^000000的空气比这里还好噢~ 要不要去?"; break;
+			case 4: mes .@s$+"比起充满滴答滴答嘈杂钟声的艾尔帕兰, 美丽又安静的猫咪乐园^A2314B绵绵岛^000000更好吧! 要不要去呀?"; break;
+			case 5: mes .@s$+"比起又热又刮风沙的梦罗克, 吹海风的猫咪乐园^A2314B绵绵岛^000000更好啦! 要不要去呀?"; break;
+			case 6: mes .@s$+"怎么样? 有兴趣离开这让眼睛和脑袋都疼的, 到处都是书的朱诺, 到我们猫咪的乐园^A2314B绵绵岛^000000吗?"; break;
+			case 7: mes .@s$+"怎么样? 有兴趣离开静到吓人的拉赫, 到我们热闹的猫咪乐园^A2314B绵绵岛^000000吗?"; break;
+			case 8: mes .@s$+"怎么样? 想离开满街充斥着黑社会的里希塔乐镇, 到我们安全的猫咪乐园^A2314B绵绵岛^000000吗?"; break;
+			case 9: mes .@s$+"怎么样? 比起这到处都是小草的味道, 有着大海味道的猫咪乐园^A2314B绵绵岛^000000更好啦! 要不要去呀?"; break;
+		}
+		next;
+		if(select("不要:往^A2314B绵绵岛^000000出发咯~ Go~ Go~") == 1) {
+			mes "[猫绵绵]";
+			mes "我擦!? 你说你不想去^A2314B绵绵岛^000000? 嗟!";
+			next;
+			mes "[猫绵绵]";
+			mes "你不去的话干嘛要跟我搭话... 干嘛烦我...不过...";
+			next;
+			mes "[猫绵绵]";
+			mes "^9E1837汤玛斯司令^000000要我来绑架人类.. 呃.. 应该是邀请人类吧？";
+			next;
+			mes "[猫绵绵]";
+			mes "这次放你一马! 想去的话随时告诉我喔~";
+			close;
+		}
+		mes "[猫绵绵]";
+		mes "很好! 我欣赏你的热情奔放!";
+		next;
+		mes "[猫绵绵]";
+		mes "在你前往^A2314B绵绵岛^000000之前, 有几点注意事项要提醒你.";
+		next;
+		mes "[猫绵绵]";
+		mes "第一点!! 当你抵达^A2314B绵绵岛^000000后, 必须先向^9E1837汤玛斯司令^000000报到..";
+		next;
+		mes "[猫绵绵]";
+		mes "不然的话, 你可能会在昏暗的路上, 遭到可怕粗暴的猫咪大哥们的攻击.";
+		next;
+		mes "[猫绵绵]";
+		mes "第二点!! 虽然这里开放给人类造访, 但是^A2314B绵绵岛^000000100%是我们猫咪的地盘!";
+		next;
+		mes "[猫绵绵]";
+		mes "要把我们当作一个人...";
+		mes "喔... 不... 我们是猫嘛~";
+		mes "要把我们当作一只猫来温柔对待!";
+		next;
+		mes "[猫绵绵]";
+		mes "然后是...";
+		next;
+		mes "明明说只有几点注意事项的猫绵绵, 滔滔不绝地说了100多点的注意事项.";
+		next;
+		mes "[猫绵绵]";
+		mes "很好! 以上就是注意事项!! 都是些很容易遵守的事... 怎么样? 你有办法遵守吗?";
+		next;
+		switch(select("我可以遵守:没办法遵守")) {
+		case 1:
+			mes "[猫绵绵]";
+			mes "很好! 说话算话哈.";
+			mes "^9E1837汤玛斯司令^000000在^A2314B绵绵岛中央的船^000000里.";
+			next;
+			mes "[猫绵绵]";
+			mes "别忘记要去报到喔~";
+			next;
+			mes "[猫绵绵]";
+			mes "好啦, 我不啰嗦了.";
+			mes "让我们一起前往猫咪的乐园^A2314B绵绵岛^000000吧~";
+			setquest 5091;
+			completequest 5091;
+			warp "malangdo",217,85;
+			close;
+		case 2:
+			mes "[猫绵绵]";
+			mes "你说什么!? 连这么简单的规则也没办法遵守? 嗟!";
+			next;
+			mes "[猫绵绵]";
+			mes "如果你没办法遵守就早说嘛~ 还让我说得那么累...";
+			next;
+			mes "[猫绵绵]";
+			mes "^9E1837汤玛斯司令^000000要我来绑架人类.. 呃.. 应该是邀请人类吧？";
+			next;
+			mes "[猫绵绵]";
+			mes "这次放你一马! 想去的话随时告诉我喔~";
+			close;
+		}
+	}
+	mes "[猫绵绵]";
+	mes "嗯? 你不是上次...?";
+	mes "好吧. 你去^A2314B绵绵岛^000000回来啦?";
+	next;
+	switch(select("再送我去一次^A2314B绵绵岛^000000吧:嗯, 我回来拉!")) {
+	case 1:
+		mes "[猫绵绵]";
+		mes "我也很想送你去呢! 但是规则不允许嘛~ 我光送第一次去^A2314B绵绵岛^000000的人就够累的!";
+		next;
+		mes "[猫绵绵]";
+		mes "而且你根本没有听完整我说的规则嘛... 第53条规则...";
+		next;
+		mes "[猫绵绵]";
+		mes "我再特别告诉你一次第53条规则吧! 谁教我是心胸很宽大的猫咪呢~";
+		next;
+		mes "[猫绵绵]";
+		mes "如果你想再次去^A2314B绵绵岛^000000的话, 就得去依斯鲁得岛或是艾尔贝塔搭船.";
+		next;
+		mes "[猫绵绵]";
+		mes "搭上船后, 一直走~";
+		mes "就会抵达我们猫咪的乐园^A2314B绵绵岛^000000啦.";
+		next;
+		mes "[猫绵绵]";
+		mes "很简单吧? 那就祝你一路顺风啦~ 喵";
+		close;
+	case 2:
+		mes "[猫绵绵]";
+		mes "怎么样? 不错吧? 我就知道! 哇咔咔~";
+		next;
+		mes "[猫绵绵]";
+		mes "对了! 我怕你不知道...";
+		next;
+		mes "[猫绵绵]";
+		mes "如果你想再次去^A2314B绵绵岛^000000的话, 得去依斯鲁得岛或者艾尔贝塔搭船才行.";
+		next;
+		mes "[猫绵绵]";
+		mes "嘛~ 你这么聪明一定知道吧!";
+		mes "那我们下次再见啦~";
+		close;
+	}
+}
+prontera,114,77,6	duplicate(Dolangmal)	猫绵绵#1	553
+geffen,109,61,6	duplicate(Dolangmal)	猫绵绵#2	553
+payon,200,106,4	duplicate(Dolangmal)	猫绵绵#3	553
+aldebaran,170,104,4	duplicate(Dolangmal)	猫绵绵#4	553
+morocc,168,275,4	duplicate(Dolangmal)	猫绵绵#5	553
+yuno,165,122,4	duplicate(Dolangmal)	猫绵绵#6	553
+rachel,121,126,4	duplicate(Dolangmal)	猫绵绵#7	553
+lighthalzen,254,83,5	duplicate(Dolangmal)	猫绵绵#8	553
+mora,57,150,4	duplicate(Dolangmal)	猫绵绵#9	553
+
+-	script	::Odgnalam	-1,{
+	mes "猫咪晒着"+((strnpcinfo(2) == "albe")?"艾尔贝塔":"依斯鲁德岛")+"的温暖太阳, 睡得很香...";
+	next;
+	if(select("让猫咪继续睡, 不打扰它:和猫咪说话") == 1) close;
+	mes "[猫奥克]";
+	mes "喵呜? 嗯?";
+	next;
+	if (ep13_yong1 == 0) {
+		set .@price,1000;
+		set .@s1$,"哼!! 原来是烦人的人类! 给我^0000FF1000金币^000000我就送你去猫咪乐园^A2314B绵绵岛^000000!";
+		set .@s2$,"钱呢? 钱在哪里? 没有钱你还想去哪呀? 人类脸皮真厚!";
+	} else if (ep13_yong1 < 60) {
+		set .@price,999;
+		set .@s1$,"你和猫咪商队还蛮有缘的嘛! 看在我们这么有缘的份上, 给你打个折, 给我^0000FF999金币^000000我就送你去^A2314B绵绵岛^000000!";
+		set .@s2$,"钱在哪里? 你怎么一点荣誉感都没有?";
+	} else if (ep13_yong1 > 59 && ep13_yong1 < 80) {
+		set .@price,500;
+		set .@s1$,"你曾经给过我们猫咪一些帮助. 这次你只需要给我一半的费用(^0000FF即500金币^000000), 我就送你去猫咪乐园^A2314B绵绵岛^000000!";
+		set .@s2$,"简直不敢相信, 你居然没有钱支付已经打五折的传送费?";
+	} else {
+		mes "[猫奥克]";
+		mes "你是猫咪商队的英雄, 你的事迹已经成为我们的传说.";
+		next;
+		mes "[猫奥克]";
+		mes "因为你是猫咪商队的英雄, 所以我会免费送你去猫咪乐园^A2314B绵绵岛^000000.";
+		next;
+		if(select("出发前往绵绵岛!!:不想去了...") == 1) {
+			mes "[猫奥克]";
+			mes "祝你有个舒适的旅程... 好啦, 我们出发~";
+			warp "malangdo",217,85;
+		}
+		close;
+	}
+	mes "[猫奥克]";
+	mes .@s1$;
+	next;
+	if(select("出发前往绵绵岛!!:不想去了...") == 2) close;
+	if (Zeny < .@price) {
+		mes "[猫奥克]";
+		mes "钱呢? 钱在哪里? 没有钱你哪儿也去不了. 你知道的. ";
+		close;
+	}
+	set Zeny, Zeny - .@price;
+	mes "[猫奥克]";
+	mes "现在马上就送你过去! 出发~";
+	warp "malangdo",217,85;
+	close;
+}
+alberta,200,151,4	duplicate(Odgnalam)	猫奥克#albe	554
+izlude,182,218,4	duplicate(Odgnalam)	猫奥克#iz	554	// Old coordinates: (182,192)
+izlude_a,182,218,4	duplicate(Odgnalam)	猫奥克#iz_a	554
+izlude_b,182,218,4	duplicate(Odgnalam)	猫奥克#iz_b	554
+izlude_c,182,218,4	duplicate(Odgnalam)	猫奥克#iz_c	554
+izlude_d,182,218,4	duplicate(Odgnalam)	猫奥克#iz_d	554
+
+malangdo,219,86,4	script	猫豆豆#malang	545,{
+	mes "[猫豆豆]";
+	mes "在绵绵岛玩得还开心吗?";
+	mes "我们猫咪商队有提供来往于依斯鲁得岛和艾尔贝塔的便船.";
+	next;
+	if (ep13_yong1 == 0) {
+		set .@price,1000;
+		set .@s1$, "1000 金币";
+		set .@s2$, "祝你今天在绵绵岛上过得愉快~";
+		set .@no_money$, "搭船费用很难做到全免, 请谅解~";
+		set .@yes_money$, "祝你旅途愉快~";
+		mes "[猫豆豆]";
+		mes "想搭船的话需要 1000 金币, 你的目的地是哪里?";
+		next;
+	} else if (ep13_yong1 < 60) {
+		set .@price,999;
+		set .@s1$,"999 金币";
+		set .@s2$, "祝你在绵绵岛上事事顺利...";
+		set .@no_money$, "即使你和我们猫咪商队有缘, 搭船费用很难做到全免, 请谅解~";
+		set .@yes_money$, "谢谢, 祝你旅途愉快.";
+		mes "[猫豆豆]";
+		mes "看在你和猫咪商队的缘分上, 特别给你个打折~ 船费只要 999 金币, 你想去哪里?";
+		next;
+	} else if (ep13_yong1 > 59 && ep13_yong1 < 80) {
+		set .@price,500;
+		set .@s1$,"500 金币";
+		set .@s2$, "祝你今天在绵绵岛上超级好运, 然后还能中大奖.";
+		set .@no_money$, "我的天. 你连500金币都没有? 搭船费用很难做到全免, 请谅解~";
+		set .@yes_money$, "祝你旅途愉快, 欢迎下次再来.";
+		mes "[猫豆豆]";
+		mes "哇噢~ 你为我们做了很多奉献... 好吧!! 给你特别优惠价 500 金币. 你想去哪里?";
+		next;
+	} else {
+		set .@price,0;
+		set .@s1$,"英雄免费!!";
+		set .@s2$, "没有人会反对猫咪商队的英雄停留在绵绵岛, 绝对没有...";
+		mes "[猫豆豆]";
+		mes "啊... 你是猫咪商队的英雄, 你是我们的传奇!";
+		next;
+		mes "[猫豆豆]";
+		mes "我们不能收取猫咪商队英雄的费用. 尊敬的您想去哪里?";
+		next;
+	}
+	set .@i, select("- 往依斯鲁得 --- "+.@s1$+":- 往艾尔贝塔 --- "+.@s1$+":- 留在绵绵岛");
+	mes "[猫豆豆]";
+	if (.@i == 3) {
+		mes .@s2$;
+		close;
+	}
+	if (ep13_yong1 > 80) {
+		mes "英雄, 祝您旅途愉快.";
+		if (.@i == 1)
+			warp "izlude",195,212; // Old coordinates: (194,180)
+		else
+			warp "alberta",192,150;
+		close;
+	}
+	if (Zeny < .@price) {
+		mes .@no_money$;
+		close;
+	}
+	set Zeny, Zeny - .@price;
+	mes .@yes_money$;
+	if (.@i == 1)
+		warp "izlude",195,212;
+	else
+		warp "alberta",192,150;
+	close;
+}
+
+// Generic Malangdo NPCs :: malang_tre
+//============================================================
+malangdo,147,117,3	script	旅店老板#malang	554,{
+	mes "你看见了一只懒洋洋的猫站在椅子上.";
+	mes "你猜那是这里的旅店老板.";
+	next;
+	switch(select("- 唔..我需要休息一下.:- 呃..我需要在这里储存.:- 离开.")) {
+	case 1:
+		mes "[旅店老板]";
+		mes "嗳?";
+		mes "俄..如果你能给我一个^FF00005棉棉岛风味罐头^000000,就能在这个吊床上休息啦.";
+		next;
+		switch(select("- 给你吧.:- 算了.")) {
+		case 1:
+			if (countitem(12636) > 4) {
+				delitem 12636,5; //Malang_Sp_Can
+				percentheal 100,100;
+				specialeffect2 EF_HEALSP;
+				mes "[旅店老板]";
+				mes "现在休息去吧!";
+				emotion ET_CHUP;
+				next;
+				warp "malangdo",140,121;
+				close;
+			}
+			mes "[旅店老板]";
+			mes "这儿不是没有慈善..";
+			close;
+		case 2:
+			mes "[旅店老板]";
+			mes "等你想休息的时候告诉我.";
+			close;
+		}
+	case 2:
+		mes "[旅店老板]";
+		mes "已经储存好了.我们应该要保持联系~哈哈~";
+		savepoint "malangdo",142,118,1,1;
+		close;
+	case 3:
+		mes "[旅店老板]";
+		mes "有时候你必须得休息下.";
+		next;
+		mes "- Wow, 这真是只大懒猫! -";
+		close;
+	}
+	close;
+}
+
+malangdo,151,120,3	script	宫廷乐师#mal	479,{
+	mes "[宫廷乐师]";
+	mes "少年,哪只懒猫弄得我每天都昏昏欲睡的.";
+	next;
+	mes "[宫廷乐师]";
+	mes "他让生活看起来如此简单.";
+	close;
+}
+
+malangdo,149,120,5	script	漫游舞者#mal	485,5,1,{
+	mes "[漫游舞者]";
+	mes "居住在这里的猫太有活力了!!";
+	mes "弄得我整天都在跳舞,这是不是很奇怪?";
+	mes "啦哒嘀哒,嘀,嘀哒嘀~!";
+	close;
+OnTouch:
+	switch(rand(5)) {
+	case 0:
+		soundeffect "ring_of_nibelungen.wav",0;
+		break;
+	case 1:
+		soundeffect "dont_forget_me_not.wav",0;
+		break;
+	case 2:
+		soundeffect "humming.wav",0;
+		break;
+	case 3:
+		soundeffect "assassin_of_sunset.wav",0;
+		break;
+	case 4: 
+		emotion ET_DELIGHT;
+		emotion ET_DELIGHT, getnpcid(0, "Minstrel#mal");
+		break;
+	}
+	end;
+}
+
+malangdo,216,168,3	script	猫训练者#mal1	558,0,8,{
+	emotion ET_COOL;
+	mes "[猫训练者]";
+	mes "Ooo~ 他们毛茸茸的尾巴和软乎乎的毛~~";
+	mes "我受不了了啦~~这里是天堂啦!!!";
+	next;
+	emotion ET_KIK;
+	mes "[猫训练者]";
+	mes "有一种物品,^FF0000猕猴桃果实^000000,可以让棉棉岛的猫咪都变成我滴小奴隶~~~瓦咔咔咔~!";
+	next;
+	select("^FF0000猕猴桃果实^000000?");
+	mes "[猫训练者]";
+	mes "这真是稀有的物品!";
+	mes "虽然很困难,不过我还是能搞定它的!";
+	mes "不过其它可爱的猫咪对它可就无法抗拒啦!";
+	next;
+	select("我怎么才能获得^FF0000猕猴桃果实^000000?");
+	mes "[猫训练者]";
+	mes "既然我可以自己勉强弄到它,我为什么要告诉你方法?";
+	mes "就算你给我全世界所有的Zeny我都不会告诉你!";
+	next;
+	emotion ET_KIK;
+	mes "[猫训练者]";
+	mes "所有棉棉岛的猫猫都是我的~~!!";
+	mes "木哈哈哈哈哈~~!";
+	mes "有了足够的^FF0000猕猴桃果实^000000我就是棉棉岛的女王啦!~噢呵呵呵呵!";
+	close;
+OnTouch:
+	emotion ET_SPARK;
+	end;
+}
+
+malangdo,164,203,3	script	猫训练者#mal2	853,{
+	emotion ET_COOL;
+	mes "[猫训练者]";
+	mes "Ooo~ 他们毛茸茸的尾巴和软乎乎的毛~";
+	mes "我受不了了啦~~这里是天堂啦!!!";
+	next;
+	emotion ET_KIK;
+	mes "[猫训练者]";
+	mes "这是我的小秘密~";
+	mes "知道^FF0000猕猴桃果实^000000不?";
+	mes "有了它,我就能让所有棉棉岛的猫咪变成我的小奴隶~~!!";
+	mes "木哈哈哈哈!~~~";
+	next;
+	select("^FF0000猕猴桃果实^000000?");
+	mes "[猫训练者]";
+	mes "唔..我打赌你不知道这个~";
+	mes "这些棉棉岛的猫咪对它可无法抗拒啦!~";
+	mes "但是,这东西太稀有了,你别想着能搞到它哦~!";
+	next;
+	select("我怎么才能获得^FF0000猕猴桃果实^000000?");
+	mes "[猫训练者]";
+	mes "其实,很简单的,你只要...";
+	next;
+	mes "[猫训练者]";
+	mes "嘿!你差点让我说漏了嘴!";
+	next;
+	emotion ET_KIK;
+	mes "[猫训练者]";
+	mes "总有一天,这些猫咪都会是我的~";
+	mes "我将是棉棉岛的国王~~!!噢呵呵呵呵!~~~";
+	close;
+}

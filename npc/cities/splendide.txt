@@ -1,0 +1,833 @@
+//===== rAthena Script =======================================
+//= Splendide Town
+//===== By: ==================================================
+//= L0ne_W0lf
+//===== Current Version: =====================================
+//= 1.2
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: =========================================
+//= [Official Conversion]
+//= Town-specific NPCs for Splendide.
+//===== Additional Comments: =================================
+//= 1.0 First Version.
+//= 1.1 Added more town NPCs
+//= 1.2 Added more town NPCs
+//= 2016.03.21 英文直译NPC大部分内容 [天狼管理员]
+//= 2016.03.21 TWRO修正一些角色名称及对话[杨梅]
+//============================================================
+
+// cat_enhance
+splendide,218,193,3	script	精灵#ep13_1	441,{
+	if (isequipped(2782) == 1) {
+		mes "[Exhausted Fairy]";
+		mes "Wait, don't come any closer. I can't stand your smell, it makes me feel dizzy.";
+		close;
+	}
+	else {
+		mes "[Exhausted Fairy]";
+		mes "OdesKoUor Ko NuffSharUden Ko CyaVenah An NudNuffser An KoRivehAdor Mu LarseorAnu O DorNe";
+		close;
+	}
+}
+
+splendide,180,223,3	script	精灵#ep13_2	440,{
+	if (isequipped(2782) == 1) {
+		mes "[盖璐儿]";
+		mes "你看起来不成熟， 我认为你比那些在雪地上不文明的人";
+		close;
+	}
+	else {
+		mes "[盖璐儿]";
+		mes "AlahCyamah U MeKoser Ir TimaurRiveh Di LarsRasTi Di AgolKones Or AlahUdenAndu Ee FusRe";
+		close;
+	}
+}
+
+splendide,125,227,3	script	精灵#ep13_3	444,{
+	if (isequipped(2782) == 1) {
+		mes "[普罗尔]";
+		mes "无意冒犯,我不是看你同情。";
+		mes "我只是想知道你拖着沉重的身体可以走路……";
+		close;
+	}
+	else {
+		mes "[普罗尔]";
+		mes "AnuFuloUor Ko CyaWosnes Ha WosAnuAsh O WosDuAno O ";
+		mes "FuloAndueo Ie WosGothLars Ee Tinarmaur Or AlahnahVa Or narAnuFulo So KoCya";
+		close;
+	}
+}
+
+// ep13_2_hiki
+splendide,159,164,3	script	精灵#13_2_1	461,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[精灵]";
+		mes "这就是我不得不羞愧";
+		mes "应对这些脂肪野兽。";
+		mes "我只是太微妙的和他们战斗。";
+		close;
+	}
+	else {
+		mes "[精灵]";
+		mes "RiniHirDieb Ie nahImanMe Di Mush";
+		mes "mahnarAsh So HirAnMod O Ras";
+		mes "neaLoDath Ha KoRivehWha So Thusnea";
+		close;
+	}
+}
+
+splendide,229,54,3	script	精灵#13_2_2	439,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[精灵]";
+		mes "嗯?你是一个人。";
+		mes "你比这里的脂肪,但是你不是一个漂亮的东西。";
+		next;
+		mes "[精灵]";
+		mes "你怎么找到这个美妙的地方?";
+		mes "这是一个复杂的地方。";
+		mes "我不认为你可以在这里和我们在一起。";
+		close;
+	}
+	else {
+		mes "[精灵]";
+		mes "ImanAnuUor Yee NeUorVer Ir RivehAshOsa";
+		mes "AdorserHir er OsaAlahAno Mu RivehDath";
+		next;
+		mes "[精灵]";
+		mes "LarsFuloSar Yu VilGotheor Yu nes";
+		mes "Anuneseor Ie remuSeDieb er ";
+		mes "WosLoNud Ko NuffDuIman Ir ";
+		close;
+	}
+}
+
+splendide,89,235,5	script	精灵#13_2_3	446,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[精灵]";
+		mes "Lalalalal~Lala~Lalala~";
+		mes "让我们唱一首歌~!";
+		mes "我的声音是如此的神奇!";
+		next;
+		mes "[精灵]";
+		mes "不要接近我!";
+		close;
+	}
+	else {
+		mes "[精灵]";
+		mes "WehVeldHir Or ThusNorAnu";
+		mes "ReImanWos Yu marFuloNor Yee ";
+		mes "SharneaVrum Ir Ruff";
+		next;
+		mes "[精灵]";
+		mes "BurKoWeh Ie nesThusLu Ee ";
+		close;
+	}
+}
+
+splendide,245,243,3	script	精灵#13_2_4	462,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[精灵]";
+		mes "这里是一个荒芜的的地方";
+		mes "是非常寒冷";
+		mes "什么也不能住在这里.";
+		mes "但是,一旦我们居住在这个地方,它就会改变.";
+		next;
+		mes "[精灵]";
+		mes "现在,所有的问题都消失了.";
+		mes "除了那些丑陋的脂肪Saphas.";
+		mes "我们怎样才能摆脱这些事情?";
+		close;
+	}
+	else {
+		mes "[精灵]";
+		mes "DiebVohlWeh Ko RasVeldFar Ie AshVohl";
+		mes "neaAmanIman Ie DorDuMe No Hireo";
+		mes "tassermaur Yee DorAdorNud Ee ";
+		mes "NohThorVe O FusImanAman";
+		next;
+		mes "[精灵]";
+		mes "OsaVeldWeh U GothIyazVer Or ";
+		mes "LarsAnDor Yee TurVeldVil";
+		mes "LarsDanaFus An DiebImanmar er Dim";
+		mes "tasLoRini Ir WehAndu";
+		close;
+	}
+}
+
+splendide,230,142,3	script	精灵#13_2_5	439,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[精灵]";
+		mes "啊哈,我非常震惊.";
+		close;
+	}
+	else {
+		mes "[精灵]";
+		mes "AgolWhaNe O LoRini";
+		close;
+	}
+}
+
+splendide,274,203,3	script	精灵#13_2_6	444,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[精灵]";
+		mes "嘿,你~ !人类!你怎么找到我们?";
+		mes "你的人类世界是什么样子的呢?";
+		mes "有趣吗?";
+		close;
+	}
+	else {
+		mes "[精灵]";
+		mes "AnnarNor So marFarAno Di NudThusNei Ir Ir ";
+		mes "narVaTi Mu SharDimmaur Or Ano";
+		mes "WhaModKo Or eoNeiNor Di ImanDunah O O ";
+		close;
+	}
+}
+
+splendide,275,141,3	script	精灵#13_2_7	447,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[精灵]";
+		mes "别跟我说话。你想要什么?";
+		mes "我知道你会怪我吗?";
+		next;
+		mes "[精灵]";
+		mes "我不想听……";
+		mes "我是完美的我!";
+		close;
+	}
+	else {
+		mes "[精灵]";
+		mes "narnahNoh Di WehRiniLars Yee ModAnu";
+		mes "LuAlahNe Or FarAnduOsa No AgolKo";
+		next;
+		mes "[精灵]";
+		mes "LarsVilDim No WhaVilFus Ha Ash";
+		mes "ReLarsShar Mu AnduLoLon Ie Nufftas";
+		close;
+	}
+}
+
+splendide,224,230,3	script	精灵#13_2_8	440,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[精灵]";
+		mes "仔细倾听和了解更多!";
+		mes "让我们唱歌跳舞!";
+		mes "你可以成为我们的一部分!";
+		mes "摇你的屁股!";
+		mes "Wow~Woo~Wow~";
+		mes "跳舞~!";
+		close;
+	}
+	else {
+		mes "[精灵]";
+		mes "NuffMushLars Ra WehVilnah Ra DielWeh";
+		mes "RivehnarWos Ra YurSharRe";
+		mes "TalVaThor O VerWhatas";
+		mes "FuloDimIyaz Mu WhaNoreo U ";
+		mes "AlahNeLo Ra UorOsa";
+		mes "SeAnduMush Ur ";
+		close;
+	}
+}
+
+splendide,223,36,3	script	精灵#13_2_9	462,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[精灵]";
+		mes "我不想触摸它们。";
+		mes "但是他们毁了我的Yggdrasilberries.";
+		mes "我再也受不了了!";
+		next;
+		mes "[精灵]";
+		mes "战斗不是我的事情...";
+		mes "但是对于我们的荣耀,我将战斗!";
+		mes "他们应该感到荣幸与我们对抗!";
+		close;
+	}
+	else {
+		mes "[精灵]";
+		mes "AshAmanNei Ir LonVeldremu O ";
+		mes "AnduSarHir No NudAnumaur Ha Veld";
+		mes "Semarmah U VeTingDieb Yu ";
+		mes "mahsertas Ra marAmanAdor Ir ";
+		next;
+		mes "[精灵]";
+		mes "TingAgolLu So MushAndumah U neseor";
+		mes "WhaDuFulo er ImanThusNe Di Tur";
+		mes "DathUornah Ir MemaurDeh Yu Fulo";
+		mes "CyaMeDor Ko VeLarsAgol";
+		close;
+	}
+}
+
+splendide,305,129,3	script	精灵#13_2_10	436,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[精灵]";
+		mes "Hu…感觉困了。";
+		mes "我很无聊。我无事可做。";
+		mes "甚至我的朋友们与这些巨头,来帮助他们但这不是我的工作。";
+		next;
+		mes "[精灵]";
+		mes "我最好检查我的妆";
+		mes "在更衣室里。";
+		mes "或者我应该得到更多的美容觉吗?";
+		close;
+	}
+	else {
+		mes "[精灵]";
+		mes "AnduNothUor O eomaurShar Mu AnduVeld";
+		mes "AdorFulotas Ko NorAlahAsh Ie Ala";
+		mes "KoOsaLon Ha AnuNeiNoh Di Ting";
+		mes "tasKoDiel O IyazGoth";
+		next;
+		mes "[精灵]";
+		mes "OdesmahHir Or mahneaLars So ";
+		mes "HirNudAman O AdorWosDu";
+		mes "DimYurVa So DanaRuYur";
+		close;
+	}
+}
+
+splendide,142,315,3	script	精灵#13_2_11	462,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[精灵]";
+		mes "天空中飞翔并不容易。";
+		mes "但它比走在地上。";
+		next;
+		mes "[精灵]";
+		mes "你是人类吗?可怜的东西...";
+		mes "你没有这些美丽的翅膀吗?";
+		mes "可悲的活着。";
+		mes "很明显,我们是唯一的幸福";
+		close;
+	}
+	else {
+		mes "[精灵]";
+		mes "WharemuLars Ur SharUdenWha Yu Agol";
+		mes "LontasSar Ra DathVeAlah Ee Noh";
+		mes "LarsLonnah Ko TalnesIman Ie Diel";
+		next;
+		mes "[精灵]";
+		mes "tasSarNuff Or WehFarDieb Ir FarRu";
+		mes "FusYurnah So MeAshnar O Noth";
+		mes "YurBurDu Yu VeldVaMush So Thor";
+		mes "AgolDiebUor No TurnahAla O ";
+		close;
+	}
+}
+
+splendide,181,107,5	script	精灵#13_2_12	462,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[精灵]";
+		mes "整洁,整洁和清洁!!";
+		mes "这些单词。.";
+		mes "能形容我们!";
+		mes "别人又脏又乱!";
+		close;
+	}
+	else {
+		mes "[精灵]";
+		mes "FusYurnah So M ";
+		mes "WehFarDieb Ir FarRu ";
+		mes "FusYurnah ";
+		mes "AgolDiebUor No Tur";
+		close;
+	}
+}
+
+// ep13_2_tre
+splendide,188,76,5	script	史波浪壮丽战士#tre1	461,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[史波浪壮丽战士]";
+		mes "这是史波浪的驻军基地.";
+		close;
+	}
+	else {
+		mes "[史波浪壮丽战士]";
+		mes "SeAshLu Di YurDiebTing Ee VeModTur No NuffLarsVa No ";
+		close;
+	}
+}
+
+splendide,201,76,3	script	史波浪壮丽战士#tre2	461,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[史波浪壮丽战士]";
+		mes "这是史波浪的驻军基地.";
+		close;
+	}
+	else {
+		mes "[史波浪壮丽战士]";
+		mes "SeAshLu Di YurDiebTing Ee VeModTur No NuffLarsVa No ";
+		close;
+	}
+}
+
+splendide,207,97,5	script	一般守护精灵#1	443,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[一般守护精灵]";
+		mes "哈噗-!";
+		mes "看到了吗?像路灯似的,对吧?";
+		specialeffect EF_LEVEL99_4;
+		close;
+	}
+	else {
+		mes "[一般守护精灵]";
+		mes "sehrVa";
+		mes "IyazAnman Di TurHirCya";
+		specialeffect EF_LEVEL99_4;
+		close;
+	}
+}
+
+splendide,210,95,3	script	一般守护精灵#2	442,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[一般守护精灵]";
+		mes "喔~ 太壮观了!!";
+		emotion e_no1;
+		close;
+	}
+	else {
+		mes "[一般守护精灵]";
+		mes "MushIyazTur Ee YurDana";
+		emotion e_no1;
+		close;
+	}
+}
+
+spl_in01,190,314,5	script	安全官#tre	461,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[安全官]";
+		mes "这是Splendide的地下监狱。";
+		mes "那些囚犯被关押在这里。";
+		next;
+		mes "[安全官]";
+		mes "如果你在这做一些坏事,你也必须被拘留在这里,所以你最好要小心!";
+		close;
+	}
+	else {
+		mes "[安全官]";
+		mes "GothremuAman Ha DimDielNuff";
+		mes "GothAnAsh er NohVaAgol Yee CyaOsaDor U Aman U ";
+		mes "TurOdesVrum Ir TalDathOsa Ie WosAgolVrum Ha neaNudHir Ha SeAnVil Di narAlahLars Yu";
+		close;
+	}
+}
+
+spl_in01,281,329,3	script	史波浪壮丽卫兵#tre	447,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[史波浪壮丽卫兵]";
+		mes "如果你制造太多的噪音,囚犯会带来麻烦。所以尽量保持安静";
+		close;
+	}
+	else {
+		mes "[史波浪壮丽卫兵]";
+		mes "AnduVeldRe Ko VeldReFulo So LomaurDu So	So ";
+		close;
+	}
+}
+
+spl_in01,287,306,3	script	#spl_prs	111,{
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[马努克囚犯]";
+		mes "我,我的身体...!!";
+		mes "请! !帮帮我!";
+		close;
+	}
+	else {
+		mes "[马努克囚犯]";
+		mes "Gi ha sd I das ";
+		mes "Yda sod ja si dsa";
+		close;
+	}
+}
+
+spl_in01,265,315,0	script	#spl_prs1	-1,5,5,{
+OnTouch:
+	if ((isequipped(2782) == 1) && (ep13_2_rhea == 100)) {
+		mes "[从另一边来的声音]";
+		mes "先生!!!";
+		mes "我如何和马奴克沟通!!";
+		mes "我是无辜的";
+		close;
+	}
+	else {
+		mes "[从另一边来的声音]";
+		mes "RuffUdeneo Mu VilAsh";
+		mes "YurReDur Ha DielTalNe Ko Lars";
+		mes "HirVerWeh Yu AnuNud";
+		close;
+	}
+}
+
+// ep13_spl_extra
+spl_in01,172,225,3	script	流浪诗人#ep13	51,{
+	cutin "god_nelluad02",2;
+	mes "[流浪诗人内尔]";
+	mes "Hi~~ 你听到美妙的音乐从远处到来~?";
+	next;
+	select("你是谁?");
+	cutin "god_nelluad01",2;
+	mes "[流浪诗人内尔]";
+	mes "谁, 我...?";
+	mes "我只是一个享受氛围的诗人……";
+	next;
+	mes "[流浪诗人内尔]";
+	mes "我在这里一天,要求做记录这个新世界,他们允许我跟随冒险家.";
+	next;
+	mes "[流浪诗人内尔]";
+	mes "我只为了熟悉 Lapine.";
+	mes "起初很尴尬……因为我不知道他们的语言。";
+	mes "但是,我开始弹奏乐器…他们喜欢它。";
+	next;
+	mes "[流浪诗人内尔]";
+	mes "他们是精灵,知道如何享受他们的生活..";
+	mes "他们是多么幸福...";
+	mes "他们非常好奇…我很荣幸遇到他们...";
+	next;
+	mes "[流浪诗人内尔]";
+	mes "所以你要听我的演奏?";
+	next;
+	switch(select("是的:不完全是")) {
+	case 1:
+		mes "[流浪诗人内尔]";
+		mes "你想要什么歌??";
+		next;
+		switch(select("布莱奇之诗:永远的混沌:刺客的黄昏:尼贝隆根之戒指")) {
+		case 1:
+			cutin "god_nelluad02",2;
+			mes "[流浪诗人内尔]";
+			mes "布莱奇之诗!";
+			mes "你必须用一双敏锐的耳朵来聆听。";
+			soundeffect "bragis_poem.wav",0;
+			break;
+		case 2:
+			cutin "god_nelluad02",2;
+			mes "[流浪诗人内尔]";
+			mes "混乱的永恒...";
+			mes "这个很好的但我不会推荐在用餐时听它...";
+			soundeffect "chaos_of_eternity.wav",0;
+			break;
+		case 3:
+			cutin "god_nelluad02",2;
+			mes "[流浪诗人内尔]";
+			mes "刺客的黄昏!";
+			mes "你喜欢刺客吗?";
+			mes "这首歌讲述了一个生活在沙漠中传奇刺客的故事。";
+			soundeffect "assassin_of_sunset.wav",0;
+			break;
+		case 4:
+			cutin "god_nelluad02",2;
+			mes "[流浪诗人内尔]";
+			mes "尼贝隆根的指环...";
+			mes "这首歌是一个有趣的故事~";
+			next;
+			soundeffect "ring_of_nibelungen.wav",0;
+			mes "^4d4dff从前，有一条叫莱茵的河，它就好像";
+			mes "会发光似的,好像金子做的";
+			mes "在这个故事传开之前";
+			mes "谁也不知道它蕴含着怎样的秘密...^000000";
+			next;
+			mes "^4d4dff瓦尔哈拉殿堂女神芙蕾娅出生";
+			mes "在洛基弑杀女神之时^000000";
+			mes "^4d4dff 她幻化成一枚熔火之戒";
+			mes "一枚承载了女神愿望的戒指~^000000";
+			next;
+			mes "^4d4dff这就是承载了无限力量的尼贝隆根至宝";
+			mes "这枚指环代表了所有神的欲望^000000";
+			next;
+			mes "^4d4dff它就是当时世界的灵魂至宝";
+			mes "根本无法用金钱来衡量它^000000";
+			next;
+			mes "^4d4dff 洛基害怕戒指失去控制。将尼贝隆根，也就是国王变幻成了蟾蜍的形状.";
+			next;
+			mes "^4d4dff 尼贝隆根死之前誓下毒咒，佩戴者将会很快迎接死亡。";
+			next;
+			mes "^4d4dff 即便是死后，尼贝隆根的咒语也将永远缠身。";
+			break;
+		}
+		break;
+	case 2:
+		cutin "god_nelluad03",2;
+		mes "[流浪诗人内尔]";
+		mes "你不想听?";
+		mes "既然不想听，那你为什么盯着我";
+		next;
+		select("你看起来像我认识的人");
+		cutin "god_nelluad04",2;
+		mes "[流浪诗人内尔]";
+		mes "呃...";
+		mes "不!";
+		mes "也许你混淆了..!";
+		next;
+		mes "[流浪诗人内尔]";
+		mes "看起来眼熟这也很正常...";
+		mes "我好像也觉得我们之前见过。";
+		next;
+		cutin "god_nelluad01",255;
+		mes "- 内尔似乎有点尴尬,然后开始玩弄复杂的音乐 -";
+		break;
+	}
+	close2;
+	cutin "god_nelluad01",255;
+	end;
+}
+
+spl_in01,182,213,1	script	休息中的守护精灵#ep13_1	438,{
+	if ((isequipped(2782) > 0) && (ep13_2_rhea > 99)) {
+		mes "[休息中的守护精灵]";
+		mes "诗人stagie是神秘的。";
+		mes "当你来到这里...";
+		mes "他来了,开始弹奏音乐。";
+		next;
+		mes "[休息中的守护精灵]";
+		mes "这音乐是起源你的国家吗?";
+		mes "我认为它听起来不错。";
+		close;
+	}
+	else {
+		mes "[休息中的守护精灵]";
+		mes "IyazLarsSe Or An.";
+		mes "marLoOsa Yee NeiBur";
+		mes "Rinisehrnea Mu...? ";
+		close;
+	}
+}
+
+spl_in01,181,218,5	script	休息中的守护精灵#ep13_2	446,{
+	if ((isequipped(2782) > 0) && (ep13_2_rhea > 99)) {
+		mes "- 他点头的音乐的声音 -";
+		next;
+		mes "[休息中的守护精灵]";
+		mes "你知道如何玩类似的声音吗?";
+		mes "这真是难以置信";
+		close;
+	}
+	else {
+		mes "- 他点头的音乐的声音 -";
+		next;
+		mes "[休息中的守护精灵]";
+		mes "GothTingNoth Di~ nar..";
+		mes "DiebIyazNud Yu FarAn";
+		mes "nesFarDor U ~";
+		close;
+	}
+}
+
+spl_in01,161,213,7	script	用餐中的守护精灵#ep13	447,{
+	if ((isequipped(2782) > 0) && (ep13_2_rhea > 99)) {
+		mes "[用餐中的守护精灵]";
+		mes "我无聊的吃煮熟的食物。";
+		mes "唯一让我来这里是水果汤……";
+		next;
+		mes "[用餐中的守护精灵]";
+		mes "嘿,你!";
+		mes "你为什么盯着我吃晚餐?";
+		close;
+	}
+	else {
+		mes "[用餐中的守护精灵]";
+		mes "NothFarLu Ra...? ";
+		mes "RuffYur..!";
+		next;
+		mes "- 他给了我一个奇怪的盯着他吃晚饭 -";
+		close;
+	}
+}
+
+spl_in01,162,202,5	script	记事中的守护精灵#1	436,{
+	if ((isequipped(2782) > 0) && (ep13_2_rhea > 99)) {
+		mes "[记事中的守护精灵]";
+		mes "我们非常印象深刻的诗人.";
+		mes "我们Laphine爱音乐.";
+		mes "我从来没有想到会听到这样奇异的音乐.";
+		next;
+		mes "[记事中的守护精灵]";
+		mes "有一天我想学习音乐.";
+		mes "我打算写很多关于乐器和音乐的研究";
+		next;
+		mes "[记事中的守护精灵]";
+		mes "总有一天你应该听人们的音乐.";
+		close;
+	}
+	else {
+		mes "[记事中的守护精灵]";
+		mes "TiTalLars Ur tasThorNoth O AnImanWha.";
+		mes "FusLuRuff..... Mu TingLuAla Yee AnmanAndu";
+		next;
+		mes "- 他似乎很失望,你不了解他 -";
+		close;
+	}
+}
+
+spl_in01,167,207,7	script	静寂的Laphine#ep13	445,{
+	mes "- 他几乎是睡觉但他仍设法保持一个杯子喝。他一定很累了-";
+	close;
+}
+
+spl_in01,180,201,3	script	守护精灵士兵#ep13_1	461,{
+	if ((isequipped(2782) > 0) && (ep13_2_rhea > 99)) {
+		mes "[守护精灵士兵]";
+		mes "你是一个陌生人,不是吗?";
+		mes "我看着他阻止任何不好的事情发生.";
+		next;
+		mes "[守护精灵士兵]";
+		mes "肯定你.";
+		mes "上面的人让你通过这里...";
+		mes "但没有人知道会发生什么在这个战场.";
+		next;
+		mes "[守护精灵士兵]";
+		mes "不管怎么说,什么乐器??";
+		mes "我们有一个类似的。..";
+		mes "但是它听起来完全不同.";
+		close;
+	}
+	else {
+		mes "[守护精灵士兵]";
+		mes "FusVohlAnu Ur Lon.";
+		mes "LoUdenFar Ha Dormaur?";
+		mes "...marAmanYur Mu.";
+		next;
+		mes "-守护精灵士兵想要告诉你一件事,但就停止说话当你给他瞪了他一眼 -";
+		close;
+	}
+}
+
+spl_in01,189,207,3	script	服务生守护精灵#ep13_1	439,{
+	if ((isequipped(2782) > 0) && (ep13_2_rhea > 99)) {
+		mes "[服务生守护精灵]";
+		mes "嗯,怎么了?";
+		mes "很抱歉,我们不出售食品陌生人.";
+		next;
+		mes "[服务生守护精灵]";
+		mes "你们还需要食物.";
+		mes "这里食物缺乏.";
+		next;
+		mes "[服务生守护精灵]";
+		mes "你在别处寻找食物.";
+		close;
+	}
+	else {
+		mes "[服务生守护精灵]";
+		mes "VeldAnoWeh Or ";
+		mes "TurWos";
+		mes "......ah...";
+		next;
+		mes "- You just grin and smile. It's frustrating not to be able to understand their language. -";
+		close;
+	}
+}
+
+spl_in01,154,207,5	script	服务生守护精灵#ep13_2	440,{
+	if ((isequipped(2782) > 0) && (ep13_2_rhea > 99)) {
+		mes "[服务生守护精灵]";
+		mes "他的阵营服务于军事目的。但我们也需要有一个酒吧。";
+		next;
+		mes "[服务生守护精灵]";
+		mes "如何一个士兵还能释放压力,不是通过喝酒吗...";
+		next;
+		mes "[服务生守护精灵]";
+		mes "我们在这里支持守护精灵士兵给好饮料和娱乐.";
+		close;
+	}
+	else {
+		mes "[服务生守护精灵]";
+		mes "NorVerNuff Ee Re!";
+		mes "remuDurOdes Mu AshFus~!";
+		mes "OdesTalWeh Ur??? ";
+		close;
+	}
+}
+
+spl_in01,122,314,5	script	上级守护精灵战士#ep13	461,{
+	if ((isequipped(2782) > 0) && (ep13_2_rhea > 99)) {
+		mes "[上级守护精灵战士]";
+		mes "其他任何新的供应吗?";
+		next;
+		mes "[上级守护精灵战士]";
+		mes "这把剑刚到...";
+		mes "这是灵感来自恒星,我们测试它通过减少线程漂浮在水面上.";
+		next;
+		mes "[上级守护精灵战士]";
+		mes "嗯,我们很少使用剑。但是作为装饰看起来伟大.";
+		next;
+		mes "- 看来他们正在讨论武器 -";
+		close;
+	}
+	else {
+		mes "[上级守护精灵战士]";
+		mes "NorVerNuff Ee Re....";
+		next;
+		mes "[上级守护精灵战士]";
+		mes "FusVerAlah Di ";
+		mes "ModNorNor U DimVohlWeh O DimAmannea An WosAnoNoh An AnduMeOdes So TalAdor.";
+		next;
+		mes "[上级守护精灵战士]";
+		mes "DurNohHir Ha UorVaThus Di AshNuffLon U mahNuffThus U RuAmanAgol Ir NohHir...?";
+		close;
+	}
+}
+
+spl_in01,122,311,1	script	一般守护精灵战士#ep13_2	447,{
+	if ((isequipped(2782) > 0) && (ep13_2_rhea > 99)) {
+		mes "[一般守护精灵战士]";
+		mes "你是陌生人吗?";
+		mes "你来这里看Laphine军方存储?";
+		next;
+		mes "[一般守护精灵战士]";
+		mes "别介意。这些是无用的...";
+		mes "这种微小的剑如何对抗这些野兽...?";
+		next;
+		mes "[一般守护精灵战士]";
+		mes "O";
+		close;
+	}
+	else {
+		mes "[士兵]";
+		mes "NorVerNuff Ee Re....";
+		next;
+		mes "[士兵]";
+		mes "FusVerAlah Di ";
+		mes "ModNorNor U DimVohlWeh O DimAmannea An WosAnoNoh An AnduMeOdes So TalAdor.";
+		next;
+		mes "[士兵]";
+		mes "DurNohHir Ha UorVaThus Di AshNuffLon U mahNuffThus U RuAmanAgol Ir NohHir...?";
+		close;
+	}
+}
+
+// ep33_2_dailybs
+splendide,121,259,3	script	精灵#ep13bs1	436,{
+	if (isequipped(2782) == 1) {
+		mes "[精灵]";
+		mes "你曾经去了东区吗?";
+		mes "有大量的冰~";
+		mes "多冷...";
+		close;
+	}
+	else {
+		mes "[nes]";
+		mes "VaFuloDor An ";
+		mes "WosNuffremu Ha TurAshTi";
+		mes "VilTiRini O ";
+		close;
+	}
+}
+
+splendide,163,264,3	script	精灵#ep13bs2	438,{
+	if (isequipped(2782) == 1) {
+		mes "[精灵]";
+		mes "你在看什么!";
+		next;
+		mes "[精灵]";
+		mes "哦我!你知道当你看到它你不美~?!";
+		close;
+	}
+	else {
+		mes "[精灵]";
+		mes "UorVeLars No Ador";
+		next;
+		mes "[精灵]";
+		mes "SeGothShar An AshDur";
+		close;
+	}
+}

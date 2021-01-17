@@ -1,0 +1,1218 @@
+//===== BetterRa 文档 =======================================
+//= BetterRa 事件标签说明文件
+//===== 作者: ================================================
+//= BetterRa 开发团队
+//===== 最后更新: ============================================
+//= 20170831
+//===== 文档简介: ============================================
+//= BetterRa 是基于 rAthena 进行二次开发的, 在 rAthena 官方支
+//= 持的事件标签基础上, BetterRa 也拓展了一些事件标签, 请参阅
+//= 下面的说明, 它会介绍这些事件的触发时机和使用方法.
+//============================================================
+
+事件名称约定:
+	On[事件关联到的对象][事件名称][事件类型]
+
+事件关联到的对象:
+	是指到时候事件被触发时, 脚本会关联到的对象, 普遍的值为: PC(表示玩家)
+
+事件名称:
+	只事件的名字, 没什么特别的
+
+事件类型:
+	现在开始事件分为两种类型: Filter 和 Event
+	其实 Filter 和 Event 都是事件, 它们之间唯一区别在于:
+	如果事件名字结尾为 Filter, 则意味着他可以被 processhalt 中断
+
+---------------------------------------
+
+中断说明:
+	如果一个事件可被中断, 那么会具体描述一下中断后的效果
+
+---------------------------------------
+
+*OnPCStatCalcEvent:
+
+
+	当角色的能力被重新计算时触发的事件
+
+BetterRa 在官方的基础上做了以下改进:
+	- 此事件默认不会被放入“事件队列”, 只要被触发都能被立刻执行
+	- 在 conf/battle/extend.conf 的 execute_npce_statcalc_right_now 选项可以改回官方默认流程
+
+当此事件不会被放入“事件队列”时, 以下部分脚本指令将不会被执行:
+	mes,next,end,close,close2,menu,select,prompt,
+	input,progressbar,produce,cooking,makerune,buyingstore,openstorage,
+	openstorage2,openauction,openmail,guildopenstorage,
+	callshop,bpet,opendressroom,sleep,sleep2
+
+---------------------------------------
+
+*OnPCInChatroomFilter:
+
+
+	当玩家双击进入本NPC开启的聊天室时, 将触发此事件 (关联到进入此NPC聊天室的玩家)
+
+事件顺序:
+	我们知道 waitingroom 本身自带一个事件, 当聊天室中的成员
+	数量足够时, 就会被触发。
+
+	在这里你需要知道的是, 若您使用 processhalt 中断了本事件, 那么
+	这个 rAthena 自带的 waitingroom 事件将不会被触发。
+
+中断说明: 
+	中断后客户端将不会打开聊天室窗口
+
+---------------------------------------
+
+*OnPCKillMvpEvent:
+
+
+	杀死MVP魔物时触发的事件 (关联到给MVP带来最后一击的玩家)
+	死了一个MVP魔物的话, 此事件只会被触发1次
+
+参数说明:
+	killedgid			被杀死魔物的GID
+	killedrid			被杀死魔物的魔物编号(MobID)
+	killerrid 			杀死魔物的玩家AID
+	@mob_dead_m			魔物死亡时地图ID
+	@mob_dead_x			魔物死亡时的X坐标
+	@mob_dead_y			魔物死亡时的Y坐标
+	@mob_lasthit_rid	给予MVP魔物最后一击的玩家RID(账号编号)
+	@mob_lasthit_cid	给予MVP魔物最后一击的玩家角色编号
+	@mob_mvp_rid		给予MVP魔物最大伤害的玩家RID(账号编号)
+	@mob_mvp_cid		给予MVP魔物最大伤害的玩家角色编号
+
+---------------------------------------
+
+*OnBfReloadScriptEvent:
+
+	即将刷新NPC之前的事件, 使用 @reloadscript 指令后, 会先触发此事件
+	刷新NPC之前若有100个玩家在线, 那么该事件会以100个玩家的身份被触发100次
+	因此, 在这个事件中如果有 announce 公告, 那么必须是只有玩家自己可见的 bc_self 类型
+	如果是 bc_all 类型的话, 刷新时若有100个玩家在线, 则每个玩家会看到100条全服公告
+
+---------------------------------------
+
+*OnAfReloadScriptEvent:
+
+	刷新NPC完毕后的事件, 使用 @reloadscript 刷新完成NPC后, 会再触发此事件
+	刷新NPC之后若有100个玩家在线, 那么该事件会以100个玩家的身份被触发100次
+	因此, 在这个事件中如果有 announce 公告, 那么必须是只有玩家自己可见的 bc_self 类型
+	如果是 bc_all 类型的话, 刷新时若有100个玩家在线, 则每个玩家会看到100条全服公告
+
+---------------------------------------
+
+*OnPCEquipFilter:
+
+
+	当玩家准备穿戴上一件物品的时候, 此事件会被触发 (关联到穿戴物品的玩家)
+
+参数说明:
+	@equip_idx 为物品的背包序号
+	@equip_pos 为了兼容SEA和CSEA服务端, 被赋予了和 @equip_idx 一样的值
+
+中断说明: 
+	中断后服务端会无视玩家本次装备穿戴操作
+
+时机注意事项:
+	“准备穿戴”说明还没完成穿戴, 所以此时使用 
+	getinventoryinfo(@equip_idx, 2) 去获取该装备的穿戴位置时,
+	返回的内容只会是 0
+	
+---------------------------------------
+
+*OnPCUnequipFilter:
+
+
+	当玩家准备脱掉一件物品的时候, 此事件会被触发 (关联到脱下物品的玩家)
+
+参数说明:
+	@unequip_idx 为物品的背包序号
+	@unequip_pos 为了兼容SEA和CSEA服务端, 被赋予了和 @unequip_idx 一样的值
+
+中断说明: 
+	中断后服务端会无视玩家本次装备脱下操作
+
+时机注意事项:
+	“准备脱掉”说明还没完全脱掉, 所以此时使用 
+	getinventoryinfo(@unequip_idx, 2) 去获取该装备的穿戴位置时,
+	返回的内容绝对不会是 0
+
+中断注意事项:
+	当你使用 processhalt 脚本指令中断本事件的后续动作时,
+	可能会导致切换装备失败. 因为切换装备实际上是由两个动作组成的,
+	分别是 “先脱下旧的, 再穿上新的”. 若脱下旧的装备操作被中断,
+	那么新的装备也会穿不上.
+
+---------------------------------------
+
+*OnPCEquipEvent:
+
+
+	当玩家成功穿戴上一件物品的时候, 此事件会被触发 (关联到穿戴物品的玩家)
+
+参数说明:
+	@equip_idx 为物品的背包序号
+	@equip_pos 为了兼容SEA和CSEA服务端, 被赋予了和 @equip_idx 一样的值
+
+---------------------------------------
+
+*OnPCUnequipEvent:
+
+
+	当玩家成功脱掉一件物品的时候, 此事件会被触发 (关联到脱下物品的玩家)
+
+参数说明:
+	@unequip_idx 为物品的背包序号
+	@unequip_pos 为了兼容SEA和CSEA服务端, 被赋予了和 @unequip_idx 一样的值
+
+---------------------------------------
+
+*OnPCBuffStartEvent:
+
+
+	当玩家获得了一个状态(Buff)后, 此事件会被触发 (关联获得状态的玩家)
+
+参数说明:
+	@started_sc_id		为这个新增状态的编号
+	@started_sc_rate	为这个新增状态的触发概率(10000 = 100%)
+	@started_sc_tick	为这个新增状态的持续时长(单位为毫秒)
+						时长根据内部实现方式的不同, 有可能是指多长时间后剩余秒数减一
+	@started_sc_val1	为这个新增状态的第1个参数的值
+	@started_sc_val2	为这个新增状态的第2个参数的值
+	@started_sc_val3	为这个新增状态的第3个参数的值
+	@started_sc_val4	为这个新增状态的第4个参数的值
+	
+	@startedsc 			为了兼容SEA和CSEA服务端, 被赋予了和 @started_sc_id 一样的值
+
+---------------------------------------
+
+*OnPCBuffFixFilter:
+
+	当玩家获得状态(Buff)时触发 (关联获得状态的玩家)
+
+参数说明:
+	@started_sc_id		为这个新增状态的编号
+	@started_sc_rate	为这个新增状态的触发概率(10000 = 100%)
+	@started_sc_tick	为这个新增状态的持续时长(单位为毫秒)
+						时长根据内部实现方式的不同, 有可能是指多长时间后剩余秒数减一
+	@started_sc_val1	为这个新增状态的第1个参数的值
+	@started_sc_val2	为这个新增状态的第2个参数的值
+	@started_sc_val3	为这个新增状态的第3个参数的值
+	@started_sc_val4	为这个新增状态的第4个参数的值
+	
+中断说明: 
+	中断后可通过修改返回的参数达到修改实际生效结果, 当 @started_sc_tick 修改为 0 时, 当前SC不生效
+
+---------------------------------------
+
+*OnPCBuffEndEvent:
+
+
+	当玩家解除了一个状态(Buff)后, 此事件会被触发 (关联解除状态的玩家)
+
+参数说明:
+	@ended_sc_id	为这个被解除状态的编号
+	@endedsc 		为了兼容SEA和CSEA服务端, 也被赋予了和 @ended_sc_id 一样的值
+
+---------------------------------------
+
+*OnPCPartyCreateFilter:
+
+	当玩家创建了一个队伍后, 此事件会被触发 (关联创建队伍的玩家)
+	
+参数说明:
+	@create_party_name$	要创建的组队名称
+
+中断说明: 
+	创建队伍失败
+
+---------------------------------------
+
+*OnPCPartyJoinFilter:
+
+	当玩家加入了一个队伍后, 此事件会被触发 (关联加入队伍的玩家)
+	
+参数说明:
+	@join_party_id		队伍ID
+	@join_party_aid		邀请者的AID
+	
+中断说明: 
+	加入队伍失败
+
+---------------------------------------
+
+*OnPCPartyLeaveFilter:
+
+	当玩家离开队伍(无论是自愿还是被踢), 触发此事件 (关联到离开队伍的玩家)
+
+参数说明:
+	@left_party_id		队伍ID
+	@left_party_name$	队伍名称
+	@left_party_kick	是否是被队长踢出
+
+中断说明: 
+	离开队伍失败
+	
+---------------------------------------
+
+*OnPCGuildCreateFilter:
+
+	当玩家创建了一个公会后, 此事件会被触发 (关联到会长)
+
+中断说明: 
+	中断后服务端会无视玩家本次创建公会的请求
+
+---------------------------------------
+
+*OnPCGuildJoinFilter:
+
+	当玩家加入了一个公会后, 此事件会被触发 (关联到加入公会的玩家)
+
+中断说明: 
+	中断后服务端会无视玩家本次加入公会的请求
+
+---------------------------------------
+
+*OnPCGuildLeaveFilter:
+
+	当玩家离开了一个公会后, 此事件会被触发 (关联到离开公会的玩家)
+
+参数说明:
+	@left_guild_id		为已经离开的公会编号
+	@left_guild_name$	为已经离开的公会名称
+
+中断说明: 
+	中断后服务端会无视玩家本次离开公会的请求
+	
+---------------------------------------
+
+*OnPCPetLootEvent:
+
+	当玩家的宠物拾取到物品之后, 此事件会被触发 (关联到宠物的主人)
+
+参数说明:
+	@petloot_item_id		为拾取到的物品编号
+	@petloot_item_amount	为拾取到的物品数量
+	@petloot_game_id		为此物品的游戏单位编号
+	
+	@petloot_id 			为了兼容SEA和CSEA服务端, 被赋予了和 @petloot_item_id 一样的值
+	@petloot_gid 			为了兼容SEA和CSEA服务端, 被赋予了和 @petloot_game_id 一样的值
+	@petloot_amount 		为了兼容SEA和CSEA服务端, 被赋予了和 @petloot_item_amount 一样的值
+
+---------------------------------------
+
+*OnPCPetFeedEvent:
+
+当玩家给自己的宠物喂食后, 此事件会被触发 (关联到宠物的主人)
+
+---------------------------------------
+
+*OnPCViewEquipFilter:
+
+	当玩家点击查看某个玩家的装备之后, 此事件会被触发 (关联到主动发起查看请求的玩家)
+
+参数说明:
+	@view_equip_target_name$	被查看者的角色名
+	@view_equip_target_cid	被查看者的角色编号
+	@view_equip_target_aid	被查看者的账号编号
+	
+	@vieweq_name$ 	为了兼容CSEA服务端, 被赋予了和 @view_equip_target_name$ 一样的值
+	@vieweq_cid 	为了兼容CSEA服务端, 被赋予了和 @view_equip_target_cid 一样的值
+	@vieweq_aid 	为了兼容CSEA服务端, 被赋予了和 @view_equip_target_aid 一样的值
+	@eqview_cid 	为了兼容CSEA服务端, 被赋予了和 @view_equip_target_cid 一样的值
+
+中断说明: 
+	中断后服务端会无视玩家本次查看他人装备信息的请求
+	
+---------------------------------------
+
+*OnPCHomLvUpEvent:
+
+	当玩家的人工生命体升级之后, 此事件会被触发 (关联到生命体的主人)
+
+---------------------------------------
+
+*OnPCHomCallEvent:
+
+	当玩家召唤出人工生命体之后, 此事件会被触发 (关联到生命体的主人)
+
+---------------------------------------
+
+*OnPCHomRestEvent:
+
+	当玩家将人工生命体安息(休息)之后, 此事件会被触发 (关联到生命体的主人)
+
+---------------------------------------
+
+*OnPCHomDeadEvent:
+
+	当玩家的人工生命体死亡之后, 此事件会被触发 (关联到生命体的主人)
+
+---------------------------------------
+
+*OnPCHomAliveEvent:
+
+	当玩家复活人工生命体之后, 此事件会被触发 (关联到生命体的主人)
+
+---------------------------------------
+
+*OnPCUseSkillFilter:
+
+	当玩家施放技能时, 在实际咏唱之前, 此事件会被触发 (关联到技能施放者)
+	无论技能的所需道具是否足够, 最终技能会不会使用失败, 只要玩家使用了技能, 就必定触发此事件
+
+参数说明:
+	useskill_id			施放的技能ID
+	useskill_lv			被施放的技能等级
+	useskill_target		被施法目标的GameID或者AccountID, 若为 0 则表示这是个对地面施放的技能
+	useskill_x			被施法的地面X坐标
+	useskill_y			被施法的地面Y坐标
+
+中断说明:
+	中断后服务端会无视玩家本次使用技能的请求
+	
+---------------------------------------
+
+*OnPCUseSkillEvent:
+
+	当玩家技能成功施放完毕时, 触发此事件
+
+参数说明:
+	useskill_id			施放的技能ID
+	useskill_lv			被施放的技能等级
+	useskill_target		被施法目标的GameID或者AccountID, 若为 0 则表示这是个对地面施放的技能
+	useskill_x			被施法的地面X坐标
+	useskill_y			被施法的地面Y坐标
+	
+---------------------------------------
+
+*OnPCAutoSpellFilter:
+
+	当玩家自动念咒前, 触发此事件
+
+参数说明:
+	useskill_id			施放的技能ID
+	useskill_lv			被施放的技能等级
+	useskill_target		被施法目标的GameID或者AccountID, 地面技能则为目标对应坐标
+	useskill_x			0: 通过技能自动施法, 1: 通过 bAutoSpell, 2: 通过 bAutoSpellWhenHit, 3: 通过 bAutoSpellOnSkill
+	useskill_y			bAutoSpell 和 bAutoSpell 对应释放条件, bAutoSpellOnSkill 对应释放技能
+	
+中断说明:
+	中断后此次自动念咒被跳过
+	
+---------------------------------------
+
+*OnPCAutoSpellEvent:
+
+	当玩家技能成功施放完毕时, 此事件会被触发 (关联到技能施放者)
+
+参数说明:
+	useskill_id			施放的技能ID
+	useskill_lv			被施放的技能等级
+	useskill_target		被施法目标的GameID或者AccountID, 若为 0 则表示这是个对地面施放的技能
+	useskill_x			0: 通过技能自动施法, 1: 通过 bAutoSpell, 2: 通过 bAutoSpellWhenHit, 3: 通过 bAutoSpellOnSkill
+	useskill_y			bAutoSpell 和 bAutoSpell 对应释放条件, bAutoSpellOnSkill 对应释放技能
+
+---------------------------------------
+
+*OnPCUseItemFilter:
+
+	当玩家双击使用“非装备”类型道具时, 此事件会被触发 (关联到物品使用者)
+	无论物品最终是否会使用失败, 只要玩家双击了物品, 就必定触发此事件
+
+参数说明:
+	useitem_nameid		玩家所使用的物品编号
+	useitem_idx			玩家所使用物品的背包序号
+
+中断说明:
+	中断后服务端会无视玩家本次使用物品的请求
+	
+---------------------------------------
+
+*OnPCUseItemEvent:
+
+	当玩家成功使用“非装备”类型道具时, 此事件会被触发 (关联到物品使用者)
+
+参数说明:
+	useitem_nameid		玩家所使用的物品编号
+	useitem_idx			玩家所使用物品的背包序号
+
+---------------------------------------
+
+*OnPCUseTokenFilter:
+
+	当玩家使用不死之证时触发
+	
+参数说明:
+	@token_idx    复活之证的物品ID
+				
+中断说明:
+	中断后复活之证使用失败
+	
+---------------------------------------
+
+*OnPCMoveFilter:
+
+	当玩家点击地面的某个格子想要移动时, 此事件会在玩家开始走路之前触发 (关联到想要移动的玩家)
+	
+	若 conf/battle/extend.conf 的 pc_move_event_trigger_type 值为 0
+	那么永远不会触发此事件
+	
+	若 conf/battle/extend.conf 的 pc_move_event_trigger_type 值为 1
+	那么必须先调用 when_pcmove_doevent; 脚本指令后, 玩家的下一次移动才会触发本事件
+	
+	若 conf/battle/extend.conf 的 pc_move_event_trigger_type 值为 2
+	那么玩家的所有移动都会触发本事件(人多的话可能会影响性能)
+
+参数说明:
+	@moveto_x	玩家想要移动到的目标位置的x坐标
+	@moveto_y	玩家想要移动到的目标位置的y坐标
+	
+中断说明: 
+	中断后服务端会无视玩家本次移动的请求
+
+---------------------------------------
+
+*OnPCWillLoadMapEvent:
+
+	当玩家登录后准备进入地图、或者准备切换地图时, 都会触发此事件 (关联到想要过图的玩家)
+
+参数说明:
+	@loadmap_oldmap_id		玩家准备过图时, 老地图的地图编号, 若为0则表示玩家刚登录, 没有老地图
+	@loadmap_oldmap_name$	玩家准备过图时, 老地图的地图名称
+	@loadmap_oldmap_x		玩家准备过图时, 在老地图中所处的x坐标
+	@loadmap_oldmap_y		玩家准备过图时, 在老地图中所处的y坐标
+	
+	@loadmap_newmap_id		玩家准备过图时, 目的地地图的地图编号
+	@loadmap_newmap_name$	玩家准备过图时, 目的地地图的地图名称
+	@loadmap_newmap_x		玩家准备过图时, 会在目的地地图的哪个x坐标出现
+	@loadmap_newmap_y		玩家准备过图时, 会在目的地地图的哪个y坐标出现
+
+---------------------------------------
+
+*OnPCChangeTitleFilter:
+
+	当玩家的称号变更的时候, 就会触发此事件 (关联到称号变更的玩家)
+	
+	符合上述条件的时机有:
+	
+	- 当玩家在装备窗口的“称号”界面中双击了某个称号时
+	- 使用setchartitle脚本指令去设置称号时
+	- 使用GM指令@title去设置称号时
+	
+	若下面的 @now_title_id 参数为 0 则表示玩家双击了 “Title Release”
+
+参数说明:
+	@trigger_mode	为0表示通过装备面板触发、为1表示通过setchartitle脚本指令触发、为2表示通过GM指令@title触发
+	@now_title_id	即将变更成的目标称号ID(该值可在事件中被修改)
+	@pre_title_id	之前的称号ID是多少
+
+	鉴于 @now_title_id 是可被修改的
+	所以你可以用很粗暴的方法, 直接修改 @now_title_id 的方式来篡改最终的称号ID
+	但是要注意, 采用这种方法的话, 后面别跟 processhalt;
+
+中断说明: 
+	中断后服务端将不会根据 @now_title_id 变量的值来设定玩家的称号
+
+---------------------------------------
+
+*OnPCIdentifyFilter:
+
+	玩家在鉴定列表中选择好装备, 点确定时触发 (关联到发起鉴定的玩家)
+
+参数说明:
+	@identify_idx	为物品的背包序号
+
+中断说明: 
+	中断后服务端会无视玩家本次鉴定道具的请求, 系统不再鉴定此装备
+
+---------------------------------------
+
+*OnPCIdentifyEvent:
+
+
+	玩家已经完成对一件装备的鉴定时触发此事件 (关联到发起鉴定的玩家)
+
+参数说明:
+	@identify_idx	为物品的背包序号
+
+---------------------------------------
+
+*OnPCProgressAbortEvent:
+
+	当 progressbar 被打断时候的触发事件
+
+---------------------------------------
+
+*OnPCOpenRouletteFilter:
+
+事件描述: 
+	准备打开乐透大转盘时候的触发事件
+
+注意事项:
+	此选项依赖客户端和服务端的一些条件, 首先客户端必须是 2014-10-22 或更新的版本,
+	并且服务端在 conf/battle/feature.conf 中的 feature.roulette 选项要设置为 on, 否则此事件将不会被触发.
+
+中断说明:
+	中断后服务端会无视玩家本次打开乐透大转盘的请求
+
+---------------------------------------
+
+*OnPCCloseRouletteEvent:
+
+事件描述:
+	已经成功关闭乐透大转盘时的触发事件
+
+注意事项:
+	此选项依赖客户端和服务端的一些条件, 首先客户端必须是 2014-10-22 或更新的版本,
+	并且服务端在 conf/battle/feature.conf 中的 feature.roulette 选项要设置为 on, 否则此事件将不会被触发.
+
+---------------------------------------
+
+*OnPCPetSkillFilter:
+
+	当宠物使用技能时触发
+
+参数说明:
+	@pet_id	为宠物的 id
+	@pet_gid 为宠物的 gid
+	@pet_skillid 为宠物所释放技能的 skillid
+	@pet_damage 为宠物在 petskillattack2 中的伤害修正
+	
+中断说明:
+	中断后宠物释放技能的失败
+
+---------------------------------------
+
+*OnHTTPReceivedEvent:
+
+使用http_get指令成功后的事件.用于获取HTTP GET内容
+
+事件返回变量:
+	$@http_name$          HTTP header 返回名(数组),
+	$@http_val$           HTTP header 值(数组),
+	$@http_header_count   HTTP header 数组长度.
+
+	$@http_num      为 http_get脚本指令中的 <保存数字>
+	$@http_url$     为 http_get脚本指令中的 <URL>
+	$@http_host$    为 http_get脚本指令中的 <网址>
+	$@http_folder$  为 http_get脚本指令中的 <网址剩余部分>
+	$@http_str$     为返回的内容
+
+---------------------------------------
+
+*OnPCSocketRecvFilter:
+
+当服务端接收到封包时, 触发该事件, 可以通过 rfifo_int、rfifo_str、wfifo_int、wfifo_str、fifo_debug 对封包内容进行解析和编辑
+
+事件返回变量:
+	$packet_cmd   封包头
+	$packet_len   封包长度
+	$packet_aid   关联玩家的AID
+	
+注意: 1.事件不与玩家关联，关联请使用 attachrid.
+      2.当使用过 wfifo_int 或 wfifo_str 指令后, 事件结束后服务端会向客户端发送编辑过的封包, 一般重写封包后需要打断该事件.
+
+中断说明:
+	中断后服务器忽略当前封包
+
+---------------------------------------
+
+*OnPCInsertCardFilter:
+
+	当玩家准备插入卡片的时候触发事件
+
+参数说明:
+	@insert_equip_idx	即将被插入的装备的背包序号
+	@insert_card_idx	准备插入的卡片的背包序号
+	@insert_card_id		准备插入的卡片的物品编号
+	@insert_card_slot	即将被插入卡片的卡槽编号 (返回 0 表示第一个卡槽, 返回 3 表示第四个卡槽)
+
+中断说明:
+	中断后服务端会无视玩家本次插入卡片的请求
+
+---------------------------------------
+
+*OnPCInsertCardEvent:
+
+	已经成功将卡片插入到装备时触发事件
+
+参数说明:
+	@insert_equip_idx	已被插入的装备的背包序号
+	@insert_card_idx	已被插入的卡片的背包序号
+	@insert_card_id		已被插入卡片的物品编号
+	@insert_card_slot	已被插入卡片的卡槽编号 (返回 0 表示第一个卡槽, 返回 3 表示第四个卡槽)
+
+---------------------------------------
+
+*OnPCRefineUIFilter:
+
+	准备使用精炼UI时触发事件, 可通过修改 @refine_rate 变量修改精炼成功率
+
+参数说明:
+	@refine_idx			精炼物品的在背包中的序列
+	@refine_nameid		精炼物品的物品ID
+	@refine_rate		精炼概率（可以通过修改这个数值更改精炼概率）
+	@refine_zeny		精炼时消耗的zeny
+	@refine_cost		精炼时消耗的精炼道具ID
+	@refine_blessing	精炼是否使用祝福矿石
+	
+注意:
+	可以通过脚本指令 refine_result 来自定义精炼UI
+	
+中断说明: 
+	中断后服务端会忽略本次精炼请求
+	
+---------------------------------------
+
+*OnPCRefineUIEvent:
+
+	使用精炼UI精炼完成后触发事件
+
+参数说明:
+	@refine_idx			精炼物品的在背包中的序列
+	@refine_nameid		精炼物品的物品ID
+	@refine_blessing	精炼是否使用祝福矿石
+	@refine_success     精炼成功返回 1 否则返回 0
+	
+---------------------------------------
+
+*OnPCCashShopOpenFilter:
+
+	打开商城前触发的事件
+	
+中断说明: 
+	中断后服务端会忽略本次打开商城的请求
+
+---------------------------------------
+
+*OnPCCashShopBuyFilter:
+
+	点击购买按钮后\还没有扣除CASH点数和拿到物品前触发该事件
+
+参数说明:
+	@cashshop_nameid[]		购买物品的ID
+	@cashshop_quantity[]	购买物品的数量
+	@cashshop_price[]		购买物品的单价
+	@cashshop_count			总共购买物品种类(数组长度)
+	
+中断说明: 
+	中断后服务端会忽略本次打开购买请求
+
+---------------------------------------
+
+*OnPCCashShopBuyEvent:
+
+	商城购买成功后触发该事件
+
+参数说明:
+	@cashshop_nameid[]		购买物品的ID
+	@cashshop_quantity[]	购买物品的数量
+	@cashshop_price[]		购买物品的单价
+	@cashshop_count			总共购买物品种类(数组长度)
+
+---------------------------------------
+
+*OnPCCashShopCloseEvent:
+
+	关闭商城后触发的事件
+	
+---------------------------------------
+
+*OnPCStylistChangeEvent:
+
+	在客户端造型设计窗口中点击确定后触发该事件
+
+参数说明:
+	@stylist_hair_color		变化后的发色, 无变化返回 0
+	@stylist_hair_style		变化后的发型, 无变化返回 0
+	@stylist_cloth_color	变化后的衣服颜色, 无变化返回 0
+    @stylist_head_top		变化后的头饰(上), 无变化返回 0
+    @stylist_head_mid		变化后的头饰(中), 无变化返回 0
+    @stylist_head_bottom	变化后的头饰(下), 无变化返回 0
+	
+---------------------------------------
+
+*OnPCMannerFilter: 
+
+	当检测到玩家说敏感词时触发, 打断时玩家说话将被屏蔽且没有任何提示, 此事件配合 db/manner.txt 使用
+	
+参数说明:
+    @manner_type 拦截标识, 即 db/manner.txt 中的第一个参数
+    @manner_mes$ 说话内容
+
+中断说明: 
+	中断后玩家说话将被屏蔽且没有任何提示
+
+---------------------------------------
+
+*OnMobDeadEvent:
+
+	魔物被杀死时触发该事件 (此事件不关联玩家)
+
+参数说明:
+	$killedgid			被杀死魔物的GID
+	$killedrid			被杀死魔物的魔物编号(MobID)
+	$killerrid			杀死魔物的实体GID
+	
+注意: 所有魔物死亡事件都会返回以上三个参数
+	
+---------------------------------------
+
+*OnMOBDropItemFilter:
+
+	当魔物掉落在 item_flag.txt 中标记有2048的物品时触发该事件
+	
+参数说明:
+    @drop_mobid 掉落该物品的魔物的ID
+    @drop_itemid 掉落物品的ID
+	@drop_rate 掉落概率
+	@drop_ratefix 修正后的掉落概率
+	
+中断说明: 
+	中断后本次击杀不掉落该物品
+	
+---------------------------------------
+
+*OnPCOpenVendFilter:
+
+	当玩家开启挂店之前触发
+	
+参数说明:
+	@vend_idx		物品在手推车中的位置序号(数组)
+	@vend_amount	物品出售的数量 (数组 可通过修改实际出售数量)
+	@vend_price		物品出售的单价 (数组 可通过修改实际出售单价)
+	@vend_loot		使用货币的物品ID
+	@vend_count		一共出售多少种物品
+	
+中断说明: 
+	中断后本次挂店失败
+		
+---------------------------------------
+
+*OnPCOpenBuyingFilter:
+
+	当玩家开启采购商店之前触发
+	
+参数说明:
+	@buying_nameid		采购物品的ID(数组)
+	@buying_amount		采购物品的数量 (数组 可通过修改实际出售数量)
+	@buying_price		采购物品的单价 (数组 可通过修改实际出售单价)
+	@buying_loot		使用货币的物品ID
+	@buying_count		一共采购多少种物品
+	
+中断说明: 
+	中断后本次采购失败
+	
+---------------------------------------
+
+*OnPCTradeAddFilter
+
+	当把物品(zeny)添加到交易菜单时触发
+	
+参数说明：
+	@trade_partner_aid 交易对方的AID
+	@trade_partner_cid 交易对方的CID
+	@trade_itemid 放入交易菜单物品的ID, 如果是Zeny 则返回 0
+	@trade_amount 放入交易菜单物品的数量, 如果是Zeny 则Zeny数量
+	@trade_idx 放入交易菜单物品在背包中的序列, 如果是Zeny 则返回 -1
+	
+中断说明: 
+	中断后放入交易菜单失败
+
+---------------------------------------
+
+*OnPCMailAddFilter
+
+	当把物品(zeny)添加到邮件附件时触发
+	
+参数说明：
+	@mail_itemid 添加到邮件附件物品的ID 如果是Zeny, 则返回 0
+	@mail_amount 添加到邮件附件物品的数量 如果是Zeny, 则Zeny数量
+	@mail_idx 添加到邮件附件物品在背包中的序列 如果是Zeny, 则返回 -1
+	
+中断说明: 
+	中断后添加到邮件附件失败
+
+---------------------------------------
+
+*OnPCInventoryAddFilter
+
+	当背包中放入物品时触发
+	
+参数说明：
+	@recv_itemid 收到的物品ID
+	@recv_amount 收到的物品数量
+	@recv_source 来自于哪里
+	@recv_storid 收到的物品仓库ID(公会仓库返回-1, 普通仓库和扩展仓库返回仓库ID)
+	@recv_idx 物品原本的所在位置的序号(返回仓库/手推车/背包位置序号)
+
+参数 @recv_source
+	1  => 背包
+	2  => 手推车
+	3  => 普通/扩展仓库
+	4  => 公会仓库
+	5  => 拾取
+	6  => NPC购买
+	7  => 脚本(getitem等)
+	8  => 邮箱
+	9  => 交易
+	10 => 露天商店
+	11 => 采购
+	12 => 消耗(技能: 捡石头/天使之泪等)
+	13 => 制造
+	14 => 任务
+	15 => 商城
+	16 => 指令
+	17 => 转盘
+	18 => 出生时获得
+	19 => 其他
+
+注意: 
+	如果想在库存中减少时触发本事件, 
+	请将 BetterRA.conf 的 enable_delitem_event 设置为 yes
+	库存减少时 @recv_amount 为负数, 且中断无效
+
+中断说明: 
+	中断后物品保持在原位置不变, 当物品数量为负数时, 即拿出物品时, 无法中断事件
+
+---------------------------------------
+
+*OnPCStorageAddFilter
+
+	当仓库放入物品时触发, 仓库为普通仓库/扩展仓库/公会仓库3种, 均会触发
+	
+参数说明：
+	@recv_itemid 收到的物品ID
+	@recv_amount 收到的物品数量
+	@recv_source 来自于哪里(1: 背包, 2: 手推车)
+	@recv_stortype 仓库类型(3: 普通仓库 4: 公会仓库)
+	@recv_storid 收到的物品仓库ID(公会仓库返回-1, 普通仓库和扩展仓库返回仓库ID)
+	@recv_idx 物品原本的所在位置的序号(返回仓库/手推车/背包位置序号)
+
+注意: 
+	如果想在库存中减少时触发本事件, 
+	请将 BetterRA.conf 的 enable_delitem_event 设置为 yes
+	库存减少时 @recv_amount 为负数, 且中断无效
+
+中断说明: 
+	中断后物品保持在原位置不变, 当物品数量为负数时, 即拿出物品时, 无法中断事件
+
+---------------------------------------
+
+*OnPCCartAddFilter
+
+	当手推车放入物品时触发
+	
+参数说明：
+	@recv_itemid 收到的物品ID
+	@recv_amount 收到的物品数量
+	@recv_source 来自于哪里(1: 背包, 3: 普通/扩展仓库 4: 公会仓库)
+	@recv_storid 收到的物品仓库ID(公会仓库返回-1, 普通仓库和扩展仓库返回仓库ID)
+	@recv_idx 物品原本的所在位置的序号(返回仓库/手推车/背包位置序号)
+
+注意: 
+	如果想在库存中减少时触发本事件, 
+	请将 BetterRA.conf 的 enable_delitem_event 设置为 yes
+	库存减少时 @recv_amount 为负数, 且中断无效
+
+中断说明: 
+	中断后物品保持在原位置不变, 当物品数量为负数时, 即拿出物品时, 无法中断事件
+	
+---------------------------------------
+
+*OnPCPickLogEvent
+
+	当玩家记录获取失去物品时触发该事件, 触发事件的时机与 MySQL中pick表相同
+	
+参数说明:
+	@pick_itemid      物品ID
+	@pick_amount      物品数量
+	@recv_stortype    物品来自哪里 (1: 背包 2:手推车 3: 普通/扩展仓库 4: 公会仓库)
+	@pick_storid      物品来自仓库ID (公会仓库返回-1, 普通仓库和扩展仓库返回仓库ID)
+	@pick_partner_aid 物品来自对方的AID (例如 交易、挂店、采购)
+	@pick_idx         物品原本的所在位置的序号, 可通过 getinventoryinfo getcartinfo getstorageinfo getguildstorageinfo 查看物品详细信息
+	@pick_type$       log 类型
+						- 'W' 手推车
+						- 'T' 交易 
+						- 'V' 挂店 
+						- 'P' 玩家拾起
+						- 'M' 魔物掉落 
+						- 'S' NPC购买 
+						- 'N' 脚本给予 
+						- 'D' 偷窃 
+						- 'C' 消耗 
+						- 'O' 制造 
+						- 'U' MVP物品 
+						- 'A' 指令获取 
+						- 'R' 仓库 
+						- 'G' 公会仓库 
+						- 'E' 邮件 
+						- 'I' 拍卖 
+						- 'B' 采购 
+						- 'L' 魔物拾取掉落
+						- 'K' 银行
+						- 'X' 其他 
+						- '$' 商城 
+						- 'F' 移除绑定
+						- 'Y' 幸运转盘
+						- 'Z' 合成
+						- 'Q' 任务
+						- 'H' 定制飞行
+
+---------------------------------------
+
+*OnPCDropItemFilter
+
+	当玩家扔掉物品时触发
+	
+参数说明：
+	@drop_itemid 扔掉物品的ID
+	@drop_amount 扔掉物品的数量
+	@drop_idx 扔掉物品在背包中的序列
+	
+中断说明: 
+	中断后扔掉物品失败
+
+---------------------------------------
+
+*OnPCAttackFilter:
+
+	当玩家攻击且造成伤害时触发
+	注意: 本事件由BetterRA.conf中 attack_filter_target 配置 与 脚本指令 unitatkeventmark 共同控制
+	
+参数说明(注意, 返回参数不带任何符号)
+	dmg_type 攻击类型(使用位于运算, 计算是不是想要的攻击类型)
+	dmg_damage 本次攻击实际伤害, 最大不超过 2147483647
+	dmg_display 本次攻击显示伤害, 最大不超过 2147483647 
+	dmg_skillid 本次攻击所使用的技能ID, 如果为普通攻击则为0
+	dmg_skilllv 本次攻击所使用的技能等级, 如果为普通攻击则为0
+	dmg_targettype 本次攻击的目标类型(实体类型)(使用位于运算, 计算是不是想要的类型)
+	dmg_targetgid 本次攻击目标的GID
+	dmg_mobid 本次攻击目标的魔物ID, 如果不为魔物则为0
+	dmg_mark 返回由脚本指令 unitatkeventmark 设置的标记
+
+攻击类型参数说明:
+	按攻击范围:
+		BF_SHORT:  近距离攻击
+		BF_LONG:   远距离攻击
+		默认:   BF_SHORT+BF_LONG
+	按攻击类型:
+		BF_WEAPON: 武器攻击
+		BF_MAGIC:  魔法攻击
+		BF_MISC:   混合攻击
+		默认:   BF_WEAPON
+	按技能类型:
+		BF_NORMAL: 普通攻击
+		BF_SKILL:  技能攻击
+		默认:   如果攻击类型是 BF_WEAPON (only) BF_NORMAL, 否则 BF_SKILL+BF_NORMAL.
+	
+实体类型参数说明:	
+	BL_PC   - 玩家
+	BL_PET  - 宠物
+	BL_HOM  - 生命体
+	BL_MER  - 佣兵
+	BL_ELEM - 元素
+
+中断说明: 
+	中断后可通过修改 dmg_damage 参数来修改本次伤害的实际值(可设置为0), 通过 dmg_display 修改显示伤害
+
+---------------------------------------
+
+*OnPCAttackedFilter:
+
+	当玩家被攻击且造成伤害时触发该事件
+	注意: 本事件由BetterRA.conf中 attacked_filter_target(不同于OnPCAttackFilter事件) 配置 与 脚本指令 unitatkedeventmark(不同于OnPCAttackFilter事件) 共同控制
+	
+参数说明(注意, 返回参数不带任何符号)
+	dmg_type 攻击类型(使用位于运算, 计算是不是想要的攻击类型)
+	dmg_damage 本次攻击实际伤害, 最大不超过 2147483647
+	dmg_display 本次攻击显示伤害, 最大不超过 2147483647 
+	dmg_skillid 本次攻击所使用的技能ID, 如果为普通攻击则为0
+	dmg_skilllv 本次攻击所使用的技能等级, 如果为普通攻击则为0
+	dmg_targettype 本次攻击的目标类型(实体类型)(使用位于运算, 计算是不是想要的类型)
+	dmg_targetgid 本次攻击目标的GID
+	dmg_mobid 本次攻击目标的魔物ID, 如果不为魔物则为0
+	dmg_mark 返回由脚本指令 unitatkeventmark 设置的标记
+	
+其他参数说明请参照 OnPCAttackFilter 事件
+
+中断说明: 
+	中断后可通过修改 dmg_damage 参数来修改本次伤害的实际值(可设置为0), 通过 dmg_display 修改显示伤害
+
+---------------------------------------
+
+*OnPCBonusFilter
+
+	当玩家获得 bonus 属性时触发, 指令可通过 getbonus 获取玩家各参数实际值, 也可通过判断 玩家角色或账号ID进行累加获取实际值
+	
+参数说明：
+	@bonus_type 附加类型, 即 bonus 后第一个参数(例: bStr 等)
+	@bonus_val1 第 1 个参数
+	@bonus_val2 第 2 个参数
+	@bonus_val3 第 3 个参数
+	@bonus_val4 第 4 个参数
+    @bonus_val5 第 5 个参数
+
+中断说明: 
+	中断后可通过修改上面的参数来实现对最终结果的影响, 当 @bonus_type 为0时, 当前 Bonus 附加失效
+
+---------------------------------------
+
+*OnAnyoneUseSkillFilter:
+
+事件描述：
+	当释放技能前触发, 可通过在skill_db中自创ID为20000以上的技能通过打断实现一些新技能(ID在20000以下会报错)
+	
+参数说明：
+	$useskill_src 释放技能对象的GID
+	$useskill_id 技能ID
+	$useskill_lv 技能等级
+	$useskill_target 目标GID
+	$useskill_x 目标坐标x 如果是单体技能则返回目标的x坐标
+	$useskill_y 目标坐标x 如果是单体技能则返回目标的y坐标
+	
+配合脚本指令 unitskilltowide 和 unitskilltoAOE 实现更多技能
+
+---------------------------------------
+
+*OnAnyoneUseSkillEvent:
+
+事件描述：
+	当释放技能时触发, 可通过在skill_db中自创ID为20000以上的技能通过打断实现一些新技能(ID在20000以下会报错)
+	
+参数说明：
+	$useskill_src 释放技能对象的GID
+	$useskill_id 技能ID
+	$useskill_lv 技能等级
+	$useskill_target 目标GID
+	$useskill_x 目标坐标x 如果是单体技能则返回目标的x坐标
+	$useskill_y 目标坐标x 如果是单体技能则返回目标的y坐标
+	
+配合脚本指令 unitskilltowide 和 unitskilltoAOE 实现更多技能
+
+---------------------------------------
+
+*OnPCProduceFilter:
+
+	当玩家制作物品时触发该
+	
+参数说明:
+如果关闭了物品选择窗口
+	@produce_skill 制作物品时使用了哪个技能, 比如说宽广制药
+	@produce_nameid 制作的哪样物品
+	@produce_qty 制作的物品数量
+	@produce_per 制作的成功率, 万分率
+
+中断说明: 
+	中断后可通过对 @produce_qty 和 @produce_per 的修改直接修改制作数量和成功率
+	当制作数量或者成功率为0时, 制作失败.
+	
+---------------------------------------
+
+*OnPCReviveFilter:
+
+	当玩复活时触发该事件
+	
+参数说明:
+	@revive_hp 复活后的HP
+	@revive_sp 复活后的SP
+
+中断说明: 
+	中断后复活失败
+
+---------------------------------------
+
+*OnInstanceCreateFilter:
+
+	当创建副本前触发, 此事件不与玩家关联, 可通过 getpartymember、getguildmember 对成员进行遍历
+	
+参数说明:
+	$@instance_owner 副本关联ID（玩家ID、队伍ID、公会ID、部落ID）
+	$@instance_mode  副本模式
+	$@instance_name$ 副本名
+
+中断说明: 
+	中断后副本创建失败, 并返回 -4
+
+---------------------------------------
+
+*OnInstanceCreateEvent:
+
+	当创建副本后触发, 此事件不与玩家关联, 可通过 getpartymember、getguildmember 对成员进行遍历
+	
+参数说明:
+	$@instance_id    副本ID
+	$@instance_owner 副本关联ID（玩家ID、队伍ID、公会ID、部落ID）
+	$@instance_mode  副本模式
+	$@instance_name$ 副本名
+	
+---------------------------------------
+
+*OnInstanceDestroyEvent:
+
+	当创建副本后触发, 此事件不与玩家关联, 可通过 getpartymember、getguildmember 对成员进行遍历
+	
+参数说明:
+	$@instance_id    副本ID
+	$@instance_owner 副本关联ID（玩家ID、队伍ID、公会ID、部落ID）
+	$@instance_mode  副本模式
+	$@instance_name$ 副本名
+	
+---------------------------------------
+
+*OnMOBSpawnFilter:
+
+	当魔物生成前触发, 可通过 setunitdata 更改魔物数据
+	
+参数说明:
+	$@mobspawn_gid    魔物GID
+	
+中断说明: 
+	中断后魔物生成失败, 不会触发魔物死亡事件
+	
+---------------------------------------
+
+*OnBOTStartFilter:
+
+	当BOT启动时触发
+
+中断说明: 
+	中断后BOT启动失败
+
+---------------------------------------
+
+*OnBOTRecvActEvent:
+
+	当BOT接收到指定请求或聊天信息时触发该事件
+
+参数说明:
+	@bot_recv_type     收到信息的类型(0: 寻路失败 1:公开聊天 2:队伍聊天 3:公会聊天 4:私人聊天 5:队伍申请 6:公会申请 7:交易申请 8:交易锁定)
+	@bot_recv_target   收到来该AID玩家的信息
+	
+	当收到聊天信息时, 返回对方发送的聊天信息
+	@bot_recv_name$    收到聊天信息对应的玩家名
+	@bot_recv_message$ 收到聊天信息对应的内容
+	
+	当对方的交易列表被锁定时, 返回对方交易列表中的信息
+	@bot_recv_idx[]    对方交易列表中的物品在背包的序号
+	@bot_recv_nameid[] 对方交易列表中的物品ID
+	@bot_recv_amount[] 对方交易列表中的物品数量
+	@bot_recv_zeny     对方交易列表中的zeny数量
+
+注意: 该事件 需要配合脚本指令 bot_trade bot_party bot_guild 一起使用
+
+---------------------------------------
+
+*OnBOTStopEvent:
+
+	当BOT结束时触发, 当游戏退出 挂机时间到期或者因特殊原因导致挂机失败可触发此事件
+	
+参数说明:
+	@offline    玩家是否为离线挂机 为 0 时不退出挂机, 为 1 时退出挂机
+	@bot_reason 停止原因, 为 1 时 技能使用失败 为 2 时攻击失败, 为 3 时移动失败, 为 4 时挂机时间到
+				当 @bot_stop_reason > 0 时, 可通过修改 @offline 决定是否登出账号
+	
+---------------------------------------

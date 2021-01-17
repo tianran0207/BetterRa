@@ -1,0 +1,12 @@
+// Quest Database
+//
+// Structure of Database:
+// Quest ID,Time Limit,Target1,Val1,Target2,Val2,Target3,Val3,MobID1,NameID1,Rate1,MobID2,NameID2,Rate2,MobID3,NameID3,Rate3,Quest Title
+//
+// Time Limit* can be:
+// - in seconds ; date limit will be at [Current time + Time Limit]
+// - in HH-MM format ; date limit will be at [Time Limit] of the current day or at [Time Limit]
+//   of the next day if [Time Limit] is lower than the current date.
+//
+// The MobID*, NameID*, and Rate* reflect special values for quests that can drop an item at given rate from given mob.
+// If no MobID* is given, then any mob has a chance to drop the given ItemID*.

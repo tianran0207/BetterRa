@@ -1,0 +1,66 @@
+# 定义技能的技能公式
+# 可以通过修改此文件修改技能公式
+# 可通脚本指令 getvariableofpc 获取玩家变量, 通过不同的变量可区分玩家之间的技能公式
+# 格式: 
+#       - Skill: >   # 技能ID
+#         Typeable: ># 对谁有效
+#         Formula: > # 伤害公式
+#         Casting: > # 咏唱公式
+#         Delay: >   # 技能延迟公式
+#         Duration: > # 持续时间公式(如果技能无持续时间, 则无效果)
+#
+# Typeable: (可以相加)
+#	   1 - 玩家单位
+#	   2 - 魔物单位
+#	   4 - 宠物单位
+#	   8 - 人工生命体单位
+#	  16 - 佣兵单位
+#	  64 - 技能单位
+#	 512 - 元素精灵单位
+#   4095 - 以上全部
+#
+# 参数:
+#   在本文件中可以使用的一些参数, 通过直接修改参数达到修改伤害、时间等内容。
+#   $skf_sgid 释放技能对象的GID
+#   $skf_scid 释放技能玩家的CID 如果不是玩家则为0
+#   $skf_tgid 技能所攻击目标的GID
+#   $skf_id 技能ID
+#   $skf_lv 技能等级
+#   $skf_dmg 最终伤害 
+#   $skf_tim 咏唱时间 延迟时间或持续时间
+# 注意: 
+#   本文件的变量经过优化, 不会落地到 MySQL 的 map_reg 表
+#
+########################################################################
+#                                                                      #
+# 脚本指令: 使用方法 查看 doc/BetterRa_script_commands.txt             #
+#   指令 skf_src_status  获得攻击者的基础属性                          #
+#   指令 skf_target_status 获得目标(被攻击者)的基础属性                #
+#   指令 skf_attr_fix 计算本次的属性修正                               #
+#   指令 skf_card_fix 计算本次伤害的 BONUS 修正                        #
+#   注意: 指令不需要与玩家关联, 公式中不要使用sleep等会延迟操作的指令  #
+#                                                                      #
+########################################################################
+#
+# 注意! 脚本不需要在同一行, 支持多行, 如果需要使用此功能, 请联作者
+# 功能可在测试版测试, 测试版为 BetterRA.cn 首页下载的限制 5 人登录版
+#
+########################################################################
+
+Header:
+  Type: SKILL_FORMULA_DB
+  Version: 1
+  
+Body:
+#  - Skill: 14
+#    Tips: 伤害修正为 100 * $skf_lv + rand(int * 100), 念咒为1秒, 当dex大于100时无延迟;
+#    Typeable: 1
+#    Formula: >
+#      $skf_dmg = 100 * $skf_lv * $skf_src_status(STATUS_INT) + rand($skf_src_status(STATUS_INT) * 100);
+#    Casting: >
+#      $skf_tim = 1000;
+#    Delay: >
+#      $skf_tim = $skf_src_status(STATUS_DEX) > 100 ? 0 : $skf_tim;
+#    Duration: >
+#      $skf_tim = 1000;
+#       

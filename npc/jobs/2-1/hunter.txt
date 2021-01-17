@@ -1,0 +1,1801 @@
+//===== rAthena Script =======================================
+//= Hunter Job Quest
+//===== By: ==================================================
+//= EREMES THE CANIVALIZER (Aegis)Translated by yoshiki (Aegis)
+//= Converted by kobra_k88
+//= Further bugfixed and tested by Lupus
+//===== Current Version: =====================================
+//= 3.7
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: =========================================
+//= [Official Conversion]
+//= Job Change quest for Hunter class.
+//===== Additional Comments: =================================
+//= 0.5 Fully working.
+//= 0.6 Changed global variable names to unique ones.
+//= 0.7 - 0.8 Updates for rAthena +Knight2,Crusader2 fix
+//= 0.9 Fixed items quest fork bug [Lupus]
+//= 1.0 Fixed items quest bug: added extra condition [Lupus]
+//= 1.1 Fixed skillpoints check bug [Lupus]
+//= 1.2 Fixed an exploit, thanks to nonox [celest]
+//= 1.3 Added Baby Class support [Lupus]
+//= 1.5 Fixed possible EXP abuse [Lupus]
+//= 1.6 Added a func which prevent advanced classes passing
+//=     2nd Job Quests again. It also guides adv classes where
+//=     to go. [Lupus]
+//= 1.6a Infinite Arrows exploit fix (thanx to Lorky, that
+//= reported the bug) [Lupus]
+//= 1.7 Moved the Job QUest to Hugel [Poki#3]
+//= 2.0 Changed numbers to constants. [Vicious]
+//= 2.1 Removed Duplicates [Silent]
+//= 2.2 Merged JFunc, fixed missing dialogues [Lupus]
+//= 2.2a Fixed Sharon resetting the test2 item set [Lupus]
+//= 2.3a 7 official sets of Demon Hunter,thx to Dr.Evil [Lupus]
+//= 2.4a Added missing next;, missing NPC names [Lupus]
+//= 2.5 "strcharinfo" -> "strcharinfo(0)" [FlavioJS]
+//= 2.6 Fixed 3rd Test. [Samuray22]
+//	-Changed Timers from 3 to 1 minute.
+//	-Changed "Job Change Monsters".
+//	-Thanks to ultradamage.
+//= 2.7 Rescripted to Aegis 10.3 standards. [L0ne_W0lf]
+//= 2.8 Several bugfixes with the help of Barron-Monster. [L0ne_W0lf]
+//= 2.9 Corrected NPC names to fall within proper restrictions. [L0ne_W0lf]
+//= 2.9a Deleted unused variables. [Samuray22]
+//= 3.0 Fixed a small typo, "jo" instead of "Job". [L0ne_W0lf]
+//= 3.0a Corrected a Typo error ";;". [Samuray22]
+//= 3.1 Now uses enable and disable waitingroomevent. [L0ne_W0lf]
+//= 3.2 Fixes a bug where the timer was stopped causing the [L0ne_W0lf]
+//=     test to freeze. (bugreport:1099)
+//= 3.3 Added missing next. [L0ne_W0lf]
+//= 3.4 Corrected some Issues with the Waiting Room. (bugreport:1890) [Samuray22]
+//=     Deleted a Unnecesary Next; on Hunter Guildsman#hnt. (bugreports:1665,2239,2179)
+//= 3.5 Added Quest Log commands. [Kisuka]
+//= 3.6 Removed the need for use of 'goto.' [L0ne_W0lf]
+//= 3.7 Modified the quest to renewal. [Vali] (Thanks to Muad_Dib for the necessary info).
+//============================================================
+
+// Notices in the old Hunter Guild.
+//============================================================
+in_hunter,99,99,4	script	猎人公告#hnt::HntNotice	4_F_JOB_HUNTER,{
+	mes "============ 通知 ============";
+	mes "我们以此通告告知现在猎人转职点已经";
+	mes "搬迁至位于秀发兹发德共和国的 ^ff0000毁葛^000000 了. ";
+	next;
+	mes "你可以通过去毁葛的航线到达. 因此请自行乘坐飞空艇前往. ";
+	next;
+	mes "你可以在^ff0000 毁葛 208 222 ^000000坐标处找到新的转职点. ";
+	next;
+	mes "^804000(你看到公告底下写有一小行字)^000000";
+	mes " ";
+	mes " ";
+	mes " ";
+	mes "我, 猎鹰驯养员也一同搬走了. ";
+	close;
+}
+
+pay_fild10,148,252,3	duplicate(HntNotice)	转职地点#hu	4_BOARD3
+
+// Actual Job quest start
+//============================================================
+hu_in01,386,373,4	script	猎人工会成员#hnt	727,{
+	if (Upper == 1) {
+		mes "[猎人谢林]";
+		mes "Oh, how have you been? It's been a long time, hasn't it?";
+		next;
+		mes "[猎人谢林]";
+		mes "...Wait.";
+		mes "Oops! I'm sorry, I could have sworn that we've met before. Huh. How weird.";
+		close;
+	}
+	if (BaseJob == Job_Archer && JobLevel < 40) {
+		mes "[猎人工会成员]";
+		mes "Eh? You haven't had enough training as an Archer yet. To become a Hunter, you must gain a certain level of experience as an Archer first.";
+		next;
+		mes "[猎人工会成员]";
+		mes "Go out and train yourself a bit more. You'll need to be at least Job Level 40 before you'll be ready to become a Hunter. Of course, you can train more than that if you want.";
+		next;
+		mes "[猎人工会成员]";
+		mes "See you next time~";
+		close;
+	}
+	if (SkillPoint) {
+		mes "[猎人谢林]";
+		mes "You can't change jobs without using all your skill points. Please use all of your skill points before applying to change jobs~";
+		close;
+	}
+	if (BaseClass == Job_Novice) {
+		mes "[猎人工会成员]";
+		mes "You must be...";
+		mes "a Novice? Wow, you've got a long way ahead of you. I don't think there's much you can do here.";
+		close;
+	}
+	else if (BaseClass == Job_Swordman) {
+		mes "[猎人工会成员]";
+		mes "You have chosen the path of the sword. I can respect the strength of your blade. Of course, from far away, you can't really afford to throw your sword at enemies, can you?";
+		close;
+	}
+	else if (BaseClass == Job_Mage) {
+		mes "[猎人工会成员]";
+		mes "You deal with magic? It must feel great to be able to wield mystic power.";
+		close;
+	}
+	else if (BaseClass == Job_Acolyte) {
+		mes "[猎人工会成员]";
+		mes "Oh, a person who serves God! Nice to meet you. There aren't many people like you that visit this place~ Hehe.";
+		close;
+	}
+	else if (BaseClass == Job_Merchant) {
+		mes "[猎人工会成员]";
+		mes "Oh...";
+		mes "How's your business coming along?";
+		close;
+	}
+	else if (BaseClass == Job_Thief) {
+		mes "[猎人工会成员]";
+		mes "Agh?!";
+		mes "This place doesn't have anything worth stealing or anyone worth killing!!";
+		close;
+	}
+	else if (BaseJob == Job_Dancer || BaseJob == Job_Bard) {
+		mes "[猎人工会成员]";
+		mes "Phew...sometimes it is really hard for being a hunter, you know...";
+		mes "So how do you like your bohemian life? Yeah, I am envious of you for having so much freedom...";
+		close;
+	}
+	else if (BaseJob == Job_Hunter) {
+		mes "[猎人谢林]";
+		mes "Oh~ " + strcharinfo(0) + "!!";
+		mes "Long time no see~ What brings you here? Did your Falcon run away or something?";
+		next;
+		mes "[猎人谢林]";
+		mes "I don't really have any official notices from the guild at the moment, so I hope you didn't come here just for that...";
+		close;
+	}
+	else if (BaseJob == Job_Archer) {
+		if (HNTR_Q == 17 && countitem(1007) == 0) {
+			mes "[猎人谢林]";
+			mes "Hmm... I've been informed that you passed the test. But you don't have the necessary 'Necklace of Wisdom (Penetration)' that proves your accomplishment.";
+			next;
+			mes "[猎人谢林]";
+			mes "I'll let you change your job, but you must bring back a 'Necklace of Wisdom (Penetration),' no matter what it takes.";
+			close;
+		}
+		else if (HNTR_Q == 17 && countitem(1007) > 0) {
+			mes "[猎人谢林]";
+			mes "Oh...?";
+			mes "You passed";
+			mes "the job test?!";
+			mes "Congratulations~!!";
+			next;
+			mes "[猎人谢林]";
+			mes "Well then,";
+			mes "I will now change";
+			mes "your job to a Hunter~";
+			next;
+			delitem 1007,1; // Penetration
+			mes "[猎人谢林]";
+			mes "Tada~ Congratulations!";
+			mes "You look great as a Hunter!!";
+			.@joblvl = JobLevel;
+			completequest 4013;
+			callfunc "Job_Change",Job_Hunter;
+			callfunc "F_ClearJobVar";		// clears all job variables for the current player
+			next;
+			mes "[猎人谢林]";
+			mes "Become a noble person and become a worthy representative of our Hunter Guild. Show your love of nature as a Hunter~";
+			next;
+			mes "[猎人谢林]";
+			mes "And also, here is a little reward for all the effort you put in. It's from me, of course~";
+			if (.@joblvl > 49)
+				getitem 1718,1; //Hunter_Bow
+			else
+				getitem 1710,1; //CrossBow
+			close;
+		}
+		else if (HNTR_Q == 0 || HNTR_Q == 1) {
+			if (HNTR_Q == 0) {
+				mes "[猎人工会成员]";
+				mes "Oh, you're an Archer! It seems as if you've trained enough as an Archer... You came here to become a Hunter, right?";
+				next;
+				switch( select( "是的这就是我来这里的目的.", "转职有什么要求?", "....我还不想转职." ) ) {
+				case 1:
+					mes "[猎人工会成员]";
+					mes "Hehe~";
+					mes "I was right! Let me put you on the candidate list. Let's see~*";
+					next;
+					mes "[猎人工会成员]";
+					mes "Hmm... Let's start with the interview. Wait and relax a moment. No need to worry, I'll prepare everything~";
+					next;
+					mes "^3355FF*Gathers and flips through papers*^000000";
+					next;
+					mes "^3355FF*Rummage rummage*^000000";
+					next;
+					mes "[猎人工会成员]";
+					mes "Ah!";
+					mes "Here they are: the interview questions~ First of all, my name is 'Sherin.' Nice to meet you!";
+					next;
+					mes "[猎人谢林]";
+					mes "Well then,";
+					mes "shall we begin?";
+					next;
+					if (select( "是的,让我们开始吧.", "不, 我稍后再来.") == 2) {
+						mes "[Hunter Sherin]";
+						mes "Okay...";
+						mes "Come back";
+						mes "when you're ready~";
+						close;
+					}
+					if (isbegin_quest(4000) == 0)
+							setquest 4000;
+						mes "[猎人谢林]";
+						mes "Listen carefully to the scenarios I describe. When I ask a question, you choose an answer. Pretty simple, don't you think?";
+						next;
+						mes "[猎人谢林]";
+						mes "I just want to know how you think about life, and why you want to become a Hunter, so there's no need to be nervous.";
+					break;
+				case 2:
+					mes "[Hunter Guildsman]";
+					mes "Job change";
+					mes "requirements?";
+					mes "First...";
+					mes "You must be an Archer.";
+						next;
+					mes "[Hunter Guildsman]";
+					mes "Second...";
+					mes "You must be";
+					mes "at least Job Level 40.";
+					next;
+					mes "[Hunter Guildsman]";
+					mes "Third...";
+					mes "You must bring all of the items that will be requested by the guild. You can worry about that later.";
+					next;
+					mes "[Hunter Guildsman]";
+					mes "Fourth...";
+					mes "You've gotta pass the test administered by the guild. If you have had enough training as an Archer, you should be able to pass the test~";
+						close;
+				case 3:
+					mes "[Hunter Guildsman]";
+					mes "Okay then,";
+					mes "see you next time~";
+					close;
+				}
+			}
+			else if (HNTR_Q == 1) {
+				mes "[猎人谢林]";
+				mes "欢迎回来...!";
+				mes "Well, let's start with the interview. This time, carefully think about the answers to each question.";
+			}
+			next;
+			mes "[猎人谢林]";
+			mes "好吧,";
+			mes "让我们开始.";
+			next;
+			mes "[猎人谢林]";
+			mes "You are an Archer, and you don't know where you should go to hunt. What do you do?";
+			next;
+			switch( select( "Scream out loud asking where you should go.", "Quietly ask a person passing by.", "Wander around alone and search for a place." ) ) {
+			case 2:
+			case 3:
+				.@hunter_t += 10;
+			default:
+				break;
+			}
+			mes "[猎人谢林]";
+			mes "So you've decided on a place to hunt. You're going to hunt the monsters known as Hodes in the Sograt Desert.";
+			next;
+			mes "[猎人谢林]";
+			mes "But you are in Payon!!";
+			mes "How do you go to the desert?";
+			next;
+			switch( select( "Ask a Priest to open a free warp portal.", "Use the Kafra service.", "Walk with a friend." ) ) {
+			case 2:
+			case 3:
+				.@hunter_t += 10;
+			default:
+				break;
+			}
+			mes "[猎人谢林]";
+			mes "There is no Priest to ask for a warp, and no friend is around to walk with you. You must use the Kafra service, but you have no Zeny!";
+			next;
+			mes "[猎人谢林]";
+			mes "How would you go";
+			mes "about to make the";
+			mes "Zeny that you need?";
+			next;
+			switch( select( "Beg here and there.", "Sell items I do not need.", "Hunt at a nearby field." ) ) {
+			case 2:
+			case 3:
+				.@hunter_t += 10;
+			default:
+				break;
+			}
+			mes "[猎人谢林]";
+			mes "So you finally arrive at the Sograt Desert. But you realize that Hodes are a bit too strong for you to hunt alone.";
+			next;
+			mes "[猎人谢林]";
+			mes "What is your";
+			mes "solution to this";
+			mes "situation?";
+			next;
+			if (select( "Attack a Hode from the top of a hill.", "Go back to town.", "Attack someone else's Hode." ) == 2)
+				.@hunter_t += 10;
+			mes "[Hunter Sherin]";
+			mes "Let's say you were having too much trouble hunting Hodes and returned to town. Now you are out of HP and a Priest happens to be around. How would you ask for a Heal?";
+			next;
+			if (select( "Would it be possible to get a Heal, please?", "Heal, please.", "Heal me." ) == 1)
+				.@hunter_t += 10;
+			mes "[猎人谢林]";
+			mes "This time, you found a rare item while you were going through your inventory. You go out to sell the item, and there are many people with stores and chatrooms open.";
+			next;
+			mes "[猎人谢林]";
+			mes "What is the";
+			mes "best way to";
+			mes "sell your item?";
+			next;
+			switch( select( "Scream out loud to everyone in sight.", "Open a chatroom and wait.", "Look to see if anyone already wants it." ) ) {
+			case 2:
+			case 3:
+				.@hunter_t += 10;
+			default:
+				break;
+			}
+			mes "[猎人谢林]";
+			mes "While you are waiting, someone is begging for items and Zeny. What should you do?";
+			next;
+			if (select("Give some of my items and Zeny.", "Ignore and walk away.", "Tell the person about a good place to hunt.") == 1)
+				.@hunter_t += 10;
+			mes "[猎人谢林]";
+			mes "By now, you decide to go to the Maze by yourself.";
+			next;
+			mes "[猎人谢林]";
+			mes "But on your way, you run";
+			mes "into someone that is lost.";
+			mes "What should you do?";
+			next;
+			switch( select( "Tell them which way to go.", "Guide them to their destination.", "Ignore." ) ) {
+			case 1:
+			case 2:
+				.@hunter_t += 10;
+			default:
+				break;
+			}
+			mes "[猎人谢林]";
+			mes "After meeting this lost person, you decide to get back to hunting. Just then, you find that someone is attacking a boss!";
+			next;
+			mes "[猎人谢林]";
+			mes "What should you do?";
+			next;
+			if (select( "Watch, then attack when asked for help.", "Attack and see what happens.", "Just go back to town." ) == 1)
+				.@hunter_t += 10;
+			mes "[猎人谢林]";
+			mes "You are now very exhausted after your day of hunting. It's time to go back to town.";
+			next;
+			mes "[猎人谢林]";
+			mes "But what's this!? You find an expensive item lying on the floor! What should you do with it?";
+			next;
+			switch(select("- 把它捡起来, 拿好.", "- 试图找到失主.", "- 不管它.")) {
+			case 2:
+			case 3:
+			.@hunter_t += 10;
+			default:
+				break;
+			}
+			mes "[猎人谢林]";
+			mes "Okay, this is the end of the test!";
+			next;
+			if (.@hunter_t == 100) {
+				HNTR_Q = 2;
+				changequest 4000,4001;
+				mes "[猎人谢林]";
+				mes "Well done! Your answers show you've got the right outlook on life. You definitely have the right qualities to become a Hunter~";
+				next;
+				mes "[猎人谢林]";
+				mes "I'm glad to say you've passed the interview~ Now, go to that person in the corner and confirm which item is necessary for your job change test~";
+				close;
+			}
+			else if (.@hunter_t == 90) {
+				HNTR_Q = 2;
+				changequest 4000,4001;
+				mes "[猎人谢林]";
+				mes "Well, I'm looking at your answers and your score isn't perfect. But I'll let you pass anyway. I don't know what our Guildmaster will think, though.";
+				next;
+				mes "[猎人谢林]";
+				mes "Just remember to always keep basic etiquette in mind. Try harder in the following tests and make me happy, okay?";
+				close;
+			}
+			HNTR_Q = 1;
+			mes "[猎人谢林]";
+			mes "Hmm... I don't think this'll work out. You can't become a Hunter without knowing basic etiquette.";
+			next;
+			mes "[猎人谢林]";
+			mes "Think about how you answered the questions one more time. In order to value nature, you must first value your relationship with others.";
+			next;
+			mes "[猎人谢林]";
+			mes "Then, you'll be more in tune with nature and with other people. It's this kind of harmony that makes the best Hunters.";
+			close;
+		}
+		else if (HNTR_Q > 2 && HNTR_Q < 10) {
+			mes "[猎人谢林]";
+			mes "Just give the item to the 恶魔猎手, the guy who's all the way to the left in this area~";
+			next;
+			mes "[猎人谢林]";
+			if (Sex == SEX_MALE)
+				mes "If you decide to become a Hunter, promise to come visit me. I want to see you as a Hunter. You would look great!!";
+			else
+				mes "If you decide to become a Hunter, come and visit me, okay? You're pretty, but... You'd be even prettier as a Hunter. Hehe~";
+			close;
+		}
+		else if (HNTR_Q == 2) {
+			mes "[猎人谢林]";
+			mes "????";
+			next;
+			mes "[猎人谢林]";
+			mes "You weren't able to find the 恶魔猎手? That guy is just to the left! Hehe~";
+			next;
+			mes "[猎人谢林]";
+			mes "I want to see you become a Hunter...! Waaah~ I think you'd look great, so please hurry!";
+			close;
+		}
+		mes "[猎人谢林]";
+		mes "Hmm, I think you're supposed to visit someone else, not me. Like our Guildmaster who's out for business, you know?";
+		next;
+		mes "[猎人谢林]";
+		mes "I heard he's at the Payon Central Palace... Or in the Archer Village, one of those two places. Try visiting those places and find him, okay?";
+		close;
+	}
+	mes "[猎人工会成员]";
+	mes "Eh? You haven't trained enough as an Archer. To become a Hunter, you need to gain more experience as an Archer first.";
+	next;
+	mes "[猎人工会成员]";
+	mes "Well then, go train some more. You must be at least Job Level 40 to be exact. Of course, you can always go higher. See you next time~";
+	close;
+}
+
+hu_in01,382,382,4	script	工会接待员#hnt	4_M_JOB_HUNTER,{
+	if (HNTR_Q == 2) {
+		mes "[工会接待员]";
+		mes "你好. 别人称我为... ^660000恶魔猎手^000000. 我分管申请处理. 你的名字是 ... " + strcharinfo(0) + ", 对吗?";
+		next;
+		if (select( "- 是的, 这是正确的.", "- 没了~~(heeheehee)" ) == 2) {
+			mes "[恶魔猎手]";
+			mes "嘿, 别再瞎搞了.";
+			mes "你的名字是 " + strcharinfo(0) + ", 对吗?";
+			next;
+			if (select("- 是的...", "- 呵呵. 再次回答你, 这不是~~") == 2) {
+				mes "[恶魔猎手]";
+				mes "Leave if you plan to trifle me your petty tricks. Do you not realize that you are toying with ^660000The Demon Hunter^000000?!'";
+				close2;
+				warp "hugel",208,223;
+				end;
+			}
+		}
+		mes "[恶魔猎手]";
+		mes "Okay. These are the items you need for the test. Since we provide all the arrows you will be using for this test, we need you to get the materials to make them.";
+		next;
+		mes "[恶魔猎手]";
+		mes "You see, we're having some financial problems. Let's see, we're short on these items...";
+		next;
+		if (checkre(0) == true)
+			.@i = 1;
+		switch( rand(1,7) ) {
+		case 1:
+			// Insect_Feeler/Claw_Of_Desert_Wolf, Wooden_Block, White_Herb
+			setarray .@items[0], (.@i?928:7030),5, 1019,5, 509,3, 3;
+			changequest 4001,4002;
+			break;
+		case 2:
+			// Bill_Of_Birds, Skel_Bone, Green_Herb
+			setarray .@items[0], 925,3, 932,5, 511,3, 4;
+			changequest 4001,4003;
+			break;
+		case 3:
+			// Colorful_Shell/Posionous_Canine, Animal's_Skin, Red_Herb
+			setarray .@items[0], (.@i?1013:937),3, 919,3, 507,5, 5;
+			changequest 4001,4004;
+			break;
+		case 4:
+			// Horn/Dokkaebi_Horn, Poison_Spore/Piece_Of_Egg_Shell, Fluff
+			setarray .@items[0], (.@i?947:1021),3, (.@i?7033:7032),3, 914,10, 6;
+			changequest 4001,4005;
+			break;
+		case 5:
+			// Shell, Worm_Peelings, Yellow_Herb
+			setarray .@items[0], 935,9, 955,9, 508,9, 7;
+			changequest 4001,4006;
+			break;
+		case 6:
+			// Tooth_Of_Bat, Sticky_Mucus, Bear's_Foot
+			setarray .@items[0], 913,3, 938,1, 948,1, 8;
+			changequest 4001,4007;
+			break;
+		case 7:
+			// Porcupine_Spike, Yoyo_Tail, Acorn
+			setarray .@items[0], 1027,2, 942,1, 1026,1, 9;
+			changequest 4001,4008;
+			break;
+		}
+		mes "[Demon Hunter]";
+		mes "唔. ^660000" + .@items[1] + " " + getitemname(.@items[0]) + "^000000 用于使用箭头提示. ^660000" + .@items[3] + " " + getitemname(.@items[2]) + "^000000 可用在很多地方. 还要 ^660000" + .@items[5] + " " + getitemname(.@items[4]) + "^000000 谢谢.";
+		HNTR_Q = .@items[6];
+		next;
+		mes "[恶魔猎手]";
+		if (HNTR_Q >= 5)
+			mes "By the way, a member of our Hunter Guild is at the Archer Guild on official business. I believe you have to go visit this person since he is in charge of the testing.";
+		else {
+			mes "Oh right. Our Guildmaster has gone on an official trip to the Payon Central Palace. You have to go visit him because the one that administers the test.";
+			mes "You can find him in a building east of the Payon Central Palace.";
+		}
+		next;
+		mes "[恶魔猎手]";
+		mes "Alright then, come back to me when you have everything ready~";
+		close;
+	}
+	else if (HNTR_Q >= 3 && HNTR_Q <= 9) {
+		if (checkre(0) == true)
+			.@i = 1;
+		switch(HNTR_Q) {
+		case 3:
+			// Insect_Feeler/Claw_Of_Desert_Wolf, Wooden_Block, White_Herb
+			setarray .@items[0], (.@i?928:7030),5, 1019,5, 509,3, 10;
+			break;
+		case 4:
+			// Bill_Of_Birds, Skel_Bone, Green_Herb
+			setarray .@items[0], 925,3, 932,5, 511,3, 10;
+			break;
+		case 5:
+			// Colorful_Shell/Posionous_Canine, Animal's_Skin, Red_Herb
+			setarray .@items[0], (.@i?1013:937),3, 919,3, 507,5, 10;
+			break;
+		case 6:
+			// Horn/Dokkaebi_Horn, Poison_Spore/Piece_Of_Egg_Shell, Fluff
+			setarray .@items[0], (.@i?947:1021),3, (.@i?7033:7032),3, 914,10, 10;
+			break;
+		case 7:
+			// Shell, Worm_Peelings, Yellow_Herb
+			setarray .@items[0], 935,9, 955,9, 508,9, 11;
+			break;
+		case 8:
+			// Tooth_Of_Bat, Sticky_Mucus, Bear's_Foot
+			setarray .@items[0], 913,3, 938,1, 948,1, 11;
+			break;
+		case 9:
+			// Porcupine_Spike, Yoyo_Tail, Acorn
+			setarray .@items[0], 1027,2, 942,1, 1026,1, 11;
+			break;
+		}
+		mes "[恶魔猎手]";
+		mes "Hmm?";
+		next;
+		if (countitem(.@items[0]) >= .@items[1] && countitem(.@items[2]) >= .@items[3] && countitem(.@items[4]) >= .@items[5]) {
+			HNTR_Q = .@items[6];
+			if (isbegin_quest(4002) == 1)
+				changequest 4002,4009;
+			else if (isbegin_quest(4003) == 1)
+				changequest 4003,4009;
+			else if (isbegin_quest(4004) == 1)
+				changequest 4004,4009;
+			else if (isbegin_quest(4005) == 1)
+				changequest 4005,4009;
+			else if (isbegin_quest(4006) == 1)
+				changequest 4006,4010;
+			else if (isbegin_quest(4007) == 1)
+				changequest 4007,4010;
+			else
+				changequest 4008,4010;
+			delitem .@items[0],.@items[1];
+			delitem .@items[2],.@items[3];
+			delitem .@items[4],.@items[5];
+			mes "[Demon Hunter]";
+			if (HNTR_Q == 10)
+				mes "You brought all of the necessary materials... You can get directions to the testing area from our Guildmaster who is currently in the Payon Central Palace.";
+			else
+				mes "You brought all of the necessary materials... To get directions to the testing area, go talk to our Guildmaster who is at the Archer Guild.";
+			close;
+		}
+		mes "[恶魔猎手]";
+		mes "You don't have all";
+		mes "of the required materials...";
+		next;
+		mes "[恶魔猎手]";
+		mes "需要的东西是";
+		mes "^660000" + .@items[1] + " " + getitemname(.@items[0]) + "^000000,";
+		mes "^660000" + .@items[3] + " " + getitemname(.@items[2]) + "^000000 和";
+		mes "^660000" + .@items[5] + " " + getitemname(.@items[4]) + "^000000.";
+		mes "等你收集了所有的物品后";
+		mes "再过来找我.";
+		close;
+	}
+	else if (HNTR_Q > 9 && HNTR_Q < 17) {
+		mes "[恶魔猎手]";
+		mes "Hmm? You didn't go to the Guildmaster either in Payon Central Palace or at the Archer Guild? He should be at one of the two places, so go look for him.";
+		close;
+	}
+	else if (HNTR_Q == 17) {
+		mes "[恶魔猎手]";
+		mes "Ooh. You passed the test. Congratulations~ You should go talk to Sherin now.";
+		close;
+	}
+	else {
+		mes "[工会接待员]";
+		mes "If you wish to change your job to a Hunter, you must register first.";
+		close;
+	}
+}
+
+payon_in03,131,7,3	script	猎人#htnGM	1_M_ORIENT01,{
+	if (HNTR_Q == 10) {
+		mes "[猎人工会会长]";
+		mes "Hmpf. You must be here for the Hunter job test. Let me tell you about the testing process. What would you like to know?";
+		next;
+		switch(select("- 测试有什么内容?", "- 合格的要求是什么?", "- 有什么要注意的?", "- 开始测试.")) {
+		case 1:
+			mes "[猎人工会会长]";
+			mes "You have to hunt down certain monsters with a particular name. But you must avoid all the traps while you're at it.";
+			next;
+			mes "[猎人工会会长]";
+			mes "This is to test your ability to move swiftly and locate targets in various situations.";
+			close;
+		case 2:
+			mes "[猎人工会会长]";
+			mes "Within the time limit, starting in the 6 o'clock direction of the map, you must hunt the target monsters and then hit the escape switch that will appear in the center of the map.";
+			next;
+			mes "[猎人工会会长]";
+			mes "You will pass if you are able to escape in the 12 o'clock direction of the map after you hit the switch.";
+			close;
+		case 3:
+			mes "[猎人工会会长]";
+			mes "Hmm. Warnings... Well, if you fall into a trap, you have to start from the beginning. Also, only one person can take the test at a time.";
+			next;
+			mes "[猎人工会会长]";
+			mes "I will send you to the testing place. There will be a 等候室, but if someone else is taking the test, you must wait in the chatroom.";
+			next;
+			mes "[猎人工会会长]";
+			mes "If the person in front succeeds, resigns or fails, the next person waiting in the chatroom is sent to the testing area. If nobody is waiting, the test will begin as soon as you enter the chatroom.";
+			close;
+		case 4:
+			// Note: aegis typo
+			// if (.@a0) {
+			// 	mes "[Hunter Guildmaster]";
+			// 	mes "Okay. I'll send you to the testing area right now. Don't blame me if you get lost or confused because you didn't listen to my explanation.";
+			// }
+			// else {
+			// 	mes "[Hunter Guildmaster]";
+			// 	mes "Okay. Best of luck.";
+			// 	mes "I'll send you right now.";
+			// }
+				mes "[猎人工会会长]";
+				mes "Okay. I'll send you to the testing area right now. Don't blame me if you get lost or confused because you didn't listen to my explanation.";
+				next;
+			}
+			mes "[猎人工会会长]";
+		mes "Well, then. Your arrows are probably still being made, so you can use mine to take the test.";
+		HNTR_Q = 12;
+		changequest 4009,4011;
+		getitem 1751,200; // Silver_Arrow
+		close2;
+		warp "job_hunte",176,22;
+		end;
+	}
+	else if (HNTR_Q > 1 && HNTR_Q < 10) {
+		mes "[猎人工会会长]";
+		mes "Mmm...?";
+		mes "What is an Archer";
+		mes "visiting me for?";
+		next;
+		mes "[猎人工会会长]";
+		mes "I wasn't notified about anything in particular from the Hunter Guild. You're not trying to skip the middle part of the Hunter test, are you?";
+		next;
+		mes "[猎人工会会长]";
+		mes "Go gather the items for the test, and come back after you've visited the Hunter Guild.";
+		close;
+	}
+	else if (HNTR_Q == 11) {
+		mes "[猎人]";
+		mes "Hmm? Can I help you? If you wish to change jobs, you should visit the person at the Archer Guild, not me.";
+		close;
+	}
+	else if (HNTR_Q > 11 && HNTR_Q < 16) {
+		mes "[猎人工会会长]";
+		mes "Hmm. You're the Archer that almost gave up on changing jobs. You do have everything ready, right? Then I'll send you to take the test right away.";
+		next;
+		mes "[猎人工会会长]";
+		mes "If you have any";
+		mes "questions, ask now.";
+		next;
+		switch( select( "- 测试有什么内容?", "- 合格的要求是什么?", "- 有什么要注意的?", "- 开始测试." ) ) {
+		case 1:
+			mes "[猎人工会会长]";
+			mes "You have to hunt down certain monsters with a particular name, but you also avoid all the traps at the same time. This is to test your ability to move swiftly and locate targets in various situations.";
+			close;
+		case 2:
+			mes "[猎人工会会长]";
+			mes "Within the given time, you will start at the 6 o'clock direction of the map, hunt the target monsters, and then hit the escape switch that will appear in the center of the map.";
+			next;
+			mes "[猎人工会会长]";
+			mes "You will pass if you are able to escape in the 12 o'clock direction of the map after you hit the switch.";
+			close;
+		case 3:
+			mes "[猎人工会会长]";
+			mes "Hmm. Warnings... Well, if you fall into a trap, you have to start from the beginning. Also, only one person can take the test at a time.";
+			next;
+			mes "[猎人工会会长]";
+			mes "I'll send you to the testing place. There is a 等候室, but if someone else is taking the test, you must wait in the chatroom.";
+			next;
+			mes "[猎人工会会长]";
+			mes "If the person in front succeeds, resigns or fails, the next person waiting in the chatroom is sent to the testing area. If nobody is waiting, the test will begin as soon as you enter the chatroom.";
+			close;
+		case 4:
+			mes "[猎人工会会长]";
+			mes "Okay. Good luck.";
+			mes "I'll send you right now.";
+			next;
+		}
+		mes "[猎人工会会长]";
+		mes "Eh? Why won't I give you Silver Arrows? Don't expect anything when you don't bring any materials.";
+		next;
+		mes "[猎人工会会长]";
+		mes "Anyway, I believe you've prepared it yourself. Let's begin now.";
+		next;
+		if (select( "- 好的, 让我们开始吧...", "- 啊, 稍等." ) == 1) {
+			mes "[Hunter Guildmaster]";
+			mes "Okay!! I hope";
+			mes "you will pass this time!";
+			close2;
+			HNTR_Q = 12;
+			warp "job_hunte",176,22;
+			end;
+		}
+		mes "[猎人工会会长]";
+		mes "Then hurry and finish";
+		mes "all of your preparations.";
+		close;
+	}
+	else if (HNTR_Q == 16) {
+		mes "[猎人工会会长]";
+		mes "Wow, you came back in one piece!";
+		mes "I mean, good job. I'll give you the item which proves that you have passed the test.";
+		HNTR_Q = 17;
+		savepoint "payon",104,99,1,1;
+		getitem 1007,1; // Penetration
+		changequest 4012,4013;
+		next;
+		mes "[猎人工会会长]";
+		mes "Okay, here it is. Now, go back to the Hunter Guild. I have some more business left to do here, but I hope you can become a Hunter soon.";
+		close;
+	}
+	else if (HNTR_Q == 17) {
+		mes "[猎人工会会长]";
+		mes "I see you aren't in a hurry to become a Hunter? When I first became a Hunter, I ran around for a month wildly brandishing my bow because I was so happy. Hehe~";
+		next;
+		mes "[猎人工会会长]";
+		mes "Now, you should go back to the Hunter Guild~";
+		close;
+	}
+	else {
+		mes "[猎人]";
+		mes "...Can I help you?";
+		mes "I'm here for official business and am busy at the moment. If you'll excuse me...";
+		close;
+	}
+}
+
+payon_in02,21,31,1	script	猎人#htnGM2	1_M_ORIENT01,{
+	cutin "job_huntermaster",2;
+	if (HNTR_Q == 11) {
+		mes "[猎人工会会长]";
+		mes "Mmm. I see you're here for the Hunter job test. Let me explain the testing process. What would you like to know?";
+		next;
+		switch(select("- 测试有什么内容?", "- 合格的要求是什么?", "- 有什么要注意的?", "- 开始测试.")) {
+		case 1:
+			mes "[猎人工会会长]";
+			mes "You have to hunt down certain monsters with a particular name, but you must avoid all of the traps here at the same time.";
+			next;
+			mes "[猎人工会会长]";
+			mes "This is to test your ability to move swiftly and locate targets in various situations.";
+			close3;
+		case 2:
+			mes "[猎人工会会长]";
+			mes "Within the given time, you will start in the 6 o'clock direction of the map, hunt the target monsters, and hit the escape switch that will appear in the center of the map.";
+			next;
+			mes "[猎人工会会长]";
+			mes "You will pass if you are able to escape in the 12 o'clock direction of the map when the switch is activated.";
+			close3;
+		case 3:
+			mes "[猎人工会会长]";
+			mes "Mmm. Warnings... Well, if you fall into a trap, you have to start the test over from the beginning. And only one person can take the test at a time.";
+			next;
+			mes "[猎人工会会长]";
+			mes "I'll send you to the testing place. There is a 等候室, but if someone else is taking the test, you must wait in the chatroom.";
+			next;
+			mes "[猎人工会会长]";
+			mes "If the person currently taking the test passes or fails, the next person waiting in the chatroom is sent to the testing area. If nobody is waiting, the test will begin as soon as you enter the chatroom.";
+			close3;
+		case 4:
+			// Note: aegis typo
+			// if (.@a0) {
+			// 	mes "[Hunter Guildmaster]";
+			// 	mes "...Okay. I'll send you to the testing area right now. Don't blame me if you get lost or confused because you didn't listen to the explanation.";
+			// 	next;
+			// }
+			// else {
+			// 	mes "[Hunter Guildmaster]";
+			// 	mes "Okay, best of luck.";
+			// 	mes "I'll send you right now.";
+			// }
+			// next;
+				mes "[猎人工会会长]";
+				mes "...Okay. I'll send you to the testing area right now. Don't blame me if you get lost or confused because you didn't listen to the explanation.";
+				next;
+			}
+			mes "[猎人工会会长]";
+		mes "Well, your arrows are probably still being made, so you can use mine to take the test.";
+		getitem 1751,200; // Silver_Arrow
+		next;
+		mes "[猎人工会会长]";
+		mes "祝你好运.";
+		HNTR_Q = 12;
+		changequest 4010,4011;
+		warp "job_hunte",176,22;
+		end;
+	}
+	else if (HNTR_Q > 1 && HNTR_Q < 10) {
+		mes "[猎人工会会长]";
+		mes "唔...?";
+		mes "为什么一个弓箭手";
+		mes "要找我?";
+		next;
+		mes "[猎人工会会长]";
+		mes "I wasn't notified by the Hunter Guild about anything. You're not trying to skip the middle part of the Hunter test, are you?";
+		next;
+		mes "[猎人工会会长]";
+		mes "Stop by once you have gathered all the items needed for the test.";
+		close3;
+	}
+	else if (HNTR_Q == 10) {
+		mes "[猎人]";
+		mes "唔?";
+		mes "Can I help you";
+		mes "with something?";
+		mes "Oh, you must be";
+		mes "a Hunter applicant.";
+		next;
+		mes "[猎人]";
+		mes "If you wish to change jobs, I think you need to go visit the person at Payon Central Palace.";
+		close3;
+	}
+	else if (HNTR_Q > 11 && HNTR_Q < 16) {
+		mes "[猎人工会会长]";
+		mes "Mmm? Aren't you the Archer who gave up last time? Now you're ready, right? Then I'll send you to the job change area right now.";
+		next;
+		mes "[猎人工会会长]";
+		mes "If you still";
+		mes "have questions,";
+		mes "feel free to ask.";
+		next;
+		switch( select( "What is the test?", "What are the requirements to pass the test?", "Any warnings?", "Begin test." ) ) {
+		case 1:
+			mes "[猎人工会会长]";
+			mes "You have to hunt down certain monsters with a particular name, but you must avoid all of the traps here at the same time.";
+			next;
+			mes "[猎人工会会长]";
+			mes "This is to test your ability to move swiftly and locate targets in various situations.";
+			close3;
+		case 2:
+			mes "[猎人工会会长]";
+			mes "Within the given time, you will start in the 6 o'clock direction of the map, hunt the target monsters, and hit the escape switch that will appear in the center of the map.";
+			next;
+			mes "[猎人工会会长]";
+			mes "You will pass if you are able to escape in the 12 o'clock direction of the map when the switch is activated.";
+			close3;
+		case 3:
+			mes "[猎人工会会长]";
+			mes "Mmm. Warnings... Well, if you fall into a trap, you have to start the test over from the beginning. And only one person can take the test at a time.";
+			next;
+			mes "[猎人工会会长]";
+			mes "I'll send you to the testing place. There is a 等候室, but if someone else is taking the test, you must wait in the chatroom.";
+			next;
+			mes "[猎人工会会长]";
+			mes "If the person currently taking the test passes or fails, the next person waiting in the chatroom is sent to the testing area. If nobody is waiting, the test will begin as soon as you enter the chatroom.";
+			close3;
+		case 4:
+			mes "[猎人工会会长]";
+			mes "Okay, good luck.";
+			mes "I'll send you right now...";
+			next;
+		}
+		mes "[猎人工会会长]";
+		mes "Eh? Why don't I give you any Silver Arrows? Well, you shouldn't expect to get anything when you didn't even bring the materials.";
+		next;
+		mes "[猎人工会会长]";
+		mes "Well...";
+		mes "I believe";
+		mes "you're ready.";
+		mes "Let's begin.";
+		next;
+		if (select( "是的, 让我们开始吧.", "- 啊, 等等." ) == 1) {
+			mes "[猎人工会会长]";
+			mes "Okay!! Now...";
+			mes "Pass this time!";
+			close2;
+			cutin "",255;
+			HNTR_Q = 12;
+			warp "job_hunte",176,22;
+			end;
+		}
+		mes "[猎人工会会长]";
+		mes "*Sigh...*";
+		mes "Come back when";
+		mes "you're done with";
+		mes "your preparations.";
+		close3;
+	}
+	else if (HNTR_Q == 16) {
+		mes "[猎人工会会长]";
+		mes "Wow. You're back in one piece!";
+		mes "I mean, good job. Well then, I'll give you the item which serves as proof that you passed the test.";
+		HNTR_Q = 17;
+		savepoint "payon",104,99,1,1;
+		getitem 1007,1; //Penetration
+		changequest 4012,4013;
+		next;
+		mes "[猎人工会会长]";
+		mes "Well...";
+		mes "There you go.";
+		mes "Now hurry back to the Hunter Guild, and join us~";
+		close3;
+	}
+	else if (HNTR_Q == 17) {
+		mes "[猎人工会会长]";
+		mes "I see you're not in a hurry to become a Hunter. I was running around with joy, wildly brandishing my bow the first month I became a Hunter. Hehe~";
+		next;
+		mes "[猎人工会会长]";
+		mes "Now hurry~";
+		mes "They're waiting";
+		mes "for you back";
+		mes "at the Hunter Guild.";
+		close3;
+	}
+	else {
+		mes "[猎人]";
+		mes "What do you want? I'm on an official trip and am busy at the moment. Now if you'll excuse me.";
+		close3;
+	}
+}
+
+job_hunte,178,32,1	script	向导#hnt	1_M_PAY_ELDER,5,2,{
+OnTouch_:
+	if (HNTR_Q == 12) {
+		mes "[向导]";
+		mes "Good day. Welcome to the Hunter testing site. The test begins when you enter the next room.";
+		next;
+		mes "[向导]";
+		mes "As explained before, hunt 4 or more of the monsters named ^3355FF职业变更怪物^000000. Upon doing so, a switch in the center of the map will then appear.";
+		next;
+		mes "[向导]";
+		mes "When you destroy the switch, the exit will appear in the 12 o'clock direction of the map. Complete everything within the given time and escape.";
+		next;
+		mes "[向导]";
+		mes "If you faint in the middle, fall into a trap, or go over the time limit, you'll fail. Then you must then retake the test.";
+		next;
+		mes "[向导]";
+		mes "We will provide the arrows, so just make sure that you bring a bow. Well, then. Please enter when you are ready.";
+		savepoint "job_hunte",176,22,1,1;
+		close;
+	}
+	else if (HNTR_Q > 12 && HNTR_Q < 16) {
+		mes "[向导]";
+		mes "Hmm...";
+		mes "Did you mess up?";
+		mes "I'll recover some";
+		mes "of your HP and SP for now.";
+		percentheal 100,100;
+		next;
+		mes "[向导]";
+		mes "If it's too hard, it wouldn't hurt to try again next time. Would you like to resign for now?";
+		next;
+		if (select( "- 继续尝试.", "- 放弃." ) == 1) {
+			mes "[向导]";
+			mes "好的. 尽自己全力,成为一名伟大的猎人.请进入等候室,如果有人已经在参加考试, 则必须等别人完成后.";
+			close;
+		}
+			mapannounce "job_hunte",strcharinfo(0)+ " 已经放弃. 下一位, 请进入.",bc_map;
+			mes "[向导]";
+			mes "非常好. 我会送你去斐扬. 希望下次再见到你. 离开后记得保存.";
+			// donpcevent "等候室#hnt::OnStart";
+			close2;
+		HNTR_Q = 13;
+			savepoint "payon",104,99,1,1;
+			warp "payon_in02",21,27;
+		}
+	else if (HNTR_Q > 15) {
+		mes "[向导]";
+		mes "你不应该在这里.第一次变更职业的道具寻找的进展如何了?";
+		close2;
+		savepoint "payon",104,99,1,1;
+		warp "payon_in02",21,27;
+	}
+	end;
+}
+
+job_hunte,178,38,1	script	等候室#hnt	1_F_01,{
+	end;
+
+OnInit:
+	waitingroom "等候室", 10,"等候室#hnt::OnStartArena",1;
+	enablewaitingroomevent;
+	end;
+
+OnStartArena:
+	warpwaitingpc "job_hunte", 90, 67;
+	donpcevent "管理#hnt::OnEnable";
+	disablewaitingroomevent;
+	end;
+
+OnStart:
+	enablewaitingroomevent;
+	end;
+}
+
+job_hunte,1,1,1	script	管理#hnt	1_F_01,{
+OnInit:
+	disablenpc "管理#hnt";
+	end;
+
+OnEnable:
+	donpcevent "开关#hnt::OnDisable";
+	enablenpc "管理#hnt";
+	.MyMobs = 6;
+	initnpctimer;
+	// Target Mosnters
+	monster "job_hunte",67,80,"职业变更怪物",1015,1,"管理#hnt::OnMyMobDead";
+	monster "job_hunte",114,78,"职业变更怪物",1015,1,"管理#hnt::OnMyMobDead";
+	monster "job_hunte",89,127,"职业变更怪物",1002,1,"管理#hnt::OnMyMobDead";
+	monster "job_hunte",53,73,"职业变更怪物",1041,1,"管理#hnt::OnMyMobDead";
+	monster "job_hunte",125,70,"职业变更怪物",1016,1,"管理#hnt::OnMyMobDead";
+	monster "job_hunte",90,92,"职业变更怪物",1015,1,"管理#hnt::OnMyMobDead";
+	// Decoy Monsters
+	monster "job_hunte",85,100,"职业考试怪物",1016,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",72,102,"职业考试怪物",1041,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",108,103,"职业考试怪物",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",88,127,"职业考试怪物",1002,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",125,69,"职业考试怪物",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",77,112,"职业测试怪物",1016,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",53,106,"职业测试怪物",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",53,73,"职业测试怪物",1002,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",125,70,"职业测试怪物",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",90,91,"职业测试怪物",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",67,80,"猎人转职怪物",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",77,112,"猎人转职怪物",1016,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",53,106,"猎人转职怪物",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",53,73,"猎人转职怪物",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",125,70,"猎人转职怪物",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",90,91,"职业转职怪物",1041,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",85,100,"职业转职怪物",1002,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",72,102,"职业转职怪物",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",108,103,"职业转职怪物",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",77,112,"职业转职怪物",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",112,139,"宾尼",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",112,139,"达雷尔",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",112,139,"雷克斯",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",112,139,"安塞尔莫",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",90,91,"阿诺兰",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",53,73,"怪物样本",1002,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",53,106,"不是我",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",77,112,"救救我",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",72,102,"不要打我",1015,1,"管理#hnt::OnMyMobDead2";
+	monster "job_hunte",108,103,"攻击速度184",1015,1,"管理#hnt::OnMyMobDead2";
+	end;
+
+OnMyMobDead:
+	.MyMobs--;
+	if (.MyMobs < 3) {
+		mapannounce "job_hunte","好的, 干的不错... 现在, 找到地图中间的开关!! 要小心陷阱!!",bc_map;
+		HNTR_Q = 14;
+		donpcevent "开关#hnt::OnEnable";
+		donpcevent "管理#hnt::OnDisable";
+	}
+	else {
+		mapannounce "job_hunte","好的~ 你几乎完成了!!",bc_map;
+	}
+	end;
+
+OnMyMobDead2:
+	mapannounce "job_hunte",strcharinfo(0)+ "!! 你犯了个错误...请重试一次.",bc_map;
+	HNTR_Q = 13;
+	warp "job_hunte",176,22;
+	donpcevent "管理#hnt::OnReset";
+	donpcevent "等候室#hnt::OnStart";
+	end;
+
+OnReset:
+	stopnpctimer;
+
+OnDisable:
+	killmonsterall "job_hunte";
+	disablenpc "管理#hnt";
+	end;
+
+OnTimer1000:
+	mapannounce "job_hunte","测试现在开始.",bc_map;
+	end;
+
+OnTimer3000:
+	mapannounce "job_hunte","如之前所提到的, 只能狩猎标记为'职业变更怪物'怪物.",bc_map;
+	end;
+
+OnTimer5000:
+	mapannounce "job_hunte","***** 捕猎时要小心陷阱. *****",bc_map;
+	end;
+
+OnTimer7000:
+	mapannounce "job_hunte","一旦你击杀 4个 '职业变更怪物' 在中心的开关将开始生效.",bc_map;
+	end;
+
+OnTimer9000:
+	mapannounce "job_hunte","当你启动逃生开关, 通过在12点钟方向的门离开试验区.",bc_map;
+	end;
+
+OnTimer11000:
+	mapannounce "job_hunte","所有事情必须在3分钟内完成.",bc_map;
+	end;
+
+OnTimer13000:
+	mapannounce "job_hunte","你从现在开始有3分钟时间. 每1分钟过去你都会看到有提示出现.",bc_map;
+	end;
+
+OnTimer14000:
+	mapannounce "job_hunte"," ****** 3 分钟后结束. ****** ",bc_map;
+	end;
+
+OnTimer74000:
+	mapannounce "job_hunte"," ****** 2 分钟后结束. ****** ",bc_map;
+	end;
+
+OnTimer134000:
+	mapannounce "job_hunte"," ****** 1 分钟后结束. ****** ",bc_map;
+	end;
+
+OnTimer164000:
+	mapannounce "job_hunte"," ****** 30 秒后结束. ****** ",bc_map;
+	end;
+
+OnTimer187000:
+	mapannounce "job_hunte"," 测试还剩 5 秒...",bc_map;
+	end;
+
+OnTimer188000:
+	mapannounce "job_hunte"," 测试还剩 4 秒...",bc_map;
+	end;
+
+OnTimer189000:
+	mapannounce "job_hunte"," 测试还剩 3 秒...",bc_map;
+	end;
+
+OnTimer191000:
+	mapannounce "job_hunte"," 测试还剩 2 秒...",bc_map;
+	end;
+
+OnTimer192000:
+	mapannounce "job_hunte"," 测试还剩 1 秒.",bc_map;
+	end;
+
+OnTimer193000:
+	mapannounce "job_hunte"," 0 ",bc_map;
+	end;
+
+OnTimer194000:
+	mapannounce "job_hunte"," 时间到. 请再试一次.",bc_map;
+	end;
+
+OnTimer195000:
+	areawarp "job_hunte",50,64,129,143,"job_hunte",176,22;
+	end;
+
+OnTimer197000:
+	donpcevent "管理#hnt::OnReset";
+	donpcevent "等候室#hnt::OnStart";
+	end;
+}
+
+job_hunte,93,101,1	script	开关#hnt	1_SHADOW_NPC,1,1,{
+OnTouch_:
+	mes "^3355FF这里有3个按钮";
+	mes "在退出控制器上.^000000";
+	HNTR_Q = 15;
+	next;
+	switch( select( "- 退出", "- 取消", "- 重试" ) ) {
+	case 1:
+		mes "^3355FF退出传送门";
+		mes "现在被激活.^000000";
+		close2;
+		mapannounce "job_hunte"," !! 退出传送门已经激活. !! ",bc_map;
+		enablenpc "出口#hnttest";
+		end;
+	case 2:
+		mes "^3355FF取消";
+		mes "操作.^000000";
+		close2;
+		mapannounce "job_hunte"," !! 操作已被取消. !! ",bc_map;
+		end;
+	case 3:
+		mapannounce "job_hunte"," !! 取消传送... !! ",bc_map;
+		mes "^3355FF你将会立即被";
+		mes "送回";
+		mes "等候室.^000000";
+		close2;
+		HNTR_Q = 13;
+		warp "job_hunte",176,22;
+		donpcevent "管理#hnt::OnReset";
+		donpcevent "等候室#hnt::OnStart";
+		end;
+	}
+
+OnDisable:
+	disablenpc "出口#hnttest";
+	disablenpc "开关#hnt";
+	end;
+
+OnEnable:
+	enablenpc "开关#hnt";
+	end;
+}
+
+job_hunte,89,139,0	script	出口#hnttest	WARPNPC,2,2,{
+	end;
+OnInit:
+	disablenpc "出口#hnttest";
+	end;
+
+OnTouch_:
+	donpcevent "管理#hnt::OnReset";
+	donpcevent "等候室#hnt::OnStart";
+	HNTR_Q = 16;
+	changequest 4011,4012;
+	savepoint "payon",104,99,1,1;
+	if (rand(2))
+		warp "payon_in02",21,27;
+	else
+		warp "payon_in03",128,7;
+	end;
+}
+
+// Hunter Job test traps.
+//============================================================
+job_hunte,52,140,0	script	1-1::HntTrap	-1,0,1,{
+OnTouch_:
+	switch( rand(200) ) {
+	default:
+	case 1: mapannounce "job_hunte",strcharinfo(0) + ",你就掉进了陷阱.您将返回到起点.",bc_map; break;
+	case 2: mapannounce "job_hunte",strcharinfo(0) + ",是你!回去重新开始!",bc_map; break;
+	case 3: mapannounce "job_hunte",strcharinfo(0) + " 失败!......嗯......你会,如果你不重新开始......",bc_map; break;
+	case 4: mapannounce "job_hunte",strcharinfo(0) + ",并没有我!回去的地方,你开始!",bc_map; break;
+	case 5: mapannounce "job_hunte",strcharinfo(0) + ",你误闯陷阱.我很抱歉,但是现在,你输了.",bc_map; break;
+	case 6: mapannounce "job_hunte",strcharinfo(0) + ",你在做什么!?回去再做一遍!",bc_map; break;
+	case 7: mapannounce "job_hunte",strcharinfo(0) + ",加油!你可以做的更好那么这个!再试一次!",bc_map; break;
+	case 8: mapannounce "job_hunte",strcharinfo(0) + ",已经陷入了一个陷阱......一次.但不要担心,你越来越好.",bc_map; break;
+	case 9: mapannounce "job_hunte",strcharinfo(0) + ",失败,失败,失败......回去的地方,你开始!",bc_map; break;
+	case 10: mapannounce "job_hunte",strcharinfo(0) + "... AWW?再试试!你可以做到这一点!",bc_map; break;
+	case 11: mapannounce "job_hunte",strcharinfo(0) + ",@＃$％＃你想成为一个什么?猎人?回到那里!",bc_map; break;
+	case 12: mapannounce "job_hunte",strcharinfo(0) + " 被击败了邪恶势力.不要放弃,英雄!",bc_map; break;
+	case 13: mapannounce "job_hunte","我把一个咒语你 " + strcharinfo(0) + "现在你是我的!现在去重新开始.",bc_map; break;
+	case 14: mapannounce "job_hunte",strcharinfo(0) + ".队友儿真好,欢迎到土地下.作为礼物,我会送你到起点...",bc_map; break;
+	case 15: mapannounce "job_hunte","这是我的窝 " + strcharinfo(0) + "!不要步那里,发牢骚?重新开始.",bc_map; break;
+	case 16: mapannounce "job_hunte",strcharinfo(0) + ",另一个弓箭手下来.多了去了!",bc_map; break;
+	case 17: mapannounce "job_hunte",strcharinfo(0) + ",你有什么需要?然后再试一次.",bc_map; break;
+	case 18: mapannounce "job_hunte","唉, " + strcharinfo(0) + ",你曾被最可怕的陷阱.可怕的臭气弹!awaaaaaay运行运行运行!",bc_map; break;
+	case 19: mapannounce "job_hunte",strcharinfo(0) + " 有太多的西梅汁今天喝.回到起点?",bc_map; break;
+	case 20: mapannounce "job_hunte","号... " + strcharinfo(0) + ",你就掉进了陷阱.您将返回到起点.",bc_map; break;
+	case 21: mapannounce "job_hunte","喵*猛扑*看看我的小猫,我们还会有一些" + strcharinfo(0) + "炖猫.回到起点,如果你不想成为炖猫!",bc_map; break;
+	case 22: mapannounce "job_hunte","遗憾 " + strcharinfo(0) + ",但你确实找到了一个坏的秘密.您将返回到起点.",bc_map; break;
+	case 23: mapannounce "job_hunte",strcharinfo(0) + ",傻弓箭手......你的坚韧是感人.但它返回到开始为你...",bc_map; break;
+	case 24: mapannounce "job_hunte",strcharinfo(0) + ",你已经堕落,你不能起床.你会被带回到了起点.",bc_map; break;
+	case 25: mapannounce "job_hunte","跳过一转 " + strcharinfo(0) + ",回到开始.",bc_map; break;
+	case 26: mapannounce "job_hunte",strcharinfo(0) + ",NYA NYA,嘿嘿嘿.您将返回到起点.",bc_map; break;
+	case 27: mapannounce "job_hunte","实践是过 " + strcharinfo(0) + ".这一次,让我真实的.",bc_map; break;
+	case 28: mapannounce "job_hunte",strcharinfo(0) + ",这是一个波利杰勒比结晶突袭......滚出去!从头开始,如果你想继续.",bc_map; break;
+	case 29: mapannounce "job_hunte","从服务器断开连接. " + strcharinfo(0) + ",你必须重新开始.",bc_map; break;
+	case 30: mapannounce "job_hunte",strcharinfo(0) + ",这是什么按钮做......哎呀!恐怕你不得不重新开始.",bc_map; break;
+	case 31: mapannounce "job_hunte",strcharinfo(0) + ",你已经进入了奖金圆! 你输了.您将返回到起点.",bc_map; break;
+	case 32: mapannounce "job_hunte","哦,不 " + strcharinfo(0) + ",你踩到蜜蜂的蜂巢.你侥幸逃脱,一路回到起点.",bc_map; break;
+	case 33: mapannounce "job_hunte",strcharinfo(0) + ",观望等待.这是一个陷阱!哦,等一下,那是狗....",bc_map; break;
+	case 34: mapannounce "job_hunte","停止 " + strcharinfo(0) + "!对于踩着陷阱,我会惩罚你!",bc_map; break;
+	case 35: mapannounce "job_hunte",strcharinfo(0) + ",我会回来的...我希望你会喜欢.",bc_map; break;
+	case 36: mapannounce "job_hunte",strcharinfo(0) + ",跟我来吧,如果你想活..到起点.",bc_map; break;
+	case 37: mapannounce "job_hunte",strcharinfo(0) + ",我......珍贵!回到起点.",bc_map; break;
+	case 38: mapannounce "job_hunte","按照黄砖路...没有等待, " + strcharinfo(0) + "!不是这样的......回到起点,它是.",bc_map; break;
+	case 39: mapannounce "job_hunte",strcharinfo(0) + ",你真的去得到这个窍门“与自然和谐共处”的东西.现在,你就输了!",bc_map; break;
+	case 40: mapannounce "job_hunte",strcharinfo(0) + ",这只是一个故事......不是真实的.但你将返回到起点.",bc_map; break;
+	case 41: mapannounce "job_hunte",strcharinfo(0) + ",你就掉进了陷阱.和陷阱......已经落入你.回到你的出发点.",bc_map; break;
+	case 42: mapannounce "job_hunte","不要怕! " + strcharinfo(0) + ",对你来说,应该学习的阴暗面的力量.现在,您将返回到起点.",bc_map; break;
+	case 43: mapannounce "job_hunte",strcharinfo(0) + ",掉进了陷阱.很容易过,我害怕.但这个英雄不会很容易挨打!",bc_map; break;
+	case 44: mapannounce "job_hunte"," 每日提示：不要踩陷阱.您将返回到起点.",bc_map; break;
+	case 45: mapannounce "job_hunte",strcharinfo(0) + " 掉进陷阱.再来一次次,为了清楚起见,名字是 " + strcharinfo(0) + ".",bc_map; break;
+	case 46: mapannounce "job_hunte","OY OY, " + strcharinfo(0) + "..我见过盲人波利得到进一步!回到起点.",bc_map; break;
+	case 47: mapannounce "job_hunte","我的眼睛! " + strcharinfo(0) + ",你......你......踩到它们.请再试一次......我会为你哭,如果我可以甚至流下了眼泪......",bc_map; break;
+	case 48: mapannounce "job_hunte",strcharinfo(0) + ",你在哪里?正确的...不是你是哪儿的地方,如果你通过了测试.",bc_map; break;
+	case 49: mapannounce "job_hunte"," 哇,他们实际支付一个人去思考这方面的评论. " + strcharinfo(0) + ",你可以回到起点.",bc_map; break;
+	case 50: mapannounce "job_hunte"," 我的字, " + strcharinfo(0) + "!你已经摇摇欲坠掉进一个陷阱!您将返回到起点.切里奥?!",bc_map; break;
+	case 51: mapannounce "job_hunte",strcharinfo(0) + ",你有你要去哪里什么想法?重新开始*叹息*.",bc_map; break;
+	case 52: mapannounce "job_hunte",strcharinfo(0) + ",你喜欢绿茶冰淇淋吗?没有?回到起点... *哼*",bc_map; break;
+	case 53: mapannounce "job_hunte","哦,没有. " + strcharinfo(0) + ",你受伤了吗?来吧,让我们回到了起点.",bc_map; break;
+	case 54: mapannounce "job_hunte","你好 " + strcharinfo(0) + ",你怎么样?这里有一个礼物?免费扭曲!回到起点.",bc_map; break;
+	case 55: mapannounce "job_hunte",strcharinfo(0) + "..........你知道这是一个陷阱?我希望如此,否则,我猜你会很尴尬.",bc_map; break;
+	case 56: mapannounce "job_hunte",strcharinfo(0) + ",你怎么看室内设计的?我很努力就可以了......和这个可爱的功能,向您发送回起点.",bc_map; break;
+	case 57: mapannounce "job_hunte","BOOM BOOM BAM! " + strcharinfo(0) + ",你已经落入我的陷阱!但我不会杀了你......只是......羞辱你...",bc_map; break;
+	case 58: mapannounce "job_hunte","哦, " + strcharinfo(0) + "..你可以做的更好.再试一次!",bc_map; break;
+	case 59: mapannounce "job_hunte","您好,这是您的本地卡普拉工??人... " + strcharinfo(0) + ",你的妈妈是在收银台等着你.",bc_map; break;
+	case 60: mapannounce "job_hunte",strcharinfo(0) + ",如果你做的很好.我有一个很好的礼物等着你......这是什么?你会看到,如果你传递?去再试一次吧!",bc_map; break;
+	case 61: mapannounce "job_hunte",strcharinfo(0) + " faaaaaaaaaaaaaaaaailed ..呵呵,开个玩笑.您将返回到起点这么重试!",bc_map; break;
+	case 62: mapannounce "job_hunte",strcharinfo(0) + ",你掉进了一个陷阱.你应该看你的脚了.什么?看不见?这是宝宝说话!现在去再试一次!",bc_map; break;
+	case 63: mapannounce "job_hunte"," 对不起, " + strcharinfo(0) + ",你就掉进了陷阱.但我会好的,送你到起点.",bc_map; break;
+	case 64: mapannounce "job_hunte",strcharinfo(0) + ",HAHAHAHAHAHA!!我不能相信你爱上的那一个!",bc_map; break;
+	case 65: mapannounce "job_hunte",strcharinfo(0) + ",我正要告诉你那一个......但,我没有?回到开始.",bc_map; break;
+	case 66: mapannounce "job_hunte",strcharinfo(0) + "......我对不起我的朋友,但你输了.不过不用担心,它不喜欢这个消息被广播或任何东西.",bc_map; break;
+	case 67: mapannounce "job_hunte",strcharinfo(0) + ",我不太确定您有资格获得这个了...尝试再次证明我错了.",bc_map; break;
+	case 68: mapannounce "job_hunte",strcharinfo(0) + ",OW ...现在的得伤害.回到开始?",bc_map; break;
+	case 69: mapannounce "job_hunte",strcharinfo(0) + ",我觉得你缺乏信心扰乱......让我们重新开始.",bc_map; break;
+	case 70: mapannounce "job_hunte",strcharinfo(0) + ",你的眼睛可以欺骗你.不要相信他们.伸出你的感情.再试一次吧.",bc_map; break;
+	case 71: mapannounce "job_hunte",strcharinfo(0) + ",如果你一旦开始暗下来路径,让它永远主宰你的命运.你应退还的起点.",bc_map; break;
+	case 72: mapannounce "job_hunte",strcharinfo(0) + ",大小并不重要.但是,这抓住了你的陷阱的数量做.再试一次,并赢得这一次!",bc_map; break;
+	case 73: mapannounce "job_hunte",strcharinfo(0) + ",尽量不要.做或不做.有没有尝试.",bc_map; break;
+	case 74: mapannounce "job_hunte",strcharinfo(0) + ",这就是为什么你会失败.现在,再试一次!",bc_map; break;
+	case 75: mapannounce "job_hunte",strcharinfo(0) + "请看.如果它由金属制成,看起来有牙齿,你不应该把你的脚在里面.就这么简单,真的......",bc_map; break;
+	case 76: mapannounce "job_hunte",strcharinfo(0) + "你被殴打.它是无用的抵抗.",bc_map; break;
+	case 77: mapannounce "job_hunte",strcharinfo(0) + ",我期待着完成你的训练.随着时间的推移你会叫我师父.",bc_map; break;
+	case 78: mapannounce "job_hunte",strcharinfo(0) + ",你的自信是你的弱点.",bc_map; break;
+	case 79: mapannounce "job_hunte",strcharinfo(0) + ",留神脚下.这个地方可以是一个有点粗糙.",bc_map; break;
+	case 80: mapannounce "job_hunte",strcharinfo(0) + ",哦,我告诉你这是危险的在这里.",bc_map; break;
+	case 81: mapannounce "job_hunte",strcharinfo(0) + ",一切都在继续,因为我已经预见.",bc_map; break;
+	case 82: mapannounce "job_hunte",strcharinfo(0) + ",你应该还没有回来.",bc_map; break;
+	case 83: mapannounce "job_hunte",strcharinfo(0) + ",有替代品的战斗.但不能输给这个测试.现在,再试一次!",bc_map; break;
+	case 84: mapannounce "job_hunte",strcharinfo(0) + ",现在的我没有听说过在一段时间一个名字......让我们希望我不要再听到它?!",bc_map; break;
+	case 85: mapannounce "job_hunte",strcharinfo(0) + "我们不训练在这里大发慈悲,慈悲是弱者!",bc_map; break;
+	case 86: mapannounce "job_hunte",strcharinfo(0) + ",败不存在这里,是不是?!",bc_map; break;
+	case 87: mapannounce "job_hunte",strcharinfo(0) + ",集中精力.集中你的力量!",bc_map; break;
+	case 88: mapannounce "job_hunte",strcharinfo(0) + ",我是不是要疯了,还是这个词 - 思考 - 逃避你的嘴唇?",bc_map; break;
+	case 89: mapannounce "job_hunte",strcharinfo(0) + ",你只是拖延了.",bc_map; break;
+	case 90: mapannounce "job_hunte",strcharinfo(0) + ",生活并不总是公平的.",bc_map; break;
+	case 91: mapannounce "job_hunte",strcharinfo(0) + "....唔......这不是我们的错....",bc_map; break;
+	case 92: mapannounce "job_hunte",strcharinfo(0) + ",生存优先.",bc_map; break;
+	case 93: mapannounce "job_hunte",strcharinfo(0) + ",人们必须克服自己的障碍力量......每个人都可以.",bc_map; break;
+	case 94: mapannounce "job_hunte",strcharinfo(0) + ",有幸福为那些谁接受自己的命运,有荣耀为那些谁抵制他们的命运.",bc_map; break;
+	case 95: mapannounce "job_hunte",strcharinfo(0) + ",有些事情是真实的,有些事情是假的.你就不能告诉区别?",bc_map; break;
+	case 96: mapannounce "job_hunte",strcharinfo(0) + "我们玩得正开心是不是?每天这里就像一个梦.我真的希望这将是永远这样.",bc_map; break;
+	case 97: mapannounce "job_hunte",strcharinfo(0) + ",我给你只是一个忠告...死疼死.",bc_map; break;
+	case 98: mapannounce "job_hunte",strcharinfo(0) + ",不放弃的鬼!只是更加小心...",bc_map; break;
+	case 99: mapannounce "job_hunte",strcharinfo(0) + ",死亡是在出生时收到的礼物.但是......这些陷阱不会杀你,不要担心.",bc_map; break;
+	case 100: mapannounce "job_hunte",strcharinfo(0) + ",我从一开始就指望你了.但我猜你会是我等待更长的时间...",bc_map; break;
+	case 101: mapannounce "job_hunte",strcharinfo(0) + ",总是与最终来到希望和重生.但它回到起点的你?",bc_map; break;
+	case 102: mapannounce "job_hunte",strcharinfo(0) + "时候,我不是告诉你在一个单一的眼泪举行的权力?它现在没事了摆脱一个,我知道它很难...",bc_map; break;
+	case 103: mapannounce "job_hunte",strcharinfo(0) + ",快乐常常偷偷通过一扇门,你不知道你敞开.有点像...隐藏的陷阱!",bc_map; break;
+	case 104: mapannounce "job_hunte",strcharinfo(0) + ",....绮?",bc_map; break;
+	case 105: mapannounce "job_hunte",strcharinfo(0) + ",我的!我的!我的!我的!",bc_map; break;
+	case 106: mapannounce "job_hunte",strcharinfo(0) + ",它的时间来决斗!",bc_map; break;
+	case 107: mapannounce "job_hunte",strcharinfo(0) + ",我选择了你!...等待... uagh ...不是你!......",bc_map; break;
+	case 108: mapannounce "job_hunte",strcharinfo(0) + ",这是不被称赞它的时间!",bc_map; break;
+	case 109: mapannounce "job_hunte",strcharinfo(0) + "......哦,太好了,还有什么能走到今天错了吗?",bc_map; break;
+	case 110: mapannounce "job_hunte",strcharinfo(0) + ",不用担心,我始终保持一个备用.我们不是用完了陷阱很快...",bc_map; break;
+	case 111: mapannounce "job_hunte",strcharinfo(0) + "当不好的事情发生,不要放弃.总有一天,当你回过头来,笑他们.但不是今天.",bc_map; break;
+	case 112: mapannounce "job_hunte",strcharinfo(0) + ",不要担心.我们很擅长战斗失败的战争,还记得吗?",bc_map; break;
+	case 113: mapannounce "job_hunte",strcharinfo(0) + ",你还记得是怎么回事,当你真的感觉光滑样的?那种感觉就不会再回来了一会儿...",bc_map; break;
+	case 114: mapannounce "job_hunte",strcharinfo(0) + ",你必须忘掉你的过去,为了你自己的幸福.",bc_map; break;
+	case 115: mapannounce "job_hunte",strcharinfo(0) + ",如果你可以愚弄你的朋友,你可以欺骗你的敌人.",bc_map; break;
+	case 116: mapannounce "job_hunte",strcharinfo(0) + ",这个世界是由爱与和平!",bc_map; break;
+	case 117: mapannounce "job_hunte",strcharinfo(0) + "如果你失败了,你必须喝这..... *邪恶的笑容*",bc_map; break;
+	case 118: mapannounce "job_hunte",strcharinfo(0) + ",不要说我们没提醒你!",bc_map; break;
+	case 119: mapannounce "job_hunte",strcharinfo(0) + ",好奇心害死猫.幸运的我,我不是一只猫.哦,嗯,??你也当然.",bc_map; break;
+	case 120: mapannounce "job_hunte",strcharinfo(0) + ",研究!研究!研究!研究!研究!研究!研究!研究!研究!研究!",bc_map; break;
+	case 121: mapannounce "job_hunte",strcharinfo(0) + ",你现在怎么想我吗?这是正确的,那是我的陷阱!",bc_map; break;
+	case 122: mapannounce "job_hunte",strcharinfo(0) + "辉煌......只是......绝对......天才.对不起,我说的是所有这些疯狂的陷阱.",bc_map; break;
+	case 123: mapannounce "job_hunte",strcharinfo(0) + ",是时候出局陷阱,胡迪尼式的!嘿,等等......回来!",bc_map; break;
+	case 124: mapannounce "job_hunte",strcharinfo(0) + ",它看起来像你真的有麻烦这一次......不用担心,只要试一次!",bc_map; break;
+	case 125: mapannounce "job_hunte",strcharinfo(0) + "...不顺畅,纨绔子弟.再次去了,再来一次!",bc_map; break;
+	case 126: mapannounce "job_hunte",strcharinfo(0) + ",它看起来像你真的可以在一个咸菜.回到起点...",bc_map; break;
+	case 127: mapannounce "job_hunte",strcharinfo(0) + ",只是把它当做噶.总有一天,你会被设置数百自己的陷阱...",bc_map; break;
+	case 128: mapannounce "job_hunte",strcharinfo(0) + ",坏消息家伙......它的另一个陷阱.你会得到这样的窍门,我相信你!",bc_map; break;
+	case 129: mapannounce "job_hunte",strcharinfo(0) + ",不放弃!这个世界还是需要你!",bc_map; break;
+	case 130: mapannounce "job_hunte",strcharinfo(0) + ",没关系哭.只是不要太大声.",bc_map; break;
+	case 131: mapannounce "job_hunte",strcharinfo(0) + "哦......男人.这是累人建立所有这些陷阱.你们必须停止落入他们!",bc_map; break;
+	}
+	HNTR_Q = 13;
+	warp "job_hunte",176,22;
+	donpcevent "管理#hnt::OnReset";
+	donpcevent "等候室#hnt::OnStart";
+	end;
+}
+
+job_hunte,53,140,0	duplicate(HntTrap)	1-2	-1,0,1
+job_hunte,54,141,0	duplicate(HntTrap)	1-3	-1,0,0
+job_hunte,55,141,0	duplicate(HntTrap)	1-4	-1,0,0
+job_hunte,55,140,0	duplicate(HntTrap)	1-5	-1,0,0
+job_hunte,54,140,0	duplicate(HntTrap)	1-6	-1,0,0
+job_hunte,52,138,0	duplicate(HntTrap)	1-7	-1,0,0
+job_hunte,53,138,0	duplicate(HntTrap)	1-8	-1,0,0
+job_hunte,62,140,0	duplicate(HntTrap)	2-1	-1,0,1
+job_hunte,63,140,0	duplicate(HntTrap)	2-2	-1,0,1
+job_hunte,64,140,0	duplicate(HntTrap)	2-3	-1,0,0
+job_hunte,64,141,0	duplicate(HntTrap)	2-4	-1,0,0
+job_hunte,65,140,0	duplicate(HntTrap)	2-5	-1,0,0
+job_hunte,65,141,0	duplicate(HntTrap)	2-6	-1,0,0
+job_hunte,62,138,0	duplicate(HntTrap)	2-7	-1,0,0
+job_hunte,63,138,0	duplicate(HntTrap)	2-8	-1,0,0
+job_hunte,72,140,0	duplicate(HntTrap)	3-1	-1,0,1
+job_hunte,73,140,0	duplicate(HntTrap)	3-2	-1,0,1
+job_hunte,72,138,0	duplicate(HntTrap)	3-3	-1,0,0
+job_hunte,72,138,0	duplicate(HntTrap)	3-4	-1,0,0
+job_hunte,78,140,0	duplicate(HntTrap)	4-1	-1,0,0
+job_hunte,78,141,0	duplicate(HntTrap)	4-2	-1,0,0
+job_hunte,79,140,0	duplicate(HntTrap)	4-3	-1,0,0
+job_hunte,79,141,0	duplicate(HntTrap)	4-4	-1,0,0
+job_hunte,82,138,0	duplicate(HntTrap)	5-1	-1,0,0
+job_hunte,82,139,0	duplicate(HntTrap)	5-2	-1,0,0
+job_hunte,83,138,0	duplicate(HntTrap)	5-3	-1,0,0
+job_hunte,83,139,0	duplicate(HntTrap)	5-4	-1,0,0
+job_hunte,99,138,0	duplicate(HntTrap)	6-1	-1,1,0
+job_hunte,99,139,0	duplicate(HntTrap)	6-2	-1,1,0
+job_hunte,101,138,0	duplicate(HntTrap)	6-3	-1,0,0
+job_hunte,101,139,0	duplicate(HntTrap)	6-4	-1,0,0
+job_hunte,106,140,0	duplicate(HntTrap)	7-1	-1,0,1
+job_hunte,107,140,0	duplicate(HntTrap)	7-2	-1,0,1
+job_hunte,106,138,0	duplicate(HntTrap)	7-3	-1,0,0
+job_hunte,107,138,0	duplicate(HntTrap)	7-4	-1,0,0
+job_hunte,112,140,0	duplicate(HntTrap)	8-1	-1,0,0
+job_hunte,112,141,0	duplicate(HntTrap)	8-2	-1,0,0
+job_hunte,113,140,0	duplicate(HntTrap)	8-3	-1,0,0
+job_hunte,113,141,0	duplicate(HntTrap)	8-4	-1,0,0
+job_hunte,116,140,0	duplicate(HntTrap)	9-1	-1,0,0
+job_hunte,116,141,0	duplicate(HntTrap)	9-2	-1,0,0
+job_hunte,117,140,0	duplicate(HntTrap)	9-3	-1,0,0
+job_hunte,117,141,0	duplicate(HntTrap)	9-4	-1,0,0
+job_hunte,120,138,0	duplicate(HntTrap)	10-1	-1,0,0
+job_hunte,120,139,0	duplicate(HntTrap)	10-2	-1,0,0
+job_hunte,121,138,0	duplicate(HntTrap)	10-3	-1,0,0
+job_hunte,121,139,0	duplicate(HntTrap)	10-4	-1,0,0
+job_hunte,126,139,0	duplicate(HntTrap)	11-1	-1,0,2
+job_hunte,127,139,0	duplicate(HntTrap)	11-2	-1,0,2
+job_hunte,126,136,0	duplicate(HntTrap)	11-3	-1,0,0
+job_hunte,127,136,0	duplicate(HntTrap)	11-4	-1,0,0
+job_hunte,52,134,0	duplicate(HntTrap)	12-1	-1,0,1
+job_hunte,53,134,0	duplicate(HntTrap)	12-2	-1,0,1
+job_hunte,52,132,0	duplicate(HntTrap)	12-3	-1,0,0
+job_hunte,53,132,0	duplicate(HntTrap)	12-4	-1,0,0
+job_hunte,124,130,0	duplicate(HntTrap)	13-1	-1,0,0
+job_hunte,124,131,0	duplicate(HntTrap)	13-2	-1,0,0
+job_hunte,125,130,0	duplicate(HntTrap)	13-3	-1,0,0
+job_hunte,125,131,0	duplicate(HntTrap)	13-4	-1,0,0
+job_hunte,64,128,0	duplicate(HntTrap)	14-1	-1,0,0
+job_hunte,64,129,0	duplicate(HntTrap)	14-2	-1,0,0
+job_hunte,65,128,0	duplicate(HntTrap)	14-3	-1,0,0
+job_hunte,65,129,0	duplicate(HntTrap)	14-4	-1,0,0
+job_hunte,68,126,0	duplicate(HntTrap)	15-1	-1,0,0
+job_hunte,68,127,0	duplicate(HntTrap)	15-2	-1,0,0
+job_hunte,69,126,0	duplicate(HntTrap)	15-3	-1,0,0
+job_hunte,69,127,0	duplicate(HntTrap)	15-4	-1,0,0
+job_hunte,75,128,0	duplicate(HntTrap)	16-1	-1,1,0
+job_hunte,75,129,0	duplicate(HntTrap)	16-2	-1,1,0
+job_hunte,77,128,0	duplicate(HntTrap)	16-3	-1,0,0
+job_hunte,77,129,0	duplicate(HntTrap)	16-4	-1,0,0
+job_hunte,82,126,0	duplicate(HntTrap)	17-1	-1,0,0
+job_hunte,82,127,0	duplicate(HntTrap)	17-2	-1,0,0
+job_hunte,83,126,0	duplicate(HntTrap)	17-3	-1,0,0
+job_hunte,83,127,0	duplicate(HntTrap)	17-4	-1,0,0
+job_hunte,96,128,0	duplicate(HntTrap)	18-1	-1,0,0
+job_hunte,96,129,0	duplicate(HntTrap)	18-2	-1,0,0
+job_hunte,97,128,0	duplicate(HntTrap)	18-3	-1,0,0
+job_hunte,97,129,0	duplicate(HntTrap)	18-4	-1,0,0
+job_hunte,100,126,0	duplicate(HntTrap)	19-1	-1,0,0
+job_hunte,100,127,0	duplicate(HntTrap)	19-2	-1,0,0
+job_hunte,101,126,0	duplicate(HntTrap)	19-3	-1,0,0
+job_hunte,101,127,0	duplicate(HntTrap)	19-4	-1,0,0
+job_hunte,106,128,0	duplicate(HntTrap)	20-1	-1,0,0
+job_hunte,106,129,0	duplicate(HntTrap)	20-2	-1,0,0
+job_hunte,107,128,0	duplicate(HntTrap)	20-3	-1,0,0
+job_hunte,107,129,0	duplicate(HntTrap)	20-4	-1,0,0
+job_hunte,112,126,0	duplicate(HntTrap)	21-1	-1,0,0
+job_hunte,112,127,0	duplicate(HntTrap)	21-2	-1,0,0
+job_hunte,113,126,0	duplicate(HntTrap)	21-3	-1,0,0
+job_hunte,113,127,0	duplicate(HntTrap)	21-4	-1,0,0
+job_hunte,126,126,0	duplicate(HntTrap)	22-1	-1,0,0
+job_hunte,126,127,0	duplicate(HntTrap)	22-2	-1,0,0
+job_hunte,127,126,0	duplicate(HntTrap)	22-3	-1,0,0
+job_hunte,127,127,0	duplicate(HntTrap)	22-4	-1,0,0
+job_hunte,52,122,0	duplicate(HntTrap)	23-1	-1,0,1
+job_hunte,52,122,0	duplicate(HntTrap)	23-2	-1,0,1
+job_hunte,53,120,0	duplicate(HntTrap)	23-3	-1,1,0
+job_hunte,54,121,0	duplicate(HntTrap)	23-4	-1,0,0
+job_hunte,55,121,0	duplicate(HntTrap)	23-5	-1,0,0
+job_hunte,55,120,0	duplicate(HntTrap)	23-6	-1,0,0
+job_hunte,66,120,0	duplicate(HntTrap)	24-1	-1,0,0
+job_hunte,66,121,0	duplicate(HntTrap)	24-2	-1,0,0
+job_hunte,67,120,0	duplicate(HntTrap)	24-3	-1,0,0
+job_hunte,67,121,0	duplicate(HntTrap)	24-4	-1,0,0
+job_hunte,114,118,0	duplicate(HntTrap)	25-1	-1,0,0
+job_hunte,114,119,0	duplicate(HntTrap)	25-2	-1,0,0
+job_hunte,115,118,0	duplicate(HntTrap)	25-3	-1,0,0
+job_hunte,115,119,0	duplicate(HntTrap)	25-4	-1,0,0
+job_hunte,124,120,0	duplicate(HntTrap)	26-1	-1,0,1
+job_hunte,125,120,0	duplicate(HntTrap)	26-2	-1,0,1
+job_hunte,124,118,0	duplicate(HntTrap)	26-3	-1,0,0
+job_hunte,125,118,0	duplicate(HntTrap)	26-4	-1,0,0
+job_hunte,66,116,0	duplicate(HntTrap)	27-1	-1,0,0
+job_hunte,66,117,0	duplicate(HntTrap)	27-2	-1,0,0
+job_hunte,67,116,0	duplicate(HntTrap)	27-3	-1,0,0
+job_hunte,67,117,0	duplicate(HntTrap)	27-4	-1,0,0
+job_hunte,76,114,0	duplicate(HntTrap)	28-1	-1,0,0
+job_hunte,76,115,0	duplicate(HntTrap)	28-2	-1,0,0
+job_hunte,77,114,0	duplicate(HntTrap)	28-3	-1,0,0
+job_hunte,77,115,0	duplicate(HntTrap)	28-4	-1,0,0
+job_hunte,82,116,0	duplicate(HntTrap)	29-1	-1,0,0
+job_hunte,82,117,0	duplicate(HntTrap)	29-2	-1,0,0
+job_hunte,83,116,0	duplicate(HntTrap)	29-3	-1,0,0
+job_hunte,83,117,0	duplicate(HntTrap)	29-4	-1,0,0
+job_hunte,86,114,0	duplicate(HntTrap)	30-1	-1,0,0
+job_hunte,86,115,0	duplicate(HntTrap)	30-2	-1,0,0
+job_hunte,87,114,0	duplicate(HntTrap)	30-3	-1,0,0
+job_hunte,87,115,0	duplicate(HntTrap)	30-4	-1,0,0
+job_hunte,92,115,0	duplicate(HntTrap)	31-1	-1,1,0
+job_hunte,92,114,0	duplicate(HntTrap)	31-2	-1,1,0
+job_hunte,90,115,0	duplicate(HntTrap)	31-3	-1,0,0
+job_hunte,102,116,0	duplicate(HntTrap)	32-1	-1,0,0
+job_hunte,102,117,0	duplicate(HntTrap)	32-2	-1,0,0
+job_hunte,103,116,0	duplicate(HntTrap)	32-3	-1,0,0
+job_hunte,103,117,0	duplicate(HntTrap)	32-4	-1,0,0
+job_hunte,114,114,0	duplicate(HntTrap)	33-1	-1,0,0
+job_hunte,114,115,0	duplicate(HntTrap)	33-2	-1,0,0
+job_hunte,115,114,0	duplicate(HntTrap)	33-3	-1,0,0
+job_hunte,115,115,0	duplicate(HntTrap)	33-4	-1,0,0
+job_hunte,54,110,0	duplicate(HntTrap)	34-1	-1,0,1
+job_hunte,55,110,0	duplicate(HntTrap)	34-2	-1,0,1
+job_hunte,54,108,0	duplicate(HntTrap)	34-3	-1,0,0
+job_hunte,55,108,0	duplicate(HntTrap)	34-4	-1,0,0
+job_hunte,64,112,0	duplicate(HntTrap)	35-1	-1,0,0
+job_hunte,64,113,0	duplicate(HntTrap)	35-2	-1,0,0
+job_hunte,65,112,0	duplicate(HntTrap)	35-3	-1,0,0
+job_hunte,65,113,0	duplicate(HntTrap)	35-4	-1,0,0
+job_hunte,80,110,0	duplicate(HntTrap)	36-1	-1,0,0
+job_hunte,80,111,0	duplicate(HntTrap)	36-2	-1,0,0
+job_hunte,81,110,0	duplicate(HntTrap)	36-3	-1,0,0
+job_hunte,81,111,0	duplicate(HntTrap)	36-4	-1,0,0
+job_hunte,90,108,0	duplicate(HntTrap)	37-1	-1,0,6
+job_hunte,91,108,0	duplicate(HntTrap)	37-2	-1,0,5
+job_hunte,91,102,0	duplicate(HntTrap)	37-3	-1,0,0
+job_hunte,98,109,0	duplicate(HntTrap)	38-1	-1,0,2
+job_hunte,99,109,0	duplicate(HntTrap)	38-2	-1,0,2
+job_hunte,103,109,0	duplicate(HntTrap)	38-3	-1,3,0
+job_hunte,103,108,0	duplicate(HntTrap)	38-4	-1,3,0
+job_hunte,97,106,0	duplicate(HntTrap)	39-1	-1,2,0
+job_hunte,96,107,0	duplicate(HntTrap)	39-2	-1,1,0
+job_hunte,94,108,0	duplicate(HntTrap)	39-3	-1,0,1
+job_hunte,95,109,0	duplicate(HntTrap)	39-4	-1,0,0
+job_hunte,95,108,0	duplicate(HntTrap)	40-1	-1,0,0
+job_hunte,94,106,0	duplicate(HntTrap)	40-2	-1,0,0
+job_hunte,96,102,0	duplicate(HntTrap)	40-3	-1,0,3
+job_hunte,97,102,0	duplicate(HntTrap)	40-4	-1,0,3
+job_hunte,95,98,0	duplicate(HntTrap)	41-1	-1,2,0
+job_hunte,94,99,0	duplicate(HntTrap)	42-1	-1,1,0
+job_hunte,92,98,0	duplicate(HntTrap)	43-1	-1,0,0
+job_hunte,112,110,0	duplicate(HntTrap)	44-1	-1,0,0
+job_hunte,112,111,0	duplicate(HntTrap)	44-2	-1,0,0
+job_hunte,113,110,0	duplicate(HntTrap)	44-3	-1,0,0
+job_hunte,113,111,0	duplicate(HntTrap)	44-4	-1,0,0
+job_hunte,126,108,0	duplicate(HntTrap)	45-1	-1,0,1
+job_hunte,127,108,0	duplicate(HntTrap)	45-2	-1,0,1
+job_hunte,126,106,0	duplicate(HntTrap)	45-3	-1,0,0
+job_hunte,126,106,0	duplicate(HntTrap)	45-4	-1,0,0
+job_hunte,53,102,0	duplicate(HntTrap)	46-1	-1,1,1
+job_hunte,55,102,0	duplicate(HntTrap)	46-2	-1,0,1
+job_hunte,53,100,0	duplicate(HntTrap)	46-3	-1,1,0
+job_hunte,55,100,0	duplicate(HntTrap)	46-4	-1,0,0
+job_hunte,64,106,0	duplicate(HntTrap)	47-1	-1,0,0
+job_hunte,64,107,0	duplicate(HntTrap)	47-2	-1,0,0
+job_hunte,65,106,0	duplicate(HntTrap)	47-3	-1,0,0
+job_hunte,65,107,0	duplicate(HntTrap)	47-4	-1,0,0
+job_hunte,66,100,0	duplicate(HntTrap)	48-1	-1,0,0
+job_hunte,66,101,0	duplicate(HntTrap)	48-2	-1,0,0
+job_hunte,67,100,0	duplicate(HntTrap)	48-3	-1,0,0
+job_hunte,67,101,0	duplicate(HntTrap)	48-4	-1,0,0
+job_hunte,86,106,0	duplicate(HntTrap)	49-1	-1,0,1
+job_hunte,87,106,0	duplicate(HntTrap)	49-2	-1,0,1
+job_hunte,82,104,0	duplicate(HntTrap)	49-3	-1,5,0
+job_hunte,81,105,0	duplicate(HntTrap)	49-4	-1,4,0
+job_hunte,76,105,0	duplicate(HntTrap)	50-1	-1,0,0
+job_hunte,76,104,0	duplicate(HntTrap)	50-2	-1,0,0
+job_hunte,78,101,0	duplicate(HntTrap)	50-3	-1,0,2
+job_hunte,79,101,0	duplicate(HntTrap)	50-4	-1,0,2
+job_hunte,76,99,0	duplicate(HntTrap)	51-1	-1,1,0
+job_hunte,77,98,0	duplicate(HntTrap)	51-2	-1,2,0
+job_hunte,74,99,0	duplicate(HntTrap)	51-3	-1,0,0
+job_hunte,74,98,0	duplicate(HntTrap)	51-4	-1,0,0
+job_hunte,82,100,0	duplicate(HntTrap)	53-1	-1,0,0
+job_hunte,82,101,0	duplicate(HntTrap)	53-2	-1,0,0
+job_hunte,83,100,0	duplicate(HntTrap)	53-3	-1,0,0
+job_hunte,83,101,0	duplicate(HntTrap)	53-4	-1,0,0
+job_hunte,106,104,0	duplicate(HntTrap)	54-1	-1,0,0
+job_hunte,106,105,0	duplicate(HntTrap)	54-2	-1,0,0
+job_hunte,107,104,0	duplicate(HntTrap)	54-3	-1,0,0
+job_hunte,107,105,0	duplicate(HntTrap)	54-4	-1,0,0
+job_hunte,112,104,0	duplicate(HntTrap)	55-1	-1,0,1
+job_hunte,113,104,0	duplicate(HntTrap)	55-2	-1,0,1
+job_hunte,112,102,0	duplicate(HntTrap)	55-3	-1,0,0
+job_hunte,113,102,0	duplicate(HntTrap)	55-4	-1,0,0
+job_hunte,54,92,0	duplicate(HntTrap)	56-1	-1,0,0
+job_hunte,54,93,0	duplicate(HntTrap)	56-2	-1,0,0
+job_hunte,55,92,0	duplicate(HntTrap)	56-3	-1,0,0
+job_hunte,55,93,0	duplicate(HntTrap)	56-4	-1,0,0
+job_hunte,52,90,0	duplicate(HntTrap)	56-5	-1,0,0
+job_hunte,52,91,0	duplicate(HntTrap)	56-6	-1,0,0
+job_hunte,53,90,0	duplicate(HntTrap)	56-7	-1,0,0
+job_hunte,53,91,0	duplicate(HntTrap)	56-8	-1,0,0
+job_hunte,64,92,0	duplicate(HntTrap)	57-1	-1,0,0
+job_hunte,64,93,0	duplicate(HntTrap)	57-2	-1,0,0
+job_hunte,65,92,0	duplicate(HntTrap)	57-3	-1,0,0
+
+job_hunte,65,93,0	script	57-4::HntTrap2	-1,{
+OnTouch_:
+	mapannounce "job_hunte",strcharinfo(0) + ", has failed me! Go back to where you started!",bc_map;
+	HNTR_Q = 13;
+	warp "job_hunte",176,22;
+	donpcevent "管理#hnt::OnReset";
+	donpcevent "等候室#hnt::OnStart";
+	end;
+}
+
+job_hunte,76,94,0	duplicate(HntTrap2)	58-1	-1,0,0
+job_hunte,76,95,0	duplicate(HntTrap2)	58-2	-1,0,0
+job_hunte,77,94,0	duplicate(HntTrap2)	58-3	-1,0,0
+job_hunte,77,95,0	duplicate(HntTrap2)	58-4	-1,0,0
+job_hunte,78,92,0	duplicate(HntTrap2)	59-1	-1,0,0
+job_hunte,78,93,0	duplicate(HntTrap2)	59-2	-1,0,0
+job_hunte,79,92,0	duplicate(HntTrap2)	59-3	-1,0,0
+job_hunte,79,93,0	duplicate(HntTrap2)	59-4	-1,0,0
+job_hunte,86,92,0	duplicate(HntTrap2)	60-1	-1,0,0
+job_hunte,86,93,0	duplicate(HntTrap2)	60-2	-1,0,0
+job_hunte,87,92,0	duplicate(HntTrap2)	60-3	-1,0,0
+job_hunte,87,93,0	duplicate(HntTrap2)	60-4	-1,0,0
+job_hunte,90,96,0	duplicate(HntTrap2)	61-1	-1,0,0
+job_hunte,90,97,0	duplicate(HntTrap2)	61-2	-1,0,0
+job_hunte,91,96,0	duplicate(HntTrap2)	61-3	-1,0,0
+job_hunte,91,97,0	duplicate(HntTrap2)	61-4	-1,0,0
+job_hunte,99,95,0	duplicate(HntTrap2)	62-1	-1,1,0
+job_hunte,99,94,0	duplicate(HntTrap2)	62-2	-1,1,0
+job_hunte,101,94,0	duplicate(HntTrap2)	62-3	-1,0,1
+job_hunte,100,93,0	duplicate(HntTrap2)	62-4	-1,0,0
+job_hunte,100,92,0	duplicate(HntTrap2)	63-1	-1,0,0
+job_hunte,101,92,0	duplicate(HntTrap2)	63-2	-1,0,0
+job_hunte,102,98,0	duplicate(HntTrap2)	64-1	-1,0,0
+job_hunte,102,99,0	duplicate(HntTrap2)	64-2	-1,0,0
+job_hunte,103,98,0	duplicate(HntTrap2)	64-3	-1,0,0
+job_hunte,103,99,0	duplicate(HntTrap2)	64-4	-1,0,0
+job_hunte,102,90,0	duplicate(HntTrap2)	65-1	-1,0,0
+job_hunte,102,91,0	duplicate(HntTrap2)	65-2	-1,0,0
+job_hunte,103,90,0	duplicate(HntTrap2)	65-3	-1,0,0
+job_hunte,103,91,0	duplicate(HntTrap2)	65-4	-1,0,0
+job_hunte,114,96,0	duplicate(HntTrap2)	66-1	-1,0,0
+job_hunte,114,97,0	duplicate(HntTrap2)	66-2	-1,0,0
+job_hunte,115,96,0	duplicate(HntTrap2)	66-3	-1,0,0
+job_hunte,115,97,0	duplicate(HntTrap2)	66-4	-1,0,0
+job_hunte,112,90,0	duplicate(HntTrap2)	67-1	-1,0,0
+job_hunte,112,91,0	duplicate(HntTrap2)	67-2	-1,0,0
+job_hunte,113,90,0	duplicate(HntTrap2)	67-3	-1,0,0
+job_hunte,113,91,0	duplicate(HntTrap2)	67-4	-1,0,0
+job_hunte,125,97,0	duplicate(HntTrap2)	68-1	-1,1,0
+job_hunte,125,96,0	duplicate(HntTrap2)	68-2	-1,1,0
+job_hunte,127,96,0	duplicate(HntTrap2)	68-3	-1,0,0
+job_hunte,127,97,0	duplicate(HntTrap2)	68-4	-1,0,0
+job_hunte,52,86,0	duplicate(HntTrap2)	69-1	-1,0,0
+job_hunte,52,87,0	duplicate(HntTrap2)	69-2	-1,0,0
+job_hunte,53,86,0	duplicate(HntTrap2)	69-3	-1,0,0
+job_hunte,53,87,0	duplicate(HntTrap2)	69-4	-1,0,0
+job_hunte,66,88,0	duplicate(HntTrap2)	70-1	-1,0,0
+job_hunte,66,89,0	duplicate(HntTrap2)	70-2	-1,0,0
+job_hunte,67,88,0	duplicate(HntTrap2)	70-3	-1,0,0
+job_hunte,67,89,0	duplicate(HntTrap2)	70-4	-1,0,0
+job_hunte,114,84,0	duplicate(HntTrap2)	71-1	-1,0,0
+job_hunte,114,85,0	duplicate(HntTrap2)	71-2	-1,0,0
+job_hunte,115,84,0	duplicate(HntTrap2)	71-3	-1,0,0
+job_hunte,115,85,0	duplicate(HntTrap2)	71-4	-1,0,0
+job_hunte,126,86,0	duplicate(HntTrap2)	72-1	-1,0,0
+job_hunte,126,87,0	duplicate(HntTrap2)	72-2	-1,0,0
+job_hunte,127,86,0	duplicate(HntTrap2)	72-3	-1,0,0
+job_hunte,127,87,0	duplicate(HntTrap2)	72-4	-1,0,0
+job_hunte,54,80,0	duplicate(HntTrap2)	73-1	-1,0,1
+job_hunte,55,80,0	duplicate(HntTrap2)	73-2	-1,0,1
+job_hunte,55,80,0	duplicate(HntTrap2)	73-3	-1,0,0
+job_hunte,55,78,0	duplicate(HntTrap2)	73-4	-1,0,0
+job_hunte,64,82,0	duplicate(HntTrap2)	74-1	-1,0,1
+job_hunte,65,82,0	duplicate(HntTrap2)	74-2	-1,0,1
+job_hunte,64,80,0	duplicate(HntTrap2)	74-3	-1,0,0
+job_hunte,65,80,0	duplicate(HntTrap2)	74-4	-1,0,0
+job_hunte,66,78,0	duplicate(HntTrap2)	75-1	-1,0,0
+job_hunte,66,79,0	duplicate(HntTrap2)	75-2	-1,0,0
+job_hunte,67,78,0	duplicate(HntTrap2)	75-3	-1,0,0
+job_hunte,67,79,0	duplicate(HntTrap2)	75-4	-1,0,0
+job_hunte,74,78,0	duplicate(HntTrap2)	76-1	-1,0,0
+job_hunte,74,79,0	duplicate(HntTrap2)	76-2	-1,0,0
+job_hunte,75,78,0	duplicate(HntTrap2)	76-3	-1,0,0
+job_hunte,75,79,0	duplicate(HntTrap2)	76-4	-1,0,0
+job_hunte,78,80,0	duplicate(HntTrap2)	77-1	-1,0,0
+job_hunte,78,81,0	duplicate(HntTrap2)	77-2	-1,0,0
+job_hunte,79,80,0	duplicate(HntTrap2)	77-3	-1,0,0
+job_hunte,79,81,0	duplicate(HntTrap2)	77-4	-1,0,0
+job_hunte,82,78,0	duplicate(HntTrap2)	78-1	-1,0,0
+job_hunte,82,79,0	duplicate(HntTrap2)	78-2	-1,0,0
+job_hunte,83,78,0	duplicate(HntTrap2)	78-3	-1,0,0
+job_hunte,83,79,0	duplicate(HntTrap2)	78-4	-1,0,0
+job_hunte,94,78,0	duplicate(HntTrap2)	79-1	-1,0,0
+job_hunte,94,79,0	duplicate(HntTrap2)	79-2	-1,0,0
+job_hunte,95,78,0	duplicate(HntTrap2)	79-3	-1,0,0
+job_hunte,95,79,0	duplicate(HntTrap2)	79-4	-1,0,0
+job_hunte,101,80,0	duplicate(HntTrap2)	80-1	-1,1,0
+job_hunte,101,81,0	duplicate(HntTrap2)	80-2	-1,1,0
+job_hunte,103,81,0	duplicate(HntTrap2)	80-3	-1,0,0
+job_hunte,103,80,0	duplicate(HntTrap2)	80-4	-1,0,0
+job_hunte,104,78,0	duplicate(HntTrap2)	81-1	-1,0,0
+job_hunte,104,79,0	duplicate(HntTrap2)	81-2	-1,0,0
+job_hunte,105,78,0	duplicate(HntTrap2)	81-3	-1,0,0
+job_hunte,105,79,0	duplicate(HntTrap2)	81-4	-1,0,0
+job_hunte,110,78,0	duplicate(HntTrap2)	82-1	-1,0,0
+job_hunte,110,79,0	duplicate(HntTrap2)	82-2	-1,0,0
+job_hunte,111,78,0	duplicate(HntTrap2)	82-3	-1,0,0
+job_hunte,111,79,0	duplicate(HntTrap2)	82-4	-1,0,0
+job_hunte,114,80,0	duplicate(HntTrap2)	83-1	-1,0,0
+job_hunte,114,81,0	duplicate(HntTrap2)	83-2	-1,0,0
+job_hunte,115,80,0	duplicate(HntTrap2)	83-3	-1,0,0
+job_hunte,115,81,0	duplicate(HntTrap2)	83-4	-1,0,0
+job_hunte,124,78,0	duplicate(HntTrap2)	84-1	-1,0,0
+job_hunte,124,79,0	duplicate(HntTrap2)	84-2	-1,0,0
+job_hunte,125,78,0	duplicate(HntTrap2)	84-3	-1,0,0
+job_hunte,125,79,0	duplicate(HntTrap2)	84-4	-1,0,0
+job_hunte,126,82,0	duplicate(HntTrap2)	85-1	-1,0,0
+job_hunte,126,83,0	duplicate(HntTrap2)	85-2	-1,0,0
+job_hunte,127,82,0	duplicate(HntTrap2)	85-3	-1,0,0
+job_hunte,127,83,0	duplicate(HntTrap2)	85-4	-1,0,0
+job_hunte,52,68,0	duplicate(HntTrap2)	86-1	-1,0,1
+job_hunte,53,68,0	duplicate(HntTrap2)	86-2	-1,0,1
+job_hunte,52,66,0	duplicate(HntTrap2)	86-3	-1,0,0
+job_hunte,53,66,0	duplicate(HntTrap2)	86-4	-1,0,0
+job_hunte,54,70,0	duplicate(HntTrap2)	87-1	-1,0,1
+job_hunte,55,70,0	duplicate(HntTrap2)	87-2	-1,0,1
+job_hunte,54,68,0	duplicate(HntTrap2)	87-3	-1,0,0
+job_hunte,55,68,0	duplicate(HntTrap2)	87-4	-1,0,0
+job_hunte,59,66,0	duplicate(HntTrap2)	88-1	-1,1,0
+job_hunte,59,67,0	duplicate(HntTrap2)	88-2	-1,1,0
+job_hunte,61,67,0	duplicate(HntTrap2)	88-3	-1,0,0
+job_hunte,61,66,0	duplicate(HntTrap2)	88-4	-1,0,0
+job_hunte,68,68,0	duplicate(HntTrap2)	89-1	-1,0,1
+job_hunte,69,68,0	duplicate(HntTrap2)	89-2	-1,0,1
+job_hunte,68,66,0	duplicate(HntTrap2)	89-3	-1,0,0
+job_hunte,69,66,0	duplicate(HntTrap2)	89-4	-1,0,0
+job_hunte,76,66,0	duplicate(HntTrap2)	90-1	-1,0,0
+job_hunte,76,67,0	duplicate(HntTrap2)	90-2	-1,0,0
+job_hunte,77,66,0	duplicate(HntTrap2)	90-3	-1,0,0
+job_hunte,77,67,0	duplicate(HntTrap2)	90-4	-1,0,0
+job_hunte,82,68,0	duplicate(HntTrap2)	91-1	-1,0,0
+job_hunte,82,69,0	duplicate(HntTrap2)	91-2	-1,0,0
+job_hunte,83,68,0	duplicate(HntTrap2)	91-3	-1,0,0
+job_hunte,83,69,0	duplicate(HntTrap2)	91-4	-1,0,0
+job_hunte,96,66,0	duplicate(HntTrap2)	92-1	-1,0,0
+job_hunte,96,67,0	duplicate(HntTrap2)	92-2	-1,0,0
+job_hunte,97,66,0	duplicate(HntTrap2)	92-3	-1,0,0
+job_hunte,97,67,0	duplicate(HntTrap2)	92-4	-1,0,0
+job_hunte,100,68,0	duplicate(HntTrap2)	93-1	-1,0,0
+job_hunte,100,69,0	duplicate(HntTrap2)	93-2	-1,0,0
+job_hunte,101,68,0	duplicate(HntTrap2)	93-3	-1,0,0
+job_hunte,101,69,0	duplicate(HntTrap2)	93-4	-1,0,0
+job_hunte,107,66,0	duplicate(HntTrap2)	94-1	-1,1,0
+job_hunte,107,67,0	duplicate(HntTrap2)	94-2	-1,1,0
+job_hunte,109,67,0	duplicate(HntTrap2)	94-3	-1,0,0
+job_hunte,109,66,0	duplicate(HntTrap2)	94-4	-1,0,0
+job_hunte,117,69,0	duplicate(HntTrap2)	95-1	-1,1,0
+job_hunte,117,68,0	duplicate(HntTrap2)	95-2	-1,1,0
+job_hunte,119,69,0	duplicate(HntTrap2)	95-3	-1,0,0
+job_hunte,119,68,0	duplicate(HntTrap2)	95-4	-1,0,0
+job_hunte,124,66,0	duplicate(HntTrap2)	96-1	-1,0,0
+job_hunte,124,67,0	duplicate(HntTrap2)	96-2	-1,0,0
+job_hunte,125,66,0	duplicate(HntTrap2)	96-3	-1,0,0
+job_hunte,125,67,0	duplicate(HntTrap2)	96-4	-1,0,0
+job_hunte,126,70,0	duplicate(HntTrap2)	97-1	-1,0,0
+job_hunte,126,71,0	duplicate(HntTrap2)	97-2	-1,0,0
+job_hunte,127,70,0	duplicate(HntTrap2)	97-3	-1,0,0
+job_hunte,127,71,0	duplicate(HntTrap2)	97-4	-1,0,0

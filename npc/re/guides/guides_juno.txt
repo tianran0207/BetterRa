@@ -1,0 +1,167 @@
+//===== rAthena Script ======================================= 
+//= Juno Guides
+//===== By: ================================================== 
+//= L0ne_W0lf
+//===== Current Version: ===================================== 
+//= 1.2
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Guides for the city of Juno.
+//===== Additional Comments: ================================= 
+//= 1.0 First version, Renewal guide.
+//= 1.1 Fixed and optimized. [Euphy]
+//= 1.2 Navigation system update. [Euphy]
+//============================================================ 
+
+yuno,59,212,4	script	朱诺 解说员#yuno01::GuideJuno	700,{
+	mes "[朱诺 解说员]";
+	mes "你好!这里是秀发兹发德的首都";
+	mes "贤者之都 ^8B4513朱诺^000000，";
+	mes "诚挚的欢迎大家的莅临，";
+	mes "需要为您介绍吗?";
+	F_Navi("[朱诺 解说员]");
+	next;
+	while (1) {
+		switch(select("[ 主要设施 ]:[ 商人&小帮手 ]:删除小地图的标记:结束对话")) {
+		case 1:
+			set .@loop,1;
+			while (.@loop) {
+				switch(select("[ 道具店 ]:[ 铁工店 ]:[ 飞空艇 ]:[ 政府机构 ]:[ 书店街 ]:[ 旅馆 & 酒店 ]:[ 贤者公会 ]:[ 怪物学会 ]:[ 朱诺图书馆 ]:[ 武器防具店 ]:[ 优配雷大广场 ]:[ 怪物博物馆 ]:[ 修巴依采勒比魔法学校 ]:返回上一选单")) {
+				case 1:
+					callsub L_Mark, F_Navi("道具店","yuno,194,140","^FF0000");
+					viewpoint 1,194,140,0,0xFF0000;
+					next;
+					break;
+				case 2:
+					callsub L_Mark, F_Navi("铁工店","yuno,120,137","^FF4500");
+					viewpoint 1,120,137,1,0xFF4500;
+					next;
+					break;
+				case 3:
+					callsub L_Mark, F_Navi("飞空艇","yuno,16,261","^DAA520");
+					viewpoint 1,16,261,2,0xDAA520;
+					next;
+					break;
+				case 4:
+					callsub L_Mark, F_Navi("政府机构","yuno,157,317","^008000");
+					viewpoint 1,157,317,3,0x008000;
+					next;
+					break;
+				case 5:
+					callsub L_Mark, F_Navi("书店街 ","yuno,172,100","^0000FF");
+					viewpoint 1,172,100,4,0x0000FF;
+					next;
+					break;
+				case 6:
+					callsub L_Mark, F_Navi("旅馆 & 酒店","yuno,51,105","^000080");
+					viewpoint 1,51,105,5,0x000080;
+					next;
+					break;
+				case 7:
+					callsub L_Mark, F_Navi("贤者公会","yuno,90,318","^800080");
+					viewpoint 1,90,318,6,0x800080;
+					next;
+					break;
+				case 8:
+					callsub L_Mark, F_Navi("怪物学会","yuno,95,184","^834683");
+					viewpoint 1,95,184,7,0x834683;
+					next;
+					break;
+				case 9:
+					callsub L_Mark, F_Navi("朱诺图书馆","yuno,338,203","^4B0082");
+					viewpoint 1,338,203,8,0x4B0082;
+					next;
+					break;
+				case 10:
+					callsub L_Mark, F_Navi("武器防具店","yuno,120,137","^008080");
+					viewpoint 1,120,137,9,0x008080;
+					next;
+					break;
+				case 11:
+					callsub L_Mark, F_Navi("优配雷大广场","yuno,115,57","^FF1493");
+					viewpoint 1,115,157,10,0xFF1493;
+					next;
+					break;
+				case 12:
+					callsub L_Mark, F_Navi("怪物博物馆","yuno,278,290","^DA70D6");
+					viewpoint 1,278,290,11,0xDA70D6;
+					next;
+					break;
+				case 13:
+					mes "[朱诺 解说员]";
+					mes F_Navi("修巴依采勒比魔法学校","yuno,323,280","^CD1039");
+					mes "的位置已经标记在";
+					mes "小地图上了，";
+					mes "还需要其它服务吗?";
+					viewpoint 1,323,280,12,0xCD1039;
+					next;
+					break;
+				case 14:
+					set .@loop,0;
+					break;
+				}
+			}
+			break;
+		case 2:
+			set .@loop,1;
+			while (.@loop) {
+				switch(select("[ 卡普拉职员 ]:[ 乐园团传送师 ]:返回上一选单")) {
+				case 1:
+					callsub L_Mark, "^FA8072卡普拉职员^000000";
+					viewpoint 1,152,187,13,0xFA8072;
+					viewpoint 1,277,221,14,0xFA8072;
+					viewpoint 1,327,108,15,0xFA8072;
+					next;
+					break;
+				case 2:
+					callsub L_Mark, F_Navi("乐园团传送师","yuno,144,189","^803232");
+					viewpoint 1,144,189,16,0x803232;
+					next;
+					break;
+				case 3:
+					set .@loop,0;
+					break;
+				}
+			}
+			break;
+		case 3:
+			mes "[朱诺 解说员]";
+			mes "已删除小地图上的标志了，";
+			mes "还需要其它服务吗?";
+			viewpoint 2,194,140,0,0xFFFFFF;
+			viewpoint 2,120,137,1,0xFFFFFF;
+			viewpoint 2,16,261,2,0xFFFFFF;
+			viewpoint 2,157,317,3,0xFFFFFF;
+			viewpoint 2,172,100,4,0xFFFFFF;
+			viewpoint 2,51,105,5,0xFFFFFF;
+			viewpoint 2,90,318,6,0xFFFFFF;
+			viewpoint 2,95,184,7,0xFFFFFF;
+			viewpoint 2,338,203,8,0xFFFFFF;
+			viewpoint 2,120,137,9,0xFFFFFF;
+			viewpoint 2,115,157,10,0xFFFFFF;
+			viewpoint 2,278,290,11,0xFFFFFF;
+			viewpoint 2,323,280,12,0xFFFFFF;
+			viewpoint 2,152,187,13,0xFFFFFF;
+			viewpoint 2,277,221,14,0xFFFFFF;
+			viewpoint 2,327,108,15,0xFFFFFF;
+			viewpoint 2,144,189,16,0xFFFFFF;
+			next;
+			break;
+		case 4:
+			mes "[朱诺 解说员]";
+			mes "祝你旅途愉快!";
+			close;
+		}
+	}
+	end;
+L_Mark:
+	mes "[朱诺 解说员]";
+	mes getarg(0);
+	mes "位置已经标记在";
+	mes "小地图上了，";
+	mes "还需要其它服务吗?";
+	return;
+}
+yuno,153,47,4	duplicate(GuideJuno)	朱诺 解说员#yuno02	700

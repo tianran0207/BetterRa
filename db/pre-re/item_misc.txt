@@ -1,0 +1,650 @@
+//
+// Structure of Database:
+// GroupID,ItemID,Rate
+//
+// Cookie Bag
+IG_CookieBag,529,5		// 糖果
+IG_CookieBag,530,5		// 拐杖糖
+IG_CookieBag,538,5		// 姜饼
+IG_CookieBag,539,5		// 小蛋糕
+IG_CookieBag,558,1		// 巧克力
+IG_CookieBag,559,1		// 手工巧克力
+IG_CookieBag,560,1		// 手工巧克力
+IG_CookieBag,561,1		// 白色情人巧克力
+IG_CookieBag,564,5		// 肉粽
+IG_CookieBag,570,5		// 红色吉祥糖果
+IG_CookieBag,571,5		// 幸运的拐杖糖
+IG_CookieBag,572,5		// 幸运的姜饼
+IG_CookieBag,573,1		// 巧克力饮料
+IG_CookieBag,12122,1	// 茶食
+IG_CookieBag,12123,1	// 油果
+IG_CookieBag,12124,1	// 彩色糕饼
+// First Aid Kit
+IG_FirstAid,501,5		// 红色药水
+IG_FirstAid,502,5		// 赤色药水
+IG_FirstAid,503,5		// 黄色药水
+IG_FirstAid,504,5		// 白色药水
+IG_FirstAid,505,5		// 蓝色药水
+IG_FirstAid,506,5		// 绿色药水
+IG_FirstAid,545,5		// 红色纤细药水
+IG_FirstAid,546,5		// 黄色纤细药水
+IG_FirstAid,547,5		// 白色纤细药水
+IG_FirstAid,569,5		// 初学者专用药水
+IG_FirstAid,605,5		// 曼特疗伤药
+IG_FirstAid,645,5		// 集中药水
+IG_FirstAid,656,5		// 觉醒药水
+IG_FirstAid,657,5		// 菠色克药水
+IG_FirstAid,678,1		// 毒药瓶
+IG_FirstAid,12016,5	// 移速变化药水
+IG_FirstAid,12017,5	// 移速变化药水
+IG_FirstAid,12020,5	// 暗水
+// Herbs
+IG_Herb,507,1		// 红色药草
+IG_Herb,508,1		// 黄色药草
+IG_Herb,509,1		// 白色药草
+// Fruits
+IG_Fruit,512,1	// 苹果
+IG_Fruit,513,1	// 香蕉
+IG_Fruit,514,1	// 葡萄
+IG_Fruit,515,1	// 红萝卜
+IG_Fruit,516,1	// 番薯
+// Meat
+IG_Meat,517,1	// 肉
+IG_Meat,528,1	// 魔物饲料
+// Candy
+IG_Candy,529,1	// 糖果
+IG_Candy,530,1	// 拐杖糖
+// Juice
+IG_Juice,531,1	// 苹果汁
+IG_Juice,532,1	// 香蕉汁
+IG_Juice,534,1	// 红萝卜汁
+// Fish
+IG_Fish,544,1	// 生鱼片
+IG_Fish,551,1	// 明虾寿司
+// Boxes
+IG_Box,603,1	// 神秘箱子
+IG_Box,617,1	// 神秘紫箱
+IG_Box,644,1	// 礼物箱
+// Gemstones
+IG_Gemstone,715,1	// 黄色魔力矿石
+IG_Gemstone,716,1	// 红色魔力矿石
+IG_Gemstone,717,1	// 蓝色魔力矿石
+// Elemental Resist Potions
+IG_Resist,12118,1	// 火属性抵抗药水
+IG_Resist,12119,1	// 水属性抵抗药水
+IG_Resist,12120,1	// 地属性抵抗药水
+IG_Resist,12121,1	// 风属性抵抗药水
+// Ores
+IG_Ore,1002,30	// 铁矿石
+IG_Ore,998,28	// 铁
+IG_Ore,993,26	// 地灵矿石
+IG_Ore,1003,24	// 煤矿
+IG_Ore,992,22	// 风灵矿石
+IG_Ore,1010,20	// 强化武器金属-级数一
+IG_Ore,991,18	// 水灵矿石
+IG_Ore,990,16	// 火灵矿石
+IG_Ore,999,14	// 钢铁
+IG_Ore,1011,12	// 强化武器金属-级数二
+IG_Ore,757,10	// 铝原石
+IG_Ore,756,9	// 神之金属原石
+IG_Ore,997,8	// 土灵原石
+IG_Ore,996,7	// 风灵原石
+IG_Ore,995,6	// 水灵原石
+IG_Ore,994,5	// 火灵原石
+IG_Ore,985,4	// 铝
+IG_Ore,984,3	// 神之金属
+IG_Ore,969,2	// 黄金
+IG_Ore,714,1	// 华丽金属
+// Food Types
+IG_Food,526,5	// 蜂胶
+IG_Food,12042,10	// 凉拌蛙蹼
+IG_Food,12057,10	// 口感滑爽的面
+IG_Food,12053,10	// 蛤蜊汤
+IG_Food,12062,10	// 巧克力奶油蛋糕
+IG_Food,12068,10	// 番薯饼
+IG_Food,12047,10	// 万叶红茶
+IG_Food,531,30	// 苹果汁
+IG_Food,532,30	// 香蕉汁
+IG_Food,533,30	// 葡萄汁
+IG_Food,534,30	// 红萝卜汁
+IG_Food,538,30	// 姜饼
+IG_Food,536,50	// 冰淇淋
+IG_Food,544,50	// 生鱼片
+IG_Food,548,50	// 吉士
+IG_Food,551,50	// 明虾寿司
+IG_Food,553,50	// 包子
+IG_Food,554,50	// 甜米糕
+IG_Food,535,50	// 南瓜
+IG_Food,516,100	// 番薯
+IG_Food,513,100	// 香蕉
+IG_Food,512,600	// 苹果
+// Recovery Types
+IG_Recovery,522,5	// 玛丝黛拉果实
+IG_Recovery,521,5	// 芦荟叶子
+IG_Recovery,520,10	// 西纳雷叶子
+IG_Recovery,545,10	// 红色纤细药水
+IG_Recovery,12118,10	// 火属性抵抗药水
+IG_Recovery,508,20	// 黄色药草
+IG_Recovery,501,20	// 红色药水
+IG_Recovery,511,30	// 绿色药草
+IG_Recovery,507,30	// 红色药草
+IG_Recovery,569,50	// 初学者专用药水
+IG_Recovery,549,50	// 美味番薯
+IG_Recovery,529,100	// 糖果
+IG_Recovery,528,200	// 魔物饲料
+IG_Recovery,550,600	// 仙贝
+// Minerals - Unused
+IG_Mineral,714,1	// 华丽金属
+IG_Mineral,756,1	// 神之金属原石
+IG_Mineral,757,1	// 铝原石
+IG_Mineral,969,1	// 黄金
+IG_Mineral,984,1	// 神之金属
+IG_Mineral,985,1	// 铝
+IG_Mineral,990,1	// 火灵矿石
+IG_Mineral,991,1	// 水灵矿石
+IG_Mineral,992,1	// 风灵矿石
+IG_Mineral,993,1	// 地灵矿石
+IG_Mineral,994,1	// 火灵原石
+IG_Mineral,995,1	// 水灵原石
+IG_Mineral,996,1	// 风灵原石
+IG_Mineral,997,1	// 土灵原石
+IG_Mineral,998,1	// 铁
+IG_Mineral,999,1	// 钢铁
+IG_Mineral,1002,1	// 铁矿石
+IG_Mineral,1003,1	// 煤矿
+IG_Mineral,1010,1	// 强化武器金属-级数一
+IG_Mineral,1011,1	// 强化武器金属-级数二
+// Set Of Taiming Item
+IG_Taming,619,1	// 青苹果
+IG_Taming,620,1	// 浓缩柳橙汁
+IG_Taming,621,1	// 苦味草
+IG_Taming,622,1	// 彩色红萝卜
+IG_Taming,623,1	// 变态蚯蚓
+IG_Taming,624,1	// 腐臭之鱼
+IG_Taming,625,1	// 锈铁
+IG_Taming,626,1	// 魔物饮料
+IG_Taming,627,1	// 魔物牛奶
+IG_Taming,628,1	// 营养大骨
+IG_Taming,629,1	// 呢喃花
+IG_Taming,630,1	// 青苔
+IG_Taming,631,1	// 青嫩毒草
+IG_Taming,632,1	// 营养蚯蚓
+IG_Taming,633,1	// 魔物番薯
+IG_Taming,634,1	// 魔物香蕉
+IG_Taming,635,1	// 魔物之证
+IG_Taming,636,1	// 魔物信件
+IG_Taming,637,1	// 魔物扫把
+IG_Taming,638,1	// 纯洁银刃
+IG_Taming,639,1	// 驯服手镯
+IG_Taming,640,1	// 闪烁之石
+IG_Taming,641,1	// 黑暗合约书
+IG_Taming,642,1	// 恶魔召唤书
+IG_Taming,659,1	// 心爱女人之回忆
+IG_Taming,660,1	// 红色蜡烛
+IG_Taming,661,1	// 摇曳的围裙
+IG_Taming,10001,1	// 牛角骨盔
+IG_Taming,10002,1	// 宠物防毒面具
+IG_Taming,10003,1	// 潜水帽子
+IG_Taming,10004,1	// 宠物奶嘴
+IG_Taming,10005,1	// 三色假发
+IG_Taming,10006,1	// 蛇饰发箍
+IG_Taming,10007,1	// 宠物发带
+IG_Taming,10008,1	// 体罚棒
+IG_Taming,10009,1	// 野生花
+IG_Taming,10010,1	// 变形锅子
+IG_Taming,10011,1	// 宠物发夹
+IG_Taming,10012,1	// 宠物蛋壳帽
+IG_Taming,10013,1	// 宠物书包
+IG_Taming,10014,1	// 蝗虫眼镜
+IG_Taming,10015,1	// 宠物围兜兜
+IG_Taming,10016,1	// 宠物铃铛
+IG_Taming,10017,1	// 树皮裤
+IG_Taming,10018,1	// 猴子发箍
+IG_Taming,10019,1	// 红色领巾
+IG_Taming,10020,1	// 灵幻道士之剑
+IG_Taming,12373,1	// 少年的纯情
+IG_Taming,12374,1	// 火焰冰
+IG_Taming,12395,1	// 担担面
+// Bundle Of Magic Scroll
+IG_Scroll,686,1	// 地震术 等级3
+IG_Scroll,687,1	// 地震术 等级5
+IG_Scroll,688,1	// 冰箭术 等级3
+IG_Scroll,689,1	// 冰箭术 等级5
+IG_Scroll,690,1	// 火箭术 等级3
+IG_Scroll,691,1	// 火箭术 等级5
+IG_Scroll,692,1	// 雷击术 等级3
+IG_Scroll,693,1	// 雷击术 等级5
+IG_Scroll,694,1	// 圣灵召唤 等级3
+IG_Scroll,695,1	// 圣灵召唤 等级5
+IG_Scroll,696,1	// 火球术 等级1
+IG_Scroll,697,1	// 火球术 等级5
+IG_Scroll,698,1	// 火焰之壁 等级1
+IG_Scroll,699,1	// 火焰之壁 等级5
+IG_Scroll,700,1	// 冰冻术 等级1
+IG_Scroll,12000,1	// 冰冻术 等级5
+IG_Scroll,12001,1	// 治愈术 等级3
+IG_Scroll,12002,1	// 治愈术 等级5
+// Random Quiver
+IG_Quiver,12004,1	// 箭矢筒
+IG_Quiver,12005,1	// 铁箭矢筒
+IG_Quiver,12006,1	// 钢铁箭矢筒
+IG_Quiver,12007,1	// 神之金属箭矢筒
+IG_Quiver,12008,1	// 火箭矢筒
+IG_Quiver,12009,1	// 银箭矢筒
+IG_Quiver,12010,1	// 风灵箭矢筒
+IG_Quiver,12011,1	// 地灵箭矢筒
+IG_Quiver,12012,1	// 水灵箭矢筒
+IG_Quiver,12013,1	// 影子箭矢筒
+IG_Quiver,12014,1	// 无形箭矢筒
+IG_Quiver,12015,1	// 铁锈箭矢筒
+IG_Quiver,12183,2	// 神圣的箭筒
+// Wrapped Mask
+IG_Mask,2278,10	// 笑脸面具
+IG_Mask,2281,10	// 舞会面具
+IG_Mask,2288,10	// 整人面具
+IG_Mask,2292,10	// 钢铁面具
+IG_Mask,2297,10	// 哥布灵面具
+IG_Mask,5005,10	// 防毒面具
+IG_Mask,5086,10	// 钟怪假面
+IG_Mask,5087,10	// 无表情的假面
+IG_Mask,5088,10	// 吓坏眼的假面
+IG_Mask,5089,10	// 讨厌的假面
+IG_Mask,5090,10	// 哥布灵首领假面
+IG_Mask,5121,1	// 艾斯恩魔女假面
+IG_Mask,5176,2	// 传统面具
+// Accessory Box
+IG_Accesory,2601,10	// 力量戒指
+IG_Accesory,2602,11	// 智力耳环
+IG_Accesory,2603,12	// 体力项链
+IG_Accesory,2604,12	// 防御手套
+IG_Accesory,2605,12	// 敏捷别针
+IG_Accesory,2607,12	// 发夹
+IG_Accesory,2608,14	// 幸运珠链
+IG_Accesory,2609,14	// 骷髅戒指
+IG_Accesory,2610,14	// 金戒指
+IG_Accesory,2611,14	// 银戒指
+IG_Accesory,2612,14	// 花戒指
+IG_Accesory,2613,11	// 钻石戒指
+IG_Accesory,2615,1	// 防御戒指
+IG_Accesory,2616,1	// 潜能戒指
+IG_Accesory,2617,10	// 智慧手套
+IG_Accesory,2618,11	// 黑狐项链
+IG_Accesory,2619,10	// 神射手套
+IG_Accesory,2621,1	// 力量戒指
+IG_Accesory,2622,1	// 智力耳环
+IG_Accesory,2623,10	// 体力项链
+IG_Accesory,2624,1	// 防御手套
+IG_Accesory,2625,1	// 敏捷别针
+IG_Accesory,2626,1	// 幸运珠链
+IG_Accesory,2627,10	// 皮带
+IG_Accesory,2628,14	// 初学者手镯
+IG_Accesory,2654,1	// 火忍西怒毕的腰带
+IG_Accesory,2656,1	// 过度的改变
+IG_Accesory,2658,10	// 尼罗玫瑰
+IG_Accesory,2659,2	// 晚祷钟核心 01
+IG_Accesory,2660,2	// 晚祷钟核心 02
+IG_Accesory,2661,2	// 晚祷钟核心 03
+IG_Accesory,2662,2	// 晚祷钟核心 04
+IG_Accesory,2671,1	// 神射手套
+IG_Accesory,2677,1	// 精灵戒指
+IG_Accesory,2680,9	// 下级精灵的戒指
+IG_Accesory,2700,2	// 封印的红色绸缎
+IG_Accesory,2701,1	// 奥尔里昂的手套
+IG_Accesory,2703,1	// 强化指环
+IG_Accesory,2716,1	// 图书管理员的手套
+IG_Accesory,2717,1	// 怀表
+IG_Accesory,2718,1	// 月亮胸针
+IG_Accesory,2719,1	// 铁护腕
+// jewels
+IG_Jewel,715,100	// 黄色魔力矿石
+IG_Jewel,716,100	// 红色魔力矿石
+IG_Jewel,717,100	// 蓝色魔力矿石
+IG_Jewel,718,10	// 深红宝石
+IG_Jewel,719,10	// 紫宝石
+IG_Jewel,720,10	// 天蓝宝石
+IG_Jewel,721,10	// 绿宝石
+IG_Jewel,722,10	// 珍珠
+IG_Jewel,723,10	// 红宝石
+IG_Jewel,724,10	// 诅咒红宝石
+IG_Jewel,725,10	// 大红宝石
+IG_Jewel,726,10	// 蓝宝石
+IG_Jewel,727,10	// 白宝石
+IG_Jewel,728,10	// 黄宝石
+IG_Jewel,729,10	// 青绿宝石
+IG_Jewel,730,5	// 1克拉钻石
+IG_Jewel,731,4	// 2克拉钻石
+IG_Jewel,732,3	// 3克拉钻石
+IG_Jewel,733,27	// 受损的钻石
+IG_Jewel,746,50	// 玻璃珠
+// Egg Boy
+IG_EggBoy,514,300	// 葡萄
+IG_EggBoy,564,522	// 肉粽
+IG_EggBoy,660,20	// 红色蜡烛
+IG_EggBoy,682,100	// 雄黄酒
+IG_EggBoy,683,50	// 艾草
+IG_EggBoy,2274,5	// 亡者发箍
+IG_EggBoy,5072,2	// 恶魔侍者的角
+// Egg Girl
+IG_EggGirl,514,300	// 葡萄
+IG_EggGirl,564,522	// 肉粽
+IG_EggGirl,661,20	// 摇曳的围裙
+IG_EggGirl,682,100	// 雄黄酒
+IG_EggGirl,683,50	// 艾草
+IG_EggGirl,5042,5	// 丸子头饰
+IG_EggGirl,5066,2	// 恶魔女仆的角
+// Lotto Box
+IG_LottoBox,7391,1	// 31号球
+IG_LottoBox,7392,1	// 32号球
+IG_LottoBox,7393,1	// 33号球
+IG_LottoBox,7394,1	// 34号球
+IG_LottoBox,7395,1	// 35号球
+IG_LottoBox,7396,1	// 36号球
+IG_LottoBox,7397,1	// 37号球
+IG_LottoBox,7398,1	// 38号球
+IG_LottoBox,7540,1	// 39号球
+IG_LottoBox,7541,1	// 40号球
+// Food Package
+IG_FoodBag,512,1	// 苹果
+IG_FoodBag,513,1	// 香蕉
+IG_FoodBag,514,1	// 葡萄
+IG_FoodBag,515,1	// 红萝卜
+IG_FoodBag,516,1	// 番薯
+IG_FoodBag,517,1	// 肉
+IG_FoodBag,518,1	// 蜂蜜
+IG_FoodBag,519,1	// 牛奶
+IG_FoodBag,520,1	// 西纳雷叶子
+IG_FoodBag,521,1	// 芦荟叶子
+IG_FoodBag,522,1	// 玛丝黛拉果实
+IG_FoodBag,526,1	// 蜂胶
+IG_FoodBag,529,1	// 糖果
+IG_FoodBag,530,1	// 拐杖糖
+IG_FoodBag,531,1	// 苹果汁
+IG_FoodBag,532,1	// 香蕉汁
+IG_FoodBag,533,1	// 葡萄汁
+IG_FoodBag,534,1	// 红萝卜汁
+IG_FoodBag,536,1	// 冰淇淋
+IG_FoodBag,538,1	// 姜饼
+IG_FoodBag,539,1	// 小蛋糕
+IG_FoodBag,544,1	// 生鱼片
+IG_FoodBag,548,1	// 吉士
+IG_FoodBag,549,1	// 美味番薯
+IG_FoodBag,550,1	// 仙贝
+IG_FoodBag,551,1	// 明虾寿司
+IG_FoodBag,553,1	// 包子
+IG_FoodBag,554,1	// 甜米糕
+IG_FoodBag,555,1	// 糕饼
+IG_FoodBag,556,1	// 条糕
+IG_FoodBag,557,1	// 切片条糕
+IG_FoodBag,558,1	// 巧克力
+IG_FoodBag,559,1	// 手工巧克力
+IG_FoodBag,560,1	// 手工巧克力
+IG_FoodBag,561,1	// 白色情人巧克力
+IG_FoodBag,564,1	// 肉粽
+IG_FoodBag,566,1	// 泰式BBQ
+IG_FoodBag,567,1	// 虾子
+IG_FoodBag,568,1	// 柠檬
+IG_FoodBag,576,1	// 榴莲
+IG_FoodBag,607,1	// 天地树果实
+IG_FoodBag,608,1	// 天地树芽
+IG_FoodBag,663,1	// 年糕
+IG_FoodBag,669,1	// Rice-Cake Soup
+// Potions
+IG_Potion,501,1	// 红色药水
+IG_Potion,502,1	// 赤色药水
+IG_Potion,503,1	// 黄色药水
+IG_Potion,504,1	// 白色药水
+// Red Box_
+IG_RedBox_2,5137,1	// 爱丽丝女仆娃娃
+IG_RedBox_2,5138,9	// 魔导师的帽子
+IG_RedBox_2,5139,10	// 海棠花发夹
+IG_RedBox_2,5140,10	// 红蝶丝带
+// Old Bleu Box
+IG_BleuBox,519,1	// 牛奶
+IG_BleuBox,538,1	// 姜饼
+IG_BleuBox,644,1	// 礼物箱
+IG_BleuBox,687,1	// 地震术 等级5
+IG_BleuBox,689,1	// 冰箭术 等级5
+IG_BleuBox,691,1	// 火箭术 等级5
+IG_BleuBox,693,1	// 雷击术 等级5
+IG_BleuBox,697,1	// 火球术 等级5
+IG_BleuBox,699,1	// 火焰之壁 等级5
+IG_BleuBox,12000,1	// 冰冻术 等级5
+IG_BleuBox,12002,1	// 治愈术 等级5
+// Red Box
+IG_RedBox,5099,1	// 咪咪帽
+IG_RedBox,5137,11	// 爱丽丝女仆娃娃
+IG_RedBox,5138,11	// 魔导师的帽子
+IG_RedBox,5139,11	// 海棠花发夹
+IG_RedBox,5140,11	// 红蝶丝带
+IG_RedBox,5142,11	// 大名的帽子
+IG_RedBox,5143,12	// 能剧面具
+IG_RedBox,5152,1	// 凤冠
+IG_RedBox,5181,11	// 暗黑假面
+IG_RedBox,5182,1	// 趴趴狗
+IG_RedBox,5183,11	// 雀巢帽
+IG_RedBox,5185,11	// 月桂树之冠
+IG_RedBox,5186,11	// 阳光的向日葵
+IG_RedBox,5187,10	// 少女的小红发带
+// Green Box
+IG_GreenBox,573,100	// 巧克力饮料
+IG_GreenBox,607,99	// 天地树果实
+IG_GreenBox,608,100	// 天地树芽
+IG_GreenBox,5182,1	// 趴趴狗
+IG_GreenBox,12018,100	// 鞭炮
+IG_GreenBox,12075,100	// 舌头料理
+IG_GreenBox,12080,100	// 鸡尾酒龙的呼吸
+IG_GreenBox,12085,100	// 不死之汤
+IG_GreenBox,12090,100	// 沙漠蝎子蒸锅
+IG_GreenBox,12095,100	// 禾贝勒开米勒酒
+IG_GreenBox,12100,100	// 特大九尾狐尾巴料理
+// Old Yellow Box
+IG_YellowBox,5259,1	// 大象帽
+IG_YellowBox,5260,1	// 甜饼人帽子
+IG_YellowBox,5261,1	// 银色提阿拉
+IG_YellowBox,5262,1	// 黄金提阿拉
+// Hometown Gift
+IG_HometownGift,663,1	// 年糕
+IG_HometownGift,12122,1	// 茶食
+IG_HometownGift,12123,1	// 油果
+IG_HometownGift,12124,1	// 彩色糕饼
+IG_HometownGift,12195,1	// 纯味的糕饼
+IG_HometownGift,12196,1	// 饱足感的糕饼
+IG_HometownGift,12197,1	// 咸咸的糕饼
+IG_HometownGift,12198,1	// 幸运的糕饼
+// Masquerade Ball Box
+IG_Masquerade,5296,10	// 懒洋洋九尾狐帽
+IG_Masquerade,5297,1	// 无灵魂发箍
+IG_Masquerade,5298,10	// Dokebi's Wig
+IG_Masquerade,5299,10	// 进化宝塔头盔
+// Tresure Box WoE
+IG_Tresure_Box_WoE,603,6	// 神秘箱子
+IG_Tresure_Box_WoE,658,6	// 组织的团结力
+IG_Tresure_Box_WoE,678,3	// 毒药瓶
+IG_Tresure_Box_WoE,732,9	// 3克拉钻石
+IG_Tresure_Box_WoE,12010,24	// 风灵箭矢筒
+IG_Tresure_Box_WoE,12011,25	// 地灵箭矢筒
+IG_Tresure_Box_WoE,12012,26	// 水灵箭矢筒
+IG_Tresure_Box_WoE,12105,12	// 饲养礼物礼盒
+IG_Tresure_Box_WoE,12107,2	// 包装的面具
+IG_Tresure_Box_WoE,12108,9	// 咒文书一迭
+IG_Tresure_Box_WoE,12110,9	// 急救箱
+IG_Tresure_Box_WoE,12111,36	// 食物保鲜袋
+IG_Tresure_Box_WoE,12130,48	// 饼干袋子
+IG_Tresure_Box_WoE,12149,27	// 弹药桶
+IG_Tresure_Box_WoE,12150,27	// 红色弹药桶
+IG_Tresure_Box_WoE,12151,27	// 银色弹药桶
+IG_Tresure_Box_WoE,12183,7	// 神圣的箭筒
+IG_Tresure_Box_WoE,12194,6	// 故乡礼物
+IG_Tresure_Box_WoE,12260,22	// (时装)凉爽的夏日
+IG_Tresure_Box_WoE,12702,8	// 神秘蓝箱
+// Masquerade Ball Box2
+IG_Masquerade_2,5211,1	// 少女礼帽
+IG_Masquerade_2,5213,13	// 兔女郎发圈
+IG_Masquerade_2,5289,10	// 巴尼米乐斯帽子
+IG_Masquerade_2,5304,10	// 盲目的斗篷
+// Easter Scroll
+IG_Easter_Scroll,636,110	// 魔物信件
+IG_Easter_Scroll,637,110	// 魔物扫把
+IG_Easter_Scroll,638,110	// 纯洁银刃
+IG_Easter_Scroll,639,110	// 驯服手镯
+IG_Easter_Scroll,640,110	// 闪烁之石
+IG_Easter_Scroll,641,110	// 黑暗合约书
+IG_Easter_Scroll,642,110	// 恶魔召唤书
+IG_Easter_Scroll,643,205	// 携带用孵蛋器
+IG_Easter_Scroll,659,110	// 心爱女人之回忆
+IG_Easter_Scroll,2264,1	// 僵尸帽
+IG_Easter_Scroll,2274,1	// 亡者发箍
+IG_Easter_Scroll,5046,1	// 妖道帽
+IG_Easter_Scroll,5167,1	// 僵尸帽
+IG_Easter_Scroll,5168,1	// 妖道帽
+// Pierre Treasurebox
+IG_Pierre_Treasurebox,603,11	// 神秘箱子
+IG_Pierre_Treasurebox,604,3	// 枯树枝
+IG_Pierre_Treasurebox,617,5	// 神秘紫箱
+IG_Pierre_Treasurebox,644,3	// 礼物箱
+IG_Pierre_Treasurebox,975,3	// 红色染料
+IG_Pierre_Treasurebox,976,3	// 黄色染料
+IG_Pierre_Treasurebox,978,3	// 蓝色染料
+IG_Pierre_Treasurebox,979,3	// 绿色染料
+IG_Pierre_Treasurebox,980,3	// 赤色染料
+IG_Pierre_Treasurebox,981,3	// 紫色染料
+IG_Pierre_Treasurebox,982,3	// 白色染料
+IG_Pierre_Treasurebox,983,3	// 黑色染料
+IG_Pierre_Treasurebox,7289,3	// 橄榄石
+IG_Pierre_Treasurebox,7290,3	// 金云母
+IG_Pierre_Treasurebox,7291,3	// 玛瑙
+IG_Pierre_Treasurebox,7292,3	// 白云母
+IG_Pierre_Treasurebox,7293,3	// 玫瑰石英
+IG_Pierre_Treasurebox,7294,3	// 绿松石
+IG_Pierre_Treasurebox,7295,3	// 黄水晶
+IG_Pierre_Treasurebox,7296,3	// 辉石
+IG_Pierre_Treasurebox,7297,3	// 黑云母
+IG_Pierre_Treasurebox,12018,3	// 鞭炮
+IG_Pierre_Treasurebox,12075,3	// 舌头料理
+IG_Pierre_Treasurebox,12085,3	// 不死之汤
+IG_Pierre_Treasurebox,12090,3	// 沙漠蝎子蒸锅
+IG_Pierre_Treasurebox,12095,3	// 禾贝勒开米勒酒
+IG_Pierre_Treasurebox,12100,3	// 特大九尾狐尾巴料理
+IG_Pierre_Treasurebox,12103,1	// 血迹树枝
+// Cherish Box
+IG_Cherish_Box,5454,1	// Puppy Hat
+IG_Cherish_Box,5455,4	// 邪恶向日葵发饰
+IG_Cherish_Box,5456,5	// Summer Hat
+// Cherish Box Ori
+IG_Cherish_Box_Ori,2712,3	// Collector's Edition Book
+IG_Cherish_Box_Ori,5212,2	// 卫星发夹
+IG_Cherish_Box_Ori,5256,1	// 瓦尔基里羽毛发圈
+IG_Cherish_Box_Ori,5305,2	// 海盗匕首
+IG_Cherish_Box_Ori,5332,2	// Loki Mask
+// Louise_Costume_Box
+IG_Louise_Costume_Box,12132,18	// 红色包裹
+IG_Louise_Costume_Box,12260,2	// (时装)凉爽的夏日
+// Xmas_Gift
+IG_Xmas_Gift,559,18	// 手工巧克力
+IG_Xmas_Gift,560,18	// 手工巧克力
+IG_Xmas_Gift,573,18	// 巧克力饮料
+IG_Xmas_Gift,603,24	// 神秘箱子
+IG_Xmas_Gift,644,66	// 礼物箱
+IG_Xmas_Gift,732,12	// 3克拉钻石
+IG_Xmas_Gift,5136,12	// 路易士圣诞帽
+IG_Xmas_Gift,12016,12	// 移速变化药水
+IG_Xmas_Gift,12017,12	// 移速变化药水
+IG_Xmas_Gift,12105,6	// 饲养礼物礼盒
+IG_Xmas_Gift,12107,6	// 包装的面具
+IG_Xmas_Gift,12108,12	// 咒文书一迭
+IG_Xmas_Gift,12110,12	// 急救箱
+IG_Xmas_Gift,12130,12	// 饼干袋子
+IG_Xmas_Gift,12132,6	// 红色包裹
+IG_Xmas_Gift,12354,24	// 圣诞树桩蛋糕
+IG_Xmas_Gift,12702,36	// 神秘蓝箱
+IG_Xmas_Gift,14546,6	// 我爱你烟花
+IG_Xmas_Gift,14550,6	// 圣诞快乐烟花
+// Elemental Points
+IG_Element,6360,1 // 火灵碎片
+IG_Element,6361,1 // 水灵碎片
+IG_Element,6362,1 // 风灵碎片
+IG_Element,6363,1 // 地灵碎片
+// Poisons
+IG_Poison,12717,1 // 瘫痪毒药
+IG_Poison,12718,1 // 吸血毒药
+IG_Poison,12719,1 // 忘却毒药
+IG_Poison,12720,1 // 污染毒药
+IG_Poison,12721,1 // 神经毒药
+IG_Poison,12722,1 // 发热毒药
+IG_Poison,12723,1 // 爆笑毒药
+IG_Poison,12724,1 // 疲劳毒药
+// Cash Foods
+IG_Cash_Food,12202,1 // 力量料理
+IG_Cash_Food,12203,1 // 敏捷料理
+IG_Cash_Food,12204,1 // 智力料理
+IG_Cash_Food,12205,1 // 灵巧料理
+IG_Cash_Food,12206,1 // 幸运料理
+IG_Cash_Food,12207,1 // 体力料理
+// Bombs
+IG_Bomb,13260,1 // 苹果炸弹
+IG_Bomb,13261,1 // 椰果炸弹
+IG_Bomb,13262,1 // 甜瓜炸弹
+IG_Bomb,13263,1 // 菠萝炸弹
+IG_Bomb,13264,1 // 香蕉炸弹
+IG_Bomb,13265,1 // 黑色聚合物
+IG_Bomb,13266,1 // 黑色坚硬的聚合物
+IG_Bomb,13267,1 // 非常坚硬的聚合物
+// Throwable Items
+IG_Throwable,13268,1 // 未知粉末
+IG_Throwable,13269,1 // Boost500_To_Throw
+IG_Throwable,13270,1 // 投掷型兴奋剂K
+IG_Throwable,13271,1 // 投掷型法力增加药水
+IG_Throwable,13272,1 // 投掷型自由恢复药水
+IG_Throwable,13273,1 // Stamina_Up_M_To_Throw
+IG_Throwable,13274,1 // Digestive_F_To_Throw
+IG_Throwable,13275,1 // 投掷型HP增加药水(小)
+IG_Throwable,13276,1 // 投掷型HP增加药水(中)
+IG_Throwable,13277,1 // 投掷型HP增加药水(大)
+IG_Throwable,13278,1 // 投掷型SP增加药水(小)
+IG_Throwable,13279,1 // 投掷型SP增加药水(中)
+IG_Throwable,13280,1 // 投掷型SP增加药水(大)
+IG_Throwable,13281,1 // 投掷型浓缩白色药水Z
+IG_Throwable,13282,1 // 投掷型黑蚁500
+IG_Throwable,13283,1 // 投掷型浓缩速度泉水
+IG_Throwable,13284,1 // 投掷型烤野猪
+IG_Throwable,13285,1 // 投掷型狼血鸡尾酒
+IG_Throwable,13286,1 // 投掷型小牛排
+IG_Throwable,13287,1 // 投掷型城间冰茶
+IG_Throwable,13288,1 // 投掷型药草蒸茅膏菜
+IG_Throwable,13289,1 // 投掷型毕帝特龙尾面
+IG_Throwable,13290,1 // 投掷型黑色物体
+// Mercenary Scrolls
+IG_Mercenary,12153,1 // 弓箭佣兵召唤书1级
+IG_Mercenary,12154,1 // 弓箭佣兵召唤书2级
+IG_Mercenary,12155,1 // 弓箭佣兵召唤书3级
+IG_Mercenary,12156,1 // 弓箭佣兵召唤书4级
+IG_Mercenary,12157,1 // 弓箭佣兵召唤书5级
+IG_Mercenary,12158,1 // 弓箭佣兵召唤书6级
+IG_Mercenary,12159,1 // 弓箭佣兵召唤书7级
+IG_Mercenary,12160,1 // 弓箭佣兵召唤书8级
+IG_Mercenary,12161,1 // 弓箭佣兵召唤书9级
+IG_Mercenary,12162,1 // 弓箭佣兵召唤书10级
+IG_Mercenary,12163,1 // 剑佣兵召唤书1级
+IG_Mercenary,12164,1 // 剑佣兵召唤书2级
+IG_Mercenary,12165,1 // 剑佣兵召唤书3级
+IG_Mercenary,12166,1 // 剑佣兵召唤书4级
+IG_Mercenary,12167,1 // 剑佣兵召唤书5级
+IG_Mercenary,12168,1 // 剑佣兵召唤书6级
+IG_Mercenary,12169,1 // 剑佣兵召唤书7级
+IG_Mercenary,12170,1 // 剑佣兵召唤书8级
+IG_Mercenary,12171,1 // 剑佣兵召唤书9级
+IG_Mercenary,12172,1 // 剑佣兵召唤书10级
+IG_Mercenary,12173,1 // 枪佣兵召唤书1级
+IG_Mercenary,12174,1 // 枪佣兵召唤书2级
+IG_Mercenary,12175,1 // 枪佣兵召唤书3级
+IG_Mercenary,12176,1 // 枪佣兵召唤书4级
+IG_Mercenary,12177,1 // 枪佣兵召唤书5级
+IG_Mercenary,12178,1 // 枪佣兵召唤书6级
+IG_Mercenary,12179,1 // 枪佣兵召唤书7级
+IG_Mercenary,12180,1 // 枪佣兵召唤书8级
+IG_Mercenary,12181,1 // 枪佣兵召唤书9级
+IG_Mercenary,12182,1 // 枪佣兵召唤书10级
+// Token of Siegfried
+IG_Token_Of_Siegfried,6293,1	// F_Token_Of_Siegfried
+IG_Token_Of_Siegfried,6316,1	// [非卖品]原地复活之证
+IG_Token_Of_Siegfried,7621,1	// 原地复活之证

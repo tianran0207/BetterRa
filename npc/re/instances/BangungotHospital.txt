@@ -1,0 +1,1094 @@
+//===== rAthena Script ======================================= 
+//= Bangungot Hospital 2F
+//===== By: ================================================== 
+//= Euphy
+//===== Current Version: ===================================== 
+//= 1.3
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Save the hospital in Port Malaya from Bangungot.
+//= Part of the "Nurse in Port Malaya" quest.
+//===== Additional Comments: ================================= 
+//= 1.0 First version. [Euphy]
+//= 1.1 Added GM management function. [Euphy]
+//= 1.2 Added VIP features. [Euphy]
+//= 1.3 Bugs fixed. [Capuche]
+//============================================================ 
+
+// Instance Creation :: ma_hos_enter
+//============================================================
+ma_dun01,147,10,5	script	护士#ma_dun01	4_F_NURSE,{
+	if (BaseLevel < 100)
+		end;
+	.@party_id = getcharid(1);
+	cutin "malaya_nurseB",2;
+
+	switch( checkquest(9223,PLAYTIME) ) {// Will there be Peace at the Hospital?
+	case -1:
+		switch( isbegin_quest(9222) ) {// Get Rid of Bangungot from Hospital 2F
+		case 0:
+			if (.@party_id == 0) {
+				if (malaya_bang == 30) {
+					malaya_bang = 31;
+					changequest 11302,11303;
+					callsub S_Closed;
+				}
+				else if (malaya_bang == 31)
+					callsub S_Closed;
+				else
+					callsub S_NoParty;
+			}
+			if (checkquest(11309,HUNTING) == 2) {
+				mes "[Nurse Maenne]";
+				mes "You got rid of Bangungot!";
+				mes "The nurse might be waiting for you";
+				mes "in front of the hospital!";
+				close2;
+				cutin "",255;
+				end;
+			}
+			switch( checkquest(9224,PLAYTIME) ) {// Explore Hospital 2F
+			case -1:
+				if (malaya_bang == 30) {
+					malaya_bang = 31;
+					changequest 11302,11303;
+					callsub S_Closed;
+				}
+				else if (malaya_bang == 31)
+					callsub S_Closed;
+				else if (malaya_bang > 39)
+					callsub S_Enter, false;
+				else {
+					mes "[护士玛恩尼]";
+					mes "..........";
+					close2;
+					cutin "",255;
+					end;
+				}
+			case 0:
+			case 1:
+				mes "[护士玛恩尼]";
+				mes "现在通向二楼的大门已经关闭.";
+				mes "请稍候尝试.";
+				next;
+				mes "[护士玛恩尼]";
+				mes "如果想再次进入二楼,";
+				mes "需要在冷却时间过后,";
+				mes "因此请稍后再来.";
+				close2;
+				cutin "",255;
+				end;
+			case 2:
+				if (checkquest(11309,HUNTING) == -1)
+					callsub S_NoParty;
+				if (isbegin_quest(11309) == 1) {
+					mes "[护士玛恩尼]";
+					mes "From the Bangungot at second floor";
+					mes "You returned safely to here!!";
+					next;
+					mes "[护士玛恩尼]";
+					mes "If you want to go up";
+					mes "second floor again";
+					mes "Please come to me.";
+					completequest 9224;
+					erasequest 9224;
+					close2;
+					cutin "",255;
+					end;
+				}
+				// isbegin_quest(11309) == 2, HUNTING == 0 or HUNTING == 1
+				if (malaya_bang > 39)
+					callsub S_Enter, true;
+				else {
+					mes "[护士玛恩尼]";
+					mes ".......";
+					close2;
+					cutin "",255;
+					end;
+				}
+			}
+		case 1:
+			if (.@party_id == 0)
+				callsub S_NoParty;
+			if (malaya_bang < 40) {
+				mes "[护士玛恩尼]";
+				mes ".....?";
+				mes "现在, 你无法进入二楼.";
+				mes "请稍后再来.";
+				close2;
+				cutin "",255;
+				end;
+			}
+			if (checkquest(9222,HUNTING) == 0 || checkquest(9222,HUNTING) == 1) {
+				switch( checkquest(9224,PLAYTIME) ) {// Explore Hospital 2F
+				case -1:
+					mes "[护士玛恩尼]";
+					mes "This is fatal situation.";
+					mes "that is why you can't go up";
+					mes "2nd floor.";
+					close2;
+					cutin "",255;
+					end;
+				case 0:
+				case 1:
+					mes "[护士玛恩尼]";
+					mes "To the second floor of hospital";
+					mes "Do you want go up second floor again?";
+					callsub S_Enter, false, false;
+				case 2:
+					callsub S_Enter, true;
+				}
+			}
+			// else
+			if (checkweight(607,11) == 0) {
+				mes "[护士玛恩尼]";
+				mes "你的负重不够.";
+				mes "请控制你携带的物品,";
+				mes "然后再来.";
+				close2;
+				cutin "",255;
+				end;
+			}
+			if (checkweight(607,1) == 0) {
+				mes "[护士玛恩尼]";
+				mes "你有太多的东西.";
+				mes "请减少你携带的物品,";
+				mes "然后再来.";
+				close2;
+				cutin "",255;
+				end;
+			}
+			callsub S_Complete, true;
+			getexp 500000,0;
+			if (VIP_SCRIPT == 0 || vip_status(VIP_STATUS_ACTIVE))
+				getitem 6499,7;// Ancient_Grudge
+			else
+				getitem 6499,5;
+			close2;
+			cutin "",255;
+			end;
+		case 2:
+			callsub S_Complete, true;
+			close2;
+			cutin "",255;
+			end;
+		}
+	case 0:
+	case 1:
+		callsub S_Complete, false;
+		close2;
+		cutin "",255;
+		end;
+	case 2:
+		if (.@party_id == 0)
+			callsub S_NoParty;
+		else if (malaya_bang > 39)
+			callsub S_Enter, true;
+		else {
+			mes "[护士玛恩尼]";
+			mes ".......";
+			close2;
+			cutin "",255;
+			end;
+		}
+	}
+
+S_Closed:
+	mes "[护士玛恩尼]";
+	mes "- 通向一楼的大门关闭了";
+	mes "当见到护士出现的时候,";
+	mes "我在她身后叫了她一声.";
+	mes "但是她却没有任何反应. -";
+	close2;
+	cutin "",255;
+	end;
+
+S_Complete:
+	mes "[护士玛恩尼]";
+	mes "你竟然从二楼安全的回来啦!!";
+	mes "不过这并没有真正的结束.";
+	next;
+	mes "[护士玛恩尼]";
+	mes "事情绝不会这么轻易的结束.";
+	mes "关于噩梦死神我不知道接下来还会有什么情况发生,";
+	mes "所以,请过一会儿";
+	mes "再来找我.";
+	if (getarg(0) == true) {
+		completequest 9222;
+		erasequest 9222;
+		completequest 9224;
+		erasequest 9224;
+		setquest 9223;
+	}
+	return;
+
+S_NoParty:
+	mes "- 我想...我不能单独和他说话.等他组了一支队伍再让我告诉他一些情报吧. -";
+	close2;
+	cutin "",255;
+	end;
+
+S_Enter:
+	.@md_name$ = "Bangungot Hospital 2F";
+	if (getarg(1,1) == true) {
+		if (is_party_leader() == true)
+			.@menu$ = "Prepare to enter the second floor.";
+		mes "[护士玛恩尼]";
+		if (getarg(0) == false) {
+			mes "[护士玛恩尼]";
+			mes "我已经听说了那个故事所以我非常了解.";
+			mes "接下来你准备怎么做?";
+			mes "你准备上二楼吗?";
+		}
+		else {
+			mes "[护士玛恩尼]";
+			mes "你回来了啊...";
+			mes "有个坏消息.";
+			mes "我听说噩梦死神又出现了.";
+			next;
+			mes "[护士玛恩尼]";
+			mes strcharinfo(0) + "的帮助.";
+			mes "请再给我一次机会,";
+			mes "好吗?";
+		}
+	}
+	next;
+	switch( select( .@menu$, "进入二楼.", "离开." ) ) {
+	case 1:
+		if (instance_create(.@md_name$) < 0) {
+			mes "[护士玛恩尼]";
+			mes "发生了一件非常严重的事情.";
+			mes "你不能到二楼去.";
+			break;
+		}
+		mes "[护士玛恩尼]";
+		mes "我们准备到二楼去了.";
+		mes "那儿有一个说不清楚的传言.";
+		mes "死去的人,并没有真正的死亡.";
+		mes "请记住这句话吧.";
+		mes "...";
+		next;
+		mes "[护士玛恩尼]";
+		mes "当你都准备好了的时候,";
+		mes "请告诉我一声.";
+		mes "我会非常感谢的.";
+		break;
+	case 2:
+		switch( instance_enter(.@md_name$) ) {
+		case IE_OTHER:
+			mes "[护士玛恩尼]";
+			mes "A critical situation has happened.";
+			mes "You can't go up to the 2nd floor.";
+			break;
+		case IE_NOINSTANCE:
+			mes "[护士玛恩尼]";
+			mes "You can't go up to";
+			mes "the 2nd floor now.";
+			break;
+		case IE_NOMEMBER:
+			mes "[护士玛恩尼]";
+			mes "It's too dangerous to go";
+			mes "up to the 2nd floor alone.";
+			mes "Please come here with";
+			mes "several people.";
+			break;
+		case IE_OK:
+			mapannounce "ma_dun01", "组队" + getpartyname(getcharid(1)) + " 的队员 " + strcharinfo(0) + " 进入了 " + .@md_name$ + " 副本.",bc_map,"0x00ff99";
+			if (getarg(0) == true) {
+				if (checkquest(9223) > -1) {
+					completequest 9223;
+					erasequest 9223;
+				}
+				if (checkquest(9222) > -1)
+					erasequest 9222;
+				if (checkquest(9224) > -1)
+					erasequest 9224;
+				setquest 9222;
+			}
+			if (isbegin_quest(9224) == 0)
+				setquest 9224;
+			cutin "",255;
+			//warp "1@ma_h",40,157;
+			end;
+		}
+		break;
+	case 3:
+		mes "[护士玛恩尼]";
+		mes "好吧.";
+		mes "如果你有新的想法了,再来找我吧.";
+		break;
+	}
+	close2;
+	cutin "",255;
+	end;
+}	
+
+// GM Management NPC :: ma_hos_enter_2
+//============================================================
+sec_in02,27,30,0	script	噩梦之门	2_MONEMUS,{
+	mes "密码";
+	next;
+	if (callfunc("F_GM_NPC","1854",1) == 0) {
+		mes "祝你好运.";
+		close;
+	}
+	switch(select("Receive 9222:Receive 9223:Erase 9222:Erase 9223:Receive 9224:Erase 9224:Receive malaya_bang 30:Receive malaya_bang 40:Receive 11309:Erase 11309:Cancel")) {
+		case 1: setquest 9222; end;
+		case 2: setquest 9223; end;
+		case 3: erasequest 9222; end;
+		case 4: erasequest 9223; end;
+		case 5: setquest 9224; end;
+		case 6: erasequest 9224; end;
+		case 7: malaya_bang = 30; end;
+		case 8: malaya_bang = 40; end;
+		case 9: setquest 11309; end;
+		case 10: completequest 11309; end;
+		case 11: end;
+	}
+}
+
+// Instance Scripts :: ma_hos
+//============================================================
+1@ma_h,43,157,0	script	#Memorial Start	HIDDEN_WARP_NPC,2,2,{
+	end;
+OnTouch:
+	if ('disablenpc == 0) {
+		'disablenpc = 1;
+		mapannounce 'map_name$, "噩梦死神: 你这个蠢货 " + strcharinfo(0) + " ....",bc_map,"0xFF82FF";
+		mapannounce 'map_name$, "噩梦死神: 在还没死之前, 快点滚出这里...",bc_map,"0xFF82FF";
+		areamonster 'map_name$,44,156,46,158,"死神守卫·噩梦巫师",2339,1,instance_npcname("#Memorial Start") + "::OnMyMobDead";
+		donpcevent instance_npcname("#Memorial Start_time") + "::OnEnable";
+	}
+	end;
+OnMyMobDead:
+	initnpctimer;
+	end;
+OnTimer1000:
+	if (mobcount('map_name$,instance_npcname("#Memorial Start") + "::OnMyMobDead") < 1) {
+		donpcevent instance_npcname("#Ward1 Entry") + "::OnEnable1";
+		donpcevent instance_npcname("#Memorial Start_time") + "::OnDisable";
+		mapannounce 'map_name$, "噩梦死神: 这里, 就是你噩梦的开始...",bc_map,"0xFF82FF";
+		disablenpc instance_npcname("#Memorial Start");
+	}
+	stopnpctimer;
+	end;
+}
+
+1@ma_h,43,157,0	script	#Memorial Start_time	HIDDEN_WARP_NPC,{// 2,2
+	end;
+OnEnable:
+	specialeffect EF_BAT2,AREA,instance_npcname("#Memorial Start"); 
+	initnpctimer;
+	end;
+OnDisable:
+	stopnpctimer;
+	end;
+OnTimer5000:
+	mapannounce 'map_name$, "噩梦死神: 一点儿作用也没有 ... 你不可能打败我.",bc_map,"0xFF82FF";
+	end;
+OnTimer10000:
+	mapannounce 'map_name$, "噩梦死神: 哈哈哈哈哈哈!!!!",bc_map,"0xFF82FF";
+	stopnpctimer;
+	end;
+OnInstanceInit:
+	disablenpc instance_npcname("#Memorial Start_time");
+	end;
+}
+
+1@ma_h,46,165,0	script	#Ward1 Entry	HIDDEN_WARP_NPC,{ //3,3
+	end;
+OnEnable1:
+	.@npc_name$ = instance_npcname(strnpcinfo(0));
+	.@label$ = .@npc_name$ + "::OnMyMobDead";
+	enablenpc .@npc_name$;
+	specialeffect EF_BAT2;
+	switch(atoi(charat(strnpcinfo(2),4))) {
+	case 1:
+		areamonster 'map_name$,49,171,51,173,"死神守卫·噩梦巫师",2339,1,.@label$;
+		areamonster 'map_name$,51,171,53,173,"死神守卫·噩梦巫师",2339,1,.@label$;
+		end;
+	case 2:
+		areamonster 'map_name$,49,137,51,139,"死神守卫·噩梦巫师",2339,1,.@label$;
+		areamonster 'map_name$,51,137,53,139,"死神守卫·噩梦巫师",2339,1,.@label$;
+		end;
+	case 3:
+		areamonster 'map_name$,69,171,71,173,"死神守卫·噩梦巫师",2339,1,.@label$;
+		areamonster 'map_name$,71,171,73,173,"死神守卫·噩梦巫师",2339,1,.@label$;
+		areamonster 'map_name$,73,171,75,173,"死神守卫·噩梦巫师",2339,1,.@label$;
+		end;
+	case 4:
+		areamonster 'map_name$,71,139,73,141,"死神守卫·噩梦巫师",2339,1,.@label$;
+		areamonster 'map_name$,73,139,75,141,"死神守卫·噩梦巫师",2339,1,.@label$;
+		areamonster 'map_name$,75,139,77,141,"死神守卫·噩梦巫师",2339,1,.@label$;
+		end;
+	case 5:
+		areamonster 'map_name$,93,173,95,175,"死神守卫·噩梦巫师",2339,1,.@label$;
+		areamonster 'map_name$,95,173,97,175,"死神守卫·噩梦巫师",2339,1,.@label$;
+		areamonster 'map_name$,97,173,99,175,"死神守卫·噩梦巫师",2339,1,.@label$;
+		areamonster 'map_name$,93,175,95,177,"死神守卫·噩梦巫师",2339,1,.@label$;
+		end;
+	}
+	end;
+/*
+// Not called in official scripts.
+OnEnable2:
+	areamonster 'map_name$,140,38,142,40,"死神守卫·噩梦巫师",2339,1,instance_npcname("#Ward1 Entry") + "::OnMyMobDead";
+	end;
+*/
+OnEnable3:
+	.@i = atoi(charat(strnpcinfo(2),4))+1;
+	donpcevent instance_npcname("#Ward" + .@i + " Entry") + "::OnEnable1";
+	disablenpc instance_npcname(strnpcinfo(0));
+	end;
+OnMyMobDead:
+	initnpctimer;
+	end;
+OnTimer1000:
+	if (mobcount('map_name$,instance_npcname(strnpcinfo(0)) + "::OnMyMobDead") < 1) {
+		specialeffect EF_BAT2;
+		donpcevent instance_npcname(strnpcinfo(0)) + "::OnEnable3";
+		switch(atoi(charat(strnpcinfo(2),4))) {
+			case 1: .@string$ = "噩梦死神: 我会让你知道不甘与痛苦的滋味, 那是多么的真实....."; break;
+			case 2: .@string$ = "噩梦死神: 扭曲的信仰, 是我的生命和力量的源泉..."; break;
+			case 3: .@string$ = "噩梦死神: 喊吧, 叫吧, 释放出你的痛苦..."; break;
+			case 4: .@string$ = "噩梦死神: 痛吗, 再痛苦一些..."; break;
+			case 5: .@string$ = "噩梦死神: 恐惧吧...吃惊了吗."; break;
+		}
+		mapannounce 'map_name$, .@string$, bc_map,"0xFF82FF";
+	}
+	stopnpctimer;
+	end;
+OnInstanceInit:
+	disablenpc instance_npcname(strnpcinfo(0));
+	end;
+}
+1@ma_h,57,147,0	duplicate(#Ward1 Entry)	#Ward2 Entry	HIDDEN_WARP_NPC //3,3
+1@ma_h,67,165,0	duplicate(#Ward1 Entry)	#Ward3 Entry	HIDDEN_WARP_NPC //3,3
+1@ma_h,79,147,0	duplicate(#Ward1 Entry)	#Ward4 Entry	HIDDEN_WARP_NPC //3,3
+1@ma_h,90,165,0	duplicate(#Ward1 Entry)	#Ward5 Entry	HIDDEN_WARP_NPC //3,3
+
+1@ma_h,101,147,0	script	#Ward6 Entry	HIDDEN_WARP_NPC,{ //2,2
+	end;
+OnEnable1:
+	.@npc_name$ = instance_npcname("#Ward6 Entry");
+	.@label$ = .@npc_name$ + "::OnMyMobDead";
+	enablenpc .@npc_name$;
+	specialeffect EF_BAT2;
+	areamonster 'map_name$,93,137,95,139,"死神守卫·噩梦巫师",2339,1,.@label$;
+	areamonster 'map_name$,95,137,97,139,"死神守卫·噩梦巫师",2339,1,.@label$;
+	areamonster 'map_name$,97,137,99,139,"死神守卫·噩梦巫师",2339,1,.@label$;
+	areamonster 'map_name$,93,139,95,141,"死神守卫·噩梦巫师",2339,1,.@label$;
+	areamonster 'map_name$,95,139,97,141,"死神守卫·噩梦护士",2338,1,.@label$;
+	end;
+/*
+// Not called in official scripts.
+OnEnable2:
+	areamonster 'map_name$,140,38,142,40,"死神守卫·噩梦巫师",2339,1,instance_npcname("#Ward6 Entry") + "::OnMyMobDead";
+	end;
+*/
+OnMyMobDead:
+	initnpctimer;
+	end;
+OnTimer3000:
+	if (mobcount('map_name$,instance_npcname("#Ward6 Entry") + "::OnMyMobDead") < 1) {
+		specialeffect EF_BAT2;
+		donpcevent instance_npcname("#Summon Boss") + "::OnEnable";
+		mapannounce 'map_name$, "噩梦死神: 死神守卫·噩梦巫师: 虽然你可以选择来这里, 但你是不是能够出去却是由我来决定的...",bc_map,"0xFF82FF";
+	}
+	stopnpctimer;
+	end;
+OnInstanceInit:
+	disablenpc instance_npcname("#Ward6 Entry");
+	end;
+}
+
+1@ma_h,110,177,0	script	#Summon Boss	HIDDEN_WARP_NPC,{
+	end;
+OnEnable:
+	enablenpc instance_npcname("#Summon Boss");
+	monster 'map_name$,143,158,"噩梦死神",2317,1,instance_npcname("#Summon Boss") + "::OnMyMobDead";
+	donpcevent instance_npcname("#Boss Room Entry") + "::OnEnableEntry";
+	donpcevent instance_npcname("#Boss Room Entry") + "::OnEnable";
+	end;
+OnMyMobDead:
+	initnpctimer;
+	end;
+OnTimer1000:
+	if (mobcount('map_name$,instance_npcname("#Summon Boss") + "::OnMyMobDead") < 1) {
+		donpcevent instance_npcname("#Summon Pillar") + "::OnEnable1";
+		mapannounce 'map_name$, "噩梦死神: 我...不会...就这样...罢休的.",bc_map,"0xFF82FF";
+		disablenpc instance_npcname("#Summon Boss");
+	}
+	stopnpctimer;
+	end;
+OnInstanceInit:
+	disablenpc instance_npcname("#Summon Boss");
+	end;
+}
+
+1@ma_h,147,143,0	script	#Boss Room Entry	HIDDEN_WARP_NPC,10,10,{
+	end;
+OnTouch:
+	specialeffect EF_GHOST;
+	donpcevent instance_npcname("#Boss Room Entry") + "::OnDisableEntry";
+	donpcevent instance_npcname("#Boss Room Entry_time") + "::OnEnable";
+	end;
+OnEnable:
+	// enablenpc instance_npcname("#Boss Room Entry");
+	enablenpc instance_npcname("#Boss Room Door");
+	enablenpc instance_npcname("#Boss Room Door1");
+	end;
+OnSpawn:
+	areamonster 'map_name$,123,152,137,166,"死神守卫·噩梦护士",2338,1,instance_npcname("#Boss Room Entry") + "::OnMyMobDead";
+	end;
+OnReset:
+	killmonster 'map_name$,instance_npcname("#Boss Room Entry") + "::OnMyMobDead";
+	end;
+OnMyMobDead:
+	initnpctimer;
+	end;
+OnTimer1000:
+	if (mobcount('map_name$,instance_npcname("#Boss Room Entry") + "::OnMyMobDead") < 1)
+		mapannounce 'map_name$, "噩梦死神: 哈哈哈... 这还不够, 我会更加强大....",bc_map,"0xFF82FF";
+	stopnpctimer;
+	end;
+
+// Unofficial labels (to avoid duplicating code).
+OnEnableEntry:
+	enablenpc instance_npcname("#Boss Room Entry");
+	enablenpc instance_npcname("#Boss Room Entry_a");
+	enablenpc instance_npcname("#Boss Room Entry_b");
+	enablenpc instance_npcname("#Boss Room Entry_c");
+	enablenpc instance_npcname("#Boss Room Entry_d");
+	enablenpc instance_npcname("#Boss Room Entry_e");
+	enablenpc instance_npcname("#Boss Room Entry_f");
+	enablenpc instance_npcname("#Boss Room Entry_g");
+	enablenpc instance_npcname("#Boss Room Entry_h");
+	end;
+OnDisableEntry:
+	disablenpc instance_npcname("#Boss Room Entry");
+	disablenpc instance_npcname("#Boss Room Entry_a");
+	disablenpc instance_npcname("#Boss Room Entry_b");
+	disablenpc instance_npcname("#Boss Room Entry_c");
+	disablenpc instance_npcname("#Boss Room Entry_d");
+	disablenpc instance_npcname("#Boss Room Entry_e");
+	disablenpc instance_npcname("#Boss Room Entry_f");
+	disablenpc instance_npcname("#Boss Room Entry_g");
+	disablenpc instance_npcname("#Boss Room Entry_h");
+	end;
+OnInstanceInit:
+	disablenpc instance_npcname("#Boss Room Entry");
+	end;
+}
+
+1@ma_h,147,143,0	script	#Boss Room Entry_time	HIDDEN_WARP_NPC,{ //10,10
+	end;
+OnEnable:
+	mapannounce 'map_name$, "噩梦死神: 蝼蚁般的存在. 来参观我的噩梦世界吧...",bc_map,"0xFF82FF";
+	initnpctimer;
+	end;
+OnTimer25000:
+	mapannounce 'map_name$, "噩梦死神: 我会让你明白...",bc_map,"0xFF82FF";
+	for ( .@i = 10; .@i <= 22; ++.@i )
+		disablenpc instance_npcname("#Patternwarp" + .@i);
+	end;
+OnTimer35000:
+	mapannounce 'map_name$, "噩梦死神: 真正的痛楚! 你会明白的!!",bc_map,"0xFF82FF";
+	for ( .@i = 25; .@i <= 33; ++.@i )
+		disablenpc instance_npcname("#Patternwarp" + .@i);
+	end;
+OnTimer45000:
+	mapannounce 'map_name$, "噩梦死神: 你听过病人的尖叫吗?",bc_map,"0xFF82FF";
+	end;
+OnTimer55000:
+	mapannounce 'map_name$, "噩梦死神: 那么,来享受一下吧!!",bc_map,"0xFF82FF";
+	enablenpc instance_npcname("#Summon Ward Mob");
+	donpcevent instance_npcname("#Summon Ward Mob") + "::OnEnable7";
+	end;
+OnTimer60000:
+	for ( .@i = 1; .@i <= 8; ++.@i )
+		enablenpc instance_npcname("#Patternwarp" + .@i);
+	for ( .@i = 34; .@i <= 38; ++.@i )
+		enablenpc instance_npcname("#Patternwarp" + .@i);
+	end;
+OnTimer60500:
+	for ( .@i = 41; .@i <= 49; ++.@i )
+		enablenpc instance_npcname("#Patternwarp" + .@i);
+	end;
+OnTimer90000:
+	mapannounce 'map_name$, "噩梦死神: 看到你的痛苦是我最大的乐趣.",bc_map,"0xFF82FF";
+	donpcevent instance_npcname("#Boss Room Entry") + "::OnSpawn";
+	end;
+OnTimer110000:
+	mapannounce 'map_name$, "噩梦死神: 留在这里, 诅咒疾病.....",bc_map,"0xFF82FF";
+	donpcevent instance_npcname("#Boss Room Entry") + "::OnSpawn";
+	end;
+OnTimer125000:
+	mapannounce 'map_name$, "噩梦死神: 你想和我逛逛吗 ......?",bc_map,"0xFF82FF";
+	end;
+OnTimer128000:
+	for ( .@i = 1; .@i <= 8; ++.@i )
+		disablenpc instance_npcname("#Patternwarp" + .@i);
+	for ( .@i = 34; .@i <= 38; ++.@i )
+		disablenpc instance_npcname("#Patternwarp" + .@i);
+	end;
+OnTimer128500:
+	for ( .@i = 41; .@i <= 49; ++.@i )
+		disablenpc instance_npcname("#Patternwarp" + .@i);
+	end;
+OnTimer129000:
+	donpcevent instance_npcname("#Boss Room Entry") + "::OnEnableEntry";
+	end;
+OnTimer129500:
+	donpcevent instance_npcname("#Boss Room Entry") + "::OnSpawn";
+	for ( .@i = 10; .@i <= 22; ++.@i )
+		enablenpc instance_npcname("#Patternwarp" + .@i);
+	end;
+OnTimer130000:
+	for ( .@i = 25; .@i <= 33; ++.@i )
+		enablenpc instance_npcname("#Patternwarp" + .@i);
+	stopnpctimer;
+	end;
+OnStopTimer:
+	stopnpctimer;
+	end;
+OnInstanceInit:
+	disablenpc instance_npcname("#Boss Room Entry_time");
+	end;
+}
+
+1@ma_h,111,177,0	script	#Boss Room Entry_2	WARPNPC,{
+	end;
+OnEnable:
+	mapannounce 'map_name$, "噩梦死神: 你还有点儿厉害...",bc_map,"0xFF82FF";
+	initnpctimer;
+	end;
+OnTimer3000:
+	mapannounce 'map_name$, "噩梦死神: 但是你能...",bc_map,"0xFF82FF";
+	end;
+OnTimer6000:
+	mapannounce 'map_name$, "噩梦死神: ...还想击败我...?",bc_map,"0xFF82FF";
+	end;
+OnTimer9000:
+	for ( .@i = 1; .@i <= 8; ++.@i )
+		disablenpc instance_npcname("#Patternwarp" + .@i);
+	for ( .@i = 34; .@i <= 38; ++.@i )
+		disablenpc instance_npcname("#Patternwarp" + .@i);
+	end;
+OnTimer9500:
+	for ( .@i = 41; .@i <= 49; ++.@i )
+		disablenpc instance_npcname("#Patternwarp" + .@i);
+	end;
+OnTimer10000:
+	mapannounce 'map_name$, "噩梦死神: 你是一个愚蠢的人类....",bc_map,"0xFF82FF";
+	for ( .@i = 10; .@i <= 22; ++.@i )
+		enablenpc instance_npcname("#Patternwarp" + .@i);
+	end;
+OnTimer10500:
+	for ( .@i = 25; .@i <= 33; ++.@i )
+		enablenpc instance_npcname("#Patternwarp" + .@i);
+	stopnpctimer;
+	end;
+OnStopTimer:
+	stopnpctimer;
+	end;
+OnInstanceInit:
+	disablenpc instance_npcname("#Boss Room Entry_2");
+	end;
+}
+
+1@ma_h,118,63,0	script	#Summon Ward Mob	HIDDEN_WARP_NPC,4,4,{
+	end;
+OnTouch:
+	donpcevent instance_npcname("#Summon Ward Mob_time") + "::OnEnable";
+	specialeffect EF_CURSEATTACK;
+	end;
+OnEnable1:
+	.@label$ = instance_npcname("#Summon Ward Mob2") + "::OnMyMobDead";
+	areamonster 'map_name$,47,77,49,79,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,49,77,51,79,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,51,77,53,79,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,47,79,49,81,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,49,79,51,81,"死神守卫·噩梦巫师",2339,1,.@label$;
+	areamonster 'map_name$,47,81,49,83,"死神守卫·恶魔婴儿",2339,1,.@label$;
+	areamonster 'map_name$,49,81,51,83,"死神守卫·恶魔婴儿",2339,1,.@label$;
+	end;
+OnEnable2:
+	.@label$ = instance_npcname("#Summon Ward Mob2") + "::OnMyMobDead";
+	areamonster 'map_name$,51,45,53,47,"死神守卫·恶魔婴儿",2339,1,.@label$;
+	areamonster 'map_name$,53,45,55,47,"死神守卫·恶魔婴儿",2339,1,.@label$;
+	areamonster 'map_name$,49,47,51,49,"死神守卫·噩梦巫师",2339,1,.@label$;
+	areamonster 'map_name$,53,47,55,49,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,49,49,51,51,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,51,49,53,51,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,53,49,55,51,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	end;
+OnEnable3:
+	.@label$ = instance_npcname("#Summon Ward Mob2") + "::OnMyMobDead";
+	areamonster 'map_name$,69,75,71,77,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,71,75,73,77,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,73,75,75,77,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,69,77,71,79,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,71,77,73,79,"死神守卫·噩梦巫师",2339,1,.@label$;
+	areamonster 'map_name$,69,79,71,81,"死神守卫·恶魔婴儿",2339,1,.@label$;
+	areamonster 'map_name$,71,79,73,81,"死神守卫·恶魔婴儿",2339,1,.@label$;
+	end;
+OnEnable4:
+	.@label$ = instance_npcname("#Summon Ward Mob2") + "::OnMyMobDead";
+	areamonster 'map_name$,73,45,75,47,"死神守卫·恶魔婴儿",2339,1,.@label$;
+	areamonster 'map_name$,75,45,77,47,"死神守卫·恶魔婴儿",2339,1,.@label$;
+	areamonster 'map_name$,71,47,73,49,"死神守卫·噩梦巫师",2339,1,.@label$;
+	areamonster 'map_name$,75,47,77,49,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,71,49,73,51,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,73,49,75,51,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,75,49,77,51,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	end;
+OnEnable5:
+	.@label$ = instance_npcname("#Summon Ward Mob2") + "::OnMyMobDead";
+	areamonster 'map_name$,93,77,95,79,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,95,77,97,79,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,97,77,99,79,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,93,79,95,81,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,95,79,97,81,"死神守卫·噩梦巫师",2339,1,.@label$;
+	areamonster 'map_name$,93,81,95,83,"死神守卫·恶魔婴儿",2339,1,.@label$;
+	areamonster 'map_name$,95,81,97,83,"死神守卫·恶魔婴儿",2339,1,.@label$;
+	end;
+OnEnable6:
+	.@label$ = instance_npcname("#Summon Ward Mob2") + "::OnMyMobDead";
+	areamonster 'map_name$,93,43,95,45,"死神守卫·恶魔婴儿",2339,1,.@label$;
+	areamonster 'map_name$,95,43,97,45,"死神守卫·恶魔婴儿",2339,1,.@label$;
+	areamonster 'map_name$,91,45,93,47,"死神守卫·噩梦巫师",2339,1,.@label$;
+	areamonster 'map_name$,95,45,97,47,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,91,47,93,49,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,93,47,95,49,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	areamonster 'map_name$,95,47,97,49,"死神守卫·恶魔婴儿",2340,1,.@label$;
+	end;
+OnEnable7:
+	killmonster 'map_name$,instance_npcname("#Summon Ward Mob2") + "::OnMyMobDead";
+	end;
+OnInstanceInit:
+	disablenpc instance_npcname("#Summon Ward Mob");
+	end;
+}
+
+1@ma_h,118,63,0	script	#Summon Ward Mob2	HIDDEN_WARP_NPC,{
+	end;
+OnMyMobDead:
+	initnpctimer;
+	end;
+OnTimer1000:
+	if (mobcount('map_name$,instance_npcname("#Summon Ward Mob2") + "::OnMyMobDead") < 1) {
+		donpcevent instance_npcname("#Boss Room Entry_2") + "::OnEnable";
+		donpcevent instance_npcname("#Boss Room Entry") + "::OnEnableEntry";
+		donpcevent instance_npcname("#Boss Room Entry_time") + "::OnStopTimer";
+	}
+	stopnpctimer;
+	end;
+}
+
+1@ma_h,118,64,0	script	#Summon Ward Mob_time	HIDDEN_WARP_NPC,{ //4,4
+	end;
+OnEnable:
+	initnpctimer;
+	disablenpc instance_npcname("#Summon Ward Mob");
+	end;
+OnTimer2000:
+	mapannounce 'map_name$, "噩梦死神: 我的灵魂常驻你被诅咒的躯体...",bc_map,"0xFF82FF";
+	end;
+OnTimer4000:
+	mapannounce 'map_name$, "噩梦死神: 我的小弟...!! 去吧!! 去折磨这个世上的人!!",bc_map,"0xFF82FF";
+	end;
+OnTimer6000:
+	mapannounce 'map_name$, "- 噩梦死神的小弟正在侵浊病人!! 如果你不清除它们, 梦魇会变的更加强壮, 梦魇会变的更加强壮. -",bc_map,"0xFF8200";
+	end;
+OnTimer10000:
+	setarray .@npc$[1],
+		"呻吟的病人","尖叫的病人","痛苦的病人","稀烂的病人","噩梦中的病人","萎靡的病人",
+		"惊骇的病人","悲伤的病人","受折磨的病人","蠕动的病人","单薄的病人","嚎叫的病人";
+	.@rand = rand(1,6);
+	donpcevent instance_npcname("#Summon Ward Mob") + "::OnEnable" + .@rand;
+	.@id = (.@rand*2)-rand(2);
+	donpcevent instance_npcname(.@npc$[.@id] + "#" + .@id) + "::OnEnable";
+	stopnpctimer;
+	end;
+OnStopTimer:
+	stopnpctimer;
+	end;
+OnInstanceInit:
+	disablenpc instance_npcname("#Summon Ward Mob_time");
+	end;
+}
+
+1@ma_h,112,177,0	script	#Summon Pillar	HIDDEN_WARP_NPC,{
+	end;
+OnEnable1:
+	enablenpc instance_npcname("#Summon Pillar");
+	donpcevent instance_npcname("#Boss Room Entry_time") + "::OnStopTimer";
+	donpcevent instance_npcname("#Summon Pillar_time") + "::OnEnable";
+	monster 'map_name$,131,157,"灵魂分身",2327,1,instance_npcname("#Summon Pillar") + "::OnMyMobDead";
+	end;
+OnEnable3:
+	enablenpc instance_npcname("#Boss Room Exit");
+	disablenpc instance_npcname("#Summon Pillar");
+	end;
+OnReset:
+	killmonster 'map_name$,instance_npcname("#Summon Pillar") + "::OnMyMobDead";
+	end;
+OnMyMobDead:
+	initnpctimer;
+	end;
+OnTimer1000:
+	if (mobcount('map_name$,instance_npcname("#Summon Pillar") + "::OnMyMobDead") < 1) {
+		donpcevent instance_npcname("#Summon Pillar_time") + "::OnStopTimer";
+		donpcevent instance_npcname("#Summon Pillar") + "::OnEnable3";
+		donpcevent instance_npcname("#Boss Room Entry") + "::OnReset";
+		mapannounce 'map_name$, "噩梦死神: 噢....不能相信我竟然失败了...",bc_map,"0xFF4500";
+		mapannounce 'map_name$, "噩梦死神: 不过我觉得还没结束!!",bc_map,"0xFF4500";
+		mapannounce 'map_name$, "噩梦死神: 我会回来的!!!!!",bc_map,"0xFF4500";
+	}
+	stopnpctimer;
+	end;
+OnInstanceInit:
+	disablenpc instance_npcname("#Summon Pillar");
+	end;
+}
+
+1@ma_h,112,178,0	script	#Summon Pillar_time	HIDDEN_WARP_NPC,{
+	end;
+OnEnable:
+	initnpctimer;
+	end;
+OnStopTimer:
+	stopnpctimer;
+	end;
+OnTimer1000:
+	mapannounce 'map_name$, "- 噩梦死神的灵魂分身正在对他进行治疗. 如果你还不出手, 他马上就会康复!! -",bc_map,"0xFF8200";
+	specialeffect EF_MAPPILLAR2,AREA,instance_npcname("#Dummy_Patternwarp45");
+	end;
+OnTimer7000:
+	mapannounce 'map_name$, "噩梦死神: 我不可能死!!!!",bc_map,"0xFF82FF";
+	specialeffect EF_MAPPILLAR2,AREA,instance_npcname("#Dummy_Patternwarp45");
+	end;
+OnTimer14000:
+	mapannounce 'map_name$, "噩梦死神: 够胆就杀了我!! 我会马上再回来的!!!",bc_map,"0xFF82FF";
+	specialeffect EF_MAPPILLAR2,AREA,instance_npcname("#Dummy_Patternwarp45");
+	end;
+OnTimer21000:
+	mapannounce 'map_name$, "噩梦死神: 绝不能这样结束...!!!!",bc_map,"0xFF82FF";
+	specialeffect EF_MAPPILLAR2,AREA,instance_npcname("#Dummy_Patternwarp45");
+	end;
+OnTimer30000:
+	donpcevent instance_npcname("#Summon Pillar") + "::OnReset";
+	end;
+OnTimer31000:
+	mapannounce 'map_name$, "噩梦死神: 哈哈哈哈!! 灵魂分身让我的力量开始恢复了!!!",bc_map,"0xFF82FF";
+	donpcevent instance_npcname("#Summon Pillar") + "::OnReset";
+	end;
+OnTimer36000:
+	donpcevent instance_npcname("#Summon Boss") + "::OnEnable";
+	stopnpctimer;
+	end;
+OnInstanceInit:
+	disablenpc instance_npcname("#Summon Pillar_time");
+	end;
+}
+
+1@ma_h,118,171,0	script	#Boss Room Entry_a	HIDDEN_WARP_NPC,10,10,{
+	end;
+OnTouch:
+	specialeffect EF_GHOST;
+	donpcevent instance_npcname("#Boss Room Entry") + "::OnDisableEntry";
+	donpcevent instance_npcname("#Boss Room Entry_time") + "::OnEnable";
+	end;
+OnInstanceInit:
+	disablenpc instance_npcname(strnpcinfo(0));
+	end;
+}
+1@ma_h,132,171,0	duplicate(#Boss Room Entry_a)	#Boss Room Entry_b	HIDDEN_WARP_NPC,10,10
+1@ma_h,147,171,0	duplicate(#Boss Room Entry_a)	#Boss Room Entry_c	HIDDEN_WARP_NPC,10,10
+1@ma_h,118,157,0	duplicate(#Boss Room Entry_a)	#Boss Room Entry_d	HIDDEN_WARP_NPC,10,10
+1@ma_h,132,157,0	duplicate(#Boss Room Entry_a)	#Boss Room Entry_e	HIDDEN_WARP_NPC,10,10
+1@ma_h,147,157,0	duplicate(#Boss Room Entry_a)	#Boss Room Entry_f	HIDDEN_WARP_NPC,10,10
+1@ma_h,118,143,0	duplicate(#Boss Room Entry_a)	#Boss Room Entry_g	HIDDEN_WARP_NPC,10,10
+1@ma_h,132,143,0	duplicate(#Boss Room Entry_a)	#Boss Room Entry_h	HIDDEN_WARP_NPC,10,10
+
+1@ma_h,131,62,0	script	#Boss Effect	HIDDEN_WARP_NPC,{ //4,4
+	end;
+OnTimer3000:
+	specialeffect EF_BARRIER;
+	stopnpctimer;
+	initnpctimer;
+	end;
+OnInstanceInit:
+	hideonnpc instance_npcname("#Boss Effect");
+	initnpctimer;
+	end;
+}
+
+1@ma_h,43,86,4	script	呻吟的病人#1	4_F_PATIENT,{
+	end;
+OnEnable:
+	mapannounce 'map_name$, "呻吟的病人: 啊啊..哇哇....",bc_map,"0xFF0000";
+	initnpctimer;
+	end;
+OnTimer5000:
+OnTimer8000:
+OnTimer11000:
+OnTimer14000:
+OnTimer17000:
+OnTimer20000:
+OnTimer23000:
+OnTimer26000:
+	specialeffect EF_POTION_BERSERK;
+	specialeffect EF_CURSEATTACK;
+	end;
+OnTimer30000:
+	specialeffect EF_POTION_BERSERK;
+	specialeffect EF_CURSEATTACK;
+	stopnpctimer;
+	end;
+OnInstanceInit:
+	'disablenpc = 0;
+	'map_name$ = instance_mapname("1@ma_h");
+	monster 'map_name$,131,62,"噩梦死神",2318,1;
+	end;
+}
+
+1@ma_h,60,87,4	script	尖叫的病人#2	4_M_PATIENT,{
+	end;
+OnEnable:
+	switch(atoi(strnpcinfo(2))) {
+		case 2: .@str$ = "尖叫的病人: 啊!!"; break;
+		case 3: .@str$ = "在痛苦中的病人: 唔!! 我要死了!!!"; break;
+		case 4: .@str$ = "接受治疗的病人: ........"; break;
+		case 5: .@str$ = "噩梦中的病人: 救命啊~!!! 救救我!!!"; break;
+		case 6: .@str$ = "萎靡的病人: 喔..啊...啊.."; break;
+		case 7: .@str$ = "惊恐的病人: 走开!! 求你了...."; break;
+		case 8: .@str$ = "悲伤中的病人: 哭吧哭吧......"; break;
+		case 9: .@str$ = "受折磨的病人 : 不要啊... 求你了..."; break;
+		case 10: .@str$ = "蠕动的病人: 哇..."; break;
+		case 11: .@str$ = "单薄的病人: 救命.....救命...."; break;
+		case 12: .@str$ = "嚎叫的病人: 啊~~~~~~~~~~~~!!"; break;
+	}
+	mapannounce 'map_name$,.@str$,bc_map,"0xFF0000";
+	initnpctimer;
+	end;
+OnTimer5000:
+OnTimer8000:
+OnTimer11000:
+OnTimer14000:
+OnTimer17000:
+OnTimer20000:
+OnTimer23000:
+OnTimer26000:
+	specialeffect EF_POTION_BERSERK;
+	specialeffect EF_CURSEATTACK;
+	end;
+OnTimer30000:
+	specialeffect EF_POTION_BERSERK;
+	specialeffect EF_CURSEATTACK;
+	stopnpctimer;
+	end;
+}
+1@ma_h,60,39,7	duplicate(尖叫的病人#2)	痛苦的病人#3	4_F_PATIENT
+1@ma_h,43,39,7	duplicate(尖叫的病人#2)	腐烂的病人#4	4_M_PATIENT
+1@ma_h,77,86,4	duplicate(尖叫的病人#2)	噩梦中的病人#5	4_F_PATIENT
+1@ma_h,69,87,4	duplicate(尖叫的病人#2)	萎靡的病人#6	4_M_PATIENT
+1@ma_h,73,39,7	duplicate(尖叫的病人#2)	惊骇的病人#7	4_F_PATIENT
+1@ma_h,65,51,7	duplicate(尖叫的病人#2)	悲伤的病人#8	4_M_PATIENT
+1@ma_h,87,86,4	duplicate(尖叫的病人#2)	受折磨的病人#9	4_F_PATIENT
+1@ma_h,104,86,4	duplicate(尖叫的病人#2)	蠕动的病人#10	4_M_PATIENT
+1@ma_h,99,39,7	duplicate(尖叫的病人#2)	单薄的病人#11	4_F_PATIENT
+1@ma_h,87,39,7	duplicate(尖叫的病人#2)	嚎叫的病人#12	4_M_PATIENT
+
+1@ma_h,43,181,4	script	呻吟的病人#b	4_F_PATIENT,{ end; }
+1@ma_h,60,182,4	duplicate(呻吟的病人#b)	尖叫的病人#b	4_M_PATIENT
+1@ma_h,60,132,7	duplicate(呻吟的病人#b)	在痛苦中的病人#b	4_F_PATIENT
+1@ma_h,43,132,7	duplicate(呻吟的病人#b)	接受治疗的病人#b	4_M_PATIENT
+1@ma_h,77,182,4	duplicate(呻吟的病人#b)	噩梦中的病人#b	4_F_PATIENT
+1@ma_h,69,182,4	duplicate(呻吟的病人#b)	萎靡的病人#b	4_M_PATIENT
+1@ma_h,73,132,7	duplicate(呻吟的病人#b)	惊恐的病人#b	4_F_PATIENT
+1@ma_h,65,144,7	duplicate(呻吟的病人#b)	悲伤中的病人#b	4_M_PATIENT
+1@ma_h,87,181,4	duplicate(呻吟的病人#b)	受折磨的病人#b	4_F_PATIENT
+1@ma_h,104,181,4	duplicate(呻吟的病人#b)	扭动的病人#b	4_M_PATIENT
+1@ma_h,99,132,7	duplicate(呻吟的病人#b)	单薄的病人#b	4_F_PATIENT
+1@ma_h,87,132,7	duplicate(呻吟的病人#b)	嚎叫的病人#b	4_M_PATIENT
+1@ma_h,131,157,0	duplicate(呻吟的病人#b)	#Dummy_Patternwarp45	HIDDEN_WARP_NPC
+
+// Warp Portals
+//============================================================
+1@ma_h,35,156,0	warp2	#Boss Room Exit	2,2,ma_dun01,150,9
+1@ma_h,105,157,0	warp2	#Boss Room Door	2,2,1@ma_h,116,157
+1@ma_h,112,157,0	warp2	#Boss Room Door1	2,2,1@ma_h,100,157
+1@ma_h,112,63,0	warp2	#Boss Room Door3	2,2,1@ma_h,100,63
+1@ma_h,104,63,0	warp2	#Boss Room Door2	2,2,1@ma_h,117,63
+1@ma_h,36,157,0	duplicate(#Boss Room Door2)	#Patternwarp1	7,7
+1@ma_h,46,157,0	duplicate(#Boss Room Door2)	#Patternwarp2	7,7
+1@ma_h,57,157,0	duplicate(#Boss Room Door2)	#Patternwarp3	7,7
+1@ma_h,67,157,0	duplicate(#Boss Room Door2)	#Patternwarp4	7,7
+1@ma_h,79,157,0	duplicate(#Boss Room Door2)	#Patternwarp5	7,7
+1@ma_h,89,157,0	duplicate(#Boss Room Door2)	#Patternwarp6	7,7
+1@ma_h,100,157,0	duplicate(#Boss Room Door2)	#Patternwarp7	7,7
+1@ma_h,51,173,0	duplicate(#Boss Room Door2)	#Patternwarp8	10,10
+1@ma_h,52,140,0	duplicate(#Boss Room Door2)	#Patternwarp34	10,10
+1@ma_h,73,173,0	duplicate(#Boss Room Door2)	#Patternwarp35	10,10
+1@ma_h,73,140,0	duplicate(#Boss Room Door2)	#Patternwarp36	10,10
+1@ma_h,95,173,0	duplicate(#Boss Room Door2)	#Patternwarp37	10,10
+1@ma_h,95,140,0	duplicate(#Boss Room Door2)	#Patternwarp38	10,10
+//1@ma_h,70,170,0	duplicate(#Boss Room Door2)	#Patternwarp39	10,10
+//1@ma_h,77,169,0	duplicate(#Boss Room Door2)	#Patternwarp40	10,10
+1@ma_h,117,171,0	duplicate(#Boss Room Door2)	#Patternwarp41	10,10
+1@ma_h,131,171,0	duplicate(#Boss Room Door2)	#Patternwarp42	10,10
+1@ma_h,146,171,0	duplicate(#Boss Room Door2)	#Patternwarp43	10,10
+1@ma_h,117,157,0	duplicate(#Boss Room Door2)	#Patternwarp44	10,10
+1@ma_h,131,157,0	duplicate(#Boss Room Door2)	#Patternwarp45	10,10
+1@ma_h,146,157,0	duplicate(#Boss Room Door2)	#Patternwarp46	10,10
+1@ma_h,117,143,0	duplicate(#Boss Room Door2)	#Patternwarp47	10,10
+1@ma_h,131,143,0	duplicate(#Boss Room Door2)	#Patternwarp48	10,10
+1@ma_h,146,143,0	duplicate(#Boss Room Door2)	#Patternwarp49	10,10
+
+1@ma_h,36,63,0	warp2	#Patternwarp10	7,7,1@ma_h,116,157
+1@ma_h,46,63,0	duplicate(#Patternwarp10)	#Patternwarp11	7,7
+1@ma_h,56,63,0	duplicate(#Patternwarp10)	#Patternwarp12	7,7
+1@ma_h,67,63,0	duplicate(#Patternwarp10)	#Patternwarp13	7,7
+1@ma_h,78,63,0	duplicate(#Patternwarp10)	#Patternwarp14	7,7
+1@ma_h,89,63,0	duplicate(#Patternwarp10)	#Patternwarp15	7,7
+1@ma_h,100,63,0	duplicate(#Patternwarp10)	#Patternwarp16	7,7
+1@ma_h,51,79,0	duplicate(#Patternwarp10)	#Patternwarp17	10,10
+1@ma_h,51,46,0	duplicate(#Patternwarp10)	#Patternwarp18	10,10
+1@ma_h,73,80,0	duplicate(#Patternwarp10)	#Patternwarp19	10,10
+1@ma_h,73,46,0	duplicate(#Patternwarp10)	#Patternwarp20	10,10
+1@ma_h,95,79,0	duplicate(#Patternwarp10)	#Patternwarp21	10,10
+1@ma_h,95,46,0	duplicate(#Patternwarp10)	#Patternwarp22	10,10
+//1@ma_h,193,82,0	duplicate(#Patternwarp10)	#Patternwarp23	7,7
+//1@ma_h,193,82,0	duplicate(#Patternwarp10)	#Patternwarp24	7,7
+1@ma_h,117,77,0	duplicate(#Patternwarp10)	#Patternwarp25	10,10
+1@ma_h,131,77,0	duplicate(#Patternwarp10)	#Patternwarp26	10,10
+1@ma_h,146,77,0	duplicate(#Patternwarp10)	#Patternwarp27	10,10
+1@ma_h,117,63,0	duplicate(#Patternwarp10)	#Patternwarp28	10,10
+1@ma_h,131,63,0	duplicate(#Patternwarp10)	#Patternwarp29	10,10
+1@ma_h,146,63,0	duplicate(#Patternwarp10)	#Patternwarp30	10,10
+1@ma_h,117,49,0	duplicate(#Patternwarp10)	#Patternwarp31	10,10
+1@ma_h,131,49,0	duplicate(#Patternwarp10)	#Patternwarp32	10,10
+1@ma_h,146,49,0	duplicate(#Patternwarp10)	#Patternwarp33	10,10
+
+// Disable select warps.
+// Custom, but saves processing and lines.
+1@ma_h,1,1,0	script	#ma_hos_warp_init	CLEAR_NPC,{
+	end;
+OnInstanceInit:
+	disablenpc instance_npcname("#Boss Room Exit");
+	disablenpc instance_npcname("#Boss Room Door");
+	disablenpc instance_npcname("#Boss Room Door1");
+	for ( .@i = 1; .@i <= 8; ++.@i )
+		disablenpc instance_npcname("#Patternwarp" + .@i);
+	for ( .@i = 34; .@i <= 38; ++.@i )
+		disablenpc instance_npcname("#Patternwarp" + .@i);
+	// Skip 39-40 since they're disabled in the official script.
+	for ( .@i = 41; .@i <= 49; ++.@i )
+		disablenpc instance_npcname("#Patternwarp" + .@i);
+	disablenpc instance_npcname("#ma_hos_warp_init");
+	end;
+}

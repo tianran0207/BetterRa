@@ -1,0 +1,276 @@
+//===== rAthena Script ======================================= 
+//= Izlude Town Renewal
+//===== By: ================================================== 
+//= Masao
+//===== Current Version: ===================================== 
+//= 1.2
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Izlude town NPCs.
+//===== Additional Comments: ================================= 
+//= 1.0 First Version. Still missing many new NPCs and their dialogues. [Masao]
+//= 1.1 Updated to match the official script. [Euphy]
+//= 1.2 Added Channel Warper and Izlude duplicates. [Euphy]
+//============================================================
+
+// Izlude
+//============================================================
+izlude,197,205,1	duplicate(Sailor_izlude)	船员#izlude	4W_SAILOR
+izlude_a,197,205,1	duplicate(Sailor_izlude)	船员#izlude_a	4W_SAILOR
+izlude_b,197,205,1	duplicate(Sailor_izlude)	船员#izlude_b	4W_SAILOR
+izlude_c,197,205,1	duplicate(Sailor_izlude)	船员#izlude_c	4W_SAILOR
+izlude_d,197,205,1	duplicate(Sailor_izlude)	船员#izlude_d	4W_SAILOR
+
+izlude,71,92,2	duplicate(Bonne_izlude)	伯尼#izlude	4_F_01
+izlude_a,71,92,2	duplicate(Bonne_izlude)	伯尼#izlude_a	4_F_01
+izlude_b,71,92,2	duplicate(Bonne_izlude)	伯尼#izlude_b	4_F_01
+izlude_c,71,92,2	duplicate(Bonne_izlude)	伯尼#izlude_c	4_F_01
+izlude_d,71,92,2	duplicate(Bonne_izlude)	伯尼#izlude_d	4_F_01
+
+izlude,172,215,4	duplicate(Charfri_izlude)	查富丽#izlude	4_F_02
+izlude_a,172,215,4	duplicate(Charfri_izlude)	查富丽#izlude_a	4_F_02
+izlude_b,172,215,4	duplicate(Charfri_izlude)	查富丽#izlude_b	4_F_02
+izlude_c,172,215,4	duplicate(Charfri_izlude)	查富丽#izlude_c	4_F_02
+izlude_d,172,215,4	duplicate(Charfri_izlude)	查富丽#izlude_d	4_F_02
+
+izlude,174,164,4	duplicate(Cuskoal_izlude)	卡斯库尔#izlude	4_F_TELEPORTER
+izlude_a,174,164,4	duplicate(Cuskoal_izlude)	卡斯库尔#izlude_a	4_F_TELEPORTER
+izlude_b,174,164,4	duplicate(Cuskoal_izlude)	卡斯库尔#izlude_b	4_F_TELEPORTER
+izlude_c,174,164,4	duplicate(Cuskoal_izlude)	卡斯库尔#izlude_c	4_F_TELEPORTER
+izlude_d,174,164,4	duplicate(Cuskoal_izlude)	卡斯库尔#izlude_d	4_F_TELEPORTER
+
+izlude,85,103,4	duplicate(Dega_izlude)	德加#izlude	4_M_02
+izlude_a,85,103,4	duplicate(Dega_izlude)	德加#izlude_a	4_M_02
+izlude_b,85,103,4	duplicate(Dega_izlude)	德加#izlude_b	4_M_02
+izlude_c,85,103,4	duplicate(Dega_izlude)	德加#izlude_c	4_M_02
+izlude_d,85,103,4	duplicate(Dega_izlude)	德加#izlude_d	4_M_02
+
+izlude,140,186,4	duplicate(Kylick_izlude)	吉利克#izlude	4W_M_01
+izlude_a,140,186,4	duplicate(Kylick_izlude)	吉利克#izlude_a	4W_M_01
+izlude_b,140,186,4	duplicate(Kylick_izlude)	吉利克#izlude_b	4W_M_01
+izlude_c,140,186,4	duplicate(Kylick_izlude)	吉利克#izlude_c	4W_M_01
+izlude_d,140,186,4	duplicate(Kylick_izlude)	吉利克#izlude_d	4W_M_01
+
+izlude,57,159,2	duplicate(Red_izlude)	莱德#izlude	4_M_03
+izlude_a,57,159,2	duplicate(Red_izlude)	莱德#izlude_a	4_M_03
+izlude_b,57,159,2	duplicate(Red_izlude)	莱德#izlude_b	4_M_03
+izlude_c,57,159,2	duplicate(Red_izlude)	莱德#izlude_c	4_M_03
+izlude_d,57,159,2	duplicate(Red_izlude)	莱德#izlude_d	4_M_03
+
+izlude,55,159,2	duplicate(Cebalis_izlude)	塞巴里斯#izlude	4W_M_02
+izlude_a,55,159,2	duplicate(Cebalis_izlude)	塞巴里斯#izlude_a	4W_M_02
+izlude_b,55,159,2	duplicate(Cebalis_izlude)	塞巴里斯#izlude_b	4W_M_02
+izlude_c,55,159,2	duplicate(Cebalis_izlude)	塞巴里斯#izlude_c	4W_M_02
+izlude_d,55,159,2	duplicate(Cebalis_izlude)	塞巴里斯#izlude_d	4W_M_02
+
+izlude,165,156,2	duplicate(Soldier_izlude)	士兵#izlude	8W_SOLDIER
+izlude_a,165,156,2	duplicate(Soldier_izlude)	士兵#izlude_a	8W_SOLDIER
+izlude_b,165,156,2	duplicate(Soldier_izlude)	士兵#izlude_b	8W_SOLDIER
+izlude_c,165,156,2	duplicate(Soldier_izlude)	士兵#izlude_c	8W_SOLDIER
+izlude_d,165,156,2	duplicate(Soldier_izlude)	士兵#izlude_d	8W_SOLDIER
+
+-	script	::Guard_izlude	-1,{
+	mes "[伊斯鲁德守卫]";
+	mes "欢迎来到伊斯鲁德.";
+	close;
+}
+prt_fild08,350,219,4	duplicate(Guard_izlude)	守卫#izlude	8W_SOLDIER
+prt_fild08a,350,219,4	duplicate(Guard_izlude)	守卫#izlude_a	8W_SOLDIER
+prt_fild08b,350,219,4	duplicate(Guard_izlude)	守卫#izlude_b	8W_SOLDIER
+prt_fild08c,350,219,4	duplicate(Guard_izlude)	守卫#izlude_c	8W_SOLDIER
+prt_fild08d,350,219,4	duplicate(Guard_izlude)	守卫#izlude_d	8W_SOLDIER
+
+// Channel Warper :: channel
+//============================================================
+function	script	F_IzludeChannel	{
+	mes "[Channel Warp Official]";
+	mes "Izlude is a verly lively place is it not?";
+	mes "I am here to help make Izlude feel more smooth!";
+	mes "I can send you to another copy of Izlude.";
+	mes "Do you want to go to another copy?";
+	next;
+	set .@i, select(getarg(0)+":Never mind");
+	if (.@i < 6) {
+		setarray .@maps$[1],"izlude","izlude_a","izlude_b","izlude_c","izlude_d";
+		savepoint .@maps$[.@i],128,98,1,1;
+		warp .@maps$[.@i],128,98;
+		end;
+	}
+	close;
+}
+izlude,122,105,5	script	伊斯鲁德复制传送	1_M_WIZARD,{ callfunc "F_IzludeChannel",":Go to copy 2:Go to copy 3:Go to copy 4:Go to copy 5"; }
+izlude_a,122,105,5	script	伊斯鲁德复制传送#_a	1_M_WIZARD,{ callfunc "F_IzludeChannel","Go to copy 1::Go to copy 3:Go to copy 4:Go to copy 5"; }
+izlude_b,122,105,5	script	伊斯鲁德复制传送#_b	1_M_WIZARD,{ callfunc "F_IzludeChannel","Go to copy 1:Go to copy 2::Go to copy 4:Go to copy 5"; }
+izlude_c,122,105,5	script	伊斯鲁德复制传送#_c	1_M_WIZARD,{ callfunc "F_IzludeChannel","Go to copy 1:Go to copy 2:Go to copy 3::Go to copy 5"; }
+izlude_d,122,105,5	script	伊斯鲁德复制传送#_d	1_M_WIZARD,{ callfunc "F_IzludeChannel","Go to copy 1:Go to copy 2:Go to copy 3:Go to copy 4:"; }
+
+// Talking NPCs
+//============================================================
+izlude,143,205,7	script	多嘴的小孩#iz	4_F_KID2,{
+	end;
+
+OnTimer64000:
+	npctalk "我用完了我所有的新手红色药水。我该怎么办呢?";
+	end;
+
+OnTimer72000:
+	npctalk "商店在哪呢?";
+	end;
+
+OnTimer136000:
+	npctalk "白痴!你不知道‘快捷窗口’吗?";
+	end;
+
+OnTimer144000:
+	npctalk "背包内的物品可以拖入快捷窗口.";
+	end;
+
+OnTimer212000:
+	npctalk "我在学院得到了很多初学者的物品!";
+	end;
+
+OnTimer276000:
+	npctalk "他们甚至给了我武器和盾牌!";
+	end;
+
+OnTimer284000:
+	npctalk "按  <Ctrl+~键> 可以打开地图.";
+	end;
+
+OnTimer344000:
+	npctalk "那么你想要和我一起去克里图拉学院吗?我正在那学习如何战斗!!";
+	end;
+
+OnTimer348000:
+	npctalk "学院在北面。我们走吧~~!";
+	end;
+
+OnTimer416000:
+	npctalk "这是一个系统指导你到目的地.";
+	end;
+
+OnTimer424000:
+	npctalk "基本菜单,请点击导航按钮.";
+	end;
+
+OnTimer492000:
+	npctalk "啊,不是要用你的大脑吗?请输入/在聊天窗口现在!";
+	end;
+
+OnTimer552000:
+	npctalk "我们只是重复相同的对话框。哈哈哈.";
+	end;
+
+OnTimer560000:
+	npctalk "We are just repeating the same dialog. HaHaha.";
+	end;
+
+OnTimer565000:
+OnInit:
+	initnpctimer;
+	end;
+}
+
+izlude_a,143,205,7	duplicate(多嘴的小孩#iz)	多嘴的小孩#iza	4_F_KID2
+izlude_b,143,205,7	duplicate(多嘴的小孩#iz)	多嘴的小孩#izb	4_F_KID2
+izlude_c,143,205,7	duplicate(多嘴的小孩#iz)	多嘴的小孩#izc	4_F_KID2
+izlude_d,143,205,7	duplicate(多嘴的小孩#iz)	多嘴的小孩#izd	4_F_KID2
+
+izlude,146,205,7	script	健谈的冒险家#iz	4_M_KID1,{
+	end;
+
+OnTimer69000:
+	npctalk "你可以从商人购买药水.";
+	end;
+
+OnTimer77000:
+	npctalk "在迷你地图上有药水的标志.";
+	end;
+
+OnTimer131000:
+	npctalk "有什么方法可以便捷的使用物品?";
+	end;
+
+OnTimer141000:
+	npctalk "快捷窗口?屏幕顶部的槽吗?我如何使用它?";
+	end;
+
+OnTimer149000:
+	npctalk "背包,你的意思是“物品”菜单吗?哦,它是的!";
+	end;
+
+OnTimer217000:
+	npctalk "我有一堆药水吗?";
+	end;
+
+OnTimer281000:
+	npctalk "我现在应该去学院了!";
+	end;
+
+OnTimer279000:
+	npctalk "伊斯鲁德岛在哪?";
+	end;
+
+OnTimer339000:
+	npctalk "我不知道去做什么.";
+	end;
+
+OnTimer349000:
+	npctalk "哦是的吗?我想知道很多事情~我要和你一起去!";
+	end;
+
+OnTimer411000:
+	npctalk "导航,那是什么?";
+	end;
+
+OnTimer421000:
+	npctalk "Oh-! 我们应该去找卡普拉员工吗?";
+	end;
+
+OnTimer487000:
+	npctalk "小镇叫什么名字?";
+	end;
+
+OnTimer497000:
+	npctalk "我不能看到,我能写点东西在聊天窗口?";
+	end;
+
+OnTimer557000:
+	npctalk "哦你自作聪明...";
+	end;
+
+OnTimer555000:
+	npctalk "一段时间以前,一个新手跟我像 '健谈的冒险家'?. 哈哈哈哈.";
+	end;
+
+OnTimer565000:
+OnInit:
+	initnpctimer;
+	end;
+}
+
+izlude_a,146,205,7	duplicate(健谈的冒险家#iz)	健谈的冒险家#iza	4_M_KID1
+izlude_b,146,205,7	duplicate(健谈的冒险家#iz)	健谈的冒险家#izb	4_M_KID1
+izlude_c,146,205,7	duplicate(健谈的冒险家#iz)	健谈的冒险家#izc	4_M_KID1
+izlude_d,146,205,7	duplicate(健谈的冒险家#iz)	健谈的冒险家#izd	4_M_KID1
+
+prt_fild08,338,217,7	script	休息中的冒险家#iz	4_F_SITDOWN,{
+	end;
+
+	OnTimer60000:
+		npctalk "你知道吗?如果你是坐着,HP和SP复苏得会更快哦.";
+		end;
+
+	OnTimer65000:
+		npctalk "如果你的基本职业JOB超过LV3就能坐着啦. 快捷方式是按<INSERT> 键.";
+	OnInit:
+		initnpctimer;
+		end;
+}
+
+prt_fild08a,338,217,7	duplicate(休息中的冒险家#iz)	休息中的冒险家#iza	4_F_SITDOWN
+prt_fild08b,338,217,7	duplicate(休息中的冒险家#iz)	休息中的冒险家#izb	4_F_SITDOWN
+prt_fild08c,338,217,7	duplicate(休息中的冒险家#iz)	休息中的冒险家#izc	4_F_SITDOWN
+prt_fild08d,338,217,7	duplicate(休息中的冒险家#iz)	休息中的冒险家#izd	4_F_SITDOWN

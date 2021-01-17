@@ -1,0 +1,473 @@
+//===== rAthena Script ======================================= 
+//= Eclage Instance Script
+//===== By: ================================================== 
+//= Dastgir
+//===== Current Version: ===================================== 
+//= 1.1
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Eclage Interior Instance
+//===== Additional Comments: ================================= 
+//= 1.0 Converted from the official Aegis script. [Dastgir]
+//= 1.1 Converted from Hercules script to rAthena script & Small bug fix. [Skorm]
+//============================================================ 
+
+ecl_hub01,132,12,3	script	参谋长#tl02	435,{
+	.@party_id = getcharid(1);
+	.@md_name$ = "艾卡拉奇 内部";
+
+	if (.@party_id == 0 || is_party_leader() == false){
+		mes "-! 警告 !-";
+		mes "当前任务将在纪念馆的地牢里进行.";
+		mes "只有队长能进入，请先组建你的队伍.";
+		close;
+	}
+	if (ep14_2_mylord == 29) {
+		mes "[舍尼密]";
+		mes "这个地方设置了照明灯照明.";
+		mes "如果你喜欢这里，你就要谨慎些.";
+		next;
+		switch (select("我要进去.:还是算了.")) {
+		case 1:
+			if (instance_create(.@md_name$) < 0) {
+				mes "[舍尼密]";
+				mes "不久前，这个地方就派了很多士兵驻守..";
+				mes "当然，我不希望你是来打扰他们的，对不？";
+				close;
+			}
+			ecl_interior_time = gettimetick(2) + 20 * 60;
+			mes "[舍尼密]";
+			mes "由于这里面把关非常的严密，所以你应该有所准备。";
+			mes "你先在这里等等吧...";
+			close;
+		case 2:
+			mes "[Shenime]";
+			mes "这次的任务并不是那么简单.";
+			close;
+		}
+	}
+	mes "[高级的拉菲思]";
+	mes "嗯? 这间房?";
+	mes "没事的，这些你不需要担心.";
+	close;
+}
+
+ecl_hub01,130,15,0	script	关闭的大门	844,{
+	if (ep14_2_mylord == 29) {
+		mes "这扇门通往广场.";
+		mes "这里面照明非常充足，因此里头看起来会很漂亮.";
+		next;
+		if (select("我要进去.:还是算了.") == 1) {
+			.@party_id = getcharid(1);
+			.@md_name$ = "艾卡拉奇 内部";
+			if (.@party_id == 0 || is_party_leader() == false) {
+				mes "-! 警告 !-";
+				mes "当前任务将在纪念馆的地牢里进行.";
+				mes "只有队长能进入，请先组建你的队伍.";
+				close;
+			}
+			if (gettimetick(2) >= ecl_interior_time){
+				mes "[舍尼密]";
+				mes "里面的士兵看起来很紧张.";
+				mes "你进去了之后就很难找到出来的路了.";
+				close;
+			}
+			switch (instance_enter(.@md_name$)) {
+			case IE_OTHER:
+				mes "出现了未知的错误.";
+				close;
+			case IE_NOINSTANCE:
+				mes "它是关闭着的.";
+				close;
+			case IE_OK:
+				mapannounce "ecl_hub01",getpartyname(.@party_id) + " 的队长 " + strcharinfo(0) + " 正在进入 " + .@md_name$,bc_map,"0x00ff99";
+				end;
+			default:
+			}
+		} else
+			close;
+	}
+	mes "这扇门通往广场.";
+	mes "这里面照明非常充足，因此里头看起来会很漂亮.";
+	mes "它是关闭着的.";
+	close;
+}
+
+1@ecl,58,69,3	script	舍尼密#ecl01	435,{
+	mes "[舍尼密]";
+	mes "啊，你是怎么来到这里的?";
+	mes "他们摧毁了我们派过来的士兵部队..";
+	next;
+	select("什么...?:让我来击退怪物!");
+	mes "[舍尼密]";
+	mes "没关系.";
+	mes "你的任务到此为止.";
+	mes "你现在成了叛徒.";
+	mes "咱们永别了!";
+	specialeffect EF_BEGINSPELL3;
+	next;
+	mes "[" + strcharinfo(0) + "]";
+	mes "不......!!!";
+	specialeffect2 EF_LORD;
+	percentheal -99,0;
+	soundeffect "wander_man_move.wav",1;
+	sc_start SC_BLIND,60000,0;
+	close2;
+	warp instance_mapname("1@ecl"),146,95;
+	end;
+
+OnInstanceInit:
+	hideonnpc instance_npcname(strnpcinfo(0));
+	end;
+
+OnEnable:
+	hideoffnpc instance_npcname(strnpcinfo(0));
+	end;
+}
+
+1@ecl,51,64,1	script	可疑生物#1	2375,{
+	end;
+}
+1@ecl,43,67,3	duplicate(可疑生物#1)	可疑生物#2	2375,0,0
+1@ecl,55,80,3	duplicate(可疑生物#1)	可疑生物#3	2375,0,0
+1@ecl,60,75,3	duplicate(可疑生物#1)	可疑生物#4	2375,0,0
+
+1@ecl,42,80,5	script	可疑生物#5	2376,{
+	end;
+OnInstanceInit:
+	hideonnpc instance_npcname(strnpcinfo(0));
+	end;
+}
+1@ecl,48,86,3	duplicate(可疑生物#5)	可疑生物#6	2376,0,0
+1@ecl,58,82,3	duplicate(可疑生物#5)	可疑生物#7	2376,0,0
+1@ecl,56,88,3	duplicate(可疑生物#5)	可疑生物#8	2376,0,0
+
+1@ecl,53,83,0	script	#sndmaster	HIDDEN_WARP_NPC,10,10,{
+	end;
+
+OnInstanceInit:
+	'mob_summoned = 0;
+	disablenpc instance_npcname(strnpcinfo(0));
+	end;
+
+OnEnable:
+	sleep 1000;
+    	mapannounce instance_mapname("1@ecl"),"警告: 室内出现了异常状况！！！室内出现了异常状况！！！",bc_map,"0xffff00"; //FW_NORMAL 12 0 0
+	sleep 2000;
+    	mapannounce instance_mapname("1@ecl"),"可疑生物: 咳咳咳咳....嗯啊哈哈哈哈哈!!",bc_map,"0xffff00"; //FW_NORMAL 12 0 0
+	hideoffnpc instance_npcname("可疑生物#5");
+	hideoffnpc instance_npcname("可疑生物#6");
+	hideoffnpc instance_npcname("可疑生物#7");
+	hideoffnpc instance_npcname("可疑生物#8");
+	sleep 3000;
+	hideonnpc instance_npcname("#sndmaster");
+	end;
+
+OnMyMobDead:
+	if (mobcount(instance_mapname("1@ecl"),instance_npcname("#sndmaster")+"::OnMyMobDead") == 0) {
+		donpcevent instance_npcname("Shenime#ecl01")+"::OnEnable";
+		mapannounce instance_mapname("1@ecl"),"舍尼密: 很好, 我来的正是时候.",bc_map,"0xffff00"; //FW_NORMAL 12 0 0
+	}
+	end;
+
+OnTouch:
+	if ('mob_summoned > 1) end;
+    mes "一旦消除了这里的入侵者，就会出现其他可疑的生物.";
+    next;
+    mes "咱们无法与它们进行沟通，其中一个怪物看上去貌似很愤怒，还一直在寻找他被打败了的伙伴.";
+    next;
+    mes "[" + strcharinfo(0) + "]";
+    mes "他们看起来就像是梦罗克的化身.";
+    mes "难道这就是恶魔之王???";
+    mes "或者说这只是巧合?";
+    next;
+    mes "[恶魔之王的下属]";
+    mes "咔啊啊啊....啊哈哈哈哈哈!!!";
+    mes "咔哇哇哇哇哇哇哇!";
+    next;
+    mes "看来战争是无法避免了!";
+    mes "他们会杀了我的!";
+	close2;
+	hideonnpc instance_npcname("可疑生物#5");
+	hideonnpc instance_npcname("可疑生物#6");
+	hideonnpc instance_npcname("可疑生物#7");
+	hideonnpc instance_npcname("可疑生物#8");
+	disablenpc instance_npcname("可疑生物#5");
+	disablenpc instance_npcname("可疑生物#6");
+	disablenpc instance_npcname("可疑生物#7");
+	disablenpc instance_npcname("可疑生物#8");
+	.@eclmap$ = instance_mapname("1@ecl");
+	.@sndmaster$ = instance_npcname("#sndmaster");
+	monster .@eclmap$,42,80,"恶魔之王的下属",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,48,86,"恶魔之王的下属",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,59,82,"恶魔之王的下属",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,56,88,"恶魔之王的下属",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,39,72,"恶魔之王的下属",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,42,69,"恶魔之王的下属",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,47,64,"恶魔之王的下属",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,50,60,"恶魔之王的下属",2376,1,.@sndmaster$+"::OnMyMobDead";
+	'mob_summoned = 2;
+    end;
+}
+
+1@ecl,57,65,0	script	#event	139,5,5,{
+	end;
+OnTouch:
+	if ('mob_summoned > 0) end;
+	.@eclmap$ = instance_mapname("1@ecl");
+	.@eventname$ = instance_npcname("#event");
+	mes "房间里头空空的，什么都媚阳.";
+	mes "有一束光透过房间中央的圆形设备照射了进来.";
+	next;
+	mes "[可疑生物]";
+	mes "咳咳咳咳咳咳咳咳......";
+	next;
+	mes "一群来历不明的生物正在恐怖地接近当中.";
+	mes "它们看起来很惊悚，也很难与其沟通.";
+	next;
+	mes "[可疑生物]";
+	mes "咔呃呃呃...咔...喀喀喀喀喀喀喀!!";
+	next;
+	mes "它们貌似要发起攻击了.";
+	mes "我们不能参与到战斗当中!";
+	close2;
+	hideonnpc instance_npcname("可疑生物#1");
+	hideonnpc instance_npcname("可疑生物#2");
+	hideonnpc instance_npcname("可疑生物#3");
+	hideonnpc instance_npcname("可疑生物#4");
+	disablenpc instance_npcname("可疑生物#1");
+	disablenpc instance_npcname("可疑生物#2");
+	disablenpc instance_npcname("可疑生物#3");
+	disablenpc instance_npcname("可疑生物#4");
+	monster .@eclmap$,51,64,"可疑生物",2375,1,.@eventname$+"::OnMyMobDead";
+	monster .@eclmap$,43,67,"可疑生物",2375,1,.@eventname$+"::OnMyMobDead";
+	monster .@eclmap$,55,80,"可疑生物",2375,1,.@eventname$+"::OnMyMobDead";
+	monster .@eclmap$,60,75,"可疑生物",2375,1,.@eventname$+"::OnMyMobDead";
+	'mob_summoned = 1;
+	end;
+
+OnMyMobDead:
+	if (mobcount(instance_mapname("1@ecl"),instance_npcname("#event")+"::OnMyMobDead") == 0) {
+		enablenpc instance_npcname("#sndmaster");
+		donpcevent instance_npcname("#sndmaster")+"::OnEnable";
+	}
+	end;
+}
+
+1@ecl,148,97,3	script	阿凡#	618,{
+	mes "[阿凡]";
+	mes "Hi, 你看这是谁!";
+	mes "你就是我儿子的朋友?";
+	mes "我们能在这里相遇这真是奇遇啊!";
+	cutin "avant01",1;
+	next;
+	mes "[阿凡]";
+	mes "你怎么了吗？";
+	mes "传来了一阵微妙而神奇的回音...";
+	mes "接着，你就在这里被遗弃了...";
+	next;
+	if (select("这都是因为你!:舍尼密说...") == 1) {
+		mes "[阿凡]";
+		mes "我根本就不懂你在说什么.";
+		mes "你就不能把你的故事告诉我吗？难道你不知道我们这里有'5个W和1个H'的规则？";
+		next;
+	}
+	mes "[阿凡]";
+	mes "Oh...这到底是发生了什么.";
+	mes "你说舍尼密是......?";
+	next;
+	mes "[阿凡]";
+	mes "呵呵呵...哈哈哈哈，啊哈哈哈哈哈";
+	mes "很好, 非常好...did he get me, too?";
+	mes "Me, Avant, of all the people?! 哈哈哈!";
+	cutin "avant02",1;
+	next;
+	select("你说的是啥意思?");
+	mes "[阿凡]";
+	mes "我正在从事对Orb力量的研究.";
+	mes "舍尼密只是让我继续坚持罢了.";
+	cutin "avant01",1;
+	next;
+	mes "[阿凡]";
+	mes "我最开始研究它是因为它很美，久而久之我就很想知道它到底蕴含了怎样的力量...";
+	mes "当我们都从中获取利益的时候，我就开始怀疑Orb的能力了.";
+	next;
+	mes "[阿凡]";
+	mes "这里所有人都认为Orb是很正常的东西，就如同空气和水一般，但是正因为这个让我从不同的角度去看待它，并开始调查他的来历.";
+	mes "没错...舍尼密. 他故意引起我的好奇心.";
+	next;
+	mes "[阿凡]";
+	mes "没人不知道空气和水的存在，这使得他清楚地认清了事实并展开调查!";
+	mes "嗯...这不是很有趣吗!";
+	cutin "avant02",1;
+	next;
+	mes "[阿凡]";
+	mes "哈...哈哈哈...";
+	mes "...他利用我这件事让我觉得很生气, 但更糟糕的是，我已经对我的子民做了一些很可怕的事情.";
+	mes "我现在很恼火.";
+	next;
+	select("你还有良知?");
+	mes "[阿凡]";
+	mes "我很认真的问你一句，你认识我的儿子，那你从我儿子身上得知...";
+	mes "我是个怎样的人？！";
+	mes "你说吧，我不会责怪你的.";
+	cutin "avant01",1;
+	next;
+	mes "[阿凡]";
+	mes "...呸.";
+	mes "这不好笑.";
+	mes "这一点都不好笑. 我对你完全失去了兴趣了....";
+	next;
+	mes "[阿凡]";
+	mes "......";
+	mes "好像有人来了....";
+	next;
+	cutin "minuel01",4;
+	mes "[马吉尔]";
+	mes "" + strcharinfo(0) + "Sir,";
+	mes "虽然你因涉嫌在照明室最近发生的事件而被拘留，";
+	mes "有目击者证明你是无辜的.";
+	next;
+	mes "[马吉尔]";
+	mes "我并不了解细节的部分,";
+	mes "但我依然坚信你是无辜的.";
+	mes "你受伤过重了，我会把你送去治疗室进行治疗.";
+	next;
+	mes "[马吉尔]";
+	mes "我不认为这事有什么大不了的.";
+	mes "...祈祷.";
+	mes "我带你走吧...";
+	close2;
+	cutin "",255;
+	warp "1@ecl",146,29;
+	end;
+}
+	
+1@ecl,148,29,3	script	洛基#ecl01	512,{
+	mes "[洛基]";
+	mes "我旁边这家伙说只会说不会做.";
+	mes "你为什么不先向他解释?";
+	close;
+}	
+	
+1@ecl,147,30,3	script	尼德豪克#ecl01	510,{
+	mes "[森林守护者]";
+	mes "我认为你应该先跟海歇尔说说.";
+	close;
+}
+	
+1@ecl,144,27,5	script	海歇尔#ecl01	623,{
+	cutin "hisie01",0;
+	mes "[海歇尔]";
+	mes "你能告诉我到底发生了什么事吗?";
+	next;
+	select("我曾经与怪物战斗过.");
+	cutin "hisie03",0;
+	mes "[海歇尔]";
+	mes "怪物？梦洛克的可疑生物？";
+	mes "跟你战斗的其实是我们的士兵--Laphines!!";
+	mes "地球上到底发生了什么?";
+	npcskill "AL_HEAL",9,99,80;
+	next;
+	cutin "",255;
+	mes "[洛基]";
+	mes "正因如此.";
+	mes "" + strcharinfo(0) + "他的身体内 -";
+	mes "充满了舍尼密的力量.";
+	next;
+	mes "啊 洛基的手, 变小了、又变瘦了、还长满了刺.";
+	next;
+	cutin "hisie03",0;
+	mes "[海歇尔]";
+	mes "舍尼密, 参谋长?";
+	mes "这跟他有什么关系?";
+	npcskill "AL_HEAL",9,99,80;
+	next;
+	cutin "",255;
+	mes "[Loki]";
+	mes "舍尼密是梦罗克的其中一个下属.";
+	mes "他的这种力量能够让他通过他身体的一部分直接操控别人的精神.";
+	next;
+	select("现在让我想一想...");
+	mes "[" + strcharinfo(0) + "]";
+	mes "来这之前，舍尼密让我跟他握手，那时候我只感觉到了一阵火花.";
+	mes "我当时还以为这只是我的幻想而没有管那么多，或许那个时候他正在.......";
+	next;
+	mes "[尼德豪克]";
+	mes "你想的没错...";
+	mes "他们用了邪恶的招数.";
+	mes "蒙蔽了你的双眼...";
+	next;
+	cutin "hisie03",0;
+	mes "[海歇尔]";
+	mes "所以你说他欺骗了我们?";
+	mes "不会是参谋长的，他一直都跟我们待在一起...";
+	npcskill "AL_HEAL",9,99,80;
+	next;
+	cutin "",255;
+	mes "[洛基]";
+	mes "他应该是被这影响了好一段时间了.";
+	mes "不管怎样，这家伙就是不认罪.";
+	mes "我们要拿出证据.";
+	next;
+	mes "[尼德豪克]";
+	mes "我也要向依格德拉修的监护人发誓.";
+	mes "" + strcharinfo(0) + "- 绝不会做出这样的事情.";
+	next;
+	cutin "hisie02",0;
+	mes "[海歇尔]";
+	mes "啊...";
+	mes "但貌似事情失去控制了.";
+	mes "我不希望是这样.";
+	next;
+	select("Orb发生了什么事?");
+	mes "[海歇尔]";
+	mes "核心被偷走了.";
+	mes "没有人知道Orb的核心去了哪里,";
+	mes "所以这就是为什么卡尔没能在这儿.";
+	npcskill "AL_HEAL",9,99,80;
+	next;
+	mes "[海歇尔]";
+	mes "另外，因为你，有几名士兵都受伤了.";
+	mes "幸运的是，他们没有死，只是受了很重的伤.";
+	mes "现在的情形变得不是那么理想了.";
+	next;
+	cutin "",255;
+	mes "[洛基]";
+	mes "必须要有人来承担这个责任.";
+	mes "想必," + strcharinfo(0) + "就是你了.";
+	next;
+	cutin "hisie02",0;
+	mes "[海歇尔]";
+	mes "......这两位先生会处理在Orb的所有相关收费,";
+	mes "但你和卡尔的责任就在所难免了.";
+	mes "你必须去抓住舍尼密.";
+	npcskill "AL_HEAL",9,99,80;
+	next;
+	cutin "hisie01",0;
+	mes "[海歇尔]";
+	mes "休息得差不多了，咱们走吧.";
+	mes "卡尔正在等着你呢.";
+	mes "那你们俩呢?";
+	next;
+	cutin "",255;
+	mes "[洛基]";
+	mes "不用担心我们.";
+	mes "我们的目标是恶魔之王梦洛克.";
+	mes "值得欣慰的是，我们在这里找到了证据.";
+	next;
+	cutin "hisie01",0;
+	mes "[海歇尔]";
+	mes "谢谢你.";
+	mes "我们现在就触发.";
+	mes "出发吧." + strcharinfo(0) + ".";
+	ep14_2_mylord = 30;
+	changequest 7450,7451;
+	close2;
+	cutin "",255;
+	warp "ecl_in03",57,76;
+	instance_destroy;
+	end;
+}

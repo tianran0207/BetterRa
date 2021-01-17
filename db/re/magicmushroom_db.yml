@@ -1,0 +1,78 @@
+# This file is a part of rAthena.
+#   Copyright(C) 2019 rAthena Development Team
+#   https://rathena.org - https://github.com/rathena
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+###########################################################################
+# Magic Mushroom Database
+###########################################################################
+#
+# Magic Mushroom Settings
+#
+###########################################################################
+# - Skill       Skill to be casted by Magic Mushroom.
+###########################################################################
+
+Header:
+  Type: MAGIC_MUSHROOM_DB
+  Version: 1
+
+Body:
+  - Skill: SM_MAGNUM
+    SkillName: 怒爆(7)
+  - Skill: SM_ENDURE
+    SkillName: 霸体(8)
+  - Skill: MG_SIGHT
+    SkillName: 火狩(10)
+  - Skill: AL_RUWACH
+    SkillName: 光猎(24)
+  - Skill: AL_CRUCIS
+    SkillName: 天使之光(32)
+  - Skill: AL_ANGELUS
+    SkillName: 天使之障壁(33)
+  - Skill: AC_CONCENTRATION
+    SkillName: 心神凝聚(45)
+  - Skill: KN_AUTOCOUNTER
+    SkillName: 反击(61)
+  - Skill: PR_MAGNIFICAT
+    SkillName: 圣母之颂歌(74)
+  - Skill: BS_HAMMERFALL
+    SkillName: 大地之击(110)
+  - Skill: BS_MAXIMIZE
+    SkillName: 武器值最大化(114)
+  - Skill: NV_FIRSTAID
+    SkillName: 紧急治疗(142)
+  - Skill: TF_BACKSLIDING
+    SkillName: 后退回避(150)
+  - Skill: TF_PICKSTONE
+    SkillName: 捡石头(151)
+  - Skill: MG_ENERGYCOAT
+    SkillName: 能量外套(157)
+  - Skill: CR_AUTOGUARD
+    SkillName: 自动防御(249)
+  - Skill: CR_PROVIDENCE
+    SkillName: 神佑之光(256)
+  - Skill: MO_CALLSPIRITS
+    SkillName: 蓄气(261)
+  - Skill: MO_EXPLOSIONSPIRITS
+    SkillName: 爆气(270)
+  - Skill: DC_SCREAM
+    SkillName: 惊声尖叫(326)
+  - Skill: GS_GLITTERING
+    SkillName: 双面硬币(500)
+  - Skill: NJ_TATAMIGAESHI
+    SkillName: 榻榻米翻开(527)
+  - Skill: NJ_UTSUSEMI
+    SkillName: 金蝉脱壳(531)

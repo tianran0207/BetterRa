@@ -1,0 +1,1666 @@
+//===== rAthena Script =======================================
+//= Hall of Abyss - Core Scripts
+//===== By: ==================================================
+//= Euphy
+//===== Current Version: =====================================
+//= 1.1
+//===== Compatible With: =====================================
+//= rAthena Project
+//===== Description: =========================================
+//= [Official Conversion]
+//= Expansion for War of Emperium FE.
+//= Invest in each realm to unlock new maps:
+//= - Guild Dungeon F2, total 20,000,000z.
+//= - Hall of Abyss, total 70,000,000z.
+//===== Additional Comments: =================================
+//= 1.0 First version. Missing official times. [Euphy]
+//= 1.1 Added GM management function. [Euphy]
+//============================================================
+
+// Global Variables
+//============================================================
+// Note: an asterisk (*) represents any realm (prt, pay, gef, alde).
+/*
+$2011_agit_invest
+-- 0: Inactive.
+-- 1: Investment in progress.
+-- 2: Investment results calculating.
+-- 4: Investment calculations complete (only when at least one $*_invest_result is 3).
+-- 11-21: Tie, revote required.
+
+$agit_result_notice
+-- 0: Inactive.
+-- 1-12: Interim statements (displaying $@vfund_*x) available.
+
+$agit_result_timer
+-- 0: Inactive.
+-- 0-59: Time elapsed during investment (in hours).
+
+$agit_revoting_timer
+-- 0: Inactive.
+-- 0-29: Time elapsed during revote (in minutes).
+-- 30: Revote closed.
+-- 31: Revote results calculating.
+
+$*_invest_result
+-- 0: No data.
+-- 1: Realm not connected.
+-- 2: Guild Dungeon F2 open.
+-- 3: Abyss Gate (Hall of Abyss and Gulid Dungeon F2) open.
+
+$fund_*[01-05]
+-- Investment units per guild castle.
+$fund_*_extra
+-- Investment units per realm.
+
+$@vfund_*[01-05]
+$@vfund_*_extra
+-- Investment units, used in interim statements only.
+*/
+
+// Investment Functions & Controller
+//============================================================
+// Note: The times in this section are almost entirely custom.
+
+-	script	#invest_timer	-1,{
+OnClock0000:	// Open investments on Wednesday (1 hour after WoE)
+	if (gettime(DT_DAYOFWEEK) == WEDNESDAY && !agitcheck()) {
+		set $2011_agit_invest,1;
+		donpcevent "#fund_master::OnInvest_start";
+	}
+	end;
+OnClock1200:	// Close investments on Friday (60 hours after investments open)
+	if (gettime(DT_DAYOFWEEK) == FRIDAY && !agitcheck()) {
+		set $2011_agit_invest,2;
+		donpcevent "#fund_master::OnInvest_stop";
+	}
+	end;
+OnClock1235:	// Open dungeons on Friday (at least 31 minutes after investments close)
+	if (gettime(DT_DAYOFWEEK) == FRIDAY && !agitcheck())
+		donpcevent "#fund_master::OnResult";
+	end;
+OnClock2000:	// Close dungeons on Tuesday (1 hour before WoE)
+	if (gettime(DT_DAYOFWEEK) == TUESDAY)
+		donpcevent "#fund_master::OnReset";
+	end;
+}
+
+function	script	F_Invest_Status	{
+	set .@day, gettime(DT_DAYOFWEEK);
+	set .@hour, gettime(DT_HOUR);
+	set .@minute, gettime(DT_MINUTE);
+
+	// Inactive.
+	if (agitcheck())
+		return 0;
+
+	// Open for investments.
+	if (.@day >= WEDNESDAY && (.@day < FRIDAY || (.@day == FRIDAY && .@hour <= 12)))
+		return 1;
+
+	// Investments closed, calculating results.
+	if (.@day == FRIDAY && .@hour == 12 && .@minute < 35)
+		return 2;
+
+	// Calculations complete, dungeons open.
+	if ((.@day == FRIDAY && (.@hour > 12 || (.@hour == 12 && .@minute >= 35))) || .@day > FRIDAY ||
+	    .@day < TUESDAY || (.@day == TUESDAY && .@hour < 20))
+		return 3;
+
+	// Dungeons closed.
+	return 0;
+}
+
+//callfunc "F_Invest_Abyss","<variable>","<NPC name>"{,"<addon message>"};
+function	script	F_Invest_Abyss	{
+	.@npc_name$ = getarg(1);
+	mes "有2种方式投资, 使用 Zeny 或者 由本商会投资部门发行的 猫手顶级投资证书.";
+	mes "请问您想选择哪种方式?";
+	next;
+	switch(select("- 用Zeny投资.:- 猫手顶级投资证书.:- 取消")) {
+	case 1:
+		mes .@npc_name$;
+		mes "您决定使用Zeny来投资.";
+		mes "最小投资单位是 ^4d4dff10,000 Zeny^000000.";
+		mes "最大的投资单位是50倍 ^4d4dff500,000 Zeny^000000.";
+		next;
+		switch(select("- 1倍~100,000 Zeny:- 10倍 100,000 Zeny:- 50倍 500,000 Zeny:- 输入金额:- 取消")) {
+		case 1:
+			set .@units,1;
+			break;
+		case 2:
+			set .@units,10;
+			break;
+		case 3:
+			set .@units,50;
+			break;
+		case 4:
+			mes .@npc_name$;
+			mes "请输入您需要投资的金额(倍数).";
+			mes "请选择 1 ~ 200 之间的数字.";
+			mes "或输入 0 退出.";
+			next;
+			input .@units;
+			if (.@units < 0 || .@units > 200) {
+				mes .@npc_name$;
+				mes "您输入的数字有误.";
+				mes "请重试.";
+				close;
+			} else if (.@units == 0) {
+				mes .@npc_name$;
+				mes "已取消.";
+				close;
+			} else
+				break;
+		case 5:
+			mes .@npc_name$;
+			mes "Canceled.";
+			close;
+		}
+		set .@zeny, .@units * 10000;
+		if (Zeny < .@zeny) {
+			mes .@npc_name$;
+			mes "您的 Zeny 不够.";
+			close;
+		}
+		mes .@npc_name$;
+		mes "您投资了 "+callfunc("F_InsertPlural",.@units,"单位")+" "+callfunc("F_InsertComma",.@zeny)+" Zeny"+getarg(2,"")+".";
+		mes "虽然不多, 但这是一个投资感谢券. 您可以用它到绵绵岛兑换一些有用的东西.";
+		set Zeny, Zeny-.@zeny;
+		setd getarg(0), getd(getarg(0)) + .@units;
+		getitem 6488,.@units; //Thanks_Invest_Ticket
+		close;
+	case 2:
+		mes .@npc_name$;
+		mes "哇哦, 您带来了猫手顶级投资证书.";
+		mes "您想投资多少份?";
+		next;
+		switch(select("- 1份 猫手顶级投资证书:- 5份 猫手顶级投资证书:- 输入数字:- 取消")) {
+		case 1:
+			set .@tickets,1;
+			break;
+		case 2:
+			set .@tickets,5;
+			break;
+		case 3:
+			mes .@npc_name$;
+			mes "请输入您需要使用猫手顶级投资证书的具体份数.";
+			mes "请选择 1 ~ 20 之间的数字.";
+			mes "或按 0 退出.";
+			next;
+			input .@tickets;
+			if (.@tickets < 0 || .@tickets > 20) {
+				mes .@npc_name$;
+				mes "您输入的数字有误.";
+				mes "请重新输入.";
+				close;
+			} else if (.@tickets == 0) {
+				mes .@npc_name$;
+				mes "已取消.";
+				close;
+			} else
+				break;
+		case 4:
+			mes .@npc_name$;
+			mes "已取消.";
+			close;
+		}
+		if (countitem(6489) < .@tickets) {
+			mes .@npc_name$;
+			mes "您想提交的证书数量比您携带的要多.";
+			close;
+		}
+		set .@units, .@tickets * 10;
+		mes .@npc_name$;
+		mes .@tickets+" 猫手顶级投资证书"+((.@tickets == 1)?" 确认":"是")+" 相同想过的投资方式 "+.@units+" 倍数 ("+((.@units < 100)?.@units:insertchar(""+.@units,",",1))+"0,000z)"+getarg(2,"")+".";
+		mes "虽然你的投资金额不高, 但这是一个投资感谢券. 您可以用它到绵绵岛兑换一些有用的东西.";
+		delitem 6489,.@tickets; //Cats_Invest_Certif
+		setd getarg(0), getd(getarg(0)) + .@units;
+		getitem 6488,.@units; //Thanks_Invest_Ticket
+		close;
+	case 3:
+		mes .@npc_name$;
+		mes "已取消.";
+		close;
+	}
+}
+
+// Script Core :: agit_fund
+//============================================================
+prt_gld,1,1,0	script	#fund_master	844,{
+	end;
+OnInit:
+	set .@invest_status, callfunc("F_Invest_Status");
+	if (.@invest_status == 1) {
+		set $2011_agit_invest,1;
+		end;
+	}
+	if ((.@invest_status == 2 && $2011_agit_invest == 1) ||
+	    (.@invest_status == 3 && ($2011_agit_invest == 1 || $2011_agit_invest == 2))) {
+		donpcevent "#fund_master::OnCalculate";
+		end;
+	}
+	end;
+OnCalculate_Election:
+	set .@force_vote,1;
+OnCalculate:
+	setarray .@cas$[0],"prt","pay","gef","alde";
+	for(set .@i,0; .@i<4; set .@i,.@i+1) {
+		// All funds per realm are summed.
+		set .@funds[.@i], getd("$fund_"+.@cas$[.@i]+"01")+getd("$fund_"+.@cas$[.@i]+"02")+getd("$fund_"+.@cas$[.@i]+"03")+getd("$fund_"+.@cas$[.@i]+"04")+getd("$fund_"+.@cas$[.@i]+"05")+getd("$fund_"+.@cas$[.@i]+"_extra");
+
+		// 70,000,000z opens Hall of Abyss and F2.
+		if (.@funds[.@i] >= 7000) {
+			setd "$"+.@cas$[.@i]+"_invest_result",3;
+			set .@total_7000,1;
+		}
+		// 20,000,000z opens F2 and a chance for Hall of Abyss.
+		else if (.@funds[.@i] >= 2000) {
+			setd "$"+.@cas$[.@i]+"_invest_result",2;
+			set .@total_2000,1;
+		}
+		// Anything below that opens nothing.
+		else
+			setd "$"+.@cas$[.@i]+"_invest_result",1;
+	}
+	// No further actions if 20,000,000z isn't reached.
+	if (!.@total_2000)
+		end;
+	// No further actions if any realm hits 70,000,000z.
+	if (.@total_7000) {
+		set $2011_agit_invest,4;
+		end;
+	}
+	// Otherwise, highest investment above 20,000,000z opens Hall of Abyss.
+	set .@max, .@funds[0];
+	for(set .@i,1; .@i<4; set .@i,.@i+1) {
+		if (.@funds[.@i] > .@max) {
+			set .@max, .@funds[.@i];
+			set .@ele, .@i;
+			deletearray .@rand$[0], getarraysize(.@rand$);
+		} else if (.@funds[.@i] == .@max && .@funds[.@i] >= 2000) {
+			if (!getarraysize(.@rand$))
+				set .@rand$[0], .@cas$[.@ele];
+			set .@rand$[getarraysize(.@rand$)], .@cas$[.@i];
+		}
+	}
+	if (.@max < 2000)
+		end;
+	if (getarraysize(.@rand$)) {
+
+		// Tie: declare a random winner.
+		if (!.@force_vote) {
+			set .@i, rand(getarraysize(.@rand$));
+			setd "$"+.@rand$[.@i]+"_invest_result",3;
+			set $2011_agit_invest,4;
+			end;
+		}
+
+		// Tie: initiate a 30-minute election.
+		set .@str$, implode(.@rand$,"|");
+		for(set .@i,0; .@i<4; set .@i,.@i+1) {
+			if (compare(.@str$,.@cas$[.@i]))
+				set .@election, .@election | (1<<.@i);
+		}
+		switch(.@election) {
+			case 3:  set $2011_agit_invest,11; break; //Prontera|Payon
+			case 9:  set $2011_agit_invest,12; break; //Prontera|Al De Baran
+			case 5:  set $2011_agit_invest,13; break; //Prontera|Geffen
+			case 10: set $2011_agit_invest,14; break; //Al De Baran|Payon
+			case 6:  set $2011_agit_invest,15; break; //Geffen|Payon
+			case 12: set $2011_agit_invest,16; break; //Al De Baran|Geffen
+			case 11: set $2011_agit_invest,17; break; //Prontera|Payon|Al De Baran
+			case 7:  set $2011_agit_invest,18; break; //Prontera|Payon|Geffen
+			case 13: set $2011_agit_invest,19; break; //Prontera|Al De Baran|Geffen
+			case 14: set $2011_agit_invest,20; break; //Al De Baran|Payon|Geffen
+			case 15: set $2011_agit_invest,21; break; //Prontera|Payon|Al De Baran|Geffen
+		}
+		if ($2011_agit_invest >= 11)
+			donpcevent "附加投票管理员#Invest1::OnStart";
+		end;
+	} else {
+		setd "$"+.@cas$[.@ele]+"_invest_result",3;
+		set $2011_agit_invest,4;
+		end;
+	}
+	end;
+OnInvest_start:
+	announce "从现在起, 我们计划通过投资方式来快速打通'深渊回廊'的通道. 通过回廊我们将连通公会战区域: 普隆德拉-战士之路, 斐扬-远古之风, 吉芬-亡者之丘, 艾-英雄之泪.",bc_all,0xFF0000; //FW_NORMAL 10
+	set $fund_prt01,0;
+	set $fund_prt02,0;
+	set $fund_prt03,0;
+	set $fund_prt04,0;
+	set $fund_prt05,0;
+	set $fund_pay01,0;
+	set $fund_pay02,0;
+	set $fund_pay03,0;
+	set $fund_pay04,0;
+	set $fund_pay05,0;
+	set $fund_gef01,0;
+	set $fund_gef02,0;
+	set $fund_gef03,0;
+	set $fund_gef04,0;
+	set $fund_gef05,0;
+	set $fund_alde01,0;
+	set $fund_alde02,0;
+	set $fund_alde03,0;
+	set $fund_alde04,0;
+	set $fund_alde05,0;
+	donpcevent "Investment_total#fund00::OnEnable";
+	end;
+OnInvest_stop:
+	announce "我们完成了整个投资项目, 成功的连接上了'深渊回廊'.",bc_all,0xFF0000; //FW_NORMAL 10
+	donpcevent "Investment_total#fund00::OnReset";
+	donpcevent "#fund_master::OnCalculate_Election";
+	end;
+OnResult:
+	announce "我们已经得到了投资的回报 '深渊回廊'. 您可以通过公会战区域的猫手董事会公告牌进行投资状态查询.",bc_all,0xFF0000; //FW_NORMAL 10
+	if ($2011_agit_invest == 4) {
+		set $fund_prt01,0;
+		set $fund_prt02,0;
+		set $fund_prt03,0;
+		set $fund_prt04,0;
+		set $fund_prt05,0;
+		set $fund_prt_extra,0;
+		set $fund_pay01,0;
+		set $fund_pay02,0;
+		set $fund_pay03,0;
+		set $fund_pay04,0;
+		set $fund_pay05,0;
+		set $fund_pay_extra,0;
+		set $fund_gef01,0;
+		set $fund_gef02,0;
+		set $fund_gef03,0;
+		set $fund_gef04,0;
+		set $fund_gef05,0;
+		set $fund_gef_extra,0;
+		set $fund_alde01,0;
+		set $fund_alde02,0;
+		set $fund_alde03,0;
+		set $fund_alde04,0;
+		set $fund_alde05,0;
+		set $fund_alde_extra,0;
+	} else if ($2011_agit_invest == 2)
+		donpcevent "#fund_master::OnCalculate";
+	end;
+OnReset:
+	set $2011_agit_invest,0;
+	donpcevent "Investment_total#fund00::OnReset";
+	end;
+}
+
+prt_gld,2,2,0	script	Investment_total#fund00	844,{
+	callfunc "F_GM_NPC";
+	mes "这个不能正常工作?";
+	next;
+	if (callfunc("F_GM_NPC",1854,0) == 1) {
+		mes "如果您认为投资计时器已经当机的话, 您可以进行调试.";
+		next;
+		switch(select("- 重启计时器:- 取消")) {
+		case 1:
+			donpcevent "Investment_total#fund00::OnTimerReset";
+			mes "您已启动计时器.";
+			close;
+		case 2:
+			mes "已取消.";
+			close;
+		}
+	} else {
+		mes "现在不需要调试.";
+		close;
+	}
+
+OnInit:
+	if (callfunc("F_Invest_Status") == 1) {
+		initnpctimer;
+		donpcevent "Investment_total#fund00::OnVarInit";
+	} else {
+		set $agit_result_timer,0;
+		set $agit_result_notice,0;
+	}
+	end;
+OnVarInit:
+	setarray .@cas$[0],"prt","pay","gef","alde";
+	for(set .@i,0; .@i<4; set .@i,.@i+1) {
+		setd "$@vfund_"+.@cas$[.@i]+"01", getd("$fund_"+.@cas$[.@i]+"01");
+		setd "$@vfund_"+.@cas$[.@i]+"02", getd("$fund_"+.@cas$[.@i]+"02");
+		setd "$@vfund_"+.@cas$[.@i]+"03", getd("$fund_"+.@cas$[.@i]+"03");
+		setd "$@vfund_"+.@cas$[.@i]+"04", getd("$fund_"+.@cas$[.@i]+"04");
+		setd "$@vfund_"+.@cas$[.@i]+"05", getd("$fund_"+.@cas$[.@i]+"05");
+		setd "$@vfund_"+.@cas$[.@i]+"_extra", getd("$fund_"+.@cas$[.@i]+"_extra");
+	}
+	end;
+OnEnable:
+	set $agit_result_timer,0;
+	set $agit_result_notice,0;
+	initnpctimer;
+	end;
+OnReset:
+	set $agit_result_timer,0;
+	set $agit_result_notice,0;
+	stopnpctimer;
+	end;
+OnTimerReset:
+	initnpctimer;
+	end;
+OnTimer3600000:
+	if (callfunc("F_Invest_Status") == 1) {
+		if ($agit_result_timer < 59) {
+			set $agit_result_timer, $agit_result_timer+1;
+
+			// Trigger on multiples of 5 up to 55, and 58.
+			if ($agit_result_timer % 10 == 5 || $agit_result_timer % 10 == 0 || $agit_result_timer == 58) {
+				set $agit_result_notice, $agit_result_notice+1;
+				donpcevent "Investment_total#fund00::OnVarInit";
+				announce "No."+$agit_result_notice+"号深渊之门传送设备已近完成连接. 您可以通过公会区域的猫手董事会公告牌进行投资进度查询.",bc_all,0xFF0000; //FW_NORMAL 10
+			}
+
+			donpcevent "Investment_total#fund00::OnTimerReset";
+		} else
+			stopnpctimer;
+		end;
+	} else {
+		donpcevent "Investment_total#fund00::OnReset";
+		end;
+	}
+}
+
+prt_gld,164,98,3	script	附加投票管理员#Invest1	421,{
+	mes "[附加投票管理员]";
+	mes "我们不接受额外的投票.";
+	mes "请等待我们公布结果.";
+	close;
+OnInit:
+	set .@invest_status, callfunc("F_Invest_Status");
+	if (.@invest_status == 2 && $2011_agit_invest >= 11 && $agit_revoting_timer < 30) {
+		donpcevent "附加投票管理员#Invest2::OnEnable";
+		initnpctimer;
+	} else if (.@invest_status == 3 && $2011_agit_invest >= 11)
+		donpcevent "附加投票管理员#Invest1::OnCalculate";
+	donpcevent "附加投票管理员#Invest1::OnDisable";
+	end;
+OnCalculate:
+	switch($2011_agit_invest) {
+		case 11: setarray.@cas$[0],"prt","pay"; break;
+		case 12: setarray.@cas$[0],"prt","alde"; break;
+		case 13: setarray.@cas$[0],"prt","gef"; break;
+		case 14: setarray.@cas$[0],"alde","pay"; break;
+		case 15: setarray.@cas$[0],"gef","pay"; break;
+		case 16: setarray.@cas$[0],"alde","gef"; break;
+		case 17: setarray.@cas$[0],"prt","pay","alde"; break;
+		case 18: setarray.@cas$[0],"prt","pay","gef"; break;
+		case 19: setarray.@cas$[0],"prt","alde","gef"; break;
+		case 20: setarray.@cas$[0],"alde","pay","gef"; break;
+		case 21: setarray.@cas$[0],"prt","pay","alde","gef"; break;
+		default: end;
+	}
+	set .@max, getd("$fund_"+.@cas$[0]+"_extra");
+	for(set .@i,1; .@i<getarraysize(.@cas$); set .@i,.@i+1) {
+		set .@funds, getd("$fund_"+.@cas$[.@i]+"_extra");
+		if (.@funds > .@max) {
+			set .@max, .@funds;
+			set .@ele, .@i;
+			deletearray .@rand$[0], getarraysize(.@rand$);
+		} else if (.@funds == .@max) {
+			if (!getarraysize(.@rand$))
+				set .@rand$[0], .@cas$[.@ele];
+			set .@rand$[getarraysize(.@rand$)], .@cas$[.@i];
+		}
+	}
+	if (getarraysize(.@rand$)) {
+		set .@i, rand(getarraysize(.@rand$));
+		setd "$"+.@rand$[.@i]+"_invest_result",3;
+	} else
+		setd "$"+.@cas$[.@ele]+"_invest_result",3;
+	set $2011_agit_invest,4;
+	set $agit_revoting_timer,0;
+	end;
+OnEnable:
+	enablenpc "附加投票管理员#Invest1";
+	end;
+OnDisable:
+	disablenpc "附加投票管理员#Invest1";
+	end;
+OnStart:
+	initnpctimer;
+	donpcevent "附加投票管理员#Invest2::OnNotice_on";
+	end;
+OnEnd:
+	stopnpctimer;
+	disablenpc "附加投票管理员#Invest1";
+	end;
+OnTimerReset:
+	initnpctimer;
+	end;
+OnTimer60000:
+	set .@revote, $agit_revoting_timer;
+	if (.@revote < 30) {
+		set $agit_revoting_timer, $agit_revoting_timer+1;
+		donpcevent "附加投票管理员#Invest1::OnTimerReset";
+	} else if (.@revote == 30) {
+		announce "猫手商会: 附加投票时间即将结束. 我们将尽快公布结果.",bc_all,0xFF0000; //FW_NORMAL 10
+		donpcevent "附加投票管理员#Invest2::OnDisable";
+		donpcevent "附加投票管理员#Invest1::OnEnable";
+		set $agit_revoting_timer, $agit_revoting_timer+1;
+		donpcevent "附加投票管理员#Invest1::OnTimerReset";
+	} else if (.@revote == 31) {
+		donpcevent "附加投票管理员#Invest1::OnCalculate";
+		donpcevent "附加投票管理员#Invest1::OnDisable";
+		stopnpctimer;
+		end;
+	} else {
+		donpcevent "附加投票管理员#Invest1::OnDisable";
+		stopnpctimer;
+	}
+	end;
+}
+
+prt_gld,164,98,3	script	附加投票管理员#Invest2	421,{
+	set .@invest, $2011_agit_invest;
+	if (.@invest < 11) {
+		mes "[附加投票管理员]";
+		mes "不! 还没到公布结果的时候.";
+		close2;
+		disablenpc "附加投票管理员#Invest2";
+		end;
+	}
+	set .@playtime, checkquest(7349,PLAYTIME);
+	if (.@playtime == 0 || .@playtime == 1) {
+		mes "[附加投票管理员]";
+		mes "你已经参与了投票.";
+		mes "请放松并等待结果.";
+		close;
+	} else if (.@playtime == 2)
+		erasequest 7349;
+	mes "[附加投票管理员]";
+	mes "您想参与投票, 选择在哪里与'深渊回廊'连接?";
+	next;
+	if(select("- 参与投票.:- 取消.") == 2) {
+		mes "[附加投票管理员]";
+		mes "您已取消投票.";
+		close;
+	}
+	mes "[附加投票管理员]";
+	mes "你只能投票一次, 不会有额外的选项供您选择.";
+	mes "请选择一个公会战区域.";
+	next;
+
+	// Create menu.
+	explode(.@candidates$, callsub(OnGetCandidates, .@invest),"|");
+	for(set .@i,0; .@i<getarraysize(.@candidates$); set .@i,.@i+1) {
+		if (.@candidates$[.@i] == "alde")
+			set .@menu$[.@i],"英雄之泪";
+		else if (.@candidates$[.@i] == "gef")
+			set .@menu$[.@i],"亡者之丘";
+		else if (.@candidates$[.@i] == "pay")
+			set .@menu$[.@i],"远古之风";
+		else if (.@candidates$[.@i] == "prt")
+			set .@menu$[.@i],"战士之路";
+	}
+	set .@vote, select(implode(.@menu$,":"))-1;
+
+	mes "[附加投票管理员]";
+	mes "您把票投给了 "+.@menu$[.@vote]+".";
+	mes "感谢您的参与.";
+	setquest 7349;
+	setd "$fund_"+.@candidates$[.@vote]+"_extra", getd("$fund_"+.@candidates$[.@vote]+"_extra") + 1;
+	close;
+OnGetCandidates:
+	switch(getarg(0)) {
+		case 11: return "prt|pay";
+		case 12: return "prt|alde";
+		case 13: return "prt|gef";
+		case 14: return "alde|pay";
+		case 15: return "gef|pay";
+		case 16: return "alde|gef";
+		case 17: return "prt|pay|alde";
+		case 18: return "prt|pay|gef";
+		case 19: return "prt|alde|gef";
+		case 20: return "alde|pay|gef";
+		case 21: return "prt|pay|alde|gef";
+	}
+	return "";
+OnInit:
+	disablenpc "附加投票管理员#Invest2";
+	end;
+OnEnable:
+	enablenpc "附加投票管理员#Invest2";
+	end;
+OnDisable:
+	disablenpc "附加投票管理员#Invest2";
+	stopnpctimer;
+	end;
+OnNotice_on:
+	initnpctimer;
+	end;
+OnTimer5000:
+	announce "猫手商会: 没有区域达到连接'深渊回廊'的基础投票要求...",bc_all,0xFF0000; //FW_NORMAL 10
+	end;
+OnTimer8000:
+	announce "猫手商会: 我们将在投资最多的区域连接'深渊回廊'.",bc_all,0xFF0000; //FW_NORMAL 10
+	end;
+OnTimer11000:
+	announce "猫手商会: 然而, 可能会碰到不同区域的投资金额相同. 因此, 我们将会采取投票方式.",bc_all,0xFF0000; //FW_NORMAL 10
+	end;
+OnTimer14000:
+	announce "猫手商会: 需要进行额外30分钟的附加投票. 您可以投票给战士之路.",bc_all,0xFF0000; //FW_NORMAL 10
+	end;
+OnTimer20000:
+	explode(.@candidates$, callsub(OnGetCandidates, $2011_agit_invest),"|");
+	for(set .@i,0; .@i<getarraysize(.@candidates$); set .@i,.@i+1) {
+		if (.@candidates$[.@i] == "alde")
+			set .@choices$[.@i],"英雄之泪";
+		else if (.@candidates$[.@i] == "gef")
+			set .@choices$[.@i],"亡者之丘";
+		else if (.@candidates$[.@i] == "pay")
+			set .@choices$[.@i],"远古之风";
+		else if (.@candidates$[.@i] == "prt")
+			set .@choices$[.@i],"战士之路";
+	}
+	announce "猫手商会: 附加投票的胜出者为... "+implode(.@choices$," vs. ")+".",bc_all,0xFF0000; //FW_NORMAL 10
+	set $fund_prt_extra,0;
+	set $fund_pay_extra,0;
+	set $fund_gef_extra,0;
+	set $fund_alde_extra,0;
+	set $agit_revoting_timer,0;
+	donpcevent "附加投票管理员#Invest2::OnEnable";
+	stopnpctimer;
+	end;
+}
+
+/*
+prtg_cas01,2,2,0	script	阿伯莱	55,{
+	mes "我应该辞去我的管家工作.";
+	close;
+OnAgitInvest:
+	switch(callfunc("F_Invest_Status")) {
+	case 0:
+		set $2011_agit_invest,0;
+		donpcevent "#fund_master::OnReset";
+		break;
+	case 1:
+		set $2011_agit_invest,1;
+		donpcevent "#fund_master::OnInvest_start";
+		break;
+	case 2:
+		set $2011_agit_invest,2;
+		donpcevent "#fund_master::OnInvest_stop";
+		break;
+	case 3:
+		donpcevent "#fund_master::OnResult";
+		break;
+	}
+	end;
+}
+*/
+
+// Realms - Merchant Guilds, Gate Managers, Status Boards
+//============================================================
+-	script	Cat Paw Merchant Guild	-1,{
+
+	if (compare(strnpcinfo(4),"alde")) {
+		set .@npc$,"alde";
+		set .@name$,"格鲁兹";
+		set .@realm$,"英雄之泪";
+		set .@intro$,"艾-英雄之泪管理员";
+	} else if (compare(strnpcinfo(4),"gef")) {
+		set .@npc$,"gef";
+		set .@name$,"蒙尔克";
+		set .@realm$,"亡者之丘";
+		set .@intro$,"吉芬-亡者之丘管理员";
+	} else if (compare(strnpcinfo(4),"pay")) {
+		set .@npc$,"pay";
+		set .@name$,"菲克达";
+		set .@realm$,"远古之风";
+		set .@intro$,"斐扬-远古之风管理员";
+	} else if (compare(strnpcinfo(4),"prt")) {
+		set .@npc$,"prt";
+		set .@name$,"杜巴依";
+		set .@realm$,"战士之路";
+		set .@intro$,"普隆德拉-战士之路管理员";
+	}
+	set .@n$,"["+.@name$+"]";
+
+	mes .@n$;
+	mes "我是 "+.@name$+", 猫手商会派驻 "+.@intro$+".";
+	mes "我能提供关于深渊回廊开发进展的情报.";
+	mes "需要帮忙吗?";
+	next;
+	switch(select("- 什么是深渊回廊?:- 投资开发深渊回廊?:- 我想进入这个区域.:- 取消")) {
+	case 1:
+		mes .@n$;
+		mes "我们称之为深渊回廊, 是因为他是^4d4dff一个通道, 用以连接另外一个位面空间^000000.";
+		next;
+		mes .@n$;
+		mes "我们发现在梦罗克出现了无数裂缝, 然后同样的裂缝开始在这里陆续出现.";
+		mes "我个人认为深渊之门很大可能是过去或者未来的一个破碎空间.";
+		next;
+		mes .@n$;
+		mes "意思就是说深渊之门强行连通了我们与另一个空间.";
+		mes "我想这里面有可能是因为华丽金属的强大能量, 而造成了深渊之门的活跃变化.";
+		next;
+		mes .@n$;
+		mes "迄今为止总共发现了4条深渊回廊. 他们不约而同的连接到散发着华丽金属气息得地方.";
+		next;
+		mes .@n$;
+		mes "我们对4个不同位面的区域进行了命名.";
+		mes "^4d4dff战士之路, 亡者之丘, 远古之风, 英雄之泪.^000000";
+		mes "所有这些位面我们一起统称为 ^4d4dff深渊回廊^000000.";
+		next;
+		mes .@n$;
+		mes "这些缝隙可能连接着过去和未来, 也有可能连着一些未知的世界.";
+		mes "深渊之门所包含的力量是强大却又可怕的.";
+		next;
+		mes .@n$;
+		mes "您也有兴趣探索深渊之门?";
+		mes "哈哈. 探索之前您还有些准备工作需要做.";
+		next;
+		mes .@n$;
+		mes "如果您感兴趣的话,";
+		mes "先让我们聊聊投资的事情吧?";
+		close;
+	case 2:
+		mes .@n$;
+		mes "您是不是很好奇为什么要投资开发深渊之门?";
+		mes "您想了解些什么?";
+		next;
+		switch(select("- 关于深渊之门?:- 关于投资?:- 怎么投资?:- 投资有何回报?")) {
+		case 1:
+			mes .@n$;
+			mes "之前我们已经命名了深渊回廊.";
+			mes "深渊之门是贯穿我们的世界与另一空间的出入口.";
+			next;
+			mes .@n$;
+			mes "深渊回廊所建立的通道充满无数的三维裂缝, 非常的不稳定.";
+			mes "因此通过深渊之门旅行需要大量的人力来进行维护, 才能够保持通道的稳定.";
+			next;
+			mes .@n$;
+			mes "人类拥有先进的科学技术.";
+			mes "但是对于我们猫手商会来说, 我们握有更加尖端的核心技术, 对于稳定通道来说, 这非常必要.";
+			next;
+			mes .@n$;
+			mes "因此, 我们提出了一个方案.";
+			mes "以我们的尖端技术, 并且动用猫手商会所有的能量来维持住通道. 这将花费商会的巨大人力物力.";
+			mes "我们商会立誓不惜代价维系通道稳定.";
+			next;
+			mes .@n$;
+			mes "当然这可不是一个简单的工作, 不仅耗资巨大而且还随时面临生命危险.";
+			mes "已经发生了数起失踪事件了.";
+			next;
+			mes .@n$;
+			mes "我们按以往的经验判断, 隧道的稳定期在4天左右.";
+			mes "你的投资将会被用到深渊之门的开发上, 这样也是对你自己的生命安全是一种保障.";
+			next;
+			mes .@n$;
+			mes "感觉如何, 是不是觉得投资是一种双赢的模式?";
+			close;
+		case 2:
+			mes .@n$;
+			mes "通过强行撕裂空间建立隧道, 这是非常危险的.";
+			mes "我们撇开巨额投入不说.";
+			next;
+			mes .@n$;
+			mes "你不会为了钱, 命都不要了吧.";
+			mes "由我们建立的传送通道, 几乎没有任何风险.";
+			next;
+			mes .@n$;
+			mes "但是, 维持深渊之门的支出是非?植赖?";
+			mes "不过如果你能够找到更多的投资者来分摊稀释成本的话. 就没什么压力了.";
+			next;
+			mes .@n$;
+			mes "这里有个基础的连接装置.";
+			mes "至于是否能够进行连接改造工作, 就需要看投资者的力度了.";
+			next;
+			mes .@n$;
+			mes "深渊回廊覆盖着整个公会战区.";
+			mes "可能你无法想象, 我们整个猫手商会停止所有的业务, 将所有的人力物力投入到回廊的工作上来?";
+			next;
+			mes .@n$;
+			mes "这也就是各大区的负责人拼命拉投资的原因了.";
+			mes "如果能够获得足够的投资, 将本区的深渊之门稳定好, 这对本区所有人都是非常有利的.";
+			next;
+			mes .@n$;
+			mes "如果 ^4d4dff能够与一个怪物聚集的地下城相连的话";
+			mes "就会开放该区域的使用权给所有人, 而非公会专属区域^000000 这将是非常有吸引力的投资.";
+			next;
+			mes .@n$;
+			mes "一起的前提都是基于回廊开启, 而开启就需要投资, 这是个因果关系.";
+			close;
+		case 3:
+			mes .@n$;
+			mes "这很简单.";
+			mes "访问分区经理 ^4d4dff告诉他你想在他的区域那里投资^000000 然后交钱完成投资.";
+			next;
+			mes .@n$;
+			mes "我们一般收取 ^4d4dff的标准货币是 Zeny^000000.";
+			mes "不过作为您对我们猫手商会所提供的支持, 我们会给您一张投资感谢票, 可以用来兑换绵绵岛的一些物品.";
+			next;
+			mes .@n$;
+			mes "至于物品兑换的话, 你可以到绵绵岛找纳米斯, 他是我们在那里的分管经理.";
+			mes "记得带回来的猫手顶级投资证书, 可以继续用来投资.";
+			next;
+			mes .@n$;
+			mes "最后你必须考虑好你想投资的区域.";
+			close;
+		case 4:
+			mes .@n$;
+			mes "深渊回廊覆盖了几乎所有的公会战区域;";
+			mes "因此, 经过我们核算一次最基础的投资额度可以让我们勉强保本.";
+			next;
+			mes .@n$;
+			mes "整个工程预算部分,做了保底金额和最大金额.";
+			mes "如果总的投资额度 ^4d4dff低于保底预算金额^000000的话, 我们就无法完成与 ^4d4dff回廊后的地下城^000000对接.";
+			next;
+			mes .@n$;
+			mes "如果收到的投资款达到最大金额, 该区域将被连接到";
+			mes "^4d4dff深渊回廊^000000 并且无须在关注投资等级, 即可连接到任意一个地方, 当然包括回廊的最深处.";
+			next;
+			mes .@n$;
+			mes "^ff0000如果没有达到最大的投资限额的话, 那对于该地区来说";
+			mes "只有投资最多的人才可以被传送到回廊的任意一个地方.^000000";
+			next;
+			mes .@n$;
+			mes "深渊之门开启后, 目前最深的(2F)地下城";
+			mes "将开放给所有在这一地区投资过的冒险者们.";
+			next;
+			mes .@n$;
+			mes "进入地下城会被计算一次投资, 并被计入到下一次的总投资内.";
+			mes "这无论对于个人或者公会来说都是一次不错的小奖励.";
+			next;
+			mes .@n$;
+			mes "与深渊回廊建立连接是非常困难的, 约为每周一次. 因此我们会尽量延长连接的时间. ";
+			mes "为了应对未知的力量, 请保持持续投资.";
+			close;
+		}
+	case 3:
+		if (checkweight(1201,1) == 0 || MaxWeight - Weight < 1000) {
+			mes "- 您携带的物品数量过多 -";
+			mes "- 请处理后再来找我. -";
+			close;
+		}
+		if (countitem(6488) >= 4800) {
+			mes .@n$;
+			mes "您所持的投资感谢票数量已经到了极限.";
+			mes "无法再发给您给多的感谢票了. 请先兑换物品后再来.";
+			mes "投资感谢票可以在绵绵岛兑换物品.";
+			close;
+		}
+		if (callfunc("F_Invest_Status") != 1) {
+			mes .@n$;
+			mes "我们暂不接受投资.";
+			mes "请在投资期内再来.";
+			close;
+		}
+		set .@guild, getcharid(2);
+		for(set .@i,1; .@i<=5; set .@i,.@i+1) {
+			set .@castle_name$[.@i], getcastlename(.@npc$+"g_cas0"+.@i);
+			set .@owner_id[.@i], getcastledata(.@npc$+"g_cas0"+.@i,CD_GUILD_ID);
+			set .@owner_name$[.@i], getguildname(.@owner_id[.@i]);
+			if (.@guild == .@owner_id[.@i]) {
+				set .@menu$, .@menu$+.@castle_name$[.@i]+" ["+.@owner_name$[.@i]+"] 公会:";
+				set .@castles_owned, .@castles_owned | (1<<.@i);
+			} else
+				set .@menu$, .@menu$+"^aaaaaa不像是公会 "+.@castle_name$[.@i]+"^000000:";
+		}
+		mes .@n$;
+		mes "您想投资在 ^4d4dff"+.@realm$+"^000000 区域?";
+		mes "如果你的公会占有公会城堡的话, 你的投资也会对所占城堡生效.";
+		next;
+		if (.@castles_owned) {
+			set .@i, select(.@menu$+"Cancel");
+			if (.@i == 6) {
+				mes .@n$;
+				mes "- 已取消.";
+				close;
+			}
+			if (.@guild != .@owner_id[.@i]) {
+				mes .@n$;
+				mes "公会所有权 "+.@castle_name$[.@i]+" 是 "+.@owner_name$[.@i]+".";
+				mes "这看上去不是你的公会.";
+				close;
+			}
+			mes .@n$;
+			mes "投资于 "+.@castle_name$[.@i]+"的"+.@owner_name$[.@i]+" 公会.";
+			callfunc "F_Invest_Abyss","$fund_"+.@npc$+"0"+.@i,.@n$;
+			end;
+		} else {
+			mes .@n$;
+			callfunc "F_Invest_Abyss","$fund_"+.@npc$+"_extra",.@n$," 的 "+.@realm$;
+			end;
+		}
+	case 4:
+		mes .@n$;
+		mes "是这样的吗?";
+		mes "如果您有兴趣投资深渊回廊的话, 请记得来找我.";
+		close;
+	}
+}
+
+-	script	Gate Manager#realm	-1,{
+
+	if (compare(strnpcinfo(4),"alde")) {
+		set .@npc$,"alde";
+		set .@name$,"奥孔";
+		set .@gate$,"英雄之泪";
+		set .@realm$,"艾尔帕兰";
+	} else if (compare(strnpcinfo(4),"gef")) {
+		set .@npc$,"gef";
+		set .@name$,"米扎尔";
+		set .@gate$,"亡者之丘";
+		set .@realm$,"吉芬";
+	} else if (compare(strnpcinfo(4),"pay")) {
+		set .@npc$,"pay";
+		set .@name$,"阿尔卡伊德";
+		set .@gate$,"远古之风";
+		set .@realm$,"斐扬";
+	} else if (compare(strnpcinfo(4),"prt")) {
+		set .@npc$,"prt";
+		set .@name$,"阿里奥斯";
+		set .@gate$,"战士之路";
+		set .@realm$,"普隆德拉";
+	}
+	set .@n$,"["+.@name$+"]";
+
+	if (callfunc("F_Invest_Status") != 3) {
+		mes .@n$;
+		mes "目前没有任何通道与公会地下城连接.";
+		close;
+	}
+	set .@status, getd("$"+.@npc$+"_invest_result");
+	if (.@status == 3) {
+		mes .@n$;
+		mes "在您和各位投资者的积极投资下, 我们已经成功的连接上了'深渊回廊'的 ["+.@gate$+"] .";
+		mes ""+.@realm$+"公会地下城将向各位开放, 各位仅需要支付很少的一些入场费即可.";
+		next;
+		mes .@n$;
+		mes "您所经常访问并缴纳入场费的区域, 入场费也会被计算入该地区的投资收益.";
+		mes "您想现在就进入公会地下城吗?";
+		next;
+		set .@i, select(.@realm$+" 地下城 1F - 10000z:"+.@realm$+" 地下城 2F - 10000z:取消");
+		if (.@i == 3) {
+			mes .@n$;
+			mes "已取消.";
+			close;
+		}
+		if (Zeny < 10000) {
+			mes .@n$;
+			mes "我负责收取小额入场费.";
+			mes "您所支付的入场费会计算到下一次的回廊投资中.";
+			mes "入场费是 10000z.";
+			close;
+		}
+		mes .@n$;
+		mes "我将传送你到 "+.@realm$+" 公会地下城 "+.@i+"F.";
+		set Zeny, Zeny-10000;
+		setd "$fund_"+.@npc$+"_extra", getd("$fund_"+.@npc$+"_extra") + 1;
+		close2;
+		if (compare(strnpcinfo(2),"alde"))
+			warp "gld_dun02"+((.@i == 2)?"_2":""),32,122;
+		else if (compare(strnpcinfo(2),"gef"))
+			warp "gld_dun04"+((.@i == 2)?"_2":""),39,258;
+		else if (compare(strnpcinfo(2),"pay"))
+			warp "gld_dun01"+((.@i == 2)?"_2":""),186,165;
+		else if (compare(strnpcinfo(2),"prt"))
+			warp "gld_dun03"+((.@i == 2)?"_2":""),164,268;
+		end;
+	} else if (.@status == 2) {
+		mes .@n$;
+		mes ""+.@realm$+" 公会地下城 2F 现在虽然现在处于激活状态, 但是还没有连接上深渊回廊,";
+		mes "现在仅能到达默认的公会地下城.";
+		close;
+	} else {
+		mes .@n$;
+		mes .@realm$+" 区域这次没有被选中作为回廊的接入点.";
+		mes "请等下一个投资期.";
+		close;
+	}
+	end;
+}
+
+-	script	Investment Status Board	-1,{
+	set .@invest_status, callfunc("F_Invest_Status");
+	if (.@invest_status == 1) {
+		if (compare(strnpcinfo(4),"alde")) {
+			set .@npc$,"alde";
+			set .@realm$,"艾尔帕兰";
+		} else if (compare(strnpcinfo(4),"gef")) {
+			set .@npc$,"gef";
+			set .@realm$,"吉芬";
+		} else if (compare(strnpcinfo(4),"pay")) {
+			set .@npc$,"pay";
+			set .@realm$,"斐扬";
+		} else if (compare(strnpcinfo(4),"prt")) {
+			set .@npc$,"prt";
+			set .@realm$,"普隆德拉";
+		}
+		set .@notice, $agit_result_notice;
+		if (.@notice < 1 || .@notice > 12) {
+			mes "There are currently no investment sums available.";
+			close;
+		}
+		mes callfunc("F_GetNumSuffix",.@notice)+" 合计 (金额单位: 10,000z)";
+		for(set .@i,1; .@i<=5; set .@i,.@i+1) {
+			set .@map$, .@npc$+"g_cas0"+.@i;
+			set .@fund[.@i], getd("$@vfund_"+.@npc$+"0"+.@i);
+			mes getcastlename(.@map$)+" "+getguildname(getcastledata(.@map$,CD_GUILD_ID))+" 公会: "+.@fund[.@i];
+		}
+		set .@fund[0], getd("$@vfund_"+.@npc$+"_extra");
+		mes .@realm$+" 普通: "+.@fund[0];
+		mes .@realm$+" 投资总计: "+(.@fund[0]+.@fund[1]+.@fund[2]+.@fund[3]+.@fund[4]+.@fund[5]);
+		close;
+	} else if (.@invest_status == 2) {
+		mes "!- Notice -!";
+		mes "目前总投资金额正在计算中, 暂时还未得出总是.";
+		mes "请等待结果公布.";
+		close;
+	} else if (.@invest_status == 3) {
+		setarray .@invest_result[0], $prt_invest_result,$pay_invest_result,$gef_invest_result,$alde_invest_result;
+		setarray .@invest_region$[0],  "普隆德拉区域",  "斐扬区域",       "吉芬区域",            "艾区域";
+		mes "!- 所有区域的投资结果 -!";
+		for(set .@i,0; .@i<4; set .@i,.@i+1) {
+			if (.@invest_result[.@i] == 1)
+				mes "^aaaaaa["+.@invest_region$[.@i]+"] 未达到最低要求^000000";
+			else if (.@invest_result[.@i] == 2) {
+				mes "["+.@invest_region$[.@i]+"] 达到基本要求";
+				mes "-> 公会地下城 (2F) 可用";
+			} else if (.@invest_result[.@i] == 3) {
+				mes "^4d4dff["+.@invest_region$[.@i]+"] 达到最高投资要求^000000";
+				mes "-> 深渊回廊 可用";
+			} else
+				mes "没有相关 ["+.@invest_region$[.@i]+"].的数据";
+		}
+		close;
+	} else {
+		mes "!- 公告 -!";
+		mes "现在没有任何投资信息.";
+		close;
+	}
+}
+
+// Inside Castles - Gate Managers
+//============================================================
+-	script	深渊之门管理员#castle	-1,{
+
+	set .@id, atoi(charat(strnpcinfo(2),getstrlen(strnpcinfo(2))-1));
+	if (compare(strnpcinfo(2),"alde")) {
+		set .@npc$,"alde";
+		set .@realm$,"艾而帕兰";
+	} else if (compare(strnpcinfo(2),"gef")) {
+		set .@npc$,"gef";
+		set .@realm$,"吉芬";
+	} else if (compare(strnpcinfo(2),"pay")) {
+		set .@npc$,"pay";
+		set .@realm$,"斐扬";
+	} else if (compare(strnpcinfo(2),"prt")) {
+		set .@npc$,"prt";
+		set .@realm$,"普隆德拉";
+	}
+
+	set .@GID, getcastledata(strnpcinfo(4),CD_GUILD_ID);
+	if (getcharid(2) != .@GID) {
+		mes "[深渊之门管理员]";
+		mes "你似乎并不是拥有这座城堡的公会成员.";
+		mes "如果您需要任何帮助,请访问我们在 "+.@realm$+" 广场的公会成员.";
+		close;
+	}
+	mes "[深渊之门管理员]";
+	mes "你好, 我是来自猫手商会传送部门的深渊之门管理员.";
+	mes "需要帮忙吗?";
+	next;
+	switch(select("- 进行大门连接投资:- 地下城最深处:- 深渊回廊数据:- 取消")) {
+	case 1:
+		if (checkweight(1201,1) == 0 || MaxWeight - Weight < 1000) {
+			mes "[深渊之门管理员]";
+			mes "您身上携带了太多的物品种类.";
+			mes "请稍做处理后再来找我.";
+			close;
+		}
+		if (countitem(6488) >= 4800) {
+			mes "[深渊之门管理员]";
+			mes "您所持的投资感谢票已经达到上限.";
+			mes "无法再给您发放. 请使用部分后再来找我.";
+			mes "投资感谢票可以在绵绵岛兑换物品.";
+			close;
+		}
+		if (callfunc("F_Invest_Status") != 1) {
+			mes "[深渊之门管理员]";
+			mes "现在不是投资期.";
+			mes "请等我们开启下一轮投资时再来.";
+			close;
+		}
+		if (getcharid(2) != .@GID) {
+			mes "[深渊之门管理员]";
+			mes "你似乎并不是拥有这座城堡的公会成员.";
+			mes "如果您需要任何帮助,请访问我们在 "+.@realm$+" 广场的公会成员.";
+			close;
+		}
+		mes "[深渊之门管理员]";
+		mes "继续投资在你的公会名下.";
+		callfunc "F_Invest_Abyss","$fund_"+.@npc$+"0"+.@id,"[深渊之门管理员]";
+		end;
+	case 2:
+		callsub L_Enter,1,.@realm$,.@npc$;
+		mes "[深渊之门管理员]";
+		mes "您对 "+.@realm$+" 公会地下城 (2F)感兴趣.";
+		mes "让我来引导你. 祝您好运.";
+		close2;
+		if (compare(strnpcinfo(2),"alde")) {
+			switch(.@id) {
+				case 1: warp "gld_dun02_2",32,122; end;
+				case 2: warp "gld_dun02_2",79,30; end;
+				case 3: warp "gld_dun02_2",165,38; end;
+				case 4: warp "gld_dun02_2",160,148; end;
+				case 5: warp "gld_dun02_2",103,169; end;
+			}
+		} else if (compare(strnpcinfo(2),"gef")) {
+			switch(.@id) {
+				case 1: warp "gld_dun04_2",39,258; end;
+				case 2: warp "gld_dun04_2",125,270; end;
+				case 3: warp "gld_dun04_2",268,251; end;
+				case 4: warp "gld_dun04_2",268,108; end;
+				case 5: warp "gld_dun04_2",230,35; end;
+			}
+		} else if (compare(strnpcinfo(2),"pay")) {
+			switch(.@id) {
+				case 1: warp "gld_dun01_2",186,165; end;
+				case 2: warp "gld_dun01_2",54,165; end;
+				case 3: warp "gld_dun01_2",54,39; end;
+				case 4: warp "gld_dun01_2",186,39; end;
+				case 5: warp "gld_dun01_2",223,202; end;
+			}
+		} else if (compare(strnpcinfo(2),"prt")) {
+			switch(.@id) {
+				case 1: warp "gld_dun03_2",28,251; end;
+				case 2: warp "gld_dun03_2",164,268; end;
+				case 3: warp "gld_dun03_2",164,179; end;
+				case 4: warp "gld_dun03_2",268,203; end;
+				case 5: warp "gld_dun03_2",199,28; end;
+			}
+		}
+		end;
+	case 3:
+		callsub L_Enter,2,.@realm$,.@npc$;
+		mes "[深渊之门管理员]";
+		mes "让我来引导你进入深渊回廊所连接的 "+.@realm$+" 所属的 '战士之路'.";
+		close2;
+		if (compare(strnpcinfo(2),"alde")) {
+			switch(.@id) {
+				case 1: warp "gld2_ald",175,41; end;
+				case 2: warp "gld2_ald",77,64; end;
+				case 3: warp "gld2_ald",46,127; end;
+				case 4: warp "gld2_ald",104,246; end;
+				case 5: warp "gld2_ald",241,156; end;
+			}
+		} else if (compare(strnpcinfo(2),"gef")) {
+			switch(.@id) {
+				case 1: warp "gld2_gef",28,199; end;
+				case 2: warp "gld2_gef",217,46; end;
+				case 3: warp "gld2_gef",171,195; end;
+				case 4: warp "gld2_gef",30,67; end;
+				case 5: warp "gld2_gef",115,40; end;
+			}
+		} else if (compare(strnpcinfo(2),"pay")) {
+			switch(.@id) {
+				case 1: warp "gld2_pay",33,112; end;
+				case 2: warp "gld2_pay",119,27; end;
+				case 3: warp "gld2_pay",205,111; end;
+				case 4: warp "gld2_pay",175,221; end;
+				case 5: warp "gld2_pay",61,221; end;
+			}
+		} else if (compare(strnpcinfo(2),"prt")) {
+			switch(.@id) {
+				case 1: warp "gld2_prt",10,27; end;
+				case 2: warp "gld2_prt",14,247; end;
+				case 3: warp "gld2_prt",259,236; end;
+				case 4: warp "gld2_prt",226,25; end;
+				case 5: warp "gld2_prt",97,11; end;
+			}
+		}
+		end;
+	case 4:
+		mes "[深渊之门管理员]";
+		mes "已取消.";
+		close;
+	}
+	end;
+
+L_Enter:
+	set .@invest_status, callfunc("F_Invest_Status");
+	if (.@invest_status == 3) {
+		set .@status, getd("$"+getarg(2)+"_invest_result");
+		if ((getarg(0) == 1 && .@status == 2) || .@status == 3)
+			return;
+		else {
+			mes "[深渊之门管理员]";
+			mes getarg(1)+" 没有被选择为这次的连接点.";
+			mes "请等下一次投资期.";
+			close;
+		}
+	} else if (.@invest_status < 3) {
+		mes "[深渊之门管理员]";
+		mes "目前没有开启任何连接点.";
+		mes "等待本轮投资结果公布后就能够使用了.";
+		mes "请耐心等待.";
+		close;
+	} else {
+		mes "[深渊之门管理员]";
+		mes "深渊之门即将消失.";
+		mes "地下城访问暂时被关闭.";
+		mes "请等下一次机会.";
+		close;
+	}
+}
+
+// Item Investments :: tooja_namis
+//============================================================
+malangdo,218,126,4	script	猫手商会公告	857,{
+	mes "<< 猫手商会公告 >>";
+	mes "'^C379CE投资闲置道具获得奖励!^000000'";
+	next;
+	switch(select("- 阅读公告内容:- 事件1 查询:- 事件2 查询")) {
+	case 1:
+		mes "- 公告 -";
+		mes "您好尊贵的商会会员们! 再你们的厚爱之下, 我们猫手商会每天都在进步. 所有的经理和工作人员承诺竭尽所能, 使我们能够始终站在技术的前沿.";
+		next;
+		mes "- 事件公告! -";
+		mes " 名为 '^C379CE投资闲置道具获得奖励!^000000' 的活动正在进行, 您可以把您仓库中闲置的装备或道具作为投资换取猫手顶级投资证书.";
+		next;
+		mes "您可以通过查询物品回收清单, 来获知那些闲置物品可以和我们交换. 感谢您的耐心观看, 谢谢!";
+		mes "- 全体猫手员工敬上 -";
+		next;
+		mes "底部有一个小的警告标识.";
+		mes " ";
+		mes "^FF0000视活动具体执行情况, 相关内容可能会有调整.^000000";
+		close;
+	case 2:
+		mes "'^C379CE投资闲置道具获得奖励!^000000'";
+		mes "事件1 详情.";
+		next;
+		setarray .@event1$[0],
+			"Wings of the Insect Queen","Crown of the Fly King","I hear Dragon Scales are tough 01","The Meaning of the Mother's Nightmare",
+			"To refine ore","Hekekek Orcs, Orcs!!","Study of Yin-Yang","Secrets of the Pyramid King","Tick-tock the time goes",
+			"Planting trees on Mellow Island","Ancient language research","Weapons made of sharp teeth","Toy boss doll 01",
+			"A tiger is just a cat after all","The shattered spear and shield?","Toy boss doll 02","Best in summer! Cold scales",
+			"Piece of Thanatos' armor","I hear Dragon Scales are tough 02","The identity of the creepy eye","If only I could see!";
+		set .@menu$, "离开:"+implode(.@event1$[0],":");
+		while(1) {
+			set .@i, select(.@menu$)-1;
+			switch(.@i) {
+				case 0: close;
+				case 1: set .@str$,"2 Pieces of Queen's Wing"; break;
+				case 2: set .@str$,"2 Broken Crowns"; break;
+				case 3: set .@str$,"2 Fire Dragon Scales"; break;
+				case 4: set .@str$,"3 Mother's Nightmares"; break;
+				case 5: set .@str$,"5 Gemstones"; break;
+				case 6: set .@str$,"5 Heroic Emblems"; break;
+				case 7: set .@str$,"3 Taeguk Plates"; break;
+				case 8: set .@str$,"3 Broken Pharaoh Symbols and 3 Tutankhamen's Masks"; break;
+				case 9: set .@str$,"2 Pocket Watches"; break;
+				case 10: set .@str$,"3 Young Twigs"; break;
+				case 11: set .@str$,"5 Rossata Pieces"; break;
+				case 12: set .@str$,"5 Fangs of Garm"; break;
+				case 13: set .@str$,"3 Baphomet Dolls"; break;
+				case 14: set .@str$,"1 Tiger's Footskin and 5 Tiger Skins"; break;
+				case 15: set .@str$,"3 Broken Shield Pieces and 3 Shining Spear Blades"; break;
+				case 16: set .@str$,"3 Osiris Dolls"; break;
+				case 17: set .@str$,"1 Ice Scale"; break;
+				case 18: set .@str$,"1 Skeletal Armor Piece"; break;
+				case 19: set .@str$,"1 Darkred Scale Piece"; break;
+				case 20: set .@str$,"2 Wills of Red Darkness"; break;
+				case 21: set .@str$,"2 Foolishness of the Blind"; break;
+			}
+			mes "["+.@event1$[.@i-1]+"]";
+			mes .@str$+" 猫手顶级投资证书.";
+			next;
+		}
+	case 3:
+		mes "下一个 '^C379CE投资闲置道具获得奖励!^000000' 事件2!! 很快即将开放!";
+		close;
+	}
+}
+
+malangdo,218,123,1	script	纳米斯#invest	545,4,4,{
+	if (checkweight(1201,1) == 0 || MaxWeight - Weight < 1000) {
+		mes "- 您携带了太多的物品 -";
+		mes "- 请稍做整理后我们再谈. -";
+		close;
+	}
+	emotion ET_HUK;
+	emotion ET_FRET;
+	emotion ET_ANGER;
+	mes "[纳米斯]";
+	mes "Purr-Purr-Purrr-Purrrr-Pur~ Meow!!";
+	mes "什-- 什么? 呢么粗鲁. 吓死我了.";
+	next;
+	switch(select("- 你想要什么? 我要投资!:- 本次活动的目的是什么?:- 你不会睡着了吧?")) {
+	case 1:
+		break;
+	case 2:
+		mes "[纳米斯]";
+		mes "呃, 又有人被'推倒', 让猫手商会给忽悠来了?";
+		next;
+		select("呃? 什么! 我说我被'推倒'?");
+		mes "[纳米斯]";
+		mes "我只说一次, 你听好了!";
+		mes "我们, 猫手商会为了我们忠实的客户推出了这个活动.";
+		next;
+		mes "[纳米斯]";
+		mes "回收你们仓库里面那些快要发霉的老古董, 可以兑换'猫手顶级投资证书'. 这对我们商会来说是吃力不讨好的事情.";
+		next;
+		mes "[纳米斯]";
+		mes "但是对你来说却非常划算, 明显我们是亏本赚吆喝!";
+		next;
+		mes "[纳米斯]";
+		mes "想知道更多的就去看公告吧.";
+		close;
+	case 3:
+		mes "[纳米斯]";
+		mes "乡巴佬- 傻蛋-";
+		mes "记住, 人类! 没有任何一只猫比我做事更卖力了.";
+		close;
+	}
+	mes "[纳米斯]";
+	mes "你一定是想参加猫手商会举办的 '^C379CE投资闲置道具获得奖励!^000000' 活动吧.";
+	next;
+	mes "[纳米斯]";
+	mes "呢么, 你想参与哪个活动?";
+	next;
+	switch(select("- 没兴趣:- 事件1 物品:- 事件2 物品")) {
+	case 1:
+		mes "[纳米斯]";
+		mes "我很忙, 没事别来瞎折腾!";
+		close;
+	case 2:
+		mes "[纳米斯]";
+		mes "进入事件1.";
+		mes "从显示列表中选择.";
+		next;
+		setarray .@event1$[0],
+			"Wings of the Insect Queen","Crown of the Fly King","I hear Dragon Scales are tough 01","The Meaning of the Mother's Nightmare",
+			"To refine ore","Hekekek Orcs, Orcs!!","Study of Yin-Yang","Secrets of the Pyramid King","Tick-tock the time goes",
+			"Planting trees on Mellow Island","Ancient language research","Weapons made of sharp teeth","Toy boss doll 01",
+			"A tiger is just a cat after all","The shattered spear and shield?","Toy boss doll 02","Best in summer! Cold scales",
+			"Piece of Thanatos' armor","I hear Dragon Scales are tough 02","The identity of the creepy eye","If only I could see!";
+		set .@i, select(implode(.@event1$[0],":"))-1;
+		switch(.@i+1) {
+			case 1: callsub L_Check,"2 Pieces of Queen's Wing",6326,2,"Wings of the Insect Queen? What a pitiful name. I would've given some cool names!",.@event1$[.@i];
+			case 2: callsub L_Check,"2 Broken Crowns",7754,2,"For crying out loud! Those cats working on these events must be playing around. Can't they think of a better name?",.@event1$[.@i];
+			case 3: callsub L_Check,"2 Fire Dragon Scales",7451,2,"Dragon scales? Well... I guess they are tough. But what are they going to use them for?",.@event1$[.@i];
+			case 4: callsub L_Check,"3 Mother's Nightmares",7020,3,"Even though I don't have the authority to find out, I wonder what they're doing with the collected items?",.@event1$[.@i];
+			case 5: callsub L_Check,"5 Gemstones",7300,5,"Something useful for a change. The ore will end up as nice pieces of jewelry.",.@event1$[.@i];
+			case 6: callsub L_Check,"5 Heroic Emblems",968,5,"Good, good. This is the kind of name I wanted!",.@event1$[.@i];
+			case 7: callsub L_Check,"3 Taeguk Plates",7169,3,"Taking in something like this, maybe they're up to something dangerous.",.@event1$[.@i];
+			case 8: callsub L_Check,"3 Broken Pharaoh Symbols and 3 Tutankhamen's Masks",7113,3,"I hear the pyramids are in Morocc, but I've never been there. Some humans call it Morco.",.@event1$[.@i],7114,3;
+			case 9: callsub L_Check,"2 Pocket Watches",7513,2,"Those lazy merchants, why do they need pocket watches they don't even use?",.@event1$[.@i];
+			case 10: callsub L_Check,"3 Young Twigs",7018,3,"Mellow Island has a climate like with where we cats used to live. But the trees die out sometimes due to it being an island.",.@event1$[.@i];
+			case 11: callsub L_Check,"5 Rossata Pieces",7211,5,"I guess they collect these because humans have them, but what's the use of researching ancient languages?",.@event1$[.@i];
+			case 12: callsub L_Check,"5 Fangs of Garm",7036,5,"Weak humans need sharp weapons, but cats already have nice and sharp claws, so why are we collecting these!!",.@event1$[.@i];
+			case 13: callsub L_Check,"3 Baphomet Dolls",750,3,"Baphomet dolls are great for playing around with.",.@event1$[.@i];
+			case 14: callsub L_Check,"1 Tiger's Footskin and 5 Tiger Skins",1030,1,"Did you know that tigers are cats too? Therefore, cats are better than tigers.",.@event1$[.@i],1029,5;
+			case 15: callsub L_Check,"3 Broken Shield Pieces and 3 Shining Spear Blades",7108,3,"I don't know what they want with these.",.@event1$[.@i],7109,3;
+			case 16: callsub L_Check,"3 Osiris Dolls",751,3,"Shame~ I never got to play with an Osiris doll.",.@event1$[.@i];
+			case 17: callsub L_Check,"1 Ice Scale",7562,1,"Mellow Island is a fabulous place to live. But the ships are too hot.",.@event1$[.@i];
+			case 18: callsub L_Check,"1 Skeletal Armor Piece",7450,1,"Ewww... Why would they collect something so creepy?",.@event1$[.@i];
+			case 19: callsub L_Check,"1 Darkred Scale Piece",6091,1,"Dragon scales? Well... I guess they are tough. But what are they going to use them for?",.@event1$[.@i];
+			case 20: callsub L_Check,"2 Wills of Red Darkness",7566,2,"Interesting! Does it scream or something when I poke it in the eye?",.@event1$[.@i];
+			case 21: callsub L_Check,"2 Foolishness of the Blind",7021,2,"This blind man is foolish in not knowing that gathering 300 cats cures blindness...",.@event1$[.@i];
+		}
+	case 3:
+		mes "[纳米斯]";
+		mes "参与活动2?";
+		mes "这活动还没开搞. 过段时间再说吧!";
+		close;
+	}
+	end;
+L_Check:
+	set .@args, getargcount();
+	if (.@args > 5) {
+		if (countitem(getarg(5)) < getarg(6))
+			set .@items,1; //incomplete
+		else
+			set .@items,2; //complete
+	}
+	if (countitem(getarg(1)) < getarg(2) || .@items == 1) {
+		mes "[纳米斯]";
+		mes "你没有的物品?";
+		mes getarg(0)+" 来兑换一张猫手顶级投资证书.";
+		next;
+		mes "[纳米斯]";
+		mes "不要打扰我, 自己去看那边在公告上的细节!";
+		close;
+	}
+	mes "[纳米斯]";
+	mes "'^8E5601"+getarg(4)+" 事件^000000'";
+	mes "看上去东西对了.";
+	mes getarg(3);
+	mes "呃! 差点忘记了. 你要不要投资?";
+	next;
+	if(select("- 投资:- 不投资") == 2) {
+		mes "[纳米斯]";
+		mes "我很忙, 没事别来瞎折腾!";
+		close;
+	}
+	delitem getarg(1),getarg(2);
+	if (.@items == 2)
+		delitem getarg(5),getarg(6);
+	getitem 6489,1; //Cats_Invest_Certif
+	mes "[纳米斯]";
+	mes "这是你的证书. 非常感谢您的参与!";
+	close;
+OnTouch:
+	if (rand(2))
+		emotion ET_SLEEPY;
+	else
+		specialeffect EF_SLEEPATTACK;
+	end;
+}
+
+// Investment Rewards :: tooja_japanki
+//============================================================
+malangdo,215,119,4	script	感谢票兑换机	564,{
+	if (MaxWeight - Weight < 4500 || checkweight(1201,1) == 0) {
+		mes "- 您携带了太多的物品 -";
+		mes "- 请整理背包后再尝试. -";
+		close;
+	}
+	mes "[感谢票兑换机]";
+	mes "^6815EA1. 请不要踢兑换机. @_@";
+	mes "2. 您只能使用投资感谢票.";
+	mes "3. 关于果冻盒, 开启时会得到一件随机物品.";
+	mes "4. 希望您能喜欢~^000000";
+	mes "          - 机主 Mr. Cat -";
+	next;
+	switch(select("- 结束:- 物品兑换:- 红色爪子果冻袋(5张):- 黑色爪子果冻袋(50张)")) {
+	case 1:
+		close;
+	case 2:
+		mes "自动售货机兑换的物品清单如下.";
+		next;
+		switch(select("- 结束:- 1个攻城箭矢筒A(2张):- 1个攻城箭矢筒S(2张):- 1个攻城白色药水箱子(12张):- 1个攻城蓝色药水箱子(14张):- 10个暗水(20张):20 Siege_Violet_Potion (30 Tickets):10 Coldproof Potion (30 Tickets):10 Thunderproof Potion (30 Tickets):10 Earthproof Potion (30 Tickets):10 Fireproof Potion (30 Tickets):10 Elemental Converter[Fire] (30 Tickets)")) {
+			case 1: close;
+			case 2: callsub L_Purchase,2,12678,1; //Siege_Arrow_Quiver_A
+			case 3: callsub L_Purchase,2,12677,1; //Siege_Arrow_Quiver_S
+			case 4: callsub L_Purchase,12,504,30; //White_Potion
+			case 5: callsub L_Purchase,14,547,30; //White_Slim_Potion
+			case 6: callsub L_Purchase,20,12020,10; //Water_Of_Darkness
+			case 7: callsub L_Purchase,30,11547,20; //Woe_Violet_Potion
+			case 8: callsub L_Purchase,30,12119,10; //Resist_Water
+			case 9: callsub L_Purchase,30,12121,10; //Resist_Wind
+			case 10: callsub L_Purchase,30,12120,10; //Resist_Earth
+			case 11: callsub L_Purchase,30,12118,10; //Resist_Fire
+			case 12: callsub L_Purchase,30,12114,10,"Elemental Converter[Fire]"; //Elemental_Fire
+			case 13: callsub L_Purchase,30,12115,10,"Elemental Converter[Water]"; //Elemental_Water
+			case 14: callsub L_Purchase,30,12117,10,"Elemental Converter[Wind]"; //Elemental_Wind
+			case 15: callsub L_Purchase,30,12116,10,"Elemental Converter[Earth]"; //Elemental_Earth
+		}
+		end;
+	case 3:
+		mes "选择了红色爪子果冻袋. 需要输入5张 ^FF0000投资感谢票^000000 会随机赠送一个物品.";
+		next;
+		if (countitem(6488) < 5) {
+			mes "您没有足够的 ^FF0000投资感谢票^000000 进行兑换.";
+			close;
+		}
+		delitem 6488,5; //Thanks_Invest_Ticket
+		set .@i, rand(1,10000);
+		     if (.@i <= 100) callsub L_Bag,12531,1; //White_Potion_Box
+		else if (.@i <= 200) callsub L_Bag,12549,1; //White_Slim_Pot_Box2
+		else if (.@i <= 250) callsub L_Bag,11549,10; //Woe_Blue_Potion
+		else if (.@i <= 660) callsub L_Bag,617,1; //Old_Violet_Box
+		else if (.@i <= 710) callsub L_Bag,12532,1; //Royal_Jelly_Box2
+		else if (.@i <= 760) callsub L_Bag,12533,1; //Blue_Herb_Box2
+		else if (.@i <= 810) callsub L_Bag,505,5; //Blue_Potion
+		else if (.@i <= 1110) callsub L_Bag,644,1; //Gift_Box
+		else if (.@i <= 1120) callsub L_Bag,607,1; //Yggdrasilberry
+		else if (.@i <= 1130) callsub L_Bag,608,2; //Seed_Of_Yggdrasil
+		else if (.@i <= 1140) callsub L_Bag,12292,5; //Unripe_Fruit
+		else if (.@i <= 1150) callsub L_Bag,12293,5; //Dried_Yggdrasilberry
+		else if (.@i <= 1250) callsub L_Bag,12679,1; //Sg_White_Potion_Box
+		else if (.@i <= 1471) callsub L_Bag,603,1; //Old_Blue_Box
+		else if (.@i <= 1571) callsub L_Bag,12550,1,"Poison Bottle Box(30)"; //Poison_Bottle_Box2
+		else if (.@i <= 1671) callsub L_Bag,12020,10; //Water_Of_Darkness
+		else if (.@i <= 1871) callsub L_Bag,12030,5; //Box_Of_Grudge
+		else if (.@i <= 2071) callsub L_Bag,12031,5; //Sleepy_Box
+		else if (.@i <= 2371) callsub L_Bag,12033,2; //Box_Of_Sunlight
+		else if (.@i <= 2571) callsub L_Bag,12114,5,"Elemental Converter[Fire]"; //Elemental_Fire
+		else if (.@i <= 2771) callsub L_Bag,12115,5,"Elemental Converter[Water]"; //Elemental_Water
+		else if (.@i <= 2971) callsub L_Bag,12117,5,"Elemental Converter[Wind]"; //Elemental_Wind
+		else if (.@i <= 3171) callsub L_Bag,12116,5,"Elemental Converter[Earth]"; //Elemental_Earth
+		else if (.@i <= 3271) callsub L_Bag,12680,1; //Sg_Blue_Potion_Box
+		else if (.@i <= 3471) callsub L_Bag,12118,5; //Resist_Fire
+		else if (.@i <= 3671) callsub L_Bag,12119,5; //Resist_Water
+		else if (.@i <= 3871) callsub L_Bag,12121,5; //Resist_Wind
+		else if (.@i <= 4071) callsub L_Bag,12120,5; //Resist_Earth
+		else if (.@i <= 4271) callsub L_Bag,929,20; //Immortal_Heart
+		else if (.@i <= 4471) callsub L_Bag,1059,20; //Transparent_Cloth
+		else if (.@i <= 4671) callsub L_Bag,905,20; //Stem
+		else if (.@i <= 4871) callsub L_Bag,606,10; //Aloebera
+		else if (.@i <= 5071) callsub L_Bag,609,10; //Amulet
+		else if (.@i <= 5271) callsub L_Bag,710,2; //Illusion_Flower
+		else if (.@i <= 5471) callsub L_Bag,576,20; //Prickly_Fruit
+		else if (.@i <= 5671) callsub L_Bag,621,10; //Bitter_Herb
+		else if (.@i <= 5871) callsub L_Bag,709,10; //Izidor
+		else if (.@i <= 6071) callsub L_Bag,605,10; //Anodyne
+		else if (.@i <= 6171) callsub L_Bag,11548,10; //Woe_White_Potion
+		else if (.@i <= 6371) callsub L_Bag,706,10; //Four_Leaf_Clover
+		else if (.@i <= 6571) callsub L_Bag,521,10; //Leaflet_Of_Aloe
+		else if (.@i <= 6771) callsub L_Bag,707,10; //Singing_Plant
+		else if (.@i <= 6971) callsub L_Bag,610,10; //Leaf_Of_Yggdrasil
+		else if (.@i <= 7021) callsub L_Bag,12676,1; //Sg_Violet_Potion_Box
+		else if (.@i <= 7171) callsub L_Bag,6249,10; //Savage_Meat
+		else if (.@i <= 7321) callsub L_Bag,6252,10; //Wolf_Blood
+		else if (.@i <= 7471) callsub L_Bag,6254,10; //Beef_Head_Meat
+		else if (.@i <= 7621) callsub L_Bag,6253,10; //Cold_Ice
+		else if (.@i <= 7771) callsub L_Bag,6256,10; //Ice_Fragment
+		else if (.@i <= 7921) callsub L_Bag,6257,10; //Ice_Crystal
+		else if (.@i <= 8071) callsub L_Bag,6260,10; //Petti_Tail
+		else if (.@i <= 8309) callsub L_Bag,7932,20; //Poison_Herb_Nerium
+		else if (.@i <= 8547) callsub L_Bag,7933,20; //Poison_Herb_Rantana
+		else if (.@i <= 8785) callsub L_Bag,7934,20; //Poison_Herb_Makulata
+		else if (.@i <= 9023) callsub L_Bag,7935,20; //Poison_Herb_Seratum
+		else if (.@i <= 9261) callsub L_Bag,7936,20; //Poison_Herb_Scopolia
+		else if (.@i <= 9499) callsub L_Bag,7937,20; //Poison_Herb_Amoena
+		else if (.@i <= 9699) callsub L_Bag,6217,20; //Mandragora_Flowerpot
+		else callsub L_Bag,12016,10; //Speed_Up_Potion
+		end;
+	case 4:
+		mes "选择了黑色爪子果冻袋. 需要输入50张^FF0000投资感谢票^000000 会随机赠送一个物品.";
+		next;
+		if (countitem(6488) < 50) {
+			mes "您没有足够的 ^FF0000投资感谢票^000000 进行兑换.";
+			close;
+		}
+		delitem 6488,50; //Thanks_Invest_Ticket
+		set .@i, rand(1,10000);
+		     if (.@i <= 100) callsub L_Bag,12531,1; //White_Potion_Box
+		else if (.@i <= 200) callsub L_Bag,12549,1; //White_Slim_Pot_Box2
+		else if (.@i <= 250) callsub L_Bag,11549,20; //Woe_Blue_Potion
+		else if (.@i <= 450) callsub L_Bag,617,1; //Old_Violet_Box
+		else if (.@i <= 500) callsub L_Bag,12532,1; //Royal_Jelly_Box2
+		else if (.@i <= 550) callsub L_Bag,12533,1; //Blue_Herb_Box2
+		else if (.@i <= 600) callsub L_Bag,505,10; //Blue_Potion
+		else if (.@i <= 800) callsub L_Bag,644,1; //Gift_Box
+		else if (.@i <= 810) callsub L_Bag,607,2; //Yggdrasilberry
+		else if (.@i <= 820) callsub L_Bag,608,3; //Seed_Of_Yggdrasil
+		else if (.@i <= 830) callsub L_Bag,12292,10; //Unripe_Fruit
+		else if (.@i <= 840) callsub L_Bag,12293,10; //Dried_Yggdrasilberry
+		else if (.@i <= 940) callsub L_Bag,12679,1; //Sg_White_Potion_Box
+		else if (.@i <= 1140) callsub L_Bag,603,1; //Old_Blue_Box
+		else if (.@i <= 1240) callsub L_Bag,12550,1,"Poison Bottle Box(30)"; //Poison_Bottle_Box2
+		else if (.@i <= 1340) callsub L_Bag,12020,20; //Water_Of_Darkness
+		else if (.@i <= 1440) callsub L_Bag,12030,10; //Box_Of_Grudge
+		else if (.@i <= 1540) callsub L_Bag,12031,10; //Sleepy_Box
+		else if (.@i <= 1690) callsub L_Bag,12033,4; //Box_Of_Sunlight
+		else if (.@i <= 1790) callsub L_Bag,12114,10,"Elemental Converter[Fire]"; //Elemental_Fire
+		else if (.@i <= 1890) callsub L_Bag,12115,10,"Elemental Converter[Water]"; //Elemental_Water
+		else if (.@i <= 1990) callsub L_Bag,12117,10,"Elemental Converter[Wind]"; //Elemental_Wind
+		else if (.@i <= 2090) callsub L_Bag,12116,10,"Elemental Converter[Earth]"; //Elemental_Earth
+		else if (.@i <= 2190) callsub L_Bag,12680,1; //Sg_Blue_Potion_Box
+		else if (.@i <= 2290) callsub L_Bag,12118,10; //Resist_Fire
+		else if (.@i <= 2390) callsub L_Bag,12119,10; //Resist_Water
+		else if (.@i <= 2490) callsub L_Bag,12121,10; //Resist_Wind
+		else if (.@i <= 2590) callsub L_Bag,12120,10; //Resist_Earth
+		else if (.@i <= 2690) callsub L_Bag,929,40; //Immortal_Heart
+		else if (.@i <= 2790) callsub L_Bag,1059,40; //Transparent_Cloth
+		else if (.@i <= 2890) callsub L_Bag,905,40; //Stem
+		else if (.@i <= 2990) callsub L_Bag,606,20; //Aloebera
+		else if (.@i <= 3090) callsub L_Bag,609,20; //Amulet
+		else if (.@i <= 3190) callsub L_Bag,710,4; //Illusion_Flower
+		else if (.@i <= 3290) callsub L_Bag,576,40; //Prickly_Fruit
+		else if (.@i <= 3390) callsub L_Bag,621,20; //Bitter_Herb
+		else if (.@i <= 3490) callsub L_Bag,709,20; //Izidor
+		else if (.@i <= 3590) callsub L_Bag,605,20; //Anodyne
+		else if (.@i <= 3690) callsub L_Bag,11548,20; //Woe_White_Potion
+		else if (.@i <= 3790) callsub L_Bag,706,20; //Four_Leaf_Clover
+		else if (.@i <= 3890) callsub L_Bag,521,20; //Leaflet_Of_Aloe
+		else if (.@i <= 3990) callsub L_Bag,707,20; //Singing_Plant
+		else if (.@i <= 4090) callsub L_Bag,610,20; //Leaf_Of_Yggdrasil
+		else if (.@i <= 4140) callsub L_Bag,12676,1; //Sg_Violet_Potion_Box
+		else if (.@i <= 4240) callsub L_Bag,6249,20; //Savage_Meat
+		else if (.@i <= 4340) callsub L_Bag,6252,20; //Wolf_Blood
+		else if (.@i <= 4440) callsub L_Bag,6254,20; //Beef_Head_Meat
+		else if (.@i <= 4540) callsub L_Bag,6253,20; //Cold_Ice
+		else if (.@i <= 4640) callsub L_Bag,6256,20; //Ice_Fragment
+		else if (.@i <= 4740) callsub L_Bag,6257,20; //Ice_Crystal
+		else if (.@i <= 4840) callsub L_Bag,6260,20; //Petti_Tail
+		else if (.@i <= 4940) callsub L_Bag,7932,40; //Poison_Herb_Nerium
+		else if (.@i <= 5040) callsub L_Bag,7933,40; //Poison_Herb_Rantana
+		else if (.@i <= 5140) callsub L_Bag,7934,40; //Poison_Herb_Makulata
+		else if (.@i <= 5240) callsub L_Bag,7935,40; //Poison_Herb_Seratum
+		else if (.@i <= 5340) callsub L_Bag,7936,40; //Poison_Herb_Scopolia
+		else if (.@i <= 5440) callsub L_Bag,7937,40; //Poison_Herb_Amoena
+		else if (.@i <= 5540) callsub L_Bag,6217,40; //Mandragora_Flowerpot
+		else if (.@i <= 6000) callsub L_Bag,12016,20; //Speed_Up_Potion
+		else if (.@i <= 6500) callsub L_Bag,2483,1; //Siege_Greave
+		else if (.@i <= 7000) callsub L_Bag,2484,1; //Siege_Boots
+		else if (.@i <= 7500) callsub L_Bag,2485,1; //Siege_Shoes
+		else if (.@i <= 8000) callsub L_Bag,2586,1; //Siege_Manteau
+		else if (.@i <= 8500) callsub L_Bag,2587,1; //Siege_Muffler
+		else if (.@i <= 9000) callsub L_Bag,15046,1; //Siege_Plate
+		else if (.@i <= 9500) callsub L_Bag,15047,1; //Siege_Suits
+		else callsub L_Bag,15048,1; //Siege_Robe
+		end;
+	}
+	end;
+
+//callsub L_Purchase,<ticket cost>,<reward ID>,<reward amount>{,<reward name>};
+L_Purchase:
+	if (countitem(6488) < getarg(0)) {
+		mes "您没有足够的 ^FF0000投资感谢票^000000 用来兑换.";
+		close;
+	}
+	delitem 6488,getarg(0); //Thanks_Invest_Ticket
+	getitem getarg(1),getarg(2);
+	mes "- 投资完成! -";
+	next;
+	mes "获得奖励物品 ^0000FF"+((getargcount() > 3)?getarg(3,""):getitemname(getarg(1)))+"^000000.";
+	close;
+
+//callsub L_Bag,<reward ID>,<reward amount>{,<reward name>};
+L_Bag:
+	getitem getarg(0),getarg(1);
+	mes "- 兑换完成! -";
+	next;
+	mes "获得奖励物品 ^0000FF"+((getargcount() > 2)?getarg(2,""):getitemname(getarg(0)))+"^000000.";
+	close;
+}

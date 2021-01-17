@@ -1,0 +1,68 @@
+prontera,132,125,3	script	机器人测试	123,{
+	@item_hp_id = 501;					// 红药水的物品ID
+	@item_sp_id = 505;					// 蓝药水的物品ID
+	@item_heal_delay = 200;				// 回复道具使用延时 200 毫秒, 最小100毫秒, 再小没有效果
+	@item_fly_id = 601;					// 苍蝇翅膀ID
+	@item_fly_delay = 2000;				// 使用苍蝇翅膀使用延时 2000 毫秒, 即2秒.
+	@loot_item_acttime = 700;			// 拾取物品的动作时间 1000 毫秒.(看起来会更像是玩家操作)
+	@choose_target_acttime = 800;		// 选择目标的延时时间 1000 毫秒.(看起来会更像是玩家操作)
+	
+	@find_fail_fly = 20;				// 行走多少次后依然找不到怪物则飞走
+	@timeout_fly = 20;					// 每隔多少秒使用一次苍蝇翅膀
+
+	@always_attack_master = 1;			// 是否不攻击MVP的小弟等
+	@counterattack = 1;					// 是否反击
+	@ignore_same_ele = 50;				// 如果武器属性修正小于 50% 则无视该魔物 (不打相同属性和被克制属性的魔物)
+	@ignore_touch = 1;					// 无视NPC的范围触发, 包括 warp 传送点
+	@skill_order = 1;					// 技能是否按照清单顺序释放, 主要用于连击技能
+	setarray @skill_id[0],20,19;        // 技能清单, 最多配置10个技能
+	setarray @skill_lv[0],5,5;			// 技能等级, 最多配置10个技能
+	//setarray @skill_delay[0],200,200;	// 技能延时, 最多配置10个技能
+	//setarray @sc_item_id[0],645,12202;	// 使用物品获得状态时使用的物品ID(例:集中药水(填55))
+	//setarray @sc_item_sc[0],55,303;		// 使用物品获得状态ID, 可在物品脚本中 sc_start 指令获得(例:集中药水(填SC_ASPDPOTION0))
+	//setarray @sc_skill_id[0],66;		// 使用技能获得状态的技能ID(例: 神威祈福(填66))
+	//setarray @sc_skill_lv[0],5;			// 使用技能获得状态的技能等级
+	//setarray @mob_id[0],1558,1002;		// 攻击魔物的清单, 只攻击蝎子(1001)和波利(1002), 最多配置10个魔物
+	//setarray @mob_id[0],0;			// 攻击所有魔物, 最多配置10个魔物
+	//setarray @loot_item_id[0],909;	// 拾取物品的清单, 拾取杰勒比结晶(909)最多配置10个魔物
+	//setarray @loot_item_id[0],0;      // 不拾取物品
+	@atktype = 0;						// 1为只是用普通攻击, 2为只使用技能攻击, 0为使用技能和普通攻击
+	@offline = 0;						// 是否启用离线模式
+	@run_time = 0;						// BOT的运行时长
+	
+	bot_run;  	// 启动BOT
+	addtimer 20000,"bot_sub::OnFly"; //强制飞行的时间
+	
+	monster "prontera",0,0,"Bot Test",1002,300;
+	end;
+OnInit:
+	waitingroom "机器人测试",1;
+	end;
+}
+
+-	script	bot_sub	-1,{
+
+OnFly:
+	if (is_bot() && countitem(601) > 0){
+		delitem 601,1;
+		warp "Random",0,0;
+		addtimer 20000,"bot_sub::OnFly";  //强制飞行的时间
+	}
+	
+	end;
+	
+OnPCDieEvent:  //不死之证使用脚本
+	if (is_bot() && countitem(7621) > 0){
+		delitem 7621,1;
+		recovery 0,getcharid(0),4;
+	}
+	end;
+OnBOTLackItemEvent: //当使用物品后, 物品数量小于5个时触发.. @lack_itemid 为道具ID
+	//可用于补货. 直接查询物品价格 扣掉玩家金币的同时给予玩家消耗品道具..
+	.@prize = getiteminfo(@lack_itemid,0);
+	if(.@prize > 0 && Zeny >= (.@prize * 50)){
+		Zeny = Zeny - (.@prize * 50);
+		getitem @lack_itemid, 50;
+	}
+	end;
+}

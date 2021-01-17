@@ -1,0 +1,651 @@
+###########################################################################
+# Renewal Refine Database
+###########################################################################
+# StatsPerLevel 精炼每增加一级固定增加多少bonus奖励
+# RandomBonusStartLevel 当精炼等级大于该参数时，每大于一级增加 0~RandomBonusValue 倍固定伤害
+# RandomBonusValue 精炼增加的固定伤害值
+# MaxLevel 精炼最大值
+# Costs 消耗
+#    - Type 精炼类型
+#    - Price 相应精炼类型，每次精炼消耗的Zeny数量
+#    - Material 相应精炼类型，每次精炼消耗的精炼材料
+#    - Breakable 是否在精炼过程中损坏
+# Rates 概率
+#    - Level 精炼后的等级
+#    - Bonus 精炼后增加的攻击力（实际增加 Bonus / 100）、防御力（实际增加 (Bonus + 50)/ 100）
+#    - NormalChance 使用 铝/神金（混沌金属/魔力之石） 精炼时的成功率 （百分率）
+#    - EnrichedChance 使用 浓缩铝/浓缩神金（高密度混沌金属/高密度魔力之石） 精炼时的成功率 （百分率）
+#    - EventNormalChance 当 conf 配置中 event_refine_chance 打开时，使用 铝/神金（混沌金属/魔力之石） 精炼时的陈功率 （百分率）
+#    - EventEnrichedChance 当 conf 配置中 event_refine_chance 打开时，使用 浓缩铝/浓缩神金（高密度混沌金属/高密度魔力之石） 精炼时的陈功率 （百分率）
+
+Armor:
+  StatsPerLevel: 0
+  RandomBonusStartLevel: 0
+  RandomBonusValue: 0
+  Costs:
+    - Type: REFINE_COST_NORMAL
+      Price: 2000
+      Material: 985
+    - Type: REFINE_COST_OVER10
+      Price: 100000
+      Material: 6223
+    - Type: REFINE_COST_HD
+      Price: 20000
+      Material: 6241
+      Breakable: false
+    - Type: REFINE_COST_ENRICHED
+      Price: 2000
+      Material: 7619
+    - Type: REFINE_COST_OVER10_HD
+      Price: 100000
+      Material: 6225
+      Breakable: false
+    - Type: REFINE_COST_HOLINK
+      Price: 15000
+      Material: 7619
+    - Type: REFINE_COST_WAGJAK
+      Price: 20000
+      Material: 985
+  Rates:
+    - Level: 1
+      Bonus: 100
+    - Level: 2
+      Bonus: 100
+    - Level: 3
+      Bonus: 100
+    - Level: 4
+      Bonus: 100
+    - Level: 5
+      NormalChance: 60
+      EnrichedChance: 90
+      EventNormalChance: 60
+      EventEnrichedChance: 95
+      Bonus: 200
+    - Level: 6
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 80
+      Bonus: 200
+    - Level: 7
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 80
+      Bonus: 200
+    - Level: 8
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 50
+      BlacksmithBlessing: 1
+      Bonus: 200
+    - Level: 9
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 50
+      BlacksmithBlessing: 2
+      Bonus: 300
+    - Level: 10
+      NormalChance: 9
+      EnrichedChance: 20
+      EventNormalChance: 9
+      EventEnrichedChance: 35
+      BlacksmithBlessing: 4
+      Bonus: 300
+    - Level: 11
+      NormalChance: 8
+      EnrichedChance: 8
+      EventNormalChance: 20
+      EventEnrichedChance: 20
+      BlacksmithBlessing: 7
+      Bonus: 300
+    - Level: 12
+      NormalChance: 8
+      EnrichedChance: 8
+      EventNormalChance: 20
+      EventEnrichedChance: 20
+      BlacksmithBlessing: 11
+      Bonus: 300
+    - Level: 13
+      NormalChance: 8
+      EnrichedChance: 8
+      EventNormalChance: 16
+      EventEnrichedChance: 16
+      Bonus: 400
+    - Level: 14
+      NormalChance: 8
+      EnrichedChance: 8
+      EventNormalChance: 16
+      EventEnrichedChance: 16
+      Bonus: 400
+    - Level: 15
+      NormalChance: 7
+      EnrichedChance: 7
+      EventNormalChance: 15
+      EventEnrichedChance: 15
+      Bonus: 400
+    - Level: 16
+      NormalChance: 7
+      EnrichedChance: 7
+      EventNormalChance: 15
+      EventEnrichedChance: 15
+      Bonus: 400
+    - Level: 17
+      NormalChance: 7
+      EnrichedChance: 7
+      EventNormalChance: 14
+      EventEnrichedChance: 14
+      Bonus: 500
+    - Level: 18
+      NormalChance: 7
+      EnrichedChance: 7
+      EventNormalChance: 14
+      EventEnrichedChance: 14
+      Bonus: 500
+    - Level: 19
+      NormalChance: 5
+      EnrichedChance: 5
+      EventNormalChance: 10
+      EventEnrichedChance: 10
+      Bonus: 500
+    - Level: 20
+      NormalChance: 5
+      EnrichedChance: 5
+      EventNormalChance: 10
+      EventEnrichedChance: 10
+      Bonus: 500
+WeaponLv1:
+  StatsPerLevel: 200
+  RandomBonusStartLevel: 8
+  RandomBonusValue: 300
+  Costs:
+    - Type: REFINE_COST_NORMAL
+      Price: 50
+      Material: 1010
+    - Type: REFINE_COST_OVER10
+      Price: 100000
+      Material: 6224
+    - Type: REFINE_COST_HD
+      Price: 20000
+      Material: 6240
+      Breakable: false
+    - Type: REFINE_COST_ENRICHED
+      Price: 2000
+      Material: 7620
+    - Type: REFINE_COST_OVER10_HD
+      Price: 100000
+      Material: 6226
+      Breakable: false
+    - Type: REFINE_COST_HOLINK
+      Price: 500
+      Material: 7620
+    - Type: REFINE_COST_WAGJAK
+      Price: 1000
+      Material: 1010
+  Rates:
+    - Level: 8
+      NormalChance: 60
+      EnrichedChance: 90
+      EventNormalChance: 60
+      EventEnrichedChance: 95
+      BlacksmithBlessing: 1
+    - Level: 9
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 85
+      BlacksmithBlessing: 2
+    - Level: 10
+      NormalChance: 19
+      EnrichedChance: 30
+      EventNormalChance: 19
+      EventEnrichedChance: 55
+      BlacksmithBlessing: 4
+    - Level: 11
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 40
+      EventEnrichedChance: 40
+      BlacksmithBlessing: 7
+    - Level: 12
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 40
+      EventEnrichedChance: 40
+      BlacksmithBlessing: 11
+    - Level: 13
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 35
+      EventEnrichedChance: 35
+    - Level: 14
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 35
+      EventEnrichedChance: 35
+    - Level: 15
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 30
+      EventEnrichedChance: 30
+    - Level: 16
+      NormalChance: 17
+      EnrichedChance: 17
+      EventNormalChance: 30
+      EventEnrichedChance: 30
+      Bonus: 300
+    - Level: 17
+      NormalChance: 17
+      EnrichedChance: 17
+      EventNormalChance: 20
+      EventEnrichedChance: 20
+      Bonus: 300
+    - Level: 18
+      NormalChance: 17
+      EnrichedChance: 17
+      EventNormalChance: 20
+      EventEnrichedChance: 20
+      Bonus: 300
+    - Level: 19
+      NormalChance: 15
+      EnrichedChance: 15
+      EventNormalChance: 15
+      EventEnrichedChance: 15
+      Bonus: 300
+    - Level: 20
+      NormalChance: 15
+      EnrichedChance: 15
+      EventNormalChance: 15
+      EventEnrichedChance: 15
+      Bonus: 300
+WeaponLv2:
+  StatsPerLevel: 300
+  RandomBonusStartLevel: 7
+  RandomBonusValue: 500
+  Costs:
+    - Type: REFINE_COST_NORMAL
+      Price: 200
+      Material: 1011
+    - Type: REFINE_COST_OVER10
+      Price: 100000
+      Material: 6224
+    - Type: REFINE_COST_HD
+      Price: 20000
+      Material: 6240
+      Breakable: false
+    - Type: REFINE_COST_ENRICHED
+      Price: 2000
+      Material: 7620
+    - Type: REFINE_COST_OVER10_HD
+      Price: 100000
+      Material: 6226
+      Breakable: false
+    - Type: REFINE_COST_HOLINK
+      Price: 2000
+      Material: 7620
+    - Type: REFINE_COST_WAGJAK
+      Price: 2000
+      Material: 1011
+  Rates:
+    - Level: 7
+      NormalChance: 60
+      EnrichedChance: 90
+      EventNormalChance: 60
+      EventEnrichedChance: 95
+    - Level: 8
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 85
+      BlacksmithBlessing: 1
+    - Level: 9
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 60
+      BlacksmithBlessing: 2
+    - Level: 10
+      NormalChance: 19
+      EnrichedChance: 30
+      EventNormalChance: 19
+      EventEnrichedChance: 45
+      BlacksmithBlessing: 4
+    - Level: 11
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 40
+      EventEnrichedChance: 40
+      BlacksmithBlessing: 7
+    - Level: 12
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 40
+      EventEnrichedChance: 40
+      BlacksmithBlessing: 11
+    - Level: 13
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 35
+      EventEnrichedChance: 35
+    - Level: 14
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 35
+      EventEnrichedChance: 35
+    - Level: 15
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 30
+      EventEnrichedChance: 30
+    - Level: 16
+      NormalChance: 17
+      EnrichedChance: 17
+      EventNormalChance: 30
+      EventEnrichedChance: 30
+      Bonus: 600
+    - Level: 17
+      NormalChance: 17
+      EnrichedChance: 17
+      EventNormalChance: 20
+      EventEnrichedChance: 20
+      Bonus: 600
+    - Level: 18
+      NormalChance: 17
+      EnrichedChance: 17
+      EventNormalChance: 20
+      EventEnrichedChance: 20
+      Bonus: 600
+    - Level: 19
+      NormalChance: 15
+      EnrichedChance: 15
+      EventNormalChance: 15
+      EventEnrichedChance: 15
+      Bonus: 600
+    - Level: 20
+      NormalChance: 15
+      EnrichedChance: 15
+      EventNormalChance: 15
+      EventEnrichedChance: 15
+      Bonus: 600
+WeaponLv3:
+  StatsPerLevel: 500
+  RandomBonusStartLevel: 6
+  RandomBonusValue: 800
+  Costs:
+    - Type: REFINE_COST_NORMAL
+      Price: 5000
+      Material: 984
+    - Type: REFINE_COST_OVER10
+      Price: 100000
+      Material: 6224
+    - Type: REFINE_COST_HD
+      Price: 20000
+      Material: 6240
+      Breakable: false
+    - Type: REFINE_COST_ENRICHED
+      Price: 2000
+      Material: 7620
+    - Type: REFINE_COST_OVER10_HD
+      Price: 100000
+      Material: 6226
+      Breakable: false
+    - Type: REFINE_COST_HOLINK
+      Price: 20000
+      Material: 7620
+    - Type: REFINE_COST_WAGJAK
+      Price: 10000
+      Material: 984
+  Rates:
+    - Level: 6
+      NormalChance: 60
+      EnrichedChance: 90
+      EventNormalChance: 60
+      EventEnrichedChance: 95
+    - Level: 7
+      NormalChance: 50
+      EnrichedChance: 80
+      EventNormalChance: 50
+      EventEnrichedChance: 90
+    - Level: 8
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 70
+      BlacksmithBlessing: 1
+    - Level: 9
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 60
+      BlacksmithBlessing: 2
+    - Level: 10
+      NormalChance: 19
+      EnrichedChance: 30
+      EventNormalChance: 19
+      EventEnrichedChance: 45
+      BlacksmithBlessing: 4
+    - Level: 11
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 40
+      EventEnrichedChance: 40
+      BlacksmithBlessing: 7
+    - Level: 12
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 40
+      EventEnrichedChance: 40
+      BlacksmithBlessing: 11
+    - Level: 13
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 35
+      EventEnrichedChance: 35
+    - Level: 14
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 35
+      EventEnrichedChance: 35
+    - Level: 15
+      NormalChance: 18
+      EnrichedChance: 18
+      EventNormalChance: 30
+      EventEnrichedChance: 30
+    - Level: 16
+      NormalChance: 17
+      EnrichedChance: 17
+      EventNormalChance: 30
+      EventEnrichedChance: 30
+      Bonus: 900
+    - Level: 17
+      NormalChance: 17
+      EnrichedChance: 17
+      EventNormalChance: 20
+      EventEnrichedChance: 20
+      Bonus: 900
+    - Level: 18
+      NormalChance: 17
+      EnrichedChance: 17
+      EventNormalChance: 20
+      EventEnrichedChance: 20
+      Bonus: 900
+    - Level: 19
+      NormalChance: 15
+      EnrichedChance: 15
+      EventNormalChance: 15
+      EventEnrichedChance: 15
+      Bonus: 900
+    - Level: 20
+      NormalChance: 15
+      EnrichedChance: 15
+      EventNormalChance: 15
+      EventEnrichedChance: 15
+      Bonus: 900
+WeaponLv4:
+  StatsPerLevel: 700
+  RandomBonusStartLevel: 5
+  RandomBonusValue: 1400
+  Costs:
+    - Type: REFINE_COST_NORMAL
+      Price: 20000
+      Material: 984
+    - Type: REFINE_COST_OVER10
+      Price: 100000
+      Material: 6224
+    - Type: REFINE_COST_HD
+      Price: 20000
+      Material: 6240
+      Breakable: false
+    - Type: REFINE_COST_ENRICHED
+      Price: 2000
+      Material: 7620
+    - Type: REFINE_COST_OVER10_HD
+      Price: 100000
+      Material: 6226
+      Breakable: false
+    - Type: REFINE_COST_HOLINK
+      Price: 50000
+      Material: 7620
+    - Type: REFINE_COST_WAGJAK
+      Price: 20000
+      Material: 984
+  Rates:
+    - Level: 5
+      NormalChance: 60
+      EnrichedChance: 90
+      EventNormalChance: 60
+      EventEnrichedChance: 95
+    - Level: 6
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 80
+    - Level: 7
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 80
+    - Level: 8
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 60
+      BlacksmithBlessing: 1
+    - Level: 9
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 50
+      BlacksmithBlessing: 2
+    - Level: 10
+      NormalChance: 9
+      EnrichedChance: 20
+      EventNormalChance: 9
+      EventEnrichedChance: 35
+      BlacksmithBlessing: 4
+    - Level: 11
+      NormalChance: 8
+      EnrichedChance: 8
+      EventNormalChance: 20
+      EventEnrichedChance: 20
+      BlacksmithBlessing: 7
+    - Level: 12
+      NormalChance: 8
+      EnrichedChance: 8
+      EventNormalChance: 20
+      EventEnrichedChance: 20
+      BlacksmithBlessing: 11
+    - Level: 13
+      NormalChance: 8
+      EnrichedChance: 8
+      EventNormalChance: 16
+      EventEnrichedChance: 16
+    - Level: 14
+      NormalChance: 8
+      EnrichedChance: 8
+      EventNormalChance: 16
+      EventEnrichedChance: 16
+    - Level: 15
+      NormalChance: 7
+      EnrichedChance: 7
+      EventNormalChance: 15
+      EventEnrichedChance: 15
+    - Level: 16
+      NormalChance: 7
+      EnrichedChance: 7
+      EventNormalChance: 15
+      EventEnrichedChance: 15
+      Bonus: 1200
+    - Level: 17
+      NormalChance: 7
+      EnrichedChance: 7
+      EventNormalChance: 14
+      EventEnrichedChance: 14
+      Bonus: 1200
+    - Level: 18
+      NormalChance: 7
+      EnrichedChance: 7
+      EventNormalChance: 14
+      EventEnrichedChance: 14
+      Bonus: 1200
+    - Level: 19
+      NormalChance: 5
+      EnrichedChance: 5
+      EventNormalChance: 10
+      EventEnrichedChance: 10
+      Bonus: 1200
+    - Level: 20
+      NormalChance: 5
+      EnrichedChance: 5
+      EventNormalChance: 10
+      EventEnrichedChance: 10
+      Bonus: 1200
+Shadow:
+  StatsPerLevel: 0
+  RandomBonusStartLevel: 0
+  RandomBonusValue: 0
+  MaxLevel: 10
+  Costs:
+    - Type: REFINE_COST_NORMAL
+      Price: 20000
+      Material: 985
+    - Type: REFINE_COST_HD
+      Price: 20000
+      Material: 6241
+      Breakable: false
+    - Type: REFINE_COST_ENRICHED
+      Price: 20000
+      Material: 7619
+  Rates:
+    - Level: 5
+      NormalChance: 60
+      EnrichedChance: 90
+      EventNormalChance: 60
+      EventEnrichedChance: 95
+    - Level: 6
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 80
+    - Level: 7
+      NormalChance: 40
+      EnrichedChance: 70
+      EventNormalChance: 40
+      EventEnrichedChance: 80
+    - Level: 8
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 50
+    - Level: 9
+      NormalChance: 20
+      EnrichedChance: 40
+      EventNormalChance: 20
+      EventEnrichedChance: 50
+    - Level: 10
+      NormalChance: 9
+      EnrichedChance: 20
+      EventNormalChance: 9
+      EventEnrichedChance: 35

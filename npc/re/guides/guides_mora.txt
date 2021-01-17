@@ -1,0 +1,221 @@
+//===== rAthena Script ======================================= 
+//= Mora Guides
+//===== By: ================================================== 
+//= Euphy
+//===== Current Version: ===================================== 
+//= 1.1
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= Guides for the city of Mora.
+//===== Additional Comments: ================================= 
+//= 1.0 First version. [Euphy]
+//= 1.1 Navigation system update. [Euphy]
+//= 2016.03.22 参照TWRO汉化NPC [杨梅]
+//============================================================
+
+mora,25,158,5	script	草精解说员#north	516,{
+	mes "[解说员 拉普奥]";
+	mes "啦喔~!";
+	mes "欢迎来到莫拉村!";
+	mes "如有想要了解的地方，拉普奥我会全部都告诉你的~!";
+	F_Navi("[解说员 拉普奥]");
+	next;
+	switch(select("[ 旅馆 ]:[ 居住地区 ]:[ 商店街 ]:[ 仓库 ]:删除小地图标示:结束")) {
+	case 1:
+		mes "[解说员 拉普奥]";
+		mes "啦喔~!";
+		mes "旅行者无法像草精一样随处休息，请前往"+F_Navi("旅馆","mora,44,138")+"吧~!";
+		mes "请舒适的休息吧!";
+		viewpoint 1,44,134,0,0x0A82FF;
+		close;
+	case 2:
+		mes "[解说员 拉普奥]";
+		mes "啦喔~!";
+		mes F_Navi("草精的家","mora,119,170")+"。";
+		mes "还有很多还在家睡觉的朋友，所以请你小心你的步伐!啦喔~!";
+		viewpoint 1,119,170,1,0xAAFF00;
+		close;
+	case 3:
+		mes "[解说员 拉普奥]";
+		mes "啦喔~!";
+		mes "如果需要旅行纪念品，那应该可以在这个"+F_Navi("区域","mora,112,110")+"住下来。";
+		viewpoint 1,112,110,2,0xDA70D6;
+		close;
+	case 4:
+		mes "[解说员 拉普奥]";
+		mes "啦喔~!";
+		mes "这是保管各种配送品和食品的"+F_Navi("仓库","mora,182,161")+"。";
+		mes "有很多不是草精族的东西，因此要多加小心!";
+		viewpoint 1,182,161,3,0xFF1493;
+		close;
+	case 5:
+		mes "[解说员 拉普奥]";
+		mes "啦喔~! 全部清除吧~啦喔~!";
+		viewpoint 2,1,1,0,0xFFFF00;
+		viewpoint 2,1,1,1,0xFFFF00;
+		viewpoint 2,1,1,2,0xFFFF00;
+		viewpoint 2,1,1,3,0xFFFF00;
+		close;
+	case 6:
+		mes "[解说员 拉普奥]";
+		mes "啦喔~!";
+		mes "在你的故乡里，流行哪一种运动啊?";
+		close;
+	}
+}
+
+mora,167,76,3	script	草精解说员#east	522,{
+	mes "[解说员 拉普乌]";
+	mes "呜呜...";
+	mes "这，这里是莫，莫拉村。";
+	mes "呜呜... 你想知道哪个地方呢?";
+	F_Navi("[解说员 拉普乌]");
+	next;
+	switch(select("[ 旅馆 ]:[ 居住地区 ]:[ 商店街 ]:[ 仓库 ]:删除小地图标示:结束")) {
+	case 1:
+		mes "[解说员 拉普乌]";
+		mes "呜呜...";
+		mes "请，请休?";
+		mes "请在"+F_Navi("这里","mora,44,138")+"休息吧!! 行李也请放在这里! 另，另外...";
+		viewpoint 1,44,134,0,0x0A82FF;
+		close;
+	case 2:
+		mes "[解说员 拉普乌]";
+		mes "呜呜...";
+		mes "你为什么想要了解"+F_Navi("拉普乌的家","mora,119,170")+"呢--?";
+		mes "啊，其实我也想要和朋友们住在一起--";
+		viewpoint 1,119,170,1,0xAAFF00;
+		close;
+	case 3:
+		mes "[解说员 拉普乌]";
+		mes "呜呜...";
+		mes "在"+F_Navi("商店街","mora,112,110")+"哪里有很多商品...啊，还有温泉呢!";
+		viewpoint 1,112,110,2,0xDA70D6;
+		close;
+	case 4:
+		mes "[解说员 拉普乌]";
+		mes "呜呜...";
+		mes "如随意打开"+F_Navi("仓库","mora,182,161")+",是会被教训的...";
+		mes "听说那里有很多从莫拉村外面送来的物品...拉普乌曾经被狠狠的修理过...";
+		viewpoint 1,182,161,3,0xFF1493;
+		close;
+	case 5:
+		mes "[解说员 拉普乌]";
+		mes "已，已删除小地图上的标志...";
+		viewpoint 2,1,1,0,0xFFFF00;
+		viewpoint 2,1,1,1,0xFFFF00;
+		viewpoint 2,1,1,2,0xFFFF00;
+		viewpoint 2,1,1,3,0xFFFF00;
+		close;
+	case 6:
+		mes "[解说员 拉普乌]";
+		mes "呜呜...";
+		mes "就算担任解说员，还是无法改善我对人群的恐惧感啊...";
+		close;
+	}
+}
+
+mora,115,138,5	script	草精解说员#center	524,{
+	mes "[解说员 拉裴拉]";
+	mes "啦啦!";
+	mes "欢迎来到莫拉村!";
+	mes "如果你有想要了解的地方，尽管说吧!";
+	F_Navi("[解说员 拉裴拉]");
+	next;
+	switch(select("[ 旅馆 ]:[ 居住地区 ]:[ 商店街 ]:[ 仓库 ]:删除小地图标示:结束")) {
+	case 1:
+		mes "[解说员 拉裴拉]";
+		mes "啦啦!";
+		mes "旅行者们，在"+F_Navi("这里","mora,44,138")+"休息吧!";
+		mes "旅馆住人非常亲切，请您多多与他对话!";
+		viewpoint 1,44,134,0,0x0A82FF;
+		close;
+	case 2:
+		mes "[解说员 拉裴拉]";
+		mes "啦啦!";
+		mes "草精们的"+F_Navi("居住地","mora,119,170")+"!";
+		mes "请您前往那里看看吧!";
+		viewpoint 1,119,170,1,0xAAFF00;
+		close;
+	case 3:
+		mes "[解说员 拉裴拉]";
+		mes "啦啦!";
+		mes "多多购买想要的物品吧!";
+		mes "这里有不少的餐厅、"+F_Navi("商店和咖啡馆","mora,112,110")+"，请多去看看吧!";
+		viewpoint 1,112,110,2,0xDA70D6;
+		close;
+	case 4:
+		mes "[解说员 拉裴拉]";
+		mes "啦啦!";
+		mes F_Navi("仓库","mora,182,161")+"是可以保管重要物品的地方!";
+		mes "要小心不要被偷，所以不要随便拿走物品!";
+		viewpoint 1,182,161,3,0xFF1493;
+		close;
+	case 5:
+		mes "[解说员 拉裴拉]";
+		mes "已删除小地图上的标志了啦啦!";
+		viewpoint 2,1,1,0,0xFFFF00;
+		viewpoint 2,1,1,1,0xFFFF00;
+		viewpoint 2,1,1,2,0xFFFF00;
+		viewpoint 2,1,1,3,0xFFFF00;
+		close;
+	case 6:
+		mes "[解说员 拉裴拉]";
+		mes "啦啦!";
+		mes "我们的家人不知怎么的，总是被分派到做这种事!";
+		close;
+	}
+}
+
+mora,72,51,3	script	草精解说员#south	518,{
+	mes "[解说员 拉普莉]";
+	mes "啦哩?";
+	mes "欢迎来到莫拉村!";
+	mes "如果你有想要了解的地方，尽管跟我说";
+	F_Navi("[解说员 拉普莉]");
+	next;
+	switch(select("[ 旅馆 ]:[ 居住地区 ]:[ 商店街 ]:[ 仓库 ]:删除小地图标示:结束")) {
+	case 1:
+		mes "[解说员 拉普莉]";
+		mes "啦哩?";
+		mes "旅行者请在"+F_Navi("这里","mora,44,138")+"休息吧!";
+		mes "旅馆住人非常亲切，请您多多与他对话!";
+		viewpoint 1,44,134,0,0x0A82FF;
+		close;
+	case 2:
+		mes "[解说员 拉普莉]";
+		mes "啦哩?";
+		mes "草精们的"+F_Navi("居住地","mora,119,170")+"!";
+		mes "要来我的家吗? 很欢迎喔~";
+		viewpoint 1,119,170,1,0xAAFF00;
+		close;
+	case 3:
+		mes "[解说员 拉普莉]";
+		mes "啦哩?";
+		mes "我也有很多东西想要买喔...";
+		mes "餐厅、"+F_Navi("商店","mora,112,110")+"里，有贩卖很多的东西";
+		viewpoint 1,112,110,2,0xDA70D6;
+		close;
+	case 4:
+		mes "[解说员 拉普莉]";
+		mes "啦哩?";
+		mes ""+F_Navi("仓库","mora,182,161")+"是报关重要物品的地方";
+		mes "要小心不要遭小偷喔";
+		viewpoint 1,182,161,3,0xFF1493;
+		close;
+	case 5:
+		mes "[解说员 拉普莉]";
+		mes "已删除小地图上的标志";
+		viewpoint 2,1,1,0,0xFFFF00;
+		viewpoint 2,1,1,1,0xFFFF00;
+		viewpoint 2,1,1,2,0xFFFF00;
+		viewpoint 2,1,1,3,0xFFFF00;
+		close;
+	case 6:
+		mes "[解说员 拉普莉]";
+		mes "啦哩?";
+		mes "我的哥哥今天好像又生气了，拉普莉又做错了什么吗?";
+		close;
+	}
+}

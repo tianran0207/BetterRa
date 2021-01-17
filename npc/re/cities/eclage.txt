@@ -1,0 +1,104 @@
+//===== rAthena Script ======================================= 
+//= General Eclage NPC.
+//===== By: ================================================== 
+//= Dastgir
+//===== Current Version: ===================================== 
+//= 2.0
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= Eclage Town NPC
+//===== Additional Comments: ================================= 
+//= 1.0 Generic NPC place holders. [Euphy]
+//= 2.0 Converted from the official Aegis script. [Dastgir]
+//============================================================ 
+
+ecl_in02,96,22,3	script	牌子#prison_inn	545,{
+	mes "[北面]监狱";
+	mes "[西面]诊所";
+	close;
+
+}
+
+ecl_in01,8,71,5	script	艾卡拉奇守卫#pri_inn	447,{
+	mes "[艾卡拉奇守卫]";
+	mes "这条路通向艾卡拉奇下层, 那里你可以找到监狱与一间诊所.";
+	close;
+
+}
+
+ecl_in02,164,56,3	script	接待员#Laphine	835,{
+	mes "[接待员]";
+	mes "欢迎来到艾卡拉奇的诊所.";
+	next;
+	switch(select("保存位置:休息:结束对话")) {
+	case 1:
+		mes "[接待员]";
+		mes "诊所现在是您的保存点, 要注意安全哟~";
+		savepoint "ecl_in02",162,50,1,1;
+		close;
+	case 2:
+		mes "[接待员]";
+		mes "在我们的诊所修养生息吧, 这里充满的纯净的能量.";
+		mes "通常我们要收取一枚辉煌领域硬币, 但是您是旅行者, 我们可以打折收你5000zeny.";
+		next;
+		switch(select("用辉煌领域硬币支付:用zeny支付:算了")) {
+		case 1:
+			if (!countitem(6081)) {
+				mes "[接待员]";
+				mes "您好像没有足够的硬币, 再确认一下?";
+				close;
+			}
+			close2;
+			delitem 6081,1; //6081
+			percentheal 100,100;
+			warp "ecl_in02",167,49;
+			end;
+		case 2:
+			if (Zeny < 5000) {
+				mes "[接待员]";
+				mes "您好像没有足够的zeny, 再确认一下?";
+				close;
+			}
+			close2;
+			Zeny = Zeny - 5000;
+			percentheal 100,100;
+			warp "ecl_in02",167,49;
+			end;
+		case 3:
+			close;
+		}
+	case 3:
+		close;
+	}
+}
+
+ecl_in02,135,45,5	script	受伤的精灵	442,{
+	mes "[受伤的精灵]";
+	mes "嗷……";
+	mes "我…在…哪儿?";
+	next;
+	mes "[医生]";
+	mes "你现在在诊所里, 别担心.";
+	mes "我们已经帮你止血并且施放了应急法术.";
+	mes "之前你流了很多血, 现在伤口已经愈合了.";
+	next;
+	mes "[受伤的精灵]";
+	mes "……";
+	mes "什么?哦!不!我的身上怎么没有感觉了!";
+	next;
+	mes "[医生]";
+	mes "唔……一支箭重伤了你的翅膀.";
+	next;
+	mes "[受伤的精灵]";
+	mes "……你想说什么?";
+	next;
+	mes "[医生]";
+	mes "呃……我想告诉你一个不幸的消息.当你康复以后, 你可能再也无法装点你的合艾了.";
+	mes "换句话说, 你的翅膀已经没用了.那支箭射中了翅膀最重要的部分.";
+	next;
+	mes "[受伤的精灵]";
+	mes "什么?不是这样吧……不要啊!医生!不要啊……!";
+	close;
+}
+ecl_in02,137,44,3	duplicate(受伤的精灵)	精灵医生#doctor	441

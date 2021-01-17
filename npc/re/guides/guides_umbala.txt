@@ -1,0 +1,102 @@
+//===== rAthena Script ======================================= 
+//= Umbala Guides
+//===== By: ================================================== 
+//= L0ne_W0lf
+//===== Current Version: ===================================== 
+//= 1.1
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Guides for the city of Umbala.
+//===== Additional Comments: ================================= 
+//= 1.0 First version, Renewal guides.
+//= 1.1 Navigation system update. [Euphy]
+//============================================================ 
+
+umbala,128,94,3	script	解说员#01umbala::GuideUmbala	702,{
+	mes "[汶巴拉 解说员]";
+	mes "Welcome to ^8B4513Umbala^000000,";
+	mes "the Village of the Utan Tribe.";
+	next;
+	mes "[汶巴拉 解说员]";
+	mes "Since I have been exploring here for several months.";
+	mes "I am familiar with this area's geography and the points of interest in this village.";
+	mes "Do you need help navigating the village?";
+	F_Navi("[汶巴拉 Guide]");
+	while (1) {
+		next;
+		switch(select("[ 卡普拉职员 ]:[ Chief's House ]:[ Shaman's House ]:[ 武器商人 ]:[ 道具店 ]:[ Bungee Jump Area ]:[ Tree of Yggdrasil ]:删除小地图的标记:结束对话")) {
+		case 1:
+			mes "[汶巴拉 解说员]";
+			mes "Let me mark the location of the";
+			mes "^0000FF卡普拉职员^000000";
+			mes "小地图上了，";
+			mes "还需要其它服务吗?";
+			viewpoint 1,87,160,0,0x0A82FF;
+			break;
+		case 2:
+			mes "[汶巴拉 解说员]";
+			mes "Only the "+F_Navi("Chief","umbala,68,251","^006400")+" knows the language of the outside world.";
+			mes "So you'd better visit him before anything else.";
+			mes "还需要其它服务吗?";
+			viewpoint 1,68,251,1,0xAAFF00;
+			break;
+		case 3:
+			mes "[汶巴拉 解说员]";
+			mes "The "+F_Navi("Shaman","umbala,219,188","^008080")+" has some sort of mystic power.";
+			mes "People say she can create rough enchanted stones, and divide a pure enchanted stone into rough ones.";
+			mes "还需要其它服务吗?";
+			viewpoint 1,219,188,2,0x008080;
+			break;
+		case 4:
+			mes "[汶巴拉 解说员]";
+			mes "The "+F_Navi("武器商人","umbala,125,155","^FF1493")+" inside Umbala";
+			mes "supplies the weapons";
+			mes "for defending against their enemies.";
+			mes "还需要其它服务吗?";
+			viewpoint 1,125,155,3,0xFF1493;
+			break;
+		case 5:
+			mes "[汶巴拉 解说员]";
+			mes "There are many useful things for";
+			mes "traveling in the "+F_Navi("道具店","umbala,136,127","^8B4513")+" in Umbala.";
+			mes "还需要其它服务吗?";
+			viewpoint 1,136,127,4,0x8B4513;
+			break;
+		case 6:
+			mes "[汶巴拉 解说员]";
+			mes "汶巴拉 has a unique locale called";
+			mes "the "+F_Navi("Bungee Jump Area","umbala,138,198")+".";
+			mes "If you're interested in testing";
+			mes "your courage, why don't you try it.";
+			mes "还需要其它服务吗?";
+			viewpoint 1,221,176,5,0x9400D3;
+			break;
+		case 7:
+			mes "[汶巴拉 解说员]";
+			mes "There's the "+F_Navi("Tree of Yggdrasil","umbala,107,284")+" in the northern part of town.";
+			mes "You should pay it a visit since that's a place I recommend when you visit Umbala.";
+			mes "还需要其它服务吗?";
+			viewpoint 1,107,284,6,0xA52A2A;
+			break;
+		case 8:
+			mes "[汶巴拉 解说员]";
+			mes "已删除小地图上的标志了，";
+			mes "还需要其它服务吗?";
+			viewpoint 2,1,1,0,0xFFFFFF;
+			viewpoint 2,1,1,1,0xFFFFFF;
+			viewpoint 2,1,1,2,0xFFFFFF;
+			viewpoint 2,1,1,3,0xFFFFFF;
+			viewpoint 2,1,1,4,0xFFFFFF;
+			viewpoint 2,1,1,5,0xFFFFFF;
+			viewpoint 2,1,1,6,0xFFFFFF;
+			break;
+		case 9:
+			mes "[汶巴拉 解说员]";
+			mes "Be safe on your travels.";
+			close;
+		}
+	}
+}
+umbala,99,158,3	duplicate(GuideUmbala)	解说员#02umbala	702

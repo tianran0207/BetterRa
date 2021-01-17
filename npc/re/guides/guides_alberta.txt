@@ -1,0 +1,211 @@
+//===== rAthena Script ======================================= 
+//= Alberta Guides
+//===== By: ================================================== 
+//= L0ne_W0lf
+//===== Current Version: ===================================== 
+//= 1.1
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= [Official Conversion]
+//= Guides for the city of Alberta
+//===== Additional Comments: ================================= 
+//= 1.0 First version, Renewal guides.
+//= 1.1 Navigation system update. [Euphy]
+//= 2016.03.18 汉化部分文字 [RACN汉化组.至尊宝]
+//= 2016.03.20 汉化完全 [RACN汉化组.杨梅]
+//============================================================
+
+alberta,23,238,4	script	解说员#01alberta::AlbertaGuide	105,{
+	cutin "prt_soldier",2;
+	mes "[艾尔贝塔 解说员]";
+	mes "欢迎莅临港都^8B4513艾尔贝塔^000000，";
+	mes "欢迎您的大驾光临，";
+	mes "需要我为您介绍吗?";
+	F_Navi("[艾尔贝塔 解说员]");
+	next;
+	set .@str$,"需要其它服务吗?";
+	while (1) {
+		switch(select("[ 主要设施 ]:[ 商人&小帮手 ]:[ 启航地说明 ]:删除小地图的标记:结束对话")) {
+		case 1:
+			set .@loop,1;
+			while (.@loop) {
+				switch(select("[ 道具店 ]:[ 铁工厂 ]:[ 武器、防具店 ]:[ 旅馆 ]:[ 美发店 ]:[ 商人公会 ]:返回上一选单")) {
+				case 1:
+					mes "[艾尔贝塔 解说员]";
+					mes F_Navi("道具店","alberta,98,154","^0000FF")+"的位置已经标记在";
+					mes "小地图上了，";
+					mes .@str$;
+					viewpoint 1,98,154,0,0x0A82FF;
+					next;
+					break;
+				case 2:
+					mes "[艾尔贝塔 解说员]";
+					mes F_Navi("铁工厂","alberta,35,41","^B9062F")+"目前";
+					mes "与商人公会使用";
+					mes "同一栋大楼，";
+					mes .@str$;
+					viewpoint 1,35,41,1,0xFF0000;
+					next;
+					break;
+				case 3:
+					mes "[艾尔贝塔 解说员]";
+					mes F_Navi("武器、防具店","alberta,117,37","^FF5400")+"的位置已经标记在";
+					mes "小地图上了，";
+					mes .@str$;
+					viewpoint 1,117,37,2,0xFFB400;
+					next;
+					break;
+				case 4:
+					mes "[艾尔贝塔 解说员]";
+					mes F_Navi("旅馆","alberta,65,233","^006400")+"的位置已经标记在";
+					mes "小地图上了，";
+					mes .@str$;
+					viewpoint 1,65,233,3,0xAAFF00;
+					next;
+					break;
+				case 5:
+					mes "[艾尔贝塔 解说员]";
+					mes F_Navi("美发店","alberta,48,145","^7F3300")+"的位置已经标记在";
+					mes "小地图上了，";
+					mes .@str$;
+					viewpoint 1,48,145,4,0xD2691E;
+					next;
+					break;
+				case 6:
+					mes "[艾尔贝塔 解说员]";
+					mes F_Navi("商人公会","alberta,33,41")+"是^800080商人转职^000000的地方，";
+					mes "位置已经标记在小地图上了，";
+					mes .@str$;
+					viewpoint 1,33,41,5,0xDA70D6;
+					next;
+					break;
+				case 7:
+					set .@loop,0;
+					break;
+				}
+			}
+			break;
+		case 2:
+			set .@loop,1;
+			while (.@loop) {
+				switch(select("[ 乐园团传送师 ]:[ 卡普拉职员 ]:[ 准它企划公司专员 ]:[ 子弹商人 ]:[ 料理材料商 ]:返回上一选单")) {
+				case 1:
+					mes "[艾尔贝塔 解说员]";
+					mes "^B9062F乐园团传送师s^000000位于"+F_Navi("城市南边","alberta,121,68");
+					mes "与"+F_Navi("商人公会大楼","alberta,33,41")+"内的地方，";
+					mes "已经标记在小地图内了，";
+					mes .@str$;
+					viewpoint 1,33,41,6,0xFF0000;
+					viewpoint 1,121,68,7,0xFF0000;
+					next;
+					break;
+				case 2:
+					mes "[艾尔贝塔 解说员]";
+					mes "^0000FF卡普拉职员^000000";
+					mes "的位置已经标记在";
+					mes "小地图上了，";
+					mes .@str$;
+					viewpoint 1,33,41,8,0x0A82FF;
+					viewpoint 1,113,60,9,0x0A82FF;
+					next;
+					break;
+				case 3:
+					mes "[艾尔贝塔 解说员]";
+					mes "领取活动物品时，";
+					mes "去找"+F_Navi("准它企划公司专员","alberta,148,57","^FF5400")+"就对了，";
+					mes .@str$;
+					viewpoint 1,148,57,10,0xFFB400;
+					next;
+					break;
+				case 4:
+					mes "[艾尔贝塔 解说员]";
+					mes "^7F3300神枪手^000000冒险家们专属的^7F3300子弹商人^000000是";
+					mes "位于"+F_Navi("都市中央附近","alberta,117,158")+"。";
+					mes .@str$;
+					viewpoint 1,117,158,11,0xD2691E;
+					next;
+					break;
+				case 5:
+					mes "[艾尔贝塔 解说员]";
+					mes "艾尔贝塔的"+F_Navi("料理材料商人","alberta,167,135","^006400");
+					mes "有非常多的顾客，";
+					mes "^006400好吃的鱼^000000尤其";
+					mes "大受冒险家们的欢迎。";
+					mes .@str$;
+					viewpoint 1,167,135,12,0xAAFF00;
+					next;
+					break;
+				case 6:
+					set .@loop,0;
+					break;
+				}
+			}
+			break;
+		case 3:
+			set .@loop,1;
+			while (.@loop) {
+				switch(select("[ 港口 - 北边码头 ]:[ 港口 - 中央码头 ]:[ 港口 - 南边码头 ]:返回上一选单")) {
+				case 1:
+					mes "[艾尔贝塔 解说员]";
+					mes "可透过"+F_Navi("北边码头","alberta,192,196")+"前往";
+					mes " ^0000FF马来港^000000、^0000FF德瓦他^000000等地。";
+					mes .@str$;
+					viewpoint 1,192,196,13,0xFF0000;
+					next;
+					break;
+				case 2:
+					mes "[艾尔贝塔 解说员]";
+					mes "可透过"+F_Navi("中央码头","alberta,192,151")+"前往";
+					mes "^B9062F失事船^000000、^B9062F绵绵岛^000000、^B9062F依斯鲁得岛^000000。";
+					mes .@str$;
+					viewpoint 1,192,151,14,0xFF0000;
+					next;
+					break;
+				case 3:
+					mes "[艾尔贝塔 解说员]";
+					mes "可透过"+F_Navi("南边码头","alberta,245,86")+"前往";
+					mes "^0000FF乌龟岛^000000、^0000FF巴西^000000、^0000FF天津町^000000、^0000FF崑仑^000000、^0000FF莫斯科比亚^000000、^0000FF龙之城^000000以及^0000FF哎哟泰雅^000000等地。";
+					mes .@str$;
+					viewpoint 1,245,86,15,0xFF0000;
+					next;
+					break;
+				case 4:
+					set .@loop,0;
+					break;
+				}
+			}
+			break;
+		case 4:
+			mes "[艾尔贝塔 解说员]";
+			mes "已删除小地图上的标志了，";
+			mes "还需要其它服务吗?";
+			viewpoint 2,1,1,0,0xFFFF00;
+			viewpoint 2,1,1,1,0x000000;
+			viewpoint 2,1,1,2,0xFF0000;
+			viewpoint 2,1,1,3,0xFFFF00;
+			viewpoint 2,1,1,4,0xFFFF00;
+			viewpoint 2,1,1,5,0xFFFF00;
+			viewpoint 2,1,1,6,0xFFFF00;
+			viewpoint 2,1,1,7,0xFFFF00;
+			viewpoint 2,1,1,8,0xFFFF00;
+			viewpoint 2,1,1,9,0xFFFF00;
+			viewpoint 2,1,1,10,0xFFFF00;
+			viewpoint 2,1,1,11,0xFFFF00;
+			viewpoint 2,1,1,12,0x000000;
+			viewpoint 2,1,1,13,0xFFFF00;
+			viewpoint 2,1,1,14,0xFFFF00;
+			viewpoint 2,1,1,15,0xFFFF00;
+			next;
+			break;
+		case 5:
+			mes "[艾尔贝塔 解说员]";
+			mes "祝您旅途愉快!";
+			close2;
+			cutin "prt_soldier",255;
+			end;
+		}
+	}
+}
+alberta,120,60,3	duplicate(AlbertaGuide)	解说员#02alberta	105
+alberta,184,143,4	duplicate(AlbertaGuide)	解说员#03alberta	105

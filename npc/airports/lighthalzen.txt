@@ -1,0 +1,78 @@
+//===== rAthena Script ======================================= 
+//= Lighthalzen Airport Staff
+//===== By: ================================================== 
+//= L0ne_W0lf, Muad_Dib
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: ===================================== 
+//= rAthena Project
+//===== Description: ========================================= 
+//= Lighthalzen Airport Staff
+//===== Additional Comments: ================================= 
+//= 1.0 First version.
+//============================================================ 
+
+lhz_airport,143,43,5	script	机场 职员#lhz_air1a::lhz_airport1	90,{
+	mes "[机场 职员]";
+	mes "欢迎来到里希塔乐镇机场.";
+	mes "我们提供不间断的往返于艾音布罗克, 毁葛和朱诺的航班.";
+	next;
+	if (select("我想搭乘飞空艇:取消") == 1) {
+		mes "[机场 职员]";
+		mes "搭乘飞空艇需要 1,200 金币.";
+		mes "但是如果您有飞空艇免费搭乘劵的话,";
+		mes "就可以免费搭乘飞空艇.";
+		mes "您是否还想要搭乘飞空艇呢?";
+		next;
+		if (select("好的:不要") == 1) {
+			if (countitem(7311) > 0) {
+				delitem 7311,1; //Free_Flying_Ship_Ticket
+				warp "lhz_airport",148,51;
+				end;
+			}
+			if (Zeny >= 1200) {
+				set Zeny, Zeny - 1200;
+				warp "lhz_airport",148,51;
+				end;
+			}
+			mes "[机场 职员]";
+			mes "很抱歉, 您身上并没有 1,200 金币";
+			mes "可用于支付飞空艇的搭乘费用!";
+			close;
+		}
+	}
+	mes "[机场 职员]";
+	mes "感谢您对我们的支持, 欢迎再来.";
+	mes "祝您有个美好的一天~";
+	close;
+}
+
+lhz_airport,158,43,5	duplicate(lhz_airport1)	机场 职员#lhz_air1b	90
+lhz_airport,126,43,5	duplicate(lhz_airport1)	机场 职员#lhz_air1c	90
+
+lhz_airport,143,49,3	script	机场 职员#lhz_air2a::lhz_airport2	90,{
+	mes "[机场 职员]";
+	mes "欢迎来到里希塔乐镇机场.";
+	mes "如果这里是您旅行的目的地, 那么就由我来帮您办理离站手续.";
+	mes "如果不是, 那么请继续搭乘飞空艇, 去您想去的地方.";
+	next;
+	if (select("我要离开机场内部:取消") == 1) {
+		mes "[机场 职员]";
+		mes "当您离站以后, 若还想再次登机, 就要重新付钱了.";
+		mes "只有当您想去^ff0000里希塔乐镇^000000的时候,";
+		mes "才合适在这里离站.";
+		mes "请问您坚持要在这里离站吗?";
+		next;
+		if (select("是的:不要") == 1) {
+			warp "lhz_airport",142,40;
+			end;
+		}
+	}
+	mes "[机场 职员]";
+	mes "好的, 感谢您选择了我们的服务.";
+	mes "祝您旅途愉快~";
+	close;
+}
+
+lhz_airport,126,51,3	duplicate(lhz_airport2)	机场 职员#lhz_air2b	90
+lhz_airport,158,50,3	duplicate(lhz_airport2)	机场 职员#lhz_air2c	90

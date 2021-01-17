@@ -1,0 +1,1526 @@
+//===== rAthena Script =======================================
+//= Heroes' Trail Part 1 - Sara's Memories
+//===== Description: =========================================
+//= Sara's Memories Instance in the Dimensional Gap.
+//===== Changelogs: ==========================================
+//= 1.0 First version. [Chilly]
+//= 1.1 Clean-up and monster position fix. [RagnarokNova]
+//============================================================
+
+//= NPCs
+dali,130,107,6	script	冒险家 里昂	945,{
+	if (BaseLevel < 99) {
+		mes "[冒险家 里昂]";
+		mes "You know... this place doesn't seem to be safe for you. Please return to me once you have achieved ^0000FFLevel 99^000000 or higher.";
+		close;
+	}
+	if (saramemory == 1) {
+		mes "[冒险家 里昂]";
+		mes "我觉得你还没有完全地了解过去发生了什么。";
+		mes "年轻人，再继续努力，去我身后的时空裂缝中探险吧。";
+		close;
+	}
+	if (saramemory == 2) {
+		mes "[冒险家 里昂]";
+		mes "你在里面经历了什么？！";
+		next;
+		mes "[冒险家 里昂]";
+		mes "哈？莎拉 艾琳？";
+		mes "她可是12巴基力女神之一。";
+		mes "我不知道，原来她的过去这样的悲惨...";
+		next;
+		mes "[冒险家 里昂]";
+		mes "看起来由于你的出现，莎拉和她父亲之间有了很深的误会。";
+		next;
+		mes "[冒险家 里昂]";
+		mes "但请不要自责。";
+		mes "这就是历史的宿命，在那个时候无论谁出现，都会是一样的结果。";
+		next;
+		mes "[冒险家 里昂]";
+		mes "也许下一次你能改变这段历史，化解莎拉的误会。";
+		next;
+		set saramemory,3;
+		erasequest 15003;
+		getexp 770000,1000000;
+		mes "[冒险家 里昂]";
+		mes "但看起来时空裂缝已经不太稳定了，我们需要等待一段时间让它再次稳定下来，或许是^0000FF20个小时？^000000";
+		close;
+	}
+	if (saramemory == 3) {
+		if ((checkquest(15002,PLAYTIME) == 0) || (checkquest(15002,PLAYTIME) == 1)) {
+			mes "[冒险家 里昂]";
+			mes "但看起来时空裂缝已经不太稳定了，我们需要等待一段时间让它再次稳定下来，或许是^0000FF20个小时？^000000";
+			close;
+		}
+		if (checkquest(15002,PLAYTIME) == 2) {
+			erasequest 15002;
+			mes "^0000FF[ 莎拉的记忆 ] 冷却时间已被清除。现在可以再次使用裂缝装置了。.^000000";
+			next;
+		}
+		mes "[冒险家 里昂]";
+		mes "你想亲身经历斐扬的过去么？";
+		next;
+		switch(select("是的","离开")) {
+			case 1:
+				mes "[冒险家 里昂]";
+				mes "请直接去我身后的次元装置，回来后告诉我你的经历。";
+				next;
+				set saramemory,4;
+				setquest 15003;
+				mes "[冒险家 里昂]";
+				mes "另外，我想提醒你一下，时空裂缝是不稳定的，错过了这次机会，说不定你就永远不能一窥斐扬的过去了。";
+				close;
+			case 2:
+				mes "[冒险家 里昂]";
+				mes "嗯...我也不能逼你去探险。";
+				mes "但如果某一天你重新找回了勇气，请再来找我。";
+				close;
+		}
+	}
+	if (saramemory == 4) {
+		if ((checkquest(15002,PLAYTIME) == 0) || (checkquest(15002,PLAYTIME) == 1)) {
+			mes "[冒险家 里昂]";
+			mes "我不确定你是否已经充分探索了空间和时间的裂缝。也许你应该再深入探究一下。";
+			close;
+		}
+		if (checkquest(15002,PLAYTIME) == 2) {
+			erasequest 15002;
+			mes "‐^0000ff次元移动的痕迹已经消失了，可以再次使用次元装置。^000000‐";
+			next;
+		}
+		mes "[冒险家 里昂]";
+		mes "我不确定你是否已经充分探索了空间和时间的裂缝。也许你应该再深入探究一下。";
+		next;
+		switch(select("好的","放弃")) {
+			case 1:
+				mes "[冒险家 里昂]";
+				mes "嗯，我很高兴你有这样的觉悟。哈哈！";
+				mes "也许某一天你能成为新的狮子 里昂！";
+				close;
+			case 2:
+				set saramemory,3;
+				erasequest 15003;
+				mes "[冒险家 里昂]";
+				mes "嗯...我也不能逼你去探险。";
+				mes "但如果某一天你重新找回了勇气，请再来找我。";
+			close;
+		}
+	}
+	if (saramemory == 5) {
+		mes "[冒险家 里昂]";
+		mes "你在里面经历了什么？！";
+		next;
+		mes "[冒险家 里昂]";
+		mes "哈？莎拉 艾琳？";
+		mes "她可是12巴基力女神之一。";
+		mes "我不知道，原来她的过去这样的悲惨...";
+		next;
+		mes "[冒险家 里昂]";
+		mes "看起来由于你的出现，莎拉和她父亲之间有了很深的误会。";
+		next;
+		mes "[冒险家 里昂]";
+		mes "但请不要自责。";
+		mes "这就是历史的宿命，在那个时候无论谁出现，都会是一样的结果。";
+		next;
+		mes "[冒险家 里昂]";
+		mes "也许下一次你能改变这段历史，化解莎拉的误会。";
+		next;
+		set saramemory,3;
+		erasequest 15003;
+		getexp 550000,550000;
+		mes "[冒险家 里昂]";
+		mes "但看起来时空裂缝已经不太稳定了，我们需要等待一段时间让它再次稳定下来，或许是^0000FF20个小时？^000000";
+		close;
+	}
+	mes "[冒险家 里昂]";
+	mes "对不起，我太无礼了。";
+	mes "我叫庞 得 里昂，是一位冒险家。你应该听说过我！";
+	next;
+	mes "[冒险家 里昂]";
+	mes "我的朋友们称我为狮子里昂，可能是因为我在冒险中无所畏惧的表现吧。";
+	next;
+	mes "[冒险家 里昂]";
+	mes "但是，在这个地方我却感到了不寻常。";
+	next;
+	mes "[冒险家 里昂]";
+	mes "继续往前进的话，你就能看到时间和空间的裂缝，每条裂缝上都建有次元装置。";
+	next;
+	mes "[冒险家 里昂]";
+	mes "我之前在我身后那条裂缝中好像瞥到了斐扬。";
+	mes "但是，好像这不是当前时间下的景色，而是很久以前...";
+	next;
+	mes "[冒险家 里昂]";
+	mes "我想进入裂缝中探险，但岁月不饶人，我的膝盖好像有点问题。";
+	next;
+	mes "[冒险家 里昂]";
+	mes "所以，年轻的冒险者，既然你来到了这里...";
+	next;
+	mes "[冒险家 里昂]";
+	mes "请你前往这奇妙的时空裂缝中，看看过去的斐扬发生了什么吧。";
+	mes "如果可以的话，希望你回来以后向我详述这次探险的经历。";
+	next;
+	set saramemory,1;
+	setquest 15003;
+	mes "[冒险家 里昂]";
+	mes "另外，我想提醒你一下，时空裂缝是不稳定的，错过了这次机会，说不定你就永远不能一窥斐扬的过去了。";
+	close;
+}
+
+dali,139,118,4	script	次元装置#sara	10007,{
+	if (BaseLevel < 99) {
+		mes "[冒险家 里昂]";
+		mes "嘿! 那个太危险了, 在你升到 ^0000FF99级^000000 之前, 不要碰那个!";
+		close;
+	}
+	if ((saramemory < 1) || (saramemory == 2) || (saramemory == 3) || (saramemory == 5)) {
+		mes "[冒险家 里昂]";
+		mes "在你到处乱碰这里的装置之前，先过来和我说说话吧。";
+		close;
+	}
+
+	// 20 hour cooldown
+	set .@ins_sara_time,checkquest(15002,PLAYTIME);
+	if (.@ins_sara_time == -1) {
+
+		set .@party_id,getcharid(1);
+		set .@p_name$,getpartyname(.@party_id);
+		set .@md_name$,"莎拉的记忆";
+
+		if (!.@party_id) {
+			mes "[冒险家 里昂]";
+			mes "在进入副本之前，你应该先组一个队伍。";
+			close;
+		}
+
+		if (is_party_leader() == true)
+		set .@menu$, "启动次元装置:使用次元装置:取消";
+		else
+		set .@menu$, ":使用次元装置:取消";
+
+		switch(select(.@menu$)) {
+		case 1:
+			if (instance_create(.@md_name$) < 0) {
+				mes "队伍名称: "+.@p_name$;
+				mes "队    长: "+strcharinfo(0);
+				mes "^0000ff"+.@md_name$+" ^000000- 时空裂缝生成失败!";
+				close;
+			}
+			mes "^FF0000次元装置已启动，";
+			mes "现在使用装置进入时空裂缝中吧。^000000";
+			close;
+		case 2:
+			switch(instance_enter(.@md_name$)) {
+			case IE_OTHER:
+				mes "发生一个未知错误。";
+				close;
+			case IE_NOINSTANCE:
+				mes "副本进度 "+"莎拉的记忆"+" 不存在。";
+				mes "队长还没有建立副本进度。";
+				close;
+			case IE_NOMEMBER:
+				mes "只有注册过的成员可以进入副本 "+"莎拉的记忆"+"。";
+				close;
+			case IE_OK:
+				mapannounce "dali",getpartyname(getcharid(1))+"小队成员 "+strcharinfo(0)+" 进入副本莎拉的记忆。",bc_map,"0x00ff99"; //FW_NORMAL 12 0 0
+				setquest 15002;
+				end;
+			}
+		case 3:
+			mes "^FF0000队长还未开启次元裂隙.^000000";
+			close;
+		}
+	} else if (.@ins_sara_time == 0 || .@ins_sara_time == 1) {
+		mes "[冒险家 里昂]";
+		mes "我觉得你需要等待^0000FF20个小时^000000，时空裂缝才能稳定。现在进入太危险了。";
+		close;
+	}
+	else {
+		erasequest 15002;
+		mes "‐^0000ff次元移动的痕迹已经消失了，可以再次使用次元装置。^000000‐";
+		close;
+	}
+}
+
+1@sara,260,156,6	script	小女孩#01	668,{
+	if (is_party_leader() == true) {
+		unittalk getcharid(3), strcharinfo(0) + "：我这是在哪？";
+		mes "["+strcharinfo(0)+"]";
+		mes "我这是在哪？";
+		next;
+		cutin "sara_9sara1",2;
+		npctalk "小女孩：你好，这里是斐扬村，你看起来不像住在这里的人呀...";
+		mes "[小女孩]";
+		mes "你好，这里是斐扬村，";
+		mes "你看起来不像住在这里的人呀...";
+		
+		next;
+		unittalk getcharid(3), strcharinfo(0) + "：你是住在这的么？但是你也看起来不像是本地居民。";
+		mes "["+strcharinfo(0)+"]";
+		mes "你是住在这的么？但是你也看起来不像是本地居民。";
+		next;
+		npctalk "小女孩：是呀！我就是在这里出生的，我叫莎拉，莎拉 艾琳！";
+		mes "[小女孩]";
+		mes "是呀！我就是在这里出生的，";
+		mes "我叫莎拉，莎拉 艾琳！";
+		next;
+		setnpcdisplay(instance_npcname("小女孩#01"),"莎拉 艾琳");
+		npctalk "莎拉 艾琳：我爸爸叫都延，是村里的长老！我刚从妈妈那里过来。";
+		mes "[莎拉 艾琳]";
+		mes "我爸爸叫都延，是村里的长老！我刚从妈妈那里过来。";
+		next;
+		unittalk getcharid(3), strcharinfo(0) + "：哦！对不起，我以为你也是外来的...不过你一个人站在这干什么呢？";
+		mes "["+strcharinfo(0)+"]";
+		mes "哦！对不起，我以为你也是外来的...不过你一个人站在这干什么呢？";
+		next;
+		npctalk "莎拉 艾琳：我在等我爸爸，他说一会儿就过来。";
+		mes "[莎拉 艾琳]";
+		mes "我在等我爸爸，他说一会儿就过来。";
+		next;
+		donpcevent instance_npcname("都延 艾琳#01", instance_id())+"::OnEnable";
+		mapannounce instance_mapname("1@sara"), "一位老者从屋子里走出来。莎拉一看到他，脸上便浮现出了笑容。",bc_area,"0xffff00";
+		mes "^FF0000一位老者从屋子里走出来。";
+		mes "莎拉一看到他，脸上便浮现出了笑容。^000000";
+		next;
+		npctalk "莎拉 艾琳：爸爸！";
+		mes "[莎拉 艾琳]";
+		mes "爸爸！";
+		next;
+		cutin "sara_elder_irine1",2;
+		npctalk "都延 艾琳：哦...莎拉，我的宝贝。", instance_npcname("都延 艾琳#01", instance_id());
+		mes "[都延 艾琳]";
+		mes "哦...莎拉，我的宝贝。";
+		next;
+		cutin "sara_9sara1",2;
+		npctalk "莎拉 艾琳：你说过你很快就回来的，但我等了很久了，你是个骗子！";
+		mes "[莎拉 艾琳]";
+		mes "你说过你很快就回来的，但我等了很久了，你是个骗子！";
+		next;
+		cutin "sara_elder_irine1",2;
+		npctalk "都延 艾琳：对不起，莎拉，我本来想快点的，但是和长老们的会议时间又延长了。", instance_npcname("都延 艾琳#01", instance_id());
+		mes "[都延 艾琳]";
+		mes "对不起，莎拉，我本来想快点的，但是和长老们的会议时间又延长了。";
+		next;
+		cutin "sara_9sara1",2;
+		npctalk "莎拉 艾琳：我不喜欢那些长老们！";
+		mes "[莎拉 艾琳]";
+		mes "我不喜欢那些长老们！";
+		next;
+		cutin "sara_elder_irine1",2;
+		npctalk "都延 艾琳：不要这样说，宝贝...这是谁？", instance_npcname("都延 艾琳#01", instance_id());
+		mes "[都延 艾琳]";
+		mes "不要这样说，宝贝...";
+		mes "这是谁？";
+		next;
+		mapannounce instance_mapname("1@sara"), "都延 艾琳突然盯着你看，眼神充满了不信任。",bc_area,"0xffff00";
+		mes "^FF0000都延 艾琳突然盯着你看，眼神充满了不信任。^000000";
+		next;
+		mapannounce instance_mapname("1@sara"), "都延 莎拉开始轻轻地哼起了歌谣。她从草地上摘下了野花，递给了她的父亲，都延。",bc_area,"0xffff00";
+		mes "^FF0000都延 莎拉开始轻轻地哼起了歌谣。她从草地上摘下了野花，递给了她的父亲，都延。^000000";
+		next;
+		cutin "sara_9sara1",2;
+		npctalk "莎拉 艾琳：给你，爸爸！";
+		mes "[莎拉 艾琳]";
+		mes "给你，爸爸！";
+		next;
+		cutin "sara_elder_irine1",2;
+		npctalk "都延 艾琳：哦，莎拉，谢谢你。", instance_npcname("都延 艾琳#01", instance_id());
+		mes "[都延 艾琳]";
+		mes "哦，莎拉，谢谢你。";
+		next;
+		cutin "sara_9sara1",2;
+		npctalk "莎拉 艾琳：不客气，可恶老爸！";
+		mes "[莎拉 艾琳]";
+		mes "不客气，可恶老爸！";
+		next;
+		mapannounce instance_mapname("1@sara"), "收到鲜花后，都延看起来明显高兴了许多。",bc_area,"0xffff00";
+		mes "^FF0000收到鲜花后，都延看起来明显高兴了许多。^000000";
+		next;
+		cutin "sara_elder_irine1",2;
+		npctalk "都延 艾琳：我的小公主，现在我们去哪？", instance_npcname("都延 艾琳#01", instance_id());
+		mes "[都延 艾琳]";
+		mes "我的小公主，现在我们去哪？";
+		next;
+		cutin "sara_9sara1",2;
+		npctalk "莎拉 艾琳：爸爸！我们去那边的山头上好不好？";
+		mes "[莎拉 艾琳]";
+		mes "爸爸！我们去那边的山头上好不好？";
+		next;
+		cutin "sara_elder_irine1",2;
+		npctalk "都延 艾琳：哈哈！那抓紧我了！", instance_npcname("都延 艾琳#01", instance_id());
+		mes "[都延 艾琳]";
+		mes "哈哈！那抓紧我了！";
+		next;
+		cutin "sara_elder_irine1",255;
+		donpcevent instance_npcname("小女孩#01", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("都延 艾琳#01", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("奇怪的老人#01", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("神秘的老人#02", instance_id())+"::OnEnable";
+		mapannounce instance_mapname("1@sara"), "艾琳父女走后，你好像听到了奇怪的声音从角落里传来...",bc_area,"0xffff00";
+		mes "^FF0000艾琳父女走后，你好像听到了奇怪的声音从角落里传来...^000000";
+		next;
+		npctalk "奇怪的老人：我可以感受到莎拉身上强大的能量，我们不能就这样看着她慢慢成长。", instance_npcname("奇怪的老人#01", instance_id());
+		mes "[奇怪的老人]";
+		mes "我可以感受到莎拉身上强大的能量，";
+		mes "我们不能就这样看着她慢慢成长。";
+		next;
+		npctalk "神秘的老人：她出生时就有不详的征兆，她的母亲甚至不是本地人！", instance_npcname("神秘的老人#02", instance_id());
+		mes "[神秘的老人]";
+		mes "她出生时就有不详的征兆，她的母亲甚至不是本地人！";
+		next;
+		npctalk "神秘的老人：总有一天，她会给这个村落带来不幸的！", instance_npcname("神秘的老人#02", instance_id());
+		mes "[神秘的老人]";
+		mes "总有一天，她会给这个村落带来不幸的！";
+		next;
+		npctalk "奇怪的老人：我们要赶在天使选中她之前做点什么。我拜托了[他]负责这件事了。", instance_npcname("奇怪的老人#01", instance_id());
+		mes "[奇怪的老人]";
+		mes "我们要赶在天使选中她之前做点什么。";
+		mes "我拜托了[他]负责这件事了。";
+		next;
+		npctalk "神秘的老人：嗯... 我很期待听到莎拉堕落的好消息...", instance_npcname("神秘的老人#02", instance_id());
+		mes "[神秘的老人]";
+		mes "嗯...";
+		mes "我很期待听到莎拉堕落的好消息...";
+		next;
+		donpcevent instance_npcname("奇怪的老人#01", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("神秘的老人#02", instance_id())+"::OnDisable";
+		enablenpc instance_npcname("#sara_warp01");
+		donpcevent instance_npcname("莎拉 艾琳#01", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉的母亲", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("都延 艾琳#02", instance_id())+"::OnEnable";
+		mapannounce instance_mapname("1@sara"), "老人们走开了。看来萨拉可能有危险。我们必须做点什么！",bc_area,"0xffff00";
+		mes "^FF0000老人们走开了。看来萨拉可能有危险。我们必须做点什么！^000000";
+		close;
+	}
+	else {
+		end;
+	}
+
+OnInstanceInit:
+OnEnable:
+	enablenpc instance_npcname("小女孩#01");
+	end;
+OnDisable:
+	disablenpc instance_npcname("小女孩#01");
+	end;
+}
+
+1@sara,268,158,4	script	都延 艾琳#01	684,{
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("都延 艾琳#01");
+	end;
+OnEnable:
+	enablenpc instance_npcname("都延 艾琳#01");
+	end;
+}
+
+1@sara,260,156,4	script	奇怪的老人#01	-1,{
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("奇怪的老人#01");
+	end;
+OnEnable:
+	enablenpc instance_npcname("奇怪的老人#01");
+	end;
+}
+
+1@sara,260,156,4	script	神秘的老人#02	-1,{
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("神秘的老人#02");
+	end;
+OnEnable:
+	enablenpc instance_npcname("神秘的老人#02");
+	end;
+}
+
+1@sara,107,325,6	script	莎拉 艾琳#01	668,{
+	if (is_party_leader() == true) {
+		cutin "sara_9sara1",2;
+		npctalk "莎拉 艾琳：噢！你好！我还记得你。来这有什么事么？";
+		mes "[莎拉 艾琳]";
+		mes "噢！你好！我还记得你。";
+		mes "来这有什么事么？";
+		next;
+		npctalk "莎拉 艾琳：我摘了一些鲜花，要送给妈妈！";
+		mes "[莎拉 艾琳]";
+		mes "我摘了一些鲜花，要送给妈妈！";
+		next;
+		mapannounce instance_mapname("1@sara"), "莎拉蹦蹦跳跳的打开了门，手里拿着鲜花。",bc_area,"0xffff00";
+		mes "^FF0000莎拉蹦蹦跳跳的打开了门，手里拿着鲜花。^000000";
+		next;
+		npctalk "莎拉 艾琳：妈妈! 爸爸! 看我找到了什么!";
+		mes "[莎拉 艾琳]";
+		mes "妈妈! 爸爸! 看我找到了什么!";
+		next;
+		playBGMall "37",instance_mapname("1@sara");
+		cutin "sara_9sara1",255;
+		cutin "sara_momdie",4;
+		mapannounce instance_mapname("1@sara"), "门打开了，一位女性满身鲜血地躺在地上，站在她身前的是都延，手里握着滴血的长剑。",bc_area,"0xffff00";
+		mes "^FF0000门打开了，一位女性满身鲜血地躺在地上，站在她身前的是都延，手里握着滴血的长剑。^000000";
+		next;
+		npctalk "莎拉 艾琳：...";
+		mes "[莎拉 艾琳]";
+		mes "...";
+		next;
+		npctalk "莎拉的母亲：莎拉...快...快跑...", instance_npcname("莎拉的母亲", instance_id());
+		mes "[莎拉的母亲]";
+		mes "莎拉...快...快跑...";
+		next;
+		npctalk "莎拉 艾琳：...";
+		mes "[莎拉 艾琳]";
+		mes "...";
+		next;
+		mapannounce instance_mapname("1@sara"), "一颗宝石从莎拉母亲的手中滑落，滚到了莎拉面前，莎拉迷迷糊糊地拾起了宝石。",bc_area,"0xffff00";
+		mes "^FF0000一颗宝石从莎拉母亲的手中滑落，滚到了莎拉面前，莎拉迷迷糊糊地拾起了宝石。^000000";
+		next;
+		mapannounce instance_mapname("1@sara"), "都延转过身来，发现了莎拉。",bc_area,"0xffff00";
+		mes "^FF0000都延转过身来，发现了莎拉。^000000";
+		next;
+		cutin "sara_momdie",255;
+		cutin "sara_elder_irine4",2;
+		npctalk "都延 艾琳：啊 莎拉！我正在找你...", instance_npcname("都延 艾琳#02", instance_id());
+		mes "[都延 艾琳]";
+		mes "啊 莎拉！我正在找你...";
+		next;
+		cutin "sara_9sara2",2;
+		npctalk "莎拉 艾琳：...";
+		mes "[莎拉 艾琳]";
+		mes "...";
+		next;
+		switch(select("带着莎拉逃走。")) {}
+		cutin "sara_elder_irine3",2;
+		npctalk "都延 艾琳：守卫！守卫！这里有刺客！抓住他！", instance_npcname("都延 艾琳#02", instance_id());
+		mes "[都延 艾琳]";
+		mes "守卫！守卫！这里有刺客！";
+		mes "抓住他！";
+		next;
+		mapannounce instance_mapname("1@sara"), "一群守卫向这里靠近！",bc_area,"0xffff00";
+		mes "^FF0000一群守卫向这里靠近！^000000";
+		next;
+		cutin "sara_9sara3",2;
+		npctalk "莎拉 艾琳：妈妈，不要！！！！！！！！！！！！！！！";
+		mes "[莎拉 艾琳]";
+		mes "妈妈，不要！！！！！！！！！！！！！！！";
+		next;
+		donpcevent instance_npcname("莎拉 艾琳#01", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("莎拉的母亲", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("都延 艾琳#02", instance_id())+"::OnDisable";
+		mapannounce instance_mapname("1@sara"), "萨拉跑开了，警卫的声音越来越近了。...",bc_area,"0xffff00";
+		mes "^FF0000莎拉突然跑开，守卫们已经靠近了！^000000";
+		close2;
+		cutin "sara_9sara3",255;
+		donpcevent instance_npcname("#MobsSara01", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk01", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk02", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk03", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk04", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk05", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk06", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk07", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk08", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk09", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk10", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk11", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk12", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk13", instance_id())+"::OnEnable";
+		end;
+	}
+	else {
+		end;
+	}
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#01");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#01");
+	end;
+}
+
+1@sara,107,325,4	script	莎拉的母亲	-1,{
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉的母亲");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉的母亲");
+	end;
+}
+
+1@sara,107,325,4	script	都延 艾琳#02	-1,{
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("都延 艾琳#02");
+	end;
+OnEnable:
+	enablenpc instance_npcname("都延 艾琳#02");
+	end;
+}
+
+1@sara,152,233,6	script	莎拉 艾琳#02	668,{
+	if (is_party_leader() == true) {
+		cutin "sara_9sara2",2;
+		npctalk "莎拉 艾琳：妈妈！";
+		mes "[莎拉 艾琳]";
+		mes "妈妈！";
+		next;
+		cutin "sara_elder_irine4",2;
+		npctalk "都延 艾琳：莎拉...", instance_npcname("都延 艾琳#03", instance_id());
+		mes "[都延 艾琳]";
+		mes "莎拉...";
+		next;
+		cutin "sara_9sara2",2;
+		npctalk "莎拉 艾琳：不！";
+		mes "[莎拉 艾琳]";
+		mes "不！";
+		next;
+		cutin "sara_elder_irine4",2;
+		npctalk "都延 艾琳：我一直在找你。萨拉！快到爸爸这里来，这里很危险！", instance_npcname("都延 艾琳#03", instance_id());
+		mes "[都延 艾琳]";
+		mes "我一直在找你。萨拉！快到爸爸这里来，这里很危险！";
+		next;
+		unittalk getcharid(3), strcharinfo(0) + ": 我不会让你带走莎拉的！";
+		mes "["+strcharinfo(0)+"]";
+		mes "我不会让你带走莎拉的！";
+		next;
+		cutin "sara_elder_irine3",2;
+		npctalk "都延 艾琳：看来我必须和你做个了结！", instance_npcname("都延 艾琳#03", instance_id());
+		mes "[都延 艾琳]";
+		mes "看来我必须和你做个了结！";
+		next;
+		unittalk getcharid(3), strcharinfo(0) + "：莎拉...快跑！保护好自己！";
+		mes "["+strcharinfo(0)+"]";
+		mes "莎拉...快跑！保护好自己！";
+		next;
+		cutin "sara_9sara2",2;
+		npctalk "莎拉 艾琳：...嗯";
+		mes "[莎拉 艾琳]";
+		mes "...嗯.";
+		close2;
+		cutin "sara_9sara3",255;
+		donpcevent instance_npcname("莎拉 艾琳#02", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("都延 艾琳#03", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("#BossSara01", instance_id())+"::OnEnable";
+		end;
+	}
+	else {
+		end;
+	}
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#02");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#02");
+	end;
+}
+
+1@sara,152,233,4	script	都延 艾琳#03	-1,{
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("都延 艾琳#03");
+	end;
+OnEnable:
+	enablenpc instance_npcname("都延 艾琳#03");
+	end;
+}
+
+1@sara,156,236,4	script	都延 艾琳#04	684,{
+	if (is_party_leader() == true) {
+		cutin "sara_elder_irine4",2;
+		npctalk "都延 艾琳：你...你很强大...";
+		mes "[都延 艾琳]";
+		mes "你...你很强大...";
+		next;
+		npctalk "都延 艾琳：为什么...*咳咳*你为什么要杀莎拉和我妻子...";
+		mes "[都延 艾琳]";
+		mes "为什么...*咳咳*你为什么要杀莎拉和我妻子...";
+		next;
+		unittalk getcharid(3), strcharinfo(0) + "：你在说什么？我们看见你杀了自己的妻子，莎拉的母亲！你的长剑还在滴血！";
+		mes "["+strcharinfo(0)+"]";
+		mes "你在说什么？我们看见你杀了自己的妻子，莎拉的母亲！你的长剑还在滴血！";
+		next;
+		npctalk "都延 艾琳：你...以为是我杀了自己的妻子？";
+		mes "[都延 艾琳]";
+		mes "你...以为是我杀了自己的妻子？";
+		next;
+		npctalk "都延 艾琳：我发现时...*咳咳*，她已经被刺客杀害了，我杀了那个刺客，这就是为什么我的剑上有血...";
+		mes "[都延 艾琳]";
+		mes "我发现时...*咳咳*，她已经被刺客杀害了，我杀了那个刺客，这就是为什么我的剑上有血...";
+		next;
+		cutin "sara_elder_irine4",255;
+		cutin "sara_momdie",4;
+		mapannounce instance_mapname("1@sara"), "你努力回想当时的场景，好像在屋子左边的角落确实有一具尸体，那就是都延所说的刺客？",bc_area,"0xffff00";
+		mes "^FF0000你努力回想当时的场景，好像在屋子左边的角落确实有一具尸体，那就是都延所说的刺客？^000000";
+		next;
+		cutin "sara_momdie",255;
+		cutin "sara_elder_irine4",2;
+		npctalk "都延 艾琳：如果...你不是刺客之一的话，那你是谁？";
+		mes "["+strcharinfo(0)+"]";
+		mes "如果...";
+		mes "你不是刺客之一的话，那你是谁？";
+		next;
+		unittalk getcharid(3), strcharinfo(0) + "：我只是一个通过了时间裂缝的冒险家，我听见了一些人的阴谋，想要来救莎拉。";
+		mes "["+strcharinfo(0)+"]";
+		mes "我只是一个通过了时间裂缝的冒险家，我听见了一些人的阴谋，想要来救莎拉。";
+		next;
+		npctalk "都延 艾琳：如果...你说的都是真的，对不起，我误会了你...";
+		mes "[都延 艾琳]";
+		mes "如果...";
+		mes "你说的都是真的，对不起，我误会了你...";
+		next;
+		npctalk "都延 艾琳：阴谋...我猜那些人中肯定有几个村落的长老吧，咳咳...";
+		mes "[都延 艾琳]";
+		mes "阴谋...";
+		mes "我猜那些人中肯定有几个村落的长老吧，";
+		mes "咳咳...";
+		next;
+		npctalk "都延 艾琳：刺客很可能不止一个，我们要快点找到莎拉才行！";
+		mes "[都延 艾琳]";
+		mes "刺客很可能不止一个，我们要快点找到莎拉才行！";
+		next;
+		unittalk getcharid(3), strcharinfo(0) + "：莎拉也错以为是你杀了她妈妈，我们要告诉她真相！";
+		mes "["+strcharinfo(0)+"]";
+		mes "莎拉也错以为是你杀了她妈妈，我们要告诉她真相！";
+		next;
+		npctalk "都延 艾琳：嗯，我体力也恢复了一些，我们分头找莎拉吧。冒险者们，请你们帮帮我的女儿，把真相解释给她听。";
+		mes "[都延 艾琳]";
+		mes "嗯，我体力也恢复了一些，我们分头找莎拉吧。";
+		mes "冒险者们，请你们帮帮我的女儿，把真相解释给她听。";
+		close2;
+		cutin "sara_elder_irine4",255;
+		mapannounce instance_mapname("1@sara"), "<提示> 必须尽快找到莎拉，她应该是往8点钟方向逃去了。",bc_map,"0xffff00";
+		viewpoint 1,88,188,1,0x00FF00;
+		donpcevent instance_npcname("都延 艾琳#04", instance_id())+"::OnDisable";
+		enablenpc instance_npcname("#sara_warp06");
+		donpcevent instance_npcname("莎拉 艾琳#03", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("?????#01", instance_id())+"::OnEnable";
+		end;
+	}
+	else {
+		end;
+	}
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("都延 艾琳#04");
+	end;
+OnEnable:
+	enablenpc instance_npcname("都延 艾琳#04");
+	end;
+}
+
+1@sara,39,142,4	script	莎拉 艾琳#03	668,{
+	if (is_party_leader() == true) {
+		mapannounce instance_mapname("1@sara"), "正当你要喊住莎拉时，突然后脑遭到一下重击。",bc_area,"0xffff00";
+		mes "^FF0000正当你要喊住莎拉时，突然后脑遭到一下重击。^000000";
+		next;
+		cutin "sara_beholder",2;
+		npctalk "?????：时间旅行者么？你们不能再来干扰了，我们在这找到莎拉的历史不容你们改变。", instance_npcname("?????#01", instance_id());
+		mes "[?????]";
+		mes "时间旅行者么？你们不能再来干扰了，我们在这找到莎拉的历史不容你们改变。";
+		next;
+		npctalk "?????：你们还是回到原来的时间线上去吧。", instance_npcname("?????#01", instance_id());
+		mes "[?????]";
+		mes "你们还是回到原来的时间线上去吧。";
+		next;
+		mapannounce instance_mapname("1@sara"), "当你向地上倒去时，两个黑影向莎拉靠近。",bc_area,"0xffff00";
+		mes "^FF0000当你向地上倒去时，两个黑影向莎拉靠近。^000000";
+		next;
+		npctalk "?????：小女孩，此时此刻的你心中应该充满着被背叛的痛苦，和对现实的绝望吧。当然，还有刻骨的仇恨！我们，会将你引导你的宿命。", instance_npcname("?????#01", instance_id());
+		mes "[?????]";
+		mes "小女孩，此时此刻的你心中应该充满着被背叛的痛苦，和对现实的绝望吧。";
+		mes "当然，还有刻骨的仇恨！我们，会将你引导你的宿命。";
+		next;
+		cutin "sara_9sara2",2;
+		npctalk "莎拉 艾琳：...";
+		mes "[莎拉 艾琳]";
+		mes "...";
+		next;
+		cutin "sara_beholder",2;
+		npctalk "?????：莎拉 艾琳，他会实现你的愿望！", instance_npcname("?????#01", instance_id());
+		mes "[?????]";
+		mes "莎拉 艾琳，他会实现你的愿望！";
+		next;
+		cutin "sara_beholder",255;
+		mapannounce instance_mapname("1@sara"), "其中一个黑影，给莎拉披上了与他们相同的披风，然后黑影连同莎拉一起消失了。",bc_area,"0xffff00";
+		mes "^FF0000其中一个黑影，给莎拉披上了与他们相同的披风，然后黑影连同莎拉一起消失了。^000000";
+		close2;
+		viewpoint 1,16,143,1,0x00FF00;
+		donpcevent instance_npcname("莎拉 艾琳#03", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("?????#01", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("#sara_warp07", instance_id())+"::OnEnable";
+		end;
+	}
+	else {
+		end;
+	}
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#03");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#03");
+	end;
+}
+
+1@sara,39,142,4	script	?????#01	-1,{
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("?????#01");
+	end;
+OnEnable:
+	enablenpc instance_npcname("?????#01");
+	end;
+}
+
+1@sara,97,304,6	script	莎拉 艾琳#talk01	668,5,5,{
+	end;
+
+OnTouch:
+	npctalk "莎拉 艾琳：为什么啊，爸爸！";
+	sleep2 1000;
+	initnpctimer;
+	donpcevent instance_npcname("莎拉 艾琳#talk01", instance_id())+"::OnDisable";
+	end;
+
+OnTimer30000:
+	donpcevent instance_npcname("莎拉 艾琳#talk01", instance_id())+"::OnEnable";
+	stopnpctimer;
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#talk01");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#talk01");
+	end;
+}	
+
+1@sara,128,296,6	script	莎拉 艾琳#talk02	668,5,5,{
+	end;
+
+OnTouch:
+	npctalk "莎拉 艾琳：不！妈妈！";
+	sleep2 1000;
+	initnpctimer;
+	donpcevent instance_npcname("莎拉 艾琳#talk02", instance_id())+"::OnDisable";
+	end;
+
+OnTimer30000:
+	donpcevent instance_npcname("莎拉 艾琳#talk02", instance_id())+"::OnEnable";
+	stopnpctimer;
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#talk02");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#talk02");
+	end;
+}	
+
+1@sara,124,230,6	script	莎拉 艾琳#talk03	668,5,5,{
+	end;
+
+OnTouch:
+	npctalk "莎拉 艾琳：为什么？为什么？";
+	sleep2 1000;
+	initnpctimer;
+	donpcevent instance_npcname("莎拉 艾琳#talk03", instance_id())+"::OnDisable";
+	end;
+
+OnTimer30000:
+	donpcevent instance_npcname("莎拉 艾琳#talk03", instance_id())+"::OnEnable";
+	stopnpctimer;
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#talk03");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#talk03");
+	end;
+}	
+
+1@sara,174,227,6	script	莎拉 艾琳#talk04	668,5,5,{
+	end;
+
+OnTouch:
+	npctalk "莎拉 艾琳：不~~~~~";
+	sleep2 1000;
+	initnpctimer;
+	donpcevent instance_npcname("莎拉 艾琳#talk04", instance_id())+"::OnDisable";
+	end;
+
+OnTimer30000:
+	donpcevent instance_npcname("莎拉 艾琳#talk04", instance_id())+"::OnEnable";
+	stopnpctimer;
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#talk04");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#talk04");
+	end;
+}	
+
+1@sara,203,259,6	script	莎拉 艾琳#talk05	668,5,5,{
+	end;
+
+OnTouch:
+	npctalk "莎拉 艾琳：...";
+	sleep2 1000;
+	initnpctimer;
+	donpcevent instance_npcname("莎拉 艾琳#talk05", instance_id())+"::OnDisable";
+	end;
+
+OnTimer30000:
+	donpcevent instance_npcname("莎拉 艾琳#talk05", instance_id())+"::OnEnable";
+	stopnpctimer;
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#talk05");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#talk05");
+	end;
+}	
+
+1@sara,256,279,4	script	莎拉 艾琳#talk06	668,5,5,{
+	end;
+
+OnTouch:
+	npctalk "莎拉 艾琳：...妈妈！";
+	sleep2 1000;
+	initnpctimer;
+	donpcevent instance_npcname("莎拉 艾琳#talk06", instance_id())+"::OnDisable";
+	end;
+
+OnTimer30000:
+	donpcevent instance_npcname("莎拉 艾琳#talk06", instance_id())+"::OnEnable";
+	stopnpctimer;
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#talk06");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#talk06");
+	end;
+}	
+
+1@sara,228,282,6	script	莎拉 艾琳#talk07	668,5,5,{
+	end;
+
+OnTouch:
+	npctalk "莎拉 艾琳：为什么要让我这么的痛苦？";
+	sleep2 1000;
+	initnpctimer;
+	donpcevent instance_npcname("莎拉 艾琳#talk07", instance_id())+"::OnDisable";
+	end;
+
+OnTimer30000:
+	donpcevent instance_npcname("莎拉 艾琳#talk07", instance_id())+"::OnEnable";
+	stopnpctimer;
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#talk07");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#talk07");
+	end;
+}
+
+1@sara,265,253,4	script	莎拉 艾琳#talk08	668,5,5,{
+	end;
+
+OnTouch:
+	npctalk "莎拉 艾琳：.........";
+	sleep2 1000;
+	initnpctimer;
+	donpcevent instance_npcname("莎拉 艾琳#talk08", instance_id())+"::OnDisable";
+	end;
+
+OnTimer30000:
+	donpcevent instance_npcname("莎拉 艾琳#talk08", instance_id())+"::OnEnable";
+	stopnpctimer;
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#talk08");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#talk08");
+	end;
+}
+
+1@sara,230,95,6	script	莎拉 艾琳#talk09	668,5,5,{
+	end;
+
+OnTouch:
+	npctalk "莎拉 艾琳：.........";
+	sleep2 1000;
+	initnpctimer;
+	donpcevent instance_npcname("莎拉 艾琳#talk09", instance_id())+"::OnDisable";
+	end;
+
+OnTimer30000:
+	donpcevent instance_npcname("莎拉 艾琳#talk09", instance_id())+"::OnEnable";
+	stopnpctimer;
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#talk09");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#talk09");
+	end;
+}
+
+1@sara,150,60,6	script	莎拉 艾琳#talk10	668,5,5,{
+	end;
+
+OnTouch:
+	npctalk "莎拉 艾琳：不！！";
+	sleep2 1000;
+	initnpctimer;
+	donpcevent instance_npcname("莎拉 艾琳#talk10", instance_id())+"::OnDisable";
+	end;
+
+OnTimer30000:
+	donpcevent instance_npcname("莎拉 艾琳#talk10", instance_id())+"::OnEnable";
+	stopnpctimer;
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#talk10");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#talk10");
+	end;
+}
+
+1@sara,105,63,6	script	莎拉 艾琳#talk11	668,5,5,{
+	end;
+
+OnTouch:
+	npctalk "莎拉 艾琳：.........";
+	sleep2 1000;
+	initnpctimer;
+	donpcevent instance_npcname("莎拉 艾琳#talk11", instance_id())+"::OnDisable";
+	end;
+
+OnTimer30000:
+	donpcevent instance_npcname("莎拉 艾琳#talk11", instance_id())+"::OnEnable";
+	stopnpctimer;
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#talk11");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#talk11");
+	end;
+}
+
+1@sara,184,106,6	script	莎拉 艾琳#talk12	668,5,5,{
+	end;
+
+OnTouch:
+	npctalk "莎拉 艾琳：爸爸！！";
+	sleep2 1000;
+	initnpctimer;
+	donpcevent instance_npcname("莎拉 艾琳#talk12", instance_id())+"::OnDisable";
+	end;
+
+OnTimer30000:
+	donpcevent instance_npcname("莎拉 艾琳#talk12", instance_id())+"::OnEnable";
+	stopnpctimer;
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#talk12");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#talk12");
+	end;
+}
+
+1@sara,164,175,4	script	莎拉 艾琳#talk13	668,5,5,{
+	end;
+
+OnTouch:
+	npctalk "莎拉 艾琳：爸爸，这是为什么？！";
+	sleep2 1000;
+	initnpctimer;
+	donpcevent instance_npcname("莎拉 艾琳#talk13", instance_id())+"::OnDisable";
+	end;
+
+OnTimer30000:
+	donpcevent instance_npcname("莎拉 艾琳#talk13", instance_id())+"::OnEnable";
+	stopnpctimer;
+	end;
+
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("莎拉 艾琳#talk13");
+	end;
+OnEnable:
+	enablenpc instance_npcname("莎拉 艾琳#talk13");
+	end;
+}
+
+//= Mobs
+1@sara,1,1,4	script	#MobsSara01	-1,{
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("#MobsSara01", instance_id());
+	end;
+OnEnable:
+	enablenpc instance_npcname("#MobsSara01", instance_id());
+	set .@map$, instance_mapname("1@sara");
+	.@event$ = instance_npcname("#MobsSara01")+"::OnMyMobDead";
+	killmonster .@map$, .@event$;
+	monster .@map$,107,325,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,115,325,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,116,317,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,108,317,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,116,311,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,108,311,"斐扬士兵",2543,1, .@event$;
+
+	monster .@map$,101,295,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,105,295,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,109,295,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,113,295,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,117,295,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,121,295,"斐扬士兵",2543,1, .@event$;
+
+	monster .@map$,122,227,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,122,225,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,122,223,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,122,221,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,122,219,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,122,217,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,121,227,"警卫犬",2545,1, .@event$;
+	monster .@map$,121,225,"警卫犬",2545,1, .@event$;
+	monster .@map$,121,223,"警卫犬",2545,1, .@event$;
+	monster .@map$,121,221,"警卫犬",2545,1, .@event$;
+	monster .@map$,121,219,"警卫犬",2545,1, .@event$;
+	monster .@map$,121,217,"警卫犬",2545,1, .@event$;
+
+	monster .@map$,151,231,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,153,231,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,155,231,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,157,231,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,159,231,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,161,231,"斐扬士兵",2543,1, .@event$;
+
+	monster .@map$,187,215,"警卫犬",2545,1, .@event$;
+	monster .@map$,187,217,"警卫犬",2545,1, .@event$;
+	monster .@map$,187,219,"警卫犬",2545,1, .@event$;
+	monster .@map$,187,221,"警卫犬",2545,1, .@event$;
+	monster .@map$,187,223,"警卫犬",2545,1, .@event$;
+	monster .@map$,187,225,"警卫犬",2545,1, .@event$;
+	monster .@map$,188,215,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,188,217,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,188,219,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,188,221,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,188,223,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,188,225,"斐扬士兵",2543,1, .@event$;
+
+	monster .@map$,192,250,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,194,250,"警卫犬",2545,1, .@event$;
+	monster .@map$,196,250,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,198,250,"警卫犬",2545,1, .@event$;
+
+	monster .@map$,196,254,"警卫犬",2545,1, .@event$;
+	monster .@map$,196,256,"警卫犬",2545,1, .@event$;
+	monster .@map$,196,258,"警卫犬",2545,1, .@event$;
+	monster .@map$,199,254,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,199,256,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,199,258,"斐扬士兵",2543,1, .@event$;
+
+	monster .@map$,204,246,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,204,248,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,204,250,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,204,252,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,204,254,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,206,251,"警卫犬",2545,1, .@event$;
+	set 'Sara_Mobs,58;
+	initnpctimer;
+	end;
+
+OnTimer1000:
+	mapannounce instance_mapname("1@sara"), "必须打败卫兵才能进入下一个区域",bc_map,"0xffff00";
+	end;
+
+OnTimer5000:
+	mapannounce instance_mapname("1@sara"), "已经有好几帮卫兵来对付你了！",bc_map,"0xffff00";
+	stopnpctimer;
+	end;
+
+OnMyMobDead:
+	set 'Sara_Mobs,'Sara_Mobs-1;
+	if ('Sara_Mobs < 1) {
+		set 'Sara_Mobs,0;
+		mapannounce instance_mapname("1@sara"), "莎拉又跑掉了！她是往 2 点方向走了吗？！",bc_map,"0xffff00";
+		if (playerattached() > 0)
+			viewpoint 1,208,250,1,0x00FF00;
+		enablenpc instance_npcname("#sara_warp02");
+		donpcevent instance_npcname("#MobsSara02", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("#MobsSara01", instance_id())+"::OnDisable";
+	}
+	end;
+}
+
+1@sara,1,1,4	script	#MobsSara02	-1,{
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("#MobsSara02", instance_id());
+	end;
+OnEnable:
+	enablenpc instance_npcname("#MobsSara02", instance_id());
+	set .@map$, instance_mapname("1@sara");
+	.@event$ = instance_npcname("#MobsSara02")+"::OnMyMobDead";
+	killmonster .@map$, .@event$;
+	monster .@map$,228,312,"警卫犬",2546,1, .@event$;
+	monster .@map$,227,312,"警卫犬",2546,1, .@event$;
+	monster .@map$,229,315,"警卫犬",2546,1, .@event$;
+
+	monster .@map$,247,290,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,248,290,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,249,290,"斐扬士兵",2544,1, .@event$;
+
+	monster .@map$,223,264,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,230,248,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,227,248,"斐扬士兵",2544,1, .@event$;
+
+	monster .@map$,238,229,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,225,220,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,228,220,"斐扬士兵",2544,1, .@event$;
+
+	monster .@map$,220,212,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,223,212,"斐扬士兵",2544,1, .@event$;
+
+	monster .@map$,219,203,"警卫犬",2546,1, .@event$;
+	monster .@map$,222,203,"警卫犬",2546,1, .@event$;
+	set 'Sara_Mobs,16;
+	end;
+
+OnMyMobDead:
+	set 'Sara_Mobs,'Sara_Mobs-1;
+	if ('Sara_Mobs < 1) {
+		set 'Sara_Mobs,0;
+		mapannounce instance_mapname("1@sara"), "莎拉又跑掉了！她是往 5 点方向走了吗？！",bc_map,"0xffff00";
+		if (playerattached() > 0)
+			viewpoint 1,226,190,1,0x00FF00;
+		enablenpc instance_npcname("#sara_warp03");
+		donpcevent instance_npcname("#MobsSara03", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("#MobsSara02", instance_id())+"::OnDisable";
+	}
+	end;
+}
+
+1@sara,1,1,4	script	#MobsSara03	-1,{
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("#MobsSara03", instance_id());
+	end;
+OnEnable:
+	enablenpc instance_npcname("#MobsSara03", instance_id());
+	set .@map$, instance_mapname("1@sara");
+	.@event$ = instance_npcname("#MobsSara03")+"::OnMyMobDead";
+	killmonster .@map$, .@event$;
+	monster .@map$,255,91,"警卫犬",2545,1, .@event$;
+	monster .@map$,255,92,"警卫犬",2545,1, .@event$;
+	monster .@map$,255,93,"警卫犬",2545,1, .@event$;
+	monster .@map$,255,94,"警卫犬",2545,1, .@event$;
+	monster .@map$,254,91,"警卫犬",2545,1, .@event$;
+	monster .@map$,254,92,"警卫犬",2545,1, .@event$;
+	monster .@map$,254,93,"警卫犬",2545,1, .@event$;
+	monster .@map$,254,94,"警卫犬",2545,1, .@event$;
+
+	monster .@map$,228,65,"斐扬士兵",2543,1, .@event$;	
+	monster .@map$,228,64,"斐扬士兵",2543,1, .@event$;	
+	monster .@map$,228,63,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,228,62,"斐扬士兵",2543,1, .@event$;
+
+	monster .@map$,198,62,"警卫犬",2546,1, .@event$;
+	monster .@map$,195,56,"警卫犬",2546,1, .@event$;
+	monster .@map$,195,60,"警卫犬",2546,1, .@event$;
+	monster .@map$,195,62,"警卫犬",2546,1, .@event$;
+	monster .@map$,192,56,"警卫犬",2546,1, .@event$;
+	monster .@map$,192,60,"警卫犬",2546,1, .@event$;
+	monster .@map$,192,62,"警卫犬",2546,1, .@event$;
+
+	monster .@map$,187,68,"警卫犬",2546,1, .@event$;
+	monster .@map$,188,63,"警卫犬",2546,1, .@event$;
+
+	monster .@map$,120,39,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,121,39,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,121,39,"斐扬士兵",2543,1, .@event$;
+
+	monster .@map$,93,64,"警卫犬",2545,1, .@event$;
+	monster .@map$,93,68,"警卫犬",2545,1, .@event$;
+	monster .@map$,93,72,"警卫犬",2545,1, .@event$;
+	monster .@map$,93,76,"警卫犬",2545,1, .@event$;
+	monster .@map$,90,64,"警卫犬",2545,1, .@event$;
+	monster .@map$,90,68,"警卫犬",2545,1, .@event$;
+	monster .@map$,90,72,"警卫犬",2545,1, .@event$;
+	monster .@map$,90,76,"警卫犬",2545,1, .@event$;
+
+	monster .@map$,87,67,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,87,63,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,87,59,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,87,55,"斐扬士兵",2543,1, .@event$;
+
+	monster .@map$,84,67,"警卫犬",2546,1, .@event$;
+	monster .@map$,84,63,"警卫犬",2546,1, .@event$;
+	monster .@map$,84,59,"警卫犬",2546,1, .@event$;
+	monster .@map$,84,55,"警卫犬",2546,1, .@event$;
+
+	monster .@map$,81,67,"警卫犬",2546,1, .@event$;
+	monster .@map$,81,63,"警卫犬",2546,1, .@event$;
+	monster .@map$,81,59,"警卫犬",2546,1, .@event$;
+	monster .@map$,81,55,"警卫犬",2546,1, .@event$;
+	monster .@map$,81,51,"警卫犬",2546,1, .@event$;
+	set 'Sara_Mobs,45;
+	end;
+
+OnMyMobDead:
+	set 'Sara_Mobs,'Sara_Mobs-1;
+	if ('Sara_Mobs < 1) {
+		set 'Sara_Mobs,0;
+		mapannounce instance_mapname("1@sara"), "莎拉又跑掉了！*叹气* 她是往12点方向走了吗？！",bc_map,"0xffff00";
+		if (playerattached() > 0)
+			viewpoint 1,166,67,1,0x00FF00;
+		enablenpc instance_npcname("#sara_warp04");
+		donpcevent instance_npcname("#MobsSara04", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("#MobsSara03", instance_id())+"::OnDisable";
+	}
+	end;
+}
+
+1@sara,1,1,4	script	#MobsSara04	-1,{
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("#MobsSara04", instance_id());
+	end;
+OnEnable:
+	enablenpc instance_npcname("#MobsSara04", instance_id());
+	set .@map$, instance_mapname("1@sara");
+	.@event$ = instance_npcname("#MobsSara04")+"::OnMyMobDead";
+	killmonster .@map$, .@event$;
+	monster .@map$,155,97,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,157,97,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,159,97,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,161,97,"斐扬士兵",2543,1, .@event$;
+
+	monster .@map$,201,113,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,204,113,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,207,113,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,210,113,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,213,113,"斐扬士兵",2544,1, .@event$;
+
+	monster .@map$,201,117,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,204,117,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,207,117,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,210,117,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,213,117,"斐扬士兵",2544,1, .@event$;
+
+	monster .@map$,223,152,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,223,148,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,223,144,"斐扬士兵",2544,1, .@event$;
+
+	monster .@map$,221,152,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,221,148,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,221,144,"斐扬士兵",2544,1, .@event$;
+
+	monster .@map$,151,174,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,153,174,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,155,174,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,157,174,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,159,174,"斐扬士兵",2543,1, .@event$;
+
+	monster .@map$,151,177,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,153,177,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,155,177,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,157,177,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,159,177,"斐扬士兵",2543,1, .@event$;
+
+	monster .@map$,151,180,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,153,180,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,155,180,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,157,180,"斐扬士兵",2544,1, .@event$;
+	monster .@map$,159,180,"斐扬士兵",2544,1, .@event$;
+
+	monster .@map$,173,139,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,170,139,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,167,139,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,164,139,"斐扬士兵",2543,1, .@event$;
+
+	monster .@map$,173,137,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,170,137,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,167,137,"斐扬士兵",2543,1, .@event$;
+	monster .@map$,164,137,"斐扬士兵",2543,1, .@event$;
+	set 'Sara_Mobs,43;
+	end;
+
+OnMyMobDead:
+	set 'Sara_Mobs,'Sara_Mobs-1;
+	if ('Sara_Mobs < 1) {
+		set 'Sara_Mobs,0;
+		mapannounce instance_mapname("1@sara"), "莎拉又跑掉了！她是往 12 点方向走了吗？！",bc_map,"0xffff00";
+		if (playerattached() > 0)
+			viewpoint 1,155,180,1,0x00FF00;
+		enablenpc instance_npcname("#sara_warp05");
+		donpcevent instance_npcname("莎拉 艾琳#02", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("都延 艾琳#03", instance_id())+"::OnEnable";
+		donpcevent instance_npcname("莎拉 艾琳#talk01", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("莎拉 艾琳#talk02", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("莎拉 艾琳#talk03", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("莎拉 艾琳#talk04", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("莎拉 艾琳#talk05", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("莎拉 艾琳#talk06", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("莎拉 艾琳#talk07", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("莎拉 艾琳#talk08", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("莎拉 艾琳#talk09", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("莎拉 艾琳#talk10", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("莎拉 艾琳#talk11", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("莎拉 艾琳#talk12", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("莎拉 艾琳#talk13", instance_id())+"::OnDisable";
+		donpcevent instance_npcname("#MobsSara04", instance_id())+"::OnDisable";
+	}
+	end;
+}
+
+1@sara,1,1,4	script	#BossSara01	-1,{
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("#BossSara01", instance_id());
+	end;
+OnEnable:
+	enablenpc instance_npcname("#BossSara01", instance_id());
+	set .@map$, instance_mapname("1@sara");
+	.@event$ = instance_npcname("#BossSara01")+"::OnMyMobDead";
+	killmonster .@map$, .@event$;
+	monster .@map$,150,232,"斐扬士兵",2544,1, .@event$;
+	unittalk $@mobid[0],"I am getting too old for this sh-";
+	monster .@map$,150,227,"斐扬士兵",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
+	monster .@map$,150,222,"斐扬士兵",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
+	monster .@map$,150,217,"斐扬士兵",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
+	monster .@map$,161,232,"斐扬士兵",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
+	monster .@map$,161,227,"斐扬士兵",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
+	monster .@map$,161,222,"斐扬士兵",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
+	monster .@map$,161,217,"斐扬士兵",2544,1, .@event$;
+	unittalk $@mobid[0],"For Payon !!";
+	areamobuseskill .@map$,155,225,10,2544,"NPC_EMOTION",1,0,0,ET_GO,0;
+	areamobuseskill .@map$,159,236,1,2543,"NPC_EMOTION",1,0,0,ET_SWEAT,0;
+	set 'Sara_Mobs,8;
+	end;
+
+OnMyMobDead:
+	set 'Sara_Mobs,'Sara_Mobs-1;
+	if ('Sara_Mobs < 1) {
+		set 'Sara_Mobs,0;
+	mapannounce instance_mapname("1@sara"), "都延 艾琳拔出了他的剑！",bc_map,"0xffff00";
+		donpcevent instance_npcname("#BossSara02", instance_id())+"::OnEnable";
+	}
+	end;
+}
+
+1@sara,1,1,4	script	#BossSara02	-1,{
+OnInstanceInit:
+OnDisable:
+	disablenpc instance_npcname("#BossSara02", instance_id());
+	end;
+OnEnable:
+	enablenpc instance_npcname("#BossSara02", instance_id());
+	set .@map$, instance_mapname("1@sara");
+	.@event$ = instance_npcname("#BossSara02")+"::OnMyMobDead";
+	killmonster .@map$, .@event$;
+	monster .@map$,155,226,"Doyen Irene",2542,1, .@event$;
+	unittalk $@mobid[0],"I will have revenge for Sara's mom !!";
+	end;
+
+OnMyMobDead:
+	mapannounce instance_mapname("1@sara"), "都延 艾琳倒下了.",bc_map,"0xffff00";
+	donpcevent instance_npcname("都延 艾琳#04", instance_id())+"::OnEnable";
+	end;
+}
+
+//= Warps
+1@sara,240,145,0	warp2	#sara_warp01	2,2,1@sara,94,320
+1@sara,208,250,0	warp2	#sara_warp02	2,2,1@sara,230,311
+1@sara,226,190,0	warp2	#sara_warp03	2,2,1@sara,263,94
+1@sara,166,67,0	warp2	#sara_warp04	2,2,1@sara,164,81
+1@sara,155,180,0	warp2	#sara_warp05	2,2,1@sara,155,196
+1@sara,88,188,0	warp2	#sara_warp06	2,2,1@sara,89,175
+
+1@sara,16,143,4	script	#sara_warp07	45,2,2,{
+	end;
+
+OnTouch:
+	if (saramemory == 1) {
+		set saramemory,2;
+	}
+	if (saramemory == 4) {
+		set saramemory,5;
+	}
+	warp "dali",134,111;
+	end;
+
+OnInstanceInit:
+	disablenpc instance_npcname("#sara_warp01");
+	disablenpc instance_npcname("#sara_warp02");
+	disablenpc instance_npcname("#sara_warp03");
+	disablenpc instance_npcname("#sara_warp04");
+	disablenpc instance_npcname("#sara_warp05");
+	disablenpc instance_npcname("#sara_warp06");
+OnDisable:
+	disablenpc instance_npcname("#sara_warp07");
+	end;
+OnEnable:
+	enablenpc instance_npcname("#sara_warp07");
+	end;
+}
