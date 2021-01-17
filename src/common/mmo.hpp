@@ -1101,7 +1101,9 @@ struct clan{
 	#ifndef ENABLE_SC_SAVING
 	#warning "Cart won't be able to be saved for relog"
 	#endif
-#if PACKETVER >= 20150826
+#if PACKETVER_MAIN_NUM >= 20191120 || PACKETVER_RE_NUM >= 20191106
+	#define MAX_CARTS 13
+#elif PACKETVER >= 20150826
 	#define MAX_CARTS 12		// used for 3 new cart design
 #else
 	#define MAX_CARTS 9
