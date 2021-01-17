@@ -144,7 +144,7 @@ enum e_skill_cast_flags : uint16 {
 	SKILL_CAST_IGNORESTATUS = 0x2,
 	SKILL_CAST_IGNOREITEMBONUS = 0x4,
 	SKILL_CAST_IGNOREFALSE = 0x400,
-	SKILL_CAST_IGNOREMOTION = 0x800,
+	SKILL_CAST_IGNOREACTION = 0x800,
 };
 
 /// Constants for skill copyable options.

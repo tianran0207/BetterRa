@@ -5917,6 +5917,9 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,t_tick tick,
 		}
 		battle_display.critical = false;
 	}
+	if (src->type == BL_PC && skill_get_delaynodex(skill_id) & 2048)
+		sdelay = status_get_amotion(src);
+
 #if PACKETVER < 3
 	WBUFW(buf,0)=0x114;
 	WBUFW(buf,2)=skill_id;
@@ -6103,9 +6106,6 @@ void clif_skill_poseffect(struct block_list *src,uint16 skill_id,int val,int x,i
 	unsigned char buf[32];
 
 	nullpo_retv(src);
-
-	if (skill_get_delaynodex(skill_id) & 2048)
-		return;
 
 	WBUFW(buf,0)=0x117;
 	WBUFW(buf,2)=skill_id;
