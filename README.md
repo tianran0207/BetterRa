@@ -1316,18 +1316,18 @@
 * 20180506  [添加] 配置选项 instance_lastpoint 玩家在副本中下线后, 重新登陆是否会在下线的位置登陆(副本中)
 * 20180506  [添加] 配置选项 instance_leavepoint 玩家离开副本以后是否记录玩家离开副本的位置
 * 20180506  [添加] 脚本指令 instance_enter_last 进入副本中记录的点
-* 20180506  [提交] 帐号类型跨区登录及交易补丁.patch 暂不启用
-* 20180506  [增加] 事件 OnBOTLackItemEvent 当BOT的消耗品少于5个时触发的事件, 返回 @lack_itemid 物品ID
+* 20180506 ?[提交] 帐号类型跨区登录及交易补丁.patch 暂不启用
+* 20180506 ?[增加] 事件 OnBOTLackItemEvent 当BOT的消耗品少于5个时触发的事件, 返回 @lack_itemid 物品ID
 * 20180506  [增加] BOT技能支持, 详情请查看 npc\BetterRa\BetterRa_bot.txt
 * 20180506  [修复] 登录时不能顶下BOT账号的BUG
 * 20180506  [增加] 事件 OnBOTLackItemEvent 当BOT的消耗品少于5个时触发的事件, 返回 @lack_itemid 物品ID
 * 20180506  [增加] BOT技能支持, 详情请查看 npc\BetterRa\BetterRa_bot.txt
 * 20180506  [修复] 登录时不能顶下BOT账号的BUG
 * 20180506  [修复] getsameipinfo指令 可以返回IP数量
-* 20180307  [合并] 合并分支 rathena
-* 20180306  [修复] 鉴定事件错误
+* 20180307 ?[合并] 合并分支 rathena
+* 20180306 ?[修复] 鉴定事件错误
 * 20180306  [修复] 脚本指令 delinventory 不能使用第2个参数的问题
-* 20180127  [合并] 合并分支 rathena
+* 20180127 ?[合并] 合并分支 rathena
 * 20180126  [添加] 战斗配置 display_skill_name 不是玩家释放的技能时, 是否要在对象头顶显示技能名字
 * 20180126  [添加] 脚本指令 unitskilluse 对某个目标使用技能
 * 20180126  [添加] 脚本指令 unitskilltowide 范围技能扩散
@@ -1342,72 +1342,72 @@
 * 20180116  [添加] 脚本指令 when_progressbar_abort_doevent 用于 OnPCProgressAbortEvent 支持
 * 20180116  [添加] 脚本指令 mobskill 让指定GID的怪物使用技能 酷头提供
 * 20180116  [修改] 指令 getsameipinfo 支持获取脚本关联玩家的打开的号
-* 20180102  [添加] 战斗配置 enable_coply 当其他职业拥有流氓的抄袭技能时, 是否可以复制技能
-* 20180102  [修复] 当背包大于128时, 商城不能购买的问题.
-* 20180102  [添加] 脚本指令 getidxrandomoption 用来获取玩家背包中物品的OPT
-* 20180102  [添加] 脚本指令 setidxrandomoption 用来设置玩家背包中物品的OPT
-* 20180102  [添加] 属性拓展 bWeaponAddDamage 直接增加每次武器攻击的伤害
-* 20180102  [添加] 属性拓展 bMagicAddDamage 直接增加每次魔法攻击的伤害
-* 20180102  [添加] 属性拓展 bMiscAddDamage 直接增加每次特殊攻击的伤害
-* 20180102  [添加] 脚本指令 is_bot 用来判断指定玩家是否为机器人
-* 20180102  [添加] 脚本指令 bot_run 启动机器人, 配置方法请查看 doc/BetterRa_script_commands.txt
-* 20180102  [添加] 脚本指令 bot_reset 用来重新配置机器人参数, 配置方法请查看 doc/BetterRa_script_commands.txt
-* 20171228  [添加] 护身符道具 类型为20, 需要在 conf/battle/BetterRa.conf 启用护符
-* 20171228  [添加] 机器人系统
-* 20171222  [修改] 提取 packet_keys 配置服务端封包混淆KEY的设置提取到 conf/map_athena.conf
-* 20171222  [添加] 地图标记 nopet 禁止玩家在此地图上使用宠物, 登陆到此地图宠物会自动变蛋回到玩家背包.
-* 20171222  [添加] 地图标记 nohomunculus 禁止玩家在此地图上使用生命体, 登陆到此地图生命体会被自动安息.
-* 20171222  [添加] 地图标记 nomercenary 禁止玩家在此地图上使用佣兵, 登陆到此地图佣兵会被自动解散.
-* 20171222  [修改] 宠物脚本 pet_skill_attack 的伤害太小的问题
-* 20171222  [修改] 指令名称 hasfollow -> getservantgid 用来获取玩家有没有 宠物、佣兵、生命体、元素体等
-* 20171222  [添加] 脚本指令 tribe_mob_spawn 用于召唤指定阵营下的魔物
-* 20171214  [添加] 战斗配置 buff_for_guild_member 在GVG模式下 群体辅助技能 是否对所有公会成员有效
-* 20171214  [添加] 战斗配置 buff_for_tribe_member 在阵营模式下 群体辅助技能是否对同阵营成员（玩家、魔物）有效
-* 20171214  [添加] 脚本指令 tribe_getteam 获取玩家的阵营ID
-* 20171214  [添加] 脚本指令 tribe_setteam 将玩家添加至某个阵营
-* 20171214  [添加] 脚本指令 tribe_mobteam 将上次召唤的魔物全部添加至某个阵营
-* 20171212  [添加] 路点系统 使用 setsteppath 为魔物设置路点
-* 20171212  [添加] 阵营系统 在 mapflag 被设为 tribe 时生效
-* 20171209  [添加] 脚本指令 setsteppath 用于设置MOB的行走路径, 配置以后魔物会自动行走
-* 20171209  [添加] policies.conf 文件
-* 20171209  [添加] 脚本配置文档 npc/script_BetterRa.conf
-* 20171209  [添加] demo文件 npc/BetterRa/BetterRa_event_demo.txt
-* 20171209  [添加] GM指令 policy 用于设置指定玩家的行为策略编号
-* 20171209  [添加] GM指令 title 用于更改称号
-* 20171209  [添加] policies 行为策略，用于动态修改 经验 掉率 GM等级等
-* 20171209  [添加] setpolicyid 设置指定玩家的行为策略编号, 配合 conf/policies.conf 中定义的规则使用
-* 20171209  [添加] getpolicyid 获取指定玩家的行为策略编号, 配合 conf/policies.conf 中定义的规则使用
-* 20171209  [添加] getpolicyinfo 获得指定玩家当前的行为策略详情, 配合 conf/policies.conf 中定义的规则使用
-* 20171208  [添加] 脚本指令 mail_create mail_additem* mail_send 发送邮件支持
-* 20171208  [添加] BD配置文档 item_announce.txt 根据物品掉率来判定是否需要进行公告
-* 20171208  [修复] 登陆时, 显示"不知名区域"的BUG
-* 20171207  [修复] getitem3 delitem3 等指令不能使用玩家关联的变量的问题
-* 20171207  [添加] GM指令 recallmap 将地图上的玩家瞬移至身旁
-* 20171207  [添加] 脚本指令 hasfollower 用来获取玩家有没有 宠物、佣兵、生命体、元素体等
-* 20171206  [添加] 脚本指令 unitremove 可以通过GID移除实体, 并播放指定的消失动画
-* 20171205  [修复] 事件队列问题带来的一系列问题
-* 20171205  [修复] callshop 后玩家可以随意移动的问题
-* 20171205  [添加] 战斗配置 combo_mode 用于配置 item_combo 效果生效策略
-* 20171204  [汉化] 生命体DB中的名称
-* 20171204  [添加] 地图标记 hideguildinfo 隐藏公会信息
-* 20171204  [添加] 地图标记 hidepartyinfo 隐藏组队信息
-* 20171204  [添加] 地图标记 notoken 不能使用复活之证
-* 20171204  [添加] 地图标记 nocapture 不能捉宠物
-* 20171204  [添加] 地图标记 noautoloot 不能使用自动拾取
-* 20171204  [添加] BetterRa 战斗配置文件 conf/battle/BetterRa.conf
-* 20171204  [添加] 战斗配置 max_pvp_aspd 玩家在PVP地图时的最大攻速限制
-* 20171204  [添加] 战斗配置 max_gvg_aspd 玩家在GVG地图时的最大攻速限制
-* 20171204  [添加] 战斗配置 extremityfist_castend_ball_check 阿修罗霸凰拳咏唱完毕时, 是否再次确认气弹数量
-* 20171204  [添加] 战斗配置 extremityfist_castend_status_check 阿修罗霸凰拳咏唱完毕时, 是否再次确认“爆气”状态
-* 20171204  [添加] 战斗配置 extremityfist_nocast_sp 使用“阿修罗霸凰拳”不会直接耗尽玩家的SP
-* 20171204  [添加] 战斗配置 loadevent_for_eachmap 强制所有地图触发 OnPCLoadMapEvent 事件
-* 20171204  [添加] 战斗配置 get_identify_equip 通过特定渠道获得的装备, 强制变成已鉴定
-* 20171204  [添加] 战斗配置 mounting_cant_use 当玩家乘坐商城坐骑后, 是否禁止使用物品
-* 20171204  [添加] 战斗配置 hide_cmd 当没有权限的玩家执行了GM指令是否隐藏并返回一条信息
-* 20171204  [添加] 战斗配置 bAspd_fixed 使用 bonus bAspd,x; 进行攻速加成时, x 值是否会受到其他加成因素影响
-* 20171204  [添加] 战斗配置 share_quests_area 在什么位置才能共享任务的杀怪进度
-* 20171204  [修改] 战斗配置 show_mob_info 添加 级别/编号/体型/种族/属性和属性等级
-* 20171204  [添加] 脚本指令 identifybyidx 根据指定的背包序号, 对该道具进行鉴定操作
+* 20180102 ?[添加] 战斗配置 enable_coply 当其他职业拥有流氓的抄袭技能时, 是否可以复制技能
+* 20180102 ?[修复] 当背包大于128时, 商城不能购买的问题.
+* 20180102 ?[添加] 脚本指令 getidxrandomoption 用来获取玩家背包中物品的OPT
+* 20180102 ?[添加] 脚本指令 setidxrandomoption 用来设置玩家背包中物品的OPT
+* 20180102 ?[添加] 属性拓展 bWeaponAddDamage 直接增加每次武器攻击的伤害
+* 20180102 ?[添加] 属性拓展 bMagicAddDamage 直接增加每次魔法攻击的伤害
+* 20180102 ?[添加] 属性拓展 bMiscAddDamage 直接增加每次特殊攻击的伤害
+* 20180102 ?[添加] 脚本指令 is_bot 用来判断指定玩家是否为机器人
+* 20180102 ?[添加] 脚本指令 bot_run 启动机器人, 配置方法请查看 doc/BetterRa_script_commands.txt
+* 20180102 ?[添加] 脚本指令 bot_reset 用来重新配置机器人参数, 配置方法请查看 doc/BetterRa_script_commands.txt
+* 20171228 ?[添加] 护身符道具 类型为20, 需要在 conf/battle/BetterRa.conf 启用护符
+* 20171228 ?[添加] 机器人系统
+* 20171222 ?[修改] 提取 packet_keys 配置服务端封包混淆KEY的设置提取到 conf/map_athena.conf
+* 20171222 ?[添加] 地图标记 nopet 禁止玩家在此地图上使用宠物, 登陆到此地图宠物会自动变蛋回到玩家背包.
+* 20171222 ?[添加] 地图标记 nohomunculus 禁止玩家在此地图上使用生命体, 登陆到此地图生命体会被自动安息.
+* 20171222 ?[添加] 地图标记 nomercenary 禁止玩家在此地图上使用佣兵, 登陆到此地图佣兵会被自动解散.
+* 20171222 ?[修改] 宠物脚本 pet_skill_attack 的伤害太小的问题
+* 20171222 ?[修改] 指令名称 hasfollow -> getservantgid 用来获取玩家有没有 宠物、佣兵、生命体、元素体等
+* 20171222 ?[添加] 脚本指令 tribe_mob_spawn 用于召唤指定阵营下的魔物
+* 20171214 ?[添加] 战斗配置 buff_for_guild_member 在GVG模式下 群体辅助技能 是否对所有公会成员有效
+* 20171214 ?[添加] 战斗配置 buff_for_tribe_member 在阵营模式下 群体辅助技能是否对同阵营成员（玩家、魔物）有效
+* 20171214 ?[添加] 脚本指令 tribe_getteam 获取玩家的阵营ID
+* 20171214 ?[添加] 脚本指令 tribe_setteam 将玩家添加至某个阵营
+* 20171214 ?[添加] 脚本指令 tribe_mobteam 将上次召唤的魔物全部添加至某个阵营
+* 20171212 ?[添加] 路点系统 使用 setsteppath 为魔物设置路点
+* 20171212 ?[添加] 阵营系统 在 mapflag 被设为 tribe 时生效
+* 20171209 ?[添加] 脚本指令 setsteppath 用于设置MOB的行走路径, 配置以后魔物会自动行走
+* 20171209 ?[添加] policies.conf 文件
+* 20171209 ?[添加] 脚本配置文档 npc/script_BetterRa.conf
+* 20171209 ?[添加] demo文件 npc/BetterRa/BetterRa_event_demo.txt
+* 20171209 ?[添加] GM指令 policy 用于设置指定玩家的行为策略编号
+* 20171209 ?[添加] GM指令 title 用于更改称号
+* 20171209 ?[添加] policies 行为策略，用于动态修改 经验 掉率 GM等级等
+* 20171209 ?[添加] setpolicyid 设置指定玩家的行为策略编号, 配合 conf/policies.conf 中定义的规则使用
+* 20171209 ?[添加] getpolicyid 获取指定玩家的行为策略编号, 配合 conf/policies.conf 中定义的规则使用
+* 20171209 ?[添加] getpolicyinfo 获得指定玩家当前的行为策略详情, 配合 conf/policies.conf 中定义的规则使用
+* 20171208 ?[添加] 脚本指令 mail_create mail_additem* mail_send 发送邮件支持
+* 20171208 ?[添加] BD配置文档 item_announce.txt 根据物品掉率来判定是否需要进行公告
+* 20171208 ?[修复] 登陆时, 显示"不知名区域"的BUG
+* 20171207 ?[修复] getitem3 delitem3 等指令不能使用玩家关联的变量的问题
+* 20171207 ?[添加] GM指令 recallmap 将地图上的玩家瞬移至身旁
+* 20171207 ?[添加] 脚本指令 hasfollower 用来获取玩家有没有 宠物、佣兵、生命体、元素体等
+* 20171206 ?[添加] 脚本指令 unitremove 可以通过GID移除实体, 并播放指定的消失动画
+* 20171205 ?[修复] 事件队列问题带来的一系列问题
+* 20171205 ?[修复] callshop 后玩家可以随意移动的问题
+* 20171205 ?[添加] 战斗配置 combo_mode 用于配置 item_combo 效果生效策略
+* 20171204 ?[汉化] 生命体DB中的名称
+* 20171204 ?[添加] 地图标记 hideguildinfo 隐藏公会信息
+* 20171204 ?[添加] 地图标记 hidepartyinfo 隐藏组队信息
+* 20171204 ?[添加] 地图标记 notoken 不能使用复活之证
+* 20171204 ?[添加] 地图标记 nocapture 不能捉宠物
+* 20171204 ?[添加] 地图标记 noautoloot 不能使用自动拾取
+* 20171204 ?[添加] BetterRa 战斗配置文件 conf/battle/BetterRa.conf
+* 20171204 ?[添加] 战斗配置 max_pvp_aspd 玩家在PVP地图时的最大攻速限制
+* 20171204 ?[添加] 战斗配置 max_gvg_aspd 玩家在GVG地图时的最大攻速限制
+* 20171204 ?[添加] 战斗配置 extremityfist_castend_ball_check 阿修罗霸凰拳咏唱完毕时, 是否再次确认气弹数量
+* 20171204 ?[添加] 战斗配置 extremityfist_castend_status_check 阿修罗霸凰拳咏唱完毕时, 是否再次确认“爆气”状态
+* 20171204 ?[添加] 战斗配置 extremityfist_nocast_sp 使用“阿修罗霸凰拳”不会直接耗尽玩家的SP
+* 20171204 ?[添加] 战斗配置 loadevent_for_eachmap 强制所有地图触发 OnPCLoadMapEvent 事件
+* 20171204 ?[添加] 战斗配置 get_identify_equip 通过特定渠道获得的装备, 强制变成已鉴定
+* 20171204 ?[添加] 战斗配置 mounting_cant_use 当玩家乘坐商城坐骑后, 是否禁止使用物品
+* 20171204 ?[添加] 战斗配置 hide_cmd 当没有权限的玩家执行了GM指令是否隐藏并返回一条信息
+* 20171204 ?[添加] 战斗配置 bAspd_fixed 使用 bonus bAspd,x; 进行攻速加成时, x 值是否会受到其他加成因素影响
+* 20171204 ?[添加] 战斗配置 share_quests_area 在什么位置才能共享任务的杀怪进度
+* 20171204 ?[修改] 战斗配置 show_mob_info 添加 级别/编号/体型/种族/属性和属性等级
+* 20171204 ?[添加] 脚本指令 identifybyidx 根据指定的背包序号, 对该道具进行鉴定操作
 * 20171204  [添加] 脚本指令 setrenttime(resume) 增加/减少指定位置装备的租赁时间
 * 20171204  [添加] 脚本指令 script4each 对指定范围的玩家执行相同的一段脚本
 * 20171204  [添加] 脚本指令 itemexists(existitem) 确认服务器的 item_db 中是否存在指定物品
@@ -1486,7 +1486,7 @@
 * 20171201  [添加] 事件 OnPCPartyJoinFilter 当玩家加入队伍前触发, 可使用 processhalt 中断
 * 20171201  [添加] 事件 OnPCPartyLeaveFilter 当玩家离开队伍前触发, 可使用 processhalt 中断
 * 20171130  [添加] item_flag.txt支持物品不会由于被玩家主动使用而消耗(256), 物品不会由于被发动技能所需要而消耗(512)
-* 20171130  [汉化] db数据库文件中文化
-* 20171129  [汉化] conf配置文件中文化
+* 20171130 ?[汉化] db数据库文件中文化
+* 20171129 ?[汉化] conf配置文件中文化
 * 20171129  [添加] 用于配置新加入的控制台输出文本 conf/msg_conf/BetterRa_map_msg.conf
 * 20171128  [添加] 控制台翻译代码, 控制台翻译文件 conf\msg_conf\translation.conf

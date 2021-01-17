@@ -141,12 +141,12 @@ void vending_vendinglistreq(struct map_session_data* sd, int id)
 		if (!vending_extended_vending_check(vsd))
 			return;
 		else if (vsd->vend_loot == battle_config.item_zeny)
-			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_jname(vsd->vend_loot), sd->status.zeny);
+			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_name(vsd->vend_loot), sd->status.zeny);
 		else if(vsd->vend_loot == battle_config.item_cash)
-			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_jname(vsd->vend_loot), sd->cashPoints);
+			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_name(vsd->vend_loot), sd->cashPoints);
 		else {
 			int idx = pc_search_inventory(sd, vsd->vend_loot);
-			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_jname(vsd->vend_loot), idx == -1 ? 0 : sd->inventory.u.items_inventory[idx].amount);
+			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_name(vsd->vend_loot), idx == -1 ? 0 : sd->inventory.u.items_inventory[idx].amount);
 		}
 		clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
 	}
@@ -413,7 +413,7 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		for (i = 0; i < count; i++)
 			z += ((double)vsd->vending[vend_list[i]].value * (double)(*(uint16*)(data + 4 * i + 0)));
 
-		sprintf(output, msg_txt(sd, 2359), (int)z, itemdb_jname(vsd->vend_loot),
+		sprintf(output, msg_txt(sd, 2359), (int)z, itemdb_name(vsd->vend_loot),
 			vsd->vend_loot == battle_config.item_zeny ? sd->status.zeny :
 			vsd->vend_loot == battle_config.item_cash ? sd->cashPoints :
 			(idx = pc_search_inventory(sd, vsd->vend_loot)) == -1 ? 0 :
@@ -647,7 +647,7 @@ bool vending_searchall(struct map_session_data* sd, const struct s_search_store_
 			if( itemdb_isspecial(it->card[0]) ) { // something, that is not a carded
 				continue;
 			}
-			slot = itemdb_slot(it->nameid);
+			slot = itemdb_slots(it->nameid);
 
 			for( c = 0; c < slot && it->card[c]; c ++ ) {
 				ARR_FIND( 0, s->card_count, cidx, s->cardlist[cidx].itemId == it->card[c] );
@@ -661,7 +661,7 @@ bool vending_searchall(struct map_session_data* sd, const struct s_search_store_
 			}
 		}
 
-		if( !searchstore_result(s->search_sd, sd->vender_id, sd->status.account_id, sd->message, it->nameid, sd->vending[i].amount, sd->vending[i].value, it->card, it->refine) ) { // result set full
+		if( !searchstore_result(s->search_sd, sd->vender_id, sd->status.account_id, sd->message, it->nameid, sd->vending[i].amount, sd->vending[i].value, it->card, it->refine, it->enchantgrade ) ) { // result set full
 			return false;
 		}
 	}

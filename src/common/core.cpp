@@ -47,6 +47,7 @@ void (*shutdown_callback)(void) = NULL;
 int runflag = CORE_ST_RUN;
 char db_path[12] = "db"; /// relative path for db from server
 char db_path_pre[64] = "db/import/csv_version";
+char db_path_debug[64] = "tools/BetterRA_Tool/item_db_csv";
 char conf_path[12] = "conf"; /// relative path for conf from server
 
 char *SERVER_NAME = NULL;

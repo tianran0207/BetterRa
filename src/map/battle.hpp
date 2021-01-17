@@ -238,7 +238,6 @@ struct Battle_Config
 	int homunculus_killed_drop;
 	int remove_noinfo_pet;
 	int multiple_script_state;
-	int cannonball_attr_alone;
 	int questinfo_updatewarning;
 	int item_noequip_deny_all;
 	int attack_event;
@@ -274,6 +273,7 @@ struct Battle_Config
 	int damage_return_mode;
 	int ignore_insert_card_specific;
 	int mob_dmgrate_db;
+	int itemdb_reload_thread;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;
@@ -670,6 +670,7 @@ struct Battle_Config
 	int max_extended_parameter;
 	int max_summoner_parameter;
 	int max_third_aspd;
+	int max_summoner_aspd;
 	int vcast_stat_scale;
 
 	int mvp_tomb_enabled;

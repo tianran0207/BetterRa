@@ -1913,7 +1913,7 @@ int map_addflooritem(struct item *item, int amount, int16 m, int16 x, int16 y, i
 
 	nullpo_ret(item);
 
-	if (!(flags&4) && battle_config.item_onfloor && (itemdb_traderight(item->nameid)&1))
+	if (!(flags&4) && battle_config.item_onfloor && (itemdb_traderight(item->nameid).trade))
 		return 0; //can't be dropped
 
 	if (!map_searchrandfreecell(m,&x,&y,flags&2?1:0))
@@ -2167,6 +2167,7 @@ int map_quit(struct map_session_data *sd) {
 		status_change_end(&sd->bl, SC_GLORYWOUNDS, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_SOULCOLD, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_HAWKEYES, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_EMERGENCY_MOVE, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_CHASEWALK2, INVALID_TIMER);
 		if(sd->sc.data[SC_PROVOKE] && sd->sc.data[SC_PROVOKE]->timer == INVALID_TIMER)
 			status_change_end(&sd->bl, SC_PROVOKE, INVALID_TIMER); //Infinite provoke ends on logout
@@ -3038,7 +3039,7 @@ int map_removemobs_sub(struct block_list *bl, va_list ap)
 	if( !battle_config.mob_remove_damaged && md->status.hp < md->status.max_hp )
 		return 0;
 	// is a mvp
-	if( md->db->mexp > 0 )
+	if( md->get_bosstype() == BOSSTYPE_MVP )
 		return 0;
 
 	unit_free(&md->bl,CLR_OUTSIGHT);
@@ -5771,7 +5772,7 @@ void server_verification_result(char *url, char *result) {
 
 int map_MessageInterface(enum msg_type flag, const char *prefix, const char *string, va_list ap)
 {
-	if (string[strlen(string)] == '\r')
+	if (string[strlen(string)-1] == '\r')
 		return 0;
 
 	if (!CheckForChatServer() || global_event.show_console)
@@ -5978,6 +5979,8 @@ int do_init(int argc, char *argv[])
 
 	add_timer_func_list(server_verification, "server_verification");
 	add_timer_interval(gettick() + 3000, server_verification, 0, 0, 60 * 1000);
+
+	map_thread_tid();
 	return 0;
 }
 
@@ -6144,6 +6147,100 @@ int map_checknear(struct block_list* bl, int range, int cell) {
 	return 0;
 }
 
+struct s_thread_event {
+	struct script_data *st;
+	enum e_thread_type type;
+	enum e_thread_state state;
+	int(*func)(va_list);
+	DWORD thread_id;
+	HANDLE handle_id;
+};
+std::vector<s_thread_event> thread_event;
+TIMER_FUNC(map_thread_main)
+{
+	std::vector<s_thread_event>::iterator it = thread_event.begin();
+
+	while( it != thread_event.end() ){
+		struct s_thread_event b = *it;
+
+		if (b.state == THREAD_STATE_RUNNING) {
+			it++;
+			continue;
+		}
+		if (b.state == THREAD_STATE_RESULT) {
+			switch (b.type) {
+			case THREAD_TYPE_RELOADITEM:
+				itemdb_reload();
+				break;
+			case THREAD_TYPE_SCRIPT:
+				break;
+			}
+			CloseHandle(b.handle_id);
+		}
+		it = thread_event.erase(it);
+	}
+	return 1;
+}
+
+int map_thread_tid()
+{
+	static int tid = 0;
+	if (!tid) {
+		add_timer_func_list(map_thread_main, "map_thread_main");
+		tid = add_timer_interval(gettick() + 1000, map_thread_main, 0, 0, 10000);
+	}
+	return tid;
+}
+
+DWORD WINAPI map_thread_run(LPVOID lpParameter) {
+	DWORD thread_id = GetCurrentThreadId();
+	for (auto &it : thread_event) {
+		if (it.thread_id != thread_id)
+			continue;
+		switch (it.type) {
+		case THREAD_TYPE_RELOADITEM:
+			it.func(NULL);
+			map_thread_result(it.type);
+			break;
+		}
+	}
+	return 1;
+}
+
+int map_thread_create(enum e_thread_type type, int(*func)(va_list), void *lpParameter)
+{
+	for (auto &it : thread_event) {
+		switch (type) {
+		case THREAD_TYPE_RELOADITEM:
+			return 0;
+		}
+	}
+	struct s_thread_event entry = {};
+	entry.type = type;
+	entry.state = THREAD_STATE_RUNNING;
+	entry.func = func;
+	entry.handle_id = CreateThread(NULL, 0, map_thread_run, lpParameter, CREATE_SUSPENDED, &entry.thread_id);
+	thread_event.push_back(entry);
+	ResumeThread(entry.handle_id);
+	return 1;
+}
+
+int map_thread_result(enum e_thread_type type)
+{
+	DWORD thread_id = GetCurrentThreadId();
+	struct TimerData * timer_data;
+	for (auto &it : thread_event) {
+		if (it.thread_id != thread_id)
+			continue;
+		it.state = THREAD_STATE_RESULT;
+		break;
+	}
+	timer_data = (struct TimerData *)get_timer(map_thread_tid());
+	if (timer_data != NULL)
+		timer_data->tick = gettick();
+	return 1;
+}
+
 struct http_session_data {
 	char url[512];
 	char host[64];
@@ -6265,7 +6362,7 @@ static int http_parse(int fd) {
 
 	if (http_data->load_file) {
 		if (resultcode == 200) {
-			npc_parsesrcfile(http_data->url, true, content);
+			npc_parsesrcfile(http_data->url, content);
 			ShowStatus("Load HTTP file: %s done.\n", http_data->url);
 		}
 		else {
