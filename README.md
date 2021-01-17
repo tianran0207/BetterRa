@@ -1,7 +1,35 @@
 # 简介
 创建 BetterRa创建于2017年11月28日..他是在Rathena的基础上经过二次修改的一款模拟器, 加入了大量的功能..
 
+# 使用方法
+目录中没有启动所需的 login-server.exe char-server.exe 和 map-server.exe, 请到网站 http://betterra.cn/customization.html?page=server 定制并放入根目录后, 可运行 runserver.bat 启动.
+如果你不会架设环境, 也可以到 http://betterra.cn 下载完整包, 将包中 `BetterRA服务端一键启动（新手专用）.exe` 工具复制到目录下, 使用一键启动功能..
+
 # 更新日志
+* 20210117  [添加] 兼容旧版物品数据库相关文档移至目录 db\import-tmpl\csv_version
+* 20210117  [添加] 文档变更 item_db.txt -> item_db.yml
+* 20210117  [添加] 战斗配置 itemdb_reload_thread 重读 item_db.yml 是否启用多线程加载
+* 20210117  [添加] 重读 item_db.yml 数据库时默认开启多线程加载
+* 20210116  [优化] GM指令 @allskill 直接学会任务技能 避免技能在使用装备和上下线后被重置
+* 20210116  [优化] 脚本指令 unitskilltowide 移除限制条件
+* 20210116  [优化] 脚本指令 unitskilltowide2 移除限制条件
+* 20210116  [优化] 脚本指令 unitskilltoAOE 移除限制条件
+* 20210116  [修复] 当使用2020客户端时 因装备穿戴 重置技能导致的技能在技能栏中停留的问题
+* 20210116  [修复] 当 skill_db 中的技能数量超过 1250 个以后无法显示在技能列表中的问题
+* 20210115  [修复] 机器人找不到敌对目标的问题
+* 20210115  [修复] 机器人瞬移后依然以上一个敌对目标作为攻击目标的问题
+* 20210114  [添加] 脚本指令 startsellitem 为 NPC 绑定的兑换商店增加一个可兑换道具
+* 20210114  [添加] 脚本指令 sellitemcurrency 为兑换物品添加一项所需道具
+* 20210114  [添加] 脚本指令 endsellitem 完成兑换道具添加
+* 20210114  [添加] 脚本指令 bartershop 为指定角色开启一个兑换商店
+* 20210114  [添加] 脚本结构 bartershop 简易的兑换商店, 用法类似于 itemshop
+* 20210114  [添加] 脚本指令 getitemcombo 返回物品所绑定的套装属性
+* 20210114  [添加] 脚本指令 runcomboscript 运行套装数组所保存的套装效果
+* 20210114  [优化] 脚本事件 OnPCRefineUIFilter 加入参数 @refine_zeny 精炼时消耗的zeny
+* 20210114  [优化] 脚本事件 OnPCRefineUIEvent 加入参数 @refine_blessing 精炼是否使用祝福矿石
+* 20210112  [修复] bot寻路失败掉线问题
+* 20210112  [添加] 脚本指令 refineui_result 指令用于自定义精炼UI, 播放精炼动画, 并修改物品精炼值
+* 20210111  [修复] 物品附加 bSkillToAround bSkillForAOE 攻击单体魔物时攻击两次的问题
 * 20210106  [修复] 物品附加 bSkillCritical bSkillAttribute 使用技能名称无效的问题
 * 20210106  [添加] 当加载NPC时所使用的外观无效时, 增加详细报错
 * 20210106  [添加] 物品附加 bReborn 当玩家死亡时有 r% 的概率复活并恢复 n% 的血量
