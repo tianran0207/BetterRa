@@ -1286,6 +1286,7 @@ extern int db_use_sqldbs;
 
 extern Sql* mmysql_handle;
 extern Sql* qsmysql_handle;
+extern Sql* qsmysql_asyn_handle;
 extern Sql* logmysql_handle;
 
 extern char buyingstores_table[32];
@@ -1327,8 +1328,9 @@ struct s_global_event {
 	int show_console;
 };
 enum e_thread_type {
-	THREAD_TYPE_SCRIPT = 0,
+	THREAD_TYPE_NONE = 0,
 	THREAD_TYPE_RELOADITEM,
+	THREAD_TYPE_SCRIPTSQL,
 	THREAD_TYPE_MAX,
 };
 enum e_thread_state {
@@ -1338,7 +1340,7 @@ enum e_thread_state {
 };
 
 int map_thread_tid();
-int map_thread_create(enum e_thread_type type, int(*func)(va_list), void *lpParameter);
+int map_thread_create(enum e_thread_type type, int(*func)(void*), struct script_state *st, void *lpParameter);
 int map_thread_result(enum e_thread_type type);
 
 extern struct s_packet_event packet_event;

@@ -2966,7 +2966,7 @@ void itemdb_reload(void) {
 
 #ifndef _DEBUG
 	if (battle_config.itemdb_reload_thread && !item_db_reload.size()) {
-		map_thread_create(THREAD_TYPE_RELOADITEM, itemdb_reload, NULL);
+		map_thread_create(THREAD_TYPE_RELOADITEM, itemdb_reload, NULL, NULL);
 		return;
 	}
 #endif
