@@ -3240,10 +3240,10 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			if (sd->status.party_id) {
 				switch (battle_config.share_quests_area) {
 				case 0:
-					map_foreachinallrange(quest_update_objective_sub, &md->bl, AREA_SIZE, BL_PC, sd->status.party_id, md->mob_id, md->level, status->race, status->size, status->def_ele);
+					map_foreachinallrange(quest_update_objective_sub, &md->bl, AREA_SIZE, BL_PC, sd->status.party_id, md);
 					break;
 				case 1:
-					map_foreachinmap(quest_update_objective_sub, md->bl.m, BL_PC, sd->status.party_id, md->mob_id, md->level, status->race, status->size, status->def_ele);
+					map_foreachinmap(quest_update_objective_sub, md->bl.m, BL_PC, sd->status.party_id, md);
 					break;
 				case 2:
 					{
@@ -3252,14 +3252,14 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 							TBL_PC *tsd = p->data[i].sd;
 							if (!tsd || !tsd->avail_quests)
 								continue;
-							quest_update_objective(tsd, md->mob_id, md->level, static_cast<e_race>(status->race), static_cast<e_size>(status->size), static_cast<e_element>(status->def_ele));
+							quest_update_objective(sd, md);
 						}
 					}
 					break;
 				}
 			}
 			else if (sd->avail_quests)
-				quest_update_objective(sd, md->mob_id, md->level, static_cast<e_race>(status->race), static_cast<e_size>(status->size), static_cast<e_element>(status->def_ele));
+				quest_update_objective(sd, md);
 
 			if (achievement_db.mobexists(md->mob_id)) {
 				if (battle_config.achievement_mob_share > 0 && sd->status.party_id > 0)

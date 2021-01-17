@@ -814,13 +814,6 @@ struct iwall_data {
 	std::vector<iwall_xy_data> pos_list;
 };
 
-struct s_questinfo {
-	struct npc_data *nd;
-	e_questinfo_types icon;
-	e_questinfo_markcolor color;
-	struct script_code* condition;
-};
-
 struct s_warp_list {
 	struct s_warp_list_info { int16 m, x, y; }from;
 	struct s_warp_list_info to;
@@ -865,7 +858,7 @@ struct map_data {
 	struct Channel *channel;
 
 	/* ShowEvent Data Cache */
-	std::vector<s_questinfo> qi_data;
+	std::vector<int> qi_npc;
 
 	/* speeds up clif_updatestatus processing by causing hpmeter to run only when someone with the permission can view it */
 	unsigned short hpmeter_visible;

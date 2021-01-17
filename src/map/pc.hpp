@@ -269,6 +269,12 @@ struct s_combos {
 	uint32 pos;
 };
 
+struct s_qi_display {
+	bool is_active;
+	e_questinfo_types icon;
+	e_questinfo_markcolor color;
+};
+
 struct s_bonus_limit {
 	uint16 type;
 	int limit;
@@ -1026,8 +1032,7 @@ struct map_session_data {
 	std::vector<s_npc_option> npc_option;
 
 	/* ShowEvent Data Cache flags from map */
-	bool *qi_display;
-	int qi_count;
+	std::vector<s_qi_display> qi_display;
 
 	// temporary debug [flaviojs]
 	const char* debug_file;
