@@ -32119,6 +32119,105 @@ BUILDIN_FUNC(bartershop)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+int buildin_query_sql_asyn_sub(void *data)
+{
+	const char *query = (const char *)data;
+
+	if (SQL_ERROR == Sql_QueryStr(qsmysql_asyn_handle, query)) {
+		Sql_ShowDebug(qsmysql_asyn_handle);
+		return 0;
+	}
+	return 1;
+}
+
+BUILDIN_FUNC(query_sql_asyn)
+{
+	int i, j;
+	TBL_PC* sd = NULL;
+	const char* query;
+	struct script_data* data;
+	const char* name;
+	unsigned int max_rows = SCRIPT_MAX_ARRAYSIZE; // maximum number of rows
+	int num_vars;
+	int num_cols;
+
+	// check target variables
+	for (i = 3; script_hasdata(st, i); ++i) {
+		data = script_getdata(st, i);
+		if (data_isreference(data)) { // it's a variable
+			name = reference_getname(data);
+			if (not_server_variable(*name) && sd == NULL) { // requires a player
+				if (!script_rid2sd(sd)) { // no player attached
+					script_reportdata(data);
+					st->state = END;
+					return SCRIPT_CMD_FAILURE;
+				}
+			}
+		}
+		else {
+			ShowError("script:query_sql: not a variable\n");
+			script_reportdata(data);
+			st->state = END;
+			return SCRIPT_CMD_FAILURE;
+		}
+	}
+	num_vars = i - 3;
+
+	if (st->state == RERUNLINE)
+		st->state = RUN;
+	else {
+		query = script_getstr(st, 2);
+		map_thread_create(THREAD_TYPE_SCRIPTSQL, buildin_query_sql_asyn_sub, st, (void *)query);
+		st->state = RERUNLINE;
+
+		return SCRIPT_CMD_SUCCESS;
+	}
+	
+	if (Sql_NumRows(qsmysql_asyn_handle) == 0) { // No data received
+		Sql_FreeResult(qsmysql_asyn_handle);
+		script_pushint(st, 0);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	// Count the number of columns to store
+	num_cols = Sql_NumColumns(qsmysql_asyn_handle);
+	if (num_vars < num_cols) {
+		ShowWarning("script:query_sql: Too many columns, discarding last %u columns.\n", (unsigned int)(num_cols - num_vars));
+		script_reportsrc(st);
+	}
+	else if (num_vars > num_cols) {
+		ShowWarning("script:query_sql: Too many variables (%u extra).\n", (unsigned int)(num_vars - num_cols));
+		script_reportsrc(st);
+	}
+
+	// Store data
+	for (i = 0; i < max_rows && SQL_SUCCESS == Sql_NextRow(qsmysql_asyn_handle); ++i) {
+		for (j = 0; j < num_vars; ++j) {
+			char* str = NULL;
+
+			if (j < num_cols)
+				Sql_GetData(qsmysql_asyn_handle, j, &str, NULL);
+
+			data = script_getdata(st, j + 3);
+			name = reference_getname(data);
+
+			if (is_string_variable(name))
+				setd_sub_str(st, sd, name, i, str ? str : "", reference_getref(data));
+			else
+				setd_sub_num(st, sd, name, i, str ? strtoll(str, nullptr, 10) : 0, reference_getref(data));
+		}
+	}
+	if (i == max_rows && max_rows < Sql_NumRows(qsmysql_asyn_handle)) {
+		ShowWarning("script:query_sql: Only %d/%u rows have been stored.\n", max_rows, (unsigned int)Sql_NumRows(qsmysql_asyn_handle));
+		script_reportsrc(st);
+	}
+
+	// Free data
+	Sql_FreeResult(qsmysql_asyn_handle);
+	script_pushint(st, i);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -33428,6 +33527,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(getbonus, "bonus_maxfix", "i??????"),
 	BUILDIN_DEF(getrateidx, "*"),
 	BUILDIN_DEF(mobstaypos, "iii"),
+	BUILDIN_DEF(query_sql_asyn, "s*"),
 	BUILDIN_DEF(roulette_bonus, "i"),
 	BUILDIN_DEF(roulette_iteminfo, "iii?"),
 	BUILDIN_DEF(roulette_open, "????"),

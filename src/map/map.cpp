@@ -61,6 +61,7 @@ char map_server_pw[32] = "";
 char map_server_db[32] = "ragnarok";
 Sql* mmysql_handle;
 Sql* qsmysql_handle; /// For query_sql
+Sql* qsmysql_asyn_handle;
 
 int db_use_sqldbs = 0;
 char buyingstores_table[32] = "buyingstores";
@@ -4726,10 +4727,12 @@ int map_sql_init(void)
 	// main db connection
 	mmysql_handle = Sql_Malloc();
 	qsmysql_handle = Sql_Malloc();
+	qsmysql_asyn_handle = Sql_Malloc();
 
 	ShowInfo("Connecting to the Map DB Server....\n");
 	if( SQL_ERROR == Sql_Connect(mmysql_handle, map_server_id, map_server_pw, map_server_ip, map_server_port, map_server_db) ||
-		SQL_ERROR == Sql_Connect(qsmysql_handle, map_server_id, map_server_pw, map_server_ip, map_server_port, map_server_db) )
+		SQL_ERROR == Sql_Connect(qsmysql_handle, map_server_id, map_server_pw, map_server_ip, map_server_port, map_server_db) ||
+		SQL_ERROR == Sql_Connect(qsmysql_asyn_handle, map_server_id, map_server_pw, map_server_ip, map_server_port, map_server_db) )
 	{
 		ShowError("Couldn't connect with uname='%s',passwd='%s',host='%s',port='%d',database='%s'\n",
 			map_server_id, map_server_pw, map_server_ip, map_server_port, map_server_db);
@@ -4737,6 +4740,8 @@ int map_sql_init(void)
 		Sql_Free(mmysql_handle);
 		Sql_ShowDebug(qsmysql_handle);
 		Sql_Free(qsmysql_handle);
+		Sql_ShowDebug(qsmysql_asyn_handle);
+		Sql_Free(qsmysql_asyn_handle);
 		exit(EXIT_FAILURE);
 	}
 	ShowStatus("Connect success! (Map Server Connection)\n");
@@ -4746,6 +4751,8 @@ int map_sql_init(void)
 			Sql_ShowDebug(mmysql_handle);
 		if ( SQL_ERROR == Sql_SetEncoding(qsmysql_handle, default_codepage) )
 			Sql_ShowDebug(qsmysql_handle);
+		if ( SQL_ERROR == Sql_SetEncoding(qsmysql_asyn_handle, default_codepage) )
+			Sql_ShowDebug(qsmysql_asyn_handle);
 	}
 	return 0;
 }
@@ -4755,8 +4762,10 @@ int map_sql_close(void)
 	ShowStatus("Close Map DB Connection....\n");
 	Sql_Free(mmysql_handle);
 	Sql_Free(qsmysql_handle);
+	Sql_Free(qsmysql_asyn_handle);
 	mmysql_handle = NULL;
 	qsmysql_handle = NULL;
+	qsmysql_asyn_handle = NULL;
 
 	if (log_config.sql_logs)
 	{
@@ -6144,14 +6153,16 @@ int map_checknear(struct block_list* bl, int range, int cell) {
 }
 
 struct s_thread_event {
-	struct script_data *st;
+	struct script_state *st;
 	enum e_thread_type type;
 	enum e_thread_state state;
-	int(*func)(va_list);
+	int(*func)(void*);
+	void *data;
 	DWORD thread_id;
 	HANDLE handle_id;
 };
 std::vector<s_thread_event> thread_event;
+DWORD WINAPI map_thread_run(LPVOID lpParameter);
 TIMER_FUNC(map_thread_main)
 {
 	std::vector<s_thread_event>::iterator it = thread_event.begin();
@@ -6159,19 +6170,26 @@ TIMER_FUNC(map_thread_main)
 	while( it != thread_event.end() ){
 		struct s_thread_event b = *it;
 
-		if (b.state == THREAD_STATE_RUNNING) {
+		if (b.state != THREAD_STATE_RESULT) {
 			it++;
 			continue;
 		}
-		if (b.state == THREAD_STATE_RESULT) {
-			switch (b.type) {
-			case THREAD_TYPE_RELOADITEM:
-				itemdb_reload();
-				break;
-			case THREAD_TYPE_SCRIPT:
-				break;
-			}
-			CloseHandle(b.handle_id);
+		switch (b.type) {
+		case THREAD_TYPE_RELOADITEM:
+			itemdb_reload();
+			break;
+		case THREAD_TYPE_SCRIPTSQL:
+			run_script_main(b.st);
+			break;
+		}
+		CloseHandle(b.handle_id);
+		for (auto &entry : thread_event) {
+			if (entry.type != b.type && entry.state != THREAD_STATE_WAITTING)
+				continue;
+			entry.state = THREAD_STATE_RUNNING;
+			entry.handle_id = CreateThread(NULL, 0, map_thread_run, entry.data, CREATE_SUSPENDED, &entry.thread_id);
+			ResumeThread(entry.handle_id);
+			break;
 		}
 		it = thread_event.erase(it);
 	}
@@ -6196,25 +6214,37 @@ DWORD WINAPI map_thread_run(LPVOID lpParameter) {
 		switch (it.type) {
 		case THREAD_TYPE_RELOADITEM:
 			it.func(NULL);
-			map_thread_result(it.type);
+			break;
+		case THREAD_TYPE_SCRIPTSQL:
+			it.func(it.data);
 			break;
 		}
+		map_thread_result(it.type);
 	}
 	return 1;
 }
 
-int map_thread_create(enum e_thread_type type, int(*func)(va_list), void *lpParameter)
+int map_thread_create(enum e_thread_type type, int(*func)(void*), struct script_state *st, void *lpParameter)
 {
+	struct s_thread_event entry = { 0 };
+	entry.type = type;
+	entry.func = func;
+	entry.st = st;
+	entry.data = lpParameter;
+
 	for (auto &it : thread_event) {
-		switch (type) {
+		switch (it.type) {
 		case THREAD_TYPE_RELOADITEM:
+			return 0;
+		case THREAD_TYPE_SCRIPTSQL:
+			if (it.state != THREAD_STATE_RUNNING)
+				continue;
+			entry.state = THREAD_STATE_WAITTING;
+			thread_event.push_back(entry);
 			return 0;
 		}
 	}
-	struct s_thread_event entry = {};
-	entry.type = type;
 	entry.state = THREAD_STATE_RUNNING;
-	entry.func = func;
 	entry.handle_id = CreateThread(NULL, 0, map_thread_run, lpParameter, CREATE_SUSPENDED, &entry.thread_id);
 	thread_event.push_back(entry);
 	ResumeThread(entry.handle_id);
