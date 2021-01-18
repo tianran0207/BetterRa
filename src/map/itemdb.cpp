@@ -2972,7 +2972,7 @@ void itemdb_reload(void) {
 		if (map_thread_has(THREAD_TYPE_RELOADITEM))
 			return;
 		if (!item_db_reload.size()) {
-			map_thread_create(THREAD_TYPE_RELOADITEM, itemdb_reload_sub, NULL);
+			map_thread_create(THREAD_TYPE_RELOADITEM, itemdb_reload_sub, NULL, NULL);
 			return;
 		}
 	}
