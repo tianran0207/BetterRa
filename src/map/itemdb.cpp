@@ -2955,7 +2955,7 @@ int item_data::inventorySlotNeeded(int quantity)
 /**
 * Reload Item DB
 */
-int itemdb_reload(va_list args) {
+int itemdb_reload_sub(void *data) {
 	item_db_reload.loadyml();
 	return 1;
 }
@@ -2966,7 +2966,7 @@ void itemdb_reload(void) {
 
 #ifndef _DEBUG
 	if (battle_config.itemdb_reload_thread && !item_db_reload.size()) {
-		map_thread_create(THREAD_TYPE_RELOADITEM, itemdb_reload, NULL, NULL);
+		map_thread_create(THREAD_TYPE_RELOADITEM, itemdb_reload_sub, NULL, NULL);
 		return;
 	}
 #endif
