@@ -13237,9 +13237,6 @@ uint16 pc_level_penalty_mod( struct map_session_data* sd, e_penalty_type type, s
 	if (type == 2 && !battle_config.enable_re_drop_fix)
 		return 100;
 
-	if (type == 2 && (mob->status.mode&MD_FIXED_ITEMDROP))
-		return 100;
-
 	if( md != nullptr ){
 		monster_level = md->level;
 		mob = md->db;
