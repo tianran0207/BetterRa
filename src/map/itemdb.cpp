@@ -2968,9 +2968,13 @@ void itemdb_reload(void) {
 	struct map_session_data* sd;
 
 #ifndef _DEBUG
-	if (battle_config.itemdb_reload_thread && !item_db_reload.size()) {
-		map_thread_create(THREAD_TYPE_RELOADITEM, itemdb_reload, NULL);
-		return;
+	if (battle_config.itemdb_reload_thread) {
+		if (map_thread_has(THREAD_TYPE_RELOADITEM))
+			return;
+		if (!item_db_reload.size()) {
+			map_thread_create(THREAD_TYPE_RELOADITEM, itemdb_reload, NULL);
+			return;
+		}
 	}
 #endif
 	item_db.clear();

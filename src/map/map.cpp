@@ -6237,6 +6237,15 @@ int map_thread_result(enum e_thread_type type)
 	return 1;
 }
 
+int map_thread_has(enum e_thread_type type)
+{
+	for (auto &it : thread_event) {
+		if (it.type == type)
+			return 1;
+	}
+	return 0;
+}
+
 struct http_session_data {
 	char url[512];
 	char host[64];

@@ -1340,6 +1340,7 @@ enum e_thread_state {
 int map_thread_tid();
 int map_thread_create(enum e_thread_type type, int(*func)(va_list), void *lpParameter);
 int map_thread_result(enum e_thread_type type);
+int map_thread_has(enum e_thread_type type);
 
 extern struct s_packet_event packet_event;
 extern struct s_use_skill_event use_skill_event;
