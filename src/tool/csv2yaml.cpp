@@ -4086,8 +4086,13 @@ static bool item_db_yaml2csv(const std::string &file, const std::string &outpath
 		else
 			appendcsv_str("", item_db);
 
-		if (input["SubType"].IsDefined())
-			appendcsv_int(constant_lookup_int(("W_" + input["SubType"].as<std::string>()).c_str()), item_db);
+		if (input["SubType"].IsDefined()) {
+			if (type == IT_WEAPON)
+				appendcsv_int(constant_lookup_int(("W_" + input["SubType"].as<std::string>()).c_str()), item_db);
+			else if(type == IT_AMMO)
+				appendcsv_int(constant_lookup_int(("AMMO_" + input["SubType"].as<std::string>()).c_str()), item_db);
+		}
+			
 		else if (type == IT_ARMOR || type == IT_WEAPON || type == IT_SHADOWGEAR)
 			appendcsv(input["View"], item_db, "0");
 		else

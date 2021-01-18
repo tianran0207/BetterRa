@@ -3202,6 +3202,8 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 		ShowError("itemdb_parse_dbrow: Item %u (%s) weapon type is not exist, Making it an etc item.\n", nameid, id->name);
 		id->type = IT_ETC;
 	}
+	if (id->type == IT_WEAPON || id->type == IT_AMMO)
+		id->subtype = id->look;
 
 	id->flag.available = 1;
 	id->view_id = 0;
