@@ -3221,7 +3221,7 @@ static const char* npc_parse_warp(char* w1, char* w2, char* w3, char* w4, const 
  */
 static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath)
 {
-	char *p, point_str[32];
+	char *p, point_str[128];
 	int m, is_discount = 0;
 	uint16 dir;
 	short x, y;

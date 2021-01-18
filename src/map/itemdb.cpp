@@ -1884,9 +1884,12 @@ bool itemdb_combos_contrast(struct item_data * id, t_itemid *item, int retcount,
 
 bool itemdb_read_combos_line(const char *path, int lines, char *line, uint32 *number) {
 	char *str[2], *p;
+	uint32 num = itemdb_combo.size();
 
 	if (line[0] == '/' && line[1] == '/')
 		return false;
+	if (!number)
+		number = &num;
 
 	memset(str, 0, sizeof(str));
 
