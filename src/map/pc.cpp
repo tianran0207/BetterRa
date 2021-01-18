@@ -15160,12 +15160,13 @@ static int pcbot_ai_sub_hard_lootsearch(struct block_list *bl, va_list ap)
 	struct bot_data *bd = va_arg(ap, struct bot_data *);
 	struct block_list **target = va_arg(ap, struct block_list **);
 	struct map_session_data *sd = bd->sd;
+	t_tick tick = va_arg(ap, t_tick);
 
 	//检查列表中的物品
 	for (auto &it : bd->info.lootitem) {
 		if (it.id != fitem->item.nameid)
 			continue;
-		if (!it.rob && fitem->first_get_charid != sd->status.char_id)
+		if (!it.rob && (fitem->first_get_charid && fitem->first_get_charid != sd->status.char_id && fitem->first_get_tick + 5000 > tick))
 			continue;
 
 		dist = distance_bl(&sd->bl, bl);
@@ -15355,6 +15356,9 @@ static bool pcbot_useskill(struct bot_data *bd, struct block_list *tbl, t_tick t
 			return false;
 		}
 	}
+	else if (inf & INF_ATTACK_SKILL)
+		skill = bd->skill_attack;
+
 	if (!skill || !battle_check_range(src, tbl, bd->min_chase))
 		return false;
 
@@ -15508,7 +15512,7 @@ static bool pcbot_nocond_event(struct bot_data *bd, t_tick tick)
 	return false;
 }
 
-static bool pcbot_walk_fail_event(struct bot_data *bd, t_tick tick)
+static bool pcbot_action_fail_event(struct bot_data *bd, t_tick tick)
 {
 	struct map_session_data *sd = bd->sd;
 
@@ -15592,12 +15596,16 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		return 0;
 
 	//如果正在攻击
-	if (sd->ud.attacktimer != INVALID_TIMER && (!(bd->ai_mode & BOT_SKILL_ATK) || !bd->info.useskill.size()))
-		return 0;
+	if (sd->ud.attacktimer != INVALID_TIMER){
+		if (!(bd->ai_mode & BOT_SKILL_ATK) || !pcbot_check_useskill(bd, tick, INF_ATTACK_SKILL))
+			return 0;
+	}
 
 	//如果有魔物攻击, 反击
-	if (sd->ud.walktimer != INVALID_TIMER && (bd->ai_mode & BOT_COUNTERATTACK) && bd->state.next_counterattack <= tick) {
-		if (sd->enemy.bot_id && sd->enemy.bot_id != bd->target_id) {
+	if (sd->ud.walktimer != INVALID_TIMER) {
+		if ((bd->ai_mode & BOT_COUNTERATTACK) && bd->state.next_counterattack <= tick &&
+			sd->enemy.bot_id && sd->enemy.bot_id != bd->target_id)
+		{
 			tbl = map_id2bl(sd->enemy.bot_id);
 			sd->enemy.bot_id = 0;
 			bd->state.next_counterattack = tick + 1000;
@@ -15615,6 +15623,8 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		}
 		return 0;
 	}
+	if (sd->invincible_timer != INVALID_TIMER)
+		pc_delinvincibletimer(sd);
 
 	//如果正在攻击, 检查目标的有效性
 	if (bd->target_id)
@@ -15633,7 +15643,6 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			//满足条件则技能攻击目标
 			if ((bd->ai_mode & BOT_SKILL_ATK) && sd->ud.skilltimer == INVALID_TIMER) {
 				if (pcbot_useskill(bd, tbl, tick, INF_ATTACK_SKILL)){
-					bd->state.next_acttime = tick + 500;
 					return 1;
 				}
 				if (bd->state.skill_fail_count > 20) {
@@ -15681,7 +15690,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 	//检查拾取物品菜单
 	if (bd->state.next_lootitem < tick && bd->info.lootitem.size()) {
 		tbl = NULL;
-		map_foreachinallrange(pcbot_ai_sub_hard_lootsearch, &sd->bl, bd->state.view_range, BL_ITEM, bd, &tbl);
+		map_foreachinallrange(pcbot_ai_sub_hard_lootsearch, &sd->bl, bd->state.view_range, BL_ITEM, bd, &tbl, tick);
 		if (tbl) {
 			if (check_distance_bl(&sd->bl, tbl, 1) || unit_walktobl(&sd->bl, tbl, 1, 1)) {
 				const struct TimerData* td;
@@ -15759,7 +15768,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				return 1;
 			}
 			if (bd->state.move_fail_count == 4)
-				pcbot_walk_fail_event(bd, tick);
+				pcbot_action_fail_event(bd, tick);
 
 			bd->state.move_fail_count++;
 			return 0;
@@ -15816,7 +15825,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		}
 
 		if (bd->state.move_fail_count == 40)
-			pcbot_walk_fail_event(bd, tick);
+			pcbot_action_fail_event(bd, tick);
 
 		bd->state.move_fail_count++;
 		return 1;
@@ -15844,8 +15853,8 @@ struct bot_data *pcbot_getdata(struct map_session_data *sd)
 		bd->info.loot_delay.max = 800;
 		bd->info.choose_delay.min = 800;
 		bd->info.choose_delay.max = 1300;
-		bd->info.skill_delay.min = 300;
-		bd->info.skill_delay.max = 800;
+		bd->info.skill_delay.min = 0;
+		bd->info.skill_delay.max = 300;
 		map_addbot(bd);
 	}
 

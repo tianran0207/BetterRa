@@ -28703,6 +28703,32 @@ BUILDIN_FUNC(bot_hasmode)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(bot_setdelay)
+{
+	TBL_PC *sd;
+
+	if (!script_charid2sd(5, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	struct bot_data *bd = pcbot_getdata(sd);
+
+	switch (script_getnum(st, 2)) {
+	case BOT_DELAY_LOOT:
+		bd->info.loot_delay.min = script_getnum(st, 3);
+		bd->info.loot_delay.max = script_getnum(st, 4);
+		break;
+	case BOT_DELAY_CHOOSE:
+		bd->info.choose_delay.min = script_getnum(st, 3);
+		bd->info.choose_delay.max = script_getnum(st, 4);
+		break;
+	case BOT_DELAY_SKILL:
+		bd->info.skill_delay.min = script_getnum(st, 3);
+		bd->info.skill_delay.max = script_getnum(st, 4);
+		break;
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(bot_reset)
 {
 	TBL_PC *sd;
@@ -33485,8 +33511,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bot_addlootitem, "i??"),
 	BUILDIN_DEF(bot_addattackmob, "i??"),
 	BUILDIN_DEF(bot_addmode, "i??"),
-	BUILDIN_DEF2(bot_addmode, "bot_delmode", "i"),
+	BUILDIN_DEF2(bot_addmode, "bot_delmode", "i?"),
 	BUILDIN_DEF(bot_hasmode, "i?"),
+	BUILDIN_DEF(bot_setdelay, "iii?"),
 	BUILDIN_DEF(bot_trade, "i??"),
 	BUILDIN_DEF(bot_party, "i"),
 	BUILDIN_DEF(bot_guild, "i"),

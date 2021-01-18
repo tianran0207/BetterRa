@@ -652,6 +652,10 @@
 	export_constant(BOT_REST_MODE);
 	export_constant(BOT_REST_ALL);
 
+	export_constant(BOT_DELAY_LOOT);
+	export_constant(BOT_DELAY_CHOOSE);
+	export_constant(BOT_DELAY_SKILL);
+
 	export_constant(MF_TRIBE);
 	export_constant(MF_HIDEGUILDINFO);
 	export_constant(MF_HIDEPARTYINFO);
