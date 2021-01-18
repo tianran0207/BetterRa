@@ -2969,7 +2969,7 @@ void itemdb_reload(void) {
 
 #ifndef _DEBUG
 	if (battle_config.itemdb_reload_thread) {
-		if (map_thread_has(THREAD_TYPE_RELOADITEM))
+		if (map_thread_has(THREAD_TYPE_RELOADITEM, THREAD_STATE_NOPROCESS))
 			return;
 		if (!item_db_reload.size()) {
 			map_thread_create(THREAD_TYPE_RELOADITEM, itemdb_reload_sub, NULL, NULL);

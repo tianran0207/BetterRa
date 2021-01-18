@@ -6169,11 +6169,12 @@ TIMER_FUNC(map_thread_main)
 
 	while( it != thread_event.end() ){
 		struct s_thread_event b = *it;
-
+		
 		if (b.state != THREAD_STATE_RESULT) {
 			it++;
 			continue;
 		}
+		it->state = THREAD_STATE_PROCESS;
 		switch (b.type) {
 		case THREAD_TYPE_RELOADITEM:
 			itemdb_reload();
@@ -6267,10 +6268,10 @@ int map_thread_result(enum e_thread_type type)
 	return 1;
 }
 
-int map_thread_has(enum e_thread_type type)
+int map_thread_has(enum e_thread_type type, enum e_thread_state state)
 {
 	for (auto &it : thread_event) {
-		if (it.type == type)
+		if (it.type == type && (it.state&state))
 			return 1;
 	}
 	return 0;
