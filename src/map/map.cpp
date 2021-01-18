@@ -6233,15 +6233,15 @@ int map_thread_create(enum e_thread_type type, int(*func)(void*), struct script_
 	entry.data = lpParameter;
 
 	for (auto &it : thread_event) {
-		switch (type) {
+		switch (it.type) {
 		case THREAD_TYPE_RELOADITEM:
 			return 0;
 		case THREAD_TYPE_SCRIPTSQL:
-			if (it.state == THREAD_STATE_RUNNING) {
-				entry.state = THREAD_STATE_WAITTING;
-				thread_event.push_back(entry);
-				return 0;
-			}
+			if (it.state != THREAD_STATE_RUNNING)
+				continue;
+			entry.state = THREAD_STATE_WAITTING;
+			thread_event.push_back(entry);
+			return 0;
 		}
 	}
 	entry.state = THREAD_STATE_RUNNING;
@@ -6254,13 +6254,11 @@ int map_thread_create(enum e_thread_type type, int(*func)(void*), struct script_
 int map_thread_result(enum e_thread_type type)
 {
 	DWORD thread_id = GetCurrentThreadId();
-	enum e_thread_type continue_type = THREAD_TYPE_NONE;
 	struct TimerData * timer_data;
 	for (auto &it : thread_event) {
 		if (it.thread_id != thread_id)
 			continue;
 		it.state = THREAD_STATE_RESULT;
-		continue_type = it.type;
 		break;
 	}
 	timer_data = (struct TimerData *)get_timer(map_thread_tid());

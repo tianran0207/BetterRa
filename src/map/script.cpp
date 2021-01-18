@@ -33527,6 +33527,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(getbonus, "bonus_maxfix", "i??????"),
 	BUILDIN_DEF(getrateidx, "*"),
 	BUILDIN_DEF(mobstaypos, "iii"),
+	BUILDIN_DEF(query_sql_asyn, "s*"),
 	BUILDIN_DEF(roulette_bonus, "i"),
 	BUILDIN_DEF(roulette_iteminfo, "iii?"),
 	BUILDIN_DEF(roulette_open, "????"),
