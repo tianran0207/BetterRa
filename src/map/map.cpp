@@ -6161,46 +6161,78 @@ struct s_thread_event {
 	DWORD thread_id;
 	HANDLE handle_id;
 };
-std::vector<s_thread_event> thread_event;
+
+struct linkdb_node *thread_head;
 DWORD WINAPI map_thread_run(LPVOID lpParameter);
+int map_thread_result(enum e_thread_type type);
+int map_thread_has(enum e_thread_type type, enum e_thread_state state)
+{
+	struct linkdb_node *node = thread_head;
+	while (node) {
+		struct s_thread_event *entry = ((struct s_thread_event *)node->data);
+		if (entry->type == type && (entry->state&state))
+			return 1;
+		node = node->next;
+	}
+	return 0;
+}
+
+struct s_thread_event *map_thread_has_thread(DWORD thread_id)
+{
+	struct linkdb_node *node = thread_head;
+	while (node) {
+		struct s_thread_event *entry = ((struct s_thread_event *)node->data);
+		if (entry->thread_id == thread_id)
+			return entry;
+		node = node->next;
+	}
+	return nullptr;
+}
+
 TIMER_FUNC(map_thread_main)
 {
-
-	for (auto &it : thread_event) {
-		if (it.state != THREAD_STATE_RESULT)
+	struct linkdb_node *node = thread_head;
+	while (node) {
+		struct s_thread_event *entry = ((struct s_thread_event *)node->data);
+		node = node->next;
+		if (entry->state != THREAD_STATE_RESULT)
 			continue;
-		it.state = THREAD_STATE_PROCESS;
-		switch (it.type) {
+		entry->state = THREAD_STATE_PROCESS;
+		switch (entry->type) {
 		case THREAD_TYPE_RELOADITEM:
 			itemdb_reload();
 			break;
 		case THREAD_TYPE_SCRIPTSQL:
-			run_script_main(it.st);
+			run_script_main(entry->st);
 			break;
 		}
-		std::vector<s_thread_event>::iterator it = thread_event.begin();
-		while (it != thread_event.end()) {
-			struct s_thread_event b = *it;
-			if (b.state != THREAD_STATE_PROCESS) {
-				it++;
-				continue;
+		entry->state = THREAD_STATE_FINISH;
+		CloseHandle(entry->handle_id);
+		if (!map_thread_has(entry->type, THREAD_STATE_RUNNING)) {
+			struct linkdb_node *node_check = thread_head;
+			while (node_check) {
+				struct s_thread_event *entry_check = ((struct s_thread_event *)node_check->data);
+				if (entry->type != entry_check->type || entry_check->state != THREAD_STATE_WAITTING)
+					node_check = node_check->next;
+				else {
+					entry_check->state = THREAD_STATE_RUNNING;
+					entry_check->handle_id = CreateThread(NULL, 0, map_thread_run, entry_check->data, CREATE_SUSPENDED, &entry_check->thread_id);
+					ResumeThread(entry_check->handle_id);
+					break;
+				}
 			}
-			for (auto &entry : thread_event) {
-				if (entry.type != b.type || entry.state != THREAD_STATE_WAITTING)
-					continue;
-				entry.state = THREAD_STATE_RUNNING;
-				entry.handle_id = CreateThread(NULL, 0, map_thread_run, entry.data, CREATE_SUSPENDED, &entry.thread_id);
-				ResumeThread(entry.handle_id);
-				break;
-			}
-			CloseHandle(b.handle_id);
-			it = thread_event.erase(it);
 		}
-		struct TimerData *timer_data = (struct TimerData *)get_timer(map_thread_tid());
-		if (timer_data != NULL)
-			timer_data->tick = gettick();
-		break;
+		linkdb_erase(&thread_head, (void *)entry);
+		aFree(entry);
 	}
+	struct TimerData* timer = (struct TimerData*)get_timer(map_thread_tid());
+	if (timer){
+		if (thread_head)
+			timer->interval = 10;
+		else
+			timer->interval = 100;
+	}
+
 	return 1;
 }
 
@@ -6209,80 +6241,71 @@ int map_thread_tid()
 	static int tid = 0;
 	if (!tid) {
 		add_timer_func_list(map_thread_main, "map_thread_main");
-		tid = add_timer_interval(gettick() + 1000, map_thread_main, 0, 0, 10000);
+		tid = add_timer_interval(gettick() + 1000, map_thread_main, 0, 0, 100);
 	}
 	return tid;
 }
 
 DWORD WINAPI map_thread_run(LPVOID lpParameter) {
 	DWORD thread_id = GetCurrentThreadId();
-	for (auto &it : thread_event) {
-		if (it.thread_id != thread_id)
-			continue;
-		switch (it.type) {
+	struct s_thread_event *entry = map_thread_has_thread(thread_id);
+	if (entry) {
+		switch (entry->type) {
 		case THREAD_TYPE_RELOADITEM:
-			it.func(NULL);
+			entry->func(NULL);
 			break;
 		case THREAD_TYPE_SCRIPTSQL:
-			it.func(it.data);
+			entry->func(entry->data);
 			break;
 		}
-		map_thread_result(it.type);
+		map_thread_result(entry->type);
 	}
 	return 1;
 }
-
 int map_thread_create(enum e_thread_type type, int(*func)(void*), struct script_state *st, void *lpParameter)
 {
-	struct s_thread_event entry = { 0 };
-	entry.type = type;
-	entry.func = func;
-	entry.st = st;
-	entry.data = lpParameter;
-
-	for (auto &it : thread_event) {
-		switch (it.type) {
+	struct s_thread_event *entry_new = nullptr;
+	struct linkdb_node *node = thread_head;
+	while (node) {
+		struct s_thread_event *entry = ((struct s_thread_event *)node->data);
+		node = node->next;
+		if (entry->type != type)
+			continue;
+		switch (type) {
 		case THREAD_TYPE_RELOADITEM:
 			return 0;
 		case THREAD_TYPE_SCRIPTSQL:
-			if (it.state != THREAD_STATE_RUNNING)
+			if (entry->state != THREAD_STATE_RUNNING)
 				continue;
-			entry.state = THREAD_STATE_WAITTING;
-			thread_event.push_back(entry);
+			CREATE(entry_new, struct s_thread_event, 1);
+			entry_new->type = type;
+			entry_new->func = func;
+			entry_new->st = st;
+			entry_new->data = lpParameter;
+			entry_new->state = THREAD_STATE_WAITTING;
+			linkdb_insert(&thread_head, (void *)entry_new, entry_new);
 			return 0;
 		}
 	}
-	entry.state = THREAD_STATE_RUNNING;
-	entry.handle_id = CreateThread(NULL, 0, map_thread_run, lpParameter, CREATE_SUSPENDED, &entry.thread_id);
-	thread_event.push_back(entry);
-	ResumeThread(entry.handle_id);
-
+	CREATE(entry_new, struct s_thread_event, 1);
+	entry_new->type = type;
+	entry_new->func = func;
+	entry_new->st = st;
+	entry_new->data = lpParameter;
+	entry_new->state = THREAD_STATE_RUNNING;
+	linkdb_insert(&thread_head, (void *)entry_new, entry_new);
+	entry_new->handle_id = CreateThread(NULL, 0, map_thread_run, lpParameter, CREATE_SUSPENDED, &entry_new->thread_id);
+	ResumeThread(entry_new->handle_id);
 	return 1;
 }
 
 int map_thread_result(enum e_thread_type type)
 {
 	DWORD thread_id = GetCurrentThreadId();
-	struct TimerData * timer_data;
-	for (auto &it : thread_event) {
-		if (it.thread_id != thread_id)
-			continue;
-		it.state = THREAD_STATE_RESULT;
-		break;
-	}
-	timer_data = (struct TimerData *)get_timer(map_thread_tid());
-	if (timer_data != NULL)
-		timer_data->tick = gettick();
+	struct s_thread_event *entry = map_thread_has_thread(thread_id);
+	if (entry)
+		entry->state = THREAD_STATE_RESULT;
 	return 1;
-}
-
-int map_thread_has(enum e_thread_type type, enum e_thread_state state)
-{
-	for (auto &it : thread_event) {
-		if (it.type == type && (it.state&state))
-			return 1;
-	}
-	return 0;
 }
 
 struct http_session_data {

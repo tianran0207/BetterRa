@@ -1346,7 +1346,6 @@ enum e_thread_state {
 
 int map_thread_tid();
 int map_thread_create(enum e_thread_type type, int(*func)(void*), struct script_state *st, void *lpParameter);
-int map_thread_result(enum e_thread_type type);
 int map_thread_has(enum e_thread_type type, enum e_thread_state state);
 
 extern struct s_packet_event packet_event;
