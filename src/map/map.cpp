@@ -6165,34 +6165,41 @@ std::vector<s_thread_event> thread_event;
 DWORD WINAPI map_thread_run(LPVOID lpParameter);
 TIMER_FUNC(map_thread_main)
 {
-	std::vector<s_thread_event>::iterator it = thread_event.begin();
 
-	while( it != thread_event.end() ){
-		struct s_thread_event b = *it;
-		
-		if (b.state != THREAD_STATE_RESULT) {
-			it++;
+	for (auto &it : thread_event) {
+		if (it.state != THREAD_STATE_RESULT)
 			continue;
-		}
-		it->state = THREAD_STATE_PROCESS;
-		switch (b.type) {
+		it.state = THREAD_STATE_PROCESS;
+		switch (it.type) {
 		case THREAD_TYPE_RELOADITEM:
 			itemdb_reload();
 			break;
 		case THREAD_TYPE_SCRIPTSQL:
-			run_script_main(b.st);
+			run_script_main(it.st);
 			break;
 		}
-		CloseHandle(b.handle_id);
-		for (auto &entry : thread_event) {
-			if (entry.type != b.type && entry.state != THREAD_STATE_WAITTING)
+		std::vector<s_thread_event>::iterator it = thread_event.begin();
+		while (it != thread_event.end()) {
+			struct s_thread_event b = *it;
+			if (b.state != THREAD_STATE_PROCESS) {
+				it++;
 				continue;
-			entry.state = THREAD_STATE_RUNNING;
-			entry.handle_id = CreateThread(NULL, 0, map_thread_run, entry.data, CREATE_SUSPENDED, &entry.thread_id);
-			ResumeThread(entry.handle_id);
-			break;
+			}
+			for (auto &entry : thread_event) {
+				if (entry.type != b.type || entry.state != THREAD_STATE_WAITTING)
+					continue;
+				entry.state = THREAD_STATE_RUNNING;
+				entry.handle_id = CreateThread(NULL, 0, map_thread_run, entry.data, CREATE_SUSPENDED, &entry.thread_id);
+				ResumeThread(entry.handle_id);
+				break;
+			}
+			CloseHandle(b.handle_id);
+			it = thread_event.erase(it);
 		}
-		it = thread_event.erase(it);
+		struct TimerData *timer_data = (struct TimerData *)get_timer(map_thread_tid());
+		if (timer_data != NULL)
+			timer_data->tick = gettick();
+		break;
 	}
 	return 1;
 }
@@ -6249,6 +6256,7 @@ int map_thread_create(enum e_thread_type type, int(*func)(void*), struct script_
 	entry.handle_id = CreateThread(NULL, 0, map_thread_run, lpParameter, CREATE_SUSPENDED, &entry.thread_id);
 	thread_event.push_back(entry);
 	ResumeThread(entry.handle_id);
+
 	return 1;
 }
 
