@@ -86,7 +86,21 @@ Header:
   Type: ITEM_DB
   Version: 1
 
-#Body:
+Body:
+  - Id: 30000
+    AegisName: zeny
+    Name: zeny
+    Type: Etc
+    Sell: 10
+    Weight: 10
+    AliasName: Copper_Coin_Moneybag
+  - Id: 30001
+    AegisName: cash
+    Name: cash
+    Type: Etc
+    Sell: 10
+    Weight: 10
+    AliasName: Gold_Coin_Moneybag
 # THQ Quest Items
 #=============================================================
 #  - Id: 1998

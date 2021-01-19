@@ -14396,10 +14396,10 @@ int clif_vend(struct map_session_data *sd, int skill_lv) {
 	p->packetType = HEADER_ZC_MAKINGARROW_LIST;
 
 	if (battle_config.item_zeny && itemdb_exists(battle_config.item_zeny))
-		p->items[c++].itemId = battle_config.item_zeny;
+		p->items[c++].itemId = client_nameid(battle_config.item_zeny);
 
 	if (battle_config.item_cash && itemdb_exists(battle_config.item_cash))
-		p->items[c++].itemId = battle_config.item_cash;
+		p->items[c++].itemId = client_nameid(battle_config.item_cash);
 
 	for (i = 0; i < MAX_VENDINGITEM; i++) {
 		if (vending_itemid[i].nameid == 0 || (item = itemdb_exists(vending_itemid[i].nameid)) == NULL)
@@ -14407,7 +14407,7 @@ int clif_vend(struct map_session_data *sd, int skill_lv) {
 		if (item->nameid == battle_config.item_zeny && item->nameid == battle_config.item_cash)
 			continue;
 
-		p->items[c++].itemId = item->nameid;
+		p->items[c++].itemId = client_nameid(item->nameid);
 	}
 
 	sd->menuskill_id = MC_VENDING;

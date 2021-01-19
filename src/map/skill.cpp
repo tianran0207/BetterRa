@@ -21346,7 +21346,7 @@ int skill_vending(struct map_session_data *sd, t_itemid nameid) {
 
 	sd->vend_loot = nameid;
 
-	sprintf(output, msg_txt(sd, 2354), item->name);
+	sprintf(output, msg_txt(sd, 2354), item->name.c_str());
 	clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
 
 	if (!pc_can_give_items(sd))

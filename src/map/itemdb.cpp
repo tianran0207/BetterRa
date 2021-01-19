@@ -3157,7 +3157,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 	*/
 	if (id->value_buy/124. < id->value_sell/75.)
 		ShowWarning("itemdb_parse_dbrow: Buying/Selling [%d/%d] price of item %u (%s) allows Zeny making exploit  through buying/selling at discounted/overcharged prices!\n",
-			id->value_buy, id->value_sell, nameid, id->name);
+			id->value_buy, id->value_sell, nameid, id->name.c_str());
 
 	id->weight = atoi(str[6]);
 #ifdef RENEWAL
@@ -3171,7 +3171,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 
 	if (id->slots > MAX_SLOTS)
 	{
-		ShowWarning("itemdb_parse_dbrow: Item %u (%s) specifies %d slots, but the server only supports up to %d. Using %d slots.\n", nameid, id->name, id->slots, MAX_SLOTS, MAX_SLOTS);
+		ShowWarning("itemdb_parse_dbrow: Item %u (%s) specifies %d slots, but the server only supports up to %d. Using %d slots.\n", nameid, id->name.c_str(), id->slots, MAX_SLOTS, MAX_SLOTS);
 		id->slots = MAX_SLOTS;
 	}
 
@@ -3182,13 +3182,13 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 
 	if (!id->equip && itemdb_isequip2(id.get()))
 	{
-		ShowWarning("Item %u (%s) is an equipment with no equip-field! Making it an etc item.\n", nameid, id->name);
+		ShowWarning("Item %u (%s) is an equipment with no equip-field! Making it an etc item.\n", nameid, id->name.c_str());
 		id->type = IT_ETC;
 	}
 
 	if( id->type != IT_SHADOWGEAR && id->type != IT_CARD && id->equip&EQP_SHADOW_GEAR )
 	{
-		ShowWarning("Item %u (%s) have invalid equipment slot! Making it an etc item.\n", nameid, id->name);
+		ShowWarning("Item %u (%s) have invalid equipment slot! Making it an etc item.\n", nameid, id->name.c_str());
 		id->type = IT_ETC;
 	}
 
@@ -3199,7 +3199,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 
 	if (id->type == IT_WEAPON && (id->look < W_FIST || id->look > W_2HSTAFF))
 	{
-		ShowError("itemdb_parse_dbrow: Item %u (%s) weapon type is not exist, Making it an etc item.\n", nameid, id->name);
+		ShowError("itemdb_parse_dbrow: Item %u (%s) weapon type is not exist, Making it an etc item.\n", nameid, id->name.c_str());
 		id->type = IT_ETC;
 	}
 	if (id->type == IT_WEAPON || id->type == IT_AMMO)
