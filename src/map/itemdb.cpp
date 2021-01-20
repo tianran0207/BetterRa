@@ -28,6 +28,8 @@ static std::map<uint32, std::shared_ptr<s_item_combo>> itemdb_combo; /// Item Co
 static DBMap *itemdb_group; /// Item Group DB
 
 struct s_roulette_db rd;
+static void itemdb_loadname();
+t_itemid itemdb_searchname_cache(const char *name, t_itemid id = 0);
 
 struct item_vending vending_itemid[MAX_VENDINGITEM];
 
@@ -67,9 +69,9 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node &node) {
 		if (!this->asString(node, "AegisName", name))
 			return 0;
 
-		item_data* id = itemdb_searchname_cache(name.c_str());
+		t_itemid nameid = itemdb_searchname_cache(name.c_str(), item->nameid);
 
-		if (id != nullptr && id->nameid != nameid) {
+		if (nameid && item->nameid != nameid) {
 			this->invalidWarning(node["AegisName"], "Found duplicate item Aegis name for %s, skipping.\n", name.c_str());
 			return 0;
 		}
@@ -518,14 +520,14 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node &node) {
 		if (!this->asString(node, "AliasName", view))
 			return 0;
 
-		item_data *view_data = itemdb_search_aegisname(view.c_str());
+		t_itemid nameid = itemdb_searchname_cache(view.c_str());
 
-		if (view_data == nullptr) {
+		if (nameid == 0) {
 			this->invalidWarning(node["AliasName"], "Unable to change the alias because %s is an unknown item.\n", view.c_str());
 			return 0;
 		}
 
-		item->view_id = view_data->nameid;
+		item->view_id = nameid;
 	} else {
 		if (!exists)
 			item->view_id = 0;
@@ -1149,33 +1151,35 @@ static int itemdb_loadname_sub(struct item_data *item)
 {
 	static char item_name[ITEM_NAME_LENGTH];
 
-	if (strdb_exists(itemdb_aegisname_db, item->name.c_str()))
-		ShowWarning("itemdb_parse_dbrow: Duplicate item name for \"%s\"\n", item->name.c_str());
-
 	strdb_put(itemdb_aegisname_db, itemdb_name_tolower(item->name.c_str(), item_name), item);
-	strdb_put(itemdb_name_db, itemdb_name_tolower(item->ename.c_str(), item_name), item);
+	strdb_put(itemdb_name_db, item->ename.c_str(), item);
 	return 0;
 }
 
-void itemdb_addname(t_itemid nameid, struct item_data* item)
+void itemdb_addname(t_itemid nameid, const char *from)
 {
 	static char item_name[ITEM_NAME_LENGTH];
+	struct item_data *item = itemdb_exists(nameid);
+
+	if (!item)
+		return;
+
 	strdb_put(itemdb_aegisname_db, itemdb_name_tolower(item->name.c_str(), item_name), item);
-	strdb_put(itemdb_name_db, itemdb_name_tolower(item->ename.c_str(), item_name), item);
+	strdb_put(itemdb_name_db, item->ename.c_str(), item);
 }
 
-static struct item_data *itemdb_searchname_cache(const char *name, struct item_data* item = nullptr)
+t_itemid itemdb_searchname_cache(const char *name, t_itemid id)
 {
 	static char item_name[ITEM_NAME_LENGTH];
 	itemdb_name_tolower(name, item_name);
 
-	struct item_data* id = (struct item_data*)strdb_get(itemdb_cache_db, item_name);
-	if (id)
-		return id;
-	if (item)
-		strdb_put(itemdb_cache_db, item_name, item);
+	t_itemid tid = (t_itemid)strdb_get(itemdb_cache_db, item_name);
 
-	return nullptr;
+	if (tid || id == 0)
+		return tid;
+
+	strdb_put(itemdb_cache_db, item_name, (void *)id);
+	return 0;
 }
 
 static void itemdb_loadname()
@@ -3057,9 +3061,9 @@ void do_final_itemdb(void) {
 * Initializing Item DB
 */
 void do_init_itemdb(void) {
-	itemdb_name_db = strdb_alloc(DB_OPT_BASE, ITEM_NAME_LENGTH);
-	itemdb_aegisname_db = strdb_alloc(DB_OPT_BASE, ITEM_NAME_LENGTH);
-	itemdb_cache_db = strdb_alloc(DB_OPT_BASE, ITEM_NAME_LENGTH);
+	itemdb_name_db = strdb_alloc(DB_OPT_DUP_KEY, ITEM_NAME_LENGTH);
+	itemdb_aegisname_db = strdb_alloc(DB_OPT_DUP_KEY, ITEM_NAME_LENGTH);
+	itemdb_cache_db = strdb_alloc(DB_OPT_DUP_KEY, ITEM_NAME_LENGTH);
 	itemdb_group = uidb_alloc(DB_OPT_BASE);
 	itemdb_read();
 
