@@ -1156,13 +1156,9 @@ static int itemdb_loadname_sub(struct item_data *item)
 	return 0;
 }
 
-void itemdb_addname(t_itemid nameid, const char *from)
+void itemdb_addname(struct item_data *item)
 {
 	static char item_name[ITEM_NAME_LENGTH];
-	struct item_data *item = itemdb_exists(nameid);
-
-	if (!item)
-		return;
 
 	strdb_put(itemdb_aegisname_db, itemdb_name_tolower(item->name.c_str(), item_name), item);
 	strdb_put(itemdb_name_db, item->ename.c_str(), item);
@@ -3010,7 +3006,6 @@ void itemdb_reload(void) {
 	random_option_group.clear();
 	db_clear(itemdb_name_db);
 	db_clear(itemdb_aegisname_db);
-	db_clear(itemdb_cache_db);
 
 	if (battle_config.feature_roulette)
 		itemdb_roulette_free();
@@ -3141,6 +3136,17 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 		id->flag.available = true;
 	}
 
+	struct item_data *item = itemdb_search_aegisname(str[1]);
+	
+	if (item && item->nameid != nameid) {
+		ShowError("itemdb_parse_dbrow: Found duplicate item Aegis name for %s, skipping.\n", str[1]);
+		return 0;
+	}
+	if (!item || strcmp(item->name.c_str(), str[1]))
+		itemdb_addname(id.get());
+
+	id->name.resize(ITEM_NAME_LENGTH);
+	id->ename.resize(ITEM_NAME_LENGTH);
 	id->name = str[1];
 	id->ename = str[2];
 
@@ -3805,6 +3811,8 @@ bool ItemDatabase::load() {
 	else if (!this->loadyml())
 		return false;
 #endif
+	itemdb_loadname();
+
 	itemdb_readdb(db_path_pre, true);
 	sv_readdb(db_path_pre, "item_announce.txt",      ',', 2, 2, -1, &itemdb_read_announce, true);
 	sv_readdb(db_path_pre, "item_avail.txt",         ',', 2, 2, -1, &itemdb_read_itemavail, true);
@@ -3817,6 +3825,5 @@ bool ItemDatabase::load() {
 	sv_readdb(db_path_pre, "item_flag.txt",          ',', 2, 3, -1, &itemdb_read_flag, true);
 	itemdb_read_randomopt(db_path_pre, true);
 
-	itemdb_loadname();
 	return true;
 }

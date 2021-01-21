@@ -4939,7 +4939,6 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
 			continue;
 		case 0:
 			itemdb_readdb_line(filepath,lines,line);
-			itemdb_addname(data_id, filepath);
 			continue;
 		case 1:
 			sv_readdb_line(filepath, lines, line, ',',2,2,&itemdb_read_itemavail);
