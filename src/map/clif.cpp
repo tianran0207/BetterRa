@@ -5917,8 +5917,6 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,t_tick tick,
 		}
 		battle_display.critical = false;
 	}
-	if (src->type == BL_PC && skill_get_delaynodex(skill_id) & 2048)
-		sdelay = status_get_amotion(src);
 
 #if PACKETVER < 3
 	WBUFW(buf,0)=0x114;

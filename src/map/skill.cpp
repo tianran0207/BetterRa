@@ -4427,6 +4427,8 @@ static void skill_castend_end(struct map_session_data *sd, struct block_list *ta
 	if (sd) {
 		if (!sd->skill_failure)
 			mob_aggro_skill(BL_CAST(BL_MOB, target), sd, sd->skill_id, tick, x, y);
+		if (skill_get_delaynodex(skill_id) & 2048)
+			clif_skill_damage(&sd->bl, &sd->bl, tick, status_get_amotion(&sd->bl), 0, -30000, 1, SR_CRESCENTELBOW_AUTOSPELL, 1, DMG_SINGLE); // This is how official does
 		sd->skill_id = 0;
 	}
 }
