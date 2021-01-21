@@ -305,14 +305,6 @@ void YamlDatabase::invalidWarning( const YAML::Node &node, const char* fmt, ... 
 	va_end(ap);
 
 	ShowError( "Occurred in file '" CL_WHITE "%s" CL_RESET "' on line %d and column %d.\n", this->currentFile.c_str(), node.Mark().line + 1, node.Mark().column );
-
-#ifdef DEBUG
-	YAML::Emitter out;
-
-	out << node;
-
-	ShowMessage( "%s\n", out.c_str() );
-#endif
 }
 
 std::string YamlDatabase::getCurrentFile(){

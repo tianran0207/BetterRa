@@ -23400,7 +23400,7 @@ uint64 SkillDatabase::parseBodyNode(const YAML::Node &node) {
 				struct item_data *item = itemdb_search_aegisname(item_name.c_str());
 
 				if (item == nullptr) {
-					this->invalidWarning(itemNode["Item"], "Requires ItemCost Item %s does not exist.\n", item_name.c_str());
+					this->invalidWarning(it["Item"], "Requires ItemCost Item %s does not exist.\n", item_name.c_str());
 					return 0;
 				}
 

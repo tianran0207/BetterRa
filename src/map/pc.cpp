@@ -13402,7 +13402,7 @@ static bool pc_readdb_skilltree(char* fields[], int columns, int current)
 			continue;
 		}
 		if (skill_id > MAX_SKILL_ID || !skill_get_index(skill_id)) {
-			ShowWarning("pc_readdb_skilltree: Unable to load requirement skill %hu into job %d's tree.", skill_id, class_);
+			ShowWarning("pc_readdb_skilltree: Unable to load requirement skill %hu into job %d's tree.\n", skill_id, class_);
 			return false;
 		}
 		if (skill_lv > (skill_lv_max = skill_get_max(skill_id))) {
