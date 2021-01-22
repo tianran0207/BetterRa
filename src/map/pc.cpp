@@ -15512,12 +15512,13 @@ static bool pcbot_nocond_event(struct bot_data *bd, t_tick tick)
 	return false;
 }
 
-static bool pcbot_action_fail_event(struct bot_data *bd, t_tick tick)
+static bool pcbot_action_fail_event(struct bot_data *bd, t_tick tick, int type)
 {
 	struct map_session_data *sd = bd->sd;
 
 	if (npc_script_event_check(sd, NPCE_BOTRECVACTEVENT)) {
 		pc_setreg(sd, add_str("@bot_recv_type"), 0);
+		pc_setreg(sd, add_str("@bot_recv_logout"), type);
 		pc_setreg(sd, add_str("@bot_recv_target"), sd->bl.id);
 		npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
 	}
@@ -15645,6 +15646,8 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				if (pcbot_useskill(bd, tbl, tick, INF_ATTACK_SKILL)){
 					return 1;
 				}
+				if (bd->state.skill_fail_count == 10)
+					pcbot_action_fail_event(bd, tick, 3);
 				if (bd->state.skill_fail_count > 20) {
 					clif_displaymessage(sd->fd, msg_txt(sd, 2347));
 					pcbot_stop(sd, -1);
@@ -15657,6 +15660,8 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 					bd->state.next_acttime = tick + 500;
 					return 1;
 				}
+				if (bd->state.atk_fail_count == 10)
+					pcbot_action_fail_event(bd, tick, 2);
 				if (bd->state.atk_fail_count > 20) {
 					clif_displaymessage(sd->fd, msg_txt(sd, 2347));
 					pcbot_stop(sd, -2);
@@ -15768,7 +15773,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				return 1;
 			}
 			if (bd->state.move_fail_count == 4)
-				pcbot_action_fail_event(bd, tick);
+				pcbot_action_fail_event(bd, tick, 1);
 
 			bd->state.move_fail_count++;
 			return 0;
@@ -15825,7 +15830,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		}
 
 		if (bd->state.move_fail_count == 40)
-			pcbot_action_fail_event(bd, tick);
+			pcbot_action_fail_event(bd, tick, 1);
 
 		bd->state.move_fail_count++;
 		return 1;
