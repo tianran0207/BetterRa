@@ -15995,8 +15995,11 @@ int pcbot_stop(struct map_session_data *sd, int logout)
 	if (logout || sd->fd == 0) {
 		if (sd->fd > 0)
 			clif_authfail_fd(sd->fd, 15);
-		else 
+		else {
+			if (sd->st)
+				script_detach_rid(sd->st);
 			map_quit(sd);
+		}
 	}
 	return 1;
 }
