@@ -15521,7 +15521,7 @@ static bool pcbot_action_fail_event(struct bot_data *bd, t_tick tick, int type)
 		pc_setreg(sd, add_str("@bot_recv_logout"), type);
 		pc_setreg(sd, add_str("@bot_recv_target"), sd->bl.id);
 		npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
-		if (pc_readreg(sd, add_str("@bot_recv_logout"))) {
+		if (!pc_readreg(sd, add_str("@bot_recv_logout"))) {
 			switch (type) {
 			case 3: bd->state.skill_fail_count = 0; break;
 			case 2: bd->state.atk_fail_count = 0; break;
