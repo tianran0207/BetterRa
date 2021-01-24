@@ -15521,6 +15521,13 @@ static bool pcbot_action_fail_event(struct bot_data *bd, t_tick tick, int type)
 		pc_setreg(sd, add_str("@bot_recv_logout"), type);
 		pc_setreg(sd, add_str("@bot_recv_target"), sd->bl.id);
 		npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
+		if (pc_readreg(sd, add_str("@bot_recv_logout"))) {
+			switch (type) {
+			case 3: bd->state.skill_fail_count = 0; break;
+			case 2: bd->state.atk_fail_count = 0; break;
+			case 1: bd->state.move_fail_count = 0; break;
+			}
+		}
 	}
 	return true;
 }
@@ -15986,7 +15993,7 @@ int pcbot_stop(struct map_session_data *sd, int logout)
 		pc_setreg(sd, add_str("@offline"), (bd->ai_mode&BOT_OFFLINE) ? 1 : 0);
 		pc_setreg(sd, add_str("@bot_reason"), logout < 0 ? -logout : 0);
 		npc_script_event_atonce(sd, NPCE_BOTSTOPEVENT);
-		logout = logout < 0 ? static_cast<int>(pc_readreg2(sd, "@offline")) : logout;
+		logout = logout < 0 ? static_cast<int>(pc_readreg(sd, add_str("@offline"))) : logout;
 	}
 	sd->state.no_touch_script = 0;
 

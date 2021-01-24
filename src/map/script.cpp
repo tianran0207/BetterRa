@@ -10098,12 +10098,12 @@ BUILDIN_FUNC(bonus)
 		pc_setreg(sd, add_str("@bonus_val5"), val5);
 		npc_script_event_atonce(sd, NPCE_BONUSFILTER);
 		if (sd->state.processhalt) {
-			type = static_cast<int>(pc_readreg2(sd, "@bonus_type"));
+			type = static_cast<int>(pc_readreg(sd, add_str("@bonus_type")));
 
 			if (type == 0)
 				return SCRIPT_CMD_SUCCESS;
 
-#define BVAL(n) static_cast<int>(pc_readreg2(sd, "@bonus_val"#n))
+#define BVAL(n) static_cast<int>(pc_readreg(sd, add_str("@bonus_val"#n)))
 			switch (script_lastdata(st) - 2) {
 			case 0:
 			case 1: pc_bonus(sd, type, BVAL(1)); break;
