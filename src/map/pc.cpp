@@ -15281,6 +15281,26 @@ static bool pcbot_check_usecond(struct bot_data *bd, struct s_bot_uselist *list,
 	return false;
 }
 
+static bool pcbot_action_fail_event(struct bot_data *bd, t_tick tick, int type)
+{
+	struct map_session_data *sd = bd->sd;
+
+	if (npc_script_event_check(sd, NPCE_BOTRECVACTEVENT)) {
+		pc_setreg(sd, add_str("@bot_recv_type"), 0);
+		pc_setreg(sd, add_str("@bot_recv_logout"), type);
+		pc_setreg(sd, add_str("@bot_recv_target"), sd->bl.id);
+		npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
+		if (!pc_readreg(sd, add_str("@bot_recv_logout"))) {
+			switch (type) {
+			case 3: bd->state.skill_fail_count = 0; break;
+			case 2: bd->state.atk_fail_count = 0; break;
+			case 1: bd->state.move_fail_count = 0; break;
+			}
+		}
+	}
+	return true;
+}
+
 static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 {
 	struct map_session_data *sd = bd->sd;
@@ -15377,9 +15397,11 @@ static bool pcbot_useskill(struct bot_data *bd, struct block_list *tbl, t_tick t
 	else
 		result = unit_skilluse_id(src, bl->id, skill->id, skill->lv);
 
-	if (bd->sd->skill_failure)
-		bd->state.skill_fail_count++;
-	else
+	if (bd->sd->skill_failure) {
+		if (++bd->state.skill_fail_count == 10)
+			pcbot_action_fail_event(bd, tick, 3);
+		return false;
+	}else
 		bd->state.skill_fail_count = 0;
 
 	//计算下一次使用这个技能的延时
@@ -15512,27 +15534,6 @@ static bool pcbot_nocond_event(struct bot_data *bd, t_tick tick)
 	return false;
 }
 
-static bool pcbot_action_fail_event(struct bot_data *bd, t_tick tick, int type)
-{
-	struct map_session_data *sd = bd->sd;
-
-	if (npc_script_event_check(sd, NPCE_BOTRECVACTEVENT)) {
-		pc_setreg(sd, add_str("@bot_recv_type"), 0);
-		pc_setreg(sd, add_str("@bot_recv_logout"), type);
-		pc_setreg(sd, add_str("@bot_recv_target"), sd->bl.id);
-		npc_script_event_atonce(sd, NPCE_BOTRECVACTEVENT);
-		if (!pc_readreg(sd, add_str("@bot_recv_logout"))) {
-			switch (type) {
-			case 3: bd->state.skill_fail_count = 0; break;
-			case 2: bd->state.atk_fail_count = 0; break;
-			case 1: bd->state.move_fail_count = 0; break;
-			}
-		}
-	}
-	return true;
-}
-
-
 static bool pcbot_attack(struct bot_data *bd, struct block_list *tbl, t_tick tick)
 {
 	struct map_session_data *sd = bd->sd;
@@ -15541,12 +15542,13 @@ static bool pcbot_attack(struct bot_data *bd, struct block_list *tbl, t_tick tic
 	if (!check_distance_bl(&sd->bl, tbl, bd->min_chase))
 		return false;
 
-	if (!unit_attack(&sd->bl, tbl->id, 1) && sd->ud.attacktimer == INVALID_TIMER)
-	{
-		bd->state.atk_fail_count++;
+	if (!unit_attack(&sd->bl, tbl->id, 1) && sd->ud.attacktimer == INVALID_TIMER){
+		if (++bd->state.atk_fail_count == 10)
+			pcbot_action_fail_event(bd, tick, 2);
 		return false;
-	}
-	bd->state.atk_fail_count = 0;
+	}else
+		bd->state.atk_fail_count = 0;
+
 	return true;
 }
 
@@ -15650,11 +15652,8 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			int min_chase = bd->min_chase;
 			//满足条件则技能攻击目标
 			if ((bd->ai_mode & BOT_SKILL_ATK) && sd->ud.skilltimer == INVALID_TIMER) {
-				if (pcbot_useskill(bd, tbl, tick, INF_ATTACK_SKILL)){
+				if (pcbot_useskill(bd, tbl, tick, INF_ATTACK_SKILL))
 					return 1;
-				}
-				if (bd->state.skill_fail_count == 10)
-					pcbot_action_fail_event(bd, tick, 3);
 				if (bd->state.skill_fail_count > 20) {
 					clif_displaymessage(sd->fd, msg_txt(sd, 2347));
 					pcbot_stop(sd, -1);
@@ -15667,8 +15666,6 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 					bd->state.next_acttime = tick + 500;
 					return 1;
 				}
-				if (bd->state.atk_fail_count == 10)
-					pcbot_action_fail_event(bd, tick, 2);
 				if (bd->state.atk_fail_count > 20) {
 					clif_displaymessage(sd->fd, msg_txt(sd, 2347));
 					pcbot_stop(sd, -2);
@@ -15683,9 +15680,10 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				if (min_chase > 1)
 					bd->min_chase = min_chase * 2 / 3;
 				//由于上次走路失败, 所以直接用A* 走. 如果还是失败则放弃这个目标.
-				if (unit_walktobl(&sd->bl, tbl, bd->min_chase, 0))
-					return 1;
+				if (!unit_walktobl(&sd->bl, tbl, bd->min_chase, 0))
+					bd->target_id = 0;
 			}
+			return 1;
 		}
 		else if (bd->target_type == BL_ITEM){   //有效物品目标
 			if ((tbl = map_id2bl(bd->target_id)) == NULL || tbl->type != bd->target_type || !check_distance_bl(&sd->bl, tbl, 1)) {
@@ -15741,17 +15739,17 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			//如果够不到则走近魔物
 			if (unit_can_move(&sd->bl) && !check_distance_bl(&sd->bl, tbl, bd->min_chase))
 				unit_walktobl(&sd->bl, tbl, bd->min_chase, 1);
-			else if (sd->ud.canact_tick < tick)
-				pcbot_useskill(bd, tbl, tick, INF_ATTACK_SKILL);
+			else if (pcbot_useskill(bd, tbl, tick, INF_ATTACK_SKILL))
+				return 1;
 		}
-		else if ((bd->ai_mode & BOT_WEAPON_ATK)) {
+		if ((bd->ai_mode & BOT_WEAPON_ATK)) {
 			//计算攻击距离
 			bd->min_chase = status_get_status_data(&sd->bl)->rhw.range;
 			//如果够不到则走近魔物
 			if (unit_can_move(&sd->bl) && !check_distance_bl(&sd->bl, tbl, bd->min_chase))
 				unit_walktobl(&sd->bl, tbl, bd->min_chase, 3);
-			else
-				pcbot_attack(bd, tbl, tick);
+			else if (pcbot_attack(bd, tbl, tick))
+				return 1;
 		}
 		return 1;
 	}
@@ -15774,15 +15772,15 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			path_free(ad);
 		}
 		if ((sp = path_Astar_steppath(sd->bl.m, sd->bl.x, sd->bl.y, x, y, sd->bl.id)) == NULL) {
-			if (bd->state.move_fail_count > 8) {
+			if (bd->state.move_fail_count > 16) {
 				clif_displaymessage(sd->fd, msg_txt(sd, 2346));
 				pcbot_stop(sd, -3);
 				return 1;
 			}
-			if (bd->state.move_fail_count == 4)
+			if (++bd->state.move_fail_count == 8)
 				pcbot_action_fail_event(bd, tick, 1);
 
-			bd->state.move_fail_count++;
+			bd->state.next_acttime = tick + 300;
 			return 0;
 		}
 
@@ -15836,10 +15834,9 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			return 0;
 		}
 
-		if (bd->state.move_fail_count == 40)
+		if (++bd->state.move_fail_count == 40)
 			pcbot_action_fail_event(bd, tick, 1);
 
-		bd->state.move_fail_count++;
 		return 1;
 	}
 	bd->state.next_acttime = tick + 500;

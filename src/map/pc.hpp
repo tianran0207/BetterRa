@@ -413,9 +413,9 @@ enum bot_reset_type : uint8 {
 };
 
 struct s_bot_uselist {
-	unsigned short id, lv, delay;
+	unsigned short id, lv;
 	short cond, cond_val[2], prior;
-	int inf;
+	int inf, delay;
 	t_tick cooldown;
 	char eventname[EVENT_NAME_LENGTH];
 };
