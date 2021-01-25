@@ -3142,13 +3142,14 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 		ShowError("itemdb_parse_dbrow: Found duplicate item Aegis name for %s, skipping.\n", str[1]);
 		return 0;
 	}
-	if (!item || strcmp(item->name.c_str(), str[1]))
-		itemdb_addname(id.get());
 
 	id->name.resize(ITEM_NAME_LENGTH);
 	id->ename.resize(ITEM_NAME_LENGTH);
 	id->name = str[1];
 	id->ename = str[2];
+
+	if (!item || strcmp(item->name.c_str(), str[1]))
+		itemdb_addname(id.get());
 
 	id->type = static_cast<item_types>(atoi(str[3]));
 
