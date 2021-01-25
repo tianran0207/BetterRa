@@ -32040,6 +32040,7 @@ BUILDIN_FUNC(refineui_result)
 
 BUILDIN_FUNC(startsellitem)
 {
+#if PACKETVER_MAIN_NUM >= 20190904 || PACKETVER_RE_NUM >= 20190904 || PACKETVER_ZERO_NUM >= 20190828
 	struct npc_data *nd;
 	struct item_data *it;
 	int i = 0, id = script_getnum(st,2);
@@ -32083,10 +32084,14 @@ BUILDIN_FUNC(startsellitem)
 	shop->disable = true;
 
 	return SCRIPT_CMD_SUCCESS;
+#else
+	return SCRIPT_CMD_FAILURE;
+#endif
 }
 
 BUILDIN_FUNC(sellitemcurrency)
 {
+#if PACKETVER_MAIN_NUM >= 20190904 || PACKETVER_RE_NUM >= 20190904 || PACKETVER_ZERO_NUM >= 20190828
 	struct npc_data *nd;
 	if ((nd = map_id2nd(st->oid)) == NULL || nd->u.scr.shop == NULL || nd->subtype != NPCTYPE_SCRIPT) {
 		ShowWarning("buildin_sellitemcurrency: trying to run without a bartershop NPC!\n");
@@ -32108,9 +32113,13 @@ BUILDIN_FUNC(sellitemcurrency)
 	item->currency[item->value2].refine = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
 	item->value2++;
 	return SCRIPT_CMD_SUCCESS;
+#else
+	return SCRIPT_CMD_FAILURE;
+#endif
 }
 BUILDIN_FUNC(endsellitem)
 {
+#if PACKETVER_MAIN_NUM >= 20190904 || PACKETVER_RE_NUM >= 20190904 || PACKETVER_ZERO_NUM >= 20190828
 	struct npc_data *nd;
 	if ((nd = map_id2nd(st->oid)) == NULL || nd->u.scr.shop == NULL || nd->subtype != NPCTYPE_SCRIPT) {
 		ShowWarning("buildin_endsellitem: trying to run without a bartershop NPC!\n");
@@ -32122,10 +32131,14 @@ BUILDIN_FUNC(endsellitem)
 	}
 	nd->u.scr.shop->disable = false;
 	return SCRIPT_CMD_SUCCESS;
+#else
+	return SCRIPT_CMD_FAILURE;
+#endif
 }
 
 BUILDIN_FUNC(bartershop)
 {
+#if PACKETVER_MAIN_NUM >= 20190904 || PACKETVER_RE_NUM >= 20190904 || PACKETVER_ZERO_NUM >= 20190828
 	struct map_session_data* sd;
 	struct npc_data *nd;
 	
@@ -32143,6 +32156,9 @@ BUILDIN_FUNC(bartershop)
 	}
 	clif_npc_barter_open_ex(sd, nd);
 	return SCRIPT_CMD_SUCCESS;
+#else
+	return SCRIPT_CMD_FAILURE;
+#endif
 }
 
 int buildin_query_sql_asyn_sub(void *data)

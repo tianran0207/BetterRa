@@ -10693,6 +10693,7 @@ ACMD_FUNC(offline)
 
 ACMD_FUNC(cashshopsale)
 {
+#if PACKETVER_SUPPORTS_SALES
 	int count, minute_;
 	t_itemid itemid;
 	t_tick start_tick;
@@ -10706,6 +10707,7 @@ ACMD_FUNC(cashshopsale)
 	start_tick = mktime(&info);
 
 	sale_add_item(itemid, count, start_tick, start_tick + minute_ * 60);
+#endif
 	return 0;
 }
 

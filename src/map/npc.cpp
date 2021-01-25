@@ -2296,6 +2296,7 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list *
  **/
 uint8 npc_barter_buylist(struct map_session_data *sd, uint16 n, struct s_npc_barter_buy_list *item_list)
 {
+#if PACKETVER_MAIN_NUM >= 20190116 || PACKETVER_RE_NUM >= 20190116 || PACKETVER_ZERO_NUM >= 20181226
 	struct npc_data* nd;
 	struct npc_item_list *shop = NULL;
 	int i,w,j,k,new_,count;
@@ -2420,6 +2421,7 @@ uint8 npc_barter_buylist(struct map_session_data *sd, uint16 n, struct s_npc_bar
 			}
 		}
 	}
+#endif
 	return 0;
 }
 
@@ -3414,11 +3416,13 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 		if (type == NPCTYPE_MARKETSHOP )
 			nd->u.shop.shop_item[nd->u.shop.count].qty = qty;
 #endif
+#if PACKETVER_MAIN_NUM >= 20190904 || PACKETVER_RE_NUM >= 20190904 || PACKETVER_ZERO_NUM >= 20190828
 		if (type == NPCTYPE_BARTERSHOP ) {
 			nd->u.shop.shop_item[nd->u.shop.count].value = nameid;
 			nd->u.shop.shop_item[nd->u.shop.count].value2 = value;
 			nd->u.shop.shop_item[nd->u.shop.count].qty = -1;
 		}
+#endif
 		nd->u.shop.count++;
 		p = strchr(p+1,',');
 	}
