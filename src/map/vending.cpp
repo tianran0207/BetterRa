@@ -141,12 +141,12 @@ void vending_vendinglistreq(struct map_session_data* sd, int id)
 		if (!vending_extended_vending_check(vsd))
 			return;
 		else if (vsd->vend_loot == battle_config.item_zeny)
-			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_name(vsd->vend_loot), sd->status.zeny);
+			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_ename(vsd->vend_loot), sd->status.zeny);
 		else if(vsd->vend_loot == battle_config.item_cash)
-			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_name(vsd->vend_loot), sd->cashPoints);
+			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_ename(vsd->vend_loot), sd->cashPoints);
 		else {
 			int idx = pc_search_inventory(sd, vsd->vend_loot);
-			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_name(vsd->vend_loot), idx == -1 ? 0 : sd->inventory.u.items_inventory[idx].amount);
+			sprintf(output, msg_txt(sd, 2355), vsd->status.name, itemdb_ename(vsd->vend_loot), idx == -1 ? 0 : sd->inventory.u.items_inventory[idx].amount);
 		}
 		clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
 	}
@@ -413,7 +413,7 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		for (i = 0; i < count; i++)
 			z += ((double)vsd->vending[vend_list[i]].value * (double)(*(uint16*)(data + 4 * i + 0)));
 
-		sprintf(output, msg_txt(sd, 2359), (int)z, itemdb_name(vsd->vend_loot),
+		sprintf(output, msg_txt(sd, 2359), (int)z, itemdb_ename(vsd->vend_loot),
 			vsd->vend_loot == battle_config.item_zeny ? sd->status.zeny :
 			vsd->vend_loot == battle_config.item_cash ? sd->cashPoints :
 			(idx = pc_search_inventory(sd, vsd->vend_loot)) == -1 ? 0 :

@@ -14369,7 +14369,7 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd){
 			return;
 		if (battle_config.show_item_vending) {
 			char out_msg[1024];
-			sprintf(out_msg, "[%s]%s", itemdb_name(sd->vend_loot), message);
+			sprintf(out_msg, "[%s]%s", itemdb_ename(sd->vend_loot), message);
 			vending_openvending(sd, out_msg, data, len / 8, NULL);
 			return;
 		}
@@ -19238,7 +19238,7 @@ static void clif_parse_ReqOpenBuyingStore( int fd, struct map_session_data* sd )
 			return;
 		if (battle_config.show_item_vending) {
 			char out_msg[1024];
-			sprintf(out_msg, "[%s]%s", itemdb_name(sd->vend_loot), storename);
+			sprintf(out_msg, "[%s]%s", itemdb_ename(sd->vend_loot), storename);
 			buyingstore_create( sd, p->zenyLimit, p->result, out_msg, p->items, packet_len / sizeof( struct PACKET_CZ_REQ_OPEN_BUYING_STORE_sub ), NULL );
 			return;
 		}

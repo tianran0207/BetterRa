@@ -99,7 +99,7 @@ int buyingstore_currency(struct map_session_data *sd, t_itemid nameid) {
 
 	sd->vend_loot = nameid;
 
-	sprintf(output, msg_txt(sd, 2354), item->name.c_str());
+	sprintf(output, msg_txt(sd, 2354), item->ename.c_str());
 	clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
 
 	clif_buyingstore_open(sd);
@@ -406,12 +406,12 @@ void buyingstore_open(struct map_session_data* sd, uint32 account_id)
 		if (!buying_extended_vending_check(pl_sd))
 			return;
 		else if (pl_sd->vend_loot == battle_config.item_zeny)
-			sprintf(output, msg_txt(sd, 2355), pl_sd->status.name, itemdb_name(pl_sd->vend_loot), sd->status.zeny);
+			sprintf(output, msg_txt(sd, 2355), pl_sd->status.name, itemdb_ename(pl_sd->vend_loot), sd->status.zeny);
 		else if (pl_sd->vend_loot == battle_config.item_cash)
-			sprintf(output, msg_txt(sd, 2355), pl_sd->status.name, itemdb_name(pl_sd->vend_loot), sd->cashPoints);
+			sprintf(output, msg_txt(sd, 2355), pl_sd->status.name, itemdb_ename(pl_sd->vend_loot), sd->cashPoints);
 		else {
 			int idx = pc_search_inventory(sd, pl_sd->vend_loot);
-			sprintf(output, msg_txt(sd, 2355), pl_sd->status.name, itemdb_name(pl_sd->vend_loot), idx == -1 ? 0 : sd->inventory.u.items_inventory[idx].amount);
+			sprintf(output, msg_txt(sd, 2355), pl_sd->status.name, itemdb_ename(pl_sd->vend_loot), idx == -1 ? 0 : sd->inventory.u.items_inventory[idx].amount);
 		}
 		clif_broadcast_color(&sd->bl, output, "0x00FFFF", SELF);
 	}

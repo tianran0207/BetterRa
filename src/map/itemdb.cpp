@@ -1198,7 +1198,7 @@ static struct item_data* itemdb_searchname1(const char *str, bool aegis_only)
 	if (item || aegis_only)
 		return item;
 
-	item = (struct item_data*)strdb_get(itemdb_name_db, item_name);
+	item = (struct item_data*)strdb_get(itemdb_name_db, str);
 
 	return item;
 }

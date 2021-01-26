@@ -6267,7 +6267,7 @@ ACMD_FUNC(autotrade) {
 	}
 
 	if (sd->state.vending && battle_config.extended_vending || sd->state.buyingstore && battle_config.extended_buying) {
-		struct item_data* item_data = itemdb_search_aegisname(itemdb_name(sd->vend_loot));
+		struct item_data* item_data = itemdb_searchname(itemdb_ename(sd->vend_loot));
 		if (!item_data || item_data->nameid != sd->vend_loot) {
 			ShowError("autotrade: Repetition of currency names with itemID '%d' and '%d'\n", item_data ? item_data->nameid : 0, sd->vend_loot);
 			clif_displaymessage(fd, msg_txt(sd, 2360));
