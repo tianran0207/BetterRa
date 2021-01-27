@@ -31527,9 +31527,18 @@ BUILDIN_FUNC(settitleicon)
 
 BUILDIN_FUNC(getskillinfo)
 {
-	uint16 skill_id = script_getnum(st, 3);
+	uint16 skill_id;
 	uint16 skill_parma = script_hasdata(st, 4) ? script_getnum(st, 4) : 0;
-	
+	if (script_isstring(st, 3))
+		skill_id = skill_name2id(script_getstr(st, 3));
+	else
+		skill_id = script_getnum(st, 3);
+		
+	if (!skill_get_index(skill_id)) {
+		ShowError("buildin_getskillinfo: Invalid skill ID %d. Skipping.\n", skill_id);
+		return SCRIPT_CMD_FAILURE;
+	}
+
 	switch (script_getnum(st, 2)) {
 	case 1: script_pushint(st, skill_get_casttype(skill_id));		break;
 	case 2: script_pushconststr(st, skill_get_name(skill_id));		break;
@@ -33422,7 +33431,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(next_dropitem_special, "iii"),
 	BUILDIN_DEF(unitdefratefixed, "ii???"),
 	BUILDIN_DEF(settitleicon, "iis"),
-	BUILDIN_DEF(getskillinfo, "ii?"),
+	BUILDIN_DEF(getskillinfo, "vi?"),
 	BUILDIN_DEF(getequipinfo, "?"),
 	BUILDIN_DEF(getcardinfo, "?"),
 	BUILDIN_DEF(searchinventory, "i??"),
