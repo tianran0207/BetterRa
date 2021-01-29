@@ -2,6 +2,7 @@
 #   Copyright(C) 2019 rAthena Development Team
 #   https://rathena.org - https://github.com/rathena
 #
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -17412,7 +17413,7 @@ Body:
       if (.@r >= 11)
          bonus bDelayrate,-7;
   - Id: 1867
-    AegisName: aegis_1867
+    AegisName: Ein_1HKNUCK
     Name: Safety Knuckle
     Type: Weapon
     SubType: Knuckle
@@ -17445,7 +17446,7 @@ Body:
          bonus bDelayrate,-20;
       }
   - Id: 1870
-    AegisName: aegis_1870
+    AegisName: R_Knuckle
     Name: Royal Knuckle
     Type: Weapon
     SubType: Knuckle
@@ -18325,6 +18326,7 @@ Body:
       BardDancer: true
     Classes:
       All_Third: true
+    Gender: Male
     Locations:
       Right_Hand: true
     WeaponLevel: 3
@@ -19444,6 +19446,7 @@ Body:
       BardDancer: true
     Classes:
       All_Third: true
+    Gender: Female
     Locations:
       Right_Hand: true
     WeaponLevel: 3
@@ -22522,6 +22525,22 @@ Body:
       bonus2 bSubRace,RC_Demon,5;
       bonus2 bSubEle,Ele_All,5;
       bonus2 bSubEle,Ele_Neutral,-5;
+  - Id: 2184
+    AegisName: Bunker_Shield
+    Name: 燃料盾牌
+    Type: Armor
+    Buy: 20
+    Weight: 3500
+    Defense: 90
+    Locations:
+      Left_Hand: true
+    EquipLevelMin: 50
+    Refineable: true
+    View: 3
+    Script: |
+      .@r = getrefine();
+      bonus2 bAddClass,Class_All,4+max(0,.@r-4);
+      bonus bAspdRate,-5;
   - Id: 2185
     AegisName: Magic_Reflector
     Name: 魔力反射器
@@ -22668,6 +22687,21 @@ Body:
       bonus bMaxSP,50;
       if (getrefine()>=14)
          skill "MG_STONECURSE",5;
+  - Id: 2191
+    AegisName: Solomon_Key
+    Name: 所罗门的魔导书
+    Type: Armor
+    Weight: 300
+    Defense: 2
+    Slots: 1
+    Locations:
+      Left_Hand: true
+    EquipLevelMin: 30
+    Refineable: true
+    View: 1
+    Script: |
+      bonus bInt,2;
+      bonus bMatk,(readparam(bInt) >= 120 ? 30 : 5);
   - Id: 2194
     AegisName: Rouban_Shield
     Name: 抗风属性神盾
@@ -28014,7 +28048,6 @@ Body:
       All: true
       Novice: false
       SuperNovice: false
-    Gender: Female
     Locations:
       Shoes: true
     Refineable: true
@@ -49211,7 +49244,6 @@ Body:
     Buy: 800
     Weight: 100
     Defense: 1
-    Gender: Female
     Locations:
       Head_Top: true
     Refineable: true
@@ -51608,6 +51640,18 @@ Body:
       bonus3 bAutoSpellWhenHit,"SM_ENDURE",8,5;
       bonus2 bHPLossRate,400,1000;
       bonus bUnbreakableHelm;
+  - Id: 5878
+    AegisName: Miracle_Blue_Rose
+    Name: 奇迹的蓝玫瑰
+    Type: Armor
+    Weight: 300
+    Locations:
+      Head_Low: true
+    EquipLevelMin: 30
+    View: 1064
+    Script: |
+      bonus bLuk,1;
+      bonus3 bAutoSpell,"PR_ASPERSIO",1,20;
   - Id: 5881
     AegisName: Weissbier_Hat
     Name: Weissbier Hat
@@ -51996,6 +52040,7 @@ Body:
       BardDancer: true
     Classes:
       All_Third: true
+    Gender: Female
     Locations:
       Head_Top: true
     EquipLevelMin: 100
@@ -52119,6 +52164,19 @@ Body:
     Locations:
       Head_Top: true
     Refineable: true
+  - Id: 5916
+    AegisName: Exosrcist_Glass
+    Name: 退魔的眼镜
+    Type: Armor
+    Weight: 200
+    Defense: 1
+    Locations:
+      Head_Mid: true
+    EquipLevelMin: 10
+    View: 1169
+    Script: |
+      bonus2 bAddRace,RC_Demon,5;
+      bonus2 bSubRace,RC_Demon,5;
   - Id: 5917
     AegisName: Yellow_Scarf
     Name: 黄色面罩
@@ -52194,6 +52252,32 @@ Body:
       .@r = getrefine();
       bonus bHealPower,10+((.@r/2) * 2);
       bonus2 bSkillUseSP,"AB_CHEAL",(.@r * 5);
+  - Id: 5921
+    AegisName: Monster_Fish_Gill
+    Name: 怪鱼的鳃
+    Type: Armor
+    Weight: 200
+    Defense: 1
+    Locations:
+      Head_Mid: true
+    EquipLevelMin: 10
+    View: 1218
+    Script: |
+      bonus2 bAddRace,RC_Fish,5;
+      bonus2 bSubRace,RC_Fish,5;
+  - Id: 5924
+    AegisName: DragonKnight_Eyepatch
+    Name: 龙骑士的眼罩
+    Type: Armor
+    Weight: 200
+    Defense: 1
+    Locations:
+      Head_Mid: true
+    EquipLevelMin: 10
+    View: 1227
+    Script: |
+      bonus2 bAddRace,RC_Dragon,5;
+      bonus2 bSubRace,RC_Dragon,5;
   - Id: 5933
     AegisName: Crow_Tengu_Mask
     Name: 乌鸦天狗面具
@@ -52465,6 +52549,28 @@ Body:
       bonus bLuk,10;
       bonus bMdef,10;
       bonus bFlee2,2;
+  - Id: 5975
+    AegisName: Zherlthsh_Doll
+    Name: 艾斯恩·冯·凯撒61世
+    Type: Armor
+    Buy: 10
+    Weight: 300
+    Slots: 1
+    Locations:
+      Head_Top: true
+    EquipLevelMin: 1
+    View: 1376
+    Script: |
+      bonus bMdef,5;
+      .@def = 10;
+      if (getpetinfo(PETINFO_ID) == 9026) {
+        .@def += 5;
+        if (getpetinfo(PETINFO_INTIMATE) >= PET_INTIMATE_CORDIAL) {
+            .@def += 5;
+            bonus bNoKnockback;
+        }
+      }
+      bonus2 bSubClass,Class_Boss,.@def;
   - Id: 5978
     AegisName: Syringe_Toy
     Name: 玩具针筒
@@ -53332,11 +53438,11 @@ Body:
     Type: Petarmor
     Buy: 20
   - Id: 10043
-    AegisName: aegis_10043
+    AegisName: Ep_17_2_C_Admin1_Acc
     Name: Little Headdress Beta
     Type: PetArmor
   - Id: 10044
-    AegisName: aegis_10044
+    AegisName: Ep_17_2_C_Admin2_Acc
     Name: Little Headdress Alpha
     Type: PetArmor
   - Id: 13000
@@ -59185,7 +59291,7 @@ Body:
          }
       }
   - Id: 13346
-    AegisName: aegis_13346
+    AegisName: Ein_BHHuuma
     Name: Grinder Huuma Shuriken
     Type: Weapon
     SubType: Huuma
@@ -59218,7 +59324,7 @@ Body:
          bonus2 bSkillCooldown,"KO_HUUMARANKA",-1000;
       }
   - Id: 13347
-    AegisName: aegis_13347
+    AegisName: R_Huuma_Shuriken
     Name: Royal Huuma Shuriken
     Type: Weapon
     SubType: Huuma
@@ -64705,7 +64811,7 @@ Body:
          bonus bNoSizeFix;
       }
   - Id: 15210
-    AegisName: aegis_15210
+    AegisName: Rental_SupperSwimsuit
     Name: '[租赁]冲浪泳衣'
     Type: Armor
     Defense: 1
@@ -64752,7 +64858,7 @@ Body:
          bonus2 bAddClass,Class_All,.@val;
       }
   - Id: 15246
-    AegisName: aegis_15246
+    AegisName: True_Hunting_Mail
     Name: 特路亚狩猎铠甲
     Type: Armor
     Weight: 900
@@ -64796,6 +64902,38 @@ Body:
       bonus2 bMagicAddRace,RC_Insect,10;
       bonus2 bAddRace,RC_Brute,10;
       bonus2 bMagicAddRace,RC_Brute,10;
+  - Id: 15249
+    AegisName: Antonio_Coat
+    Name: Antonio's Coat
+    Type: Armor
+    Buy: 20
+    Weight: 400
+    Defense: 50
+    Slots: 1
+    Locations:
+      Armor: true
+    EquipLevelMin: 100
+    Refineable: true
+    Script: |
+      bonus bVariableCastrate,-10;
+      .@r = getrefine();
+      if (.@r >= 7) {
+        .@mdef = 5;
+        .@pd = 1;
+        bonus bUnbreakableArmor;
+        if (.@r >= 8) {
+          .@mdef += 10;
+          .@pd += 1;
+          bonus2 bSubRace,RC_DemiHuman,7;
+        }
+        if (.@r >= 9) {
+          .@mdef += 15;
+          .@pd += 1;
+          bonus2 bSubSkill,"NPC_CRITICALSLASH",100;
+        }
+        bonus bMdef,.@mdef;
+        bonus bFlee2,.@pd;
+      }
   - Id: 15250
     AegisName: Beginner's_Suit
     Name: Beginner's Suit
@@ -65341,7 +65479,7 @@ Body:
          bonus2 bMagicAddRace,RC_Formless,15;
       }
   - Id: 15390
-    AegisName: aegis_15390
+    AegisName: Regia_Hunting_Mail
     Name: 蕾吉亚狩猎铠甲
     Type: Armor
     Weight: 900
@@ -65360,7 +65498,7 @@ Body:
       bonus2 bAddRace,RC_Brute,7;
       bonus2 bMagicAddRace,RC_Brute,7;
   - Id: 15391
-    AegisName: aegis_15391
+    AegisName: DragonA_Red
     Name: Red Dragon Plate
     Type: Armor
     Weight: 1200
@@ -65383,7 +65521,7 @@ Body:
          bonus2 bAddSize,Size_Large,10;
       }
   - Id: 15392
-    AegisName: aegis_15392
+    AegisName: DragonA_Green
     Name: Green Dragon Plate
     Type: Armor
     Weight: 1200
@@ -65406,7 +65544,7 @@ Body:
          bonus2 bAddSize,Size_Large,10;
       }
   - Id: 15393
-    AegisName: aegis_15393
+    AegisName: DragonA_Gold
     Name: Gold Dragon Plate
     Type: Armor
     Weight: 1200
@@ -65433,7 +65571,7 @@ Body:
          bonus2 bMagicAddSize,Size_Large,6;
       }
   - Id: 15394
-    AegisName: aegis_15394
+    AegisName: DragonA_Purple
     Name: Purple Dragon Plate
     Type: Armor
     Weight: 1200
@@ -65460,7 +65598,7 @@ Body:
          bonus2 bMagicAddSize,Size_Large,8;
       }
   - Id: 15395
-    AegisName: aegis_15395
+    AegisName: DragonA_Blue
     Name: Blue Dragon Plate
     Type: Armor
     Weight: 1200
@@ -65484,7 +65622,7 @@ Body:
          bonus2 bMagicAddSize,Size_Large,10;
       }
   - Id: 15396
-    AegisName: aegis_15396
+    AegisName: DragonA_Silver
     Name: Silver Dragon Plate
     Type: Armor
     Weight: 1200
@@ -65508,7 +65646,7 @@ Body:
          bonus2 bAddSize,Size_Large,10;
       }
   - Id: 15397
-    AegisName: aegis_15397
+    AegisName: CassockA_STR
     Name: STR Soutane
     Type: Armor
     Weight: 800
@@ -65528,7 +65666,7 @@ Body:
       bonus2 bAddRace,RC_Angel,8*(.@r/4);
       bonus2 bAddRace,RC_Demon,8*(.@r/4);
   - Id: 15398
-    AegisName: aegis_15398
+    AegisName: CassockA_AGI
     Name: AGI Soutane
     Type: Armor
     Weight: 800
@@ -65548,7 +65686,7 @@ Body:
       bonus2 bAddRace,RC_Angel,8*(.@r/4);
       bonus2 bAddRace,RC_Demon,8*(.@r/4);
   - Id: 15399
-    AegisName: aegis_15399
+    AegisName: CassockA_VIT
     Name: VIT Soutane
     Type: Armor
     Weight: 800
@@ -65571,7 +65709,7 @@ Body:
       bonus2 bAddRace,RC_Demon,10*(.@r/4);
       bonus2 bMagicAddRace,RC_Demon,10*(.@r/4);
   - Id: 15400
-    AegisName: aegis_15400
+    AegisName: CassockA_DEX
     Name: DEX Soutane
     Type: Armor
     Weight: 800
@@ -65595,7 +65733,7 @@ Body:
       bonus2 bAddRace,RC_Demon,6*(.@r/4);
       bonus2 bMagicAddRace,RC_Demon,6*(.@r/4);
   - Id: 15401
-    AegisName: aegis_15401
+    AegisName: CassockA_INT
     Name: INT Soutane
     Type: Armor
     Weight: 800
@@ -65615,7 +65753,7 @@ Body:
       bonus2 bMagicAddRace,RC_Angel,8*(.@r/4);
       bonus2 bMagicAddRace,RC_Demon,8*(.@r/4);
   - Id: 15402
-    AegisName: aegis_15402
+    AegisName: CassockA_LUK
     Name: LUK Soutane
     Type: Armor
     Weight: 800
@@ -67529,7 +67667,7 @@ Body:
       if (.@r>=11)
          bonus2 bAddClass,Class_All,10;
   - Id: 16099
-    AegisName: aegis_16099
+    AegisName: Ein_1HHAMMER
     Name: Rubber Hammer
     Type: Weapon
     SubType: Mace
@@ -67751,12 +67889,10 @@ Body:
       NoMail: true
       NoAuction: true
     Script: |
-      bonus bUnbreakableWeapon;
       bonus bLuk,3;
       bonus bCritAtkRate,50;
-      if (BaseLevel>99) {
+      if (BaseLevel>99)
          bonus bLongAtkRate,20;
-      }
   - Id: 18108
     AegisName: Brindle_Eel
     Name: 斑纹鳗鱼弓
@@ -67782,12 +67918,10 @@ Body:
       NoMail: true
       NoAuction: true
     Script: |
-      bonus bUnbreakableWeapon;
       bonus bAgi,3;
       autobonus "{ bonus bAspd,2; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_HASTEUP; }";
-      if (BaseLevel>99) {
+      if (BaseLevel>99)
          bonus bLongAtkRate,20;
-      }
   - Id: 18109
     AegisName: Catapult
     Name: 连弩
@@ -68193,7 +68327,6 @@ Body:
       bonus2 bAddRace,RC_Player_Human,30;
       bonus2 bIgnoreDefRaceRate,RC_DemiHuman,10;
       bonus2 bIgnoreDefRaceRate,RC_Player_Human,10;
-      bonus bUnbreakableWeapon;
   - Id: 18125
     AegisName: Arcus_Daemonicus
     Name: 恶魔之弓
@@ -68284,6 +68417,29 @@ Body:
       NoGuildStorage: true
       NoMail: true
       NoAuction: true
+  - Id: 18129
+    AegisName: Ixion_Wing_S
+    Name: 伊克西翁之翼
+    Type: Weapon
+    SubType: Bow
+    Weight: 300
+    Attack: 135
+    Range: 5
+    Slots: 3
+    Jobs:
+      Hunter: true
+    Classes:
+      All_Upper: true
+      All_Third: true
+    Locations:
+      Both_Hand: true
+    WeaponLevel: 4
+    EquipLevelMin: 70
+    Refineable: true
+    View: 11
+    Script: |
+      autobonus "{ bonus bAspdRate,7; }",5+getrefine(),7000,BF_WEAPON,"{ specialeffect2 EF_HASTEUP; }";
+      bonus2 bAddSkillBlow,"AC_CHARGEARROW",3;
   - Id: 18130
     AegisName: Crimson_Bow
     Name: 绯红色天弓
@@ -68579,9 +68735,8 @@ Body:
     Script: |
       bonus2 bSkillAtk,"WM_SEVERE_RAINSTORM",20;
       bonus bBaseAtk,6*(min(BaseLevel,160)/10);
-      if (getrefine()>=7) {
-         bonus bLongAtkRate,getskilllv("BA_MUSICALLESSON");
-      }
+      if (getrefine()>=7)
+         bonus bLongAtkRate,getskilllv("BA_MUSICALLESSON")+getskilllv("DC_DANCINGLESSON");
   - Id: 18164
     AegisName: Royal_Bow_K
     Name: 王室名弓
@@ -68607,7 +68762,7 @@ Body:
       bonus2 bSkillAtk,"RA_ARROWSTORM",.@r/3*12;
       if (.@r>=9)
          bonus bAspdRate,10;
-      if (.@r>=11) 
+      if (.@r>=11)
          bonus bLongAtkRate,5;
   - Id: 18165
     AegisName: Rebeginer_RN_Bow
@@ -69046,7 +69201,7 @@ Body:
       if (.@r>=11)
          bonus2 bSkillCooldown,"WM_SEVERE_RAINSTORM",-2000;
   - Id: 18190
-    AegisName: aegis_18190
+    AegisName: Ein_BHBOW
     Name: Bolt Shooter
     Type: Weapon
     SubType: Bow
@@ -69078,7 +69233,7 @@ Body:
          bonus bDelayrate,-20;
       }
   - Id: 18191
-    AegisName: aegis_18191
+    AegisName: G_Knight_Bow
     Name: Royal Knight Bow
     Type: Weapon
     SubType: Bow
@@ -69106,7 +69261,7 @@ Body:
          bonus2 bAddRace,RC_Angel,20;
       }
   - Id: 18198
-    AegisName: aegis_18198
+    AegisName: G_Knight_Archer_Bow
     Name: Royal Knight Archer Bow
     Type: Weapon
     SubType: Bow
@@ -72766,6 +72921,18 @@ Body:
       bonus bVit,1;
       bonus bAspdRate,3;
       bonus bVariableCastrate,-3;
+  - Id: 18720
+    AegisName: Magical_Booster
+    Name: 魔力爆发装置
+    Type: Armor
+    Buy: 20
+    Weight: 300
+    Locations:
+      Head_Mid: true
+    EquipLevelMin: 30
+    View: 873
+    Script: |
+      bonus bMatkRate,3;
   - Id: 18724
     AegisName: L_Magestic_Goat_
     Name: 巨大的山羊角
@@ -75422,6 +75589,20 @@ Body:
       bonus2 bSkillUseSP,"NJ_HUUJIN",-5;
       bonus2 bVariableCastrate,"NJ_RAIGEKISAI",-10;
       bonus2 bSkillAtk,"NJ_KAMAITACHI",20;
+  - Id: 18959
+    AegisName: Old_Pink_Poo_Hat
+    Name: 粉红米田共帽
+    Type: Armor
+    Buy: 20
+    Weight: 1200
+    Slots: 1
+    Locations:
+      Head_Top: true
+    EquipLevelMin: 1
+    View: 1102
+    Script: |
+      bonus2 bSubRace,RC_Player_Human,13;
+      bonus2 bSubRace,RC_Player_Doram,13;
   - Id: 18960
     AegisName: Love_Daddy_2013
     Name: Love Daddy 2013
@@ -77579,6 +77760,30 @@ Body:
     Script: |
       bonus bBaseAtk,5;
       bonus bMatk,5;
+  - Id: 19163
+    AegisName: CatharinaPawnBrad60
+    Name: Catherina Von Blood
+    Type: Armor
+    Buy: 20
+    Weight: 300
+    Slots: 1
+    Locations:
+      Head_Top: true
+    EquipLevelMin: 1
+    View: 1527
+    Script: |
+      bonus bHPGainValue,500;
+      bonus bLongHPGainValue,500;
+      bonus bMagicHPGainValue,500;
+      bonus bSPGainValue,50;
+      bonus bLongSPGainValue,50;
+      bonus bMagicSPGainValue,50;
+      if (getpetinfo(PETINFO_ID) == 9055) {
+        bonus2 bHPRegenRate,(getpetinfo(PETINFO_INTIMATE) >= PET_INTIMATE_LOYAL ? 1000 : 500),5000;
+        bonus2 bSPRegenRate,(getpetinfo(PETINFO_INTIMATE) >= PET_INTIMATE_LOYAL ? 40 : 20),5000;
+      }
+    UnEquipScript: |
+      heal -5000,-500;
   - Id: 19164
     AegisName: Para_Team_Hat100
     Name: 觉醒伊甸园圆帽Ⅰ
@@ -77707,6 +77912,20 @@ Body:
       bonus2 bMagicAddRace,RC_Brute,10;
       autobonus "{ bonus2 bSPLossRate,5,1000; bonus bBaseAtk,25*getrefine(); }",3*.@r,3000,BF_NORMAL,"{ active_transform 1115,3000; }";
       autobonus2 "{ bonus2 bSPLossRate,5,1000; bonus bBaseAtk,25*getrefine(); }",3*.@r,3000,BF_NORMAL,"{ active_transform 1115,3000; }";
+  - Id: 19170
+    AegisName: Guardian_Processor
+    Name: Guardian Processor
+    Type: Armor
+    Buy: 20
+    Weight: 300
+    Locations:
+      Head_Top: true
+    EquipLevelMin: 100
+    View: 1552
+    Script: |
+      .@bonus = (getrefine() >= 7 ? 12 : 10);
+      bonus2 bSubRace,RC_DemiHuman,.@bonus;
+      bonus2 bSubRace,RC_Player_Human,.@bonus;
   - Id: 19171
     AegisName: Magician_Knit_Hat
     Name: Magician Knit Hat
@@ -78746,7 +78965,7 @@ Body:
       .@val = max(min(.@r-15,5),0);
       bonus bFixedCast,-.@val*100;
   - Id: 19256
-    AegisName: aegis_19256
+    AegisName: Mobile_BeginnerMark
     Name: Beginner Mark
     Type: Armor
     View: 1348
@@ -78949,7 +79168,7 @@ Body:
       bonus bMagicSPGainValue,5;
       bonus bLongSPGainValue,5;
   - Id: 19275
-    AegisName: aegis_19275
+    AegisName: Rental_Scuba_Mask
     Name: '[租赁]潜水口罩'
     Type: Armor
     View: 400
@@ -78970,7 +79189,7 @@ Body:
       bonus bBaseAtk,20;
       bonus2 bSubRace,RC_Fish,5;
   - Id: 19277
-    AegisName: aegis_19277
+    AegisName: Soda_In_Mouth
     Name: 嘴刁清凉汽水
     Type: Armor
     View: 1643
@@ -78978,7 +79197,7 @@ Body:
     Locations:
       Head_Low: true
   - Id: 19283
-    AegisName: aegis_19283
+    AegisName: K_Heart_Wing_Hairband
     Name: "[Katsua]Heart Wings Hairband"
     Type: Armor
     View: 733
@@ -78996,7 +79215,7 @@ Body:
       bonus bDelayrate,-5-3*(.@r/3);
       bonus bUseSPrate,-10-3*(.@r/3);
   - Id: 19284
-    AegisName: aegis_19284
+    AegisName: K_New_Wave_Sunglasses
     Name: "[Katsua]New Wave Sunglasses"
     Type: Armor
     View: 856
@@ -79056,7 +79275,7 @@ Body:
       Costume_Head_Top: true
     View: 1668
   - Id: 19296
-    AegisName: aegis_19296
+    AegisName: Classical_Fhat
     Name: 经典羽毛帽
     Type: Armor
     View: 1381
@@ -79093,7 +79312,7 @@ Body:
     Script: |
       bonus bVariableCastrate,-5;
   - Id: 19300
-    AegisName: aegis_19300
+    AegisName: Dog_Officer
     Name: 汪福将军帽
     Type: Armor
     View: 1601
@@ -79133,7 +79352,7 @@ Body:
     Script: |
       bonus bCritAtkRate,5;
   - Id: 19308
-    AegisName: aegis_19308
+    AegisName: Amistr_Beret
     Name: 艾咪斯可鲁贝雷帽
     Type: Armor
     View: 1294
@@ -79264,7 +79483,7 @@ Body:
          bonus2 bSubEle,Ele_Poison,15;
       /* bonus2 bAddRace2,RC2_HEARTHUNTER,.@a; bonus2 bMagicAddRace2,RC2_HEARTHUNTER,.@a; bonus2 bSubRace2,RC2_HEARTHUNTER,.@a; Hearthunter Warbase is not implemented yet */
   - Id: 19338
-    AegisName: aegis_19338
+    AegisName: Clover_Silkhat
     Name: 四叶草丝绸帽
     Type: Armor
     View: 735
@@ -79278,7 +79497,7 @@ Body:
       bonus bHit,3;
       bonus bAgi,2;
   - Id: 19339
-    AegisName: aegis_19339
+    AegisName: Egg_Crispinette
     Name: 蛋壳贵族发网
     Type: Armor
     View: 1598
@@ -79292,7 +79511,7 @@ Body:
       bonus bMaxHP,75;
       bonus bMaxSP,25;
   - Id: 19340
-    AegisName: aegis_19340
+    AegisName: Saint_Egg_Shell
     Name: 神圣的蛋壳帽
     Type: Armor
     View: 537
@@ -79305,7 +79524,7 @@ Body:
     Script: |
       bonus bHealPower,2;
   - Id: 19341
-    AegisName: aegis_19341
+    AegisName: Devil_Egg_Shell
     Name: 邪恶的蛋壳帽
     Type: Armor
     View: 999
@@ -79421,7 +79640,7 @@ Body:
          }
       }
   - Id: 19364
-    AegisName: aegis_19364
+    AegisName: Engineer_Cap_K
     Name: Engineer Cap
     Type: Armor
     View: 608
@@ -79540,7 +79759,7 @@ Body:
       bonus bMdef,5;
       bonus bMaxHPrate,5;
   - Id: 19382
-    AegisName: aegis_19382
+    AegisName: Pop_Popcorn_Hat
     Name: 火爆爆米花帽子
     Type: Armor
     View: 1763
@@ -79770,7 +79989,7 @@ Body:
       if (.@r>=10)
          bonus bIgnoreDefClass,Class_All;
   - Id: 19415
-    AegisName: aegis_19415
+    AegisName: White_Bird_Rose
     Name: 白鸟的玫瑰装饰
     Type: Armor
     View: 1688
@@ -79784,7 +80003,7 @@ Body:
       bonus bUseSPrate,-3;
       bonus bHealPower,3;
   - Id: 19424
-    AegisName: aegis_19424
+    AegisName: C_Master_Cat
     Name: (时装)斯圣的头
     Type: Armor
     View: 1806
@@ -79792,7 +80011,7 @@ Body:
       Costume_Head_Mid: true
       Costume_Head_Low: true
   - Id: 19425
-    AegisName: aegis_19425
+    AegisName: Master_Cat
     Name: 斯圣的头
     Type: Armor
     View: 1806
@@ -79876,7 +80095,7 @@ Body:
     UnEquipScript: |
       hateffect(HAT_EF_RESONATETAEGO,false);
   - Id: 19439
-    AegisName: aegis_19439
+    AegisName: Subject_Aura
     Name: Vicious Mind Aura
     Type: Armor
     View: 1267
@@ -79955,21 +80174,46 @@ Body:
       bonus2 bSkillAtk,"GN_CRAZYWEED",.@dmg;
       bonus bDelayrate,.@delay;
   - Id: 19459
-    AegisName: aegis_19459
+    AegisName: C_Luna_On_Shoulder
     Name: (时装)肩上的疯兔
     Type: Armor
     View: 1881
     Locations:
       Costume_Head_Low: true
+  - Id: 19460
+    AegisName: Black_Veil_J
+    Name: Black Veil
+    Type: Armor
+    Buy: 20
+    Weight: 500
+    Defense: 2
+    Slots: 1
+    Locations:
+      Head_Top: true
+    View: 1173
+    Refineable: true
+    Script: |
+      .@r = getrefine();
+      bonus2 bSubEle,Ele_Dark,(.@r >= 8 ? 25: 10);
+      /*.@bonus = 15;
+      if (.@r >= 7) {
+        .@bonus += 15;
+      }
+      if (.@r >= 9) {
+        .@bonus += 20;
+      }
+      bonus2 bAddRace2,RC2_ILLUSION_VAMPIRE,.@bonus;
+      bonus2 bSubRace2,RC2_ILLUSION_VAMPIRE,.@bonus;
+      bonus2 bMagicAddRace2,RC2_ILLUSION_VAMPIRE,.@bonus;*/
   - Id: 19464
-    AegisName: aegis_19464
+    AegisName: C_Melon_Cap
     Name: (时装)波萝麵包帽
     Type: Armor
     View: 1878
     Locations:
       Costume_Head_Top: true
   - Id: 19465
-    AegisName: aegis_19465
+    AegisName: Cherry_Blossom_Hat_YL
     Name: 黄色樱花帽
     Type: Armor
     View: 1727
@@ -79977,7 +80221,7 @@ Body:
       Head_Top: true
     Refineable: true
   - Id: 19466
-    AegisName: aegis_19466
+    AegisName: C_Small_ocean
     Name: (时装)小海洋
     Type: Armor
     View: 1883
@@ -80029,7 +80273,7 @@ Body:
       bonus2 bSkillAtk,"AB_JUDEX",.@dmg;
       bonus2 bSkillAtk,"AB_ADORAMUS",.@dmg;
   - Id: 19472
-    AegisName: aegis_19472
+    AegisName: C_S_Circlet_Of_Time
     Name: Circlet of Costume Time    # !todo check english name
     Type: Armor
     View: 1891
@@ -80654,6 +80898,21 @@ Body:
       if (.@r>=11) {
          bonus bDelayrate,-5;
       }
+  - Id: 19495
+    AegisName: Diabolus_Wing
+    Name: Diabolus Wing
+    Type: Armor
+    Buy: 20
+    Weight: 300
+    Defense: 2
+    Slots: 1
+    Locations:
+      Head_Mid: true
+    View: 680
+    Script: |
+      bonus bAllStats,10;
+      /*bonus2 bAddRace2,RC2_TEMPLE_DEMON,30;
+      bonus2 bMagicAddRace2,RC2_TEMPLE_DEMON,30;*/
   - Id: 19500
     AegisName: T_Mr_Smile
     Name: (时装)笑脸面具
@@ -87388,7 +87647,7 @@ Body:
     EquipLevelMin: 1
     View: 1334
   - Id: 20290
-    AegisName: aegis_20290
+    AegisName: C_Evil_Druid_Hat_Black
     Name: (时装)暗神官帽(黑)
     Type: Armor
     View: 1337
@@ -88108,7 +88367,7 @@ Body:
     EquipLevelMin: 1
     View: 677
   - Id: 20388
-    AegisName: aegis_20388
+    AegisName: C_Ayam
     Name: (时装)额掩
     Type: Armor
     View: 228
@@ -88972,7 +89231,7 @@ Body:
     UnEquipScript: |
       hateffect(HAT_EF_C_SHINING_ANGEL_WING,false);
   - Id: 20525
-    AegisName: aegis_20525
+    AegisName: C_Bloody_Wing
     Name: (时装)血腥之翼
     Type: Armor
     View: 33
@@ -88982,14 +89241,14 @@ Body:
     Locations:
       Costume_Garment: true
   - Id: 20526
-    AegisName: aegis_20526
+    AegisName: C_BlueAngeling_Wing
     Name: (时装)蓝圣天使翅膀
     Type: Armor
     View: 34
     Locations:
       Costume_Garment: true
   - Id: 20528
-    AegisName: aegis_20528
+    AegisName: C_GoldButterfly_Wing
     Name: (时装)金黄蝴蝶翅膀
     Type: Armor
     View: 36
@@ -89045,7 +89304,7 @@ Body:
     UnEquipScript: |
       hateffect(HAT_EF_MAGICCIRCLERAINBOW,false);
   - Id: 20541
-    AegisName: aegis_20541
+    AegisName: C_AngelRibbonWing_TW
     Name: (时装)天使缎带羽翼
     Type: Armor
     View: 42
@@ -89141,7 +89400,7 @@ Body:
     EquipLevelMin: 1
     View: 53
   - Id: 20577
-    AegisName: aegis_20577
+    AegisName: C_Balloon_Wing
     Name: (时装)蝶翼气球
     Type: Armor
     View: 54
@@ -89151,14 +89410,14 @@ Body:
     Locations:
       Costume_Garment: true
   - Id: 20578
-    AegisName: aegis_20578
+    AegisName: C_Wings_Of_Raguel
     Name: (时装)拉贵尔翅膀
     Type: Armor
     View: 56
     Locations:
       Costume_Garment: true
   - Id: 20579
-    AegisName: aegis_20579
+    AegisName: C_Wings_Of_Raphael
     Name: (时装)拉斐尔翅膀
     Type: Armor
     View: 57
@@ -89184,7 +89443,7 @@ Body:
     EquipLevelMin: 1
     View: 62
   - Id: 20586
-    AegisName: aegis_20586
+    AegisName: C_Loli_Ruri_Moon
     Name: (时装)银月魔女之新月
     Type: Armor
     View: 64
@@ -89251,14 +89510,14 @@ Body:
       NoMail: true
       NoAuction: true
   - Id: 20597
-    AegisName: aegis_20597
+    AegisName: C_Evil_Scythe
     Name: "Costume: Evil Scythe"
     Type: Armor
     View: 79
     Locations:
       Costume_Garment: true
   - Id: 20598
-    AegisName: aegis_20598
+    AegisName: C_GiantCatBag_JP_BL
     Name: Costume Giant Cat Bag
     Type: Armor
     View: 80
@@ -89282,14 +89541,14 @@ Body:
       /*TODO: View ID*/
       bonus bUnbreakableHelm;
   - Id: 20603
-    AegisName: aegis_20603
+    AegisName: C_P_Ulysses_Feather
     Name: Costume Big Purple Swallowtail Butterfly Wings    # !todo check english name
     Type: Armor
     View: 85
     Locations:
       Costume_Garment: true
   - Id: 20605
-    AegisName: aegis_20605
+    AegisName: C_Leaf_Umbrella
     Name: Costume leaf umbrella    # !todo check english name
     Type: Armor
     View: 87
@@ -91243,7 +91502,7 @@ Body:
     Script: |
       bonus bVit,15;
   - Id: 20855
-    AegisName: aegis_20855
+    AegisName: Rental_Oxygen_Bomb
     Name: '[租赁]氧气瓶'
     Type: Armor
     Locations:
@@ -91372,7 +91631,7 @@ Body:
       if (.@r>=7)
          bonus bLongAtkRate,readparam(bDex)/10;
   - Id: 20902
-    AegisName: aegis_20902
+    AegisName: True_Hunting_Manteau
     Name: 特路亚狩猎斗篷
     Type: Armor
     Weight: 700
@@ -91799,7 +92058,7 @@ Body:
          bonus bVariableCastrate,-10;
       }
   - Id: 20945
-    AegisName: aegis_20945
+    AegisName: Regia_Hunting_Manteau
     Name: 蕾吉亚狩猎斗篷
     Type: Armor
     Weight: 700
@@ -91816,7 +92075,7 @@ Body:
       bonus2 bSubRace,RC_Brute,7;
       bonus bVariableCastrate,-2*(getrefine()/3);
   - Id: 20946
-    AegisName: aegis_20946
+    AegisName: Drag_Manteau
     Name: Dragon Scale Hood
     Type: Armor
     Weight: 500
@@ -91841,7 +92100,7 @@ Body:
          bonus2 bSubRace,RC_Dragon,3;
       }
   - Id: 20947
-    AegisName: aegis_20947
+    AegisName: Cassock_Manteau
     Name: Clergy's Manteau
     Type: Armor
     Weight: 450
@@ -91980,7 +92239,7 @@ Body:
     Script: |
       bonus bHit,10;
   - Id: 20955
-    AegisName: aegis_20955
+    AegisName: Chrismas_Tree
     Name: 圣诞展翅之翼
     Type: Armor
     Weight: 100
@@ -92875,18 +93134,12 @@ Body:
     Refineable: true
     Script: |
       .@r = getrefine();
-      if (.@r >= 2) {
-         bonus bBaseAtk,.@r/2;
-      }
-      if (.@r >= 3) {
-         bonus2 bSkillAtk,"RK_SONICWAVE",.@r/3*10;
-      }
-      if (.@r >= 9) {
-         bonus5 bAutoSpell,"RK_SONICWAVE",2,.@r/3*10,BF_SHORT|BF_WEAPON,1;
-      }
-      if (.@r >= 11) {
+      bonus bBaseAtk,10*(.@r/2);
+      bonus2 bSkillAtk,"RK_SONICWAVE",.@r/3*10;
+      if (.@r >= 9)
+         bonus5 bAutoSpell,"RK_SONICWAVE",max(2,getskilllv("RK_SONICWAVE")),100,BF_SHORT|BF_WEAPON,1;
+      if (.@r >= 11)
          bonus bUnbreakableWeapon;
-      }
   - Id: 21039
     AegisName: Royal_Knight's_Broadsword
     Name: 王室骑士巨剑
@@ -93081,7 +93334,7 @@ Body:
          bonus2 bSkillCooldown,"RK_SONICWAVE",-1500;
       }
   - Id: 21054
-    AegisName: aegis_21054
+    AegisName: Ein_BHSWORD
     Name: Claw Sword
     Type: Weapon
     SubType: 2hSword
@@ -93113,7 +93366,7 @@ Body:
          bonus bCritical,7;
       }
   - Id: 21055
-    AegisName: aegis_21055
+    AegisName: G_Knight_Sword
     Name: Guardian Knight Claymore
     Type: Weapon
     SubType: 2hSword
@@ -93178,7 +93431,7 @@ Body:
          bonus bMaxSPrate,5;
       }
   - Id: 21202
-    AegisName: aegis_21202
+    AegisName: C_Eat_Coin
     Name: (时装)吞币猪猪章
     Type: Armor
     View: 1869
@@ -93204,7 +93457,7 @@ Body:
       Costume_Head_Mid: true
       Costume_Head_Low: true
   - Id: 21300
-    AegisName: aegis_21300
+    AegisName: C_Guardian_Lion_Mask
     Name: Costume Lion Mask
     Type: Armor
     View: 231
@@ -94006,6 +94259,18 @@ Body:
       .@r = getrefine();
       bonus bMaxHPrate,.@r;
       bonus bMaxSPrate,.@r;
+  - Id: 22050
+    AegisName: Gardener_Shoes
+    Name: 园丁之靴
+    Type: Armor
+    Weight: 300
+    Defense: 10
+    Locations:
+      Shoes: true
+    EquipLevelMin: 30
+    Refineable: true
+    Script: |
+      bonus2 bExpAddRace,RC_Plant,5+getrefine();
   - Id: 22051
     AegisName: Ramor_Shoes
     Name: 拉莫尔之靴
@@ -94023,6 +94288,19 @@ Body:
       .@r = getrefine();
       bonus bMaxHPrate,.@r;
       bonus bMaxSPrate,.@r;
+  - Id: 22052
+    AegisName: Gravekeepr_Shoes
+    Name: 守墓工作鞋
+    Type: Armor
+    Buy: 20
+    Weight: 300
+    Defense: 10
+    Locations:
+      Shoes: true
+    EquipLevelMin: 30
+    Refineable: true
+    Script: |
+      bonus2 bExpAddRace,RC_Undead,5+getrefine();
   - Id: 22055
     AegisName: Sharel_Shoes
     Name: 抗火属性机能鞋
@@ -94058,6 +94336,18 @@ Body:
       bonus2 bSubEle,Ele_Water,5;
       bonus bMaxHPrate,.@r;
       bonus bMaxSPrate,.@r;
+  - Id: 22058
+    AegisName: DragonTrainer_Shoes
+    Name: 屠龙之靴
+    Type: Armor
+    Weight: 300
+    Defense: 10
+    Locations:
+      Shoes: true
+    EquipLevelMin: 30
+    Refineable: true
+    Script: |
+      bonus2 bExpAddRace,RC_Dragon,5+getrefine();
   - Id: 22059
     AegisName: Aegir_Shoes
     Name: 艾基尔之靴
@@ -94074,6 +94364,18 @@ Body:
       bonus bUnbreakableShoes;
       bonus bMaxHP,500;
       bonus bMaxSP,50;
+  - Id: 22060
+    AegisName: Boots_Of_Hunter
+    Name: Hunter Shoes
+    Type: Armor
+    Weight: 300
+    Defense: 10
+    Locations:
+      Shoes: true
+    EquipLevelMin: 30
+    Refineable: true
+    Script: |
+      bonus2 bExpAddRace,RC_Brute,5+getrefine();
   - Id: 22061
     AegisName: Lumiere_Shoes
     Name: 抗圣属性机能鞋
@@ -94091,6 +94393,19 @@ Body:
       .@r = getrefine();
       bonus bMaxHPrate,.@r;
       bonus bMaxSPrate,.@r;
+  - Id: 22062
+    AegisName: Mechanic_Shoes
+    Name: 机械工匠工作鞋
+    Type: Armor
+    Buy: 20
+    Weight: 300
+    Defense: 10
+    Locations:
+      Shoes: true
+    EquipLevelMin: 30
+    Refineable: true
+    Script: |
+      bonus2 bExpAddRace,RC_Formless,5+getrefine();
   - Id: 22063
     AegisName: Rouban_Shoes
     Name: 抗风属性机能鞋
@@ -94479,6 +94794,90 @@ Body:
          bonus bCritical,3;
          bonus bCritAtkRate,3;
       }
+  - Id: 22091
+    AegisName: Fisherman_Shoes_
+    Name: 渔夫之靴
+    Type: Armor
+    Buy: 20
+    Weight: 300
+    Defense: 10
+    Slots: 1
+    Locations:
+      Shoes: true
+    EquipLevelMin: 30
+    Refineable: true
+    Script: |
+      bonus2 bExpAddRace,RC_Fish,5+getrefine();
+  - Id: 22093
+    AegisName: Shoes_Of_Exorcism_
+    Name: 退魔之靴
+    Type: Armor
+    Buy: 20
+    Weight: 300
+    Defense: 10
+    Slots: 1
+    Locations:
+      Shoes: true
+    EquipLevelMin: 30
+    Refineable: true
+    Script: |
+      bonus2 bExpAddRace,RC_Demon,5+getrefine();
+  - Id: 22094
+    AegisName: Gardener_Shoes_
+    Name: 园丁之靴
+    Type: Armor
+    Buy: 20
+    Weight: 300
+    Defense: 10
+    Slots: 1
+    Locations:
+      Shoes: true
+    EquipLevelMin: 30
+    Refineable: true
+    Script: |
+      bonus2 bExpAddRace,RC_Plant,5+getrefine();
+  - Id: 22096
+    AegisName: Fallen_Angel_Shoes_
+    Name: 堕天使之靴
+    Type: Armor
+    Buy: 20
+    Weight: 300
+    Defense: 10
+    Slots: 1
+    Locations:
+      Shoes: true
+    EquipLevelMin: 30
+    Refineable: true
+    Script: |
+      bonus2 bExpAddRace,RC_Angel,5+getrefine();
+  - Id: 22097
+    AegisName: DragonTrainer_Shoes_
+    Name: 屠龙之靴
+    Type: Armor
+    Buy: 20
+    Weight: 300
+    Defense: 10
+    Slots: 1
+    Locations:
+      Shoes: true
+    EquipLevelMin: 30
+    Refineable: true
+    Script: |
+      bonus2 bExpAddRace,RC_Dragon,5+getrefine();
+  - Id: 22099
+    AegisName: Mechanic_Shoes_
+    Name: 机工士之靴
+    Type: Armor
+    Buy: 20
+    Weight: 300
+    Defense: 10
+    Slots: 1
+    Locations:
+      Shoes: true
+    EquipLevelMin: 30
+    Refineable: true
+    Script: |
+      bonus2 bExpAddRace,RC_Formless,5+getrefine();
   - Id: 22101
     AegisName: Angel_Poring_Boots
     Name: Angel Poring Boots
@@ -95183,7 +95582,7 @@ Body:
       bonus bAspdRate,2*getskilllv("SR_GENTLETOUCH_CHANGE");
       bonus2 bAddClass,Class_All,4*getskilllv("SR_GENTLETOUCH_QUIET");
   - Id: 22168
-    AegisName: aegis_22168
+    AegisName: True_Hunting_Boots
     Name: 特路亚狩猎靴子
     Type: Armor
     Weight: 500
@@ -95592,7 +95991,7 @@ Body:
       bonus2 bMagicAtkEle,Ele_All,10;
       bonus bCritAtkRate,10;
   - Id: 22206
-    AegisName: aegis_22206
+    AegisName: Regia_Hunting_Boots
     Name: 蕾吉亚狩猎靴子
     Type: Armor
     Weight: 500
@@ -95638,7 +96037,7 @@ Body:
          bonus bLongAtkRate,5;
       }
   - Id: 22208
-    AegisName: aegis_22208
+    AegisName: Dragon_Boots
     Name: Dragon Scale Boots
     Type: Armor
     Weight: 600
@@ -95663,7 +96062,7 @@ Body:
          bonus2 bSubRace,RC_Dragon,3;
       }
   - Id: 22209
-    AegisName: aegis_22209
+    AegisName: Cassock_Boots
     Name: Clergy's Boots
     Type: Armor
     Weight: 400
@@ -97869,8 +98268,8 @@ Body:
     Refineable: true
     Script: |
       .@r = getrefine();
-      bonus2 bIgnoreDefRaceRate,RC_All,5+(.@r/2);
-      bonus2 bIgnoreDefRaceRate,RC_Player_Human,-5-(.@r/2);
+      bonus bMaxHP,.@r*10;
+      bonus2 bIgnoreDefClassRate,Class_Normal,5+(.@r/2);
   - Id: 24167
     AegisName: S_Penetration_Pendent
     Name: 影子贯穿坠子
@@ -97881,8 +98280,8 @@ Body:
     Refineable: true
     Script: |
       .@r = getrefine();
-      bonus2 bIgnoreDefRaceRate,RC_All,5+(.@r/2);
-      bonus2 bIgnoreDefRaceRate,RC_Player_Human,-5-(.@r/2);
+      bonus bMaxHP,.@r*10;
+      bonus2 bIgnoreDefClassRate,Class_Normal,5+(.@r/2);
   - Id: 24168
     AegisName: S_Tempest_Earring
     Name: 影子风暴耳环
@@ -105126,7 +105525,7 @@ Body:
     Script: |
       bonus2 bSkillAtk,"RG_RAID",10+4*(getrefine()/2);
   - Id: 24621
-    AegisName: aegis_24621
+    AegisName: S_Super_Power_Earing
     Name: Super Power Shadow Earring
     Type: ShadowGear
     Jobs:
@@ -105141,7 +105540,7 @@ Body:
       bonus2 bSkillAtk,"CR_SHIELDBOOMERANG",10+4*(.@r/2);
       bonus2 bSkillAtk,"PA_SHIELDCHAIN",10+4*(.@r/2);
   - Id: 24622
-    AegisName: aegis_24622
+    AegisName: S_Kunai_Weapon
     Name: Kunai Shadow Weapon
     Type: ShadowGear
     Jobs:
@@ -105163,7 +105562,7 @@ Body:
          bonus bLongAtkRate,3;
       }
   - Id: 24623
-    AegisName: aegis_24623
+    AegisName: S_Kunai_Shield
     Name: Kunai Shadow Shield
     Type: ShadowGear
     Jobs:
@@ -105176,7 +105575,7 @@ Body:
     Script: |
       bonus2 bAddSize,Size_All,5+(getrefine()/2);
   - Id: 24624
-    AegisName: aegis_24624
+    AegisName: S_Kunai_Armor
     Name: Kunai Shadow Armor
     Type: ShadowGear
     Jobs:
@@ -105189,7 +105588,7 @@ Body:
     Script: |
       bonus2 bSkillAtk,"KO_BAKURETSU",5+2*(getrefine()/2);
   - Id: 24625
-    AegisName: aegis_24625
+    AegisName: S_Syuriken_Earing
     Name: Cross Shuriken Shadow Earring
     Type: ShadowGear
     Jobs:
@@ -105209,7 +105608,7 @@ Body:
          bonus bUseSPrate,-10;
       }
   - Id: 24626
-    AegisName: aegis_24626
+    AegisName: S_Syuriken_Pendant
     Name: Cross Shuriken Shadow Pendant
     Type: ShadowGear
     Jobs:
@@ -105222,7 +105621,7 @@ Body:
     Script: |
       bonus2 bSkillAtk,"KO_HUUMARANKA",5+2*(getrefine()/2);
   - Id: 24627
-    AegisName: aegis_24627
+    AegisName: S_Syuriken_Shoes
     Name: Cross Shuriken Shadow Shoes
     Type: ShadowGear
     Jobs:
@@ -105235,7 +105634,7 @@ Body:
     Script: |
       bonus2 bSkillAtk,"KO_JYUMONJIKIRI",5+2*(getrefine()/2);
   - Id: 24628
-    AegisName: aegis_24628
+    AegisName: S_Kamaenraku_Weapon
     Name: First Exploding Draft Shadow Weapon
     Type: ShadowGear
     Jobs:
@@ -105263,7 +105662,7 @@ Body:
          bonus2 bSkillAtk,"NJ_KAMAITACHI",5;
       }
   - Id: 24629
-    AegisName: aegis_24629
+    AegisName: S_Kamaenraku_Shield
     Name: First Exploding Draft Shadow Shield
     Type: ShadowGear
     Jobs:
@@ -105279,7 +105678,7 @@ Body:
       bonus2 bSkillAtk,"NJ_HYOUSYOURAKU",5+2*(.@r/2);
       bonus2 bSkillAtk,"NJ_KAMAITACHI",5+2*(.@r/2);
   - Id: 24630
-    AegisName: aegis_24630
+    AegisName: S_Kamaenraku_Armor
     Name: First Exploding Draft Shadow Armor
     Type: ShadowGear
     Jobs:
@@ -105292,7 +105691,7 @@ Body:
     Script: |
       bonus2 bMagicAtkEle,Ele_All,5+(getrefine()/2);
   - Id: 24631
-    AegisName: aegis_24631
+    AegisName: S_Huusouka_Earing
     Name: Wind Spear Petal Shadow Earring
     Type: ShadowGear
     Jobs:
@@ -105320,7 +105719,7 @@ Body:
          bonus2 bSkillAtk,"NJ_HUUJIN",3;
       }
   - Id: 24632
-    AegisName: aegis_24632
+    AegisName: S_Huusouka_Pendant
     Name: Wind Spear Petal Shadow Pendant
     Type: ShadowGear
     Jobs:
@@ -105333,7 +105732,7 @@ Body:
     Script: |
       bonus bMaxSPrate,2+(getrefine()/2);
   - Id: 24633
-    AegisName: aegis_24633
+    AegisName: S_Huusouka_Shoes
     Name: Wind Spear Petal Shadow Shoes
     Type: ShadowGear
     Jobs:
@@ -105346,7 +105745,7 @@ Body:
     Script: |
       bonus2 bMagicAddSize,Size_All,5+(getrefine()/2);
   - Id: 24634
-    AegisName: aegis_24634
+    AegisName: S_Pickyrush_Weapon
     Name: Picky Rush Shadow Weapon
     Type: ShadowGear
     Jobs:
@@ -105367,7 +105766,7 @@ Body:
          bonus bLongAtkRate,3;
       }
   - Id: 24635
-    AegisName: aegis_24635
+    AegisName: S_Pickyrush_Shield
     Name: Picky Rush Shadow Shield
     Type: ShadowGear
     Jobs:
@@ -105379,7 +105778,7 @@ Body:
     Script: |
       bonus2 bAddSize,Size_All,5+(getrefine()/2);
   - Id: 24636
-    AegisName: aegis_24636
+    AegisName: S_Pickyrush_Armor
     Name: Picky Rush Shadow Armor
     Type: ShadowGear
     Jobs:
@@ -105391,7 +105790,7 @@ Body:
     Script: |
       bonus2 bSkillAtk,"SU_PICKYPECK",5+(getrefine()/2);
   - Id: 24637
-    AegisName: aegis_24637
+    AegisName: S_SavageRabbit_Earing
     Name: Savage Rabbit Shadow Earring
     Type: ShadowGear
     Jobs:
@@ -105410,7 +105809,7 @@ Body:
          bonus bUseSPrate,-10;
       }
   - Id: 24638
-    AegisName: aegis_24638
+    AegisName: S_SavageRabbit_Pendant
     Name: Savage Rabbit Shadow Pendant
     Type: ShadowGear
     Jobs:
@@ -105423,7 +105822,7 @@ Body:
       bonus2 bSkillAtk,"SU_LUNATICCARROTBEAT",5;
       bonus2 bSkillAtk,"SU_SVG_SPIRIT",3*(getrefine()/2);
   - Id: 24639
-    AegisName: aegis_24639
+    AegisName: S_SavageRabbit_Shoes
     Name: Savage Rabbit Shadow Shoes
     Type: ShadowGear
     Jobs:
@@ -105435,7 +105834,7 @@ Body:
     Script: |
       bonus2 bAddSize,Size_All,5+(getrefine()/2);
   - Id: 24640
-    AegisName: aegis_24640
+    AegisName: S_Catnip_Weapon
     Name: Catnip Shadow Weapon
     Type: ShadowGear
     Jobs:
@@ -105454,7 +105853,7 @@ Body:
          bonus bVariableCastrate,-5;
       }
   - Id: 24641
-    AegisName: aegis_24641
+    AegisName: S_Catnip_Shield
     Name: Catnip Shadow Shield
     Type: ShadowGear
     Jobs:
@@ -105467,7 +105866,7 @@ Body:
       bonus2 bSkillCooldown,"SU_NYANGGRASS",-4000;
       bonus2 bSkillAtk,"SU_CN_METEOR",3*(getrefine()/2);
   - Id: 24642
-    AegisName: aegis_24642
+    AegisName: S_Catnip_Armor
     Name: Catnip Shadow Armor
     Type: ShadowGear
     Jobs:
@@ -105479,7 +105878,7 @@ Body:
     Script: |
       bonus2 bMagicAddSize,Size_All,5+(getrefine()/2);
   - Id: 24643
-    AegisName: aegis_24643
+    AegisName: S_Silvervine_Earing
     Name: Silvervine Shadow Earring
     Type: ShadowGear
     Jobs:
@@ -105512,7 +105911,7 @@ Body:
          bonus2 bMagicAtkEle,Ele_Wind,3;
       }
   - Id: 24644
-    AegisName: aegis_24644
+    AegisName: S_Silvervine_Pendant
     Name: Silvervine Shadow Pendant
     Type: ShadowGear
     Jobs:
@@ -105524,7 +105923,7 @@ Body:
     Script: |
       bonus bVariableCastrate,-3-1*(getrefine()/2);
   - Id: 24645
-    AegisName: aegis_24645
+    AegisName: S_Silvervine_Shoes
     Name: Silvervine Shadow Shoes
     Type: ShadowGear
     Jobs:
@@ -105536,7 +105935,7 @@ Body:
     Script: |
       bonus2 bMagicAtkEle,Ele_All,5+(getrefine()/2);
   - Id: 24646
-    AegisName: aegis_24646
+    AegisName: S_Sunshine_Weapon
     Name: Sunshine Shadow Weapon
     Type: ShadowGear
     Jobs:
@@ -105557,7 +105956,7 @@ Body:
          bonus bShortAtkRate,3;
       }
   - Id: 24647
-    AegisName: aegis_24647
+    AegisName: S_Sunshine_Shield
     Name: Sunshine Shadow Shield
     Type: ShadowGear
     Jobs:
@@ -105569,7 +105968,7 @@ Body:
     Script: |
       bonus2 bAddSize,Size_All,5+(getrefine()/2);
   - Id: 24648
-    AegisName: aegis_24648
+    AegisName: S_Sunshine_Armor
     Name: Sunshine Shadow Armor
     Type: ShadowGear
     Jobs:
@@ -105581,7 +105980,7 @@ Body:
     Script: |
       bonus2 bSkillAtk,"SJ_PROMINENCEKICK",5+2*(getrefine()/2);
   - Id: 24649
-    AegisName: aegis_24649
+    AegisName: S_Moonlight_Earring
     Name: Moonlight Shadow Earring
     Type: ShadowGear
     Jobs:
@@ -105600,7 +105999,7 @@ Body:
          bonus2 bSkillUseSPrate,"SJ_FULLMOONKICK",10;
       }
   - Id: 24650
-    AegisName: aegis_24650
+    AegisName: S_Moonlight_Pendant
     Name: Moonlight Shadow Pendant
     Type: ShadowGear
     Jobs:
@@ -105612,7 +106011,7 @@ Body:
     Script: |
       bonus2 bAddSize,Size_All,5+(getrefine()/2);
   - Id: 24651
-    AegisName: aegis_24651
+    AegisName: S_Moonlight_Shoes
     Name: Moonlight Shadow Shoes
     Type: ShadowGear
     Jobs:
@@ -105624,7 +106023,7 @@ Body:
     Script: |
       bonus2 bSkillAtk,"SJ_NEWMOONKICK",5+2*(getrefine()/2);
   - Id: 24652
-    AegisName: aegis_24652
+    AegisName: S_Stardust_Weapon
     Name: Stardust Shadow Weapon
     Type: ShadowGear
     Jobs:
@@ -105643,7 +106042,7 @@ Body:
          bonus bAspdRate,5;
       }
   - Id: 24653
-    AegisName: aegis_24653
+    AegisName: S_Stardust_Shield
     Name: Stardust Shadow Shield
     Type: ShadowGear
     Jobs:
@@ -105656,7 +106055,7 @@ Body:
       bonus bAspd,1;
       bonus2 bSkillAtk,"SJ_FALLINGSTAR_ATK",3*(getrefine()/2);
   - Id: 24654
-    AegisName: aegis_24654
+    AegisName: S_Stardust_Armor
     Name: Stardust Shadow Armor
     Type: ShadowGear
     Jobs:
@@ -105668,7 +106067,7 @@ Body:
     Script: |
       bonus2 bAddEle,Ele_All,5+(getrefine()/2);
   - Id: 24655
-    AegisName: aegis_24655
+    AegisName: S_S_Weapon
     Name: Es Shadow Weapon
     Type: ShadowGear
     Jobs:
@@ -105687,7 +106086,7 @@ Body:
          bonus2 bSkillUseSPrate,"SP_SPA",10;
       }
   - Id: 24656
-    AegisName: aegis_24656
+    AegisName: S_S_Shield
     Name: Es Shadow Shield
     Type: ShadowGear
     Jobs:
@@ -105699,7 +106098,7 @@ Body:
     Script: |
       bonus2 bMagicAddSize,Size_All,5+2*(getrefine()/2);
   - Id: 24657
-    AegisName: aegis_24657
+    AegisName: S_S_Armor
     Name: Es Shadow Armor
     Type: ShadowGear
     Jobs:
@@ -105714,7 +106113,7 @@ Body:
       bonus2 bSkillAtk,"SP_SPA",(.@r/2);
       bonus2 bSkillAtk,"SP_SWHOO",(.@r/2);
   - Id: 24658
-    AegisName: aegis_24658
+    AegisName: S_Evilcurse_Earring
     Name: Evil Curse Shadow Earring
     Type: ShadowGear
     Jobs:
@@ -105735,7 +106134,7 @@ Body:
          bonus2 bMagicAtkEle,Ele_Dark,3;
       }
   - Id: 24659
-    AegisName: aegis_24659
+    AegisName: S_Evilcurse_Pendant
     Name: Evil Curse Shadow Pendant
     Type: ShadowGear
     Jobs:
@@ -105748,7 +106147,7 @@ Body:
       bonus2 bMagicAtkEle,Ele_Dark,5;
       bonus2 bSkillAtk,"SP_CURSEEXPLOSION",3*(getrefine()/2);
   - Id: 24660
-    AegisName: aegis_24660
+    AegisName: S_Evilcurse_Shoes
     Name: Evil Curse Shadow Shoes
     Type: ShadowGear
     Jobs:
@@ -105760,7 +106159,7 @@ Body:
     Script: |
       bonus2 bSkillCooldown,"SP_SOULCURSE",-1000-100*(getrefine()/2);
   - Id: 24661
-    AegisName: aegis_24661
+    AegisName: S_FullPene_Earring
     Name: Full Penetration Earring Shadow    # !todo check english name
     Type: ShadowGear
     Locations:
@@ -105777,7 +106176,7 @@ Body:
          bonus2 bAddRace,RC_Player_Doram,-3;
       }
   - Id: 24662
-    AegisName: aegis_24662
+    AegisName: S_FullPene_Pendant
     Name: Full Penetration Pendant Shadow    # !todo check english name
     Type: ShadowGear
     Jobs:
@@ -105797,7 +106196,7 @@ Body:
          bonus2 bAddRace,RC_Player_Doram,-3;
       }
   - Id: 24663
-    AegisName: aegis_24663
+    AegisName: S_FullPene_Armor
     Name: Full Penetration Armor Shadow    # !todo check english name
     Type: ShadowGear
     Locations:
@@ -105814,7 +106213,7 @@ Body:
          bonus2 bAddRace,RC_Player_Doram,-3;
       }
   - Id: 24664
-    AegisName: aegis_24664
+    AegisName: S_FullPene_Shoes
     Name: Full Penetration Shoes Shadow    # !todo check english name
     Type: ShadowGear
     Jobs:
@@ -106599,7 +106998,7 @@ Body:
          bonus2 bSkillAtk,"AB_JUDEX",30;
       }
   - Id: 26162
-    AegisName: aegis_26162
+    AegisName: Ein_1HWAND
     Name: Welding Wand
     Type: Weapon
     SubType: Staff
@@ -106674,7 +107073,7 @@ Body:
          bonus2 bSkillAtk,"SU_CN_METEOR",30;
       }
   - Id: 26165
-    AegisName: aegis_26165
+    AegisName: R_Cleric_Staff
     Name: Royal Cleric Staff
     Type: Weapon
     SubType: Staff
@@ -106705,7 +107104,7 @@ Body:
          bonus2 bMagicAddRace,RC_Angel,20;
       }
   - Id: 26166
-    AegisName: aegis_26166
+    AegisName: R_Magician_Wand
     Name: Royal Magician Wand
     Type: Weapon
     SubType: Staff
@@ -106737,7 +107136,7 @@ Body:
          bonus2 bMagicAddRace,RC_Angel,20;
       }
   - Id: 26172
-    AegisName: aegis_26172
+    AegisName: R_Foxtail_rod
     Name: Royal Foxtail
     Type: Weapon
     SubType: Staff
@@ -106850,7 +107249,7 @@ Body:
       if (.@r>=11)
          bonus2 bSkillUseSPrate,"WM_SEVERE_RAINSTORM",20;
   - Id: 26215
-    AegisName: aegis_26215
+    AegisName: Ein_1HWHIP
     Name: Safety Whip
     Type: Weapon
     SubType: Whip
@@ -106885,7 +107284,7 @@ Body:
          bonus2 bSkillCooldown,"WM_SEVERE_RAINSTORM",-2000;
       }
   - Id: 26216
-    AegisName: aegis_26216
+    AegisName: R_Wheep
     Name: Royal Whip
     Type: Weapon
     SubType: Whip
@@ -107447,7 +107846,7 @@ Body:
          bonus2 bAddClass,Class_All,7;
       }
   - Id: 28045
-    AegisName: aegis_28045
+    AegisName: Ein_BHKATAR
     Name: Bolt Crusher
     Type: Weapon
     SubType: Katar
@@ -107479,7 +107878,7 @@ Body:
          bonus bDelayrate,-20;
       }
   - Id: 28046
-    AegisName: aegis_28046
+    AegisName: R_Katar
     Name: Royal Katar
     Type: Weapon
     SubType: Katar
@@ -107986,7 +108385,7 @@ Body:
       if (.@r>=11)
          bonus2 bSkillAtk,"NC_AXETORNADO",15;
   - Id: 28140
-    AegisName: aegis_28140
+    AegisName: Ein_BHAXE
     Name: Saw Axe
     Type: Weapon
     SubType: 1hAxe
@@ -108019,7 +108418,7 @@ Body:
          bonus bDelayrate,-20;
       }
   - Id: 28141
-    AegisName: aegis_28141
+    AegisName: G_Knight_BattleAxe
     Name: Guardian Knight Battle Axe
     Type: Weapon
     SubType: 1hAxe
@@ -109371,6 +109770,27 @@ Body:
     Refineable: true
     Script: |
       autobonus3 "{ .@val = 30+(getrefine()*10); bonus bBaseAtk,.@val; bonus bHit,.@val; }",200,5000,"AC_DOUBLE","{ specialeffect2 EF_ENHANCE; }";
+  - Id: 28394
+    AegisName: King_of_Spirit_Ring
+    Name: 精灵王的戒指
+    Type: Armor
+    Weight: 200
+    Slots: 1
+    Locations:
+      Both_Accessory: true
+    EquipLevelMin: 50
+    Script: |
+      bonus bVit,5;
+      bonus bDelayrate,-5;
+      bonus2 bSkillAtk,"SO_DIAMONDDUST",(BaseLevel/8);
+      bonus2 bSkillCooldown,"SO_DIAMONDDUST",-2000;
+      bonus2 bSkillAtk,"SO_EARTHGRAVE",(BaseLevel/8);
+      bonus2 bSkillCooldown,"SO_EARTHGRAVE",-2000;
+      bonus2 bSkillVariableCast,"SO_VARETYR_SPEAR",-1500;
+      bonus2 bSkillCooldown,"SO_VARETYR_SPEAR",-500;
+      bonus2 bVariableCastrate,"SO_WARMER",-50;
+      bonus2 bFixedCastrate,"SO_WARMER",-50;
+      bonus2 bSkillCooldown,"SO_WARMER",-15000;
   - Id: 28410
     AegisName: Sapphire_Wrist
     Name: 蓝宝石手镯
@@ -110937,7 +111357,7 @@ Body:
       bonus bAspd,1;
       bonus bVariableCastrate,-10;
   - Id: 28514
-    AegisName: aegis_28514
+    AegisName: Bless_Flower_Ring
     Name: 保庇花戒
     Type: Armor
     Weight: 100
@@ -111048,7 +111468,7 @@ Body:
       bonus2 bSkillAtk,"GN_CARTCANNON",2*(Baselevel/20);
       bonus2 bSkillAtk,"GN_CART_TORNADO",2*(Baselevel/30);
   - Id: 28534
-    AegisName: aegis_28534
+    AegisName: RKC_2017_Pendant
     Name: RKC Participant Memorial Ring
     Type: Armor
     Weight: 200
@@ -111073,7 +111493,7 @@ Body:
       bonus2 bHPDrainRate,10,3;
       autobonus "{ bonus2 bHPRegenRate,300,1000; }",10,5000,BF_MAGIC;
   - Id: 28535
-    AegisName: aegis_28535
+    AegisName: RKC_2017_Ring
     Name: RKC Winner Memorial Ring
     Type: Armor
     Weight: 200
@@ -111110,8 +111530,22 @@ Body:
       bonus2 bAddClass,Class_All,5;
       bonus bVariableCastrate,-10;
       bonus bNoCastCancel;
+  - Id: 28560
+    AegisName: YinYang_Talisman
+    Name: Yin Yang Talisman
+    Type: Armor
+    Buy: 20
+    Weight: 200
+    Slots: 1
+    Locations:
+      Both_Accessory: true
+    EquipLevelMin: 50
+    Script: |
+      bonus bMatkRate,5;
+      bonus bHit,20;
+      bonus bAspdRate,5;
   - Id: 28562
-    AegisName: aegis_28562
+    AegisName: True_Hunting_Ring1
     Name: 特路亚狩猎天然戒指
     Type: Armor
     Weight: 100
@@ -111122,7 +111556,7 @@ Body:
     Script: |
       bonus bAspdRate,7;
   - Id: 28563
-    AegisName: aegis_28563
+    AegisName: True_Hunting_Ring2
     Name: 特路亚狩猎魔力戒指
     Type: Armor
     Weight: 100
@@ -111882,7 +112316,7 @@ Body:
       bonus2 bSkillAtk,"MG_COLDBOLT",20+.@val;
       bonus2 bSkillAtk,"MG_LIGHTNINGBOLT",20+.@val;
   - Id: 28635
-    AegisName: aegis_28635
+    AegisName: Ein_1HBOOK
     Name: Safety Manual
     Type: Weapon
     SubType: Book
@@ -111916,7 +112350,7 @@ Body:
          bonus bDelayrate,-20;
       }
   - Id: 28636
-    AegisName: aegis_28636
+    AegisName: R_Sage_Book
     Name: Royal Sage Book
     Type: Weapon
     SubType: Book
@@ -112777,7 +113211,7 @@ Body:
          autobonus "{ bonus bMatk,100; bonus2 bMagicAddSize,Size_All,30; }",50,10000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }";
       /* Unknow Rates and Specialeffect */
   - Id: 28771
-    AegisName: aegis_28771
+    AegisName: Ein_1HDAGGER
     Name: Metal Detector Mk47
     Type: Weapon
     SubType: Dagger
@@ -112810,7 +113244,7 @@ Body:
          bonus bDelayrate,-20;
       }
   - Id: 28772
-    AegisName: aegis_28772
+    AegisName: Ein_1HMAGGER
     Name: Jewel Detector Mk47
     Type: Weapon
     SubType: Dagger
@@ -112846,7 +113280,7 @@ Body:
          bonus bDelayrate,-20;
       }
   - Id: 28774
-    AegisName: aegis_28774
+    AegisName: R_Gladius_R
     Name: Royal Gladius (R)
     Type: Weapon
     SubType: Dagger
@@ -112866,7 +113300,7 @@ Body:
     Script: |
       bonus2 bAddClass,Class_All,5;
   - Id: 28775
-    AegisName: aegis_28775
+    AegisName: R_Gladius_L
     Name: Royal Gladius (L)
     Type: Weapon
     SubType: Dagger
@@ -112884,7 +113318,7 @@ Body:
     EquipLevelMin: 170
     Refineable: true
   - Id: 28776
-    AegisName: aegis_28776
+    AegisName: R_Magician_Dagger
     Name: Royal Magician Dagger
     Type: Weapon
     SubType: Dagger
@@ -113206,7 +113640,7 @@ Body:
       bonus bMdef,5;
       bonus bMaxHP,500;
   - Id: 28915
-    AegisName: Bunker_Shield
+    AegisName: Bunker_Shield_
     Name: 燃料盾牌
     Type: Armor
     Buy: 20
@@ -114536,7 +114970,7 @@ Body:
     UnEquipScript: |
       sc_end SC_TIME_ACCESSORY;
   - Id: 31143
-    AegisName: aegis_31143
+    AegisName: C_Krathong_Crown_TH
     Name: "Costume: Krathong Crown"
     Type: Armor
     View: 1560
@@ -114631,7 +115065,7 @@ Body:
     EquipLevelMin: 1
     View: 14
   - Id: 31157
-    AegisName: aegis_31157
+    AegisName: C_Spirit_Chain
     Name: Costume Soul Ring
     Type: Armor
     View: 69
@@ -116198,7 +116632,7 @@ Body:
     EquipLevelMin: 1
     View: 1687
   - Id: 31388
-    AegisName: aegis_31388
+    AegisName: C_Garden_Of_Eden
     Name: (时装)伊甸园帽
     Type: Armor
     View: 1653
@@ -116967,7 +117401,7 @@ Body:
     EquipLevelMin: 1
     View: 746
   - Id: 31497
-    AegisName: aegis_31497
+    AegisName: C_Flowery_Vision_TH
     Name: "Costume: Flowery Vision"
     Type: Armor
     View: 1744
@@ -117175,7 +117609,7 @@ Body:
     EquipLevelMin: 1
     View: 1769
   - Id: 31530
-    AegisName: aegis_31530
+    AegisName: C_Greater_Dracul_Horn
     Name: (时装)大型德古拉角帽
     Type: Armor
     View: 1695
@@ -117749,14 +118183,14 @@ Body:
     EquipLevelMin: 1
     View: 1814
   - Id: 31618
-    AegisName: aegis_31618
+    AegisName: C_DancingButterfly_TW
     Name: (时装)翩翩蝶舞
     Type: Armor
     View: 1816
     Locations:
       Costume_Head_Mid: true
   - Id: 31620
-    AegisName: aegis_31620
+    AegisName: C_Snow_Fox_TW
     Name: (时装)雪狐
     Type: Armor
     View: 1818
@@ -118430,7 +118864,7 @@ Body:
     EquipLevelMin: 1
     View: 1773
   - Id: 31728
-    AegisName: aegis_31728
+    AegisName: C_Nobility_Hat
     Name: (时装)花丝带草帽
     Type: Armor
     View: 1181
@@ -118501,7 +118935,7 @@ Body:
     EquipLevelMin: 1
     View: 1895
   - Id: 31737
-    AegisName: aegis_31737
+    AegisName: C_Wings_Of_Lucifer
     Name: (时装)露西法翅膀
     Type: Armor
     View: 55
@@ -118898,154 +119332,154 @@ Body:
     Locations:
       Costume_Head_Top: true
   - Id: 31849
-    AegisName: aegis_31849
+    AegisName: C_Runaway_Accelerator
     Name: (时装)幻象急速战盔
     Type: Armor
     View: 1947
     Locations:
       Costume_Head_Top: true
   - Id: 31850
-    AegisName: aegis_31850
+    AegisName: C_Gift_of_Panagia
     Name: (时装)圣母的赞礼
     Type: Armor
     View: 1948
     Locations:
       Costume_Head_Top: true
   - Id: 31851
-    AegisName: aegis_31851
+    AegisName: C_Phalanx
     Name: (时装)皇家守卫
     Type: Armor
     View: 1949
     Locations:
       Costume_Head_Mid: true
   - Id: 31853
-    AegisName: aegis_31853
+    AegisName: C_ZombieMask
     Name: Costume Zombie Mask
     Type: Armor
     View: 1951
     Locations:
       Costume_Head_Mid: true
   - Id: 31855
-    AegisName: aegis_31855
+    AegisName: Mushroom_Hair
     Name: Costume Chocolate Mushroom Wig
     Type: Armor
     View: 1953
     Locations:
       Costume_Head_Low: true
   - Id: 31856
-    AegisName: aegis_31856
+    AegisName: C_Airy_Two_Side_Up_BD
     Name: (时装)膨鬆双马尾假髮(金)
     Type: Armor
     View: 1954
     Locations:
       Costume_Head_Low: true
   - Id: 31858
-    AegisName: aegis_31858
+    AegisName: C_Signon_Princ_Wave_BU
     Name: Costume Signon Princess Wave (Blue)
     Type: Armor
     View: 1956
     Locations:
       Costume_Head_Low: true
   - Id: 31859
-    AegisName: aegis_31859
+    AegisName: C_Signon_Princ_Wave_RD
     Name: Costume Signon Princess Wave (Red)
     Type: Armor
     View: 1957
     Locations:
       Costume_Head_Low: true
   - Id: 31860
-    AegisName: aegis_31860
+    AegisName: C_Signon_Princ_Wave_YL
     Name: Costume Signon Princess Wave (Yellow)
     Type: Armor
     View: 1958
     Locations:
       Costume_Head_Low: true
   - Id: 31861
-    AegisName: aegis_31861
+    AegisName: C_Signon_Princ_Wave_GN
     Name: Costume Signon Princess Wave (Green)
     Type: Armor
     View: 1959
     Locations:
       Costume_Head_Low: true
   - Id: 31862
-    AegisName: aegis_31862
+    AegisName: C_Signon_Princ_Wave_BL
     Name: Costume Signon Princess Wave (Black)
     Type: Armor
     View: 1960
     Locations:
       Costume_Head_Low: true
   - Id: 31863
-    AegisName: aegis_31863
+    AegisName: C_Signon_Princ_Wave_WH
     Name: Costume Signon Princess Wave (White)
     Type: Armor
     View: 1961
     Locations:
       Costume_Head_Low: true
   - Id: 31864
-    AegisName: aegis_31864
+    AegisName: C_Signon_Princ_Wave_OM
     Name: Costume Signon Princess Wave (Brown)
     Type: Armor
     View: 1962
     Locations:
       Costume_Head_Low: true
   - Id: 31865
-    AegisName: aegis_31865
+    AegisName: C_Signon_Princ_Wave_PP
     Name: Costume Signon Princess Wave (Purple)
     Type: Armor
     View: 1963
     Locations:
       Costume_Head_Low: true
   - Id: 31874
-    AegisName: aegis_31874
+    AegisName: C_Exotic_Bob_L_LB
     Name: Costume Himelmez's Wig (Blue)
     Type: Armor
     View: 1972
     Locations:
       Costume_Head_Low: true
   - Id: 31875
-    AegisName: aegis_31875
+    AegisName: C_Exotic_Bob_L_YL
     Name: Costume Himelmez's Wig (Yellow)
     Type: Armor
     View: 1973
     Locations:
       Costume_Head_Low: true
   - Id: 31876
-    AegisName: aegis_31876
+    AegisName: C_Exotic_Bob_L_WH
     Name: Costume Himelmez's Wig (White)
     Type: Armor
     View: 1974
     Locations:
       Costume_Head_Low: true
   - Id: 31877
-    AegisName: aegis_31877
+    AegisName: C_Exotic_Bob_L_LPP
     Name: Costume Himelmez's Wig (Light Purple)
     Type: Armor
     View: 1975
     Locations:
       Costume_Head_Low: true
   - Id: 31878
-    AegisName: aegis_31878
+    AegisName: C_Exotic_Bob_R_PK
     Name: Costume Himelmez's Wig (Pink)
     Type: Armor
     View: 1976
     Locations:
       Costume_Head_Low: true
   - Id: 31879
-    AegisName: aegis_31879
+    AegisName: C_Exotic_Bob_R_BG
     Name: Costume Himelmez's Wig (Blue Green)
     Type: Armor
     View: 1977
     Locations:
       Costume_Head_Low: true
   - Id: 31880
-    AegisName: aegis_31880
+    AegisName: C_Exotic_Bob_R_JBL
     Name: Costume Himelmez's Wig (Black)
     Type: Armor
     View: 1978
     Locations:
       Costume_Head_Low: true
   - Id: 31881
-    AegisName: aegis_31881
+    AegisName: C_Exotic_Bob_R_BW
     Name: Costume Himelmez's Wig (Brown)
     Type: Armor
     View: 1979
@@ -119060,7 +119494,7 @@ Body:
     EquipLevelMin: 1
     View: 1917
   - Id: 31885
-    AegisName: aegis_31885
+    AegisName: Cons_Of_Earth
     Name: (时装)土之支配者
     Type: Armor
     View: 1982
@@ -119074,7 +119508,7 @@ Body:
     Locations:
       Costume_Head_Low: true
   - Id: 31905
-    AegisName: aegis_31905
+    AegisName: C_Blanc_Neige_Prince
     Name: (时装)冰雪公主假髮
     Type: Armor
     View: 1983
@@ -119088,7 +119522,7 @@ Body:
     Locations:
       Costume_Head_Top: true
   - Id: 31907
-    AegisName: aegis_31907
+    AegisName: C_PGstone_Knit_Hat_BW
     Name: (时装)喵喵肉球守护者(男)
     Type: Armor
     View: 1985
@@ -119109,70 +119543,70 @@ Body:
     Locations:
       Costume_Head_Low: true
   - Id: 31922
-    AegisName: aegis_31922
+    AegisName: C_Fluffy_Semi_Long_SV
     Name: Costume Fluffy Semi-Long (Silver)
     Type: Armor
     View: 1993
     Locations:
       Costume_Head_Low: true
   - Id: 31923
-    AegisName: aegis_31923
+    AegisName: C_Baby_Polar_Bear
     Name: Costume Baby Polar Bear
     Type: Armor
     View: 1994
     Locations:
       Costume_Head_Mid: true
   - Id: 31927
-    AegisName: aegis_31927
+    AegisName: C_Blue_Pencil_In_Mouth
     Name: Costume Pencil in Mouth (Blue)
     Type: Armor
     View: 932
     Locations:
       Costume_Head_Low: true
   - Id: 31930
-    AegisName: aegis_31930
+    AegisName: C_Mike_Stand
     Name: Costume Standing Mic
     Type: Armor
     View: 2000
     Locations:
       Costume_Head_Mid: true
   - Id: 31931
-    AegisName: aegis_31931
+    AegisName: C_Half_Rim_Glasses
     Name: Costume Half Rim Glasses
     Type: Armor
     View: 2001
     Locations:
       Costume_Head_Mid: true
   - Id: 31932
-    AegisName: aegis_31932
+    AegisName: C_Suit_Sollar
     Name: Costume suit lapel    # !todo check english name
     Type: Armor
     View: 2002
     Locations:
       Costume_Head_Low: true
   - Id: 31933
-    AegisName: aegis_31933
+    AegisName: C_Miyabi_Long_Hair_LPP
     Name: Costume Miyabi Doll Long Hair (Light Purple)
     Type: Armor
     View: 2003
     Locations:
       Costume_Head_Low: true
   - Id: 31934
-    AegisName: aegis_31934
+    AegisName: C_Blink_Eyes_Sakura
     Name: Costume Blinking Purple Eyes
     Type: Armor
     View: 2004
     Locations:
       Costume_Head_Mid: true
   - Id: 31936
-    AegisName: aegis_31936
+    AegisName: C_Nut_Donut_In_Mouth
     Name: Costume Honeynut Donut
     Type: Armor
     View: 736
     Locations:
       Costume_Head_Low: true
   - Id: 31937
-    AegisName: aegis_31937
+    AegisName: C_Unicorn_Ornament
     Name: Costume unicorn headdress    # !todo check english name
     Type: Armor
     View: 2006
@@ -119186,7 +119620,7 @@ Body:
     Locations:
       Costume_Head_Low: true
   - Id: 31943
-    AegisName: aegis_31943
+    AegisName: C_Frog_Hood
     Name: Costume tree frog hoodies    # !todo check english name
     Type: Armor
     View: 2010
@@ -119512,7 +119946,7 @@ Body:
       if (.@r>=11)
          bonus2 bSkillAtk,"LG_OVERBRAND",20;
   - Id: 32026
-    AegisName: aegis_32026
+    AegisName: Ein_1HSPEAR
     Name: Blocking Spear
     Type: Weapon
     SubType: 1hSpear
@@ -119545,7 +119979,7 @@ Body:
          bonus bDelayrate,-20;
       }
   - Id: 32027
-    AegisName: aegis_32027
+    AegisName: G_Knight_Spear
     Name: Guardian Knight Spear
     Type: Weapon
     SubType: 1hSpear
@@ -119576,7 +120010,7 @@ Body:
     AegisName: Black_Circle
     Name: Black Circle
     Type: Weapon
-    SubType: Whip
+    SubType: Musical
     Weight: 1200
     Attack: 100
     MagicAttack: 190
@@ -119628,7 +120062,7 @@ Body:
       if (.@r>=11)
          bonus2 bSkillUseSPrate,"WM_SEVERE_RAINSTORM",20;
   - Id: 32110
-    AegisName: aegis_32110
+    AegisName: Ein_1HLUTE
     Name: Safety Lute
     Type: Weapon
     SubType: Musical
@@ -119663,7 +120097,7 @@ Body:
          bonus2 bSkillCooldown,"WM_SEVERE_RAINSTORM",-2000;
       }
   - Id: 32111
-    AegisName: aegis_32111
+    AegisName: R_Cello
     Name: Royal Chello
     Type: Weapon
     SubType: Musical
@@ -120017,7 +120451,7 @@ Body:
       bonus bMdef,10;
       bonus2 bSubRace,RC_Player_Human,3;
   - Id: 32248
-    AegisName: aegis_32248
+    AegisName: Ein_SAFETY_PENDR
     Name: Safety Pendant R
     Type: Armor
     Weight: 100
@@ -120030,7 +120464,7 @@ Body:
       bonus bAspdRate,5;
       bonus bAllStats,5;
   - Id: 32249
-    AegisName: aegis_32249
+    AegisName: Ein_SAFETY_PENDL
     Name: Safety Pendant B
     Type: Armor
     Weight: 100
@@ -120043,7 +120477,7 @@ Body:
       bonus bAllStats,5;
       bonus bVariableCastrate,-5;
   - Id: 32250
-    AegisName: aegis_32250
+    AegisName: Ein_SAFETY_EPAULR
     Name: Safety Epaulet R
     Type: Armor
     Weight: 100
@@ -120055,7 +120489,7 @@ Body:
     Script: |
       bonus2 bAddClass,Class_All,5;
   - Id: 32251
-    AegisName: aegis_32251
+    AegisName: Ein_SAFETY_EPAULL
     Name: Safety Epaulet B
     Type: Armor
     Weight: 100
@@ -120241,7 +120675,7 @@ Body:
          }
       }
   - Id: 32303
-    AegisName: aegis_32303
+    AegisName: Ein_1HGUN
     Name: Bolt Revolver
     Type: Weapon
     SubType: Revolver
@@ -120272,7 +120706,7 @@ Body:
          bonus bDelayrate,-20;
       }
   - Id: 32304
-    AegisName: aegis_32304
+    AegisName: R_Revolver
     Name: Royal Revolver
     Type: Weapon
     SubType: Revolver
@@ -120358,7 +120792,7 @@ Body:
          .@val = 30;
       bonus2 bSkillAtk,"GN_SPORE_EXPLOSION",.@val;
   - Id: 32352
-    AegisName: aegis_32352
+    AegisName: Ein_1HSWORD
     Name: Safety Saber
     Type: Weapon
     SubType: 1hSword
@@ -120391,7 +120825,7 @@ Body:
          bonus bDelayrate,-20;
       }
   - Id: 32353
-    AegisName: aegis_32353
+    AegisName: G_Knight_JewelSword
     Name: Guardian Knight Jewel Sword
     Type: Weapon
     SubType: 1hSword
@@ -120423,7 +120857,7 @@ Body:
          bonus2 bMagicAddRace,RC_Angel,20;
       }
   - Id: 32401
-    AegisName: aegis_32401
+    AegisName: R_Pillar
     Name: Royal Pillar
     Type: Weapon
     SubType: Mace
@@ -120454,7 +120888,7 @@ Body:
          bonus2 bAddRace,RC_Angel,20;
       }
   - Id: 32402
-    AegisName: aegis_32402
+    AegisName: R_Syringe
     Name: Royal Syringe
     Type: Weapon
     SubType: Mace
@@ -120485,7 +120919,7 @@ Body:
          bonus2 bAddRace,RC_Angel,20;
       }
   - Id: 32403
-    AegisName: aegis_32403
+    AegisName: G_Alchemist_Staff
     Name: Royal Alchemy Staff
     Type: Weapon
     SubType: Mace
@@ -120516,7 +120950,7 @@ Body:
          bonus2 bAddRace,RC_Angel,20;
       }
   - Id: 400000
-    AegisName: aegis_400000
+    AegisName: WhistleK
     Name: Whistle
     Type: Armor
     View: 1478
@@ -120531,7 +120965,7 @@ Body:
       bonus bMatkRate,1;
       bonus2 bAddClass,Class_All,1;
   - Id: 400001
-    AegisName: aegis_400001
+    AegisName: Victory_Wing_Ear
     Name: Victory Wing Ears
     Type: Armor
     View: 1185
@@ -120543,7 +120977,7 @@ Body:
       bonus bBaseAtk,10;
       bonus bDelayrate,-8;
   - Id: 400002
-    AegisName: aegis_400002
+    AegisName: Victory_Wing_Ear_
     Name: Victory Wing Ears
     Type: Armor
     View: 1185
@@ -120556,7 +120990,7 @@ Body:
       bonus bBaseAtk,5;
       bonus bDelayrate,-4;
   - Id: 400003
-    AegisName: aegis_400003
+    AegisName: TimeExtensionArmor
     Name: TimeExtension (loan)    # !todo check english name
     Type: Armor
     View: 15
@@ -120564,7 +120998,7 @@ Body:
       Head_Top: true
     Refineable: true
   - Id: 400011
-    AegisName: aegis_400011
+    AegisName: Officer_Cap
     Name: Officer's Hat
     Type: Armor
     View: 1759
@@ -120742,7 +121176,7 @@ Body:
          bonus2 bAddSize,Size_Medium,15;
       }
   - Id: 400053
-    AegisName: aegis_400053
+    AegisName: Morrigane's_Helm_IL
     Name: Illusion Morrigane's Helm
     Type: Armor
     View: 257
@@ -120767,7 +121201,7 @@ Body:
          bonus bAspdRate,10;
       }
   - Id: 400054
-    AegisName: aegis_400054
+    AegisName: Large_Sorcerer_Crown
     Name: Great Magician's Ceremonial Crown
     Type: Armor
     View: 1811
@@ -120813,14 +121247,14 @@ Body:
     Script: |
       bonus2 bExpAddClass,Class_All,10;
   - Id: 400056
-    AegisName: aegis_400056
+    AegisName: VIP_Hair_Female
     Name: "Costume: Blue Devil Wig"
     Type: Armor
     View: 1990
     Locations:
       Costume_Head_Low: true
   - Id: 400057
-    AegisName: aegis_400057
+    AegisName: VIP_Hair_Male
     Name: "Costume: Red Lotus Demon Wig"
     Type: Armor
     View: 1989
@@ -120877,7 +121311,7 @@ Body:
          bonus2 bAddSize,Size_Medium,15;
       }
   - Id: 400074
-    AegisName: aegis_400074
+    AegisName: C_Disapear_Time_TW
     Name: Costume Lost Time
     Type: Armor
     View: 1998
@@ -121029,7 +121463,7 @@ Body:
          bonus2 bMagicAtkEle,Ele_Water,20;
       }
   - Id: 400097
-    AegisName: aegis_400097
+    AegisName: Egirnion_Helm
     Name: Aegirnion Helm
     Type: Armor
     View: 870
@@ -121331,7 +121765,7 @@ Body:
       NoMail: true
       NoAuction: true
   - Id: 410005
-    AegisName: aegis_410005
+    AegisName: C_Magic_Heir_TW
     Name: Costume Magic Heir
     Type: Armor
     View: 1996
@@ -121350,7 +121784,7 @@ Body:
       bonus bMatk,20;
       bonus bBaseAtk,20;
   - Id: 410017
-    AegisName: aegis_410017
+    AegisName: Battle_Processor_
     Name: Battle Processor
     Type: Armor
     View: 1552
@@ -121438,7 +121872,7 @@ Body:
       bonus2 bMagicAtkEle,Ele_All,5;
       bonus5 bAutoSpell,"MG_SOULSTRIKE",10,100,BF_SHORT|BF_WEAPON,1;
   - Id: 420010
-    AegisName: aegis_420010
+    AegisName: C_Cons_Of_Darkness
     Name: Costume Dark Master    # !todo check english name
     Type: Armor
     View: 2020
@@ -125100,7 +125534,7 @@ Body:
       if (.@r>=9)
          bonus bMaxHPrate,10;
   - Id: 450127
-    AegisName: aegis_450127
+    AegisName: Auto_Armor_A
     Name: Automatic Armor Type A
     Type: Armor
     Weight: 1000
@@ -125118,7 +125552,7 @@ Body:
          bonus bAspdRate,15;
       }
   - Id: 450128
-    AegisName: aegis_450128
+    AegisName: Auto_Armor_B
     Name: Automatic Armor Type B
     Type: Armor
     Weight: 1000
@@ -125136,7 +125570,7 @@ Body:
          bonus bVariableCastrate,-15;
       }
   - Id: 450144
-    AegisName: aegis_450144
+    AegisName: Saint_Robe_IL
     Name: Illusion Saint Robe
     Type: Armor
     Weight: 600
@@ -125165,7 +125599,7 @@ Body:
          bonus2 bIgnoreDefRaceRate,RC_Fish,20;
       }
   - Id: 450145
-    AegisName: aegis_450145
+    AegisName: Water_Sprits_Armor_IL
     Name: Illusion Saphien's Armor of Ocean
     Type: Armor
     Weight: 2200
@@ -125193,7 +125627,7 @@ Body:
          autobonus2 "{ bonus2 bSubEle,Ele_Water,15; }",1,5000,BF_MAGIC|BF_WEAPON;
       }
   - Id: 450146
-    AegisName: aegis_450146
+    AegisName: Chain_Mail_IL
     Name: Illusion Chain Mail
     Type: Armor
     Weight: 3300
@@ -125265,7 +125699,7 @@ Body:
          bonus bVariableCastrate,-10;
       }
   - Id: 450164
-    AegisName: aegis_450164
+    AegisName: Egirnion_Armor
     Name: Aegirnion Armor
     Type: Armor
     Weight: 1000
@@ -125538,7 +125972,7 @@ Body:
       if (.@r>=9)
          bonus2 bMagicAtkEle,Ele_All,10;
   - Id: 470022
-    AegisName: aegis_470022
+    AegisName: Auto_Leg_A
     Name: Automatic Leg Type A
     Type: Armor
     Weight: 500
@@ -125556,7 +125990,7 @@ Body:
          bonus bLongAtkRate,7;
       }
   - Id: 470023
-    AegisName: aegis_470023
+    AegisName: Auto_Leg_B
     Name: Automatic Leg Type B
     Type: Armor
     Weight: 500
@@ -125574,7 +126008,7 @@ Body:
          bonus2 bMagicAtkEle,Ele_All,7;
       }
   - Id: 470033
-    AegisName: aegis_470033
+    AegisName: Elemental_BootsK
     Name: Elemental Boots
     Type: Armor
     Weight: 100
@@ -125651,7 +126085,7 @@ Body:
          bonus2 bMagicAtkEle,Ele_All,5;
       }
   - Id: 470070
-    AegisName: aegis_470070
+    AegisName: Egirnion_Shoes
     Name: Aegirnion Shoes
     Type: Armor
     Weight: 300
@@ -125920,7 +126354,7 @@ Body:
       if (.@r>=9)
          bonus2 bMagicAtkEle,Ele_All,10;
   - Id: 480020
-    AegisName: aegis_480020
+    AegisName: Auto_Engine_A
     Name: Automatic Engine Wing Type A
     Type: Armor
     Weight: 900
@@ -125938,7 +126372,7 @@ Body:
          bonus bAspdRate,7;
       }
   - Id: 480021
-    AegisName: aegis_480021
+    AegisName: Auto_Engine_B
     Name: Automatic Engine Wing Type B
     Type: Armor
     Weight: 900
@@ -125956,7 +126390,7 @@ Body:
          bonus bVariableCastrate,-7;
       }
   - Id: 480054
-    AegisName: aegis_480054
+    AegisName: Morrigane's_Manteau_IL
     Name: Illusion Morrigane's Manteau
     Type: Armor
     Weight: 600
@@ -126041,7 +126475,7 @@ Body:
          bonus bVariableCastrate,-5;
       }
   - Id: 480083
-    AegisName: aegis_480083
+    AegisName: Egirnion_Manteau
     Name: Aegirnion Manteau
     Type: Armor
     Weight: 300
@@ -126250,7 +126684,7 @@ Body:
       bonus bVariableCastrate,-10;
       bonus2 bMagicAddEle,Ele_All,10;
   - Id: 490024
-    AegisName: aegis_490024
+    AegisName: Auto_B_R
     Name: Automatic Booster R
     Type: Armor
     Weight: 100
@@ -126262,7 +126696,7 @@ Body:
       bonus2 bAddClass,Class_All,5;
       bonus bMaxHPrate,5;
   - Id: 490025
-    AegisName: aegis_490025
+    AegisName: Auto_B_L
     Name: Automatic Booster L
     Type: Armor
     Weight: 100
@@ -126274,7 +126708,7 @@ Body:
       bonus2 bAddClass,Class_All,5;
       bonus bMaxSPrate,5;
   - Id: 490026
-    AegisName: aegis_490026
+    AegisName: Auto_BC_R
     Name: Automatic Battle Chip R
     Type: Armor
     Weight: 100
@@ -126286,7 +126720,7 @@ Body:
       bonus bMatkRate,5;
       bonus bMaxHPrate,5;
   - Id: 490027
-    AegisName: aegis_490027
+    AegisName: Auto_BC_L
     Name: Automatic Battle Chip L
     Type: Armor
     Weight: 100
@@ -126298,7 +126732,7 @@ Body:
       bonus bMatkRate,5;
       bonus bMaxSPrate,5;
   - Id: 490044
-    AegisName: aegis_490044
+    AegisName: Sin_Ring_R
     Name: Sinful Ruby Ring
     Type: Armor
     Weight: 100
@@ -126310,7 +126744,7 @@ Body:
       bonus bAspdRate,7;
       bonus2 bAddClass,Class_All,10;
   - Id: 490045
-    AegisName: aegis_490045
+    AegisName: Sin_Necklace_R
     Name: Sinful Ruby Necklace
     Type: Armor
     Weight: 100
@@ -126322,7 +126756,7 @@ Body:
       bonus bVariableCastrate,-7;
       bonus2 bAddClass,Class_All,10;
   - Id: 490046
-    AegisName: aegis_490046
+    AegisName: Sin_Ring_E
     Name: Sinful Emerald Ring
     Type: Armor
     Weight: 100
@@ -126334,7 +126768,7 @@ Body:
       bonus bAspdRate,7;
       bonus2 bAddClass,Class_All,10;
   - Id: 490047
-    AegisName: aegis_490047
+    AegisName: Sin_Necklace_E
     Name: Sinful Emerald Necklace
     Type: Armor
     Weight: 100
@@ -126346,7 +126780,7 @@ Body:
       bonus bVariableCastrate,-7;
       bonus2 bAddClass,Class_All,10;
   - Id: 490048
-    AegisName: aegis_490048
+    AegisName: Sin_Ring_T
     Name: Sinful Topaz Ring
     Type: Armor
     Weight: 100
@@ -126359,7 +126793,7 @@ Body:
       bonus bMatkRate,7;
       bonus2 bAddClass,Class_All,7;
   - Id: 490049
-    AegisName: aegis_490049
+    AegisName:  Sin_Necklace_T
     Name: Sinful Topaz Necklace
     Type: Armor
     Weight: 100
@@ -126372,7 +126806,7 @@ Body:
       bonus bMatkRate,7;
       bonus2 bAddClass,Class_All,7;
   - Id: 490050
-    AegisName: aegis_490050
+    AegisName: Sin_Ring_A
     Name: Sinful Amethyst Ring
     Type: Armor
     Weight: 100
@@ -126385,7 +126819,7 @@ Body:
       bonus bMatkRate,7;
       bonus2 bAddClass,Class_All,7;
   - Id: 490051
-    AegisName: aegis_490051
+    AegisName: Sin_Necklace_A
     Name: Sinful Amethyst Necklace
     Type: Armor
     Weight: 100
@@ -126398,7 +126832,7 @@ Body:
       bonus bMatkRate,7;
       bonus2 bAddClass,Class_All,7;
   - Id: 490052
-    AegisName: aegis_490052
+    AegisName: Sin_Ring_S
     Name: Sinful Sapphire Ring
     Type: Armor
     Weight: 100
@@ -126410,7 +126844,7 @@ Body:
       bonus bAspdRate,7;
       bonus bMatkRate,10;
   - Id: 490053
-    AegisName: aegis_490053
+    AegisName: Sin_Necklace_S
     Name: Sinful Sapphire Necklace
     Type: Armor
     Weight: 100
@@ -126422,7 +126856,7 @@ Body:
       bonus bVariableCastrate,-7;
       bonus bMatkRate,10;
   - Id: 490054
-    AegisName: aegis_490054
+    AegisName: Sin_Ring_O
     Name: Sinful Opal Ring
     Type: Armor
     Weight: 100
@@ -126434,7 +126868,7 @@ Body:
       bonus bAspdRate,7;
       bonus2 bAddClass,Class_All,10;
   - Id: 490055
-    AegisName: aegis_490055
+    AegisName: Sin_Necklace_O
     Name: Sinful Opal Necklace
     Type: Armor
     Weight: 100
@@ -126446,7 +126880,7 @@ Body:
       bonus bVariableCastrate,-7;
       bonus2 bAddClass,Class_All,10;
   - Id: 490056
-    AegisName: aegis_490056
+    AegisName: Shine_Ring_R
     Name: Brilliant Light Ruby Ring
     Type: Armor
     Weight: 100
@@ -126458,7 +126892,7 @@ Body:
       bonus bAspdRate,7;
       bonus2 bAddClass,Class_All,10;
   - Id: 490057
-    AegisName: aegis_490057
+    AegisName: Shine_Necklace_R
     Name: Brilliant Light Ruby Necklace
     Type: Armor
     Weight: 100
@@ -126470,7 +126904,7 @@ Body:
       bonus bVariableCastrate,-7;
       bonus2 bAddClass,Class_All,10;
   - Id: 490058
-    AegisName: aegis_490058
+    AegisName: Shine_Ring_A
     Name: Brilliant Light Amethyst Ring
     Type: Armor
     Weight: 100
@@ -126483,7 +126917,7 @@ Body:
       bonus bMatkRate,7;
       bonus2 bAddClass,Class_All,7;
   - Id: 490059
-    AegisName: aegis_490059
+    AegisName: Shine_Necklace_A
     Name: Brilliant Light Amethyst Necklace
     Type: Armor
     Weight: 100
@@ -126496,7 +126930,7 @@ Body:
       bonus bMatkRate,7;
       bonus2 bAddClass,Class_All,7;
   - Id: 490060
-    AegisName: aegis_490060
+    AegisName: Shine_Ring_E
     Name: Brilliant Light Emerald Ring
     Type: Armor
     Weight: 100
@@ -126509,7 +126943,7 @@ Body:
       bonus bMatkRate,7;
       bonus2 bAddClass,Class_All,7;
   - Id: 490061
-    AegisName: aegis_490061
+    AegisName: Shine_Necklace_E
     Name: Brilliant Light Emerald Necklace
     Type: Armor
     Weight: 100
@@ -126522,7 +126956,7 @@ Body:
       bonus bMatkRate,7;
       bonus2 bAddClass,Class_All,7;
   - Id: 490062
-    AegisName: aegis_490062
+    AegisName: Shine_Ring_Z
     Name: Brilliant Light Zircon Ring
     Type: Armor
     Weight: 100
@@ -126534,7 +126968,7 @@ Body:
       bonus bAspdRate,7;
       bonus2 bAddClass,Class_All,10;
   - Id: 490063
-    AegisName: aegis_490063
+    AegisName: Shine_Necklace_Z
     Name: Brilliant Light Zircon Necklace
     Type: Armor
     Weight: 100
@@ -126546,7 +126980,7 @@ Body:
       bonus bVariableCastrate,-7;
       bonus2 bAddClass,Class_All,10;
   - Id: 490064
-    AegisName: aegis_490064
+    AegisName: Shine_Ring_S
     Name: Brilliant Light Sapphire Ring
     Type: Armor
     Weight: 100
@@ -126558,7 +126992,7 @@ Body:
       bonus bAspdRate,7;
       bonus bMatkRate,10;
   - Id: 490065
-    AegisName: aegis_490065
+    AegisName: Shine_Necklace_S
     Name: Brilliant Light Sapphire Necklace
     Type: Armor
     Weight: 100
@@ -126570,7 +127004,7 @@ Body:
       bonus bVariableCastrate,-7;
       bonus bMatkRate,10;
   - Id: 490066
-    AegisName: aegis_490066
+    AegisName: Shine_Ring_AQ
     Name: Brilliant Light Aquamarine Ring
     Type: Armor
     Weight: 100
@@ -126582,7 +127016,7 @@ Body:
       bonus bAspdRate,7;
       bonus2 bAddClass,Class_All,10;
   - Id: 490067
-    AegisName: aegis_490067
+    AegisName: Shine_Necklace_AQ
     Name: Brilliant Light Aquamarine Necklace
     Type: Armor
     Weight: 100
@@ -126594,7 +127028,7 @@ Body:
       bonus bVariableCastrate,-7;
       bonus2 bAddClass,Class_All,10;
   - Id: 490069
-    AegisName: aegis_490069
+    AegisName: Morrigane's_Belt_IL
     Name: Illusion Morrigane's Belt
     Type: Armor
     Weight: 200
@@ -126609,7 +127043,7 @@ Body:
       bonus bMaxHPrate,5;
       bonus bStr,3;
   - Id: 490070
-    AegisName: aegis_490070
+    AegisName: Morrigane's_Pendant_IL
     Name: Illusion Morrigane's Pendant
     Type: Armor
     Weight: 200
@@ -126743,7 +127177,7 @@ Body:
       bonus bShortAtkRate,2;
       bonus bBaseAtk,10;
   - Id: 490092
-    AegisName: aegis_490092
+    AegisName: Egirnion_Ring
     Name: Aegirnion Ring
     Type: Armor
     Weight: 200
@@ -126756,7 +127190,7 @@ Body:
       bonus2 bMagicAtkEle,Ele_All,5;
       bonus bMatk,30;
   - Id: 490093
-    AegisName: aegis_490093
+    AegisName: Egirnion_Necklace
     Name: Aegirnion Necklace
     Type: Armor
     Weight: 200
@@ -126770,7 +127204,7 @@ Body:
       bonus bShortAtkRate,5;
       bonus bBaseAtk,30;
   - Id: 490099
-    AegisName: aegis_490099
+    AegisName: Thanatos_Pendant
     Name: Thanatos' Necklace    # !todo check english name
     Type: Armor
     Weight: 100
@@ -126780,7 +127214,7 @@ Body:
       bonus bMatkRate,5;
       bonus2 bAddClass,Class_All,5;
   - Id: 490100
-    AegisName: aegis_490100
+    AegisName: Blue_Mental_Pendant
     Name: Red force pendant    # !todo check english name
     Type: Armor
     Weight: 100
@@ -126791,7 +127225,7 @@ Body:
       bonus bMatkRate,5;
       bonus2 bAddClass,Class_All,5;
   - Id: 490101
-    AegisName: aegis_490101
+    AegisName: Red_Force_Pendant
     Name: Blue mental pendant    # !todo check english name
     Type: Armor
     Weight: 100
@@ -126802,7 +127236,7 @@ Body:
       bonus bMatkRate,5;
       bonus2 bAddClass,Class_All,5;
   - Id: 500000
-    AegisName: aegis_500000
+    AegisName: IDTest_weapon
     Name: IDTest weapon
     Type: Weapon
     SubType: 1hSword
@@ -126922,7 +127356,7 @@ Body:
          bonus bDelayrate,-10;
       }
   - Id: 500007
-    AegisName: aegis_500007
+    AegisName: Ep172_1h_Sword
     Name: Hypocrisy Machine
     Type: Weapon
     SubType: 1hSword
@@ -126954,7 +127388,7 @@ Body:
          skill "SM_SWORD",getskilllv("MS_BOWLINGBASH");
       }
   - Id: 500008
-    AegisName: aegis_500008
+    AegisName: Ep172_1h_Sword2
     Name: Invidia Bundle
     Type: Weapon
     SubType: 1hSword
@@ -127282,7 +127716,7 @@ Body:
          bonus bDelayRate,-7;
       }
   - Id: 510008
-    AegisName: aegis_510008
+    AegisName: Ep172_1h_Dagger
     Name: Wrath Rack
     Type: Weapon
     SubType: Dagger
@@ -127316,7 +127750,7 @@ Body:
          bonus2 bSkillAtk,"NJ_HYOUSENSOU",10;
       }
   - Id: 510009
-    AegisName: aegis_510009
+    AegisName: Ep172_1h_Dagger2
     Name: Gula Teeth
     Type: Weapon
     SubType: Dagger
@@ -127555,7 +127989,7 @@ Body:
       if (.@r>=9)
          bonus2 bAddSize,Size_All,15;
   - Id: 520002
-    AegisName: aegis_520002
+    AegisName: Ep172_1h_Axe
     Name: Pride Steel
     Type: Weapon
     SubType: 1hAxe
@@ -127624,7 +128058,7 @@ Body:
          bonus bLongAtkRate,10;
       }
   - Id: 530002
-    AegisName: aegis_530002
+    AegisName: Ep172_1h_Spear
     Name: Gluttony Stick
     Type: Weapon
     SubType: 2hSpear
@@ -127797,7 +128231,7 @@ Body:
          bonus2 bAddClass,Class_All,10;
       }
   - Id: 540004
-    AegisName: aegis_540004
+    AegisName: Ep172_1h_Book
     Name: Sloth Text
     Type: Weapon
     SubType: Book
@@ -127829,7 +128263,7 @@ Body:
          bonus2 bSkillAtk,"SJ_FULLMOONKICK",25;
       }
   - Id: 540005
-    AegisName: aegis_540005
+    AegisName: Ep172_1h_Book2
     Name: Sloth Bible
     Type: Weapon
     SubType: Book
@@ -128053,7 +128487,7 @@ Body:
          bonus2 bMagicAddSize,Size_All,10;
       }
   - Id: 550006
-    AegisName: aegis_550006
+    AegisName: Ein_1H_Foxtail
     Name: Safety Foxtail
     Type: Weapon
     SubType: Staff
@@ -128119,7 +128553,7 @@ Body:
          bonus2 bMagicAtkEle,Ele_Water,7;
       }
   - Id: 550008
-    AegisName: aegis_550008
+    AegisName: Ep172_1h_Wand
     Name: Greed Wand
     Type: Weapon
     SubType: Staff
@@ -128152,7 +128586,7 @@ Body:
          bonus2 bSkillAtk,"SP_SWHOO",25;
       }
   - Id: 550009
-    AegisName: aegis_550009
+    AegisName: Ep172_1h_Foxtail
     Name: Addiction Wand
     Type: Weapon
     SubType: Staff
@@ -128491,7 +128925,7 @@ Body:
          bonus2 bSkillCooldown,"SR_TIGERCANNON",-1000;
       }
   - Id: 560004
-    AegisName: aegis_560004
+    AegisName: Ep172_Bh_Knuck
     Name: Ira Fist
     Type: Weapon
     SubType: Knuckle
@@ -128754,7 +129188,7 @@ Body:
          bonus2 bSkillFixedCast,"WM_REVERBERATION",-500;
       }
   - Id: 570005
-    AegisName: aegis_570005
+    AegisName: Ep172_1h_Inst
     Name: Pigritia Wave
     Type: Weapon
     SubType: Musical
@@ -128790,7 +129224,7 @@ Body:
          bonus2 bSkillCooldown,"WM_METALICSOUND",-2000;
       }
   - Id: 570008
-    AegisName: aegis_570008
+    AegisName: Electronic_Guitar_IL
     Name: Illusion Electric Guitar
     Type: Weapon
     SubType: Musical
@@ -128979,7 +129413,7 @@ Body:
          bonus2 bSkillFixedCast,"WM_REVERBERATION",-5000;
       }
   - Id: 580005
-    AegisName: aegis_580005
+    AegisName: Ep172_1h_Whip
     Name: Pigritia Spark
     Type: Weapon
     SubType: Whip
@@ -129015,7 +129449,7 @@ Body:
          bonus2 bSkillCooldown,"WM_METALICSOUND",-2000;
       }
   - Id: 580008
-    AegisName: aegis_580008
+    AegisName: Electric_Eel_IL
     Name: Illusion Electric Eel
     Type: Weapon
     SubType: Whip
@@ -129233,7 +129667,7 @@ Body:
          bonus2 bMagicAtkEle,Ele_Holy,10;
       }
   - Id: 590006
-    AegisName: aegis_590006
+    AegisName: Ep172_1h_Hammer
     Name: Envy Blunt
     Type: Weapon
     SubType: Mace
@@ -129481,7 +129915,7 @@ Body:
          bonus2 bSkillAtk,"AB_ADORAMUS",15;
       }
   - Id: 600000
-    AegisName: aegis_600000
+    AegisName: IDTest_bothhand
     Name: IDTest bothhand
     Type: Weapon
     SubType: 2hSword
@@ -129567,7 +130001,7 @@ Body:
          bonus bLongAtkRate,10;
       }
   - Id: 600008
-    AegisName: aegis_600008
+    AegisName: Ep172_Bh_Sword
     Name: Hypocrisy Edge
     Type: Weapon
     SubType: 2hSword
@@ -129632,7 +130066,7 @@ Body:
          bonus bCritAtkRate,15;
       }
   - Id: 600011
-    AegisName: aegis_600011
+    AegisName: Death_Guidance_IL
     Name: Illusion Death Guidance
     Type: Weapon
     SubType: 2hSword
@@ -129770,7 +130204,7 @@ Body:
          bonus bDelayRate,-7;
       }
   - Id: 610006
-    AegisName: aegis_610006
+    AegisName: Ep172_Bh_Katar
     Name: Avaritia Metal
     Type: Weapon
     SubType: Katar
@@ -129868,7 +130302,7 @@ Body:
          bonus bLongAtkRate,10;
       }
   - Id: 610012
-    AegisName: aegis_610012
+    AegisName: KatarOfCold_Icicle_IL
     Name: Illusion Katar of Frozen Icicle
     Type: Weapon
     SubType: Katar
@@ -130025,7 +130459,7 @@ Body:
          bonus2 bSubEle,Ele_All,20;
       }
   - Id: 630003
-    AegisName: aegis_630003
+    AegisName: Ep172_Bh_Spear
     Name: Luxuria Pierce
     Type: Weapon
     SubType: 2hSpear
@@ -130055,7 +130489,7 @@ Body:
          bonus2 bSkillAtk,"RK_HUNDREDSPEAR",20;
       }
   - Id: 630006
-    AegisName: aegis_630006
+    AegisName: Brionac_IL
     Name: Illusion Brionac
     Type: Weapon
     SubType: 2hSpear
@@ -130089,7 +130523,7 @@ Body:
          bonus2 bAddRace,RC_Demon,30;
       }
   - Id: 630007
-    AegisName: aegis_630007
+    AegisName: Zephyrus_IL
     Name: Illusion Zephyrus
     Type: Weapon
     SubType: 2hSpear
@@ -130237,7 +130671,7 @@ Body:
          bonus2 bMagicAddEle,Ele_Fire,7;
       }
   - Id: 640005
-    AegisName: aegis_640005
+    AegisName: Ep172_Bh_Staff
     Name: Pride Stone
     Type: Weapon
     SubType: Huuma
@@ -130448,7 +130882,7 @@ Body:
          bonus2 bSkillAtk,"WL_CHAINLIGHTNING",15;
       }
   - Id: 650003
-    AegisName: aegis_650003
+    AegisName: Ep172_Bh_Huuma
     Name: Wrath Wheel
     Type: Weapon
     SubType: Huuma
@@ -130521,7 +130955,7 @@ Body:
          bonus2 bAddRace,RC_Angel,20;
       }
   - Id: 700000
-    AegisName: aegis_700000
+    AegisName: IDTest_bow
     Name: IDTest bow
     Type: Weapon
     SubType: Bow
@@ -130603,7 +131037,7 @@ Body:
          bonus2 bSkillCooldown,"RA_AIMEDBOLT",-1000;
       }
   - Id: 700007
-    AegisName: aegis_700007
+    AegisName: Ep172_Bh_Bow
     Name: Superbia String
     Type: Weapon
     SubType: Bow
@@ -130633,7 +131067,7 @@ Body:
          bonus2 bSkillAtk,"RA_ARROWSTORM",15;
       }
   - Id: 700008
-    AegisName: aegis_700008
+    AegisName: Ep172_Bh_Bow2
     Name: Gula Gun
     Type: Weapon
     SubType: Bow
@@ -130663,7 +131097,7 @@ Body:
          bonus2 bSkillAtk,"SC_TRIANGLESHOT",20;
       }
   - Id: 700009
-    AegisName: aegis_700009
+    AegisName: Ep172_Bh_Bow3
     Name: Pigritia Rhythm
     Type: Weapon
     SubType: Bow
@@ -130978,7 +131412,7 @@ Body:
          bonus bVariableCastrate,-10;
       }
   - Id: 800000
-    AegisName: aegis_800000
+    AegisName: IDTest_gun
     Name: IDTest gun
     Type: Weapon
     SubType: Revolver
@@ -131030,7 +131464,7 @@ Body:
          bonus bDelayRate,-10;
       }
   - Id: 810000
-    AegisName: aegis_810000
+    AegisName: Ep172_1h_Rifle
     Name: Lust Pointer
     Type: Weapon
     SubType: Rifle
@@ -131095,7 +131529,7 @@ Body:
          bonus5 bAutoSpell,"WL_SOULEXPANSION",3,70,BF_LONG,1;
       }
   - Id: 820000
-    AegisName: aegis_820000
+    AegisName: Ep172_1h_Shotgun
     Name: Lust Shatter
     Type: Weapon
     SubType: Shotgun
@@ -131188,7 +131622,7 @@ Body:
          bonus bLongAtkRate,10;
       }
   - Id: 830001
-    AegisName: aegis_830001
+    AegisName: Ep172_1h_Gatling
     Name: Lust Crusher
     Type: Weapon
     SubType: Gatling
@@ -131251,7 +131685,7 @@ Body:
          bonus2 bAddSize,Size_All,15;
       }
   - Id: 840000
-    AegisName: aegis_840000
+    AegisName: Ep172_1h_Grenade
     Name: Lust Boom
     Type: Weapon
     SubType: Grenade

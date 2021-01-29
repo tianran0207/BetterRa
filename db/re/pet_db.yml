@@ -1927,7 +1927,7 @@ Body:
         bonus bAtk,2;
       }
   - Mob: LITTLE_ISIS
-    MobName: Unknow(3636)
+    MobName: LITTLE_ISIS(3636)
     EggItem: Little_Isis_Egg
     FoodItem: Pet_Food
     Fullness: 2
@@ -1949,7 +1949,7 @@ Body:
         bonus bAtkRate,1;
       }
   - Mob: DIABOLIC2
-    MobName: Unknow(3669)
+    MobName: DIABOLIC2(3669)
     EggItem: Diabolic_2_Egg
     FoodItem: Pet_Food
     Fullness: 2
@@ -1983,7 +1983,7 @@ Body:
         bonus bMatkRate,1;
       }
   - Mob: DELETER_2
-    MobName: Unknow(3670)
+    MobName: DELETER_2(3670)
     EggItem: Fire_Deleter_Egg
     FoodItem: Pet_Food
     Fullness: 2
@@ -2008,7 +2008,7 @@ Body:
         bonus bAspdRate,1;
       }
   - Mob: SWEETS_DROPS
-    MobName: Unknow(3790)
+    MobName: SWEETS_DROPS(3790)
     EggItem: Sweet_Drops_Egg
     FoodItem: Candy
     Fullness: 2
