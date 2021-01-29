@@ -1,6 +1,6 @@
 *        text=auto
 *.cpp diff=cpp
-*.yml diff text eol=lf
+*.yml diff text eol=crlf
 *.sln    merge=union
 *.vcproj merge=union
 *.vcxproj merge=union
@@ -12,4 +12,4 @@ configure.in text eol=lf
 Makefile text eol=lf
 Makefile.in text eol=lf
 *.sh text eol=lf
-*.sql text eol=lf
+*.sql text eol=crlf
