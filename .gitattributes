@@ -1,4 +1,4 @@
 *        text=auto
-*.yml diff text eol=crlf
-*.bat text eol=crlf
-*.sql text eol=crlf
+*.yml eol=crlf
+*.bat eol=crlf
+*.sql eol=crlf
