@@ -17759,7 +17759,7 @@ BUILDIN_FUNC(callshop)
 	if (script_hasdata(st,3))
 		flag = script_getnum(st,3);
 	nd = npc_name2id(shopname);
-	if( !nd || nd->bl.type != BL_NPC || (nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_ITEMSHOP && nd->subtype != NPCTYPE_POINTSHOP && nd->subtype != NPCTYPE_MARKETSHOP) ) {
+	if( !nd || nd->bl.type != BL_NPC || (nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_ITEMSHOP && nd->subtype != NPCTYPE_POINTSHOP && nd->subtype != NPCTYPE_MARKETSHOP && nd->subtype != NPCTYPE_BARTERSHOP) ) {
 		ShowError("buildin_callshop: Shop [%s] not found (or NPC is not shop type)\n", shopname);
 		script_pushint(st,0);
 		return SCRIPT_CMD_FAILURE;
@@ -17776,6 +17776,12 @@ BUILDIN_FUNC(callshop)
 			default: clif_npcbuysell(sd,nd->bl.id); break; //Show menu
 		}
 	}
+#if PACKETVER_MAIN_NUM >= 20190116 || PACKETVER_RE_NUM >= 20190116 || PACKETVER_ZERO_NUM >= 20181226
+	else if (nd->subtype == NPCTYPE_BARTERSHOP) {
+		sd->state.callshop = 1;
+		clif_npc_barter_open(sd, nd);
+	}
+#endif
 #if PACKETVER >= 20131223
 	else if (nd->subtype == NPCTYPE_MARKETSHOP) {
 		unsigned short i;
