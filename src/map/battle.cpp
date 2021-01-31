@@ -365,15 +365,14 @@ int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target,
 	int64 damage = *dmg;
 	struct map_session_data* sd = BL_CAST(BL_PC, src);
 	struct status_data *status = status_get_status_data(target);
+	int damage_rate = 0;
 
 	if (sd) {
-		int rate = 0;
 		for (const auto &it : sd->multidamage) {
 			if (!(it.atk_type&flag) || rnd() % 1000 > it.rate)
 				continue;
-			rate += it.n;
+			damage_rate += it.n;
 		}
-		if (rate) damage = damage * rate / 100;
 	}
 	if (sd && (flag & BF_SKILL)) {
 		for (auto &it : sd->skilldamage) {
@@ -403,8 +402,7 @@ int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target,
 					continue;
 				if (rnd() % 1000 >= (it.crirate * cri_rate / 100) - cri_def)
 					continue;
-				damage = damage * it.dmgrate / 100;
-				damage = damage * (100 + sd->c_bonus.skill_crit_atk_rate) / 100;
+				damage_rate += it.dmgrate;
 				battle_display.critical = true;
 			}
 		}
@@ -434,10 +432,13 @@ int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target,
 				continue;
 			if (it.class_ != status->class_ && it.class_ != CLASS_ALL && it.race != status->race && it.class_ != RC_ALL)
 				continue;
-			damage = damage * (100 + it.rate) / 100;
+			damage_rate += it.rate;
 		}
 	}
-	*dmg = damage;
+	if (battle_display.critical)
+		damage_rate += sd->c_bonus.skill_crit_atk_rate;
+
+	*dmg = damage = apply_rate(damage, damage_rate + 100);
 	return (int)cap_value(damage, INT_MIN, INT_MAX);
 }
 

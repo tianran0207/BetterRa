@@ -4709,14 +4709,6 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 	case SP_FINAL_ADD_RACE:
 	case SP_FINAL_ADD_CLASS:
 		if (sd->state.lr_flag != 2) {
-			bool hasentry = false;
-			for (auto &it : sd->finaladdrate) {
-				if (type == SP_FINAL_ADD_RACE ? it.race != type2 : it.class_ != type2 || it.bf != val)
-					continue;
-				it.rate += type3;
-				hasentry = true;
-			}
-			if (hasentry) break;
 			if (sd->finaladdrate.size() == MAX_PC_BONUS) {
 				ShowError("pc_bonus3: SP_FINAL_ADD_RACE: Reached max (%d) number of skills per character, (sk: %d div: %d r: %d).\n", MAX_PC_BONUS, type2, type3, val);
 				break;
@@ -4731,16 +4723,6 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 		break;
 	case SP_SKILL_ADD_DIV:
 		if (sd->state.lr_flag != 2) {
-			bool hasentry = false;
-			for (auto &it : sd->skilladddiv) {
-				if (it.sk != type2)
-					continue;
-				it.div += type3;
-				it.rate += val;
-				hasentry = true;
-				break;
-			}
-			if (hasentry) break;
 			if (sd->skilladddiv.size() == MAX_PC_BONUS) {
 				ShowError("pc_bonus3: SP_SKILL_ADD_DIV: Reached max (%d) number of skills per character, (sk: %d div: %d r: %d).\n", MAX_PC_BONUS, type2, type3, val);
 				break;
@@ -4810,15 +4792,6 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 		break;
 	case SP_SKILL_ITEM_FIX: // bonus3 bSkillItemFix,sk,iid,n;
 		if (sd->state.lr_flag != 2) {
-			bool hasentry = false;
-			for (auto &it : sd->skillitemfix) {
-				if (it.sk != type2 || it.iid != type3)
-					continue;
-				it.amount += val;
-				hasentry = true;
-				break;
-			}
-			if (hasentry) break;
 			if (sd->skillitemfix.size() == MAX_PC_BONUS) {
 				ShowError("pc_bonus3: SP_SKILL_ITEM_FIX: Reached max (%d) number of skills per character, (sk: %d iid: %d amount: %d).\n", MAX_PC_BONUS, type2, type3, val);
 				return;
@@ -4832,15 +4805,6 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 		break;
 	case SP_SKILL_DAMAGE:
 		if (sd->state.lr_flag != 2) {
-			bool hasentry = false;
-			for (auto &it : sd->skilldamage) {
-				if (it.sk != type2 || it.lv != type3)
-					continue;
-				it.damage += val;
-				hasentry = true;
-				break;
-			}
-			if (hasentry) break;
 			if (sd->skilldamage.size() == MAX_PC_BONUS) {
 				ShowError("pc_bonus3: SP_SKILL_DAMAGE: Reached max (%d) number of skills per character, (sk: %d lv: %d damage: %d).\n", MAX_PC_BONUS, type2, type3, val);
 				break;

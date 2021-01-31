@@ -3566,12 +3566,14 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	dmg = battle_calc_attack(attack_type,src,bl,skill_id,skill_lv,flag&0xFFF);
 
 	if (sd) {
+		int rate = 0;
 		for (auto &it : sd->skilladddiv) {
 			if (it.sk != skill_id)
 				continue;
 			dmg.div_ += it.div;
-			dmg.damage = dmg.damage * (100 + it.rate) / 100;
+			rate += it.rate;
 		}
+		if (rate) dmg.damage = apply_rate(dmg.damage, rate + 100);
 	}
 
 	//If the damage source is a unit, the damage is not delayed
@@ -17692,15 +17694,19 @@ struct s_skill_condition skill_get_requirement(struct map_session_data* sd, uint
 		int n;
 		if (it.sk != skill_id)
 			continue;
-		ARR_FIND(0, ((!level_dependent) ? MAX_SKILL_ITEM_REQUIRE : 2), n, req.itemid[n] == it.iid);
-		if (n == ((!level_dependent) ? MAX_SKILL_ITEM_REQUIRE : 2)) {
+		ARR_FIND(0, MAX_SKILL_ITEM_REQUIRE, n, req.itemid[n] == it.iid);
+		if (n == MAX_SKILL_ITEM_REQUIRE) {
+			if (it.amount < 0)
+				continue;
 			ARR_FIND(0, MAX_SKILL_ITEM_REQUIRE, n, req.itemid[n] == 0);
 			if (n == MAX_SKILL_ITEM_REQUIRE)
 				continue;
 			req.itemid[n] = it.iid;
-		}
-		req.amount[n] += it.amount;
-		if ((short)req.amount[n] < 1)
+			req.amount[n] = it.amount;
+		}else
+			req.amount[n] += it.amount;
+
+		if (req.amount[n] < 1)
 			req.itemid[n] = req.amount[n] = 0;
 	}
 
