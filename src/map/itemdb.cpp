@@ -3580,6 +3580,7 @@ bool itemdb_read_itemtrade(char* str[], int columns, int current) {
 		ShowWarning("itemdb_read_itemtrade: Invalid override GM level %hu for item id %u.\n", gmlv, nameid);
 		return false;
 	}
+	memset(&id->flag.trade_restriction, 0, sizeof(id->flag.trade_restriction));
 	id->flag.trade_restriction.drop = (flag&1) ? true : false;
 	id->flag.trade_restriction.trade = (flag&2) ? true : false;
 	id->flag.trade_restriction.trade_partner = (flag&4) ? true : false;
