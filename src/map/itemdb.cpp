@@ -1080,6 +1080,7 @@ e_sex ItemDatabase::defaultGender( const YAML::Node &node, std::shared_ptr<item_
 
 ItemDatabase item_db;
 ItemDatabase item_db_reload;
+ItemDatabase item_db_swap;
 
 /**
  * Check if combo exists
@@ -3822,8 +3823,9 @@ bool ItemDatabase::loadyml() {
 }
 bool ItemDatabase::load() {
 	if (item_db_reload.size()) {
+		item_db_swap = item_db;
 		item_db = item_db_reload;
-		item_db_reload.clear();
+		item_db_reload = item_db_swap;
 	}
 #ifdef _DEBUG
 	else {
