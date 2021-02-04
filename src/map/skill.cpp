@@ -3250,9 +3250,6 @@ void skill_combo(struct block_list* src,struct block_list *dsrc, struct block_li
 			}
 			unit_cancel_combo(src); // Cancel combo wait
 			break;
-		default:
-			if( src == dsrc ) // Ground skills are exceptions. [Inkfish]
-				status_change_end(src, SC_COMBO, INVALID_TIMER);
 		}
 	}
 
@@ -3306,7 +3303,7 @@ void skill_combo(struct block_list* src,struct block_list *dsrc, struct block_li
 			break;
 		case SJ_PROMINENCEKICK:
 			if (pc_checkskill(sd, SJ_SOLARBURST) > 0)
-				duration = 1;
+				duration = 1000;
 			break;
 		}
 	}
