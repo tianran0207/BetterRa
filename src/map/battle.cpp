@@ -1763,8 +1763,12 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 	if( sc && sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 		return 1;
 
-	if (sc && sc->data[SC_MAXPAIN])
+	if (sc->data[SC_MAXPAIN]) {
+		sc->data[SC_MAXPAIN]->val2 = (int)damage;
+		skill_castend_damage_id(bl, src, NPC_MAXPAIN_ATK, sc->data[SC_MAXPAIN]->val1, gettick(), BF_NONE);
+		sc->data[SC_MAXPAIN]->val2 = 0;
 		return 0;
+	}
 
 	switch (skill_id) {
 #ifndef RENEWAL
@@ -6208,11 +6212,7 @@ void battle_do_reflect(int attack_type, struct Damage *wd, struct block_list* sr
 
 			if (sc && sc->data[SC_VITALITYACTIVATION])
 				rdamage /= 2;
-			if (tsc->data[SC_MAXPAIN]) {
-				tsc->data[SC_MAXPAIN]->val2 = (int)rdamage;
-				skill_castend_damage_id(target, src, NPC_MAXPAIN_ATK, tsc->data[SC_MAXPAIN]->val1, tick, wd->flag);
-				tsc->data[SC_MAXPAIN]->val2 = 0;
-			}
+
 			else if( attack_type == BF_WEAPON && tsc->data[SC_REFLECTDAMAGE] ) // Don't reflect your own damage (Grand Cross)
 				map_foreachinshootrange(battle_damage_area,target,skill_get_splash(LG_REFLECTDAMAGE,1),BL_CHAR,tick,target,wd->amotion,sstatus->dmotion,rdamage,wd->flag);
 			else if( attack_type == BF_WEAPON || attack_type == BF_MISC) {
