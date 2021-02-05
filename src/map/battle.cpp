@@ -1763,7 +1763,7 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 	if( sc && sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 		return 1;
 
-	if (sc->data[SC_MAXPAIN]) {
+	if (sc && sc->data[SC_MAXPAIN]) {
 		sc->data[SC_MAXPAIN]->val2 = (int)damage;
 		skill_castend_damage_id(bl, src, NPC_MAXPAIN_ATK, sc->data[SC_MAXPAIN]->val1, gettick(), BF_NONE);
 		sc->data[SC_MAXPAIN]->val2 = 0;
