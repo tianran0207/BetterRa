@@ -17520,11 +17520,8 @@ BUILDIN_FUNC(strtol)
 // case-insensitive substring search [lordalfa]
 BUILDIN_FUNC(compare)
 {
-	const char *message;
-	const char *cmpstring;
-	message = script_getstr(st,2);
-	cmpstring = script_getstr(st,3);
-	script_pushint(st,(stristr(message,cmpstring) != NULL));
+	std::string message = script_getstr(st, 2);
+	script_pushint(st, message.find(script_getstr(st, 3)) != -1);
 	return SCRIPT_CMD_SUCCESS;
 }
 
