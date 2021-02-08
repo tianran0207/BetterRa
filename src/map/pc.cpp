@@ -15943,6 +15943,15 @@ int pcbot_run(struct map_session_data *sd, int ai_mode)
 	return 0;
 }
 
+static TIMER_FUNC(pcbot_delayquit) {
+	struct map_session_data *sd = NULL;
+
+	//Remove player from map server
+	if ((sd = map_id2sd(id)) != NULL && sd->fd == 0) //Should be a disconnected player.
+		map_quit(sd);
+	return 0;
+}
+
 int pcbot_stop(struct map_session_data *sd, int logout)
 {
 	struct bot_data *bd;
@@ -15963,11 +15972,8 @@ int pcbot_stop(struct map_session_data *sd, int logout)
 	if (logout || sd->fd == 0) {
 		if (sd->fd > 0)
 			clif_authfail_fd(sd->fd, 15);
-		else {
-			if (sd->st)
-				script_detach_rid(sd->st);
-			map_quit(sd);
-		}
+		else
+			add_timer(gettick() + 1000, pcbot_delayquit, sd->bl.id, 0);
 	}
 	return 1;
 }
