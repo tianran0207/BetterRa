@@ -29,7 +29,7 @@ static DBMap *itemdb_group; /// Item Group DB
 
 struct s_roulette_db rd;
 static void itemdb_loadname();
-t_itemid itemdb_searchname_cache(const char *name, t_itemid id = 0);
+static struct item_data* itemdb_searchname_nocache(const char *str, bool aegis_only);
 
 struct item_vending vending_itemid[MAX_VENDINGITEM];
 
@@ -68,9 +68,9 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node &node) {
 		if (!this->asString(node, "AegisName", name))
 			return 0;
 
-		t_itemid nameid = itemdb_searchname_cache(name.c_str(), item->nameid);
+		item_data* id = itemdb_searchname_nocache(name.c_str(), true);
 
-		if (nameid && item->nameid != nameid) {
+		if (id != nullptr && id->nameid != nameid) {
 			this->invalidWarning(node["AegisName"], "Found duplicate item Aegis name for %s, skipping.\n", name.c_str());
 			return 0;
 		}
@@ -519,9 +519,9 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node &node) {
 		if (!this->asString(node, "AliasName", view))
 			return 0;
 
-		t_itemid nameid = itemdb_searchname_cache(view.c_str());
+		item_data *view_data = itemdb_searchname_nocache(view.c_str(), true);
 
-		if (nameid == 0) {
+		if (view_data == nullptr) {
 			this->invalidWarning(node["AliasName"], "Unable to change the alias because %s is an unknown item.\n", view.c_str());
 			return 0;
 		}
@@ -971,12 +971,17 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node &node) {
 		if (!this->asString(node, "Script", script))
 			return 0;
 
-		if (exists && item->script) {
-			script_free_code(item->script);
-			item->script = nullptr;
-		}
+		item->script_string = script;
 
-		item->script = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Script"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+		if (!this->load_thread) {
+
+			if (exists && item->script) {
+				script_free_code(item->script);
+				item->script = nullptr;
+			}
+
+			item->script = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["Script"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+		}
 	} else {
 		if (!exists) 
 			item->script = nullptr;
@@ -988,12 +993,17 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node &node) {
 		if (!this->asString(node, "EquipScript", script))
 			return 0;
 
-		if (exists && item->equip_script) {
-			script_free_code(item->equip_script);
-			item->equip_script = nullptr;
-		}
+		item->equip_script_string = script;
 
-		item->equip_script = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["EquipScript"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+		if (!this->load_thread) {
+
+			if (exists && item->equip_script) {
+				script_free_code(item->equip_script);
+				item->equip_script = nullptr;
+			}
+
+			item->equip_script = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["EquipScript"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+		}
 	} else {
 		if (!exists)
 			item->equip_script = nullptr;
@@ -1005,12 +1015,17 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node &node) {
 		if (!this->asString(node, "UnEquipScript", script))
 			return 0;
 
-		if (exists && item->unequip_script) {
-			script_free_code(item->unequip_script);
-			item->unequip_script = nullptr;
-		}
+		item->unequip_script_string = script;
 
-		item->unequip_script = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["UnEquipScript"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+		if (!this->load_thread) {
+
+			if (exists && item->unequip_script) {
+				script_free_code(item->unequip_script);
+				item->unequip_script = nullptr;
+			}
+
+			item->unequip_script = parse_script(script.c_str(), this->getCurrentFile().c_str(), node["UnEquipScript"].Mark().line + 1, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+		}
 	} else {
 		if (!exists)
 			item->unequip_script = nullptr;
@@ -1161,7 +1176,6 @@ int16 itemdb_group_item_exists_pc(struct map_session_data *sd, unsigned short gr
 
 static DBMap* itemdb_name_db = NULL;
 static DBMap* itemdb_aegisname_db = NULL;
-static DBMap* itemdb_cache_db = NULL;
 static char *itemdb_name_tolower(const char *from_name, char *to_name)
 {
 	size_t n = ITEM_NAME_LENGTH;
@@ -1196,25 +1210,29 @@ void itemdb_addname(struct item_data *item)
 	strdb_put(itemdb_name_db, item->ename.c_str(), item);
 }
 
-t_itemid itemdb_searchname_cache(const char *name, t_itemid id)
+static struct item_data* itemdb_searchname_nocache(const char *str, bool aegis_only)
 {
-	static char item_name[ITEM_NAME_LENGTH];
-	itemdb_name_tolower(name, item_name);
+	for (const auto &it : item_db) {
+		// Absolute priority to Aegis code name.
+		if (strcmpi(it.second->name.c_str(), str) == 0)
+			return it.second.get();
 
-	t_itemid tid = (t_itemid)strdb_get(itemdb_cache_db, item_name);
+		// If only Aegis name is allowed, continue with the next entry
+		if (aegis_only)
+			continue;
 
-	if (tid || id == 0)
-		return tid;
+		//Second priority to Client displayed name.
+		if (strcmpi(it.second->ename.c_str(), str) == 0)
+			return it.second.get();
+	}
 
-	strdb_put(itemdb_cache_db, item_name, (void *)id);
-	return 0;
+	return nullptr;
 }
 
 static void itemdb_loadname()
 {
 	db_clear(itemdb_name_db);
 	db_clear(itemdb_aegisname_db);
-	db_clear(itemdb_cache_db);
 	for (const auto &it : item_db)
 		itemdb_loadname_sub(it.second.get());
 }
@@ -3008,7 +3026,8 @@ void itemdb_reload(void) {
 	if (battle_config.itemdb_reload_thread) {
 		if (map_thread_has(THREAD_TYPE_RELOADITEM, THREAD_STATE_NOPROCESS))
 			return;
-		if (!item_db_reload.size()) {
+		if (item_db_reload.load_thread == false) {
+			item_db_reload.load_thread = true;
 			map_thread_create(THREAD_TYPE_RELOADITEM, itemdb_reload_sub, NULL, NULL);
 			return;
 		}
@@ -3059,7 +3078,6 @@ void do_final_itemdb(void) {
 	itemdb_combo.clear();
 	db_destroy(itemdb_name_db);
 	db_destroy(itemdb_aegisname_db);
-	db_destroy(itemdb_cache_db);
 	itemdb_group->destroy(itemdb_group, itemdb_group_free);
 	random_option_db.clear();
 	random_option_group.clear();
@@ -3073,7 +3091,6 @@ void do_final_itemdb(void) {
 void do_init_itemdb(void) {
 	itemdb_name_db = strdb_alloc(DB_OPT_DUP_KEY, ITEM_NAME_LENGTH);
 	itemdb_aegisname_db = strdb_alloc(DB_OPT_DUP_KEY, ITEM_NAME_LENGTH);
-	itemdb_cache_db = strdb_alloc(DB_OPT_DUP_KEY, ITEM_NAME_LENGTH);
 	itemdb_group = uidb_alloc(DB_OPT_BASE);
 	itemdb_read();
 
@@ -3822,10 +3839,20 @@ bool ItemDatabase::loadyml() {
 	return TypesafeCachedYamlDatabase::load();
 }
 bool ItemDatabase::load() {
-	if (item_db_reload.size()) {
+	if (item_db_reload.load_thread) {
+		item_db_reload.load_thread = false;
 		item_db_swap = item_db;
 		item_db = item_db_reload;
 		item_db_reload = item_db_swap;
+		for (auto &it : item_db) {
+			struct item_data *item = it.second.get();
+			if (!item->script_string.empty())
+				item->script = parse_script(item->script_string.c_str(), this->getCurrentFile().c_str(), 0, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+			if (!item->equip_script_string.empty())
+				item->equip_script = parse_script(item->equip_script_string.c_str(), this->getCurrentFile().c_str(), 0, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+			if (!item->unequip_script_string.empty())
+				item->unequip_script = parse_script(item->unequip_script_string.c_str(), this->getCurrentFile().c_str(), 0, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+		}
 	}
 #ifdef _DEBUG
 	else {

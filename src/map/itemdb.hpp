@@ -894,6 +894,9 @@ struct item_data
 	struct script_code *script;	//Default script for everything.
 	struct script_code *equip_script;	//Script executed once when equipping.
 	struct script_code *unequip_script;//Script executed once when unequipping.
+	std::string script_string;
+	std::string equip_script_string;
+	std::string unequip_script_string;
 	struct {
 		unsigned announce : 3;
 		unsigned available : 1;
@@ -1037,6 +1040,7 @@ public:
 	bool load();
 	bool loadyml();
 	void loadingFinished();
+	bool load_thread;
 };
 
 extern ItemDatabase item_db;
