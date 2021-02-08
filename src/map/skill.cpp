@@ -5807,6 +5807,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 	case NPC_SMOKING:
 	case GS_FLING:
 	case NJ_ZENYNAGE:
+	case NPC_RAINOFMETEOR:
 	case GN_THORNS_TRAP:
 	case RL_B_TRAP:
 		skill_attack(skill_get_type(skill_id),src,src,bl,skill_id,skill_lv,tick,flag);
@@ -12903,6 +12904,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
 		skill_reveal_trap_inarea(src, i, x, y);
 		break;
 
+	case NPC_RAINOFMETEOR:
 	case SR_RIDEINLIGHTNING:
 		i = skill_get_splash(skill_id, skill_lv);
 		map_foreachinallarea(skill_area_sub, src->m, x-i, y-i, x+i, y+i, BL_CHAR,
@@ -19933,9 +19935,6 @@ int skill_unit_timer_sub_onplace(struct block_list* bl, va_list ap)
 		return 0; //AoE skills are ineffective. [Skotlex]
 
 	if( battle_check_target(&unit->bl,bl,group->target_flag) <= 0 )
-		return 0;
-
-	if (!skill->inf2[INF2_IGNORELANDPROTECTOR] && map_find_skill_unit_oncell(bl, bl->x, bl->y, SA_LANDPROTECTOR, NULL, 0))
 		return 0;
 
 	skill_unit_onplace_timer(unit,bl,tick);
