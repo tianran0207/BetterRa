@@ -417,7 +417,7 @@ struct s_bot_uselist {
 	short cond, cond_val[2], prior;
 	int inf, delay;
 	t_tick cooldown;
-	char eventname[EVENT_NAME_LENGTH];
+	char eventname[EVENT_NAME_LENGTH], ele;
 };
 
 struct s_bot_moblist {
@@ -472,6 +472,7 @@ struct bot_data {
 	int src_id;
 	int target_id, target_type;
 	int target_dead;
+	unsigned char target_ele, target_ele_lv;
 	int min_chase;            //¹¥»÷¾àÀë
 	struct s_bot_uselist *skill_order;
 	struct s_bot_uselist *skill_attack;

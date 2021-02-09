@@ -15032,11 +15032,10 @@ void pc_attendance_claim_reward( struct map_session_data* sd ){
 /*==========================================
 * pc_bot
 *------------------------------------------*/
-static int pcbot_check_ele(struct map_session_data *sd, struct block_list *bl, struct bot_data *bd)
+static int pcbot_check_ele(struct bot_data *bd, unsigned char atk_elem)
 {
-	struct status_data *status = status_get_status_data(bl);
-	
-	if (!status || battle_attr_ratio(sd->battle_status.rhw.ele, status->def_ele, status->ele_lv) < bd->info.ignore_same_ele)
+
+	if (battle_attr_ratio(atk_elem, bd->target_ele, bd->target_ele_lv) < bd->info.ignore_same_ele)
 		return 0;
 
 	return 1;
@@ -15084,10 +15083,6 @@ static int pcbot_ai_sub_hard_activesearch(struct block_list *bl, va_list ap)
 	//检查是否有主人
 	if ((bd->ai_mode & BOT_ALWAYS_MASTER) && (bl = battle_get_master(bl)) == NULL)
 		return 0;
-
-	//检查属性修正是否小于50
-	if (bd->info.ignore_same_ele && !pcbot_check_ele(sd, bl, bd))
-		return 1;
 
 	//检查列表中的魔物
 	if (bl->type == BL_MOB && bd->info.moblist.size()) {
@@ -15289,6 +15284,8 @@ static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 	for (auto &it : bd->info.useskill)
 	{
 		if (sd->battle_status.sp < skill_get_sp(it.id, it.lv))
+			continue;
+		if (!pcbot_check_ele(bd, it.ele == ELE_WEAPON ? sd->battle_status.rhw.ele : it.ele))
 			continue;
 		if (!pcbot_check_usecond(bd, &it, tick))
 			continue;
@@ -15516,6 +15513,40 @@ static bool pcbot_attack(struct bot_data *bd, struct block_list *tbl, t_tick tic
 	return true;
 }
 
+static int pcbot_set_target(struct bot_data *bd, struct block_list *tbl, t_tick tick)
+{
+	struct map_session_data *sd = bd->sd;
+	struct status_data *status = status_get_status_data(tbl);
+
+	bd->target_id = tbl->id;
+	bd->target_type = tbl->type;
+	bd->target_ele = status ? status->def_ele : ELE_NEUTRAL;
+	bd->target_ele_lv = status ? status->ele_lv : 1;
+
+	if (!pc_can_attack(sd, tbl->id)) {
+		bd->state.next_acttime = tick + 500;
+		return 0;
+	}
+	if ((bd->ai_mode & BOT_SKILL_ATK) && pcbot_check_useskill(bd, tick, INF_ATTACK_SKILL)) {
+		//如果够不到则走近魔物
+		if (battle_check_range(&sd->bl, tbl, bd->min_chase))
+			return 1;
+		if (unit_can_move(&sd->bl) && unit_walktobl(&sd->bl, tbl, bd->min_chase, 1))
+			return 1;
+	}
+	if ((bd->ai_mode & BOT_WEAPON_ATK) && pcbot_check_ele(bd, sd->battle_status.rhw.ele)) {
+		//计算攻击距离
+		bd->min_chase = status_get_status_data(&sd->bl)->rhw.range;
+		//如果够不到则走近魔物
+		if (battle_check_range(&sd->bl, tbl, bd->min_chase))
+			return 1;
+		if (unit_can_move(&sd->bl) && unit_walktobl(&sd->bl, tbl, bd->min_chase, 1))
+			return 1;
+	}
+	bd->target_id = bd->target_type = 0;
+	return 0;
+}
+
 static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 {
 	t_tick tick = va_arg(args, t_tick);
@@ -15584,13 +15615,8 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			sd->enemy.bot_id = 0;
 			bd->state.next_counterattack = tick + 1000;
 
-			//检查属性修正是否小于50
-			if (tbl && bd->info.ignore_same_ele && !pcbot_check_ele(sd, tbl, bd))
-				return 0;
 			//反击目标
-			if (tbl && pc_can_attack(sd, tbl->id)) {
-				bd->target_id = tbl->id;
-				bd->target_type = tbl->type;
+			if (tbl && pcbot_set_target(bd, tbl, tick)) {
 				unit_stop_walking(&sd->bl, 1);
 				return 1;
 			}
@@ -15615,7 +15641,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			}
 			int min_chase = bd->min_chase;
 			//满足条件则技能攻击目标
-			if ((bd->ai_mode & BOT_SKILL_ATK) && sd->ud.skilltimer == INVALID_TIMER) {
+			if ((bd->ai_mode & BOT_SKILL_ATK) && sd->ud.skilltimer == INVALID_TIMER && pcbot_check_useskill(bd, tick, INF_ATTACK_SKILL)) {
 				if (pcbot_useskill(bd, tbl, tick, INF_ATTACK_SKILL))
 					return 1;
 				if (bd->state.skill_fail_count > 20) {
@@ -15625,7 +15651,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				}
 			}
 			//满足条件则普通攻击目标
-			if ((bd->ai_mode & BOT_WEAPON_ATK) && sd->ud.attacktimer == INVALID_TIMER) {
+			if ((bd->ai_mode & BOT_WEAPON_ATK) && sd->ud.attacktimer == INVALID_TIMER && pcbot_check_ele(bd, sd->battle_status.rhw.ele)) {
 				if (pcbot_attack(bd, tbl, tick)) {
 					bd->state.next_acttime = tick + 500;
 					return 1;
@@ -15644,10 +15670,10 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 				if (min_chase > 1)
 					bd->min_chase = min_chase * 2 / 3;
 				//由于上次走路失败, 所以直接用A* 走. 如果还是失败则放弃这个目标.
-				if (!unit_walktobl(&sd->bl, tbl, bd->min_chase, 0))
-					bd->target_id = 0;
+				if (unit_walktobl(&sd->bl, tbl, bd->min_chase, 0))
+					return 1;
+				bd->target_id = bd->target_type = 0;
 			}
-			return 1;
 		}
 		else if (bd->target_type == BL_ITEM){   //有效物品目标
 			if ((tbl = map_id2bl(bd->target_id)) == NULL || tbl->type != bd->target_type || !check_distance_bl(&sd->bl, tbl, 1)) {
@@ -15692,32 +15718,10 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 	tbl = NULL;
 	bd->state.enemy_count = map_foreachinallrange(pcbot_ai_sub_hard_activesearch, &sd->bl, bd->state.view_range, BL_CHAR, bd, &tbl);
 
-	if (tbl) {
-		bd->target_id = tbl->id;
-		bd->target_type = tbl->type;
-		if (!pc_can_attack(sd, tbl->id)) {
-			bd->state.next_acttime = tick + 500;
-			return 0;
-		}
-		if ((bd->ai_mode & BOT_SKILL_ATK) && !pcbot_check_useskill(bd, tick, INF_ATTACK_SKILL)){
-			//如果够不到则走近魔物
-			if (unit_can_move(&sd->bl) && !check_distance_bl(&sd->bl, tbl, bd->min_chase))
-				unit_walktobl(&sd->bl, tbl, bd->min_chase, 1);
-			else if (pcbot_useskill(bd, tbl, tick, INF_ATTACK_SKILL))
-				return 1;
-		}
-		if ((bd->ai_mode & BOT_WEAPON_ATK)) {
-			//计算攻击距离
-			bd->min_chase = status_get_status_data(&sd->bl)->rhw.range;
-			//如果够不到则走近魔物
-			if (unit_can_move(&sd->bl) && !check_distance_bl(&sd->bl, tbl, bd->min_chase))
-				unit_walktobl(&sd->bl, tbl, bd->min_chase, 3);
-			else if (pcbot_attack(bd, tbl, tick))
-				return 1;
-		}
+	if (tbl && pcbot_set_target(bd, tbl, tick))
 		return 1;
-	}
-	if ((bd->ai_mode & (BOT_NO_WALK || BOT_FOLLOW_WALK))) {
+
+	if ((bd->ai_mode & (BOT_NO_WALK|BOT_FOLLOW_WALK))) {
 		bd->state.next_acttime = tick + 500;
 		return 0;
 	}

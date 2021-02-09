@@ -28573,6 +28573,7 @@ BUILDIN_FUNC(bot_adduseskill)
 	entry.cond = script_hasdata(st, 6) ? script_getnum(st, 6) : BOT_USE_ALWAYS;
 	entry.cond_val[0] = script_hasdata(st, 7) ? script_getnum(st, 7) : 0;
 	entry.cond_val[1] = script_hasdata(st, 8) ? script_getnum(st, 8) : 0;
+	entry.ele = skill_get_ele(entry.id, entry.lv);
 
 	if (!entry.id || skill_get_index(entry.id) == 0)
 		return SCRIPT_CMD_FAILURE;
