@@ -7060,9 +7060,9 @@ bool pc_steal_item(struct map_session_data *sd,struct block_list *bl, uint16 ski
 
 	//A Rare Steal Global Announce by Lupus
 	struct item_data *i_data = itemdb_search(itemid);
-	if(md->db->dropitem[i].rate <= battle_config.rare_drop_announce || (i_data->flag.announce & 4)) {
+	if(md->db->dropitem[i].dp <= battle_config.rare_drop_announce || (i_data->flag.announce & 4)) {
 		char message[128];
-		sprintf (message, msg_txt(sd,542), (sd->status.name[0])?sd->status.name :"GM", md->db->jname, i_data->ename.c_str(), (float)md->db->dropitem[i].rate / 100);
+		sprintf (message, msg_txt(sd,542), (sd->status.name[0])?sd->status.name :"GM", md->db->jname, i_data->ename.c_str(), (float)md->db->dropitem[i].dp / 100);
 		//MSG: "'%s' stole %s's %s (chance: %0.02f%%)"
 		intif_broadcast(message, strlen(message) + 1, BC_DEFAULT);
 	}

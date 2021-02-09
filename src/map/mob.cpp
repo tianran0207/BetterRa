@@ -2831,7 +2831,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		struct item_drop_list *dlist = ers_alloc(item_drop_list_ers, struct item_drop_list);
 		struct item_drop *ditem;
 		struct item_data* it = NULL;
-		int drop_rate;
+		int drop_rate, drop_display;
 #ifdef RENEWAL_DROP
 		int drop_modifier = pc_level_penalty_mod( mvp_sd != nullptr ? mvp_sd : second_sd != nullptr ? second_sd : third_sd, PENALTY_DROP, nullptr, md );
 #endif
@@ -2938,30 +2938,30 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 			ditem = mob_setdropitem(&md->db->dropitem[i], 1, md->mob_id);
 
-			if (md->db->dropitem[i].rate != md->db->dropitem[i].dp) {
-				drop_rate = md->db->dropitem[i].dp;
+			if (md->db->dropitem[i].dp != md->db->dropitem[i].rate) {
+				drop_display = md->db->dropitem[i].dp;
 				if (md->db->mexp) {
 					if (map_getmapflag(md->bl.m, MF_MVPDROPRATE))
-						drop_rate = drop_rate * map_getmapflag(md->bl.m, MF_MVPDROPRATE) / 100;
+						drop_display = drop_display * map_getmapflag(md->bl.m, MF_MVPDROPRATE) / 100;
 				}else if (map_getmapflag(md->bl.m, MF_MOBDROPRATE)){
-					drop_rate = drop_rate * map_getmapflag(md->bl.m, MF_MOBDROPRATE) / 100;
+					drop_display = drop_display * map_getmapflag(md->bl.m, MF_MOBDROPRATE) / 100;
 				}
 
 				// change drops depending on monsters size [Valaris]
 				if (battle_config.mob_size_influence) {
-					if (md->special_state.size == SZ_MEDIUM && drop_rate >= 2)
-						drop_rate /= 2;
+					if (md->special_state.size == SZ_MEDIUM && drop_display >= 2)
+						drop_display /= 2;
 					else if( md->special_state.size == SZ_BIG)
-						drop_rate *= 2;
+						drop_display *= 2;
 				}
 
 				if (src) {
 					//Drops affected by luk as a fixed increase [Valaris]
 					if (battle_config.drops_by_luk)
-						drop_rate += status_get_luk(src)*battle_config.drops_by_luk/100;
+						drop_display += status_get_luk(src)*battle_config.drops_by_luk/100;
 					//Drops affected by luk as a % increase [Skotlex]
 					if (battle_config.drops_by_luk2)
-						drop_rate += (int)(0.5+drop_rate*status_get_luk(src)*battle_config.drops_by_luk2/10000.);
+						drop_display += (int)(0.5+drop_display*status_get_luk(src)*battle_config.drops_by_luk2/10000.);
 				}
 
 				// Player specific drop rate adjustments
@@ -2970,7 +2970,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 					// pk_mode increase drops if 20 level difference [Valaris]
 					if( battle_config.pk_mode && (int)(md->level - sd->status.base_level) >= 20 )
-						drop_rate = (int)(drop_rate*1.25);
+						drop_display = (int)(drop_display*1.25);
 
 					// Add class and race specific bonuses
 					drop_rate_bonus += sd->indexed_bonus.dropaddclass[md->status.class_] + sd->indexed_bonus.dropaddclass[CLASS_ALL];
@@ -2980,36 +2980,37 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 					if (sd->sc.data[SC_ITEMBOOST])
 						drop_rate_bonus += sd->sc.data[SC_ITEMBOOST]->val1;
 
-					drop_rate_bonus = (int)(0.5 + drop_rate * drop_rate_bonus / 100.);
+					drop_rate_bonus = (int)(0.5 + drop_display * drop_rate_bonus / 100.);
 					// Now rig the drop rate to never be over 90% unless it is originally >90%.
-					drop_rate = i32max(drop_rate, cap_value(drop_rate_bonus, 0, 9000));
+					drop_display = i32max(drop_display, cap_value(drop_rate_bonus, 0, 9000));
 
 					if (pc_isvip(sd) && !md->db->dropitem[i].no_vip_fix ) { // Increase item drop rate for VIP.
-						drop_rate += (int)(0.5 + drop_rate * battle_config.vip_drop_increase / 100.);
-						drop_rate = min(drop_rate,10000); //cap it to 100%
+						drop_display += (int)(0.5 + drop_display * battle_config.vip_drop_increase / 100.);
+						drop_display = min(drop_display,10000); //cap it to 100%
 					}
-					if (sd->policies) drop_rate = apply_rate(drop_rate, policie[sd->policies].drop_rate / 100);
+					if (sd->policies) drop_display = apply_rate(drop_display, policie[sd->policies].drop_rate / 100);
 				}
 
 #ifdef RENEWAL_DROP
 				if( drop_modifier != 100 && !md->db->dropitem[i].no_lv_fix ) {
-					drop_rate = apply_rate(drop_rate, drop_modifier);
-					if (drop_rate < 1)
-						drop_rate = 1;
+					drop_display = apply_rate(drop_display, drop_modifier);
+					if (drop_display < 1)
+						drop_display = 1;
 				}
 #endif
-			}
+			}else
+				drop_display = drop_rate;
 
 			//A Rare Drop Global Announce by Lupus
-			if( mvp_sd && (drop_rate <= battle_config.rare_drop_announce || (it->flag.announce & 1))) {
+			if( mvp_sd && (drop_display <= battle_config.rare_drop_announce || (it->flag.announce & 1))) {
 				char message[128];
-				sprintf (message, msg_txt(NULL,541), mvp_sd->status.name, md->name, it->ename.c_str(), (float)drop_rate/100);
+				sprintf (message, msg_txt(NULL,541), mvp_sd->status.name, md->name, it->ename.c_str(), (float)drop_display/100);
 				//MSG: "'%s' won %s's %s (chance: %0.02f%%)"
 				intif_broadcast(message,strlen(message)+1,BC_DEFAULT);
 			}
 			// Announce first, or else ditem will be freed. [Lance]
 			// By popular demand, use base drop rate for autoloot code. [Skotlex]
-			mob_item_drop(md, dlist, ditem, 0, battle_config.autoloot_adjust ? drop_rate : md->db->dropitem[i].rate, homkillonly);
+			mob_item_drop(md, dlist, ditem, 0, battle_config.autoloot_adjust ? drop_display : md->db->dropitem[i].rate, homkillonly);
 		}
 
 		// Ore Discovery [Celest]
@@ -4640,7 +4641,7 @@ static bool mob_parse_dbrow(char** str)
 
 		if( entry.dropitem[i].nameid ){
 			if( itemdb_search( entry.dropitem[i].nameid ) ){
-				entry.dropitem[i].rate = atoi(str[k+1]);
+				entry.dropitem[i].rate = entry.dropitem[i].dp = atoi(str[k+1]);
 				continue;
 			}else{
 				ShowWarning( "Monster \"%s\"(id: %d) is dropping an unknown item \"%s\"(Drop %d)\n", entry.name, mob_id, str[k], ( i / 2 ) + 1 );
@@ -4649,7 +4650,7 @@ static bool mob_parse_dbrow(char** str)
 
 		// Delete the item
 		entry.dropitem[i].nameid = 0;
-		entry.dropitem[i].rate = 0;
+		entry.dropitem[i].rate = entry.dropitem[i].dp = 0;
 	}
 
 	db = mob_db(mob_id);

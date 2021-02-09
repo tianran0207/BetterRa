@@ -18123,7 +18123,7 @@ BUILDIN_FUNC(delmonsterdrop)
 		for(i = 0; i < MAX_MOB_DROP_TOTAL; i++) {
 			if(mob->dropitem[i].nameid == item_id) {
 				mob->dropitem[i].nameid = 0;
-				mob->dropitem[i].rate = 0;
+				mob->dropitem[i].rate = mob->dropitem[i].dp = 0;
 				mob_reload_itemmob_data(); // Reload the mob search data stored in the item_data
 				script_pushint(st,1);
 				return SCRIPT_CMD_SUCCESS;
