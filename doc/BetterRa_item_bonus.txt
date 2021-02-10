@@ -44,8 +44,8 @@ bonus3 bRegen,hp,sp,t;					每隔 t 毫秒, 恢复 HP 和 SP (不覆盖, 独立运算)
 bonus3 bRegenPercent,hp,sp,t;			每隔 t 毫秒, 按百分比恢复 HP 和 SP(不覆盖, 独立运算)
 
 bonus bFixedCastAddRate,n;				固定咏唱时间 + n%(可累加)
-bonus3 bMultiDamageRate,bf,r,n;			当玩家使用 bf 攻击时, 有 r/10% 的概率使伤害变为原来的 n% 倍
-bonus3 bSkillCritical,sk,r,n;			当玩家使用 sk 攻击时, 有 r/10% 的概率使伤害变为原来的 n% 倍
+bonus3 bMultiDamageRate,bf,r,n;			当玩家使用 bf 攻击时, 有 r/10% 的概率使伤害增加 n% 倍
+bonus3 bSkillCritical,sk,r,n;			当玩家使用 sk 攻击时, 有 r/10% 的概率使伤害增加 n% 倍
 										sk 为 -1 时所有技能暴击
 bonus bSkillCritAtkRate,n;				技能暴击伤害 + n%
 bonus3 bSkillAddDiv,sk,div,n;			技能 sk 打击段数增加 div, 伤害 + n%
