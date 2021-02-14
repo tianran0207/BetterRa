@@ -4641,7 +4641,8 @@ static bool mob_parse_dbrow(char** str)
 
 		if( entry.dropitem[i].nameid ){
 			if( itemdb_search( entry.dropitem[i].nameid ) ){
-				entry.dropitem[i].rate = entry.dropitem[i].dp = atoi(str[k+1]);
+				entry.dropitem[i].rate = atoi(str[k+1]);
+				entry.dropitem[i].dp = 0;
 				continue;
 			}else{
 				ShowWarning( "Monster \"%s\"(id: %d) is dropping an unknown item \"%s\"(Drop %d)\n", entry.name, mob_id, str[k], ( i / 2 ) + 1 );
