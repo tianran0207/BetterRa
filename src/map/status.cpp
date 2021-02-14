@@ -5261,7 +5261,7 @@ void status_calc_regen(struct block_list *bl, struct status_data *status, struct
 
 	regen->sp = cap_value(val, reg_flag, SHRT_MAX);
 
-	if( sd && (!regen->sregen || regen->ssregen) ) {
+	if( sd && regen->sregen && regen->ssregen ) {
 		struct regen_data_sub *sregen;
 		if( (skill=pc_checkskill(sd,HP_MEDITATIO)) > 0 ) {
 			val = regen->sp*(100+3*skill)/100;
