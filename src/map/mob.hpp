@@ -195,6 +195,7 @@ struct mob_db {
 	e_mob_bosstype get_bosstype();
 
 	int damage_rate;
+	bool ignore_drop_ratio_adjust;
 };
 
 #define MAX_AGGRO_RATE 2
@@ -363,6 +364,7 @@ struct item_drop_list {
 bool mob_readdb_sub(char* fields[], int columns, int current);
 bool mob_readdb_mobavail(char* str[], int columns, int current);
 bool mob_parse_row_mobskilldb(char** str, int columns, int current);
+void mob_drop_ratio_adjust(void);
 struct mob_db *mob_db(int mob_id);
 uint16 mobdb_searchname(const char * const str);
 struct mob_db* mobdb_search_aegisname( const char* str );

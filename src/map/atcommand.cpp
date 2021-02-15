@@ -4950,6 +4950,7 @@ ACMD_FUNC(reloadnpcfile) {
 		clif_displaymessage(fd, msg_txt(sd,261)); // Script could not be loaded.
 		return -1;
 	}
+	npc_load_database(message);
 
 	npc_read_event_script();
 

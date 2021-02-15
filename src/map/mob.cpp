@@ -4665,6 +4665,7 @@ static bool mob_parse_dbrow(char** str)
 			return false;
 		}
 	}
+	entry.ignore_drop_ratio_adjust = false;
 
 	memcpy(db, &entry, sizeof(struct mob_db));
 	return true;
@@ -5752,7 +5753,7 @@ static int mob_item_drop_ratio_free(DBKey key, DBData *data, va_list ap) {
 /**
  * Adjust drop ratio for each monster
  **/
-static void mob_drop_ratio_adjust(void){
+void mob_drop_ratio_adjust(void){
 	for( auto &pair : mob_db_data ){
 		struct mob_db *mob;
 		struct item_data *id;
@@ -5765,6 +5766,9 @@ static void mob_drop_ratio_adjust(void){
 		if( mob_is_clone( mob_id ) ){
 			continue;
 		}
+		if (mob->ignore_drop_ratio_adjust)
+			continue;
+		mob->ignore_drop_ratio_adjust = true;
 
 		for( j = 0; j < MAX_MVP_DROP_TOTAL; j++ ){
 			nameid = mob->mvpitem[j].nameid;
@@ -5909,7 +5913,7 @@ static void mob_drop_ratio_adjust(void){
 	}
 
 	// Now that we are done we can delete the stored item ratios
-	mob_item_drop_ratio->clear( mob_item_drop_ratio, mob_item_drop_ratio_free );
+	// mob_item_drop_ratio->clear( mob_item_drop_ratio, mob_item_drop_ratio_free );
 }
 
 /**
@@ -6203,7 +6207,7 @@ void mob_reload(void) {
 	do_final_mob(true);
 	mob_db_load(true);
 
-	npc_database_reload("mob");
+	npc_load_database(nullptr, BL_MOB);
 	// First only normal monsters
 	map_foreachmob( mob_reload_sub, 0 );
 	// Then slaves only

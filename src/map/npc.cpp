@@ -4838,59 +4838,20 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 	return strchr(start,'\n');// continue
 }
 
-DBMap *npc_database_db = NULL;
-static const char* npc_parse_dbread(char* w1, const char* start, const char* buffer, const char* filepath, int *dbread_type);
-static void npc_database_set(const char* filepath, char *line, int *dbread_type)
-{
-	StringBuf *buf;
-
-	if (*dbread_type == -1)
-		return;
-
-	if (!(buf = (StringBuf *)strdb_get(npc_database_db, filepath))) {
-		buf = StringBuf_Malloc();
-		strdb_put(npc_database_db, filepath, buf);
-	}
-	if (*dbread_type == 1) {
-		*dbread_type = 0;
-		StringBuf_Clear(buf);
-	}
-
-	StringBuf_AppendStr(buf, line);
-	StringBuf_AppendStr(buf, "\n");
-}
-
-static int npc_database_clear(DBKey key, DBData *data, va_list ap) 
-{
-	StringBuf *buf = (StringBuf *)db_data2ptr(data);
-	StringBuf_Free(buf);
-	return 1;
-}
-
-void npc_database_reload(char *type)
-{
-	StringBuf *buf;
-	char *otherbuf, filepath[128];
-	DBIterator *iter = db_iterator(npc_database_db);
-	for (buf = (StringBuf *)dbi_first(iter); dbi_exists(iter); buf = (StringBuf *)dbi_next(iter)) {
-		int len = StringBuf_Length(buf);
-		CREATE(otherbuf, char, len+10);
-		memcpy(otherbuf, StringBuf_Value(buf), len);
-		otherbuf[len+1] = '\0';
-		sprintf(filepath, "npc_reload_%s", type);
-		npc_parsesrcfile(filepath, otherbuf);
-	}
-	dbi_destroy(iter);
-}
-
-static const char* npc_parse_dbread(char* w1, const char* start, const char* buffer, const char* filepath, int *dbread_type)
+struct s_npc_database {
+	std::string fliepath;
+	std::string line_string;
+	int line_id, line_type, lines;
+};
+std::vector<struct s_npc_database> npc_database;
+static const char* npc_parse_database(char* w1, const char* start, const char* buffer, const char* filepath, int lines, int *dbread_type)
 {
 	static const char *head[] = { "item_db","item_avail","item_noequip","item_trade","item_combo_db","mob_db","mob_avail","mob_skill_db","instances_db" };
 	const char *p;
-	int i, len, lines = 0;
+	int i, len;
 
 	if ((p = strchr(w1, ':')) == NULL) {
-		ShowError("npc_parse_dbread: Invalid script database line in file '%s', line '%d'. Skipping line...\n", filepath, strline(buffer, start - buffer));
+		ShowError("npc_parse_database: Invalid script database line in file '%s', line '%d'. Skipping line...\n", filepath, strline(buffer, start - buffer));
 		return strchr(start, '\n');
 	}
 
@@ -4898,18 +4859,22 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
 
 	ARR_FIND(0, ARRAYLENGTH(head), i, strncasecmp(w1, head[i], len) == 0);
 	if (i == ARRAYLENGTH(head)) {
-		ShowError("npc_parse_dbread: Invalid script database line in file '%s', line '%d'. Skipping line...\n", filepath, strline(buffer, start - buffer));
+		ShowError("npc_parse_database: Invalid script database line in file '%s', line '%d'. Skipping line...\n", filepath, strline(buffer, start - buffer));
 		return strchr(start, '\n');
 	}
 
-	// *dbread_type == -1 skip npc_database_set. 
-	if ((*dbread_type = !strncasecmp(filepath, "npc_reload", 10) ? -1 : *dbread_type) == -1) {
-		char db_name[64];
-		safestrncpy(db_name, filepath+11, strlen(filepath)-10);
-		i = strncasecmp(db_name, head[i], strlen(db_name)) ? -1 : i; // i == -1 skip load block
+	if (*dbread_type == 1) {
+		std::vector<s_npc_database>::iterator it = npc_database.begin();
+		while (it != npc_database.end()) {
+			struct s_npc_database b = *it;
+			if (strcmp(b.fliepath.c_str(), filepath) == 0) {
+				it = npc_database.erase(it);
+				continue;
+			}
+			it++;
+		}
+		*dbread_type = 0;
 	}
-
-	npc_database_set(filepath, w1, dbread_type);
 
 	start = strchr(start, '\n');
 
@@ -4940,48 +4905,74 @@ static const char* npc_parse_dbread(char* w1, const char* start, const char* buf
 		if ((data_id = atoi(idstr)) == 0)
 			break;
 
-		npc_database_set(filepath, line, dbread_type);
+		struct s_npc_database entry;
+		entry.fliepath = filepath;
+		entry.line_id = data_id;
+		entry.line_string = line;
+		entry.line_type = i;
+		entry.lines = lines;
+		npc_database.push_back(entry);
 
 		start = nextline;
 		lines++;
-
-		switch (i) {
-		case -1:
-			continue;
-		case 0:
-			itemdb_readdb_line(filepath,lines,line);
-			continue;
-		case 1:
-			sv_readdb_line(filepath, lines, line, ',',2,2,&itemdb_read_itemavail);
-			continue;
-		case 2:
-			sv_readdb_line(filepath, lines, line, ',',2,2,&itemdb_read_noequip);
-			continue;
-		case 3:
-			sv_readdb_line(filepath, lines, line, ',',3,3,&itemdb_read_itemtrade);
-			continue;
-		case 4:
-			itemdb_read_combos_line(filepath, lines, line, NULL);
-			continue;
-		case 5: //mob_db
-			sv_readdb_line(filepath,lines,line,',',31+2*MAX_MVP_DROP+2*MAX_MOB_DROP, 31+2*MAX_MVP_DROP+2*MAX_MOB_DROP, &mob_readdb_sub);
-			continue;
-		case 6:
-			sv_readdb_line(filepath, lines, line,',',2,12,&mob_readdb_mobavail);
-			continue;
-		case 7:
-			sv_readdb_line(filepath,lines,line,',',2,19,&mob_parse_row_mobskilldb);
-			mob_skill_db_set();
-			continue;
-		case 8:
-			sv_readdb_line(filepath,lines,line,',',7,7+255,&instance_readdb_sub);
-			continue;
-		default:
-			return start;
-		}
 	}
 
 	return start;
+}
+
+void npc_load_database(const char* filepath, int type)
+{
+	char line[2048];
+
+	for (const auto &it : npc_database) {
+
+		if (filepath && strcmp(it.fliepath.c_str(), filepath) != 0)
+			continue;
+
+		safestrncpy(line, it.line_string.c_str(), 2048);
+
+		switch (it.line_type) {
+		case 0:
+			if (!type || (type&BL_ITEM))
+				itemdb_readdb_line(filepath, it.lines, line);
+			continue;
+		case 1:
+			if (!type || (type&BL_ITEM))
+				sv_readdb_line(filepath, it.lines, line, ',', 2, 2, &itemdb_read_itemavail);
+			continue;
+		case 2:
+			if (!type || (type&BL_ITEM))
+				sv_readdb_line(filepath, it.lines, line, ',', 2, 2, &itemdb_read_noequip);
+			continue;
+		case 3:
+			if (!type || (type&BL_ITEM))
+				sv_readdb_line(filepath, it.lines, line, ',', 3, 3, &itemdb_read_itemtrade);
+			continue;
+		case 4:
+			if (!type || (type&BL_ITEM))
+				itemdb_read_combos_line(filepath, it.lines, line, NULL);
+			continue;
+		case 5:
+			if (!type || (type&BL_MOB))
+				sv_readdb_line(filepath, it.lines, line, ',', 31 + 2 * MAX_MVP_DROP + 2 * MAX_MOB_DROP, 31 + 2 * MAX_MVP_DROP + 2 * MAX_MOB_DROP, &mob_readdb_sub);
+			continue;
+		case 6:
+			if (!type || (type&BL_MOB))
+				sv_readdb_line(filepath, it.lines, line, ',', 2, 12, &mob_readdb_mobavail);
+			continue;
+		case 7:
+			if (!type || (type&BL_MOB))
+				sv_readdb_line(filepath, it.lines, line, ',', 2, 19, &mob_parse_row_mobskilldb);
+			continue;
+		case 8:
+			sv_readdb_line(filepath, it.lines, line, ',', 7, 7 + 255, &instance_readdb_sub);
+			continue;
+		}
+	}
+	if (!type || (type&BL_MOB)) {
+		mob_skill_db_set();
+		mob_drop_ratio_adjust();
+	}
 }
 
 /**
@@ -5100,7 +5091,7 @@ int npc_parsesrcfile(const char* filepath, char *other_buffer)
 		else
 			w4[0] = '\0';
 
-		if( count == 1 && (p = npc_parse_dbread(trim(w1), p, buffer, filepath, &dbread_type)))
+		if( count == 1 && (p = npc_parse_database(trim(w1), p, buffer, filepath, strline(buffer,p-buffer), &dbread_type)))
 			continue;
 
 		if( count < 3 )
@@ -5707,7 +5698,6 @@ void do_final_npc(void) {
 	ev_db->destroy(ev_db, NULL);
 	npcname_db->destroy(npcname_db, NULL);
 	npc_path_db->destroy(npc_path_db, NULL);
-	npc_database_db->destroy(npc_database_db, npc_database_clear);
 #if PACKETVER >= 20131223
 	NPCMarketDB->destroy(NPCMarketDB, npc_market_free);
 #endif
@@ -5773,7 +5763,6 @@ void do_init_npc(void){
 	ev_db = strdb_alloc((DBOptions)(DB_OPT_DUP_KEY|DB_OPT_RELEASE_DATA), EVENT_NAME_LENGTH);
 	npcname_db = strdb_alloc(DB_OPT_BASE, NPC_NAME_LENGTH+1);
 	npc_path_db = strdb_alloc((DBOptions)(DB_OPT_BASE|DB_OPT_DUP_KEY|DB_OPT_RELEASE_DATA),80);
-	npc_database_db = strdb_alloc((DBOptions)(DB_OPT_BASE|DB_OPT_DUP_KEY), 80);
 #if PACKETVER >= 20131223
 	NPCMarketDB = strdb_alloc(DB_OPT_BASE, NPC_NAME_LENGTH+1);
 	npc_market_fromsql();
@@ -5797,6 +5786,7 @@ void do_init_npc(void){
 		"\t-'" CL_WHITE "%d" CL_RESET "' Mobs Not Cached\n",
 		npc_id - START_NPC_NUM, npc_warp, npc_shop, npc_script, npc_mob, npc_cache_mob, npc_delay_mob);
 
+	npc_load_database();
 	// set up the events cache
 	npc_read_event_script();
 
