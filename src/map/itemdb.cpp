@@ -3431,7 +3431,7 @@ bool itemdb_readdb_line(const char *path, int lines,char *line) {
 static int itemdb_readdb(const char* basedir, bool silent)
 {
 	uint32 lines = 0, count = 0;
-	char line[1024];
+	char line[4196];
 
 	char path[256];
 	FILE* fp;
