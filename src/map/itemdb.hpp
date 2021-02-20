@@ -1127,7 +1127,7 @@ void do_final_itemdb(void);
 void do_init_itemdb(void);
 
 bool itemdb_readdb_line(const char *path, int lines, char *line);
-void itemdb_addname(t_itemid nameid, const char *from);
+void itemdb_addname(struct item_data *item);
 bool itemdb_read_itemavail(char* str[], int columns, int current);
 bool itemdb_read_itemtrade(char* str[], int columns, int current);
 bool itemdb_read_noequip(char* str[], int columns, int current);

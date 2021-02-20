@@ -402,7 +402,7 @@ int skill_get_pc_inf(struct map_session_data *sd, uint16 skill_id, int *range)
 
 void skill_refresh(struct map_session_data *sd)
 {
-	if (!sd->state.connect_new)
+	if (sd->state.connect_new)
 		return;
 
 	std::vector<int16> skillrefresh(sd->skillrefresh);
