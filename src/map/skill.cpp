@@ -16401,11 +16401,15 @@ bool skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_i
 				return false;
 			}
 			break;
+		case TK_JUMPKICK:
+			if (sc && sc->data[SC_DODGE]) {
+				clif_skill_fail(sd, skill_id, USESKILL_FAIL_LEVEL, 0);
+				return false;
+			}
 		case TK_READYCOUNTER:
 		case TK_READYDOWN:
 		case TK_READYSTORM:
 		case TK_READYTURN:
-		case TK_JUMPKICK:
 			if( (sd->class_&MAPID_UPPERMASK) == MAPID_SOUL_LINKER ) { // Soul Linkers cannot use this skill
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
 				return false;
