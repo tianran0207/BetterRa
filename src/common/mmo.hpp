@@ -74,11 +74,7 @@ typedef uint32 t_itemid;
 #define MAX_GUILDPOSITION 20	///Increased max guild positions to accomodate for all members [Valaris] (removed) [PoW]
 #define MAX_GUILDEXPULSION 32 ///Max Guild expulsion
 #define MAX_GUILDALLIANCE 16 ///Max Guild alliance
-#ifdef RENEWAL
 #define MAX_GUILDSKILL	20 ///Max Guild skills
-#else
-#define MAX_GUILDSKILL	15 ///Max Guild skills
-#endif
 #define MAX_GUILDLEVEL 50 ///Max Guild level
 #define MAX_GUARDIANS 8	///Local max per castle. If this value is increased, need to add more fields on MySQL `guild_castle` table [Skotlex]
 #define MAX_QUEST_OBJECTIVES 3 ///Max quest objectives for a quest

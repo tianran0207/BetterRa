@@ -118,3 +118,7 @@ Body:
 
   - Id: GD_DEVELOPMENT
     MaxLevel: 1
+    
+  - Id: GD_GUILD_STORAGE
+    MaxLevel: 5
+    
