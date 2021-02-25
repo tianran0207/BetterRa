@@ -227,6 +227,7 @@ static bool itemdb_randomopt_group_yaml(void);
 static bool pc_readdb_levelpenalty(char* fields[], int columns, int current);
 static bool pc_levelpenalty_yaml();
 static bool item_db_yaml2csv(const std::string &file, const std::string &outpaths);
+static bool item_db_csv2yaml(const std::string &file, const std::string &outpaths);
 
 // Constants for conversion
 std::unordered_map<t_itemid, std::string> aegis_itemnames;
@@ -331,7 +332,7 @@ void copyFileIfExists( std::ofstream& file,const std::string& name, bool newLine
 	std::string path = "doc/yaml/db/" + name + ".yml";
 
 	if( fileExists( path ) ){
-		std::ifstream source( path, std::ios::binary );
+		std::ifstream source( path );
 
 		std::istreambuf_iterator<char> begin_source( source );
 		std::istreambuf_iterator<char> end_source;
@@ -427,8 +428,7 @@ bool process( const std::string& type, uint32 version, const std::vector<std::st
 
 YAML::Node inNode;
 template<typename Func>
-bool process_yml2csv( const std::string& type, uint32 version, const std::string& input, const std::string& outpath, Func lambda ){
-
+bool process_yaml2csv( const std::string& type, uint32 version, const std::string& input, const std::string& outpath, Func lambda ){
 
 	if( fileExists( input ) ){
 		inNode.reset();
@@ -450,6 +450,41 @@ bool process_yml2csv( const std::string& type, uint32 version, const std::string
 	return true;
 }
 
+template<typename Func>
+bool process_csv2yaml( const std::string& type, uint32 version, const std::string& input, const std::string& outpath, Func lambda ){
+
+	if( fileExists( input ) ){
+
+		std::ofstream out;
+
+		body.~Emitter();
+		new (&body) YAML::Emitter();
+		out.open(outpath);
+
+		if (!out.is_open()) {
+			ShowError("Can not open file \"%s\" for writing.\n", outpath.c_str());
+			return false;
+		}
+
+		prepareHeader(out, type, version, type);
+		prepareBody();
+
+		if( !lambda( input, outpath ) ){
+			out.close();
+			return false;
+		}
+
+		finalizeBody();
+		out << body.c_str();
+		// Make sure there is an empty line at the end of the file for git
+		out << "\n";
+		out.close();
+			
+		// TODO: do you want to delete?
+	}
+	return true;
+}
+
 int do_init( int argc, char** argv ){
 	const std::string path_db = std::string( db_path );
 	const std::string path_db_mode = path_db + "/" + DBPATH;
@@ -467,12 +502,13 @@ int do_init( int argc, char** argv ){
 	};
 
 	if (argc >= 5) {
-		if (strcmpi(argv[1], "-yml2csv") == 0) {
+		if (strcmpi(argv[1], "-yaml2csv") == 0) {
 			if (strcmpi(argv[2], "item_db") == 0)
 				item_db_yaml2csv(argv[4], argv[3]);
 		}
-		if (strcmpi(argv[1], "-csv2yml") == 0) {
-
+		if (strcmpi(argv[1], "-csv2yaml") == 0) {
+			if (strcmpi(argv[2], "item_db") == 0)
+				item_db_csv2yaml(argv[4], argv[3]);
 		}
 		return 0;
 	}
@@ -3049,6 +3085,49 @@ static bool itemdb_read_itemtrade(char* str[], int columns, int current) {
 	return true;
 }
 
+static std::string itemdb_format_script(std::string script) {
+	std::string s_trim = "";
+	std::string escaped;
+	size_t n = script.length();
+	bool ignore = false;
+	for (size_t i = 0; i < n; ++i) {
+
+		escaped += script[i];
+		if (ignore) {
+			if (script[i] == '*' && script[i + 1] == '/') {
+				escaped += script[++i];
+				if (script[i + 1] != ')') {
+					escaped += '\n';
+					if (script[i + 1] == ' ')
+						i++;
+				}
+				ignore = false;
+			}
+			else if (script[i] == '"')
+				ignore = false;
+			continue;
+		}
+		else if (script[i] == '/' && script[i+1] == '*' || script[i] == '"') {
+			ignore = true;
+			continue;
+		}
+		else if (script[i] == '{')
+			s_trim += "   ";
+		else if (script[i] == '}') {
+			escaped = escaped.substr(0, escaped.length() - 4) + "}";
+			s_trim = s_trim.substr(0, s_trim.length() - 3);
+		}
+		else if (script[i] != ';')
+			continue;
+
+		escaped += '\n';
+		escaped += s_trim;
+		if (i + 1 < n && script[i + 1] == ' ')
+			i++;
+	}
+	return escaped.substr(0, escaped.length() - 1);
+}
+
 // Copied and adjusted from itemdb.cpp
 static bool itemdb_read_db(const char* file) {
 	FILE* fp = fopen(file, "r");
@@ -3432,7 +3511,7 @@ static bool itemdb_read_db(const char* file) {
 		}
 
 		if (*str[19])
-			body << YAML::Key << "Script" << YAML::Value << YAML::Literal << trim(str[19]);
+			body << YAML::Key << "Script" << YAML::Value << YAML::Literal << itemdb_format_script(trim(str[19]));
 		if (*str[20])
 			body << YAML::Key << "EquipScript" << YAML::Value << YAML::Literal << trim(str[20]);
 		if (*str[21])
@@ -4167,19 +4246,23 @@ static bool item_db_yaml2csv_sub(const std::string& input, const std::string& ou
 
 static bool item_db_yaml2csv(const std::string &input, const std::string &output)
 {
-	yaml2csv_open(yaml2csv.item_db, output + "\\item_db.txt");
+	std::string modePath = input.substr(0, input.find_last_of("/") + 1);
+	std::string fixedPath = modePath.substr(modePath.find_last_of("/", modePath.size() - 2) + 1);
+
+	yaml2csv_open(yaml2csv.item_db, output + fixedPath + "item_db.txt");
 	if (!yaml2csv.item_db.is_open()) {
-		ShowError("Can not open file \"%s\" for writing.\n", (output + "\\item_db.txt").c_str());
+		ShowError("Can not open file \"%s\" for writing.\n", (output + "/item_db.txt").c_str());
 		return false;
 	}
-	yaml2csv_open(yaml2csv.item_stack, output + "\\item_stack.txt");
-	yaml2csv_open(yaml2csv.item_nouse, output + "\\item_nouse.txt");
-	yaml2csv_open(yaml2csv.item_trade, output + "\\item_trade.txt");
-	yaml2csv_open(yaml2csv.item_delay, output + "\\item_delay.txt");
-	yaml2csv_open(yaml2csv.item_buyingstore, output + "\\item_buyingstore.txt");
-	yaml2csv_open(yaml2csv.item_flag, output + "\\item_flag.txt");
+	//yaml2csv_open(yaml2csv.item_stack, modePath + "item_alive.txt");
+	yaml2csv_open(yaml2csv.item_stack, output + fixedPath + "/item_stack.txt");
+	yaml2csv_open(yaml2csv.item_nouse, output + "item_nouse.txt");
+	yaml2csv_open(yaml2csv.item_trade, output + fixedPath + "/item_trade.txt");
+	yaml2csv_open(yaml2csv.item_delay, output + fixedPath + "/item_delay.txt");
+	yaml2csv_open(yaml2csv.item_buyingstore, output + fixedPath + "/item_buyingstore.txt");
+	yaml2csv_open(yaml2csv.item_flag, output + fixedPath + "/item_flag.txt");
 
-	if (!process_yml2csv("ITEM_DB", 1, input, output, [](const std::string& input, const std::string& output) -> bool {
+	if (!process_yaml2csv("ITEM_DB", 1, input, output, [](const std::string& input, const std::string& output) -> bool {
 		return item_db_yaml2csv_sub(input, output);
 	})) {
 		return 0;
@@ -4195,5 +4278,41 @@ static bool item_db_yaml2csv(const std::string &input, const std::string &output
 
 	ShowStatus("Done converting '" CL_WHITE "%d" CL_RESET "' items in '" CL_WHITE "%s" CL_RESET "'.\n", yaml2csv.entries, input.c_str());
 
+	return true;
+}
+
+static bool item_db_csv2yaml(const std::string &input, const std::string &output)
+{
+	std::string modePath = input.substr(0, input.find_last_of("/") + 1);
+	std::string fixedPath = modePath.substr(0, modePath.find_last_of("/", modePath.size() - 2) + 1);
+
+	item_avail.clear();
+	item_buyingstore.clear();
+	item_flag.clear();
+	item_delay.clear();
+	item_stack.clear();
+	item_nouse.clear();
+	item_trade.clear();
+
+	if (fileExists(fixedPath + "/item_avail.txt"))
+		sv_readdb(fixedPath.c_str(), "item_avail.txt", ',', 2, 2, -1, &itemdb_read_itemavail, false);
+	if (fileExists(modePath + "/item_buyingstore.txt"))
+		sv_readdb(modePath.c_str(), "item_buyingstore.txt", ',', 1, 1, -1, &itemdb_read_buyingstore, false);
+	if (fileExists(modePath + "/item_flag.txt"))
+		sv_readdb(modePath.c_str(), "item_flag.txt", ',', 2, 2, -1, &itemdb_read_flag, false);
+	if (fileExists(modePath + "/item_delay.txt"))
+		sv_readdb(modePath.c_str(), "item_delay.txt", ',', 2, 3, -1, &itemdb_read_itemdelay, false);
+	if (fileExists(modePath + "/item_stack.txt"))
+		sv_readdb(modePath.c_str(), "item_stack.txt", ',', 3, 3, -1, &itemdb_read_stack, false);
+	if (fileExists(fixedPath + "/item_nouse.txt"))
+		sv_readdb(fixedPath.c_str(), "item_nouse.txt", ',', 3, 3, -1, &itemdb_read_nouse, false);
+	if (fileExists(modePath + "/item_trade.txt"))
+		sv_readdb(modePath.c_str(), "item_trade.txt", ',', 3, 3, -1, &itemdb_read_itemtrade, false);
+
+	if (!process_csv2yaml("ITEM_DB", 1, input, output, [](const std::string& input, const std::string& output) -> bool {
+		return itemdb_read_db(input.c_str());
+	})) {
+		return 0;
+	}
 	return true;
 }
