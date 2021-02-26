@@ -962,6 +962,7 @@ void msg_config_translation_read(const char* config_filename) {
 	for (i = 0; i < n; i++) {
 		prefixlist[i].rename = (char *)strdb_get(msg_translation, prefixlist[i].name);
 	}
+	fclose(fp);
 }
 
 static const struct {
@@ -1011,7 +1012,20 @@ static const struct {
 	{ "CL_XXBL",		CL_XXBL },
 	{ "CL_PASS",		CL_PASS },
 	{ "CL_SPACE",		CL_SPACE },
+	{ "PRIu8",			PRIu8 },
+	{ "PRIu16",			PRIu16 },
+	{ "PRIu32",			PRIu32 },
 	{ "PRIu64",			PRIu64 },
+	{ "PRId8",          PRId8 },
+	{ "PRId16",         PRId16 },
+	{ "PRId32",         PRId32 },
+	{ "PRId64",         PRId64 },
+	{ "PRtf",           PRId64 },
+	{ "PRIuPTR",        PRIuPTR },
+	{ "PRIdPTR",        PRIdPTR },
+	{ "PRIXPTR",        PRIXPTR },
+	{ "CONF_PATH",      CONF_PATH },
+
 };
 
 static const int color_table_count = ARRAYLENGTH(color_table);
