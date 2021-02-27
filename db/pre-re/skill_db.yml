@@ -16454,6 +16454,19 @@ Body:
       Flag:
         NoOverlap: true
         PathCheck: true
+  - Id: 707
+    Name: NPC_MILLENNIUMSHIELD
+    Description: Ç§ÄêÉñ¶Ü
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    Flags:
+      IsNpc: true
+    Hit: Single
+    HitCount: 1
+    Duration1: 900000
+    FixedCastTime: -1
   - Id: 708
     Name: NPC_COMET
     Description: »ÙÃð»ÛÐÇ
@@ -34342,3 +34355,10 @@ Body:
       IgnoreKagehumi: true
     CastCancel: true
     Duration2: 300000
+  - Id: 10016
+    Name: GD_GUILD_STORAGE
+    Description: ¹«»á²Ö¿âÀ©³ä
+    MaxLevel: 5
+    Flags:
+      IsGuild: true
+      

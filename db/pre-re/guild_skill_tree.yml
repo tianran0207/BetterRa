@@ -148,3 +148,8 @@ Body:
   - Id: GD_DEVELOPMENT
     SkillName: 永久的发展(10014)
     MaxLevel: 1
+    
+  - Id: GD_GUILD_STORAGE
+    SkillName: 公会仓库扩充(10016)
+    MaxLevel: 5
+    
