@@ -1540,7 +1540,7 @@ int socket_getips(uint32* ips, int max)
 
 void socket_init(void)
 {
-	const char *SOCKET_CONF_FILENAME = CONF_PATH "/packet_athena.conf";
+	const char *SOCKET_CONF_FILENAME = "conf/packet_athena.conf";
 	unsigned int rlim_cur = MAXCONN;
 
 #ifdef WIN32

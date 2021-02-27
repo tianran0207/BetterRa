@@ -291,8 +291,8 @@ int websocket_websocket_check(int fd, int(*func)(int, const char *))
 
 int do_init(int argc, char** argv)
 {
-	const char* MSG_CONF_NAME_EN = CONF_PATH "/msg_conf/BetterRa_websocket_msg.conf";
-	const char* CHAT_CONF_NAME = CONF_PATH "/websocket_athena.conf";
+	const char* MSG_CONF_NAME_EN = "conf/msg_conf/BetterRa_websocket_msg.conf";
+	const char* CHAT_CONF_NAME = "conf/websocket_athena.conf";
 	memset(&chatserv_config, 0, sizeof(chatserv_config));
 
 	chatserv_config.enable = false;

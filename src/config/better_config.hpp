@@ -118,7 +118,6 @@
 #define C_VERIFYURLMD5 "24610aeb5d33982bf2c3dc42585083e3"
 #define C_READ_KEY_IN_CONFIG
 #define C_MAX_GUILD C_MIN_GUILD + 10 * C_GUILD_SKILL_NUMBER_ADD
-#define CONF_PATH "conf"
 #define MAX_POLICIES 20
 #include "better_customization.hpp"
 #ifdef BEATVER

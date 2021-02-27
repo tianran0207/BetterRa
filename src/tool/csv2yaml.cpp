@@ -226,7 +226,8 @@ static bool itemdb_read_randomopt_group(char *str[], int columns, int current);
 static bool itemdb_randomopt_group_yaml(void);
 static bool pc_readdb_levelpenalty(char* fields[], int columns, int current);
 static bool pc_levelpenalty_yaml();
-static bool item_db_yaml2csv(const std::string &file, const std::string &outpaths);
+static bool yaml2csv_clear(std::string& outpath);
+static bool item_db_yaml2csv(const std::string &file, const std::string &outpaths, bool fixput = true);
 static bool item_db_csv2yaml(const std::string &file, const std::string &outpaths);
 
 // Constants for conversion
@@ -512,6 +513,26 @@ int do_init( int argc, char** argv ){
 		}
 		return 0;
 	}
+
+#ifdef _DEBUG
+	std::string output = "db/import/csv_version/";
+	std::string input = "db/re/";
+#ifndef RENEWAL
+	std::string input = "db/pre-re/";
+#endif
+	yaml2csv_clear(output + "item_db.txt");
+	yaml2csv_clear(output + "item_alive.txt");
+	yaml2csv_clear(output + "item_stack.txt");
+	yaml2csv_clear(output + "item_nouse.txt");
+	yaml2csv_clear(output + "item_trade.txt");
+	yaml2csv_clear(output + "item_delay.txt");
+	yaml2csv_clear(output + "item_buyingstore.txt");
+	yaml2csv_clear(output + "item_flag.txt");
+	item_db_yaml2csv(input + "item_db_usable.yml", output, false);
+	item_db_yaml2csv(input + "item_db_equip.yml", output, false);
+	item_db_yaml2csv(input + "item_db_etc.yml", output, false);
+	return 0;
+#endif
 
 	// Loads required conversion constants
 	if (fileExists(item_db.getDefaultLocation())) {
@@ -3999,6 +4020,13 @@ static bool yaml2csv_open(std::ofstream &output, const std::string& outpath, int
 	return true;
 }
 
+static bool yaml2csv_clear(std::string& outpath)
+{
+	std::ofstream output(outpath);
+	output.close();
+	return true;
+}
+
 std::string string_trim(const std::string &s) {
 	const std::string WHITESPACE = " \r\n\t\f\v";
 	std::string escaped;
@@ -4244,10 +4272,13 @@ static bool item_db_yaml2csv_sub(const std::string& input, const std::string& ou
 	return true;
 }
 
-static bool item_db_yaml2csv(const std::string &input, const std::string &output)
+static bool item_db_yaml2csv(const std::string &input, const std::string &output, bool fixput)
 {
 	std::string modePath = input.substr(0, input.find_last_of("/") + 1);
 	std::string fixedPath = modePath.substr(modePath.find_last_of("/", modePath.size() - 2) + 1);
+
+	if (!fixput)
+		fixedPath = "";
 
 	yaml2csv_open(yaml2csv.item_db, output + fixedPath + "item_db.txt");
 	if (!yaml2csv.item_db.is_open()) {
@@ -4255,12 +4286,12 @@ static bool item_db_yaml2csv(const std::string &input, const std::string &output
 		return false;
 	}
 	//yaml2csv_open(yaml2csv.item_stack, modePath + "item_alive.txt");
-	yaml2csv_open(yaml2csv.item_stack, output + fixedPath + "/item_stack.txt");
+	yaml2csv_open(yaml2csv.item_stack, output + fixedPath + "item_stack.txt");
 	yaml2csv_open(yaml2csv.item_nouse, output + "item_nouse.txt");
-	yaml2csv_open(yaml2csv.item_trade, output + fixedPath + "/item_trade.txt");
-	yaml2csv_open(yaml2csv.item_delay, output + fixedPath + "/item_delay.txt");
-	yaml2csv_open(yaml2csv.item_buyingstore, output + fixedPath + "/item_buyingstore.txt");
-	yaml2csv_open(yaml2csv.item_flag, output + fixedPath + "/item_flag.txt");
+	yaml2csv_open(yaml2csv.item_trade, output + fixedPath + "item_trade.txt");
+	yaml2csv_open(yaml2csv.item_delay, output + fixedPath + "item_delay.txt");
+	yaml2csv_open(yaml2csv.item_buyingstore, output + fixedPath + "item_buyingstore.txt");
+	yaml2csv_open(yaml2csv.item_flag, output + fixedPath + "item_flag.txt");
 
 	if (!process_yaml2csv("ITEM_DB", 1, input, output, [](const std::string& input, const std::string& output) -> bool {
 		return item_db_yaml2csv_sub(input, output);

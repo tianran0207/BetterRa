@@ -23,7 +23,7 @@
 #define my_bool bool
 #endif
 
-#define SQL_CONF_NAME CONF_PATH "/inter_athena.conf"
+#define SQL_CONF_NAME "conf/inter_athena.conf"
 
 void ra_mysql_error_handler(unsigned int ecode);
 

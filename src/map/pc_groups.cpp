@@ -62,7 +62,7 @@ static inline GroupSettings* name2group(const char* group_name)
 static void read_config(void)
 {
 	config_setting_t *groups = NULL;
-	const char *config_filename = CONF_PATH "/groups.conf"; // FIXME hardcoded name
+	const char *config_filename = "conf/groups.conf"; // FIXME hardcoded name
 	int group_count = 0;
 	
 	if (conf_read_file(&pc_group_config, config_filename))
@@ -471,7 +471,7 @@ void pc_read_policies(void) {
 	config_t policies_config;
 	config_setting_t *data = NULL, *command = NULL;
 	int data_count, i;
-	const char *config_filename = CONF_PATH "/policies.conf"; // FIXME hardcoded name
+	const char *config_filename = "conf/policies.conf"; // FIXME hardcoded name
 
 #if MAX_POLICIES == 0
 	return;

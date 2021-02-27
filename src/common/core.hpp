@@ -26,7 +26,6 @@ extern char *SERVER_NAME;
 extern char db_path[12]; /// relative path for db from servers
 extern char conf_path[12]; /// relative path for conf from servers
 extern char db_path_pre[64];
-extern char db_path_debug[64];
 
 enum {
 	ATHENA_SERVER_NONE = 0,	// not defined

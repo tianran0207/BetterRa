@@ -3854,22 +3854,7 @@ bool ItemDatabase::load() {
 				item->unequip_script = parse_script(item->unequip_script_string.c_str(), this->getCurrentFile().c_str(), 0, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
 		}
 	}
-#ifdef _DEBUG
-	else {
-		itemdb_readdb(db_path_debug, true);
-		sv_readdb(db_path_debug, "item_announce.txt", ',', 2, 2, -1, &itemdb_read_announce, true);
-		sv_readdb(db_path_debug, "item_avail.txt", ',', 2, 2, -1, &itemdb_read_itemavail, true);
-		sv_readdb(db_path_debug, "item_stack.txt", ',', 3, 3, -1, &itemdb_read_stack, true);
-		sv_readdb(db_path_debug, "item_nouse.txt", ',', 3, 3, -1, &itemdb_read_nouse, true);
-		sv_readdb(db_path_debug, "item_noequip.txt", ',', 2, 2, -1, &itemdb_read_noequip, true);
-		sv_readdb(db_path_debug, "item_trade.txt", ',', 3, 3, -1, &itemdb_read_itemtrade, true);
-		sv_readdb(db_path_debug, "item_delay.txt", ',', 2, 3, -1, &itemdb_read_itemdelay, true);
-		sv_readdb(db_path_debug, "item_buyingstore.txt", ',', 1, 1, -1, &itemdb_read_buyingstore, true);
-		sv_readdb(db_path_debug, "item_flag.txt", ',', 2, 3, -1, &itemdb_read_flag, true);
-		itemdb_read_randomopt(db_path_debug, true);
-		item_db.loadingFinished();
-	}
-#else
+#ifndef _DEBUG
 	else if (!this->loadyml())
 		return false;
 #endif

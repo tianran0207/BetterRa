@@ -47,7 +47,6 @@ void (*shutdown_callback)(void) = NULL;
 int runflag = CORE_ST_RUN;
 char db_path[12] = "db"; /// relative path for db from server
 char db_path_pre[64] = "db/import/csv_version";
-char db_path_debug[64] = "tools/BetterRA_Tool/item_db_csv";
 char conf_path[12] = "conf"; /// relative path for conf from server
 
 char *SERVER_NAME = NULL;
@@ -308,15 +307,19 @@ static void display_title(void) {
 	//ShowMessage("" CL_PASS "     " CL_BOLD "                                                                 " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
 	//ShowMessage("" CL_PASS "       " CL_GREEN "              http://rathena.org/board/                        " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
 	//ShowMessage("" CL_PASS "     " CL_BOLD "                                                                 " CL_PASS "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "                                                              " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "                            使用说明                          " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "                                                              " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "       BetterRa 模拟器仅供研究学习使用, 切莫用于商业用途.     " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "  对使用 BetterRa 带来的法律责任, BetterRa 开发团队概不负责!  " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "                                                              " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "            更多内容, 请查看: http://betterra.cn/             " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "             BetterRa 开发团队,  QQ群：419290524              " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
-	ShowMessage("" CL_BG_RED "     " CL_BT_WHITE "                                                              " CL_BT_WHITE "" CL_CLL "" CL_NORMAL "\n");
+	ShowMessage("" CL_BG_CYAN CL_BT_WHITE "                                                                　" CL_BG_CYAN CL_CLL CL_NORMAL "\n");
+	ShowMessage("" CL_BG_CYAN CL_BT_WHITE "                 BetterRA Development Team presents             　" CL_BG_CYAN CL_CLL CL_NORMAL "\n");
+	ShowMessage("" CL_BG_CYAN CL_BT_WHITE "              ____       __  __            ____  ___            　" CL_BG_CYAN CL_CLL CL_NORMAL "\n");
+	ShowMessage("" CL_BG_CYAN CL_BT_WHITE "             / __ )___  / /_/ /____  _____/ __ \\/   |          　" CL_BG_CYAN CL_CLL CL_NORMAL "\n");
+	ShowMessage("" CL_BG_CYAN CL_BT_WHITE "            / __  / _ \\/ __/ __/ _ \\/ ___/ /_/ / /| |         　" CL_BG_CYAN CL_CLL CL_NORMAL "\n");
+	ShowMessage("" CL_BG_CYAN CL_BT_WHITE "           / /_/ /  __/ /_/ /_/  __/ /  / _, _/ ___ |           　" CL_BG_CYAN CL_CLL CL_NORMAL "\n");
+	ShowMessage("" CL_BG_CYAN CL_BT_WHITE "          /_____/\\___/\\__/\\__/\\___/_/  /_/ |_/_/  |_|       　" CL_BG_CYAN CL_CLL CL_NORMAL "\n");
+	ShowMessage("" CL_BG_CYAN CL_BT_WHITE "                                                                　" CL_BG_CYAN CL_CLL CL_NORMAL "\n");
+	ShowMessage("" CL_BG_CYAN CL_BT_WHITE "          Do not use(it) for commercial/business purpose        　" CL_BG_CYAN CL_CLL CL_NORMAL "\n");
+	ShowMessage("" CL_BG_CYAN CL_BT_WHITE "                                                                　" CL_BG_CYAN CL_CLL CL_NORMAL "\n");
+	ShowMessage("" CL_BG_CYAN CL_BT_WHITE "            http://betterra.cn     QQ group: 419290524          　" CL_BG_CYAN CL_CLL CL_NORMAL "\n");
+	ShowMessage("" CL_BG_CYAN CL_BT_WHITE "                                                                　" CL_BG_CYAN CL_CLL CL_NORMAL "\n");
+	ShowMessage("\n");
 
 #ifdef C_GITHASH
 	ShowInfo("Git Hash: '" CL_WHITE "%s" CL_RESET "'\n", C_GITHASH);

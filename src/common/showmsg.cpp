@@ -925,7 +925,7 @@ void ShowFatalError(const char *string, ...) {
 
 #if !defined(MINICORE) && defined(BRA_MSG_TRANSLATE)
 void get_real_str(char *string);
-//CONF_PATH "/msg_conf/translation.conf"
+//"conf/msg_conf/translation.conf"
 #define MAX_TRANSLETION_MSG 1024
 
 void msg_config_translation_read(const char* config_filename) {
@@ -1024,7 +1024,6 @@ static const struct {
 	{ "PRIuPTR",        PRIuPTR },
 	{ "PRIdPTR",        PRIdPTR },
 	{ "PRIXPTR",        PRIXPTR },
-	{ "CONF_PATH",      CONF_PATH },
 
 };
 
@@ -1087,7 +1086,7 @@ const char* _vReplaceMessage(const char *String, char *val) {
 void showmsg_init()
 {
 #if !defined(MINICORE) && defined(BRA_MSG_TRANSLATE)
-	msg_config_translation_read(CONF_PATH "/msg_conf/translation.conf");
+	msg_config_translation_read("conf/msg_conf/translation.conf");
 #endif // BRA_MSG_TRANSLATE
 }
 

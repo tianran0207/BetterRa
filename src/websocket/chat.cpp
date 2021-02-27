@@ -599,7 +599,7 @@ static int chat_mapif_parse(int fd) {
 
 void do_init_chat(void)
 {
-	const char* SQL_CONF_NAME = CONF_PATH "/inter_athena.conf";
+	const char* SQL_CONF_NAME = "conf/inter_athena.conf";
 
 	if (!chatserv_config.enable)
 		return;
