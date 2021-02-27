@@ -7429,7 +7429,7 @@ static int script_countitem_sub(struct item *items, struct item_data *id, int si
 		for (int i = 0; i < size; i++) {
 			item *itm = &items[i];
 
-			if (itm == nullptr || itm->nameid == 0 || itm->amount < 1 || (!rental && itm->expire_time > 0))
+			if (itm == nullptr || itm->nameid == 0 || itm->amount < 1 || (rental && itm->expire_time == 0))
 				continue;
 			if (itm->nameid == nameid)
 				count += itm->amount;
@@ -7463,7 +7463,7 @@ static int script_countitem_sub(struct item *items, struct item_data *id, int si
 		for (int i = 0; i < size; i++) {
 			item *itm = &items[i];
 
-			if (itm == nullptr || itm->nameid == 0 || itm->amount < 1 || (!rental && items[i].expire_time > 0))
+			if (itm == nullptr || itm->nameid == 0 || itm->amount < 1 || (rental && items[i].expire_time == 0))
 				continue;
 			if (itm->nameid != it.nameid || itm->identify != it.identify || itm->refine != it.refine || itm->attribute != it.attribute)
 				continue;
@@ -7524,7 +7524,7 @@ BUILDIN_FUNC(countitem)
 		return SCRIPT_CMD_FAILURE;
 	}
 
-	int count = script_countitem_sub(sd->inventory.u.items_inventory, id, MAX_INVENTORY, (aid > 3) ? true : false, random_option, st, sd, strstr(command, "rent") ? true : false);
+	int count = script_countitem_sub(sd->inventory.u.items_inventory, id, MAX_INVENTORY, (aid > 3) ? true : false, random_option, st, sd);
 	if (count < 0) {
 		st->state = END;
 		return SCRIPT_CMD_FAILURE;
