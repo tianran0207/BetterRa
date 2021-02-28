@@ -1458,7 +1458,6 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 void npc_unload_duplicates (struct npc_data* nd);
 int npc_unload(struct npc_data* nd, bool single);
 int npc_reload(void);
-int npc_func_reload(void);
 void npc_read_event_script(void);
 int npc_script_event(struct map_session_data* sd, enum npce_event type);
 int npc_script_event_atonce(struct map_session_data* sd, enum npce_event type, struct event_data* ev = NULL, int id = 0);
