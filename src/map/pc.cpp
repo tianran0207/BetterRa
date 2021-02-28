@@ -15763,7 +15763,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 			rx = 3; ry = 9;
 			break;
 		}
-		if (map_search_freecell(&sd->bl, sd->bl.m, &x, &y, rx, ry, 3) && (unit_walktoxy(&sd->bl, x, y, 1) || unit_walktoxy(&sd->bl, x, y, 0))){
+		if (map_search_freecell(&sd->bl, sd->bl.m, &x, &y, rx, ry, 3) && (unit_walktoxy(&sd->bl, x, y, 1|4) || unit_walktoxy(&sd->bl, x, y, 4))){
 			bd->state.move_fail_count = 0;
 			return 1;
 		}
@@ -15794,6 +15794,16 @@ static int pcbot_ai_hard(int tid, t_tick tick, int id, intptr_t data)
 {
 	map_foreachbot(pcbot_ai_lazy, tick);
 	return 0;
+}
+
+void pcbot_ai_hard_once(struct bot_data *bd, t_tick tick)
+{
+	nullpo_retv(bd);
+
+	va_list args;
+	va_start(args, bd);
+	pcbot_ai_lazy(bd, args);
+	va_end(args);
 }
 
 struct bot_data *pcbot_getdata(struct map_session_data *sd)

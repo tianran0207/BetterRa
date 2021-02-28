@@ -856,11 +856,19 @@ int unit_autowalk_timer(int tid, t_tick tick, int id, intptr_t data)
 	struct block_list *bl = map_id2bl(id);
 	struct autowalk_data *ad = (struct autowalk_data *)data;
 
-	if (!bl || bl->prev == NULL)
+	if (!bl)
 		return 0;
-	else {
+
+	if (ad->path)
+		ad->path->walk_timer = INVALID_TIMER;
+
+	if (ad->in_bot && bl->type == BL_PC) {
+		struct bot_data *bd;
+		if ((bd = map_id2bot(id)) != NULL)
+			pcbot_ai_hard_once(bd, gettick());
+	} else
 		unit_check_step(bl, ad, gettick());
-	}
+
 	return 1;
 }
 
@@ -879,7 +887,7 @@ int unit_backto_step(struct block_list *bl, struct autowalk_data *ad) {
 		return 1;
 	}
 
-	return unit_walktoxy(bl, ad->path->x[ad->step], ad->path->y[ad->step], 0);
+	return unit_walktoxy(bl, ad->path->x[ad->step], ad->path->y[ad->step], 4);
 }
 
 bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
@@ -907,7 +915,7 @@ bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
 		return false;
 	}
 
-	if (unit_walktoxy(bl, x, y, 0)) {
+	if (unit_walktoxy(bl, x, y, 4)) {
 		speed = status_get_speed(bl);
 		for (i = c = 0; i < md->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
 			if (md->ud.walkpath.path[i] & 1)
@@ -982,7 +990,7 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 	if (ad->step < path->number) {
 		x = path->x[ad->step];
 		y = path->y[ad->step];
-		if (unit_walktoxy(bl, x, y, 1) || unit_walktoxy(bl, x, y, 0))
+		if (unit_walktoxy(bl, x, y, 1|4) || unit_walktoxy(bl, x, y, 4))
 		{
 			speed = status_get_speed(bl);
 			switch (bl->type) {
@@ -1006,8 +1014,7 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 					else
 						c += speed;
 				}
-				if (!ad->in_bot)
-					path->walk_timer = add_timer(i64max(tick, sd->ud.canmove_tick) + c + 1, unit_autowalk_timer, bl->id, (intptr_t)ad);
+				path->walk_timer = add_timer(i64max(tick, sd->ud.canmove_tick) + c + 1, unit_autowalk_timer, bl->id, (intptr_t)ad);
 				break;
 			case BL_NPC:
 				nd = (struct npc_data *)bl;
