@@ -121,7 +121,7 @@ uint64 QuestDatabase::parseBodyNode(const YAML::Node &node) {
 				if (!this->asString(targetNode, "Mob", mob_name))
 					return 0;
 
-				struct mob_db *mob = mobdb_search_aegisname(mob_name.c_str());
+				std::shared_ptr<s_mob_db> mob = mobdb_search_aegisname(mob_name.c_str());
 
 				if (!mob) {
 					this->invalidWarning(targetNode["Mob"], "Mob %s does not exist, skipping.\n", mob_name.c_str());
@@ -331,7 +331,7 @@ uint64 QuestDatabase::parseBodyNode(const YAML::Node &node) {
 				if (!this->asString(dropNode, "Mob", mob_name))
 					return 0;
 
-				struct mob_db *mob = mobdb_search_aegisname(mob_name.c_str());
+				std::shared_ptr<s_mob_db> mob = mobdb_search_aegisname(mob_name.c_str());
 
 				if (!mob) {
 					this->invalidWarning(dropNode["Mob"], "Mob %s does not exist, skipping.\n", mob_name.c_str());
@@ -998,12 +998,12 @@ static void quest_read_txtdb(void)
 			}
 		}
 		for (int i = 0; i < MAX_QUEST_OBJECTIVES; i++) {
-			struct mob_db *mob;
+			std::shared_ptr<s_mob_db> mob;
 			std::shared_ptr<s_quest_objective> target;
 			uint16 mob_id = (uint16)atoi(str[2 * i + 2]);
 			if (!mob_id)
 				continue;
-			if ((mob = mob_db(mob_id)) == NULL) {
+			if ((mob = mob_db.find(mob_id)) == NULL) {
 				ShowWarning("quest_read_txtdb: Invalid monster as objective '%d' in line %d.\n", mob_id, ln);
 				continue;
 			}
@@ -1018,7 +1018,7 @@ static void quest_read_txtdb(void)
 			t_itemid nameid = strtoul(str[3 * i + (2 * MAX_QUEST_OBJECTIVES + 3)], nullptr, 10);
 			if (!nameid)
 				continue;
-			if (!itemdb_exists(nameid) || (mob_id && mob_db(mob_id) == NULL)) {
+			if (!itemdb_exists(nameid) || (mob_id && !mob_db.exists(mob_id))) {
 				ShowWarning("quest_read_txtdb: Invalid item reward '%d' (mob %d, optional) in line %d.\n", nameid, mob_id, ln);
 				continue;
 			}

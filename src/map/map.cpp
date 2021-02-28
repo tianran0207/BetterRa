@@ -2835,19 +2835,10 @@ int map_addinstancemap(int src_m, int instance_id)
 
 	struct map_data *src_map = map_getmapdata(src_m);
 	struct map_data *dst_map = map_getmapdata(dst_m);
-	char iname[MAP_NAME_LENGTH];
-
-	strcpy(iname, name);
 
 	// Alter the name
-	// Due to this being custom we only worry about preserving as many characters as necessary for accurate map distinguishing
 	// This also allows us to maintain complete independence with main map functions
-	if ((strchr(iname, '@') == nullptr) && strlen(iname) > 8) {
-		memmove(iname, iname + (strlen(iname) - 9), strlen(iname));
-		snprintf(dst_map->name, sizeof(dst_map->name), "%d#%s", (instance_id % 1000), iname);
-	} else
-		snprintf(dst_map->name, sizeof(dst_map->name), "%.3d%s", (instance_id % 1000), iname);
-	dst_map->name[MAP_NAME_LENGTH - 1] = '\0';
+	instance_generate_mapname(src_m, instance_id, dst_map->name);
 
 	dst_map->m = dst_m;
 	dst_map->instance_id = instance_id;
@@ -3540,7 +3531,7 @@ bool map_iwall_set(int16 m, int16 x0, int16 y0, int16 x1, int16 y1, int size, in
 			struct mob_data *md = mob_once_spawn_sub(NULL, m, it.x, it.y, mob_name, mob_id, "", SZ_SMALL, AI_NONE);
 			mob_spawn(md);
 			md->ud.immune_attack = true;
-			md->status.mode = (enum e_mode)(MD_KNOCKBACK_IMMUNE | MD_STATUS_IMMUNE);
+			md->status.mode = (enum e_mode)(MD_KNOCKBACKIMMUNE | MD_STATUSIMMUNE);
 			it.id = md->bl.id;
 		}else
 			it.id = 0;
@@ -3632,7 +3623,7 @@ bool map_iwall_map_copy(struct map_data *src_map, struct map_data *dst_map)
 				md = mob_once_spawn_sub(NULL, dst_map->m, it.x, it.y, md->name, md->mob_id, "", SZ_SMALL, AI_NONE);
 				mob_spawn(md);
 				md->ud.immune_attack = true;
-				md->status.mode = (enum e_mode)(MD_KNOCKBACK_IMMUNE | MD_STATUS_IMMUNE);
+				md->status.mode = (enum e_mode)(MD_KNOCKBACKIMMUNE | MD_STATUSIMMUNE);
 				it.id = md->bl.id;
 			}else
 				it.id = 0;

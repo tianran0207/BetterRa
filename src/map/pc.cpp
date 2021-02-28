@@ -6991,7 +6991,7 @@ bool pc_steal_item(struct map_session_data *sd,struct block_list *bl, uint16 ski
 	sd_status= status_get_status_data(&sd->bl);
 	md_status= status_get_status_data(bl);
 
-	if (md->master_id || status_has_mode(md_status, MD_STATUS_IMMUNE) || status_get_race2(&md->bl) == RC2_TREASURE ||
+	if (md->master_id || status_has_mode(md_status, MD_STATUSIMMUNE) || util::vector_exists(status_get_race2(&md->bl), RC2_TREASURE) ||
 		map_getmapflag(bl->m, MF_NOMOBLOOT) || // check noloot map flag [Lorky]
 		(battle_config.skill_steal_max_tries && //Reached limit of steal attempts. [Lupus]
 			md->state.steal_flag++ >= battle_config.skill_steal_max_tries)
@@ -7013,7 +7013,7 @@ bool pc_steal_item(struct map_session_data *sd,struct block_list *bl, uint16 ski
 
 	// Try dropping one item, in the order from first to last possible slot.
 	// Droprate is affected by the skill success rate.
-	for( i = 0; i < MAX_STEAL_DROP; i++ )
+	for( i = 0; i < MAX_MOB_DROP; i++ )
 		if( md->db->dropitem[i].nameid > 0 && !md->db->dropitem[i].steal_protected && itemdb_exists(md->db->dropitem[i].nameid) && rnd() % 10000 < md->db->dropitem[i].rate
 #ifndef RENEWAL
 		* rate/100.
@@ -7021,19 +7021,27 @@ bool pc_steal_item(struct map_session_data *sd,struct block_list *bl, uint16 ski
 		)
 			break;
 
-	if (battle_config.zero_steal_rate && rate == 0 && rnd() % 10000 < battle_config.zero_steal_rate) {
+	if (battle_config.zero_steal_rate && sd_status->dex == md_status->dex) {
+		struct item_data *item;
 		int count = 0;
-		for (i = 0; i < MAX_STEAL_DROP; i++) {
-			if (md->db->dropitem[i].nameid <= 0 || md->db->dropitem[i].steal_protected)
-				continue;
-			if (itemdb_exists(md->db->dropitem[i].nameid))
-				continue;
-			count++;
+		if (rnd() % 10000 < battle_config.zero_steal_rate) {
+			for (i = 0; i < MAX_MOB_DROP; i++) {
+				if (md->db->dropitem[i].nameid <= 0 || md->db->dropitem[i].steal_protected)
+					continue;
+				if ((item = itemdb_exists(md->db->dropitem[i].nameid)) == NULL)
+					continue;
+				if (item->type == IT_CARD)
+					continue;
+				count++;
+			}
 		}
+		else
+			return false;
+
 		i = rnd() % count;
 	}
 
-	if( i == MAX_STEAL_DROP )
+	if( i == MAX_MOB_DROP )
 		return false;
 
 	itemid = md->db->dropitem[i].nameid;
@@ -7086,7 +7094,7 @@ int pc_steal_coin(struct map_session_data *sd,struct block_list *target)
 	md = (TBL_MOB*)target;
 	target_lv = status_get_lv(target);
 
-	if (md->state.steal_coin_flag || md->sc.data[SC_STONE] || md->sc.data[SC_FREEZE] || status_bl_has_mode(target,MD_STATUS_IMMUNE) || status_get_race2(&md->bl) == RC2_TREASURE)
+	if (md->state.steal_coin_flag || md->sc.data[SC_STONE] || md->sc.data[SC_FREEZE] || status_bl_has_mode(target,MD_STATUSIMMUNE) || util::vector_exists(status_get_race2(&md->bl), RC2_TREASURE))
 		return 0;
 
 	rate = sd->battle_status.dex / 2 + 2 * (sd->status.base_level - target_lv) + (10 * pc_checkskill(sd, RG_STEALCOIN)) + sd->battle_status.luk / 2;
@@ -13167,7 +13175,7 @@ void pc_delspiritcharm(struct map_session_data *sd, int count, int type)
  * @param type: 1 - EXP, 2 - Item Drop
  * @return Penalty rate
  */
-uint16 pc_level_penalty_mod( struct map_session_data* sd, e_penalty_type type, struct mob_db* mob, mob_data* md ){
+uint16 pc_level_penalty_mod( struct map_session_data* sd, e_penalty_type type, std::shared_ptr<s_mob_db> mob, mob_data* md ){
 	// No player was attached, we don't use any modifier (100 = rates are not touched)
 	if( sd == nullptr ){
 		return 100;
@@ -13189,7 +13197,7 @@ uint16 pc_level_penalty_mod( struct map_session_data* sd, e_penalty_type type, s
 		return 100;
 	}
 
-	if( ( type == PENALTY_DROP || type == PENALTY_MVP_DROP ) && status_has_mode( &mob->status, MD_FIXED_ITEMDROP )  ){
+	if( ( type == PENALTY_DROP || type == PENALTY_MVP_DROP ) && status_has_mode( &mob->status, MD_FIXEDITEMDROP )  ){
 		return 100;
 	}
 
