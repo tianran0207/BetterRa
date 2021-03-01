@@ -3603,9 +3603,9 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		}
 	}
 
-	if( dmg.flag&BF_MAGIC && (( skill_id == NPC_EARTHQUAKE && (battle_config.eq_single_target_reflectable && (flag&0xFFF) == 1)) || (skill_get_inf(skill_id)&INF_ATTACK_SKILL)) )
+	if( dmg.flag&BF_MAGIC && (( skill_id != NPC_EARTHQUAKE || (battle_config.eq_single_target_reflectable && (flag&0xFFF) == 1))) )
 	{ // Earthquake on multiple targets is not counted as a target skill. [Inkfish]
-		if( (dmg.damage || dmg.damage2) && (type = skill_magic_reflect(src, bl, skill_id != NPC_EARTHQUAKE ? src==dsrc : true)) )
+		if( (dmg.damage || dmg.damage2) && (type = skill_magic_reflect(src, bl, skill_get_inf(skill_id)&INF_ATTACK_SKILL)) )
 		{	//Magic reflection, switch caster/target
 			struct block_list *tbl = bl;
 			rmdamage = true;
