@@ -227,3 +227,7 @@ bool SkillDatabase::load() {
 bool ItemDatabase::load() {
 	return TypesafeCachedYamlDatabase::load();
 }
+
+bool MobDatabase::load() {
+	return TypesafeCachedYamlDatabase::load();
+}

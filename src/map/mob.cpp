@@ -7143,8 +7143,10 @@ void do_final_mob(bool is_reload){
 }
 
 bool MobDatabase::load() {
+#ifndef _DEBUG
 	if (!TypesafeCachedYamlDatabase::load())
 		return false;
+#endif
 	sv_readdb(db_path_pre, "mob_db.txt", ',', 31+2*MAX_MVP_DROP+2*MAX_MOB_DROP, 31+2*MAX_MVP_DROP+2*MAX_MOB_DROP, -1, &mob_readdb_sub, true);
 	sv_readdb(db_path_pre, "mob_dmgrate_db.txt", ',', 2, 2, -1, &mob_readdb_dmgrate, true);
 	sv_readdb(db_path_pre, "mob_race2_db.txt", ',', 2, 100, -1, &mob_readdb_race2, true);

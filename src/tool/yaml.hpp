@@ -72,8 +72,15 @@ int getch(void) {
 YAML::Node inNode;
 YAML::Emitter body;
 
+struct s_item_data {
+	t_itemid nameid;
+	std::string name;
+	item_types type;
+};
+
 // Constants for conversion
 std::unordered_map<t_itemid, std::string> aegis_itemnames;
+std::unordered_map<std::string, std::shared_ptr<s_item_data>> aegis_name2data;
 std::unordered_map<uint32, t_itemid> aegis_itemviewid;
 std::unordered_map<uint16, std::string> aegis_mobnames;
 std::unordered_map<uint16, std::string> aegis_skillnames;
@@ -392,7 +399,7 @@ std::string name2Upper(std::string name) {
 // Constant loading functions
 static bool parse_item_constants_txt(const char *path) {
 	uint32 lines = 0, count = 0;
-	char line[1024];
+	char line[8192];
 
 	FILE *fp;
 
@@ -508,6 +515,17 @@ static bool parse_item_constants_txt(const char *path) {
 
 		aegis_itemnames[item_id] = std::string(name);
 
+		std::shared_ptr<s_item_data> item = aegis_name2data[name];
+		bool exists = item != nullptr;
+
+		if (!exists)
+			item = std::make_shared<s_item_data>();
+
+		item->nameid = item_id;
+		item->name = name;
+		item->type = (item_types)atoi(str[3]);
+		aegis_name2data[name] = item;
+
 		if (atoi(str[14]) & (EQP_HELM | EQP_COSTUME_HELM) && util::umap_find(aegis_itemviewid, view_id) == nullptr)
 			aegis_itemviewid[view_id] = item_id;
 
@@ -538,6 +556,30 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node& node) {
 			return 0;
 
 		aegis_itemnames[nameid] = name;
+
+		std::shared_ptr<s_item_data> item = aegis_name2data[name];
+		bool exists = item != nullptr;
+
+		if (!exists)
+			item = std::make_shared<s_item_data>();
+
+		item->nameid = nameid;
+		item->name = name;
+
+		if (this->nodeExists(node, "Type")) {
+			std::string type;
+			if (!this->asString(node, "Type", type))
+				return 0;
+
+			int64 constant = constant_lookup_int(("IT_" + type).c_str());
+			if (constant < IT_HEALING || constant >= IT_MAX)
+				constant = IT_ETC;
+
+			item->type = static_cast<item_types>(constant);
+		} else if (!exists)
+			item->type = IT_ETC;
+
+		aegis_name2data[name] = item;
 	}
 
 	if (this->nodeExists(node, "View")) {

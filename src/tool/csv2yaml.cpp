@@ -19,11 +19,13 @@ static bool mob_readdb_sub(char* fields[], int columns, int current);
 static bool yaml2csv_clear(std::string& outpath);
 static bool item_db_yaml2csv(const std::string &file, const std::string &outpaths, bool fixput = true);
 static bool item_db_csv2yaml(const std::string &file, const std::string &outpaths);
+static bool mob_db_yaml2csv(const std::string &input, const std::string &output, bool fixput = true);
 
 
 struct s_item_yaml2csv {
 	bool item_running;
 	std::ofstream item_db, item_stack, item_nouse, item_trade, item_delay, item_buyingstore, item_flag;
+	std::ofstream mob_db;
 	size_t entries;
 	std::string input, output;
 }yaml2csv;
@@ -242,6 +244,9 @@ int do_init( int argc, char** argv ){
 	item_db_yaml2csv(input + "item_db_usable.yml", output, false);
 	item_db_yaml2csv(input + "item_db_equip.yml", output, false);
 	item_db_yaml2csv(input + "item_db_etc.yml", output, false);
+	parse_item_constants_txt((output + "item_db.txt").c_str());
+	yaml2csv_clear(output + "mob_db.txt");
+	mob_db_yaml2csv(input + "mob_db.yml", output, false);
 	return 0;
 #endif
 
@@ -3899,10 +3904,200 @@ static bool item_db_csv2yaml(const std::string &input, const std::string &output
 	return true;
 }
 
+static bool mob_db_yaml2csv_sub(const std::string& input, const std::string& outpath)
+{
+	for (const YAML::Node &input : inNode["Body"]) {
+		int64 nameid;
+		char hex[256];
+		nameid = input["Id"].as<int>();
+		appendcsv(input["Id"], yaml2csv.mob_db, NULL, 0);
+		appendcsv(input["AegisName"], yaml2csv.mob_db);
+		if (input["JapaneseName"].IsDefined())
+			appendcsv(input["JapaneseName"], yaml2csv.mob_db);
+		else
+			appendcsv(input["Name"], yaml2csv.mob_db, "0");
+		appendcsv(input["Name"], yaml2csv.mob_db, "0");
+		appendcsv(input["Level"], yaml2csv.mob_db, "0");
+		appendcsv(input["Hp"], yaml2csv.mob_db, "0");
+		appendcsv(input["Sp"], yaml2csv.mob_db, "1");
+		appendcsv(input["BaseExp"], yaml2csv.mob_db, "0");
+		appendcsv(input["JobExp"], yaml2csv.mob_db);
+		appendcsv(input["AttackRange"], yaml2csv.mob_db, "0");
+		appendcsv(input["Attack"], yaml2csv.mob_db, "0");
+		appendcsv(input["Attack2"], yaml2csv.mob_db, "0");
+		appendcsv(input["Defense"], yaml2csv.mob_db, "0");
+		appendcsv(input["MagicDefense"], yaml2csv.mob_db, "0");
+		appendcsv(input["Str"], yaml2csv.mob_db, "0");
+		appendcsv(input["Agi"], yaml2csv.mob_db, "0");
+		appendcsv(input["Vit"], yaml2csv.mob_db, "0");
+		appendcsv(input["Int"], yaml2csv.mob_db, "0");
+		appendcsv(input["Dex"], yaml2csv.mob_db, "0");
+		appendcsv(input["Luk"], yaml2csv.mob_db, "0");
+		appendcsv(input["SkillRange"], yaml2csv.mob_db, "0");
+		appendcsv(input["ChaseRange"], yaml2csv.mob_db, "0");
+		appendcsv_int(constant_lookup_int(("Size_" + input["Size"].as<std::string>()).c_str()), yaml2csv.mob_db);
+		appendcsv_int(constant_lookup_int(("RC_" + input["Race"].as<std::string>()).c_str()), yaml2csv.mob_db);
+		int64 ele = constant_lookup_int(("ELE_" + input["Element"].as<std::string>()).c_str());
+		ele += input["ElementLevel"].as<int>() * 20;
+		appendcsv_int(ele, yaml2csv.mob_db);
+
+		uint32 mode = 0;
+		std::string ai;
+		std::string class_;
+		int ai_int = 0;
+
+		if (input["Class"].IsDefined())
+			class_ = input["Class"].as<std::string>();
+
+		if (stricmp(class_.c_str(), "Battlefield") == 0)
+			mode |= 0xC000000;
+		if (stricmp(class_.c_str(), "Boss") == 0)
+			mode |= 0x6200000;
+		if (stricmp(class_.c_str(), "Guardian") == 0)
+			mode |= 0x4000000;
+		if (stricmp(class_.c_str(), "Event") == 0)
+			mode |= 0x1000000;
+
+		if (input["Ai"].IsDefined())
+			ai = input["Ai"].as<std::string>();
+
+		ai_int = atoi(ai.c_str());
+
+		switch (ai_int) {
+		case 26: mode |= MONSTER_TYPE_26; break;
+		case 27: mode |= MONSTER_TYPE_27; break;
+		case 8:  mode |= MONSTER_TYPE_08; break;
+		case 4:  mode |= MONSTER_TYPE_04; break;
+		case 21: mode |= MONSTER_TYPE_21; break;
+		case 20: mode |= MONSTER_TYPE_20; break;
+		case 9:  mode |= MONSTER_TYPE_09; break;
+		case 13: mode |= MONSTER_TYPE_13; break;
+		case 5:  mode |= MONSTER_TYPE_05; break;
+		case 7:  mode |= MONSTER_TYPE_07; break;
+		case 3:  mode |= MONSTER_TYPE_03; break;
+		case 24: mode |= MONSTER_TYPE_24; break;
+		case 17: mode |= MONSTER_TYPE_17; break;
+		case 10: mode |= MONSTER_TYPE_10; break;
+		case 2:  mode |= MONSTER_TYPE_02; break;
+		case 1:  mode |= MONSTER_TYPE_01; break;
+		case 25: mode |= MONSTER_TYPE_25; break;
+		}
+		if (input["Modes"].IsDefined()) {
+			const YAML::Node &Mode = input["Modes"];
+			if (Mode["CanMove"].IsDefined()) mode |= 0x1;
+			if (Mode["CanAttack"].IsDefined()) mode |= 0x80;
+			if (Mode["NoCast"].IsDefined()) mode |= 0x40;
+			if (Mode["Looter"].IsDefined()) mode |= 0x2;
+			if (Mode["Aggressive"].IsDefined()) mode |= 0x4;
+			if (Mode["Assist"].IsDefined()) mode |= 0x8;
+			if (Mode["NoRandomWalk"].IsDefined()) mode |= 0x20;
+			if (Mode["CastSensorChase"].IsDefined()) mode |= 0x200;
+			if (Mode["CastSensorIdle"].IsDefined()) mode |= 0x10;
+			if (Mode["Angry"].IsDefined()) mode |= 0x800;
+			if (Mode["ChangeChase"].IsDefined()) mode |= 0x400;
+			if (Mode["ChangeTargetMelee"].IsDefined()) mode |= 0x1000;
+			if (Mode["ChangeTargetChase"].IsDefined()) mode |= 0x2000;
+			if (Mode["TargetWeak"].IsDefined()) mode |= 0x4000;
+			if (Mode["RandomTarget"].IsDefined()) mode |= 0x8000;
+			if (Mode["IgnoreMagic"].IsDefined()) mode |= 0x20000;
+			if (Mode["IgnoreMelee"].IsDefined()) mode |= 0x10000;
+			if (Mode["IgnoreMisc"].IsDefined()) mode |= 0x100000;
+			if (Mode["IgnoreRanged"].IsDefined()) mode |= 0x40000;
+			if (Mode["TeleportBlock"].IsDefined()) mode |= 0x400000;
+			if (Mode["FixedItemDrop"].IsDefined()) mode |= 0x1000000;
+			if (Mode["Detector"].IsDefined()) mode |= 0x2000000;
+			if (Mode["KnockBackImmune"].IsDefined()) mode |= 0x200000;
+			if (Mode["StatusImmune"].IsDefined()) mode |= 0x4000000;
+			if (Mode["FixedItemDrop"].IsDefined()) mode |= 0x8000000;
+			if (Mode["Mvp"].IsDefined()) mode |= 0x80000;
+		}
+		sprintf(hex, "0x%x", mode);
+		strtoupper(hex + 2);
+		appendcsv_str(hex, yaml2csv.mob_db);
+		appendcsv(input["WalkSpeed"], yaml2csv.mob_db, "0");
+		appendcsv(input["AttackDelay"], yaml2csv.mob_db, "0");
+		appendcsv(input["AttackMotion"], yaml2csv.mob_db, "0");
+		appendcsv(input["DamageMotion"], yaml2csv.mob_db, "0");
+		appendcsv(input["MvpExp"], yaml2csv.mob_db, "0");
+
+		int count = 0, rate = 0;
+		std::shared_ptr<s_item_data> item = nullptr;
+		if (input["MvpDrops"].IsDefined()) {
+			for (const auto &Drop : input["MvpDrops"]) {
+				std::string ItemName = Drop["Item"].as<std::string>();
+				rate = Drop["Rate"].as<int>();
+				std::shared_ptr<s_item_data> item = aegis_name2data[ItemName];
+				if (item == nullptr)
+					continue;
+				appendcsv_int(item->nameid, yaml2csv.mob_db);
+				appendcsv_int(rate, yaml2csv.mob_db);
+				count++;
+			}
+		}
+		for (int i = count; i < MAX_MVP_DROP; i++) {
+			appendcsv_int(0, yaml2csv.mob_db);
+			appendcsv_int(0, yaml2csv.mob_db);
+		}
+		count = 0;
+		rate = 0;
+		if (input["Drops"].IsDefined()) {
+			for (const auto &Drop : input["Drops"]) {
+				std::string ItemName = Drop["Item"].as<std::string>();
+				rate = Drop["Rate"].as<int>();
+				item = aegis_name2data[ItemName];
+				if (item == nullptr)
+					continue;
+				if (item->type == IT_CARD)
+					break;
+				appendcsv_int(item->nameid, yaml2csv.mob_db);
+				appendcsv_int(rate, yaml2csv.mob_db);
+				count++;
+			}
+		}
+		for (int i = count; i < MAX_MOB_DROP; i++) {
+			if (i == MAX_MOB_DROP - 1 && item && item->type == IT_CARD) {
+				appendcsv_int(item->nameid, yaml2csv.mob_db);
+				appendcsv_int(rate, yaml2csv.mob_db);
+				break;
+			}
+			appendcsv_int(0, yaml2csv.mob_db);
+			appendcsv_int(0, yaml2csv.mob_db);
+		}
+		yaml2csv.mob_db << "\n";
+		yaml2csv.entries++;
+	}
+	return true;
+}
+
+static bool mob_db_yaml2csv(const std::string &input, const std::string &output, bool fixput)
+{
+	std::string modePath = input.substr(0, input.find_last_of("/") + 1);
+	std::string fixedPath = modePath.substr(0, modePath.find_last_of("/", modePath.size() - 2) + 1);
+
+	if (!fixput)
+		fixedPath = "";
+
+	yaml2csv_open(yaml2csv.mob_db, output + fixedPath + "mob_db.txt");
+
+	if (!process_yaml2csv("MOB_DB", 1, input, output, [](const std::string& input, const std::string& output) -> bool {
+		return mob_db_yaml2csv_sub(input, output);
+	})) {
+		return 0;
+	}
+
+	yaml2csv.mob_db.close();
+
+	return true;
+}
+
 bool SkillDatabase::load() {
 	return TypesafeCachedYamlDatabase::load();
 }
 
 bool ItemDatabase::load() {
+	return TypesafeCachedYamlDatabase::load();
+}
+
+bool MobDatabase::load() {
 	return TypesafeCachedYamlDatabase::load();
 }
