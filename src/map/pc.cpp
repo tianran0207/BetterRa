@@ -4960,6 +4960,24 @@ void pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_STATUS_ADD_DAMAGE: //bonus3 bStatusAddDamage,sc,n,r,bf;
+	case SP_STATUS_ADD_DAMAGE_RATE: //bonus3 bStatusAddDamageRate,sc,n,r,bf;
+		if (sd->state.lr_flag != 2) {
+			if (sd->statusdamage.size() == MAX_PC_BONUS) {
+				ShowError("pc_bonus4: SP_STATUS_ADD_BONUS: Reached max (%d) number of skills per character, (sc: %d n: %d r: %d bf: %d).\n", MAX_PC_BONUS, type2, type3, type4, val);
+				break;
+			}
+			struct s_status_damage entry = {};
+			entry.status = type2;
+			if (type == SP_STATUS_ADD_DAMAGE)
+				entry.damage = type3;
+			else
+				entry.damage_rate = type3;
+			entry.rate = type4;
+			entry.atk_type = val;
+			sd->statusdamage.push_back(entry);
+		}
+		break;
 	case SP_STATUS_ADD_BONUS: // bonus4 bStatusAddBonus,sc,bonus,r,n;
 		if (sd->state.lr_flag != 2) {
 			if (sd->statusbonus.size() == MAX_PC_BONUS) {
@@ -5089,6 +5107,25 @@ void pc_bonus5(struct map_session_data *sd,int type,int type2,int type3,int type
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_STATUS_ADD_BONUS: // bonus4 bStatusAddBonus,sc,bonus,r,n;
+		if (sd->state.lr_flag != 2) {
+			if (sd->statusbonus.size() == MAX_PC_BONUS) {
+				ShowError("pc_bonus4: SP_STATUS_ADD_BONUS: Reached max (%d) number of skills per character, (status: %d bonus: %d val: %d val2: %d).\n", MAX_PC_BONUS, type2, type3, type4, val);
+				break;
+			}
+			struct s_status_bonus entry = {};
+			entry.status = type2;
+			entry.bonus = type3;
+			entry.val = type4;
+			entry.val2 = type5;
+			entry.val3 = val;
+			if (sd->sc.data[type2]) {
+				pc_bonus3(sd, type3, type4, type5, val);
+				entry.run = true;
+			}
+			sd->statusbonus.push_back(entry);
+		}
+		break;
 	case SP_ADD_STATUS_VAL: // bonus5 bAddStatusVal,sc,val1,val2,val3,val4;
 		if (sd->state.lr_flag != 2) {
 			if (sd->addstatusval.size() == MAX_PC_BONUS) {

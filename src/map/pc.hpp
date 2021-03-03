@@ -331,8 +331,12 @@ struct s_skill_attr {
 };
 
 struct s_status_bonus {
-	int status, bonus, val, val2;
+	int status, bonus, val, val2, val3;
 	bool run;
+};
+
+struct s_status_damage {
+	int status, damage, damage_rate, rate, atk_type;
 };
 
 struct s_status_val {
@@ -881,6 +885,7 @@ struct map_session_data {
 	std::vector<s_skill_div> skilladddiv;
 	std::vector<s_skill_attr> skillattribute;
 	std::vector<s_status_bonus> statusbonus;
+	std::vector<s_status_damage> statusdamage;
 	std::vector<s_status_val> addstatusval;
 	std::vector<s_item_bonus> subreseff;
 	std::vector<int16> skillrefresh;

@@ -576,6 +576,8 @@
 	export_constant2("bWeaponReturnDefRate", SP_WEAPON_RETURN_DEF_RATE);
 	export_constant2("bMagicReturnDefRate", SP_MAGIC_RETURN_DEF_RATE);
 	export_constant2("bStatusAddBonus", SP_STATUS_ADD_BONUS);
+	export_constant2("bStatusAddDamage", SP_STATUS_ADD_DAMAGE);
+	export_constant2("bStatusAddDamageRate", SP_STATUS_ADD_DAMAGE_RATE);
 	export_constant2("bAddStatusVal", SP_ADD_STATUS_VAL);
 	export_constant2("bBlockStatus", SP_BLOCK_STATUS);
 	export_constant2("bSubResEff", SP_SUBRESEFF);
