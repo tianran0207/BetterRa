@@ -9145,6 +9145,7 @@ static const struct _battle_data {
 	{ "ignore_insert_card_specific",        &battle_config.ignore_insert_card_specific,     0,      0,      1,              }, 
 	{ "mob_dmgrate_db",                     &battle_config.mob_dmgrate_db,                  0,      0,      1,              },
 	{ "itemdb_reload_thread",               &battle_config.itemdb_reload_thread,            1,      0,      1,              },
+	{ "itemdb_csv_aegis",                   &battle_config.itemdb_csv_aegis,                1,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },
