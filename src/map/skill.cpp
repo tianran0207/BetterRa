@@ -3605,7 +3605,8 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	if( dmg.flag&BF_MAGIC && (( skill_id != NPC_EARTHQUAKE || (battle_config.eq_single_target_reflectable && (flag&0xFFF) == 1))) )
 	{ // Earthquake on multiple targets is not counted as a target skill. [Inkfish]
-		if( (dmg.damage || dmg.damage2) && (type = skill_magic_reflect(src, bl, skill_get_inf(skill_id)&INF_ATTACK_SKILL)) )
+		int inf = sd ? skill_get_pc_inf(sd, skill_id) : skill_get_inf(skill_id);
+		if( (dmg.damage || dmg.damage2) && (type = skill_magic_reflect(src, bl, /*inf&INF_ATTACK_SKILL*/ 1)) )
 		{	//Magic reflection, switch caster/target
 			struct block_list *tbl = bl;
 			rmdamage = true;
@@ -3633,6 +3634,10 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 					tsc->data[SC_SPIRIT]->val3 = skill_id;
 					tsc->data[SC_SPIRIT]->val4 = dsrc->id;
 				}
+			} else if( type == 2 && (inf&INF_GROUND_SKILL) ) {
+				status_fix_damage(src, bl, dmg.damage, clif_damage(src, bl, tick, 0, 0, dmg.damage, 0, DMG_SINGLE, 0, false), skill_id);
+				dmg.damage = dmg.damage2 = 0;
+				dmg.dmg_lv = ATK_MISS;
 			} else if( type != 2 ) /* Kaite bypasses */
 				additional_effects = false;
 
