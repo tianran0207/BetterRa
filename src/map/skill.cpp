@@ -3611,8 +3611,10 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			struct block_list *tbl = bl;
 			rmdamage = true;
 			bl = src;
-			src = tbl;
-			dsrc = tbl;
+			if (type != 2) {
+				src = tbl;
+				dsrc = tbl;
+			}
 			sd = BL_CAST(BL_PC, src);
 			tsd = BL_CAST(BL_PC, bl);
 			tsc = status_get_sc(bl);
@@ -3623,23 +3625,26 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			//Reflected magic damage will not cause the caster to be knocked back [Playtester]
 			flag |= 4;
 			//Spirit of Wizard blocks Kaite's reflection
-			if( type == 2 && tsc && tsc->data[SC_SPIRIT] && tsc->data[SC_SPIRIT]->val2 == SL_WIZARD )
+			if( type == 2 && sc && sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_WIZARD )
 			{	//Consume one Fragment per hit of the casted skill? [Skotlex]
-				type = tsd?pc_search_inventory (tsd, ITEMID_FRAGMENT_OF_CRYSTAL):0;
+				type = sd?pc_search_inventory (sd, ITEMID_FRAGMENT_OF_CRYSTAL):0;
 				if (type >= 0) {
-					if ( tsd )
-						pc_delitem(tsd, type, 1, 0, 1, LOG_TYPE_CONSUME);
+					if ( sd )
+						pc_delitem(sd, type, 1, 0, 1, LOG_TYPE_CONSUME);
 					dmg.damage = dmg.damage2 = 0;
 					dmg.dmg_lv = ATK_MISS;
-					tsc->data[SC_SPIRIT]->val3 = skill_id;
-					tsc->data[SC_SPIRIT]->val4 = dsrc->id;
+					sc->data[SC_SPIRIT]->val3 = skill_id;
+					sc->data[SC_SPIRIT]->val4 = dsrc->id;
 				}
-			} else if( type == 2 && (inf&INF_GROUND_SKILL) ) {
-				status_fix_damage(src, bl, dmg.damage, clif_damage(src, bl, tick, 0, 0, dmg.damage, 0, DMG_SINGLE, 0, false), skill_id);
-				dmg.damage = dmg.damage2 = 0;
-				dmg.dmg_lv = ATK_MISS;
 			} else if( type != 2 ) /* Kaite bypasses */
 				additional_effects = false;
+
+			if ((dmg.damage || dmg.damage2) && inf&INF_GROUND_SKILL) {
+				status_fix_damage(tbl, bl, dmg.damage + dmg.damage2,
+					clif_damage(tbl, bl, tick, sstatus->amotion, sstatus->dmotion, dmg.damage, 0, DMG_NORMAL, dmg.damage2, false), skill_id);
+				dmg.damage = dmg.damage2 = 0;
+				dmg.dmg_lv = ATK_MISS;
+			}
 
 			if (dmg.damage && tsd && tsd->c_bonus.magic_return_def_rate)
 				dmg.damage = dmg.damage * (100 - tsd->c_bonus.magic_return_def_rate) / 100;
