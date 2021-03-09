@@ -827,11 +827,11 @@ OnTalk:
 
 	.@w1 = instance_mapname("1@tower") + ",156,99,2";
 	.@w2 = "duplicate(PVPCOPYTEST)";
-	.@w3 = "PVP管理员::0";
+	.@w3 = "PVP管理员::123";
 	.@w4 = "917";
 	
 	copynpc .@w1, .@w2, .@w3, .@w4;
-	npctalk "我是复制自 PVPCOPYTEST 的NPC", instance_npcname("PVPCOPYTEST::1");
+	npctalk "我是复制自 PVPCOPYTEST 的NPC", instance_npcname("PVPCOPYTEST::123");
 	
 注意: 1. NPC名称中必须带有 ::XXX 才能复制成功, XXX最好为数字
 	  2. 当在副本中复制多个相同的NPC时, 通过修改 ::XXX 来避免NPC名称重复
