@@ -516,9 +516,10 @@ int do_init( int argc, char** argv ){
 
 #ifdef _DEBUG
 	std::string output = "db/import/csv_version/";
-	std::string input = "db/re/";
 #ifndef RENEWAL
 	std::string input = "db/pre-re/";
+#else
+	std::string input = "db/re/";
 #endif
 	yaml2csv_clear(output + "item_db.txt");
 	yaml2csv_clear(output + "item_alive.txt");
