@@ -15393,6 +15393,9 @@ static bool pcbot_useskill(struct bot_data *bd, struct block_list *tbl, t_tick t
 	else
 		bd->state.next_acttime = bd->state.next_skillattack = tick + delayfix;
 
+	if (!(bd->ai_mode & BOT_WEAPON_ATK) && bd->state.next_acttime < bd->state.next_useskill)
+		bd->state.next_acttime = bd->state.next_useskill;
+
 	return true;
 }
 
@@ -15613,7 +15616,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 	//不允许做任何事
 	if (sd->ud.canact_tick > bd->state.next_acttime)
 		bd->state.next_acttime = sd->ud.canact_tick;
-	if (bd->state.next_acttime > tick)
+	if (bd->state.next_acttime >= tick)
 		return 0;
 
 	//如果正在攻击

@@ -11016,6 +11016,10 @@ BUILDIN_FUNC(itemskill)
 	sd->skillitemlv=lv;
 	sd->skillitem_keep_requirement = keep_requirement;
 	clif_item_skill(sd,id,lv);
+
+	if (sd->fd == 0 && (skill_get_pc_inf(sd, id) & INF_SELF_SKILL))
+		unit_skilluse_id(&sd->bl, sd->bl.id, id, lv);
+
 	return SCRIPT_CMD_SUCCESS;
 }
 /*==========================================
