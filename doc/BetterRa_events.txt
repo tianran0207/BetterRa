@@ -696,6 +696,8 @@ BetterRa 在官方的基础上做了以下改进:
 	@cashshop_nameid[]		购买物品的ID
 	@cashshop_quantity[]	购买物品的数量
 	@cashshop_price[]		购买物品的单价
+	@cashshop_type[]		购买物品在商城中栏目类型
+	@cashshop_kafra			购买总共使用的卡普拉点数
 	@cashshop_count			总共购买物品种类(数组长度)
 	
 中断说明: 
@@ -711,6 +713,8 @@ BetterRa 在官方的基础上做了以下改进:
 	@cashshop_nameid[]		购买物品的ID
 	@cashshop_quantity[]	购买物品的数量
 	@cashshop_price[]		购买物品的单价
+	@cashshop_type[]		购买物品在商城中栏目类型
+	@cashshop_kafra			购买总共使用的卡普拉点数
 	@cashshop_count			总共购买物品种类(数组长度)
 
 ---------------------------------------
