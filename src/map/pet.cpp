@@ -646,6 +646,9 @@ void pet_set_intimate(struct pet_data *pd, int value)
 	if (battle_config.pet_ignore_intimate_decrease && value < pd->pet.intimate)
 		value = pd->pet.intimate;
 
+	if (battle_config.pet_min_intimate_decrease)
+		value = max(battle_config.pet_min_intimate_decrease, value);
+
 	pd->pet.intimate = min(value, PET_INTIMATE_MAX);
 
 	struct map_session_data *sd = pd->master;
