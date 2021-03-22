@@ -3481,7 +3481,7 @@ void status_calc_pet_(struct pet_data *pd, enum e_status_calc_opt opt)
 		pd->status.class_ = CLASS_NORMAL;
 		pd->status.speed = pd->get_pet_walk_speed();
 
-		if(battle_config.pet_attack_support || battle_config.pet_damage_support) {
+		if(battle_config.pet_attack_support || battle_config.pet_damage_support || battle_config.pet_skill_tagart_support) {
 			// Attack support requires the pet to be able to attack
 			pd->status.mode = static_cast<e_mode>(pd->status.mode|MD_CANATTACK);
 		}

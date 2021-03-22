@@ -9046,6 +9046,7 @@ static const struct _battle_data {
 	{ "min_npc_distance",                   &battle_config.min_npc_distance,                4,      0,      INT_MAX,        },
 	{ "pet_ignore_intimate_decrease",       &battle_config.pet_ignore_intimate_decrease,    0,      0,      1,              },
 	{ "pet_min_intimate_decrease",          &battle_config.pet_min_intimate_decrease,       0,      0,      PET_INTIMATE_MAX,},
+	{ "pet_skill_tagart_support",           &battle_config.pet_skill_tagart_support,               0,      0,      1,              },
 	{ "short_attack_damage_rate",           &battle_config.short_damage_rate,               100,    0,      INT_MAX,        },
 	{ "long_attack_damage_rate",            &battle_config.long_damage_rate,                100,    0,      INT_MAX,        },
 	{ "weapon_attack_damage_rate",          &battle_config.weapon_damage_rate,              100,    0,      INT_MAX,        },
