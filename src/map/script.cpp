@@ -381,6 +381,8 @@ struct Script_Config script_config = {
 	"OnPCPickLogEvent", //pick_log_event_name
 	"OnPCDropItemFilter", //drop_item_filter_name
 	"OnPCReviveFilter", //pc_revive_filter_name
+	"OnPCPetCatchFilter", //pc_pet_catch_filter_name
+	"OnPCPetCatchEvent", //pc_pet_catch_event_name
 	"OnMOBSpawnFilter", //mob_spawn_filter_name
 	"OnMOBDropItemFilter", //mob_drop_item_filter_name
 	"OnMOBDeadEvent", //mob_dead_event_name

@@ -5442,6 +5442,10 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.drop_item_filter_name;
 	case NPCE_REVIVEFILTER:
 		return script_config.pc_revive_filter_name;
+	case NPCE_PETCATCHFILTER:
+		return script_config.pc_pet_catch_filter_name;
+	case NPCE_PETCATCHEVENT:
+		return script_config.pc_pet_catch_event_name;
 	case NPCE_MOBSPAWNFILTER:
 		return script_config.mob_spawn_filter_name;
 	case NPCE_MOBDROPITEMFILTER:
