@@ -174,6 +174,7 @@ struct Battle_Config
 	int min_storechat_distance;
 	int min_npc_distance;
 	int pet_ignore_intimate_decrease;
+	int pet_min_intimate_decrease;
 	int short_damage_rate;
 	int long_damage_rate;
 	int weapon_damage_rate;
