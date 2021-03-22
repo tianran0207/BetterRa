@@ -414,7 +414,7 @@ struct skill_unit {
 	unsigned hidden : 1;
 };
 
-#define MAX_SKILLUNITGROUPTICKSET 25
+#define MAX_SKILLUNITGROUPTICKSET C_MAX_SKILLUNITGROUPTICKSET
 struct skill_unit_group_tickset {
 	t_tick tick;
 	int id;
