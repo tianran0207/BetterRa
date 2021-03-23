@@ -15341,7 +15341,7 @@ static bool pcbot_useskill(struct bot_data *bd, struct block_list *tbl, t_tick t
 	if (bd->sd->ud.skilltimer != INVALID_TIMER)
 		return false;
 	if (bd->state.next_useskill > tick)
-		return 0;
+		return false;
 	if (!pcbot_check_useskill(bd, tick, inf) && (inf & INF_ATTACK_SKILL))
 		return false;
 	if (inf & INF_SUPPORT_SKILL) {
@@ -15405,6 +15405,9 @@ static bool pcbot_useitem(struct bot_data *bd, t_tick tick)
 	struct s_bot_uselist *bs = NULL;
 	short prior = SHRT_MIN;
 
+	if (bd->state.next_useitem > tick)
+		return false;
+
 	for (auto &it : bd->info.useitem)
 	{
 		if (!pcbot_check_usecond(bd, &it, tick))
@@ -15419,7 +15422,7 @@ static bool pcbot_useitem(struct bot_data *bd, t_tick tick)
 		bs = &it;
 		prior = it.prior;
 	}
-	if (bs && bs->inf >= 0) {
+	if (bs) {
 		pc_useitem(sd, bs->inf);
 		bs->cooldown = tick + bs->delay;
 		bd->state.next_useitem = min(200, bs->delay);
@@ -15436,6 +15439,9 @@ static bool pcbot_doevent(struct bot_data *bd, t_tick tick)
 	struct s_bot_uselist *bs = NULL;
 	short prior = SHRT_MIN;
 
+	if (bd->state.next_doevent > tick)
+		return false;
+
 	for (auto &it : bd->info.doevent)
 	{
 		if (!pcbot_check_usecond(bd, &it, tick))
@@ -15448,8 +15454,10 @@ static bool pcbot_doevent(struct bot_data *bd, t_tick tick)
 	if (bs) {
 		npc_event(sd, bs->eventname, 0);
 		bs->cooldown = tick + bs->delay;
+		return true;
 	}
 	bd->state.next_doevent = tick + 1000;
+
 	return false;
 }
 
@@ -15586,11 +15594,11 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		return 0;
 
 	//有条件事件检查
-	if (bd->state.next_doevent <= tick && pcbot_doevent(bd, tick))
+	if (pcbot_doevent(bd, tick))
 		return 1;
 
 	//使用道具检查
-	if (bd->state.next_useitem <= tick && pcbot_useitem(bd, tick))
+	if (pcbot_useitem(bd, tick))
 		return 1;
 
 	//如果正在吟唱
@@ -15836,7 +15844,7 @@ static int pcbot_ai_hard(int tid, t_tick tick, int id, intptr_t data)
 	return 0;
 }
 
-void pcbot_ai_hard_once(struct bot_data *bd, t_tick tick)
+void pcbot_ai_hard_once(struct bot_data *bd, ...)
 {
 	nullpo_retv(bd);
 

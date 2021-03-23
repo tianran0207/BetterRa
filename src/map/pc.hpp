@@ -1835,7 +1835,7 @@ extern struct s_status_formula status_formula;
 int pc_status_formula_calc(const struct block_list* bl, int type, int val);
 
 int pcbot_login(uint32 char_id, const char *name, struct script_state *st = NULL);
-void pcbot_ai_hard_once(struct bot_data *bd, t_tick tick);
+void pcbot_ai_hard_once(struct bot_data *bd, ...);
 struct bot_data *pcbot_getdata(struct map_session_data *sd);
 int pcbot_run(struct map_session_data *sd, int ai_mode);
 int pcbot_stop(struct map_session_data *sd, int logout);
