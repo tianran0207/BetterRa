@@ -103,10 +103,18 @@ bonus bMagicReturnDefRate,n;			受到魔法反射伤害时, 伤害减少原来的 n%
 bonus3 bStatusAddBonus,sc,bonus,n;		当自己拥有 sc 状态的时候, 会增加 bonus 参数为 n 
 										例: bonus3 bStatusAddBonus,SC_BLESSING,bStr,20;
 										说明: 天使赐福额外增加 20点 STR
+
 bonus4 bStatusAddBonus,sc,bonus,r,n;	当自己拥有 sc 状态的时候, 会增加 bonus 参数为 r,n
 										例: bonus4 bStatusAddBonus,SC_BLESSING,bSkillHeal,AL_HEAL,100;
 										说明: 天使赐福额外增加 治愈术回复量 100%
 										
+bonus5 bStatusAddBonus,sc,bonus,x,r,n;	当自己拥有 sc 状态的时候, 会增加 bonus 参数为 x,r,n
+										例: bonus5 bStatusAddBonus,SC_BLESSING,bAutoSpell,14,10,100;
+										说明: 天使赐福额外增加 普通攻击 10% 自动念咒冰箭术10级
+
+bonus4 bStatusAddDamage,sc,n,r,bf;		当对方拥有 sc 状态的时候, 使用 bf 攻击时有 r/10% 的概率伤害增加 n
+bonus4 bStatusAddDamageRate,sc,n,r,bf;	当对方拥有 sc 状态的时候, 使用 bf 攻击时有 r/10% 的概率伤害增加 n%
+
 bonus5 bAddStatusVal,sc,val1,val2,val3,val4;	赋予状态时, 参数分别累加 val1, val2, val3, val4
 												例: bonus5 bAddStatusVal,SC_BLESSING,10,10,0,0;
 												说明: 赋予天使赐福状态时 STR DEX INT 分别加 20 点
