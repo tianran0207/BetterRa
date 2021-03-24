@@ -31794,6 +31794,47 @@ BUILDIN_FUNC(checkrefineui)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(whodrops)
+{
+	struct map_session_data *sd = NULL;
+	struct script_data *data1 = NULL, *data2 = NULL;
+	const char *name1, *name2;
+	int32 idx1, id1, idx2, id2, i;
+
+	struct item_data *it = itemdb_exists(script_getnum(st, 2));
+	if (!it) {
+		ShowError("buildin_whodrop: unknown item id '%d'!\n", script_getnum(st, 2));
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	data1 = script_getdata(st, 3);
+	data2 = script_getdata(st, 4);
+	if (!data_isreference(data1) || !data_isreference(data2)) {
+		ShowError("buildin_whodrops: not a variable\n");
+		st->state = END;
+		return SCRIPT_CMD_FAILURE;
+	}
+	id1 = reference_getid(data1), id2 = reference_getid(data2);
+	idx1 = reference_getindex(data1), idx2 = reference_getindex(data2);
+	name1 = reference_getname(data1), name2 = reference_getname(data2);
+
+	if (not_server_variable(*name1) && !script_rid2sd(sd)) {
+		ShowError("buildin_whodrops: Cannot use a player variable '%s' if no player is attached.\n", name1);
+		return SCRIPT_CMD_FAILURE;
+	}
+	if (not_server_variable(*name2) && !script_rid2sd(sd)) {
+		ShowError("buildin_whodrops: Cannot use a player variable '%s' if no player is attached.\n", name2);
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	for (i = 0; i < MAX_SEARCH && it->mob[i].chance > 0; i++) {
+		set_reg_num(st, sd, reference_uid(id1, idx1 + i), name1, it->mob[i].id, reference_getref(data1));
+		set_reg_num(st, sd, reference_uid(id2, idx2 + i), name2, it->mob[i].chance, reference_getref(data2));
+	}
+	script_pushint(st, i);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 static int build_unitaura_sub(int tid, t_tick tick, int id, intptr_t data)
 {
 	struct block_list *bl;
@@ -33483,6 +33524,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(checkcashshop, "?"),
 	BUILDIN_DEF(checkmailwriting, "?"),
 	BUILDIN_DEF(checkrefineui, "?"),
+	BUILDIN_DEF(whodrops, "irr"),
 
 	//” œ‰œµÕ≥
 	BUILDIN_DEF(mail_create, "sss?"),
