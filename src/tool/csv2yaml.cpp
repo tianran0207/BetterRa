@@ -4142,7 +4142,7 @@ static bool item_db_yaml2csv_sub(const std::string& input, const std::string& ou
 			strtoupper(hex + 2);
 			appendcsv_str(hex, yaml2csv.item_db);
 			if (class_base)
-				appendcsv_int(job_base, yaml2csv.item_db);
+				appendcsv_int(class_base, yaml2csv.item_db);
 			else
 				appendcsv_int(63, yaml2csv.item_db);
 			appendcsv_int(sex, yaml2csv.item_db);
