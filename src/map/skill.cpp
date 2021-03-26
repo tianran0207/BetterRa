@@ -19822,6 +19822,15 @@ int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int li
 				}
 			}
 			break;
+		case SC_MANHOLE:
+			{
+				struct block_list* target = map_id2bl(group->val2);
+				sc_type type = status_skill2sc(group->skill_id);
+				struct status_change *sc;
+				if (target && (sc = status_get_sc(target)) != NULL && sc->data[type])
+					status_change_end(target, type, INVALID_TIMER);
+			}
+			break;
 	}
 
 	if (src->type==BL_PC && group->state.ammo_consume)
