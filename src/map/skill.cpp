@@ -5465,6 +5465,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 			// If a enemy player is standing next to a mob when splash Es- skill is casted, the player won't get hurt.
 			if ((skill_id == SP_SHA || skill_id == SP_SWHOO) && !battle_config.allow_es_magic_pc && bl->type != BL_MOB)
 				break;
+			if (skill_id == NPC_MAXPAIN_ATK && tsc && tsc->data[SC_MAXPAIN])
+				break;
 
 			heal = (int)skill_attack(skill_get_type(skill_id), src, src, bl, skill_id, skill_lv, tick, sflag);
 			if( skill_id == NPC_VAMPIRE_GIFT && heal > 0 ) {

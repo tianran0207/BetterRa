@@ -7200,8 +7200,10 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 		if (curr_map_instance_id != new_map_instance_id) {
 			if (curr_map_instance_id > 0) { // Update instance timer for the map on leave
 				if ((battle_config.instance_leave_record & 2)) //玩家在副本中下线后记录下线位置
-					instance_left_point(sd, curr_map_instance_id);				instance_delusers(curr_map_instance_id);
-				sd->instance_mode = util::umap_find(instances, curr_map_instance_id)->mode; // Store mode for instance destruction button checks
+					instance_left_point(sd, curr_map_instance_id);
+				instance_delusers(curr_map_instance_id);
+				std::shared_ptr<s_instance_data> idata = util::umap_find(instances, curr_map_instance_id);
+				sd->instance_mode = idata ? idata->mode : IM_NONE; // Store mode for instance destruction button checks
 			}
 
 			if (new_map_instance_id > 0) // Update instance timer for the map on enter
