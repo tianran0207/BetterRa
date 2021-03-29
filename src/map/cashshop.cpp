@@ -568,6 +568,7 @@ bool cashshop_buylist( struct map_session_data* sd, uint32 kafrapoints, int n, s
 		int idkey = add_str("@cashshop_nameid");
 		int quantitykey = add_str("@cashshop_quantity");
 		int pricekey = add_str("@cashshop_price");
+		int type = add_str("@cashshop_type");
 		int count = 0, j;
 		for (i = 0; i < n; ++i) {
 			t_itemid nameid = item_list[i].itemId;
@@ -580,11 +581,13 @@ bool cashshop_buylist( struct map_session_data* sd, uint32 kafrapoints, int n, s
 				continue;
 			if (!itemdb_exists(nameid))
 				continue;
+			pc_setreg(sd, reference_uid(type, i), tab);
 			pc_setreg(sd, reference_uid(idkey, i), nameid);
 			pc_setreg(sd, reference_uid(quantitykey, i), quantity);
 			pc_setreg(sd, reference_uid(pricekey, i), cash_shop_items[tab].item[j]->price);
 			count++;
 		}
+		pc_setreg(sd, add_str("@cashshop_kafra"), kafrapoints);
 		pc_setreg(sd, add_str("@cashshop_count"), count);
 		npc_script_event_atonce(sd, NPCE_CASHSHOPBUYFILTER);
 		if (sd->state.processhalt)
@@ -686,6 +689,7 @@ bool cashshop_buylist( struct map_session_data* sd, uint32 kafrapoints, int n, s
 		int idkey = add_str("@cashshop_nameid");
 		int quantitykey = add_str("@cashshop_quantity");
 		int pricekey = add_str("@cashshop_price");
+		int type = add_str("cashshop_type");
 		int count = 0, j;
 		for (i = 0; i < n; ++i) {
 			t_itemid nameid = item_list[i].itemId;
@@ -702,8 +706,10 @@ bool cashshop_buylist( struct map_session_data* sd, uint32 kafrapoints, int n, s
 			pc_setreg(sd, reference_uid(idkey, i), nameid);
 			pc_setreg(sd, reference_uid(quantitykey, i), quantity);
 			pc_setreg(sd, reference_uid(pricekey, i), cash_shop_items[tab].item[j]->price);
+			pc_setreg(sd, reference_uid(type, i), tab);
 			count++;
 		}
+		pc_setreg(sd, add_str("@cashshop_kafra"), kafrapoints);
 		pc_setreg(sd, add_str("@cashshop_count"), count);
 		npc_script_event(sd, NPCE_CASHSHOPBUYEVENT);
 	}

@@ -937,6 +937,14 @@ bool instance_destroy(int instance_id)
 			map_foreachinallarea(instance_npcdestroy, it.m, 0, 0, mapdata->xs, mapdata->ys, BL_NPC, it.m);
 			map_delinstancemap(it.m);
 		}
+		if (npc_script_event_check_doall(NPCE_INSDESTROYEVENT)) {
+			std::shared_ptr<s_instance_db> db = instance_db.find(idata->id);
+			mapreg_setreg(add_str("$@instance_id"), instance_id);
+			mapreg_setreg(add_str("$@instance_owner"), idata->owner_id);
+			mapreg_setreg(add_str("$@instance_mode"), mode);
+			mapreg_setregstr(add_str("$@instance_name$"), db ? db->name.c_str() : "");
+			npc_script_event_doall(NPCE_INSDESTROYEVENT);
+		}
 	}
 
 	if(idata->keep_timer != INVALID_TIMER) {
@@ -974,14 +982,6 @@ bool instance_destroy(int instance_id)
 
 	ShowInfo("[Instance] Destroyed: %s (%d)\n", instance_db.find(idata->id)->name.c_str(), instance_id);
 
-	if (npc_script_event_check_doall(NPCE_INSDESTROYEVENT)) {
-		std::shared_ptr<s_instance_db> db = instance_db.find(idata->id);
-		mapreg_setreg(add_str("$@instance_id"), instance_id);
-		mapreg_setreg(add_str("$@instance_owner"), idata->owner_id);
-		mapreg_setreg(add_str("$@instance_mode"), mode);
-		mapreg_setregstr(add_str("$@instance_name$"), db ? db->name.c_str() : "");
-		npc_script_event_doall(NPCE_INSDESTROYEVENT);
-	}
 	instances.erase(instance_id);
 
 	return true;

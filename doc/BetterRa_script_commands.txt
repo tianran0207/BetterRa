@@ -827,11 +827,11 @@ OnTalk:
 
 	.@w1 = instance_mapname("1@tower") + ",156,99,2";
 	.@w2 = "duplicate(PVPCOPYTEST)";
-	.@w3 = "PVP管理员::0";
+	.@w3 = "PVP管理员::123";
 	.@w4 = "917";
 	
 	copynpc .@w1, .@w2, .@w3, .@w4;
-	npctalk "我是复制自 PVPCOPYTEST 的NPC", instance_npcname("PVPCOPYTEST::1");
+	npctalk "我是复制自 PVPCOPYTEST 的NPC", instance_npcname("PVPCOPYTEST::123");
 	
 注意: 1. NPC名称中必须带有 ::XXX 才能复制成功, XXX最好为数字
 	  2. 当在副本中复制多个相同的NPC时, 通过修改 ::XXX 来避免NPC名称重复
@@ -3293,9 +3293,24 @@ refineui_result <背包位置序号>,<动画类型>,<精炼后等级>;
 
 ----------------------------------------
 
-*query_sql_asyn("SQL脚本"{, <变量>{, <变量>{, ...}}});
+*query_sql_asyn("<SQL脚本>"{,<变量>{,<变量>{,...}}});
 
 用法同 query_sql 运行sql指令时不会卡服务器, 如果多个查询并发执行, 则会排队依次查询
+
+----------------------------------------
+
+*whodrops(<物品ID>,<魔物数组>,<概率数组>);
+
+指令用于返回掉落指定物品的魔物和概率, 默认只能返回5个, 想返回更多请在网页定制中修改'最大物品掉落排序数量'
+魔物数组与概率数组用于保存返回的数据
+
+例:
+	.@count = whodrops(507,.@mobid,.@chance);
+	for(.@i = 0; .@i < .@count; .@i++)
+		dispbottom ""+.@mobid[.@i]+": "+.@chance[.@i];
+
+返回值:
+	返回共有多少组数据
 
 ----------------------------------------
 

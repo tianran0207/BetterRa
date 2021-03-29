@@ -364,6 +364,7 @@ int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target,
 {
 	int64 damage = *dmg;
 	struct map_session_data* sd = BL_CAST(BL_PC, src);
+	struct status_change *tsc = status_get_sc(target);
 	struct status_data *status = status_get_status_data(target);
 	int damage_rate = 0;
 
@@ -373,7 +374,16 @@ int battle_calc_skill_cardfix(struct block_list* src, struct block_list* target,
 				continue;
 			damage_rate += it.n;
 		}
+		for (const auto &it : sd->statusdamage) {
+			if (!tsc || !tsc->data[it.status])
+				continue;
+			if (!(it.atk_type&flag) || (!it.rate || rnd() % 1000 > it.rate))
+				continue;
+			damage_rate += it.damage_rate;
+			damage += it.damage;
+		}
 	}
+
 	if (sd && (flag & BF_SKILL)) {
 		for (auto &it : sd->skilldamage) {
 			if (it.sk != skill_id)
@@ -1787,7 +1797,7 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 	if( sc && sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 		return 1;
 
-	if (sc && sc->data[SC_MAXPAIN]) {
+	if (sc && sc->data[SC_MAXPAIN] && !sc->data[SC_KYOMU]) {
 		sc->data[SC_MAXPAIN]->val2 = (int)damage;
 		skill_castend_damage_id(bl, src, NPC_MAXPAIN_ATK, sc->data[SC_MAXPAIN]->val1, gettick(), flag);
 		sc->data[SC_MAXPAIN]->val2 = 0;
@@ -5077,7 +5087,8 @@ static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *
 			//ATK [{(Caster DEX + AGI) x (Skill Level / 5)} x Caster Base Level / 100] %
 			skillratio = (status_get_dex(src) + status_get_agi(src)) * skill_lv / 5;
 			if (wd->miscflag&4) // Whip/Instrument equipped
-				skillratio += 100; // !TODO: What's the weapon bonus?
+				skillratio = skillratio * 5 / 3;
+				//skillratio += 100; // !TODO: What's the weapon bonus?
 			RE_LVL_DMOD(100);
 			break;
 		case WM_GREAT_ECHO:
@@ -9110,6 +9121,8 @@ static const struct _battle_data {
 	{ "min_storechat_distance",             &battle_config.min_storechat_distance,          1,      0,      INT_MAX,        },
 	{ "min_npc_distance",                   &battle_config.min_npc_distance,                4,      0,      INT_MAX,        },
 	{ "pet_ignore_intimate_decrease",       &battle_config.pet_ignore_intimate_decrease,    0,      0,      1,              },
+	{ "pet_min_intimate_decrease",          &battle_config.pet_min_intimate_decrease,       0,      0,      PET_INTIMATE_MAX,},
+	{ "pet_skill_tagart_support",           &battle_config.pet_skill_tagart_support,               0,      0,      1,              },
 	{ "short_attack_damage_rate",           &battle_config.short_damage_rate,               100,    0,      INT_MAX,        },
 	{ "long_attack_damage_rate",            &battle_config.long_damage_rate,                100,    0,      INT_MAX,        },
 	{ "weapon_attack_damage_rate",          &battle_config.weapon_damage_rate,              100,    0,      INT_MAX,        },
@@ -9210,6 +9223,7 @@ static const struct _battle_data {
 	{ "ignore_insert_card_specific",        &battle_config.ignore_insert_card_specific,     0,      0,      1,              }, 
 	{ "mob_dmgrate_db",                     &battle_config.mob_dmgrate_db,                  0,      0,      1,              },
 	{ "itemdb_reload_thread",               &battle_config.itemdb_reload_thread,            1,      0,      1,              },
+	{ "itemdb_csv_aegis",                   &battle_config.itemdb_csv_aegis,                1,      0,      1,              },
 	//--------------------------------------------Extended Vending system [Lilith]--------------------------------------------- 
 	{ "extended_vending",                   &battle_config.extended_vending,                1,      0,      1,              },
 	{ "extended_buying",                    &battle_config.extended_buying,                 1,      0,      1,              },

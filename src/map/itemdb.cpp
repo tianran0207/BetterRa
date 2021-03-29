@@ -3189,7 +3189,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 
 	struct item_data *item = itemdb_search_aegisname(str[1]);
 	
-	if (item && item->nameid != nameid) {
+	if (item && item->nameid != nameid && !battle_config.itemdb_csv_aegis) {
 		ShowError("itemdb_parse_dbrow: Found duplicate item Aegis name for %s, skipping.\n", str[1]);
 		return 0;
 	}

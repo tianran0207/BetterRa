@@ -8,39 +8,41 @@
 //自定义宏定义
 //----------------------------------
 #define C_PACKETVER 20200401
-#define C_PRERE 0                    //是否编译为复兴前版本
-#define C_VIP_ENABLE 0               //是否开启VIP系统
-#define C_PACKET_OBFUSCATION 0       //是否禁用封包加密
+#define C_PRERE 0                      //是否编译为复兴前版本
+#define C_VIP_ENABLE 0                 //是否开启VIP系统
+#define C_PACKET_OBFUSCATION 0         //是否禁用封包加密
 
-#define C_MAX_ZENY 1000000000        //最大随身携带的金币
-#define C_MAX_INVENTORY 100          //最大背包容量
-#define C_MIN_STORAGE 300            //玩家仓库容量
-#define C_MAX_CART 100               //玩家手推车容量
-#define C_MAX_STORAGE 800            //最大玩家仓库容量上限
-#define C_DEFAULT_WALK_SPEED 150     //玩家默认移动速度
-#define C_AUTOLOOTITEM_SIZE 10       //自动拾取的物品清单
+#define C_MAX_ZENY 1000000000          //最大随身携带的金币
+#define C_MAX_INVENTORY 100            //最大背包容量
+#define C_MIN_STORAGE 300              //玩家仓库容量
+#define C_MAX_CART 100                 //玩家手推车容量
+#define C_MAX_STORAGE 800              //最大玩家仓库容量上限
+#define C_DEFAULT_WALK_SPEED 150       //玩家默认移动速度
+#define C_AUTOLOOTITEM_SIZE 10         //自动拾取的物品清单
 
-#define C_MAX_PARTY 12               //最大队伍成员数量
-#define C_MAX_GUILD_STORAGE 600      //最大公会仓库容量
-#define C_MIN_GUILD 16               //最大公会初始成员容量
-#define C_GUILD_SKILL_NUMBER_ADD 6   //扩充组合体制每级增加人数
+#define C_MAX_PARTY 12                 //最大队伍成员数量
+#define C_MAX_GUILD_STORAGE 600        //最大公会仓库容量
+#define C_MIN_GUILD 16                 //最大公会初始成员容量
+#define C_GUILD_SKILL_NUMBER_ADD 6     //扩充组合体制每级增加人数
 
-#define C_MAX_PETLOOT_SIZE 30        //最大宠物拾取容量
-#define C_MAX_PET_DB 600             //最大宠物数据库的ID容量
-#define C_MAX_MOB_DB 3999            //最大魔物数据库的ID容量
-#define C_MAX_NPC_CLASS2_END 0       //最大NPC数据库的ID容量
+#define C_MAX_PETLOOT_SIZE 30          //最大宠物拾取容量
+#define C_MAX_PET_DB 600               //最大宠物数据库的ID容量
+#define C_MAX_MOB_DB 3999              //最大魔物数据库的ID容量
+#define C_MAX_NPC_CLASS2_END 0         //最大NPC数据库的ID容量
 
-#define C_MAX_MERCENARY_CLASS 61     //最大佣兵的种类
-#define C_MAX_FAME_LIST 10           //最大声望列表长度
-#define C_MAX_REFINE 0               //最大精炼值
-#define C_MAX_EVENTQUEUE 200         //最大事件队列的容量
-#define C_MAX_HATEFFECT 0            //最大特殊头饰效果的ID上限
-#define C_MAX_RC2 0                  //最大自定义种族数量
-#define C_MAX_SKILLUNITTEMP 20       //最大地面上最大技能存在数量
-#define C_MAX_LEVEL 200              //最大等级
-#define C_MAX_DAMAGELOG 30           //魔物伤害记录数量
-#define C_MIN_CHARS 0                //初始创建角色数量
-#define C_MAX_CHAT_USERS 20          //最大聊天室人数
+#define C_MAX_MERCENARY_CLASS 61       //最大佣兵的种类
+#define C_MAX_FAME_LIST 10             //最大声望列表长度
+#define C_MAX_REFINE 0                 //最大精炼值
+#define C_MAX_EVENTQUEUE 200           //最大事件队列的容量
+#define C_MAX_HATEFFECT 0              //最大特殊头饰效果的ID上限
+#define C_MAX_RC2 0                    //最大自定义种族数量
+#define C_MAX_SKILLUNITTEMP 20         //最大地面上最大技能存在数量
+#define C_MAX_SKILLUNITGROUPTICKSET 25 //最大地面技能计时器数量
+#define C_MAX_LEVEL 200                //最大等级
+#define C_MAX_DAMAGELOG 30             //魔物伤害记录数量
+#define C_MIN_CHARS 0                  //初始创建角色数量
+#define C_MAX_CHAT_USERS 20            //最大聊天室人数
+#define C_MAX_SEARCH 5                 //最大物品掉落排序数量
 
 #define C_SHOW_SERVER_STATS 0
 

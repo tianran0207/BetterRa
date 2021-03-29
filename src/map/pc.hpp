@@ -331,8 +331,12 @@ struct s_skill_attr {
 };
 
 struct s_status_bonus {
-	int status, bonus, val, val2;
+	int status, bonus, val, val2, val3;
 	bool run;
+};
+
+struct s_status_damage {
+	int status, damage, damage_rate, rate, atk_type;
 };
 
 struct s_status_val {
@@ -882,6 +886,7 @@ struct map_session_data {
 	std::vector<s_skill_div> skilladddiv;
 	std::vector<s_skill_attr> skillattribute;
 	std::vector<s_status_bonus> statusbonus;
+	std::vector<s_status_damage> statusdamage;
 	std::vector<s_status_val> addstatusval;
 	std::vector<s_item_bonus> subreseff;
 	std::vector<int16> skillrefresh;
@@ -1832,7 +1837,7 @@ extern struct s_status_formula status_formula;
 int pc_status_formula_calc(const struct block_list* bl, int type, int val);
 
 int pcbot_login(uint32 char_id, const char *name, struct script_state *st = NULL);
-void pcbot_ai_hard_once(struct bot_data *bd, t_tick tick);
+void pcbot_ai_hard_once(struct bot_data *bd, ...);
 struct bot_data *pcbot_getdata(struct map_session_data *sd);
 int pcbot_run(struct map_session_data *sd, int ai_mode);
 int pcbot_stop(struct map_session_data *sd, int logout);
