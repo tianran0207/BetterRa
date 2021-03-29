@@ -5465,6 +5465,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 			// If a enemy player is standing next to a mob when splash Es- skill is casted, the player won't get hurt.
 			if ((skill_id == SP_SHA || skill_id == SP_SWHOO) && !battle_config.allow_es_magic_pc && bl->type != BL_MOB)
 				break;
+			if (skill_id == NPC_MAXPAIN_ATK && tsc && tsc->data[SC_MAXPAIN])
+				break;
 
 			heal = (int)skill_attack(skill_get_type(skill_id), src, src, bl, skill_id, skill_lv, tick, sflag);
 			if( skill_id == NPC_VAMPIRE_GIFT && heal > 0 ) {
@@ -12326,16 +12328,15 @@ int skill_castend_for_AOE(struct block_list *bl, va_list ap)
 static void skill_castend_delay_cooldown(struct block_list *src, struct block_list *target, t_tick tick, bool skill_begin) {
 	struct map_session_data *sd = BL_CAST(BL_PC, src);
 	struct unit_data *ud = unit_bl2ud(src);
-	bool nodex;
+	bool nodex = false;
 	nodex = (skill_get_delaynodex(ud->skill_id) & 1024);
-	if (skill_begin && !nodex || !skill_begin && (nodex && sd && !sd->skill_failure)) {
-		if (!sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id, ud->skill_lv))
-			ud->canact_tick = i64max(tick + skill_delayfix(src, ud->skill_id, ud->skill_lv), ud->canact_tick - SECURITY_CASTTIME);
-		if (battle_config.display_status_timers && sd)
-			clif_status_change(src, EFST_POSTDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
-	}
-	nodex = (skill_get_castnodex(ud->skill_id) & 1024);
 	if (sd && (skill_begin && !nodex || !skill_begin && (nodex && !sd->skill_failure))) {
+		int delayfix = skill_delayfix(src, ud->skill_id, ud->skill_lv);
+		if (delayfix) {
+			ud->canact_tick = i64max(tick + delayfix, ud->canact_tick - SECURITY_CASTTIME);
+			if (battle_config.display_status_timers)
+				clif_status_change(src, EFST_POSTDELAY, 1, delayfix, 0, 0, 0);
+		}
 		int cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv); // Increases/Decreases cooldown of a skill by item/card bonuses.
 		if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
 	}
@@ -19821,6 +19822,15 @@ int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int li
 					sc->data[SC_STEALTHFIELD_MASTER]->val2 = 0;
 					status_change_end(src,SC_STEALTHFIELD_MASTER,INVALID_TIMER);
 				}
+			}
+			break;
+		case SC_MANHOLE:
+			{
+				struct block_list* target = map_id2bl(group->val2);
+				sc_type type = status_skill2sc(group->skill_id);
+				struct status_change *sc;
+				if (target && (sc = status_get_sc(target)) != NULL && sc->data[type])
+					status_change_end(target, type, INVALID_TIMER);
 			}
 			break;
 	}

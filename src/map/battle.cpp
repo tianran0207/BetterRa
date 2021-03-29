@@ -1773,7 +1773,7 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 	if( sc && sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 		return 1;
 
-	if (sc && sc->data[SC_MAXPAIN]) {
+	if (sc && sc->data[SC_MAXPAIN] && !sc->data[SC_KYOMU]) {
 		sc->data[SC_MAXPAIN]->val2 = (int)damage;
 		skill_castend_damage_id(bl, src, NPC_MAXPAIN_ATK, sc->data[SC_MAXPAIN]->val1, gettick(), flag);
 		sc->data[SC_MAXPAIN]->val2 = 0;
@@ -5016,7 +5016,8 @@ static int battle_calc_attack_skill_ratio(struct Damage *wd, struct block_list *
 			//ATK [{(Caster DEX + AGI) x (Skill Level / 5)} x Caster Base Level / 100] %
 			skillratio = (status_get_dex(src) + status_get_agi(src)) * skill_lv / 5;
 			if (wd->miscflag&4) // Whip/Instrument equipped
-				skillratio += 100; // !TODO: What's the weapon bonus?
+				skillratio = skillratio * 5 / 3;
+				//skillratio += 100; // !TODO: What's the weapon bonus?
 			RE_LVL_DMOD(100);
 			break;
 		case WM_GREAT_ECHO:

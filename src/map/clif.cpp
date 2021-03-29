@@ -6093,6 +6093,9 @@ bool clif_skill_nodamage(struct block_list *src,struct block_list *dst, uint16 s
 			WBUFL(buf,6+offset) = dst->id;
 		clif_send(buf, packet_len(cmd), src, SELF);
 	}
+	if (src && src->type == BL_PC && !success)
+		((struct map_session_data *)src)->skill_failure = true;
+
 	return success;
 }
 

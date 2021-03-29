@@ -42,6 +42,7 @@
 #define C_MAX_DAMAGELOG 30             //魔物伤害记录数量
 #define C_MIN_CHARS 0                  //初始创建角色数量
 #define C_MAX_CHAT_USERS 20            //最大聊天室人数
+#define C_MAX_SEARCH 5                 //最大物品掉落排序数量
 
 #define C_SHOW_SERVER_STATS 0
 
