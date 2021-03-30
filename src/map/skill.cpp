@@ -12330,15 +12330,15 @@ static void skill_castend_delay_cooldown(struct block_list *src, struct block_li
 	struct unit_data *ud = unit_bl2ud(src);
 	bool nodex = false;
 	nodex = (skill_get_delaynodex(ud->skill_id) & 1024);
-	if (sd && (skill_begin && !nodex || !skill_begin && (nodex && !sd->skill_failure))) {
-		int delayfix = skill_delayfix(src, ud->skill_id, ud->skill_lv);
-		if (delayfix) {
-			ud->canact_tick = i64max(tick + delayfix, ud->canact_tick - SECURITY_CASTTIME);
-			if (battle_config.display_status_timers)
-				clif_status_change(src, EFST_POSTDELAY, 1, delayfix, 0, 0, 0);
+	if (skill_begin && !nodex || sd && !skill_begin && nodex && !sd->skill_failure) {
+		if (!sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id, ud->skill_lv))
+			ud->canact_tick = i64max(tick + skill_delayfix(src, ud->skill_id, ud->skill_lv), ud->canact_tick - SECURITY_CASTTIME);
+		if (sd) { //Cooldown application
+			int cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv); // Increases/Decreases cooldown of a skill by item/card bonuses.
+			if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
 		}
-		int cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv); // Increases/Decreases cooldown of a skill by item/card bonuses.
-		if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
+		if (battle_config.display_status_timers && sd)
+			clif_status_change(src, EFST_POSTDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
 	}
 	if (skill_begin)
 		skill_castend_begin(sd, ud->skill_id);
