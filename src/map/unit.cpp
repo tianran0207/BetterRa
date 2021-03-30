@@ -990,7 +990,7 @@ bool unit_check_step(struct block_list *bl, struct autowalk_data *ad, t_tick tic
 	if (ad->step < path->number) {
 		x = path->x[ad->step];
 		y = path->y[ad->step];
-		if (unit_walktoxy(bl, x, y, 1|4) || unit_walktoxy(bl, x, y, 4))
+		if (unit_walktoxy(bl, x, y, 1) || unit_walktoxy(bl, x, y, 0))
 		{
 			speed = status_get_speed(bl);
 			switch (bl->type) {
