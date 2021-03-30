@@ -2749,6 +2749,7 @@ static int battle_range_type(struct block_list *src, struct block_list *target, 
 				return BF_SHORT;
 			break;
 #ifdef RENEWAL
+		case RL_R_TRIP_PLUSATK:
 		case KN_BRANDISHSPEAR:
 			// Renewal changes to ranged physical damage
 			return BF_LONG;
