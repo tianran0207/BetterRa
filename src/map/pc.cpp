@@ -3239,6 +3239,14 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 			if (sd->state.lr_flag != 2)
 				sd->c_bonus.add_mastery += val;
 			break;
+		case SP_ADDCARTMAXWEIGHT:
+			if (sd->state.lr_flag != 2)
+				sd->c_bonus.add_cart_max_weight += val;
+			break;
+		case SP_ADDWEIGHT: // bonus2 bAddWeight,n;
+			if (sd->state.lr_flag != 2) {
+				sd->c_bonus.add_weight += val;
+			break;
 		case SP_DEFSIZE:
 			PC_BONUS_CHK_SIZE(val, SP_DEFSIZE);
 			if (sd->state.lr_flag != 2)

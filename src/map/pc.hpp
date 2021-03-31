@@ -831,7 +831,7 @@ struct map_session_data {
 	// zeroed vars end here.
 
 	struct s_custom_bonus {
-		int weapon_add_damage, magic_add_damage, misc_add_damage, add_mastery;
+		int weapon_add_damage, magic_add_damage, misc_add_damage, add_mastery, add_cart_max_weight, add_weight;
 		char def_size, def_race, def_ele_lv;
 		struct s_reborn {
 			short rate, heal;
