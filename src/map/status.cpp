@@ -4791,7 +4791,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 // ----- MISC CALCULATIONS -----
 
 	// Weight
-	status_calc_weight(sd, CALCWT_MAXBONUS);
+	status_calc_weight(sd, (e_status_calc_weight_opt)(CALCWT_ITEM|CALCWT_MAXBONUS));
 	status_calc_cart_weight(sd, CALCWT_MAXBONUS);
 
 	if (pc_checkskill(sd, SM_MOVINGRECOVERY) > 0 || pc_ismadogear(sd))
