@@ -1240,7 +1240,7 @@ int pet_select_egg(struct map_session_data *sd,short egg_index)
 		ShowError("pet does not exist, egg id %u\n", sd->inventory.u.items_inventory[egg_index].nameid);
 		return 0;
 	}
-	if (sd->inventory.u.items_inventory[egg_index].card[0] == CARD0_PET && npc_script_event_check(sd, NPCE_PETINCUBATEFILTER{
+	if (sd->inventory.u.items_inventory[egg_index].card[0] == CARD0_PET && npc_script_event_check(sd, NPCE_PETINCUBATEFILTER)){
 		pc_setreg(sd, add_str("@pet_gid"), MakeDWord(sd->inventory.u.items_inventory[egg_index].card[1], sd->inventory.u.items_inventory[egg_index].card[2]));
 		npc_script_event_atonce(sd, NPCE_PETINCUBATEFILTER);
 		if (sd->state.processhalt)
