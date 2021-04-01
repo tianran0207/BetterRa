@@ -1240,6 +1240,12 @@ int pet_select_egg(struct map_session_data *sd,short egg_index)
 		ShowError("pet does not exist, egg id %u\n", sd->inventory.u.items_inventory[egg_index].nameid);
 		return 0;
 	}
+	if (sd->inventory.u.items_inventory[egg_index].card[0] == CARD0_PET && npc_script_event_check(sd, NPCE_PETINCUBATEFILTER{
+		pc_setreg(sd, add_str("@pet_gid"), MakeDWord(sd->inventory.u.items_inventory[egg_index].card[1], sd->inventory.u.items_inventory[egg_index].card[2]));
+		npc_script_event_atonce(sd, NPCE_PETINCUBATEFILTER);
+		if (sd->state.processhalt)
+			return 0;
+	}
 
 	if(sd->inventory.u.items_inventory[egg_index].card[0] == CARD0_PET)
 		intif_request_petdata(sd->status.account_id, sd->status.char_id, MakeDWord(sd->inventory.u.items_inventory[egg_index].card[1], sd->inventory.u.items_inventory[egg_index].card[2]) );
@@ -2313,6 +2319,23 @@ void pet_evolution(struct map_session_data *sd, int16 pet_id) {
 	if (!pet_evolution_requirements_check(sd, pet_id)) {
 		clif_pet_evolution_result(sd, e_pet_evolution_result::FAIL_MATERIAL);
 		return;
+	}
+	if (npc_script_event_check(sd, NPCE_PETEVOLVESFILTER)) {
+		int idkey = add_str("@pet_require_itemid");
+		int countkey = add_str("@pet_require_itemcount");
+		int idx = 0;
+		pc_setreg(sd, add_str("@pet_id"), sd->pd->pet.class_);
+		pc_setreg(sd, add_str("@pet_gid"), sd->pd->bl.id);
+		pc_setreg(sd, add_str("@pet_target_id"), pet_db_ptr->evolution_data[pet_id]->target_mob_id);
+		for (const auto &requirement : pet_db_ptr->evolution_data[pet_id]->requirements) {
+			pc_setreg(sd, reference_uid(idkey, idx), requirement.first);
+			pc_setreg(sd, reference_uid(idkey, idx), requirement.second);
+			idx++;
+		}
+		pc_setreg(sd, add_str("@pet_require_count"), idx);
+		npc_script_event_atonce(sd, NPCE_PETEVOLVESFILTER);
+		if (sd->state.processhalt)
+			return;
 	}
 
 	for (const auto &requirement : pet_db_ptr->evolution_data[pet_id]->requirements) {

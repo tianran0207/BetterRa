@@ -5364,6 +5364,10 @@ const char *npc_get_script_event_name(int npce_index)
 		return script_config.pet_food_event_name;
 	case NPCE_PETSKILLFILTER:
 		return script_config.pet_skill_filter_name;
+	case NPCE_PETINCUBATEFILTER:
+		return script_config.pet_incubate_filter_name;
+	case NPCE_PETEVOLVESFILTER:
+		return script_config.pet_evolves_filter_name;
 	case NPCE_VIEWEQUIPFILTER:
 		return script_config.view_equit_filter_name;
 	case NPCE_USESKILLFILTER:
