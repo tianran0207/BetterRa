@@ -5392,6 +5392,7 @@ static bool mob_parse_dbrow(char** str)
 		mob->dropitem[i].rate = mob->dropitem[i].dp = 0;
 	}
 	mob->ignore_drop_ratio_adjust = false;
+	mob->damagetaken = 100;
 
 	if (!exists)
 		mob_db.put(mob_id, mob);
