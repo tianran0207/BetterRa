@@ -2907,6 +2907,7 @@ bool RandomOptionGroupDatabase::option_get_id(std::string name, uint16 &id) {
 /**
 * Read all item-related databases
 */
+static bool itemdb_read_announce(char* str[], int columns, int current);
 static void itemdb_read(void) {
 	int i;
 	const char* dbsubpath[] = {
@@ -2935,6 +2936,7 @@ static void itemdb_read(void) {
 			safesnprintf(dbsubpath2,n1,"%s%s",db_path,dbsubpath[i]);
 		}
 
+		sv_readdb(dbsubpath1, "item_announce.txt",      ',', 2,  2, -1, &itemdb_read_announce, i > 0);
 		sv_readdb(dbsubpath2, "item_group_db.txt",		',', 2, 10, -1, &itemdb_read_group, i > 0);
 		sv_readdb(dbsubpath2, "item_bluebox.txt",		',', 2, 10, -1, &itemdb_read_group, i > 0);
 		sv_readdb(dbsubpath2, "item_violetbox.txt",		',', 2, 10, -1, &itemdb_read_group, i > 0);
