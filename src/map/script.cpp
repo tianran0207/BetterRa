@@ -14712,6 +14712,8 @@ BUILDIN_FUNC(getiteminfo)
 			break;
 		case 21:	script_pushint(st, script_func_mark_sub(NULL, 0, i_data->script, "pet") ? 1 : 0); break;
 		case 22:	script_pushint(st, script_func_mark_sub(NULL, 0, i_data->script, "callfunc") ? 1 : 0); break;
+		case 23:	script_pushstrcopy(st, i_data->name.c_str()); break;
+		case 24:	script_pushstrcopy(st, i_data->ename.c_str()); break;
 		default:
 			script_pushint(st, -1);
 			break;
@@ -32339,6 +32341,19 @@ BUILDIN_FUNC(query_sql_asyn)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(pet_return_egg)
+{
+	struct map_session_data* sd;
+
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (sd->pd)
+		pet_return_egg(sd, sd->pd);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -33651,6 +33666,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getrateidx, "*"),
 	BUILDIN_DEF(mobstaypos, "iii"),
 	BUILDIN_DEF(query_sql_asyn, "s*"),
+	BUILDIN_DEF(pet_return_egg, "?"),
 	BUILDIN_DEF(roulette_bonus, "i"),
 	BUILDIN_DEF(roulette_iteminfo, "iii?"),
 	BUILDIN_DEF(roulette_open, "????"),
