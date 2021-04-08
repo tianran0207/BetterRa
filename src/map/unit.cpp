@@ -915,7 +915,7 @@ bool unit_check_staypos(struct block_list *bl, struct block_list *tbl) {
 		return false;
 	}
 
-	if (unit_walktoxy(bl, x, y, 4)) {
+	if (unit_walktoxy(bl, x, y, 1) || unit_walktoxy(bl, x, y, 0)) {
 		speed = status_get_speed(bl);
 		for (i = c = 0; i < md->ud.walkpath.path_len; i++) {	// The next walk start time is calculated.
 			if (md->ud.walkpath.path[i] & 1)
