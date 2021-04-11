@@ -959,6 +959,15 @@ int guild_expulsion(struct map_session_data* sd, int guild_id, uint32 account_id
 	// find the member and perform expulsion
 	i = guild_getindex(g, account_id, char_id);
 	if( i != -1 && strcmp(g->member[i].name,g->master) != 0 ) { //Can't expel the GL!
+#ifdef  EVENT_GUILDLEAVEFILTER
+		if (npc_script_event_check(sd, NPCE_GUILDLEAVEFILTER)) {
+			pc_setreg(sd, add_str("@left_guild_id"), guild_id);
+			pc_setregstr(sd, add_str("@left_guild_name$"), g->name);
+			npc_script_event_atonce(sd, NPCE_GUILDLEAVEFILTER);
+			if (sd->state.processhalt)
+				return 0;
+		}
+#endif //  EVENT_PARTYJOINFILTER
 		if (tsd)
 			guild_trade_bound_cancel(tsd);
 		intif_guild_leave(g->guild_id,account_id,char_id,1,mes);
