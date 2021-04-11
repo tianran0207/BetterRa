@@ -1194,11 +1194,17 @@ int pet_recv_petdata(uint32 account_id,struct s_pet *p,int flag)
 
 			return 1;
 		}
-		if ( npc_script_event_check(sd, NPCE_PETINCUBATEFILTER)) {
+		if (npc_script_event_check(sd, NPCE_PETINCUBATEFILTER)) {
 			pc_setreg(sd, add_str("@pet_id"), p->class_);
 			npc_script_event_atonce(sd, NPCE_PETINCUBATEFILTER);
-			if (sd->state.processhalt)
+			if (sd->state.processhalt) {
+#if PACKETVER >= 20180704
+				struct pet_data pd = { 0 };
+				clif_send_petdata(sd, &pd, 6, 1);
+				clif_inventorylist(sd);
+#endif
 				return 1;
+			}
 		}
 		// Hide egg from inventory.
 		// Set pet egg to broken, before the inventory gets saved
@@ -1308,10 +1314,30 @@ int pet_catch_process2(struct map_session_data* sd, int target_id)
 		}
 	}
 
+	switch (battle_config.pet_catch_rate_mode) {
+	case 0:
+		pet_catch_rate = pet ? (pet->capture + (sd->status.base_level - md->level) * 30 + sd->battle_status.luk * 20)*(200 - get_percentage(md->status.hp, md->status.max_hp)) / 100 : 0;
+		break;
+	case 1:
+		pet_catch_rate = pet ? (pet->capture + sd->battle_status.luk * 20)*(200 - get_percentage(md->status.hp, md->status.max_hp)) / 100 : 0;
+		break;
+	case 2:
+		pet_catch_rate = pet ? pet->capture*(200 - get_percentage(md->status.hp, md->status.max_hp)) / 100 : 0;
+		break;
+	}
+
+	if (pet && pet_catch_rate < 1)
+		pet_catch_rate = 1;
+
+	if (battle_config.pet_catch_rate != 100)
+		pet_catch_rate = (pet_catch_rate*battle_config.pet_catch_rate) / 100;
+
 	if (npc_script_event_check(sd, NPCE_PETCATCHFILTER)) {
 		pc_setreg2(sd, "@PetCatch_mob", md->mob_id);
+		pc_setreg2(sd, "@PetCatch_gid", md->bl.id);
 		pc_setreg2(sd, "@PetCatch_item", sd->itemid);
-		pc_setreg2(sd, "@PetCatch_rate", pet_catch_rate);
+		pc_setreg2(sd, "@PetCatch_rate", pet ? pet->capture : 0);
+		pc_setreg2(sd, "@PetCatch_real", pet ? pet_catch_rate : 0);
 		pc_setreg2(sd, "@PetCatch_result", 0);
 		npc_script_event_atonce(sd, NPCE_PETCATCHFILTER);
 		if (sd->state.processhalt) {
@@ -1330,23 +1356,11 @@ int pet_catch_process2(struct map_session_data* sd, int target_id)
 
 	//pet_catch_rate = (pet->capture + (sd->status.base_level - md->level)*30 + sd->battle_status.luk*20)*(200 - get_percentage(md->status.hp, md->status.max_hp))/100;
 
-	switch (battle_config.pet_catch_rate_mode) {
-	case 0:
-		pet_catch_rate = (pet->capture + (sd->status.base_level - md->level) * 30 + sd->battle_status.luk * 20)*(200 - get_percentage(md->status.hp, md->status.max_hp)) / 100;
-		break;
-	case 1:
-		pet_catch_rate = (pet->capture + sd->battle_status.luk * 20)*(200 - get_percentage(md->status.hp, md->status.max_hp)) / 100;
-		break;
-	case 2:
-		pet_catch_rate = pet->capture*(200 - get_percentage(md->status.hp, md->status.max_hp)) / 100;
-		break;
-	}
+	//if(pet_catch_rate < 1)
+	//	pet_catch_rate = 1;
 
-	if(pet_catch_rate < 1)
-		pet_catch_rate = 1;
-
-	if(battle_config.pet_catch_rate != 100)
-		pet_catch_rate = (pet_catch_rate*battle_config.pet_catch_rate)/100;
+	//if(battle_config.pet_catch_rate != 100)
+	//	pet_catch_rate = (pet_catch_rate*battle_config.pet_catch_rate)/100;
 
 	if(rnd()%10000 < pet_catch_rate) {
 		achievement_update_objective(sd, AG_TAMING, 1, md->mob_id);
@@ -1364,8 +1378,9 @@ int pet_catch_process2(struct map_session_data* sd, int target_id)
 
 	if (npc_script_event_check(sd, NPCE_PETCATCHEVENT)) {
 		pc_setreg2(sd, "@PetCatch_mob", md->mob_id);
+		pc_setreg2(sd, "@PetCatch_gid", md->bl.id);
 		pc_setreg2(sd, "@PetCatch_item", sd->itemid);
-		pc_setreg2(sd, "@PetCatch_rate", pet_catch_rate);
+		pc_setreg2(sd, "@PetCatch_rate", pet->capture);
 		pc_setreg2(sd, "@PetCatch_result", sd->catch_target_class != PET_CATCH_FAIL ? 1 : 0);
 		npc_script_event(sd, NPCE_PETCATCHEVENT);
 	}
