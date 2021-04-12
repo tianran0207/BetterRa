@@ -1196,6 +1196,7 @@ int pet_recv_petdata(uint32 account_id,struct s_pet *p,int flag)
 		}
 		if (npc_script_event_check(sd, NPCE_PETINCUBATEFILTER)) {
 			pc_setreg(sd, add_str("@pet_id"), p->class_);
+			pc_setreg(sd, add_str("@pet_idx"), i);
 			npc_script_event_atonce(sd, NPCE_PETINCUBATEFILTER);
 			if (sd->state.processhalt) {
 #if PACKETVER >= 20180704

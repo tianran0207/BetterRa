@@ -31475,13 +31475,13 @@ BUILDIN_FUNC(itemlist)
 		script_pushint(st, 0);
 		return SCRIPT_CMD_SUCCESS;
 	}
-	int *item_id = (int*)aMalloc(sizeof(int)*array_size);
+	t_itemid *item_id = (t_itemid*)aMalloc(sizeof(t_itemid)*array_size);
 	for (i = 0; i < array_size; ++i)
-		item_id[i] = static_cast<int>(get_val2_num(st, reference_uid(id, i), ref));
+		item_id[i] = static_cast<t_itemid>(get_val2_num(st, reference_uid(id, i), ref));
 	if (!strncasecmp(command,"item",4))
-		clif_itemlist(sd, (t_itemid *)item_id, array_size);
+		clif_itemlist(sd, item_id, array_size);
 	else
-		clif_skilllist(sd, item_id, array_size);
+		clif_skilllist(sd, (int)item_id, array_size);
 	aFree(item_id);
 
 	st->state = RERUNLINE;
@@ -32350,6 +32350,19 @@ BUILDIN_FUNC(pet_return_egg)
 
 	if (sd->pd)
 		pet_return_egg(sd, sd->pd);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+
+BUILDIN_FUNC(petbirthbyidx)
+{
+	struct map_session_data* sd;
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	pet_select_egg(sd, script_getnum(st, 2));
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -33667,6 +33680,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mobstaypos, "iii"),
 	BUILDIN_DEF(query_sql_asyn, "s*"),
 	BUILDIN_DEF(pet_return_egg, "?"),
+	BUILDIN_DEF(petbirthbyidx, "i?"),
 	BUILDIN_DEF(roulette_bonus, "i"),
 	BUILDIN_DEF(roulette_iteminfo, "iii?"),
 	BUILDIN_DEF(roulette_open, "????"),
