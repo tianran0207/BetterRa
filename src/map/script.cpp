@@ -31475,15 +31475,20 @@ BUILDIN_FUNC(itemlist)
 		script_pushint(st, 0);
 		return SCRIPT_CMD_SUCCESS;
 	}
-	t_itemid *item_id = (t_itemid*)aMalloc(sizeof(t_itemid)*array_size);
-	for (i = 0; i < array_size; ++i)
-		item_id[i] = static_cast<t_itemid>(get_val2_num(st, reference_uid(id, i), ref));
-	if (!strncasecmp(command,"item",4))
+	if (!strncasecmp(command, "item", 4)) {
+		t_itemid *item_id = (t_itemid*)aMalloc(sizeof(t_itemid)*array_size);
+		for (i = 0; i < array_size; ++i)
+			item_id[i] = static_cast<t_itemid>(get_val2_num(st, reference_uid(id, i), ref));
 		clif_itemlist(sd, item_id, array_size);
-	else
-		clif_skilllist(sd, (int)item_id, array_size);
-	aFree(item_id);
-
+		aFree(item_id);
+	}
+	else {
+		int *skill_id = (int*)aMalloc(sizeof(int)*array_size);
+		for (i = 0; i < array_size; ++i)
+			skill_id[i] = static_cast<int>(get_val2_num(st, reference_uid(id, i), ref));
+		clif_skilllist(sd, skill_id, array_size);
+		aFree(skill_id);
+	}
 	st->state = RERUNLINE;
 
 	return SCRIPT_CMD_SUCCESS;
