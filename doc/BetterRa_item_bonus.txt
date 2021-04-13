@@ -14,7 +14,9 @@ bonus4 bSkillForAOE,sk,range,n,r;		Ê¹ÓÃsk¼¼ÄÜÊ±, ÓĞr(Ç§·ÖÂÊ)µÄ¼¸ÂÊ¶Ôrange·¶Î§ÄÚµ
 bonus bWeaponAddDamage,n;				ÆÕÍ¨¹¥»÷»òÎäÆ÷¼¼ÄÜ¹¥»÷Ê±Ôö¼Ó n µÄ¹Ì¶¨ÉËº¦
 bonus bMagicAddDamage,n;				Ä§·¨¼¼ÄÜ¹¥»÷Ê±Ôö¼Ó n µÄ¹Ì¶¨ÉËº¦
 bonus bMiscAddDamage,n;					»ìºÏ¼¼ÄÜ¹¥»÷Ê±Ôö¼Ó n µÄ¹Ì¶¨ÉËº¦
-bonus bAddMastery,n; 					Ôö¼ÓÕÆ¿ØÉËº¦ n, Àı¸«ĞŞÁ¶¶îÍâÔö¼ÓµÈ¼¶ * 5ÉËº¦ bonus bAddMastery,5*getskilllv(NC_TRAININGAXE);
+bonus bAddMastery,n;					Ôö¼ÓÕÆ¿ØÉËº¦ n, Àı¸«ĞŞÁ¶¶îÍâÔö¼ÓµÈ¼¶ * 5ÉËº¦ bonus bAddMastery,5*getskilllv(NC_TRAININGAXE);
+bonus bAddCartMaxWeight,n;				Íæ¼ÒÊÖÍÆ³µ¸ºÖØÉÏÏŞÔö¼Ó n (Ã¿10µãÔö¼Ó1¸ºÖØ)
+bonus bAddWeight,n;						Íæ¼Ò¸ºÖØÔö¼Ó n, ·Ç¸ºÖØÉÏÏŞ (Ã¿10µãÔö¼Ó1ÖØÁ¿)
 bonus3 bSkillDamage,sk,lv,n;			ÎªlvµÈ¼¶µÄsk¼¼ÄÜÔö¼ÓnµÄ¹Ì¶¨ÉËº¦.
 											µÈ¼¶Îª-1Ê± Ã¿ÎŞÂÛ¶àÉÙ¼¶¶¼»áÔö¼Ó¹Ì¶¨ÉËº¦Öµ
 											µÈ¼¶Îª 0Ê± °´ÕÕ¼¼ÄÜµÈ¼¶±¶ÊıÔö¼Ó¹Ì¶¨ÉËº¦

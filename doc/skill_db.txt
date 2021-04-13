@@ -469,7 +469,6 @@ CastTimeFlags: Effects of the skill's cast time.
 IgnoreDex		- Cast time not affected by DEX.
 IgnoreStatus	- Cast time not affected by statuses (Suffragium, etc).
 IgnoreItemBonus	- Cast time not affected by item bonuses.
-IgnoreFalse	- Cast time not affected skill fail.
 
 ---------------------------------------
 
@@ -478,7 +477,8 @@ CastDelayFlags: Effects of the skill's delay.
 IgnoreDex		- Delay not affected by DEX.
 IgnoreStatus	- Delay not affected by statuses (Suffragium, etc).
 IgnoreItemBonus	- Delay not affected by item bonuses.
-IgnoreFalse	- Delay not affected skill fail.
+IgnoreFalse	    - Delay not affected by skill use failure (技能使用失败后不进入技能延迟). 
+IgnoreAction    - Delay not affected by action (取消技能动作后摇, 达到秒7). 
 
 IgnoreDex only makes sense when battle_config::delay_dependon_dex is enabled.
 
