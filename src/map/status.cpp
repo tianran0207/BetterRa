@@ -1117,7 +1117,7 @@ void initChangeTables(void)
 	set_sc(MH_VOLCANIC_ASH		, SC_ASH		, EFST_VOLCANIC_ASH	, SCB_DEF|SCB_DEF2|SCB_HIT|SCB_BATK|SCB_FLEE );
 	set_sc(MH_GRANITIC_ARMOR	, SC_GRANITIC_ARMOR	, EFST_GRANITIC_ARMOR	, SCB_NONE );
 	set_sc(MH_MAGMA_FLOW		, SC_MAGMA_FLOW		, EFST_MAGMA_FLOW		, SCB_NONE );
-	set_sc(MH_PYROCLASTIC		, SC_PYROCLASTIC	, EFST_PYROCLASTIC	, SCB_BATK|SCB_ATK_ELE );
+	set_sc(MH_PYROCLASTIC		, SC_PYROCLASTIC	, EFST_PYROCLASTIC	, SCB_WATK|SCB_ATK_ELE );
 	set_sc(MH_LAVA_SLIDE		, SC_BURNING        , EFST_BURNT          , SCB_MDEF );
 	set_sc(MH_NEEDLE_OF_PARALYZE	, SC_PARALYSIS		, EFST_NEEDLE_OF_PARALYZE	, SCB_DEF2 );
 	add_sc(MH_POISON_MIST		, SC_BLIND		);
@@ -3810,7 +3810,7 @@ void status_calc_pet_(struct pet_data *pd, enum e_status_calc_opt opt)
 		pd->status.class_ = CLASS_NORMAL;
 		pd->status.speed = pd->get_pet_walk_speed();
 
-		if(battle_config.pet_attack_support || battle_config.pet_damage_support) {
+		if(battle_config.pet_attack_support || battle_config.pet_damage_support || battle_config.pet_skill_tagart_support) {
 			// Attack support requires the pet to be able to attack
 			pd->status.mode = static_cast<e_mode>(pd->status.mode|MD_CANATTACK);
 		}
@@ -4479,6 +4479,7 @@ int status_calc_pc_sub(struct map_session_data* sd, enum e_status_calc_opt opt)
 	sd->skilladddiv.clear();
 	sd->skillattribute.clear();
 	sd->statusbonus.clear();
+	sd->statusdamage.clear();
 	sd->addstatusval.clear();
 	sd->reseff.clear();
 

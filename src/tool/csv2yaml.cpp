@@ -229,9 +229,10 @@ int do_init( int argc, char** argv ){
 
 #ifdef _DEBUG
 	std::string output = "db/import/csv_version/";
-	std::string input = "db/re/";
 #ifndef RENEWAL
 	std::string input = "db/pre-re/";
+#else
+	std::string input = "db/re/";
 #endif
 	yaml2csv_clear(output + "item_db.txt");
 	yaml2csv_clear(output + "item_alive.txt");
@@ -3697,7 +3698,7 @@ static bool item_db_yaml2csv_sub(const std::string& input, const std::string& ou
 			strtoupper(hex + 2);
 			appendcsv_str(hex, yaml2csv.item_db);
 			if (class_base)
-				appendcsv_int(job_base, yaml2csv.item_db);
+				appendcsv_int(class_base, yaml2csv.item_db);
 			else
 				appendcsv_int(63, yaml2csv.item_db);
 			appendcsv_int(sex, yaml2csv.item_db);

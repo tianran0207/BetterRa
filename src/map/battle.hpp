@@ -174,6 +174,8 @@ struct Battle_Config
 	int min_storechat_distance;
 	int min_npc_distance;
 	int pet_ignore_intimate_decrease;
+	int pet_min_intimate_decrease;
+	int pet_skill_tagart_support;
 	int short_damage_rate;
 	int long_damage_rate;
 	int weapon_damage_rate;
@@ -274,6 +276,7 @@ struct Battle_Config
 	int ignore_insert_card_specific;
 	int mob_dmgrate_db;
 	int itemdb_reload_thread;
+	int itemdb_csv_aegis;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;

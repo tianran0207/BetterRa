@@ -696,6 +696,8 @@ BetterRa 在官方的基础上做了以下改进:
 	@cashshop_nameid[]		购买物品的ID
 	@cashshop_quantity[]	购买物品的数量
 	@cashshop_price[]		购买物品的单价
+	@cashshop_type[]		购买物品在商城中栏目类型
+	@cashshop_kafra			购买总共使用的卡普拉点数
 	@cashshop_count			总共购买物品种类(数组长度)
 	
 中断说明: 
@@ -711,6 +713,8 @@ BetterRa 在官方的基础上做了以下改进:
 	@cashshop_nameid[]		购买物品的ID
 	@cashshop_quantity[]	购买物品的数量
 	@cashshop_price[]		购买物品的单价
+	@cashshop_type[]		购买物品在商城中栏目类型
+	@cashshop_kafra			购买总共使用的卡普拉点数
 	@cashshop_count			总共购买物品种类(数组长度)
 
 ---------------------------------------
@@ -1122,6 +1126,33 @@ BetterRa 在官方的基础上做了以下改进:
 
 中断说明: 
 	中断后复活失败
+	
+---------------------------------------
+
+*OnPCPetCatchFilter:
+
+	当玩家抓取宠物时触发该事件, 此事件非抓道具取对应宠物也可以触发
+	
+参数说明:
+	@PetCatch_mob     所抓宠物对应的魔物ID
+	@PetCatch_item    所抓宠物所使用的物品ID
+	@PetCatch_rate    修正后抓取宠物的概率
+
+中断说明: 
+	中断后可通过对 @PetCatch_result(1: 成功 0: 失败) 修改动画播放结果
+	并可通过脚本指令 makepet 自定义最终规则, 也可通过其他指令做其他操作
+
+---------------------------------------
+
+*OnPCPetCatchEvent:
+
+	当玩家抓取宠物结束后触发该事件
+	
+参数说明:
+	@PetCatch_mob     所抓宠物对应的魔物ID
+	@PetCatch_item    所抓宠物所使用的物品ID
+	@PetCatch_rate    修正后抓取宠物的概率
+	@PetCatch_result  是否抓取成功(1: 成功 0: 失败)
 
 ---------------------------------------
 

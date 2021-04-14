@@ -4962,6 +4962,24 @@ void pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_STATUS_ADD_DAMAGE: //bonus3 bStatusAddDamage,sc,n,r,bf;
+	case SP_STATUS_ADD_DAMAGE_RATE: //bonus3 bStatusAddDamageRate,sc,n,r,bf;
+		if (sd->state.lr_flag != 2) {
+			if (sd->statusdamage.size() == MAX_PC_BONUS) {
+				ShowError("pc_bonus4: SP_STATUS_ADD_BONUS: Reached max (%d) number of skills per character, (sc: %d n: %d r: %d bf: %d).\n", MAX_PC_BONUS, type2, type3, type4, val);
+				break;
+			}
+			struct s_status_damage entry = {};
+			entry.status = type2;
+			if (type == SP_STATUS_ADD_DAMAGE)
+				entry.damage = type3;
+			else
+				entry.damage_rate = type3;
+			entry.rate = type4;
+			entry.atk_type = val;
+			sd->statusdamage.push_back(entry);
+		}
+		break;
 	case SP_STATUS_ADD_BONUS: // bonus4 bStatusAddBonus,sc,bonus,r,n;
 		if (sd->state.lr_flag != 2) {
 			if (sd->statusbonus.size() == MAX_PC_BONUS) {
@@ -5091,6 +5109,25 @@ void pc_bonus5(struct map_session_data *sd,int type,int type2,int type3,int type
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_STATUS_ADD_BONUS: // bonus4 bStatusAddBonus,sc,bonus,r,n;
+		if (sd->state.lr_flag != 2) {
+			if (sd->statusbonus.size() == MAX_PC_BONUS) {
+				ShowError("pc_bonus4: SP_STATUS_ADD_BONUS: Reached max (%d) number of skills per character, (status: %d bonus: %d val: %d val2: %d).\n", MAX_PC_BONUS, type2, type3, type4, val);
+				break;
+			}
+			struct s_status_bonus entry = {};
+			entry.status = type2;
+			entry.bonus = type3;
+			entry.val = type4;
+			entry.val2 = type5;
+			entry.val3 = val;
+			if (sd->sc.data[type2]) {
+				pc_bonus3(sd, type3, type4, type5, val);
+				entry.run = true;
+			}
+			sd->statusbonus.push_back(entry);
+		}
+		break;
 	case SP_ADD_STATUS_VAL: // bonus5 bAddStatusVal,sc,val1,val2,val3,val4;
 		if (sd->state.lr_flag != 2) {
 			if (sd->addstatusval.size() == MAX_PC_BONUS) {
@@ -7173,8 +7210,10 @@ enum e_setpos pc_setpos(struct map_session_data* sd, unsigned short mapindex, in
 		if (curr_map_instance_id != new_map_instance_id) {
 			if (curr_map_instance_id > 0) { // Update instance timer for the map on leave
 				if ((battle_config.instance_leave_record & 2)) //玩家在副本中下线后记录下线位置
-					instance_left_point(sd, curr_map_instance_id);				instance_delusers(curr_map_instance_id);
-				sd->instance_mode = util::umap_find(instances, curr_map_instance_id)->mode; // Store mode for instance destruction button checks
+					instance_left_point(sd, curr_map_instance_id);
+				instance_delusers(curr_map_instance_id);
+				std::shared_ptr<s_instance_data> idata = util::umap_find(instances, curr_map_instance_id);
+				sd->instance_mode = idata ? idata->mode : IM_NONE; // Store mode for instance destruction button checks
 			}
 
 			if (new_map_instance_id > 0) // Update instance timer for the map on enter
@@ -15323,7 +15362,7 @@ static bool pcbot_useskill(struct bot_data *bd, struct block_list *tbl, t_tick t
 	if (bd->sd->ud.skilltimer != INVALID_TIMER)
 		return false;
 	if (bd->state.next_useskill > tick)
-		return 0;
+		return false;
 	if (!pcbot_check_useskill(bd, tick, inf) && (inf & INF_ATTACK_SKILL))
 		return false;
 	if (inf & INF_SUPPORT_SKILL) {
@@ -15375,6 +15414,9 @@ static bool pcbot_useskill(struct bot_data *bd, struct block_list *tbl, t_tick t
 	else
 		bd->state.next_acttime = bd->state.next_skillattack = tick + delayfix;
 
+	if (!(bd->ai_mode & BOT_WEAPON_ATK) && bd->state.next_acttime < bd->state.next_useskill)
+		bd->state.next_acttime = bd->state.next_useskill;
+
 	return true;
 }
 
@@ -15383,6 +15425,9 @@ static bool pcbot_useitem(struct bot_data *bd, t_tick tick)
 	struct map_session_data *sd = bd->sd;
 	struct s_bot_uselist *bs = NULL;
 	short prior = SHRT_MIN;
+
+	if (bd->state.next_useitem > tick)
+		return false;
 
 	for (auto &it : bd->info.useitem)
 	{
@@ -15398,7 +15443,7 @@ static bool pcbot_useitem(struct bot_data *bd, t_tick tick)
 		bs = &it;
 		prior = it.prior;
 	}
-	if (bs && bs->inf >= 0) {
+	if (bs) {
 		pc_useitem(sd, bs->inf);
 		bs->cooldown = tick + bs->delay;
 		bd->state.next_useitem = min(200, bs->delay);
@@ -15415,6 +15460,9 @@ static bool pcbot_doevent(struct bot_data *bd, t_tick tick)
 	struct s_bot_uselist *bs = NULL;
 	short prior = SHRT_MIN;
 
+	if (bd->state.next_doevent > tick)
+		return false;
+
 	for (auto &it : bd->info.doevent)
 	{
 		if (!pcbot_check_usecond(bd, &it, tick))
@@ -15427,8 +15475,10 @@ static bool pcbot_doevent(struct bot_data *bd, t_tick tick)
 	if (bs) {
 		npc_event(sd, bs->eventname, 0);
 		bs->cooldown = tick + bs->delay;
+		return true;
 	}
 	bd->state.next_doevent = tick + 1000;
+
 	return false;
 }
 
@@ -15565,11 +15615,11 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 		return 0;
 
 	//有条件事件检查
-	if (bd->state.next_doevent <= tick && pcbot_doevent(bd, tick))
+	if (pcbot_doevent(bd, tick))
 		return 1;
 
 	//使用道具检查
-	if (bd->state.next_useitem <= tick && pcbot_useitem(bd, tick))
+	if (pcbot_useitem(bd, tick))
 		return 1;
 
 	//如果正在吟唱
@@ -15595,7 +15645,7 @@ static int pcbot_ai_lazy(struct bot_data *bd, va_list args)
 	//不允许做任何事
 	if (sd->ud.canact_tick > bd->state.next_acttime)
 		bd->state.next_acttime = sd->ud.canact_tick;
-	if (bd->state.next_acttime > tick)
+	if (bd->state.next_acttime >= tick)
 		return 0;
 
 	//如果正在攻击
@@ -15815,7 +15865,7 @@ static int pcbot_ai_hard(int tid, t_tick tick, int id, intptr_t data)
 	return 0;
 }
 
-void pcbot_ai_hard_once(struct bot_data *bd, t_tick tick)
+void pcbot_ai_hard_once(struct bot_data *bd, ...)
 {
 	nullpo_retv(bd);
 

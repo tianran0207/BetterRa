@@ -3603,15 +3603,18 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		}
 	}
 
-	if( dmg.flag&BF_MAGIC && (( skill_id == NPC_EARTHQUAKE && (battle_config.eq_single_target_reflectable && (flag&0xFFF) == 1)) || (skill_get_inf(skill_id)&INF_ATTACK_SKILL)) )
+	if( dmg.flag&BF_MAGIC && (( skill_id != NPC_EARTHQUAKE || (battle_config.eq_single_target_reflectable && (flag&0xFFF) == 1))) )
 	{ // Earthquake on multiple targets is not counted as a target skill. [Inkfish]
-		if( (dmg.damage || dmg.damage2) && (type = skill_magic_reflect(src, bl, skill_id != NPC_EARTHQUAKE ? src==dsrc : true)) )
+		int inf = sd ? skill_get_pc_inf(sd, skill_id) : skill_get_inf(skill_id);
+		if( (dmg.damage || dmg.damage2) && (type = skill_magic_reflect(src, bl, /*inf&INF_ATTACK_SKILL*/ 1)) )
 		{	//Magic reflection, switch caster/target
 			struct block_list *tbl = bl;
 			rmdamage = true;
 			bl = src;
-			src = tbl;
-			dsrc = tbl;
+			if (type != 2) {
+				src = tbl;
+				dsrc = tbl;
+			}
 			sd = BL_CAST(BL_PC, src);
 			tsd = BL_CAST(BL_PC, bl);
 			tsc = status_get_sc(bl);
@@ -3622,19 +3625,26 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			//Reflected magic damage will not cause the caster to be knocked back [Playtester]
 			flag |= 4;
 			//Spirit of Wizard blocks Kaite's reflection
-			if( type == 2 && tsc && tsc->data[SC_SPIRIT] && tsc->data[SC_SPIRIT]->val2 == SL_WIZARD )
+			if( type == 2 && sc && sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_WIZARD )
 			{	//Consume one Fragment per hit of the casted skill? [Skotlex]
-				type = tsd?pc_search_inventory (tsd, ITEMID_FRAGMENT_OF_CRYSTAL):0;
+				type = sd?pc_search_inventory (sd, ITEMID_FRAGMENT_OF_CRYSTAL):0;
 				if (type >= 0) {
-					if ( tsd )
-						pc_delitem(tsd, type, 1, 0, 1, LOG_TYPE_CONSUME);
+					if ( sd )
+						pc_delitem(sd, type, 1, 0, 1, LOG_TYPE_CONSUME);
 					dmg.damage = dmg.damage2 = 0;
 					dmg.dmg_lv = ATK_MISS;
-					tsc->data[SC_SPIRIT]->val3 = skill_id;
-					tsc->data[SC_SPIRIT]->val4 = dsrc->id;
+					sc->data[SC_SPIRIT]->val3 = skill_id;
+					sc->data[SC_SPIRIT]->val4 = dsrc->id;
 				}
 			} else if( type != 2 ) /* Kaite bypasses */
 				additional_effects = false;
+
+			if ((dmg.damage || dmg.damage2) && inf&INF_GROUND_SKILL) {
+				status_fix_damage(tbl, bl, dmg.damage + dmg.damage2,
+					clif_damage(tbl, bl, tick, sstatus->amotion, sstatus->dmotion, dmg.damage, 0, DMG_NORMAL, dmg.damage2, false), skill_id);
+				dmg.damage = dmg.damage2 = 0;
+				dmg.dmg_lv = ATK_MISS;
+			}
 
 			if (dmg.damage && tsd && tsd->c_bonus.magic_return_def_rate)
 				dmg.damage = dmg.damage * (100 - tsd->c_bonus.magic_return_def_rate) / 100;
@@ -5398,7 +5408,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 	case NPC_JACKFROST:
 	case NPC_REVERBERATION_ATK:
 	case NPC_ARROWSTORM:
-	case NPC_IGNITIONBREAK:
 	case RK_IGNITIONBREAK:
 	case RK_HUNDREDSPEAR:
 	case AB_JUDEX:
@@ -5467,6 +5476,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 
 			// If a enemy player is standing next to a mob when splash Es- skill is casted, the player won't get hurt.
 			if ((skill_id == SP_SHA || skill_id == SP_SWHOO) && !battle_config.allow_es_magic_pc && bl->type != BL_MOB)
+				break;
+			if (skill_id == NPC_MAXPAIN_ATK && tsc && tsc->data[SC_MAXPAIN])
 				break;
 
 			heal = (int)skill_attack(skill_get_type(skill_id), src, src, bl, skill_id, skill_lv, tick, sflag);
@@ -12334,16 +12345,15 @@ int skill_castend_for_AOE(struct block_list *bl, va_list ap)
 static void skill_castend_delay_cooldown(struct block_list *src, struct block_list *target, t_tick tick, bool skill_begin) {
 	struct map_session_data *sd = BL_CAST(BL_PC, src);
 	struct unit_data *ud = unit_bl2ud(src);
-	bool nodex;
+	bool nodex = false;
 	nodex = (skill_get_delaynodex(ud->skill_id) & 1024);
-	if (skill_begin && !nodex || !skill_begin && (nodex && sd && !sd->skill_failure)) {
-		if (!sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id, ud->skill_lv))
-			ud->canact_tick = i64max(tick + skill_delayfix(src, ud->skill_id, ud->skill_lv), ud->canact_tick - SECURITY_CASTTIME);
-		if (battle_config.display_status_timers && sd)
-			clif_status_change(src, EFST_POSTDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
-	}
-	nodex = (skill_get_castnodex(ud->skill_id) & 1024);
 	if (sd && (skill_begin && !nodex || !skill_begin && (nodex && !sd->skill_failure))) {
+		int delayfix = skill_delayfix(src, ud->skill_id, ud->skill_lv);
+		if (delayfix) {
+			ud->canact_tick = i64max(tick + delayfix, ud->canact_tick - SECURITY_CASTTIME);
+			if (battle_config.display_status_timers)
+				clif_status_change(src, EFST_POSTDELAY, 1, delayfix, 0, 0, 0);
+		}
 		int cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv); // Increases/Decreases cooldown of a skill by item/card bonuses.
 		if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
 	}
@@ -19861,6 +19871,15 @@ int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int li
 					sc->data[SC_STEALTHFIELD_MASTER]->val2 = 0;
 					status_change_end(src,SC_STEALTHFIELD_MASTER,INVALID_TIMER);
 				}
+			}
+			break;
+		case SC_MANHOLE:
+			{
+				struct block_list* target = map_id2bl(group->val2);
+				sc_type type = status_skill2sc(group->skill_id);
+				struct status_change *sc;
+				if (target && (sc = status_get_sc(target)) != NULL && sc->data[type])
+					status_change_end(target, type, INVALID_TIMER);
 			}
 			break;
 	}

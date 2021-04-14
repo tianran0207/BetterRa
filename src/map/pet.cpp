@@ -646,6 +646,9 @@ void pet_set_intimate(struct pet_data *pd, int value)
 	if (battle_config.pet_ignore_intimate_decrease && value < pd->pet.intimate)
 		value = pd->pet.intimate;
 
+	if (battle_config.pet_min_intimate_decrease)
+		value = max(battle_config.pet_min_intimate_decrease, value);
+
 	pd->pet.intimate = min(value, PET_INTIMATE_MAX);
 
 	struct map_session_data *sd = pd->master;
@@ -1300,6 +1303,18 @@ int pet_catch_process2(struct map_session_data* sd, int target_id)
 		}
 	}
 
+	if (npc_script_event_check(sd, NPCE_PETCATCHFILTER)) {
+		pc_setreg2(sd, "@PetCatch_mob", md->mob_id);
+		pc_setreg2(sd, "@PetCatch_item", sd->itemid);
+		pc_setreg2(sd, "@PetCatch_rate", pet_catch_rate);
+		pc_setreg2(sd, "@PetCatch_result", 0);
+		npc_script_event_atonce(sd, NPCE_PETCATCHFILTER);
+		if (sd->state.processhalt) {
+			clif_pet_roulette(sd, static_cast<int>(pc_readreg(sd, add_str("@PetCatch_result"))));
+			return 0;
+		}
+	}
+
 	if(sd->catch_target_class != md->mob_id || !pet) {
 		clif_emotion(&md->bl, ET_ANGER);	//mob will do /ag if wrong lure is used on them.
 		clif_pet_roulette(sd,0);
@@ -1340,6 +1355,14 @@ int pet_catch_process2(struct map_session_data* sd, int target_id)
 	} else {
 		clif_pet_roulette(sd,0);
 		sd->catch_target_class = PET_CATCH_FAIL;
+	}
+
+	if (npc_script_event_check(sd, NPCE_PETCATCHEVENT)) {
+		pc_setreg2(sd, "@PetCatch_mob", md->mob_id);
+		pc_setreg2(sd, "@PetCatch_item", sd->itemid);
+		pc_setreg2(sd, "@PetCatch_rate", pet_catch_rate);
+		pc_setreg2(sd, "@PetCatch_result", sd->catch_target_class != PET_CATCH_FAIL ? 1 : 0);
+		npc_script_event(sd, NPCE_PETCATCHEVENT);
 	}
 
 	return 0;
