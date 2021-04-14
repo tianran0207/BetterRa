@@ -6182,8 +6182,8 @@ void getring (struct map_session_data* sd)
 	item_tmp.nameid = item_id;
 	item_tmp.identify = 1;
 	item_tmp.card[0] = CARD0_FORGE;
-	item_tmp.card[2] = sd->status.partner_id;
-	item_tmp.card[3] = sd->status.partner_id >> 16;
+	item_tmp.card[2] = GetWord(sd->status.partner_id,0);
+	item_tmp.card[3] = GetWord(sd->status.partner_id,1);
 
 	if((flag = pc_additem(sd,&item_tmp,1,LOG_TYPE_COMMAND))) {
 		clif_additem(sd,0,0,flag);
@@ -10421,33 +10421,6 @@ ACMD_FUNC(limitedsale){
 }
 
 /**
- * Opens the refineUI
- * Usage: @refineui
- */
-ACMD_FUNC(refineui)
-{
-	nullpo_retr(-1, sd);
-
-#if PACKETVER < 20161012
-	clif_displaymessage(fd, msg_txt(sd, 773)); // This command requires packet version 2016-10-12 or newer.
-	return -1;
-#else
-	if( !battle_config.feature_refineui ){
-		clif_displaymessage(fd, msg_txt(sd, 774)); // This command is disabled via configuration.
-		return -1;
-	}
-
-	if( sd->state.refineui_open ){
-		clif_displaymessage(fd, msg_txt(sd, 775)); // You have already opened the refine UI.
-		return -1;
-	}
-
-	clif_refineui_open(sd);
-	return 0;
-#endif
-}
-
-/**
  * Displays camera information from the client.
  * Usage: @camerainfo or client command /viewpointvalue or /setcamera on supported clients
  */
@@ -10540,6 +10513,33 @@ ACMD_FUNC(quest) {
 		break;
 	}
 	return 0;
+}
+
+/**
+ * Opens the refineUI
+ * Usage: @refineui
+ */
+ACMD_FUNC(refineui)
+{
+	nullpo_retr(-1, sd);
+
+#if PACKETVER < 20161012
+	clif_displaymessage(fd, msg_txt(sd, 773)); // This command requires packet version 2016-10-12 or newer.
+	return -1;
+#else
+	if( !battle_config.feature_refineui ){
+		clif_displaymessage(fd, msg_txt(sd, 774)); // This command is disabled via configuration.
+		return -1;
+	}
+
+	if( sd->state.refineui_open ){
+		clif_displaymessage(fd, msg_txt(sd, 775)); // You have already opened the refine UI.
+		return -1;
+	}
+
+	clif_refineui_open(sd);
+	return 0;
+#endif
 }
 
 #include "../custom/atcommand.inc"
@@ -11079,13 +11079,13 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(agitstart3),
 		ACMD_DEF(agitend3),
 		ACMD_DEFR(limitedsale, ATCMD_NOCONSOLE|ATCMD_NOAUTOTRADE),
-		ACMD_DEFR(changedress, ATCMD_NOCONSOLE|ATCMD_NOAUTOTRADE),		ACMD_DEF(followpacket),
+		ACMD_DEFR(changedress, ATCMD_NOCONSOLE|ATCMD_NOAUTOTRADE),
+		ACMD_DEF(followpacket),
 		ACMD_DEF(recallmap),
 		ACMD_DEF(title),
 		ACMD_DEF(policy),
 		ACMD_DEF(homattack),
 		ACMD_DEF(killmonsterall),
-		ACMD_DEF(refineui),
 		ACMD_DEF(verification),
 		ACMD_DEF(bot_login),
 		ACMD_DEF(bot),
@@ -11098,6 +11098,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF2("erasequest", quest),
 		ACMD_DEF2("completequest", quest),
 		ACMD_DEF2("checkquest", quest),
+		ACMD_DEF(refineui),
 	};
 	AtCommandInfo* atcommand;
 	int i;

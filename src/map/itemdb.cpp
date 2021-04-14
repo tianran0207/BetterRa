@@ -434,7 +434,7 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node &node) {
 		if (!this->asUInt16(node, "WeaponLevel", lv))
 			return 0;
 
-		if (lv >= REFINE_TYPE_SHADOW) {
+		if (lv > MAX_WEAPON_LEVEL) {
 			this->invalidWarning(node["WeaponLevel"], "Invalid weapon level %d, defaulting to 0.\n", lv);
 			lv = REFINE_TYPE_ARMOR;
 		}
@@ -632,6 +632,131 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node &node) {
 				if (!(item->flag.delay_consume & DELAYCONSUME_TEMP))
 					item->flag.delay_consume = DELAYCONSUME_NONE;
 			}
+		}
+
+		if (this->nodeExists(flagNode, "ForceUseItem")) {
+			bool active;
+
+			if (!this->asBool(flagNode, "ForceUseItem", active))
+				return 0;
+
+			item->flag.forceuse = active;
+		} else {
+			if (!exists)
+				item->flag.forceuse = false;
+		}
+
+		if (this->nodeExists(flagNode, "IgnoreNoFunc")) {
+			bool active;
+
+			if (!this->asBool(flagNode, "IgnoreNoFunc", active))
+				return 0;
+
+			item->flag.no_itemfunc = active;
+		} else {
+			if (!exists)
+				item->flag.no_itemfunc = false;
+		}
+
+		if (this->nodeExists(flagNode, "NoConsume2")) {
+			bool active;
+
+			if (!this->asBool(flagNode, "NoConsume2", active))
+				return 0;
+
+			if (active)
+				item->flag.delay_consume |= (DELAYCONSUME_TEMP|DELAYCONSUME_NOCONSUME);
+			else
+				item->flag.delay_consume &= ~(DELAYCONSUME_TEMP|DELAYCONSUME_NOCONSUME);
+		} else {
+			if (!exists) {
+				if (!(item->flag.delay_consume & (DELAYCONSUME_TEMP|DELAYCONSUME_NOCONSUME)))
+					item->flag.delay_consume = (DELAYCONSUME_TEMP|DELAYCONSUME_NOCONSUME);
+			}
+		}
+
+		if (this->nodeExists(flagNode, "NoSkillConsume")) {
+			bool active;
+
+			if (!this->asBool(flagNode, "NoSkillConsume", active))
+				return 0;
+
+			item->flag.skill_no_consumed = active;
+		} else {
+			if (!exists)
+				item->flag.skill_no_consumed = false;
+		}
+
+		if (this->nodeExists(flagNode, "NoDropWithoutPlayer")) {
+			bool active;
+
+			if (!this->asBool(flagNode, "NoDropWithoutPlayer", active))
+				return 0;
+
+			item->flag.item_pckill_drop = active;
+		} else {
+			if (!exists)
+				item->flag.item_pckill_drop = false;
+		}
+
+		if (this->nodeExists(flagNode, "DoDropEvent")) {
+			bool active;
+
+			if (!this->asBool(flagNode, "DoDropEvent", active))
+				return 0;
+
+			item->flag.item_drop_event = active;
+		} else {
+			if (!exists)
+				item->flag.item_drop_event = false;
+		}
+
+		if (this->nodeExists(flagNode, "TurnIntoCostume")) {
+			bool active;
+
+			if (!this->asBool(flagNode, "TurnIntoCostume", active))
+				return 0;
+
+			item->flag.costume_card = active;
+		} else {
+			if (!exists)
+				item->flag.costume_card = false;
+		}
+
+		if (this->nodeExists(flagNode, "IgnoreScript")) {
+			bool active;
+
+			if (!this->asBool(flagNode, "IgnoreScript", active))
+				return 0;
+
+			item->flag.equip_invalid = active;
+		} else {
+			if (!exists)
+				item->flag.equip_invalid = false;
+		}
+
+		if (this->nodeExists(flagNode, "IgnoreAutoLoot")) {
+			bool active;
+
+			if (!this->asBool(flagNode, "IgnoreAutoLoot", active))
+				return 0;
+
+			item->flag.item_ignore_autoloot = active;
+		} else {
+			if (!exists)
+				item->flag.item_ignore_autoloot = false;
+		}
+
+		if (this->nodeExists(flagNode, "IgnoreEquipView")) {
+			bool active;
+
+			if (!this->asBool(flagNode, "IgnoreEquipView", active))
+				return 0;
+
+			item->flag.equipwindow_nolook = active;
+		} else {
+			if (!exists)
+				item->flag.equipwindow_nolook = false;
 		}
 
 		if (this->nodeExists(flagNode, "DropEffect")) {

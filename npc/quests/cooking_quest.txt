@@ -1784,8 +1784,8 @@ L_End:
 
 S_SellSets:
 	.@item_id = getarg(0);
-	.@item_cost = getiteminfo(.@item_id,0);
-	.@item_weight = getiteminfo(.@item_id,6);
+	.@item_cost = getiteminfo(.@item_id, ITEMINFO_BUY);
+	.@item_weight = getiteminfo(.@item_id, ITEMINFO_WEIGHT);
 	mes "[玛德琳 修]";
 	mes "需要多少 "+ (.@item_id == 12125 ? "野外烹饪用具?":"家庭式料理器具?");
 	mes "不需要的话就写上0吧";
