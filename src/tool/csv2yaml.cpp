@@ -532,6 +532,7 @@ int do_init( int argc, char** argv ){
 	item_db_yaml2csv(input + "item_db_usable.yml", output, false);
 	item_db_yaml2csv(input + "item_db_equip.yml", output, false);
 	item_db_yaml2csv(input + "item_db_etc.yml", output, false);
+	item_db_yaml2csv("db/import/item_db.yml", output, false);
 	return 0;
 #endif
 

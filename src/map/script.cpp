@@ -30035,6 +30035,7 @@ BUILDIN_FUNC(openvending)
 		unsigned short amount;
 		unsigned int value;
 	};
+	int count = 0;
 	
 	if (((script_lastdata(st) - 2) % 3) != 0 && !script_charid2sd(script_lastdata(st), sd))
 		return SCRIPT_CMD_FAILURE;
@@ -30045,16 +30046,25 @@ BUILDIN_FUNC(openvending)
 	int num_items = (script_lastdata(st) - 2) / 3;
 	struct s_vending *vendlist = (struct s_vending *)aCalloc(num_items, sizeof(struct s_vending));
 
-	for (int i = 0; i < num_items; i++) {
-		vendlist[i].index = script_getnum(st, 2 + (i * 3) + 1) + 2;
+	for (int i = 0, n = 0; i < num_items; i++) {
+		int nameid = script_getnum(st, 2 + (i * 3) + 1);
+		ARR_FIND(0, MAX_CART, n, sd->cart.u.items_cart[n].nameid == nameid && sd->cart.u.items_cart[n].amount > 0);
+		if (!nameid || n == MAX_CART)
+			continue;
+		vendlist[i].index = n + 2;
 		vendlist[i].amount = script_getnum(st, 2 + (i * 3) + 2);
 		vendlist[i].value = script_getnum(st, 2 + (i * 3) + 3);
+		count++;
 	}
+	if (!count)
+		return SCRIPT_CMD_SUCCESS;
+
 	sd->state.prevend = 1;
 	int npc_id = sd->npc_id;
 	sd->npc_id = 0;
-	vending_openvending(sd, message, (const uint8*)vendlist, num_items, NULL);
+	vending_openvending(sd, message, (const uint8*)vendlist, count, NULL);
 	sd->npc_id = npc_id;
+	sd->state.prevend = 0;
 	aFree(vendlist);
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -30083,6 +30093,7 @@ BUILDIN_FUNC(openbuying)
 	sd->npc_id = 0;
 	buyingstore_create(sd, sd->status.zeny, 1, message, vendlist, num_items, NULL);
 	sd->npc_id = npc_id;
+	sd->state.prevend = 0;
 	aFree(vendlist);
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -32372,6 +32383,54 @@ BUILDIN_FUNC(petbirthbyidx)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(setpccurrency)
+{
+	struct map_session_data* sd;
+
+	if (!battle_config.extended_vending) {
+		ShowError("buildin_setpccurrency: 'extended_vending' config not opened.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	if (!script_charid2sd(3, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (sd->state.vending || sd->state.buyingstore) {
+		int i, nameid = script_getnum(st, 2);
+		if (nameid == battle_config.item_cash || nameid == battle_config.item_zeny)
+			sd->vend_loot = nameid;
+		else {
+			ARR_FIND(0, MAX_VENDINGITEM, i, vending_itemid[i].nameid == nameid);
+			if (i < MAX_VENDINGITEM)
+				sd->vend_loot = nameid;
+		}
+		script_pushint(st, sd->vend_loot);
+	}else
+		script_pushint(st, 0);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getpccurrency)
+{
+	struct map_session_data* sd;
+
+	if (!battle_config.extended_vending) {
+		ShowError("buildin_getpccurrency: 'extended_vending'config not opened.\n");
+		return SCRIPT_CMD_FAILURE;
+	}
+
+	if (!script_charid2sd(2, sd))
+		return SCRIPT_CMD_FAILURE;
+
+	if (sd->state.vending || sd->state.buyingstore)
+		script_pushint(st, sd->vend_loot);
+	else
+		script_pushint(st, 0);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -33686,6 +33745,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(query_sql_asyn, "s*"),
 	BUILDIN_DEF(pet_return_egg, "?"),
 	BUILDIN_DEF(petbirthbyidx, "i?"),
+	BUILDIN_DEF(setpccurrency, "i?"),
+	BUILDIN_DEF(getpccurrency, "?"),
 	BUILDIN_DEF(roulette_bonus, "i"),
 	BUILDIN_DEF(roulette_iteminfo, "iii?"),
 	BUILDIN_DEF(roulette_open, "????"),
