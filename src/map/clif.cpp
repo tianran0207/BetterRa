@@ -13586,18 +13586,6 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd) {
 			return;
 	}
 
-#ifdef EVENT_IDENTIFYFILTER
-	if (npc_script_event_check(sd, NPCE_IDENTIFYFILTER)) {
-		pc_setreg(sd, add_str("@identify_idx"), idx);
-		npc_script_event_atonce(sd, NPCE_IDENTIFYFILTER);
-		if (sd->state.processhalt) {
-			sd->state.workinprogress = WIP_DISABLE_NONE;
-			clif_menuskill_clear(sd);
-			return;
-		}
-	}
-#endif
-
 	skill_identify(sd, idx);
 	clif_menuskill_clear(sd);
 }
