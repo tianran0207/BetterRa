@@ -10555,6 +10555,25 @@ ACMD_FUNC(followpacket)
 #endif
 }
 
+ACMD_FUNC(outputpacket)
+{
+	FILE *fp;
+	if ((fp = fopen("packet.hpp", "wb")) == NULL) {
+		clif_displaymessage(sd->fd, "packetlen write fail..");
+		return -1;
+	}
+	fprintf(fp, "#ifndef PACKET_HPP\n");
+	fprintf(fp, "#define PACKET_HPP\n");
+	for (int i = 0; i < MAX_PACKET_DB; i++) {
+		if (packet_db[i].len > 0)
+			fprintf(fp, "\tpacket(0x%04X,%d,%s);\n", i, packet_db[i].len, packet_db[i].command.empty() ? "dull" : packet_db[i].command.c_str());
+	}
+	fprintf(fp, "#endif");
+	clif_displaymessage(sd->fd, "packetlen write success..");
+	fclose(fp);
+	return 0;
+}
+
 static int atcommand_recallmap_sub(struct block_list *bl, va_list ap)
 {
 	TBL_PC *tsd = (TBL_PC*)bl;
@@ -11056,7 +11075,9 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(agitstart3),
 		ACMD_DEF(agitend3),
 		ACMD_DEFR(limitedsale, ATCMD_NOCONSOLE|ATCMD_NOAUTOTRADE),
-		ACMD_DEFR(changedress, ATCMD_NOCONSOLE|ATCMD_NOAUTOTRADE),		ACMD_DEF(followpacket),
+		ACMD_DEFR(changedress, ATCMD_NOCONSOLE|ATCMD_NOAUTOTRADE),
+		ACMD_DEF(followpacket),
+		ACMD_DEF(outputpacket),
 		ACMD_DEF(recallmap),
 		ACMD_DEF(title),
 		ACMD_DEF(policy),
