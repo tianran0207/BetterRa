@@ -18347,6 +18347,13 @@ void skill_identify(struct map_session_data *sd, int idx)
 
 	sd->state.workinprogress = WIP_DISABLE_NONE;
 
+	if (npc_script_event_check(sd, NPCE_IDENTIFYFILTER)) {
+		pc_setreg(sd, add_str("@identify_idx"), idx);
+		npc_script_event_atonce(sd, NPCE_IDENTIFYFILTER);
+		if (sd->state.processhalt)
+			return;
+	}
+
 	if(idx >= 0 && idx < MAX_INVENTORY) {
 		if(sd->inventory.u.items_inventory[idx].nameid > 0 && sd->inventory.u.items_inventory[idx].identify == 0 ){
 			flag=0;
