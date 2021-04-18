@@ -106,7 +106,7 @@ struct socket_data
 	ParseFunc func_parse;
 
 	void* session_data; // stores application-specific data related to the session
-#if C_SOCKET_ENCRYPT > 0
+#ifdef C_SOCKET_ENCRYPT
 	size_t cryptlen;
 #endif
 };

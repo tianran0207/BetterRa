@@ -139,7 +139,7 @@ static void logclif_auth_ok(struct login_session_data* sd) {
 		subnet_char_ip = lan_subnetcheck(ip); // Advanced subnet check [LuzZza]
 		ip2 = subnet_char_ip ? subnet_char_ip : ch_server[i].ip;
 		for (int j = 0; j < C_MAX_MULTI_IP; j++) {
-#if C_SOCKET_ENCRYPT > 0
+#ifdef C_SOCKET_ENCRYPT
 			if (!sd->login_id1) {
 				sd->login_id1 = rnd() + 1;
 				WFIFOL(fd, 4) = sd->login_id1;
@@ -272,7 +272,7 @@ static int logclif_parse_keepalive(int fd){
 static int logclif_parse_updclhash(int fd, struct login_session_data *sd){
 	if (RFIFOREST(fd) < 18)
 		return 0;
-#if C_SOCKET_ENCRYPT == 0
+#ifndef C_SOCKET_ENCRYPT
 	sd->has_client_hash = 1;
 	memcpy(sd->client_hash, RFIFOP(fd, 2), 16);
 #endif
@@ -540,7 +540,7 @@ int logclif_parse(int fd) {
 		uint16 command = RFIFOW(fd,0);
 		int next=1;
 
-#if C_SOCKET_ENCRYPT > 0
+#ifdef C_SOCKET_ENCRYPT
 		if (command == 0xFFFF && !session[fd]->flag.server) {
 			if (RFIFOREST(fd) < 4)
 				return 0;

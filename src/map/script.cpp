@@ -26432,7 +26432,7 @@ BUILDIN_FUNC(getsameipinfo)
 
 BUILDIN_FUNC(getsameuidinfo)
 {
-#if C_SOCKET_ENCRYPT > 0
+#ifdef C_SOCKET_ENCRYPT
 	TBL_PC *sd = NULL, *pl_sd;
 	struct s_mapiterator* iter;
 	int i = 0;
@@ -29947,7 +29947,7 @@ BUILDIN_FUNC(unitshow)
 
 BUILDIN_FUNC(getlastip)
 {
-#if C_SOCKET_ENCRYPT > 0
+#ifdef C_SOCKET_ENCRYPT
 	struct map_session_data *sd;
 
 	if (!script_charid2sd(2, sd))

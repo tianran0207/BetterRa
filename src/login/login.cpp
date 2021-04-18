@@ -402,7 +402,7 @@ int login_mmo_auth(struct login_session_data* sd, bool isServer) {
 
 	// update session data
 	sd->account_id = acc.account_id;
-#if C_SOCKET_ENCRYPT != 1
+#ifndef C_SOCKET_ENCRYPT
 	sd->login_id1 = rnd() + 1;
 #endif
 	sd->login_id2 = rnd() + 1;
@@ -413,7 +413,7 @@ int login_mmo_auth(struct login_session_data* sd, bool isServer) {
 	// update account data
 	timestamp2string(acc.lastlogin, sizeof(acc.lastlogin), time(NULL), "%Y-%m-%d %H:%M:%S");
 	safestrncpy(acc.last_ip, ip, sizeof(acc.last_ip));
-#if C_SOCKET_ENCRYPT > 0
+#ifdef C_SOCKET_ENCRYPT
 	if (sd->mac[0])
 		safestrncpy(acc.mac, sd->mac, sizeof(acc.mac));
 	else

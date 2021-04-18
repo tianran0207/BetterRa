@@ -537,7 +537,7 @@ static bool mmo_auth_fromsql(AccountDB_SQL* db, struct mmo_account* acc, uint32 
 	Sql_GetData(sql_handle,  8, &data, NULL); acc->expiration_time = atol(data);
 	Sql_GetData(sql_handle,  9, &data, NULL); acc->logincount = (unsigned int) strtoul(data, NULL, 10);
 	Sql_GetData(sql_handle, 10, &data, NULL); safestrncpy(acc->lastlogin, data==NULL?"":data, sizeof(acc->lastlogin));
-#if C_SOCKET_ENCRYPT > 0
+#ifdef C_SOCKET_ENCRYPT
 	Sql_GetData(sql_handle, 11, &data, NULL);
 	if (sscanf(data, "%16[^:]:%33s", acc->last_ip, acc->mac) != 2){
 		safestrncpy(acc->mac, "none", sizeof(acc->mac));
@@ -583,7 +583,7 @@ static bool mmo_auth_tosql(AccountDB_SQL* db, const struct mmo_account* acc, boo
 	}
 
 	char last_ip[100];
-#if C_SOCKET_ENCRYPT > 0
+#ifdef C_SOCKET_ENCRYPT
 	sprintf(last_ip, "%s:%s", acc->last_ip, acc->mac);
 #else
 	safestrncpy(last_ip, acc->last_ip, 100);

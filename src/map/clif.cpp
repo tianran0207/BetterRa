@@ -22935,7 +22935,7 @@ static int clif_parse(int fd)
 
 	cmd = RFIFOW(fd, 0);
 
-#if C_SOCKET_ENCRYPT > 0
+#ifdef C_SOCKET_ENCRYPT
 	if (cmd == 0xFFFF) {
 		if (RFIFOREST(fd) < 4)
 			return 0;
@@ -23051,15 +23051,15 @@ static int clif_parse(int fd)
 		return 0; // not enough data received to form the packet
 	}
 
+#ifdef C_SOCKET_EVENT
+	if (!clif_parse_packet(sd, cmd))
+		return 0;
+#endif
+
 #ifdef PACKET_OBFUSCATION
 	RFIFOW(fd, 0) = cmd;
 	if (sd)
 		sd->cryptKey = ((sd->cryptKey * clif_cryptKey[1]) + clif_cryptKey[2]) & 0xFFFFFFFF; // Update key for the next packet
-#endif
-
-#ifdef C_SOCKET_EVENT
-	if (!clif_parse_packet(sd, cmd))
-		return 0;
 #endif
 
 	if( packet_db[cmd].func == clif_parse_debug )
@@ -23286,6 +23286,17 @@ void packetdb_addpacket( uint16 cmd, uint16 length, const char *command, void (*
 		ShowError( "Too many positions found for packet 0x%04x (max=%d).\n", cmd, MAX_PACKET_POS );
 	}
 
+#ifdef C_SOCKET_ENCRYPT_PACKET
+	if (packet_db[cmd].func == clif_parse_WalkToXY) {
+		packet_db[cmd].len += 4;
+		for (i = 0; i < MAX_PACKET_POS; i++) {
+			if (packet_db[cmd].pos[i] == 0)
+				break;
+			packet_db[cmd].pos[i] += 4;
+		}
+	}
+#endif
+
 	va_end(argp);
 }
 
@@ -23301,7 +23312,6 @@ bool clif_parse_packet(struct map_session_data *sd, int cmd)
 	int fd = sd->fd;
 	int packet_len = packet_db[cmd].len == -1 ? RFIFOW(fd, 2) : packet_db[cmd].len;
 
-#ifdef C_SOCKET_CHECKRH
 	if (sd->packet_account) {
 		TBL_PC* pl_sd = map_id2sd(sd->packet_account);
 		char output[CHAT_SIZE_MAX * 3 + 100], timestring[100], *output_p = output;
@@ -23312,7 +23322,16 @@ bool clif_parse_packet(struct map_session_data *sd, int cmd)
 			if (info->func == clif_parse_WalkToXY) {
 				short x, y;
 				RFIFOPOS(fd, packet_db[RFIFOW(fd, 0)].pos[0], &x, &y, NULL);
-				sprintf(output_p, "POS: %d,%d\n", x,y);
+#ifdef C_SOCKET_ENCRYPT_PACKET
+				short sx,sy;
+				unsigned char flag;
+				RFIFOW(fd, 2) = (RFIFOW(fd, 2) ^ ((sd->cryptKey >> 16) & 0x7FFF));
+				RFIFOW(fd, 4) = (RFIFOW(fd, 4) ^ ((sd->cryptKey >> 16) & 0x7FFF));
+				RFIFOPOS(fd, 2, &sx, &sy, &flag);
+				sprintf(output_p, "POS: %d,%d MOUSE: %d,%d,%d\n", x, y, sx, sy, flag);
+#else
+				sprintf(output_p, "POS: %d,%d\n", x, y);
+#endif
 			}
 			else if (info->func == clif_parse_GetCharNameRequest)
 				output_p += sprintf(output, "[%s:%03lld] %s  ACT: GetName        GID: %d\n", timestring,gettick()%1000,sd->status.name,RFIFOL(fd, info->pos[0]));
@@ -23351,6 +23370,7 @@ bool clif_parse_packet(struct map_session_data *sd, int cmd)
 			sd->packet_account = 0;
 
 	}
+#ifdef C_SOCKET_CHECKRH
 	if (packet_db[cmd].func == clif_parse_GetCharNameRequest) {
 		int id = RFIFOL(fd, packet_db[cmd].pos[0]);
 		if (id < 0 && -id == sd->bl.id) // for disguises [Valaris]

@@ -46,8 +46,6 @@
 
 #define C_SHOW_SERVER_STATS 0
 
-#define C_SOCKET_ENCRYPT 0
-#define C_SOCKET_HOOKDLL 0
 #define C_BETTERRA_BETA 0
 #define C_NULLPO_CHECK 0
 #define C_MAX_MULTI_IP 10
@@ -131,7 +129,7 @@
 		#define C_SOCKET_HOOKDLL 1
 		#undef C_SOCKET_EVENT
 		#define C_SOCKET_EVENT 1
-		#undef C_SOCKET_RH
+		#undef C_SOCKET_CHECKRH
 		#define C_SOCKET_CHECKRH 1
 		#undef C_MAX_ASPDTYPE
 		#define C_MAX_ASPDTYPE 3

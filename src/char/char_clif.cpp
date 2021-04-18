@@ -812,7 +812,7 @@ void chclif_send_map_data( int fd, struct mmo_charstatus *cd, uint32 ipl, int ma
 	uint32 subnet_map_ip = char_lan_subnetcheck(ipl); // Advanced subnet check [LuzZza]
 	uint32 ip2 = subnet_map_ip ? subnet_map_ip : map_server[map_server_index].ip;
 	for (int j = 0; j < C_MAX_MULTI_IP; j++) {
-#if C_SOCKET_ENCRYPT > 0
+#ifdef C_SOCKET_ENCRYPT
 		struct char_session_data* sd = (struct char_session_data*)session[fd]->session_data;
 		if (!sd || map_server[map_server_index].multi_ip[j] != sd->login_id1)
 #else
@@ -1409,7 +1409,7 @@ int chclif_parse(int fd) {
 
 		cmd = RFIFOW(fd,0);
 
-#if C_SOCKET_ENCRYPT > 0
+#ifdef C_SOCKET_ENCRYPT
 		if (cmd == 0xFFFF && !session[fd]->flag.server) {
 			if (RFIFOREST(fd) < 4)
 				return 0;

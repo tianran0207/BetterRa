@@ -47,7 +47,7 @@ struct login_session_data {
 	int fd;				///socket of client
 
 	char web_auth_token[WEB_AUTH_TOKEN_LENGTH]; /// web authentication token
-#if C_SOCKET_ENCRYPT > 0
+#ifdef C_SOCKET_ENCRYPT
 	char mac[33];
 #endif
 };
