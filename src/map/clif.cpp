@@ -22963,15 +22963,15 @@ static int clif_parse(int fd)
 		return 0; // not enough data received to form the packet
 	}
 
-#ifdef C_SOCKET_EVENT
-	if (!clif_parse_packet(sd, cmd))
-		return 0;
-#endif
-
 #ifdef PACKET_OBFUSCATION
 	RFIFOW(fd, 0) = cmd;
 	if (sd)
 		sd->cryptKey = ((sd->cryptKey * clif_cryptKey[1]) + clif_cryptKey[2]) & 0xFFFFFFFF; // Update key for the next packet
+#endif
+
+#ifdef C_SOCKET_EVENT
+	if (!clif_parse_packet(sd, cmd))
+		return 0;
 #endif
 
 	if( packet_db[cmd].func == clif_parse_debug )
