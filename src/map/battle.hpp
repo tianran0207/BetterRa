@@ -790,7 +790,6 @@ struct Battle_Config
 	int guild_alliance_onlygm;
 	int feature_achievement;
 	int allow_bound_sell;
-	int event_refine_chance;
 	int autoloot_adjust;
 	int feature_petevolution;
 	int feature_pet_autofeed;
@@ -833,7 +832,9 @@ struct Battle_Config
 	int homunculus_starving_delay;
 	int drop_connection_on_quit;
 	int mob_spawn_variance;
-
+	int mercenary_autoloot;
+	int mer_idle_no_share;
+	int idletime_mer_option;
 	int feature_refineui;
 	int feature_stylistui;
 
