@@ -786,8 +786,6 @@ ITEMINFO_CANREFINE - 是否可精炼, 1表示可以精炼, 0表示不能精炼
 ITEMINFO_CANTRADE - 交易限制掩码, 将返回该物品在 item_trade 数据库中第二列定义的值
 ITEMINFO_CALLPET - 是否为宠物捕捉道具, 0表示否, 若是则返回能捕获的魔物编号
 ITEMINFO_CALLFUNC - 是否在其使用脚本中调用了 callfunc 指令, 1表示是, 0表示否 (复兴前版本返回 -1)
-23 - 获取物品的 AegisName 名称 (返回字符串)
-24 - 获取物品的 Name 名称 (返回字符串)
 
 ---------------------------------------
 
