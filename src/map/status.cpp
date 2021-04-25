@@ -15522,7 +15522,7 @@ TIMER_FUNC(status_change_timer){
 		}
 		break;
 	case SC_VACUUM_EXTREME:
-		if (sce->val4 >= 0) {
+		if (sce->val4 > 0) {
 			// Only slide targets to center if they are standing still
 			if (unit_bl2ud(bl)->walktimer == INVALID_TIMER) {
 				uint16 x = sce->val3 >> 16, y = sce->val3 & 0xFFFF;
@@ -16493,11 +16493,10 @@ static bool status_readdb_attrfix(const char *basedir,bool silent)
  * DBs being read:
  *	attr_fix.txt: Attribute adjustment table for attacks
  *	size_fix.yml: Size adjustment table for weapons
- *	refine_db.txt: Refining data table
+ *	refine_db.yml: Refining data table
  * @return 0
  */
-int status_readdb(void)
-{
+int status_readdb( bool reload ){
 	int i, j, k;
 	const char* dbsubpath[] = {
 		"",
@@ -16538,8 +16537,13 @@ int status_readdb(void)
 		aFree(dbsubpath2);
 	}
 
-	size_fix_db.load();
-	refine_db.load();
+	if( reload ){
+		size_fix_db.reload();
+		refine_db.reload();
+	}else{
+		size_fix_db.load();
+		refine_db.load();
+	}
 	status_change_db.load();
 
 	return 0;

@@ -24,7 +24,6 @@ struct status_change;
 
 /**
  * Max Refine available to your server
- * Changing this limit requires edits to refine_db.txt
  **/
 #if C_MAX_REFINE > 0
 #define MAX_REFINE C_MAX_REFINE
@@ -2880,7 +2879,7 @@ unsigned int status_base_matk_max(struct block_list *bl, const struct status_dat
 unsigned short status_base_atk(const struct block_list *bl, const struct status_data *status, int level);
 
 void initChangeTables(void);
-int status_readdb(void);
+int status_readdb( bool reload = false );
 int do_init_status(void);
 void do_final_status(void);
 
