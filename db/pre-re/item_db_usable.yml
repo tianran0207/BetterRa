@@ -1,5 +1,5 @@
 # This file is a part of rAthena.
-#   Copyright(C) 2019 rAthena Development Team
+#   Copyright(C) 2021 rAthena Development Team
 #   https://rathena.org - https://github.com/rathena
 #
 # This program is free software: you can redistribute it and/or modify
@@ -54,6 +54,16 @@
 #     DropAnnounce          If the item has a special announcement to self on drop. (Default: false)
 #     NoConsume             If the item is consumed on use. (Default: false)
 #     DropEffect            If the item has a special effect on the ground when dropped by a monster. (Default: None)
+#     ForceUseItem          当玩家处于不能使用物品的状态时依然可以使用带有此标签的物品
+#     IgnoreNoFunc          物品无视 mapflag 中 noitemfunc 对应的项目
+#     NoConsume2            物品不会由于被玩家主动使用而消耗（无 NoConsume 在使用技能和坐骑下不能使用的限制的限制）
+#     NoSkillConsume        物品不会由于被发动技能所需要而消耗
+#     NoDropWithoutPlayer   魔物在没有玩家参与被杀死时不会掉落该物品
+#     DoDropEvent           魔物被玩家击杀时, 会触发 OnMOBDropItemFilter 事件
+#     TurnIntoCostume       插有该物品的装备变为时装/影装 (先在 BetterRA.conf 中 配置 item_costume_card为 yes 开启该功能)
+#     IgnoreScript          插有该物品的装备、时装/影装所有属性会无效化
+#     IgnoreAutoLoot        物品无视自动拾取, 会直接掉到地上
+#     IgnoreEquipView       装备外观不显示在装备栏窗口中
 #   Delay:                  Item use delay. (Default: null)
 #     Duration              Duration of delay in seconds.
 #     Status                Status Change used to track delay. (Default: None)
@@ -5103,7 +5113,7 @@ Body:
       NoMail: true
       NoAuction: true
     Script: |
-      set .@type,getiteminfo(getequipid(EQI_HAND_R),11);
+      set .@type,getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW);
       if (.@type == W_1HAXE || .@type == W_2HAXE || .@type == W_MACE) {
          skilleffect "BS_ADRENALINE",0;
          sc_start SC_ADRENALINE,150000,5;
