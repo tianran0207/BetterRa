@@ -22718,7 +22718,6 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 	}
 
 	std::shared_ptr<s_refine_cost> cost = nullptr;
-	uint16 chance = cost->chance, success = 0;
 
 	for( const auto& pair : info->costs ){
 		if( pair.second->nameid == material ){
@@ -22732,11 +22731,11 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		return;
 	}
 
+	uint16 chance = cost->chance, success = 0;
 	if (npc_script_event_check(sd, NPCE_REFINEUIFILTER)) {
-		int16 n = pc_search_inventory(sd, 6635);
 		if (sd->status.zeny < cost->zeny)
 			return; //Not enough.
-		if (j < 0 || sd->inventory.u.items_inventory[j].amount < 1)
+		if (sd->inventory.u.items_inventory[j].amount < 1)
 			return;
 
 		pc_setreg(sd, add_str("@refine_idx"), index);
