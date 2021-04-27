@@ -22718,6 +22718,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 	}
 
 	std::shared_ptr<s_refine_cost> cost = nullptr;
+	uint16 chance = cost->chance, success = 0;
 
 	for( const auto& pair : info->costs ){
 		if( pair.second->nameid == material ){
@@ -22729,6 +22730,27 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 	// The material was not in the list of possible materials
 	if( cost == nullptr ){
 		return;
+	}
+
+	if (npc_script_event_check(sd, NPCE_REFINEUIFILTER)) {
+		int16 n = pc_search_inventory(sd, 6635);
+		if (sd->status.zeny < cost->zeny)
+			return; //Not enough.
+		if (j < 0 || sd->inventory.u.items_inventory[j].amount < 1)
+			return;
+
+		pc_setreg(sd, add_str("@refine_idx"), index);
+		pc_setreg(sd, add_str("@refine_nameid"), id->nameid);
+		pc_setreg(sd, add_str("@refine_rate"), chance);
+		pc_setreg(sd, add_str("@refine_zeny"), cost->zeny);
+		pc_setreg(sd, add_str("@refine_cost"), cost->nameid);
+		pc_setreg(sd, add_str("@refine_breaking_rate"), cost->breaking_rate);
+		pc_setreg(sd, add_str("@refine_downgrade"), cost->downgrade_amount);
+		pc_setreg(sd, add_str("@refine_blessing"), (blacksmith_index != -1 ? blacksmith_amount : 0));
+		npc_script_event_atonce(sd, NPCE_REFINEUIFILTER);
+		if (sd->state.processhalt)
+			return;
+		chance = static_cast<uint8>(pc_readreg(sd, add_str("@refine_rate")));
 	}
 
 	// Try to pay for the refine
@@ -22748,13 +22770,14 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 	}
 
 	// Try to refine the item
-	if( cost->chance >= ( rnd() % 10000 ) ){
+	if( chance >= ( rnd() % 10000 ) ){
 		// Success
 		item->refine = cap_value( item->refine + 1, 0, MAX_REFINE );
 		clif_misceffect( &sd->bl, 3 );
 		clif_refine( fd, 0, index, item->refine );
 		achievement_update_objective( sd, AG_ENCHANT_SUCCESS, 2, id->wlv, item->refine );
 		clif_refineui_info( sd, index );
+		success = 1;
 	}else{
 		// Failure
 
@@ -22777,6 +22800,14 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 
 		clif_misceffect( &sd->bl, 2 );
 		achievement_update_objective( sd, AG_ENCHANT_FAIL, 1, 1 );
+	}
+	if (npc_script_event_check(sd, NPCE_REFINEUIEVENT)) {
+		bool isboom = sd->inventory.u.items_inventory[index].amount <= 0;
+		pc_setreg(sd, add_str("@refine_idx"), isboom ? -1 : index);
+		pc_setreg(sd, add_str("@refine_nameid"), id->nameid);
+		pc_setreg(sd, add_str("@refine_success"), success ? 1 : 0);
+		pc_setreg(sd, add_str("@refine_blessing"), blacksmith_index != -1 ? blacksmith_amount : 0);
+		npc_script_event_atonce(sd, NPCE_REFINEUIEVENT);
 	}
 #endif
 }
