@@ -66,7 +66,7 @@ enum e_achievement_info {
 enum e_title_table : uint16 {
 	TITLE_NONE = 0,
 	TITLE_BASE = 1000,
-	TITLE_MAX = 2000,
+	TITLE_MAX = 1046,
 };
 
 struct achievement_target {

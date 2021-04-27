@@ -315,10 +315,10 @@ uint64 AchievementDatabase::parseBodyNode(const YAML::Node &node){
 				return 0;
 			}
 
-			if (title < TITLE_BASE || title > TITLE_MAX) {
-				this->invalidWarning(rewardNode["TitleId"], "Reward Title ID %u does not exist (%hu~%hu), skipping.\n", title, TITLE_BASE, TITLE_MAX);
-				return 0;
-			}
+			//if (title < TITLE_BASE || title > TITLE_MAX) {
+			//	this->invalidWarning(rewardNode["TitleId"], "Reward Title ID %u does not exist (%hu~%hu), skipping.\n", title, TITLE_BASE, TITLE_MAX);
+			//	return 0;
+			//}
 
 			achievement->rewards.title_id = title;
 		} else {
