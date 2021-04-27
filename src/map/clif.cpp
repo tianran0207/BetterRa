@@ -1191,9 +1191,9 @@ static void clif_set_unit_idle( struct block_list* bl, bool walking, send_target
 	}
 
 	if( bl->type == BL_MOB ){
-		p.isBoss = ( (mob_data*)bl )->get_bosstype();
+		p.isBoss = ( (mob_data*)bl )->get_bosstype() & BOSSTYPE_MVP ? 1 : 0;
 	}else if( bl->type == BL_PET ){
-		p.isBoss = ( (pet_data*)bl )->db->get_bosstype();
+		p.isBoss = ( (pet_data*)bl )->db->get_bosstype() & BOSSTYPE_MVP ? 1 : 0;
 	}else{
 		p.isBoss = BOSSTYPE_NONE;
 	}
@@ -1333,9 +1333,9 @@ static void clif_spawn_unit( struct block_list *bl, enum send_target target ){
 	}
 
 	if( bl->type == BL_MOB ){
-		p.isBoss = ( (mob_data*)bl )->get_bosstype();
+		p.isBoss = ( (mob_data*)bl )->get_bosstype() & BOSSTYPE_MVP ? 1 : 0;
 	}else if( bl->type == BL_PET ){
-		p.isBoss = ( (pet_data*)bl )->db->get_bosstype();
+		p.isBoss = ( (pet_data*)bl )->db->get_bosstype() & BOSSTYPE_MVP ? 1 : 0;
 	}else{
 		p.isBoss = BOSSTYPE_NONE;
 	}
@@ -1442,9 +1442,9 @@ static void clif_set_unit_walking( struct block_list *bl, struct map_session_dat
 	}
 
 	if( bl->type == BL_MOB ){
-		p.isBoss = ( (mob_data*)bl )->get_bosstype();
+		p.isBoss = ( (mob_data*)bl )->get_bosstype() & BOSSTYPE_MVP ? 1 : 0;
 	}else if( bl->type == BL_PET ){
-		p.isBoss = ( (pet_data*)bl )->db->get_bosstype();
+		p.isBoss = ( (pet_data*)bl )->db->get_bosstype() & BOSSTYPE_MVP ? 1 : 0;
 	}else{
 		p.isBoss = BOSSTYPE_NONE;
 	}
