@@ -277,6 +277,7 @@ struct Battle_Config
 	int mob_dmgrate_db;
 	int itemdb_reload_thread;
 	int itemdb_csv_aegis;
+	int mobdb_sawp_flag;
 	//---Extended Vending system [Lilith]---
 	int extended_vending;
 	int extended_buying;
