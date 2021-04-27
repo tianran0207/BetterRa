@@ -22749,7 +22749,7 @@ void clif_parse_refineui_refine( int fd, struct map_session_data* sd ){
 		npc_script_event_atonce(sd, NPCE_REFINEUIFILTER);
 		if (sd->state.processhalt)
 			return;
-		chance = static_cast<uint8>(pc_readreg(sd, add_str("@refine_rate")));
+		chance = static_cast<uint16>(pc_readreg(sd, add_str("@refine_rate")));
 	}
 
 	// Try to pay for the refine
