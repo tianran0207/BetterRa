@@ -671,7 +671,7 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node &node) {
 		} else {
 			if (!exists) {
 				if (!(item->flag.delay_consume & (DELAYCONSUME_TEMP|DELAYCONSUME_NOCONSUME)))
-					item->flag.delay_consume = (DELAYCONSUME_TEMP|DELAYCONSUME_NOCONSUME);
+					item->flag.delay_consume = DELAYCONSUME_NONE;
 			}
 		}
 
