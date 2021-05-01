@@ -32487,6 +32487,32 @@ BUILDIN_FUNC(getpccurrency)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+BUILDIN_FUNC(instance_srcmapname)
+{
+	struct map_session_data* sd;
+	const char *str;
+	int16 m;
+	int instance_id;
+
+	if (script_isstring(st, 2)) {
+		str = script_getstr(st, 2);
+		m = map_mapname2mapid(str);
+	}
+	else if (script_charid2sd(2, sd))
+		m = sd->bl.m;
+	else
+		return SCRIPT_CMD_FAILURE;
+
+	struct map_data *mapdata = map_getmapdata(m);
+
+	if (mapdata->instance_src_map)
+		script_pushconststr(st, map_getmapdata(mapdata->instance_src_map)->name);
+	else
+		script_pushconststr(st, "");
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(rfifo_int)
 {
 	int start = script_getnum(st, 2), bit = script_getnum(st, 3);
@@ -33803,6 +33829,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(petbirthbyidx, "i?"),
 	BUILDIN_DEF(setpccurrency, "i?"),
 	BUILDIN_DEF(getpccurrency, "?"),
+	BUILDIN_DEF(instance_srcmapname, "v"),
 	BUILDIN_DEF(roulette_bonus, "i"),
 	BUILDIN_DEF(roulette_iteminfo, "iii?"),
 	BUILDIN_DEF(roulette_open, "????"),
