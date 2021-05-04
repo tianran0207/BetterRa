@@ -26021,13 +26021,13 @@ BUILDIN_FUNC(getinventoryinfo)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-void storage_state_sub(struct map_session_data *sd, bool *storage_state, int *do_event)
+void storage_state_sub(struct map_session_data *sd, char *storage_state, int *do_event)
 {
 	if (do_event) {
 		storage_state[0] = sd->runing_event[NPCE_STORAGEADDFILTER];
 		storage_state[1] = sd->runing_event[NPCE_CARTADDFILTER];
 		storage_state[2] = sd->runing_event[NPCE_INVENTORYADDFILTER];
-		sd->runing_event[NPCE_STORAGEADDFILTER] = sd->runing_event[NPCE_CARTADDFILTER] = *do_event;
+		sd->runing_event[NPCE_STORAGEADDFILTER] = sd->runing_event[NPCE_CARTADDFILTER] = sd->runing_event[NPCE_INVENTORYADDFILTER] = *do_event;
 	}
 	else {
 		sd->runing_event[NPCE_STORAGEADDFILTER] = storage_state[0];
@@ -26066,7 +26066,7 @@ BUILDIN_FUNC(putstoragebyidx)
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	bool storage_state[3];
+	char storage_state[3];
 	storage_state_sub(sd, storage_state, &do_event);
 	switch (type) {
 	case TABLE_CART:
@@ -26115,7 +26115,7 @@ BUILDIN_FUNC(getstoragebyidx)
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	bool storage_state[3];
+	char storage_state[3];
 	storage_state_sub(sd, storage_state, &do_event);
 	switch (type) {
 	case TABLE_CART:
@@ -26165,7 +26165,7 @@ BUILDIN_FUNC(delinventorybyidx)
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	bool storage_state[3];
+	char storage_state[3];
 	storage_state_sub(sd, storage_state, &do_event);
 	switch (type) {
 	case TABLE_INVENTORY:
@@ -28152,9 +28152,9 @@ BUILDIN_FUNC(unitskilltoAOE)
 	range = script_getnum(st, 5);
 	maxcount = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
 
-	if (sd) sd->runing_event[NPCE_USESKILLEVENT] = true;
+	if (sd) sd->runing_event[NPCE_USESKILLEVENT] |= 1;
 	map_foreachinrange(buildin_unitskilltoAOE_sub, bl, range, BL_CHAR, bl, skill_id, skill_lv, &count, maxcount);
-	if (sd) sd->runing_event[NPCE_USESKILLEVENT] = false;
+	if (sd) sd->runing_event[NPCE_USESKILLEVENT] &= ~1;
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -29995,9 +29995,9 @@ BUILDIN_FUNC(unitshow)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	sd->runing_event[NPCE_ONDISPLAY] = true;
+	sd->runing_event[NPCE_ONDISPLAY] |= 1;
 	clif_getareachar_unit(sd, bl);
-	sd->runing_event[NPCE_ONDISPLAY] = false;
+	sd->runing_event[NPCE_ONDISPLAY] &= ~1;
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -32434,6 +32434,7 @@ BUILDIN_FUNC(petbirthbyidx)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
+	sd->runing_event[NPCE_PETINCUBATEFILTER] |= 2;
 	pet_select_egg(sd, script_getnum(st, 2));
 
 	return SCRIPT_CMD_SUCCESS;
@@ -32492,7 +32493,6 @@ BUILDIN_FUNC(instance_srcmapname)
 	struct map_session_data* sd;
 	const char *str;
 	int16 m;
-	int instance_id;
 
 	if (script_isstring(st, 2)) {
 		str = script_getstr(st, 2);

@@ -1207,6 +1207,8 @@ int pet_recv_petdata(uint32 account_id,struct s_pet *p,int flag)
 				return 1;
 			}
 		}
+		if (sd->runing_event[NPCE_PETINCUBATEFILTER] & 2)
+			sd->runing_event[NPCE_PETINCUBATEFILTER] &= ~2;
 		// Hide egg from inventory.
 		// Set pet egg to broken, before the inventory gets saved
 		sd->inventory.u.items_inventory[i].attribute = 1;

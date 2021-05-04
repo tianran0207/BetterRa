@@ -503,7 +503,7 @@ struct map_session_data {
 	int nodecrypt;
 	char mac[33];
 	int runing_event_type;
-	bool runing_event[NPCE_MAX];
+	char runing_event[NPCE_MAX];
 	int menulist_data;
 	int sleep_mes_active;
 	int dual_weapon;
