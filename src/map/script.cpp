@@ -343,6 +343,7 @@ struct Script_Config script_config = {
 	"OnPCPetSkillFilter", //pet_skill_filter_name
 	"OnPCPetIncubateFilter", //pet_incubate_filter_name;
 	"OnPCPetEvolvesFilter", //pet_evolves_filter_name;
+	"OnPCPetEvolvesEvent", //pet_evolves_event_name;
 	"OnPCViewEquipFilter", //view_equit_filter_name
 	"OnPCUseSkillFilter", //use_skill_filter_name
 	"OnPCUseSkillEvent", //use_skill_event_name

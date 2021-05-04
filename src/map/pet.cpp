@@ -2427,6 +2427,14 @@ void pet_evolution(struct map_session_data *sd, int16 pet_id) {
 
 	clif_pet_evolution_result(sd, e_pet_evolution_result::SUCCESS);
 	clif_inventorylist(sd);
+
+	if (npc_script_event_check(sd, NPCE_PETEVOLVESEVENT)) {
+		pc_setreg(sd, add_str("@pet_id"), sd->pd->pet.class_);
+		pc_setreg(sd, add_str("@pet_gid"), sd->pd->bl.id);
+		npc_script_event_atonce(sd, NPCE_PETEVOLVESEVENT);
+		if (sd->state.processhalt)
+			return;
+	}
 }
 
 /**
