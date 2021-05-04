@@ -32434,6 +32434,9 @@ BUILDIN_FUNC(petbirthbyidx)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
+	if (sd->runing_event[NPCE_PETINCUBATEFILTER] & 2)
+		return SCRIPT_CMD_SUCCESS;
+
 	sd->runing_event[NPCE_PETINCUBATEFILTER] |= 2;
 	pet_select_egg(sd, script_getnum(st, 2));
 
