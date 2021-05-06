@@ -3871,7 +3871,7 @@ void mobskill_add(struct mob_data *md, char *mobskill)
 {
 	std::vector<std::shared_ptr<s_mob_skill>> &skill = md->skill;
 
-	if (skill.empty()) {
+	if (!md->has_skill && skill.empty()) {
 		for (int i = 0; md->db->skill.size() < MAX_MOBSKILL && i < md->db->skill.size(); i++)
 			md->skill.push_back(md->db->skill[i]);
 	}
