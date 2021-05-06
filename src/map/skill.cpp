@@ -9113,7 +9113,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 	case NPC_SUMMONMONSTER:
 	case NPC_DEATHSUMMON:
 		if(md && md->skill_idx >= 0)
-			mob_summonslave(md,md->db->skill[md->skill_idx]->val,skill_lv,skill_id);
+			mob_summonslave(md, (md->has_skill ? md->skill : md->db->skill)[md->skill_idx]->val,skill_lv,skill_id);
 		break;
 
 	case NPC_CALLSLAVE:
@@ -9164,9 +9164,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 	case NPC_TRANSFORMATION:
 	case NPC_METAMORPHOSIS:
 		if(md && md->skill_idx >= 0) {
-			int class_ = mob_random_class (md->db->skill[md->skill_idx]->val,0);
+			int class_ = mob_random_class ((md->has_skill ? md->skill : md->db->skill)[md->skill_idx]->val,0);
 			if (skill_lv > 1) //Multiply the rest of mobs. [Skotlex]
-				mob_summonslave(md,md->db->skill[md->skill_idx]->val,skill_lv-1,skill_id);
+				mob_summonslave(md,(md->has_skill ? md->skill : md->db->skill)[md->skill_idx]->val,skill_lv-1,skill_id);
 			if (class_) mob_class_change(md, class_);
 		}
 		break;
@@ -9181,19 +9181,21 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		//val[4] if set, asks to delete the previous mode change.
 		if(md && md->skill_idx >= 0 && tsc)
 		{
-			clif_emotion(bl, md->db->skill[md->skill_idx]->val[0]);
-			if(md->db->skill[md->skill_idx]->val[4] && tsce)
+			std::vector<std::shared_ptr<s_mob_skill>> &ms = md->has_skill ? md->skill : md->db->skill;
+
+			clif_emotion(bl, ms[md->skill_idx]->val[0]);
+			if(ms[md->skill_idx]->val[4] && tsce)
 				status_change_end(bl, type, INVALID_TIMER);
 
 			//If mode gets set by NPC_EMOTION then the target should be reset [Playtester]
-			if(!battle_config.npc_emotion_behavior && skill_id == NPC_EMOTION && md->db->skill[md->skill_idx]->val[1])
+			if(!battle_config.npc_emotion_behavior && skill_id == NPC_EMOTION && ms[md->skill_idx]->val[1])
 				mob_unlocktarget(md,tick);
 
-			if(md->db->skill[md->skill_idx]->val[1] || md->db->skill[md->skill_idx]->val[2])
+			if(ms[md->skill_idx]->val[1] || ms[md->skill_idx]->val[2])
 				sc_start4(src,src, type, 100, skill_lv,
-					md->db->skill[md->skill_idx]->val[1],
-					md->db->skill[md->skill_idx]->val[2],
-					md->db->skill[md->skill_idx]->val[3],
+					ms[md->skill_idx]->val[1],
+					ms[md->skill_idx]->val[2],
+					ms[md->skill_idx]->val[3],
 					skill_get_time(skill_id, skill_lv));
 
 			//Reset aggressive state depending on resulting mode
@@ -12492,8 +12494,8 @@ TIMER_FUNC(skill_castend_id){
 
 		if(md) {
 			md->last_thinktime=tick +MIN_MOBTHINKTIME;
-			if(md->skill_idx >= 0 && md->db->skill[md->skill_idx]->emotion >= 0)
-				clif_emotion(src, md->db->skill[md->skill_idx]->emotion);
+			if(md->skill_idx >= 0 && (md->has_skill ? md->skill : md->db->skill)[md->skill_idx]->emotion >= 0)
+				clif_emotion(src, (md->has_skill ? md->skill : md->db->skill)[md->skill_idx]->emotion);
 		}
 
 		if (src != target && battle_config.skill_add_range &&
@@ -12771,8 +12773,8 @@ TIMER_FUNC(skill_castend_pos){
 
 		if(md) {
 			md->last_thinktime=tick +MIN_MOBTHINKTIME;
-			if(md->skill_idx >= 0 && md->db->skill[md->skill_idx]->emotion >= 0)
-				clif_emotion(src, md->db->skill[md->skill_idx]->emotion);
+			if(md->skill_idx >= 0 && (md->has_skill ? md->skill : md->db->skill)[md->skill_idx]->emotion >= 0)
+				clif_emotion(src, (md->has_skill ? md->skill : md->db->skill)[md->skill_idx]->emotion);
 		}
 
 		if(battle_config.skill_log && battle_config.skill_log&src->type)

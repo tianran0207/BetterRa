@@ -3931,10 +3931,7 @@ int mobskill_use(struct mob_data *md, t_tick tick, int event)
 
 	nullpo_ret(md);
 
-	std::vector<std::shared_ptr<s_mob_skill>> &ms = md->db->skill;
-
-	if (md->has_skill)
-		ms = md->skill;
+	std::vector<std::shared_ptr<s_mob_skill>> &ms = md->has_skill ? md->skill : md->db->skill;
 
 	if (!battle_config.mob_skill_rate || md->ud.skilltimer != INVALID_TIMER || ms.empty() || status_has_mode(&md->status,MD_NOCAST))
 		return 0;
