@@ -214,6 +214,11 @@ int hom_dead(struct homun_data *hd)
 #endif
 
 	clif_emotion(&sd->bl, ET_CRY);
+
+#ifdef RENEWAL
+	status_change_end(&sd->bl, status_skill2sc(AM_CALLHOMUN), INVALID_TIMER);
+#endif
+
 	//Remove from map (if it has no intimacy, it is auto-removed from memory)
 	return 3;
 }
@@ -255,6 +260,11 @@ int hom_vaporize(struct map_session_data *sd, int flag)
 	}
 	clif_hominfo(sd, sd->hd, 0);
 	hom_save(hd);
+
+#ifdef RENEWAL
+	status_change_end(&sd->bl, status_skill2sc(AM_CALLHOMUN), INVALID_TIMER);
+#endif
+
 #ifdef EVENT_HOMREST
 	if(flag == HOM_ST_REST)
 		npc_script_event(sd, NPCE_HOMREST);
@@ -733,7 +743,7 @@ void hom_gainexp(struct homun_data *hd,t_exp exp)
 }
 
 /**
-* Increase homunculu sintimacy
+* Increase homunculus intimacy
 * @param hd
 * @param value Added intimacy
 * @return New intimacy value
@@ -752,7 +762,7 @@ int hom_increase_intimacy(struct homun_data * hd, unsigned int value)
 }
 
 /**
-* Decrease homunculu sintimacy
+* Decrease homunculus intimacy
 * @param hd
 * @param value Reduced intimacy
 * @return New intimacy value
@@ -1137,6 +1147,11 @@ bool hom_call(struct map_session_data *sd)
 		//Warp him to master.
 		unit_warp(&hd->bl,sd->bl.m, sd->bl.x, sd->bl.y,CLR_OUTSIGHT);
 
+#ifdef RENEWAL
+	sc_start(&sd->bl, &sd->bl, status_skill2sc(AM_CALLHOMUN), 100, 1, skill_get_time(AM_CALLHOMUN, 1));
+#endif
+
+
 #ifdef EVENT_HOMCALL
 	npc_script_event(sd, NPCE_HOMCALL);
 #endif
@@ -1196,6 +1211,11 @@ int hom_recv_data(uint32 account_id, struct s_homunculus *sh, int flag)
 		clif_homskillinfoblock(sd);
 		hom_init_timers(hd);
 	}
+
+#ifdef RENEWAL
+	sc_start(&sd->bl, &sd->bl, status_skill2sc(AM_CALLHOMUN), 100, 1, skill_get_time(AM_CALLHOMUN, 1));
+#endif
+
 	return 1;
 }
 
@@ -1280,6 +1300,11 @@ int hom_ressurect(struct map_session_data* sd, unsigned char per, short x, short
 			return 0;
 		clif_spawn(&hd->bl);
 	}
+
+#ifdef RENEWAL
+	sc_start(&sd->bl, &sd->bl, status_skill2sc(AM_CALLHOMUN), 100, 1, skill_get_time(AM_CALLHOMUN, 1));
+#endif
+
 
 #ifdef EVENT_HOMALIVE
 	npc_script_event(sd, NPCE_HOMALIVE);
