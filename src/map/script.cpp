@@ -11187,6 +11187,7 @@ BUILDIN_FUNC(monster)
 	const char* event	= "";
 	unsigned int size	= SZ_SMALL;
 	enum mob_ai ai		= AI_NONE;
+	bool boss_master    = !strcmp(script_getfuncname(st), "boss_monster");
 
 	struct map_session_data* sd;
 	int16 m;
@@ -11227,6 +11228,9 @@ BUILDIN_FUNC(monster)
 
 	for(i = 0; i < amount; i++) { //not optimised
 		mobid = mob_once_spawn(sd, m, x, y, str, class_, 1, event, size, ai);
+
+		if (mobid && boss_master)
+			map_addbossdb(mobid);
 
 		if (mobid)
 			mapreg_setreg(reference_uid(add_str("$@mobid"), i), mobid);
@@ -33768,6 +33772,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(sellitemcurrency, "ii?"),
 	BUILDIN_DEF(endsellitem, ""),
 	BUILDIN_DEF(bartershop, "??"),
+	BUILDIN_DEF2(monster, "boss_monster", "siisii???"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),

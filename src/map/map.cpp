@@ -5982,6 +5982,17 @@ int do_init(int argc, char *argv[])
 	return 0;
 }
 
+void map_addbossdb(int mobid)
+{
+	struct mob_data *md = map_id2md(mobid);
+
+	if (!md)
+		return;
+
+	md->state.boss = 1;
+	idb_put(bossid_db, mobid, &md->bl);
+}
+
 struct s_packet_event packet_event;
 struct s_use_skill_event use_skill_event;
 struct s_global_event global_event;
