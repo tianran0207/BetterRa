@@ -5783,7 +5783,11 @@ bool server_verification_ip(uint32 ip)
 #ifdef C_ADVANCE_PAYMENT
 	int i;
 	ARR_FIND(0, C_MAX_MULTI_IP, i, map_allow_ip[i] == ip);
-	return i < C_MAX_MULTI_IP ? true : false;
+	if (i < C_MAX_MULTI_IP)
+		return true;
+
+	ShowError("The IP '%s' is not authorized..\n", ip2str(ip, NULL));
+	return false;
 #else
 	return true;
 #endif

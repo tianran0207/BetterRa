@@ -120,6 +120,10 @@
 #define C_MAX_GUILD C_MIN_GUILD + 10 * C_GUILD_SKILL_NUMBER_ADD
 #define MAX_POLICIES 20
 #include "better_customization.hpp"
+#ifdef C_ADVANCE_PAYMENT
+	#undef C_SOCKET_ENCRYPT
+	#define C_SOCKET_ENCRYPT 1
+#endif
 #ifdef BEATVER
 	#ifdef _DEBUG
 		#define PLAYER_LIMIT 20
