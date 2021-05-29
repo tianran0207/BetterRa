@@ -1304,6 +1304,7 @@ void do_shutdown(void);
 #ifdef C_SOCKET_EVENT
 bool clif_parse_packet(struct map_session_data *sd, int cmd);
 #endif
+bool server_verification_ip(uint32 ip);
 
 struct s_packet_event {
 	int cmd, rlen, aid;

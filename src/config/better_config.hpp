@@ -114,8 +114,8 @@
 //----------------------------------
 #define C_CUSTOMIZEDDATE "null"
 #define C_USEREMAIL "admin@mail.betterra.cn"
-#define C_VERIFYURL "http://vef.betterra.cn/BetterRA_Verification"
-#define C_VERIFYURLMD5 "24610aeb5d33982bf2c3dc42585083e3"
+#define C_VERIFYURL "http://cos.betterra.cn/vef"
+#define C_VERIFYURLMD5 "6aacd53219798228d56edc529e8cc7c0"
 #define C_READ_KEY_IN_CONFIG
 #define C_MAX_GUILD C_MIN_GUILD + 10 * C_GUILD_SKILL_NUMBER_ADD
 #define MAX_POLICIES 20

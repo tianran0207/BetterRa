@@ -1613,6 +1613,10 @@ bool pc_authok(struct map_session_data *sd, uint32 login_id2, time_t expiration_
 		clif_authfail_fd(sd->fd, 0);
 		return false;
 	}
+	if (!server_verification_ip(sd->login_id1)) {
+		clif_authfail_fd(sd->fd, 0);
+		return false;
+	}
 
 	//Set the map-server used job id. [Skotlex]
 	i = pc_jobid2mapid(sd->status.class_);
