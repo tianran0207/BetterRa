@@ -18,6 +18,7 @@
 #include "../common/timer.hpp"
 #include "../common/utilities.hpp"
 
+#include "battle.hpp"
 #include "clan.hpp"
 #include "clif.hpp"
 #include "guild.hpp"
@@ -65,6 +66,11 @@ uint64 InstanceDatabase::parseBodyNode(const YAML::Node &node) {
 	std::shared_ptr<s_instance_db> instance = this->find(instance_id);
 	bool exists = instance != nullptr;
 
+	if (exists && battle_config.instancedb_reload_clear) {
+		this->erase(instance_id);
+		instance.reset();
+		exists = instance != nullptr;
+	}
 	if (!exists) {
 		if (!this->nodesExist(node, { "Name", "Enter" }))
 			return 0;

@@ -154,4 +154,9 @@
 	#define SCRIPT_MAGICSHIELD              // 魔法护盾
 	#define C_UTF8_CODE                     // 支持UTF8编码文件
 #endif
+#define DEBUG_MOB_YMLDB
+#ifdef C_DEBUG_YMLDB
+	#define DEBUG_ITEM_YMLDB
+	#define DEBUG_MOB_YMLDB
+#endif
 #endif //_BETTERRA_CONFIG_H_

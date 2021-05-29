@@ -58,6 +58,11 @@ uint64 PetDatabase::parseBodyNode( const YAML::Node &node ){
 	std::shared_ptr<s_pet_db> pet = this->find( mob_id );
 	bool exists = pet != nullptr;
 
+	if (exists && battle_config.petdb_reload_clear) {
+		this->erase(mob_id);
+		pet.reset();
+		exists = pet != nullptr;
+	}
 	if( !exists ){
 		// Check mandatory nodes
 		if( !this->nodesExist( node, { "EggItem", "Fullness", "CaptureRate" } ) ){

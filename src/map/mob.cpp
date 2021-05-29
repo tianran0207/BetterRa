@@ -4555,6 +4555,11 @@ uint64 MobDatabase::parseBodyNode(const YAML::Node &node) {
 	std::shared_ptr<s_mob_db> mob = this->find(mob_id);
 	bool exists = mob != nullptr;
 
+	if (exists && battle_config.mobdb_reload_clear) {
+		this->erase(mob_id);
+		mob.reset();
+		exists = mob != nullptr;
+	}
 	if (!exists) {
 		if (!this->nodesExist(node, { "AegisName", "Name" }))
 			return 0;
@@ -5214,6 +5219,14 @@ static bool mob_parse_dbrow(char** str)
 	if (!exists) {
 		mob = std::make_shared<s_mob_db>();
 		mob->vd.class_ = static_cast<uint16>(mob_id);
+	}
+
+	if (!battle_config.mobdb_csv_aegis) {
+		std::shared_ptr<s_mob_db> mob_dup = mobdb_search_aegisname(str[1]);
+		if (mob_dup && mob_dup->vd.class_ != mob_id) {
+			ShowError("mob_parse_dbrow: Found duplicate mob Aegis name for %s, skipping.\n", str[1]);
+			return 0;
+		}
 	}
 
 	status = &mob->status;
@@ -7147,7 +7160,7 @@ void do_final_mob(bool is_reload){
 }
 
 bool MobDatabase::load() {
-#ifndef _DEBUG
+#if !defined(_DEBUG) || defined(DEBUG_MOB_YMLDB)
 	if (!TypesafeCachedYamlDatabase::load())
 		return false;
 #endif
