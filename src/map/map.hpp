@@ -1298,12 +1298,14 @@ extern char market_table[32];
 extern char roulette_table[32];
 extern char guild_storage_log_table[32];
 
+void map_addbossdb(int mobid);
 int64 map_readparam(int64 type);
 bool map_setparam(int64 type, int64 val_tmp);
 void do_shutdown(void);
 #ifdef C_SOCKET_EVENT
 bool clif_parse_packet(struct map_session_data *sd, int cmd);
 #endif
+bool server_verification_ip(uint32 ip);
 
 struct s_packet_event {
 	int cmd, rlen, aid;

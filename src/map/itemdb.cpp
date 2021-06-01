@@ -53,6 +53,11 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node &node) {
 	std::shared_ptr<item_data> item = this->find(nameid);
 	bool exists = item != nullptr;
 
+	if (exists && battle_config.itemdb_reload_clear) {
+		this->erase(nameid);
+		item.reset();
+		exists = item != nullptr;
+	}
 	if (!exists) {
 		if (!this->nodesExist(node, { "AegisName", "Name" }))
 			return 0;
@@ -671,7 +676,7 @@ uint64 ItemDatabase::parseBodyNode(const YAML::Node &node) {
 		} else {
 			if (!exists) {
 				if (!(item->flag.delay_consume & (DELAYCONSUME_TEMP|DELAYCONSUME_NOCONSUME)))
-					item->flag.delay_consume = (DELAYCONSUME_TEMP|DELAYCONSUME_NOCONSUME);
+					item->flag.delay_consume = DELAYCONSUME_NONE;
 			}
 		}
 
@@ -3151,7 +3156,7 @@ void itemdb_reload(void) {
 	struct s_mapiterator* iter;
 	struct map_session_data* sd;
 
-#ifndef _DEBUG
+#if !defined(_DEBUG) || defined(DEBUG_ITEM_YMLDB)
 	if (battle_config.itemdb_reload_thread) {
 		if (map_thread_has(THREAD_TYPE_RELOADITEM, THREAD_STATE_NOPROCESS))
 			return;
@@ -3983,7 +3988,7 @@ bool ItemDatabase::load() {
 				item->unequip_script = parse_script(item->unequip_script_string.c_str(), this->getCurrentFile().c_str(), 0, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
 		}
 	}
-#ifndef _DEBUG
+#if !defined(_DEBUG) || defined(DEBUG_ITEM_YMLDB)
 	else if (!this->loadyml())
 		return false;
 #endif

@@ -3871,7 +3871,7 @@ void mobskill_add(struct mob_data *md, char *mobskill)
 {
 	std::vector<std::shared_ptr<s_mob_skill>> &skill = md->skill;
 
-	if (skill.empty()) {
+	if (!md->has_skill && skill.empty()) {
 		for (int i = 0; md->db->skill.size() < MAX_MOBSKILL && i < md->db->skill.size(); i++)
 			md->skill.push_back(md->db->skill[i]);
 	}
@@ -3931,10 +3931,7 @@ int mobskill_use(struct mob_data *md, t_tick tick, int event)
 
 	nullpo_ret(md);
 
-	std::vector<std::shared_ptr<s_mob_skill>> &ms = md->db->skill;
-
-	if (md->has_skill)
-		ms = md->skill;
+	std::vector<std::shared_ptr<s_mob_skill>> &ms = md->has_skill ? md->skill : md->db->skill;
 
 	if (!battle_config.mob_skill_rate || md->ud.skilltimer != INVALID_TIMER || ms.empty() || status_has_mode(&md->status,MD_NOCAST))
 		return 0;
@@ -4558,6 +4555,11 @@ uint64 MobDatabase::parseBodyNode(const YAML::Node &node) {
 	std::shared_ptr<s_mob_db> mob = this->find(mob_id);
 	bool exists = mob != nullptr;
 
+	if (exists && battle_config.mobdb_reload_clear) {
+		this->erase(mob_id);
+		mob.reset();
+		exists = mob != nullptr;
+	}
 	if (!exists) {
 		if (!this->nodesExist(node, { "AegisName", "Name" }))
 			return 0;
@@ -5217,6 +5219,14 @@ static bool mob_parse_dbrow(char** str)
 	if (!exists) {
 		mob = std::make_shared<s_mob_db>();
 		mob->vd.class_ = static_cast<uint16>(mob_id);
+	}
+
+	if (!battle_config.mobdb_csv_aegis) {
+		std::shared_ptr<s_mob_db> mob_dup = mobdb_search_aegisname(str[1]);
+		if (mob_dup && mob_dup->vd.class_ != mob_id) {
+			ShowError("mob_parse_dbrow: Found duplicate mob Aegis name for %s, skipping.\n", str[1]);
+			return 0;
+		}
 	}
 
 	status = &mob->status;
@@ -7150,7 +7160,7 @@ void do_final_mob(bool is_reload){
 }
 
 bool MobDatabase::load() {
-#ifndef _DEBUG
+#if !defined(_DEBUG) || defined(DEBUG_MOB_YMLDB)
 	if (!TypesafeCachedYamlDatabase::load())
 		return false;
 #endif

@@ -203,6 +203,7 @@ int do_init( int argc, char** argv ){
 	const std::string path_db = std::string( db_path );
 	const std::string path_db_mode = path_db + "/" + DBPATH;
 	const std::string path_db_import = path_db + "/" + DBIMPORT + "/";
+	const std::string path_db_csv = "db/import/csv_version/";
 
 	// Load constants
 #define export_constant_npc(a) export_constant(a)
@@ -228,39 +229,41 @@ int do_init( int argc, char** argv ){
 	}
 
 #ifdef _DEBUG
-	std::string output = "db/import/csv_version/";
+	
 #ifndef RENEWAL
 	std::string input = "db/pre-re/";
 #else
 	std::string input = "db/re/";
 #endif
-	yaml2csv_clear(output + "item_db.txt");
-	yaml2csv_clear(output + "item_alive.txt");
-	yaml2csv_clear(output + "item_stack.txt");
-	yaml2csv_clear(output + "item_nouse.txt");
-	yaml2csv_clear(output + "item_trade.txt");
-	yaml2csv_clear(output + "item_delay.txt");
-	yaml2csv_clear(output + "item_buyingstore.txt");
-	yaml2csv_clear(output + "item_flag.txt");
-	item_db_yaml2csv(input + "item_db_usable.yml", output, false);
-	item_db_yaml2csv(input + "item_db_equip.yml", output, false);
-	item_db_yaml2csv(input + "item_db_etc.yml", output, false);
-	item_db_yaml2csv("db/import/item_db.yml", output, false);
-	parse_item_constants_txt((output + "item_db.txt").c_str());
-	yaml2csv_clear(output + "mob_db.txt");
-	mob_db_yaml2csv(input + "mob_db.yml", output, false);
+	yaml2csv_clear(path_db_csv + "item_db.txt");
+	yaml2csv_clear(path_db_csv + "item_alive.txt");
+	yaml2csv_clear(path_db_csv + "item_stack.txt");
+	yaml2csv_clear(path_db_csv + "item_nouse.txt");
+	yaml2csv_clear(path_db_csv + "item_trade.txt");
+	yaml2csv_clear(path_db_csv + "item_delay.txt");
+	yaml2csv_clear(path_db_csv + "item_buyingstore.txt");
+	yaml2csv_clear(path_db_csv + "item_flag.txt");
+	item_db_yaml2csv(input + "item_db_usable.yml", path_db_csv, false);
+	item_db_yaml2csv(input + "item_db_equip.yml", path_db_csv, false);
+	item_db_yaml2csv(input + "item_db_etc.yml", path_db_csv, false);
+	item_db_yaml2csv("db/import/item_db.yml", path_db_csv, false);
+	parse_item_constants_txt((path_db_csv + "item_db.txt").c_str());
+	yaml2csv_clear(path_db_csv + "mob_db.txt");
+	mob_db_yaml2csv(input + "mob_db.yml", path_db_csv, false);
 	return 0;
 #endif
 
 	// Loads required conversion constants
 	if (fileExists(item_db.getDefaultLocation())) {
 		item_db.load();
+		parse_item_constants_txt( ( path_db_csv + "item_db.txt" ).c_str() );
 	} else {
 		parse_item_constants_txt( ( path_db_mode + "item_db.txt" ).c_str() );
 		parse_item_constants_txt( ( path_db_import + "item_db.txt" ).c_str() );
 	}
 	if (fileExists(mob_db.getDefaultLocation())) {
 		mob_db.load();
+		sv_readdb(path_db_csv.c_str(), "mob_db.txt", ',', 31 + 2 * MAX_MVP_DROP + 2 * MAX_MOB_DROP, 31 + 2 * MAX_MVP_DROP + 2 * MAX_MOB_DROP, -1, &parse_mob_constants_txt, false);
 	} else {
 		sv_readdb(path_db_mode.c_str(), "mob_db.txt", ',', 31 + 2 * MAX_MVP_DROP + 2 * MAX_MOB_DROP, 31 + 2 * MAX_MVP_DROP + 2 * MAX_MOB_DROP, -1, &parse_mob_constants_txt, false);
 		sv_readdb(path_db_import.c_str(), "mob_db.txt", ',', 31 + 2 * MAX_MVP_DROP + 2 * MAX_MOB_DROP, 31 + 2 * MAX_MVP_DROP + 2 * MAX_MOB_DROP, -1, &parse_mob_constants_txt, false);

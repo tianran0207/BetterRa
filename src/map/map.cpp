@@ -20,6 +20,7 @@
 #include "../common/timer.hpp"
 #include "../common/utilities.hpp"
 #include "../common/utils.hpp"
+#include "../common/des.hpp"
 
 #include "achievement.hpp"
 #include "atcommand.hpp"
@@ -4311,6 +4312,7 @@ int map_readallmaps (void)
 
 ////////////////////////////////////////////////////////////////////////
 uint32 map_multi_ip[C_MAX_MULTI_IP] = { 0 };
+uint32 map_allow_ip[C_MAX_MULTI_IP] = { 0 };
 static int map_ip_set = 0;
 static int char_ip_set = 0;
 
@@ -5656,26 +5658,26 @@ TIMER_FUNC(server_verification) {
 		char url[256], md5[64], token[256], signature[24];
 		server_machine_code(signature, 24);
 		unsigned int tick = (unsigned int)time(NULL);
-		safesnprintf(token, 256, "%d%s", tick, "gettoken");
+		safesnprintf(token, 256, "signature%s%d", signature, tick);
 		MD5_String(token, md5);
-		safesnprintf(url, 256, "%s?code=%s&tick=%d&token=%s", C_VERIFYURL, signature, tick, md5);
+		safesnprintf(url, 256, "%s?code=%s&tick=%d&gettoken=%s", C_VERIFYURL, signature, tick, md5);
 		cookies.clear();
+		verification_act = 1;
 		http_get(url, 10, false, false, 0, 5);
 		server_verification_checkurl(url);
-		verification_act = 1;
 		ShowStatus("Validate authorization message..\n");
 		return 1;
 	}
 	if (verification_act == 3) {
 		unsigned int tick = (unsigned int)time(NULL);
 		unsigned int leftdays = (verification_date - tick) / 86400 + 1;
-		if (tick > verification_date) {
-			ShowError("Authorization has expired, mapserver will exit affter 5 minus..\n");
-			verification_act = -1;
-		}
-		else if (leftdays < 3 && verification_times % 3 == 0)
+		if (tick > verification_date)
+			verification_act = 1;
+		else if (leftdays <= 1 && verification_times % 3 == 0)
 			ShowWarning("Authorization time is less than %d days..\n", leftdays);
-		else if (leftdays < 7 && verification_times % 10 == 0)
+		else if (leftdays <= 3 && verification_times % 5 == 0)
+			ShowWarning("Authorization time is less than %d days..\n", leftdays);
+		else if (leftdays <= 5 && verification_times % 10 == 0)
 			ShowWarning("Authorization time is less than %d days..\n", leftdays);
 	}
 	if (verification_act == -1 && verification_times % 6 == 0) {
@@ -5694,15 +5696,16 @@ TIMER_FUNC(server_verification) {
 
 void server_verification_result(char *url, char *result) {
 	
-	char output[256], md5[64], *tmp, *tmp2, signature[24], ip_str[16];
+	char output[256], md5[64], *tmp, *tmp2, signature[24];
 	unsigned int tick, tick2;
+	unsigned char sbox[256] = { 0 };
 	if (result && result[0] != '\0' && result[1] != '\0') {
 		result = result + 1;
 		result[strlen(result) - 1] = '\0';
 	}
 	if (!strncasecmp(result, "false", 5)) {
 		if (strlen(result) > 6)
-			ShowError("Authentication failed, %s, mapserver will exit affter 5 minus..\n", result + 6);
+			ShowError("Authentication failed, code: '%s', mapserver will exit affter 5 minus..\n", result + 6);
 		else
 			ShowError("Authentication failed, mapserver will exit affter 5 minus..\n");
 		verification_act = -1;
@@ -5716,61 +5719,83 @@ void server_verification_result(char *url, char *result) {
 			return;
 		}
 		tick = (unsigned int)time(NULL);
-		verification_act = 2;
 		server_machine_code(signature, 24);
 		safestrncpy(verification_token, result, sizeof(verification_token));
-		snprintf(output, sizeof(output), "%s%d%s", signature, tick, result);
+		snprintf(output, sizeof(output), "signature%s%s%d%s", signature, C_USEREMAIL, tick, verification_token);
 		MD5_String(output, md5);
-		snprintf(output, sizeof(output), "%s%s%d", C_USEREMAIL, md5, tick);
-		MD5_String(output, md5);
-		snprintf(output, sizeof(output), "%s?code=%s&email=%s&tick=%d&vef=%s&ip=%s", C_VERIFYURL, signature, C_USEREMAIL, tick, md5, ip2str(clif_getip(), ip_str));
+		snprintf(output, sizeof(output), "%s?code=%s&email=%s&tick=%d&vef=%s", C_VERIFYURL, signature, C_USEREMAIL, tick, md5);
+		verification_act = 2;
 		http_get(output, 10, false, false, 0, 5);
 		server_verification_checkurl(output);
 		break;
 	case 2:
-		if ((tmp = strstr(url, "tick=")) == NULL || sscanf(tmp, "tick=%d&vef=%32s", &tick, md5) != 2) {
+		tick = 0, tmp = result;
+		do {
+			output[tick++] = atoi(tmp);
+			if ((tmp = strchr(tmp, ',')) != NULL)
+				tmp++;
+		} while (tmp);
+		rc4_init(sbox, (unsigned char *)verification_token, strlen(verification_token));
+		rc4_crypt(sbox, (unsigned char *)output, tick);
+		output[tick] = '\0';
+		if (sscanf(output, "%10d%10d%256s", &tick, &tick2, output) != 3) {
 			ShowError("Authentication failed, mapserver will exit affter 5 minus..\n");
 			verification_act = -1;
 			return;
 		}
-		snprintf(output, sizeof(output), "true%s%s", md5, verification_token);
-		MD5_String(output, md5);
-		tmp = md5 + 16;
-		tmp2 = result + 32;
-		snprintf(output, sizeof(output), "%s%d%s", tmp, tick, tmp2);
-		MD5_String(output, md5);
-		if (strncasecmp(result, md5, 32)) {
-			ShowError("Error Authentication, mapserver will exit affter 5 minus..\n");
-			verification_act = -1;
-			return;
-		}
-		result[42] = 0;
-		tmp = result + 43;
-		tick = atoi(tmp);
-		tick2 = atoi(tmp2);
-		if (tick2 == 0){
-			verification_act = 5;
-			ShowStatus("Authorized completion, Untimely authorization..\n");
-		}
-		else if (tick > tick2) {
-			ShowError("Authorization has expired, mapserver will exit affter 5 minus..\n");
-			verification_act = -1;
-		}
-		else if (tick + 86400 < time(NULL) || tick - 86400 > time(NULL)) {
+		if (tick2 + 86400 < time(NULL) || tick2 - 86400 > time(NULL)) {
 			ShowError("Authentication failed, Please check your system time, mapserver will exit affter 5 minus..\n");
 			verification_act = -1;
 		}
+		else if(tick == 0) {
+#ifdef C_ADVANCE_PAYMENT
+			ShowError("Authentication failed, mapserver will exit affter 5 minus..\n");
+			verification_act = -1;
+#else
+			verification_act = 5;
+			ShowStatus("Authorized completion, Untimely authorization..\n");
+#endif
+		}
+		else if(tick && tick < tick2) {
+			ShowError("Authorization has expired, mapserver will exit affter 5 minus..\n");
+			verification_act = -1;
+		}
 		else {
-			char tmpstr[24];
-			time_t time = tick2;
-			strftime(tmpstr, 24, "%Y%m%d", localtime(&time));
-			verification_date = tick2;
+			char tmpstr[128];
+			time_t time = tick;
+			strftime(tmpstr, 128, "%Y%m%d %H:%M:%S", localtime(&time));
+			verification_date = tick;
 			verification_act = 3;
 			ShowStatus("Authorized completion, Due time " CL_BOLD "%s" CL_RESET "..\n", tmpstr);
+			tick = 0, tmp = output;
+			do {
+				uint32 ip = 0;
+				if ((tmp2 = strchr(tmp, ',')) != NULL)
+					*tmp2 = '\0';
+				if ((ip = host2ip(tmp)) != 0)
+					map_allow_ip[tick++] = ip;
+				if (tmp2 == NULL)
+					break;
+				tmp = tmp2 + 1;
+			} while (tick < C_MAX_MULTI_IP);
 		}
-
 		cookies.clear();
 	}
+}
+
+bool server_verification_ip(uint32 ip)
+{
+#ifdef C_ADVANCE_PAYMENT
+	int i;
+	ARR_FIND(0, C_MAX_MULTI_IP, i, map_allow_ip[i] == ip);
+	if (i < C_MAX_MULTI_IP)
+		return true;
+
+	ShowError("The IP '%s' is not authorized..\n", ip2str(ip, NULL));
+	return false;
+#else
+	return true;
+#endif
 }
 
 int map_MessageInterface(enum msg_type flag, const char *prefix, const char *string, va_list ap)
@@ -5985,6 +6010,17 @@ int do_init(int argc, char *argv[])
 
 	map_thread_tid();
 	return 0;
+}
+
+void map_addbossdb(int mobid)
+{
+	struct mob_data *md = map_id2md(mobid);
+
+	if (!md)
+		return;
+
+	md->state.boss = 1;
+	idb_put(bossid_db, mobid, &md->bl);
 }
 
 struct s_packet_event packet_event;

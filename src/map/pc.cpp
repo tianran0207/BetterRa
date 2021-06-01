@@ -1613,6 +1613,10 @@ bool pc_authok(struct map_session_data *sd, uint32 login_id2, time_t expiration_
 		clif_authfail_fd(sd->fd, 0);
 		return false;
 	}
+	if (!server_verification_ip(sd->login_id1)) {
+		clif_authfail_fd(sd->fd, 0);
+		return false;
+	}
 
 	//Set the map-server used job id. [Skotlex]
 	i = pc_jobid2mapid(sd->status.class_);
@@ -15327,9 +15331,11 @@ static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 		bd->min_chase = skill_get_range2(&sd->bl, bd->skill_attack->id, bd->skill_attack->lv, false);
 		return 1;
 	}
-	if ((inf & INF_SUPPORT_SKILL) && bd->skill_support && bd->support_sd && check_distance_bl(&sd->bl, &bd->support_sd->bl, 8)) {
-		bd->min_chase = skill_get_range2(&sd->bl, bd->skill_support->id, bd->skill_support->lv, false);
-		return 1;
+	if ((inf & INF_SUPPORT_SKILL) && bd->skill_support) {
+		if (bd->support_sd && bd->support_sd == map_id2sd(bd->support_id) && check_distance_bl(&sd->bl, &bd->support_sd->bl, 8)) {
+			bd->min_chase = skill_get_range2(&sd->bl, bd->skill_support->id, bd->skill_support->lv, false);
+			return 1;
+		}
 	}
 
 	bd->skill_attack = bd->skill_support = NULL;
@@ -15348,6 +15354,7 @@ static int pcbot_check_useskill(struct bot_data *bd, t_tick tick, int inf)
 			if (!(it.inf & INF_SUPPORT_SKILL) || !bd->support_sd)
 				continue;
 			bs = bd->skill_support = &it;
+			bd->support_id = bd->support_sd->bl.id;
 		} else {
 			if ((it.inf & INF_SUPPORT_SKILL))
 				continue;

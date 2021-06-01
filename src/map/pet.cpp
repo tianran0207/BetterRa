@@ -58,6 +58,11 @@ uint64 PetDatabase::parseBodyNode( const YAML::Node &node ){
 	std::shared_ptr<s_pet_db> pet = this->find( mob_id );
 	bool exists = pet != nullptr;
 
+	if (exists && battle_config.petdb_reload_clear) {
+		this->erase(mob_id);
+		pet.reset();
+		exists = pet != nullptr;
+	}
 	if( !exists ){
 		// Check mandatory nodes
 		if( !this->nodesExist( node, { "EggItem", "Fullness", "CaptureRate" } ) ){
@@ -1207,6 +1212,8 @@ int pet_recv_petdata(uint32 account_id,struct s_pet *p,int flag)
 				return 1;
 			}
 		}
+		if (sd->runing_event[NPCE_PETINCUBATEFILTER] & 2)
+			sd->runing_event[NPCE_PETINCUBATEFILTER] &= ~2;
 		// Hide egg from inventory.
 		// Set pet egg to broken, before the inventory gets saved
 		sd->inventory.u.items_inventory[i].attribute = 1;
@@ -2425,6 +2432,14 @@ void pet_evolution(struct map_session_data *sd, int16 pet_id) {
 
 	clif_pet_evolution_result(sd, e_pet_evolution_result::SUCCESS);
 	clif_inventorylist(sd);
+
+	if (npc_script_event_check(sd, NPCE_PETEVOLVESEVENT)) {
+		pc_setreg(sd, add_str("@pet_id"), sd->pd->pet.class_);
+		pc_setreg(sd, add_str("@pet_gid"), sd->pd->bl.id);
+		npc_script_event_atonce(sd, NPCE_PETEVOLVESEVENT);
+		if (sd->state.processhalt)
+			return;
+	}
 }
 
 /**

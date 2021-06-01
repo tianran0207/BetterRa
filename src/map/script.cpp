@@ -343,6 +343,7 @@ struct Script_Config script_config = {
 	"OnPCPetSkillFilter", //pet_skill_filter_name
 	"OnPCPetIncubateFilter", //pet_incubate_filter_name;
 	"OnPCPetEvolvesFilter", //pet_evolves_filter_name;
+	"OnPCPetEvolvesEvent", //pet_evolves_event_name;
 	"OnPCViewEquipFilter", //view_equit_filter_name
 	"OnPCUseSkillFilter", //use_skill_filter_name
 	"OnPCUseSkillEvent", //use_skill_event_name
@@ -11186,6 +11187,7 @@ BUILDIN_FUNC(monster)
 	const char* event	= "";
 	unsigned int size	= SZ_SMALL;
 	enum mob_ai ai		= AI_NONE;
+	bool boss_master    = !strcmp(script_getfuncname(st), "boss_monster");
 
 	struct map_session_data* sd;
 	int16 m;
@@ -11226,6 +11228,9 @@ BUILDIN_FUNC(monster)
 
 	for(i = 0; i < amount; i++) { //not optimised
 		mobid = mob_once_spawn(sd, m, x, y, str, class_, 1, event, size, ai);
+
+		if (mobid && boss_master)
+			map_addbossdb(mobid);
 
 		if (mobid)
 			mapreg_setreg(reference_uid(add_str("$@mobid"), i), mobid);
@@ -26042,13 +26047,13 @@ BUILDIN_FUNC(getinventoryinfo)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-void storage_state_sub(struct map_session_data *sd, bool *storage_state, int *do_event)
+void storage_state_sub(struct map_session_data *sd, char *storage_state, int *do_event)
 {
 	if (do_event) {
 		storage_state[0] = sd->runing_event[NPCE_STORAGEADDFILTER];
 		storage_state[1] = sd->runing_event[NPCE_CARTADDFILTER];
 		storage_state[2] = sd->runing_event[NPCE_INVENTORYADDFILTER];
-		sd->runing_event[NPCE_STORAGEADDFILTER] = sd->runing_event[NPCE_CARTADDFILTER] = *do_event;
+		sd->runing_event[NPCE_STORAGEADDFILTER] = sd->runing_event[NPCE_CARTADDFILTER] = sd->runing_event[NPCE_INVENTORYADDFILTER] = *do_event;
 	}
 	else {
 		sd->runing_event[NPCE_STORAGEADDFILTER] = storage_state[0];
@@ -26087,7 +26092,7 @@ BUILDIN_FUNC(putstoragebyidx)
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	bool storage_state[3];
+	char storage_state[3];
 	storage_state_sub(sd, storage_state, &do_event);
 	switch (type) {
 	case TABLE_CART:
@@ -26136,7 +26141,7 @@ BUILDIN_FUNC(getstoragebyidx)
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	bool storage_state[3];
+	char storage_state[3];
 	storage_state_sub(sd, storage_state, &do_event);
 	switch (type) {
 	case TABLE_CART:
@@ -26186,7 +26191,7 @@ BUILDIN_FUNC(delinventorybyidx)
 		return SCRIPT_CMD_SUCCESS;
 	}
 
-	bool storage_state[3];
+	char storage_state[3];
 	storage_state_sub(sd, storage_state, &do_event);
 	switch (type) {
 	case TABLE_INVENTORY:
@@ -28173,9 +28178,9 @@ BUILDIN_FUNC(unitskilltoAOE)
 	range = script_getnum(st, 5);
 	maxcount = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
 
-	if (sd) sd->runing_event[NPCE_USESKILLEVENT] = true;
+	if (sd) sd->runing_event[NPCE_USESKILLEVENT] |= 1;
 	map_foreachinrange(buildin_unitskilltoAOE_sub, bl, range, BL_CHAR, bl, skill_id, skill_lv, &count, maxcount);
-	if (sd) sd->runing_event[NPCE_USESKILLEVENT] = false;
+	if (sd) sd->runing_event[NPCE_USESKILLEVENT] &= ~1;
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -30016,9 +30021,9 @@ BUILDIN_FUNC(unitshow)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
-	sd->runing_event[NPCE_ONDISPLAY] = true;
+	sd->runing_event[NPCE_ONDISPLAY] |= 1;
 	clif_getareachar_unit(sd, bl);
-	sd->runing_event[NPCE_ONDISPLAY] = false;
+	sd->runing_event[NPCE_ONDISPLAY] &= ~1;
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -30763,7 +30768,7 @@ BUILDIN_FUNC(skf_card_fix)
 	int attack_type = script_getnum(st, 3);
 	std::bitset<NK_MAX> nk = script_hasdata(st, 4) ? script_getnum(st, 4) : skill_db.find(skf_db.info.skill_id)->nk;
 	int hand = script_hasdata(st, 5) ? script_getnum(st, 5) : 2;
-	script_pushint(st, skf_db.script_card_fix(damage, attack_type, nk, hand));
+	script_pushint(st, skf_db.script_card_fix(damage, 0, attack_type, nk, hand));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -32455,6 +32460,10 @@ BUILDIN_FUNC(petbirthbyidx)
 	if (!script_charid2sd(3, sd))
 		return SCRIPT_CMD_FAILURE;
 
+	if (sd->runing_event[NPCE_PETINCUBATEFILTER] & 2)
+		return SCRIPT_CMD_SUCCESS;
+
+	sd->runing_event[NPCE_PETINCUBATEFILTER] |= 2;
 	pet_select_egg(sd, script_getnum(st, 2));
 
 	return SCRIPT_CMD_SUCCESS;
@@ -32504,6 +32513,31 @@ BUILDIN_FUNC(getpccurrency)
 		script_pushint(st, sd->vend_loot);
 	else
 		script_pushint(st, 0);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(instance_srcmapname)
+{
+	struct map_session_data* sd;
+	const char *str;
+	int16 m;
+
+	if (script_isstring(st, 2)) {
+		str = script_getstr(st, 2);
+		m = map_mapname2mapid(str);
+	}
+	else if (script_charid2sd(2, sd))
+		m = sd->bl.m;
+	else
+		return SCRIPT_CMD_FAILURE;
+
+	struct map_data *mapdata = map_getmapdata(m);
+
+	if (mapdata->instance_src_map)
+		script_pushconststr(st, map_getmapdata(mapdata->instance_src_map)->name);
+	else
+		script_pushconststr(st, "");
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -33760,6 +33794,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(sellitemcurrency, "ii?"),
 	BUILDIN_DEF(endsellitem, ""),
 	BUILDIN_DEF(bartershop, "??"),
+	BUILDIN_DEF2(monster, "boss_monster", "siisii???"),
 	BUILDIN_DEF(rfifo_int, "ii"),
 	BUILDIN_DEF(rfifo_str, "i"),
 	BUILDIN_DEF(wfifo_int, "iii"),
@@ -33825,6 +33860,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(petbirthbyidx, "i?"),
 	BUILDIN_DEF(setpccurrency, "i?"),
 	BUILDIN_DEF(getpccurrency, "?"),
+	BUILDIN_DEF(instance_srcmapname, "v"),
 	BUILDIN_DEF(roulette_bonus, "i"),
 	BUILDIN_DEF(roulette_iteminfo, "iii?"),
 	BUILDIN_DEF(roulette_open, "????"),

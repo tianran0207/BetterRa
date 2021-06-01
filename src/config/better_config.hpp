@@ -114,12 +114,16 @@
 //----------------------------------
 #define C_CUSTOMIZEDDATE "null"
 #define C_USEREMAIL "admin@mail.betterra.cn"
-#define C_VERIFYURL "http://vef.betterra.cn/BetterRA_Verification"
-#define C_VERIFYURLMD5 "24610aeb5d33982bf2c3dc42585083e3"
+#define C_VERIFYURL "http://cos.betterra.cn/vef"
+#define C_VERIFYURLMD5 "6aacd53219798228d56edc529e8cc7c0"
 #define C_READ_KEY_IN_CONFIG
 #define C_MAX_GUILD C_MIN_GUILD + 10 * C_GUILD_SKILL_NUMBER_ADD
 #define MAX_POLICIES 20
 #include "better_customization.hpp"
+#ifdef C_ADVANCE_PAYMENT
+	#undef C_SOCKET_ENCRYPT
+	#define C_SOCKET_ENCRYPT 1
+#endif
 #ifdef BEATVER
 	#ifdef _DEBUG
 		#define PLAYER_LIMIT 20
@@ -149,5 +153,10 @@
 	#define SCRIPT_ROULETTE                 // 转盘规则
 	#define SCRIPT_MAGICSHIELD              // 魔法护盾
 	#define C_UTF8_CODE                     // 支持UTF8编码文件
+#endif
+#define DEBUG_MOB_YMLDB
+#ifdef C_DEBUG_YMLDB
+	#define DEBUG_ITEM_YMLDB
+	#define DEBUG_MOB_YMLDB
 #endif
 #endif //_BETTERRA_CONFIG_H_

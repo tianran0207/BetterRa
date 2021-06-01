@@ -251,6 +251,7 @@ struct Script_Config {
 	const char*	pet_skill_filter_name;
 	const char*	pet_incubate_filter_name;
 	const char*	pet_evolves_filter_name;
+	const char*	pet_evolves_event_name;
 	// Interactive related
 	const char*	view_equit_filter_name;
 	// Useskill related
