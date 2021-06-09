@@ -53,10 +53,10 @@ Header:
   
 Body:
 #  - Skill: 14
-#    Tips: 伤害修正为 100 * $skf_lv + rand(int * 100), 念咒为1秒, 当dex大于100时无延迟;
+#    Tips: 伤害修正为 100 * 技能等级 + rand(int * 100), 念咒为1秒, 当dex大于100时无延迟;
 #    Typeable: 1
 #    Formula: >
-#      $skf_dmg = 100 * $skf_lv * $skf_src_status(STATUS_INT) + rand($skf_src_status(STATUS_INT) * 100);
+#      $skf_dmg = 100 * $skf_lv * skf_src_status(STATUS_INT) + rand(skf_src_status(STATUS_INT) * 100);
 #    Casting: >
 #      $skf_tim = 1000;
 #    Delay: >
