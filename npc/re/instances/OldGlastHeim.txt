@@ -954,8 +954,6 @@ OnMyMobDead:
 
 		enablenpc instance_npcname("#2F Entrance");
 		enablenpc instance_npcname("#1 Control");
-		enablenpc instance_npcname("#22 Control");
-		enablenpc instance_npcname("#22 Control2");
 		enablenpc instance_npcname("#Servanton");
 		enablenpc instance_npcname("海因里希#21");
 		enablenpc instance_npcname("巴尔蒙德#21");
@@ -1071,6 +1069,8 @@ OnTimer69000:
 	disablenpc 'npc_heinrich$;
 	stopnpctimer;
 	'npc_varmundt$ = 'npc_heinrich$ = "";
+	enablenpc instance_npcname("#22 Control");
+	enablenpc instance_npcname("#22 Control2");
 	end;
 }
 
