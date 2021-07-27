@@ -783,10 +783,11 @@ OnTalk:
 
 在原来类型的基础上, BetterRa 新增了以下类型:
 
-ITEMINFO_CANREFINE - 是否可精炼, 1表示可以精炼, 0表示不能精炼
-ITEMINFO_CANTRADE - 交易限制掩码, 将返回该物品在 item_trade 数据库中第二列定义的值
-ITEMINFO_CALLPET - 是否为宠物捕捉道具, 0表示否, 若是则返回能捕获的魔物编号
-ITEMINFO_CALLFUNC - 是否在其使用脚本中调用了 callfunc 指令, 1表示是, 0表示否 (复兴前版本返回 -1)
+ITEMINFO_CANREFINE   - 是否可精炼, 1表示可以精炼, 0表示不能精炼
+ITEMINFO_CANTRADE    - 交易限制掩码, 将返回该物品在 item_trade 数据库中第二列定义的值
+ITEMINFO_CALLPET     - 是否为宠物捕捉道具, 0表示否, 若是则返回能捕获的魔物编号
+ITEMINFO_CALLFUNC    - 是否在其使用脚本中调用了 callfunc 指令, 1表示是, 0表示否 (复兴前版本返回 -1)
+ITEMINFO_ARMORLEVEL  - 获取防具等级
 
 ---------------------------------------
 
@@ -2819,7 +2820,7 @@ Example:
 	
 如果执行成功的话, 会赋予以下数组魔物生成的信息:
 
-	$@boss_gid[]		魔物的gid(可通过 getmobdata 获取其他信息)
+	$@boss_gid[]		魔物的gid(可通过 getunitdata 获取其他信息)
 	$@boss_spawn[]		魔物重生倒数(毫秒, 0 表示已重生)
 	
 指令返回获取到的个数, 即变量的成员数量
