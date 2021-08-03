@@ -54,16 +54,16 @@
 #     DropAnnounce          If the item has a special announcement to self on drop. (Default: false)
 #     NoConsume             If the item is consumed on use. (Default: false)
 #     DropEffect            If the item has a special effect when on the ground. (Default: None)
-#     ForceUseItem          å½“çŽ©å®¶å¤„äºŽä¸èƒ½ä½¿ç”¨ç‰©å“çš„çŠ¶æ€æ—¶ä¾ç„¶å¯ä»¥ä½¿ç”¨å¸¦æœ‰æ­¤æ ‡ç­¾çš„ç‰©å“
-#     IgnoreNoFunc          ç‰©å“æ— è§† mapflag ä¸­ noitemfunc å¯¹åº”çš„é¡¹ç›®
-#     NoConsume2            ç‰©å“ä¸ä¼šç”±äºŽè¢«çŽ©å®¶ä¸»åŠ¨ä½¿ç”¨è€Œæ¶ˆè€—ï¼ˆæ—  NoConsume åœ¨ä½¿ç”¨æŠ€èƒ½å’Œåéª‘ä¸‹ä¸èƒ½ä½¿ç”¨çš„é™åˆ¶çš„é™åˆ¶ï¼‰
-#     NoSkillConsume        ç‰©å“ä¸ä¼šç”±äºŽè¢«å‘åŠ¨æŠ€èƒ½æ‰€éœ€è¦è€Œæ¶ˆè€—
-#     NoDropWithoutPlayer   é­”ç‰©åœ¨æ²¡æœ‰çŽ©å®¶å‚ä¸Žè¢«æ€æ­»æ—¶ä¸ä¼šæŽ‰è½è¯¥ç‰©å“
-#     DoDropEvent           é­”ç‰©è¢«çŽ©å®¶å‡»æ€æ—¶, ä¼šè§¦å‘ OnMOBDropItemFilter äº‹ä»¶
-#     TurnIntoCostume       æ’æœ‰è¯¥ç‰©å“çš„è£…å¤‡å˜ä¸ºæ—¶è£…/å½±è£… (å…ˆåœ¨ BetterRA.conf ä¸­ é…ç½® item_costume_cardä¸º yes å¼€å¯è¯¥åŠŸèƒ½)
-#     IgnoreScript          æ’æœ‰è¯¥ç‰©å“çš„è£…å¤‡ã€æ—¶è£…/å½±è£…æ‰€æœ‰å±žæ€§ä¼šæ— æ•ˆåŒ–
-#     IgnoreAutoLoot        ç‰©å“æ— è§†è‡ªåŠ¨æ‹¾å–, ä¼šç›´æŽ¥æŽ‰åˆ°åœ°ä¸Š
-#     IgnoreEquipView       è£…å¤‡å¤–è§‚ä¸æ˜¾ç¤ºåœ¨è£…å¤‡æ çª—å£ä¸­
+#     ForceUseItem          µ±Íæ¼Ò´¦ÓÚ²»ÄÜÊ¹ÓÃÎïÆ·µÄ×´Ì¬Ê±ÒÀÈ»¿ÉÒÔÊ¹ÓÃ´øÓÐ´Ë±êÇ©µÄÎïÆ·
+#     IgnoreNoFunc          ÎïÆ·ÎÞÊÓ mapflag ÖÐ noitemfunc ¶ÔÓ¦µÄÏîÄ¿
+#     NoConsume2            ÎïÆ·²»»áÓÉÓÚ±»Íæ¼ÒÖ÷¶¯Ê¹ÓÃ¶øÏûºÄ£¨ÎÞ NoConsume ÔÚÊ¹ÓÃ¼¼ÄÜºÍ×øÆïÏÂ²»ÄÜÊ¹ÓÃµÄÏÞÖÆµÄÏÞÖÆ£©
+#     NoSkillConsume        ÎïÆ·²»»áÓÉÓÚ±»·¢¶¯¼¼ÄÜËùÐèÒª¶øÏûºÄ
+#     NoDropWithoutPlayer   Ä§ÎïÔÚÃ»ÓÐÍæ¼Ò²ÎÓë±»É±ËÀÊ±²»»áµôÂä¸ÃÎïÆ·
+#     DoDropEvent           Ä§Îï±»Íæ¼Ò»÷É±Ê±, »á´¥·¢ OnMOBDropItemFilter ÊÂ¼þ
+#     TurnIntoCostume       ²åÓÐ¸ÃÎïÆ·µÄ×°±¸±äÎªÊ±×°/Ó°×° (ÏÈÔÚ BetterRA.conf ÖÐ ÅäÖÃ item_costume_cardÎª yes ¿ªÆô¸Ã¹¦ÄÜ)
+#     IgnoreScript          ²åÓÐ¸ÃÎïÆ·µÄ×°±¸¡¢Ê±×°/Ó°×°ËùÓÐÊôÐÔ»áÎÞÐ§»¯
+#     IgnoreAutoLoot        ÎïÆ·ÎÞÊÓ×Ô¶¯Ê°È¡, »áÖ±½Óµôµ½µØÉÏ
+#     IgnoreEquipView       ×°±¸Íâ¹Û²»ÏÔÊ¾ÔÚ×°±¸À¸´°¿ÚÖÐ
 #   Delay:                  Item use delay. (Default: null)
 #     Duration              Duration of delay in seconds.
 #     Status                Status Change used to track delay. (Default: None)
@@ -10348,9 +10348,9 @@ Body:
       BuyingStore: true
       DropEffect: CLIENT
     Script: |
-      bonus2 bAddClass,Class_All,(getrefine()>=15?8:5);
-      bonus5 bAutoSpell,"SA_DISPELL",1,1,BF_NORMAL,1;
       bonus bUnbreakableWeapon;
+      bonus2 bAddClass,Class_All,(getrefine()>=15?8:5);
+      bonus3 bAutoSpell,"SA_DISPELL",1,25;
   - Id: 4536
     AegisName: Sealed_Atroce_Card
     Name: ·âÓ¡°¢ÌØÂÞË¹¿¨Æ¬
@@ -10466,9 +10466,9 @@ Body:
       BuyingStore: true
       DropEffect: CLIENT
     Script: |
-      bonus2 bResEff,Eff_Freeze,(getrefine()>=15?6000:4000);
-      bonus5 bAutoSpell,"SA_LANDPROTECTOR",1,1,BF_MAGIC,1;
       bonus bMdef,-20;
+      bonus2 bResEff,Eff_Freeze,(getrefine()>=15?6000:4000);
+      bonus5 bAutoSpellWhenHit,"SA_LANDPROTECTOR",1,35,BF_MAGIC,0;
   - Id: 4543
     AegisName: SLD_Garm_Card
     Name: ·âÓ¡¿¨ÂØ¿¨Æ¬
@@ -10541,9 +10541,9 @@ Body:
       if (BaseJob == Job_Rogue) {
          bonus bMatkRate,10;
          bonus2 bAddClass,Class_All,10;
-         bonus bMaxHPrate,getrefine()/2;
       }
-      /* Adds a chance of inflicting Confuse on target when using Body Paint skill. */
+      bonus bMaxHPrate,getrefine()/2;
+      bonus3 bAddEffOnSkill,"SC_BODYPAINT",Eff_Stun,1000;
   - Id: 4548
     AegisName: Upd_Salamander_Card
     Name: Ç¿»¯»ðòáòæ¿¨Æ¬
@@ -11368,9 +11368,9 @@ Body:
       DropEffect: CLIENT
     Script: |
       bonus bBaseAtk,20;
-      bonus5 bAutoSpell,"NPC_WIDESTONE",1,50,BF_WEAPON,0;
-      bonus5 bAutoSpell,"NPC_WIDESLEEP",1,50,BF_WEAPON,0;
-      bonus5 bAutoSpell,"NPC_WIDECURSE",1,50,BF_WEAPON,0;
+      bonus5 bAutoSpell,"NPC_WIDESTONE",1,50,BF_SHORT,0;
+      bonus5 bAutoSpell,"NPC_WIDESLEEP",1,50,BF_SHORT,0;
+      bonus5 bAutoSpell,"NPC_WIDECURSE",1,50,BF_SHORT,0;
   - Id: 4604
     AegisName: CorruptionRootH_Card
     Name: ¾õÐÑ¶éÂä¸ù¾¥¿¨Æ¬
@@ -11384,9 +11384,9 @@ Body:
       DropEffect: CLIENT
     Script: |
       bonus bBaseAtk,30;
-      bonus5 bAutoSpell,"NPC_WIDESTONE",2,50,BF_WEAPON,0;
-      bonus5 bAutoSpell,"NPC_WIDESLEEP",2,50,BF_WEAPON,0;
-      bonus5 bAutoSpell,"NPC_WIDECURSE",2,50,BF_WEAPON,0;
+      bonus5 bAutoSpell,"NPC_WIDESTONE",2,50,BF_SHORT,0;
+      bonus5 bAutoSpell,"NPC_WIDESLEEP",2,50,BF_SHORT,0;
+      bonus5 bAutoSpell,"NPC_WIDECURSE",2,50,BF_SHORT,0;
   - Id: 4605
     AegisName: UndeadKnightM_Card
     Name: Í´¿àÆïÊ¿¿¨Æ¬
@@ -34078,19 +34078,6 @@ Body:
     Name: Ã¨ßäÊÖ²Ö¿âÈ¯
     Type: Etc
     Buy: 10
-  - Id: 22870
-    AegisName: Xmas_Package_14
-    Name: Ê¥µ®Àñ°ü
-    Type: Etc
-    Weight: 10
-    Trade:
-      Override: 100
-      NoDrop: true
-      NoTrade: true
-      NoCart: true
-      NoGuildStorage: true
-      NoMail: true
-      NoAuction: true
   - Id: 22875
     AegisName: Sealed_Beelzebub_Card
     Name: Sealed Beelzebub Card
@@ -38298,6 +38285,30 @@ Body:
       DropEffect: CLIENT
     Script: |
       bonus3 bAddEff,Eff_Burning,700,ATF_WEAPON|ATF_MAGIC;
+  - Id: 27031
+    AegisName: Labyrinth_Bapho_Card
+    Name: Labyrinth Baphomet Card
+    Type: Card
+    Buy: 20
+    Weight: 10
+    Locations:
+      Right_Hand: true
+    Flags:
+      DropEffect: CLIENT
+    Script: |
+      bonus2 bAddClass,Class_All,10;
+  - Id: 27032
+    AegisName: Labyrinth_Dra_Card
+    Name: Labyrinth Dracula Card
+    Type: Card
+    Buy: 20
+    Weight: 10
+    Locations:
+      Right_Hand: true
+    Flags:
+      DropEffect: CLIENT
+    Script: |
+      bonus2 bAddClass,Class_All,10;
   - Id: 27081
     AegisName: AngerMoonlight_Card
     Name: ·ßÅ­ÔÂÒ¹Ã¨¿¨Æ¬

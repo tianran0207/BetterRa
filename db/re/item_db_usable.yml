@@ -54,16 +54,16 @@
 #     DropAnnounce          If the item has a special announcement to self on drop. (Default: false)
 #     NoConsume             If the item is consumed on use. (Default: false)
 #     DropEffect            If the item has a special effect on the ground when dropped by a monster. (Default: None)
-#     ForceUseItem          å½“ç©å®¶å¤„äºä¸èƒ½ä½¿ç”¨ç‰©å“çš„çŠ¶æ€æ—¶ä¾ç„¶å¯ä»¥ä½¿ç”¨å¸¦æœ‰æ­¤æ ‡ç­¾çš„ç‰©å“
-#     IgnoreNoFunc          ç‰©å“æ— è§† mapflag ä¸­ noitemfunc å¯¹åº”çš„é¡¹ç›®
-#     NoConsume2            ç‰©å“ä¸ä¼šç”±äºè¢«ç©å®¶ä¸»åŠ¨ä½¿ç”¨è€Œæ¶ˆè€—ï¼ˆæ—  NoConsume åœ¨ä½¿ç”¨æŠ€èƒ½å’Œåéª‘ä¸‹ä¸èƒ½ä½¿ç”¨çš„é™åˆ¶çš„é™åˆ¶ï¼‰
-#     NoSkillConsume        ç‰©å“ä¸ä¼šç”±äºè¢«å‘åŠ¨æŠ€èƒ½æ‰€éœ€è¦è€Œæ¶ˆè€—
-#     NoDropWithoutPlayer   é­”ç‰©åœ¨æ²¡æœ‰ç©å®¶å‚ä¸è¢«æ€æ­»æ—¶ä¸ä¼šæ‰è½è¯¥ç‰©å“
-#     DoDropEvent           é­”ç‰©è¢«ç©å®¶å‡»æ€æ—¶, ä¼šè§¦å‘ OnMOBDropItemFilter äº‹ä»¶
-#     TurnIntoCostume       æ’æœ‰è¯¥ç‰©å“çš„è£…å¤‡å˜ä¸ºæ—¶è£…/å½±è£… (å…ˆåœ¨ BetterRA.conf ä¸­ é…ç½® item_costume_cardä¸º yes å¼€å¯è¯¥åŠŸèƒ½)
-#     IgnoreScript          æ’æœ‰è¯¥ç‰©å“çš„è£…å¤‡ã€æ—¶è£…/å½±è£…æ‰€æœ‰å±æ€§ä¼šæ— æ•ˆåŒ–
-#     IgnoreAutoLoot        ç‰©å“æ— è§†è‡ªåŠ¨æ‹¾å–, ä¼šç›´æ¥æ‰åˆ°åœ°ä¸Š
-#     IgnoreEquipView       è£…å¤‡å¤–è§‚ä¸æ˜¾ç¤ºåœ¨è£…å¤‡æ çª—å£ä¸­
+#     ForceUseItem          µ±Íæ¼Ò´¦ÓÚ²»ÄÜÊ¹ÓÃÎïÆ·µÄ×´Ì¬Ê±ÒÀÈ»¿ÉÒÔÊ¹ÓÃ´øÓĞ´Ë±êÇ©µÄÎïÆ·
+#     IgnoreNoFunc          ÎïÆ·ÎŞÊÓ mapflag ÖĞ noitemfunc ¶ÔÓ¦µÄÏîÄ¿
+#     NoConsume2            ÎïÆ·²»»áÓÉÓÚ±»Íæ¼ÒÖ÷¶¯Ê¹ÓÃ¶øÏûºÄ£¨ÎŞ NoConsume ÔÚÊ¹ÓÃ¼¼ÄÜºÍ×øÆïÏÂ²»ÄÜÊ¹ÓÃµÄÏŞÖÆµÄÏŞÖÆ£©
+#     NoSkillConsume        ÎïÆ·²»»áÓÉÓÚ±»·¢¶¯¼¼ÄÜËùĞèÒª¶øÏûºÄ
+#     NoDropWithoutPlayer   Ä§ÎïÔÚÃ»ÓĞÍæ¼Ò²ÎÓë±»É±ËÀÊ±²»»áµôÂä¸ÃÎïÆ·
+#     DoDropEvent           Ä§Îï±»Íæ¼Ò»÷É±Ê±, »á´¥·¢ OnMOBDropItemFilter ÊÂ¼ş
+#     TurnIntoCostume       ²åÓĞ¸ÃÎïÆ·µÄ×°±¸±äÎªÊ±×°/Ó°×° (ÏÈÔÚ BetterRA.conf ÖĞ ÅäÖÃ item_costume_cardÎª yes ¿ªÆô¸Ã¹¦ÄÜ)
+#     IgnoreScript          ²åÓĞ¸ÃÎïÆ·µÄ×°±¸¡¢Ê±×°/Ó°×°ËùÓĞÊôĞÔ»áÎŞĞ§»¯
+#     IgnoreAutoLoot        ÎïÆ·ÎŞÊÓ×Ô¶¯Ê°È¡, »áÖ±½Óµôµ½µØÉÏ
+#     IgnoreEquipView       ×°±¸Íâ¹Û²»ÏÔÊ¾ÔÚ×°±¸À¸´°¿ÚÖĞ
 #   Delay:                  Item use delay. (Default: null)
 #     Duration              Duration of delay in seconds.
 #     Status                Status Change used to track delay. (Default: None)
@@ -41320,6 +41320,8 @@ Body:
       NoGuildStorage: true
       NoMail: true
       NoAuction: true
+    Script: |
+      rentitem 12622,259200;
   - Id: 17181
     AegisName: Jan_Groove_Box
     Name: 1ÔÂºÚÆ¤Ïä
@@ -45004,6 +45006,10 @@ Body:
     Type: Delayconsume
     Buy: 10
     Weight: 10
+    Flags:
+      Container: true
+    Script: |
+      getgroupitem(IG_EASTER_EGG);
   - Id: 22592
     AegisName: Happy_Call_Box
     Name: Happy Call Box
@@ -45760,6 +45766,8 @@ Body:
     Type: Usable
     Buy: 10
     Weight: 100
+    Flags:
+      Container: true
     Trade:
       Override: 100
       NoDrop: true
@@ -45770,7 +45778,7 @@ Body:
       NoMail: true
       NoAuction: true
     Script: |
-      /*No clue the random item yet*/
+      getgroupitem(IG_PITAPAT_BOX);
   - Id: 22721
     AegisName: ?_Box
     Name: "? Box"
@@ -46774,6 +46782,23 @@ Body:
       NoAuction: true
     Script: |
       RouletteBronze++;
+  - Id: 22870
+    AegisName: Xmas_Package_14
+    Name: Ê¥µ®Àñ°ü
+    Type: Usable
+    Weight: 10
+    Flags:
+      Container: true
+    Trade:
+      Override: 100
+      NoDrop: true
+      NoTrade: true
+      NoCart: true
+      NoGuildStorage: true
+      NoMail: true
+      NoAuction: true
+    Script: |
+      getgroupitem(IG_XMAS_PACKAGE_14);
   - Id: 22873
     AegisName: Sealed_Beelzebub_Scroll_II
     Name: Sealed Beelzebub Scroll II

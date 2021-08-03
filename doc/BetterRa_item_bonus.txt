@@ -10,6 +10,8 @@
 //= 下面的说明, 它会介绍这些物品附加效果的使用方法.
 //============================================================
 
+bonus2 bWeaponSubSize,s,x;				当受到物理攻击时, 减少来自体型 s 的伤害 x%
+
 bonus4 bSkillForAOE,sk,range,n,r;		使用sk技能时, 有r(千分率)的几率对range范围内的n个目标使用同样的技能.
 bonus bWeaponAddDamage,n;				普通攻击或武器技能攻击时增加 n 的固定伤害
 bonus bMagicAddDamage,n;				魔法技能攻击时增加 n 的固定伤害

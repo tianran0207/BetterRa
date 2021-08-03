@@ -335,6 +335,8 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 ---------------------------------------
 
 *getinventoryinfo <背包位置序号>,<要查看的信息类型>{,<角色ID>};
+*getequipedinfo <装备位置编号>,<要查看的信息类型>{,<角色ID>};
+
 *getcartinfo <手推车位置序号>,<要查看的信息类型>{,<角色ID>};
 *getstorageinfo <仓库位置序号>,<要查看的信息类型>{,<仓库ID>{,<角色ID>}};
 *getguildstorageinfo <仓库位置序号>,<要查看的信息类型>{,<角色ID>};
@@ -363,7 +365,13 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 
 	
 	.@uid$ = getinventoryinfo(背包序号, 11);	
-	.@uid = getinventoryinfo(背包序号, 11);		
+	.@uid = getinventoryinfo(背包序号, 11);	
+
+获取物品的 词条信息 格式如下:
+	特例格式: getinventoryinfo <背包位置序号>,<Random Option序号>,<id变量>,<value变量>,<param变量>{,<角色ID>};
+	特例格式: getequipedinfo <装备位置编号>,<Random Option序号>,<id变量>,<value变量>,<param变量>{,<角色ID>};
+	获取成功后相应数据将存在传入的变量中. 
+	其他指令(getcartinfo,getstorageinfo,getguildstorageinfo)用法类似, getstorageinfo 不再支持仓库ID, 获取默认仓库
 	
 返回值:
 	失败则返回 -1, 成功则返回你所查询的信息的值
@@ -1380,8 +1388,13 @@ OnHTTPReceivedEvent 事件返回变量:
 	PH_ASTARTWALK: 离开路径后, 调用A*算法计算路径, 并走到最终规定的路点终点).
 	PH_ASTARTWALKBACK: 离开路径后, 调用A*算法计算返回路径.
 
-<参数> 默认为 25, 为 PH_WALKBACK 提供返回距离， 当魔物离开路径 <参数> 格时，魔物不在追踪返回路径。
-<"事件名称"> 为路径点走完以后调用的事件，魔物路径寻路失败也会执行此命令。可通过$@gid获得触发事件魔物的GID
+<参数> 
+	默认为 25, 为 PH_WALKBACK 提供返回距离，当魔物离开路径 <参数> 格时，魔物不在追踪距离内则返回路径。
+	
+<"事件名称"> 
+	为路径点走完以后调用的事件，魔物路径寻路失败也会执行此命令。
+	可通过 $@steppath_gid 获得触发事件魔物的GID
+	可通过 $@steppath_fail 获得本次寻路是否成功
 
 ---------------------------------------
 
@@ -1398,8 +1411,13 @@ OnHTTPReceivedEvent 事件返回变量:
 	PH_ASTARTWALK: 离开路径后, 调用A*算法计算路径, 并走到最终规定的路点终点.
 	PH_ASTARTWALKBACK: 离开路径后, 调用A*算法计算返回路径.
 
-<参数> 默认为 25, 为 PH_WALKBACK 提供返回距离， 当魔物离开路径 <参数> 格时，魔物不在追踪返回路径。
-<"事件名称"> 为路径点走完以后调用的事件，魔物路径寻路失败也会执行此命令。可通过$@gid获得触发事件魔物的GID
+<参数> 
+	默认为 25, 为 PH_WALKBACK 提供返回距离，当魔物离开路径 <参数> 格时，魔物不在追踪距离内则返回路径。
+	
+<"事件名称"> 
+	为路径点走完以后调用的事件，魔物路径寻路失败也会执行此命令。
+	可通过 $@steppath_gid 获得触发事件魔物的GID
+	可通过 $@steppath_fail 获得本次寻路是否成功
 
 ---------------------------------------
 
@@ -2171,18 +2189,31 @@ $@sameuid_amount 使用指定机器码登录的玩家个数.
 ---------------------------------------
 
 *countrentitem(<物品ID>{,<账号ID>})
+*countrentitem("<物品名称>"{,<账号ID>})
 *countrentitem2(<物品ID>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>{,<账号ID>})
+*countrentitem2("<物品名称>",<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>{,<账号ID>})
 *countrentitem3(<物品ID>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<RandomIDArray>,<RandomValueArray>,<RandomParamArray>{,<accountID>})
-*countrentitem3("<item name>",<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<RandomIDArray>,<RandomValueArray>,<RandomParamArray>{,<accountID>})
+*countrentitem3("<物品名称>",<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<RandomIDArray>,<RandomValueArray>,<RandomParamArray>{,<accountID>})
 
 指令用于获取租赁物品的数量, 可以用于制作的时候, 通过 (countitem - countrentitem) 计算出非租赁物品的数量, 用法请参考 countitem
 
 ---------------------------------------
 
-*monster     "<地图名>",<x>,<y>,"<显示的名称>",<魔物ID>,<数量>{,"<死亡触发标签>",<体型>,<AI>};
-*areamonster "<地图名>",<x1>,<y1>,<x2>,<y2>,"<显示的名称>",<魔物ID>,<数量>{,"<死亡触发标签>",<体型>,<AI>};
+*getitem(<物品ID>{,<账号ID>})
+*getitem("<物品名称>"{,<账号ID>})
+*getitem2(<物品ID>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>{,<账号ID>})
+*getitem2("<物品名称>",<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>{,<账号ID>})
+*getitem3(<物品ID>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<RandomIDArray>,<RandomValueArray>,<RandomParamArray>{,<accountID>})
+*getitem3("<物品名称>",<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<RandomIDArray>,<RandomValueArray>,<RandomParamArray>{,<accountID>})
 
-指令返返回最后一个召唤魔物的GID, 召唤失败返回0, 此指令只在原指令上做了返回ID的优化, 便于写脚本
+指令返回最后一个获取物品的背包序列, 此指令只在原指令上做了返回序列的优化, 便于写脚本
+
+---------------------------------------
+
+*monster("<地图名>",<x>,<y>,"<显示的名称>",<魔物ID>,<数量>{,"<死亡触发标签>",<体型>,<AI>});
+*areamonster("<地图名>",<x1>,<y1>,<x2>,<y2>,"<显示的名称>",<魔物ID>,<数量>{,"<死亡触发标签>",<体型>,<AI>});
+
+指令返回最后一个召唤魔物的GID, 召唤失败返回0, 此指令只在原指令上做了返回ID的优化, 便于写脚本
 
 ---------------------------------------
 
@@ -2663,9 +2694,9 @@ Example:
 	14	- 装备的附魔等级(enchantgrade)
 	16  - 是否被玩家收藏.
 	
-设置物品的 option 格式如下:
-特例格式: setinventoryinfo <背包位置序号>,<Random Option序号>,<id>,<value>,<param>{,<角色ID>};
-特例格式: setequipedinfo <装备位置编号>,<Random Option序号>,<id>,<value>,<param>{,<角色ID>};
+设置物品的 词条信息 格式如下:
+	特例格式: setinventoryinfo <背包位置序号>,<Random Option序号>,<id>,<value>,<param>{,<角色ID>};
+	特例格式: setequipedinfo <装备位置编号>,<Random Option序号>,<id>,<value>,<param>{,<角色ID>};
 
 ---------------------------------------
 

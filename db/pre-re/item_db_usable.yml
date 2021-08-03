@@ -54,16 +54,16 @@
 #     DropAnnounce          If the item has a special announcement to self on drop. (Default: false)
 #     NoConsume             If the item is consumed on use. (Default: false)
 #     DropEffect            If the item has a special effect on the ground when dropped by a monster. (Default: None)
-#     ForceUseItem          å½“ç©å®¶å¤„äºä¸èƒ½ä½¿ç”¨ç‰©å“çš„çŠ¶æ€æ—¶ä¾ç„¶å¯ä»¥ä½¿ç”¨å¸¦æœ‰æ­¤æ ‡ç­¾çš„ç‰©å“
-#     IgnoreNoFunc          ç‰©å“æ— è§† mapflag ä¸­ noitemfunc å¯¹åº”çš„é¡¹ç›®
-#     NoConsume2            ç‰©å“ä¸ä¼šç”±äºè¢«ç©å®¶ä¸»åŠ¨ä½¿ç”¨è€Œæ¶ˆè€—ï¼ˆæ—  NoConsume åœ¨ä½¿ç”¨æŠ€èƒ½å’Œåéª‘ä¸‹ä¸èƒ½ä½¿ç”¨çš„é™åˆ¶çš„é™åˆ¶ï¼‰
-#     NoSkillConsume        ç‰©å“ä¸ä¼šç”±äºè¢«å‘åŠ¨æŠ€èƒ½æ‰€éœ€è¦è€Œæ¶ˆè€—
-#     NoDropWithoutPlayer   é­”ç‰©åœ¨æ²¡æœ‰ç©å®¶å‚ä¸è¢«æ€æ­»æ—¶ä¸ä¼šæ‰è½è¯¥ç‰©å“
-#     DoDropEvent           é­”ç‰©è¢«ç©å®¶å‡»æ€æ—¶, ä¼šè§¦å‘ OnMOBDropItemFilter äº‹ä»¶
-#     TurnIntoCostume       æ’æœ‰è¯¥ç‰©å“çš„è£…å¤‡å˜ä¸ºæ—¶è£…/å½±è£… (å…ˆåœ¨ BetterRA.conf ä¸­ é…ç½® item_costume_cardä¸º yes å¼€å¯è¯¥åŠŸèƒ½)
-#     IgnoreScript          æ’æœ‰è¯¥ç‰©å“çš„è£…å¤‡ã€æ—¶è£…/å½±è£…æ‰€æœ‰å±æ€§ä¼šæ— æ•ˆåŒ–
-#     IgnoreAutoLoot        ç‰©å“æ— è§†è‡ªåŠ¨æ‹¾å–, ä¼šç›´æ¥æ‰åˆ°åœ°ä¸Š
-#     IgnoreEquipView       è£…å¤‡å¤–è§‚ä¸æ˜¾ç¤ºåœ¨è£…å¤‡æ çª—å£ä¸­
+#     ForceUseItem          µ±Íæ¼Ò´¦ÓÚ²»ÄÜÊ¹ÓÃÎïÆ·µÄ×´Ì¬Ê±ÒÀÈ»¿ÉÒÔÊ¹ÓÃ´øÓĞ´Ë±êÇ©µÄÎïÆ·
+#     IgnoreNoFunc          ÎïÆ·ÎŞÊÓ mapflag ÖĞ noitemfunc ¶ÔÓ¦µÄÏîÄ¿
+#     NoConsume2            ÎïÆ·²»»áÓÉÓÚ±»Íæ¼ÒÖ÷¶¯Ê¹ÓÃ¶øÏûºÄ£¨ÎŞ NoConsume ÔÚÊ¹ÓÃ¼¼ÄÜºÍ×øÆïÏÂ²»ÄÜÊ¹ÓÃµÄÏŞÖÆµÄÏŞÖÆ£©
+#     NoSkillConsume        ÎïÆ·²»»áÓÉÓÚ±»·¢¶¯¼¼ÄÜËùĞèÒª¶øÏûºÄ
+#     NoDropWithoutPlayer   Ä§ÎïÔÚÃ»ÓĞÍæ¼Ò²ÎÓë±»É±ËÀÊ±²»»áµôÂä¸ÃÎïÆ·
+#     DoDropEvent           Ä§Îï±»Íæ¼Ò»÷É±Ê±, »á´¥·¢ OnMOBDropItemFilter ÊÂ¼ş
+#     TurnIntoCostume       ²åÓĞ¸ÃÎïÆ·µÄ×°±¸±äÎªÊ±×°/Ó°×° (ÏÈÔÚ BetterRA.conf ÖĞ ÅäÖÃ item_costume_cardÎª yes ¿ªÆô¸Ã¹¦ÄÜ)
+#     IgnoreScript          ²åÓĞ¸ÃÎïÆ·µÄ×°±¸¡¢Ê±×°/Ó°×°ËùÓĞÊôĞÔ»áÎŞĞ§»¯
+#     IgnoreAutoLoot        ÎïÆ·ÎŞÊÓ×Ô¶¯Ê°È¡, »áÖ±½Óµôµ½µØÉÏ
+#     IgnoreEquipView       ×°±¸Íâ¹Û²»ÏÔÊ¾ÔÚ×°±¸À¸´°¿ÚÖĞ
 #   Delay:                  Item use delay. (Default: null)
 #     Duration              Duration of delay in seconds.
 #     Status                Status Change used to track delay. (Default: None)
@@ -1069,7 +1069,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_BlueBox),1;
+      getrandgroupitem(IG_BlueBox,1);
   - Id: 604
     AegisName: Branch_Of_Dead_Tree
     Name: ¿İÊ÷Ö¦
@@ -1208,7 +1208,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_CardAlbum),1;
+      getrandgroupitem(IG_CardAlbum,1);
   - Id: 617
     AegisName: Old_Violet_Box
     Name: ÉñÃØ×ÏÏä
@@ -1219,7 +1219,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_VioletBox),1;
+      getrandgroupitem(IG_VioletBox,1);
   - Id: 618
     AegisName: Worn_Out_Scroll
     Name: ÀÏ¾É¾íÖá
@@ -1561,7 +1561,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_GiftBox),1;
+      getrandgroupitem(IG_GiftBox,1);
   - Id: 645
     AegisName: Center_Potion
     Name: ¼¯ÖĞÒ©Ë®
@@ -1710,7 +1710,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_GiftBox_1),1;
+      getrandgroupitem(IG_GiftBox_1,1);
   - Id: 665
     AegisName: Gift_Box_2
     Name: ÀñºĞ
@@ -1721,7 +1721,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_GiftBox_2),1;
+      getrandgroupitem(IG_GiftBox_2,1);
   - Id: 666
     AegisName: Gift_Box_3
     Name: ÀñºĞ
@@ -1732,7 +1732,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_GiftBox_3),1;
+      getrandgroupitem(IG_GiftBox_3,1);
   - Id: 667
     AegisName: Gift_Box_4
     Name: ÀñºĞ
@@ -1743,7 +1743,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_GiftBox_4),1;
+      getrandgroupitem(IG_GiftBox_4,1);
   - Id: 668
     AegisName: Handsei
     Name: ºì°ü
@@ -2724,7 +2724,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_GiftBoxChina),1;
+      getrandgroupitem(IG_GiftBoxChina,1);
   - Id: 12024
     AegisName: Red_Pouch_Of_Surprise
     Name: ºìÉ«Õ¨µ¯
@@ -2744,7 +2744,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_EggBoy),1;
+      getrandgroupitem(IG_EggBoy,1);
   - Id: 12026
     AegisName: Egg_Girl
     Name: ±»Ö±Á¢µÄ¼¦µ°
@@ -2754,7 +2754,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_EggGirl),1;
+      getrandgroupitem(IG_EggGirl,1);
   - Id: 12027
     AegisName: Giggling_Box
     Name: ÌäĞ¦µÄÏä×Ó
@@ -2890,7 +2890,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_LottoBox),1;
+      getrandgroupitem(IG_LottoBox,1);
   - Id: 12039
     AegisName: Lotto_Box05
     Name: ºÅÂëÏä
@@ -3605,7 +3605,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_Quiver),1;
+      getrandgroupitem(IG_Quiver,1);
   - Id: 12105
     AegisName: Set_Of_Taiming_Item
     Name: ËÇÑøÀñÎïÀñºĞ
@@ -3616,9 +3616,9 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_Taming),1;
-      getrandgroupitem(IG_Taming),1;
-      getrandgroupitem(IG_Taming),1;
+      getrandgroupitem(IG_Taming,1);
+      getrandgroupitem(IG_Taming,1);
+      getrandgroupitem(IG_Taming,1);
   - Id: 12106
     AegisName: Accessory_Box
     Name: ±¦Ê¯ºĞ
@@ -3629,7 +3629,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_Accesory),1;
+      getrandgroupitem(IG_Accesory,1);
   - Id: 12107
     AegisName: Wrapped_Mask
     Name: °ü×°µÄÃæ¾ß
@@ -3640,7 +3640,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_Mask),1;
+      getrandgroupitem(IG_Mask,1);
   - Id: 12108
     AegisName: Bundle_Of_Magic_Scroll
     Name: ÖäÎÄÊéÒ»µü
@@ -3651,11 +3651,11 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_Scroll),1;
-      getrandgroupitem(IG_Scroll),1;
-      getrandgroupitem(IG_Scroll),1;
-      getrandgroupitem(IG_Scroll),1;
-      getrandgroupitem(IG_Scroll),1;
+      getrandgroupitem(IG_Scroll,1);
+      getrandgroupitem(IG_Scroll,1);
+      getrandgroupitem(IG_Scroll,1);
+      getrandgroupitem(IG_Scroll,1);
+      getrandgroupitem(IG_Scroll,1);
   - Id: 12109
     AegisName: Poring_Box
     Name: ²¨ÀûÏä×Ó
@@ -3677,11 +3677,11 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_FirstAid),1;
-      getrandgroupitem(IG_FirstAid),1;
-      getrandgroupitem(IG_FirstAid),1;
-      getrandgroupitem(IG_FirstAid),1;
-      getrandgroupitem(IG_FirstAid),1;
+      getrandgroupitem(IG_FirstAid,1);
+      getrandgroupitem(IG_FirstAid,1);
+      getrandgroupitem(IG_FirstAid,1);
+      getrandgroupitem(IG_FirstAid,1);
+      getrandgroupitem(IG_FirstAid,1);
   - Id: 12111
     AegisName: Food_Package
     Name: Ê³Îï±£ÏÊ´ü
@@ -3692,9 +3692,9 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_FoodBag),1;
-      getrandgroupitem(IG_FoodBag),1;
-      getrandgroupitem(IG_FoodBag),1;
+      getrandgroupitem(IG_FoodBag,1);
+      getrandgroupitem(IG_FoodBag,1);
+      getrandgroupitem(IG_FoodBag,1);
   - Id: 12112
     AegisName: Tropical_Sograt
     Name: ÈÈ´øµÄËÕ¿ËÀ­ÌØ
@@ -3886,9 +3886,9 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_CookieBag),1;
-      getrandgroupitem(IG_CookieBag),1;
-      getrandgroupitem(IG_CookieBag),1;
+      getrandgroupitem(IG_CookieBag,1);
+      getrandgroupitem(IG_CookieBag,1);
+      getrandgroupitem(IG_CookieBag,1);
   - Id: 12131
     AegisName: Lucky_Potion
     Name: ĞÒÔËÒ©Ë®
@@ -4614,7 +4614,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_RedBox),1;
+      getrandgroupitem(IG_RedBox,1);
   - Id: 12187
     AegisName: Green_Box
     Name: ÂÌÉ«²ÊºĞ
@@ -4624,7 +4624,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_GreenBox),1;
+      getrandgroupitem(IG_GreenBox,1);
   - Id: 12188
     AegisName: Magical_Moon_Cake
     Name: ÉñÆæµÄÔÂ±ı
@@ -4642,7 +4642,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_RedBox_2),1;
+      getrandgroupitem(IG_RedBox_2,1);
   - Id: 12190
     AegisName: Moon_Cake
     Name: ÔÂ±ı
@@ -4679,9 +4679,9 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_HometownGift),1;
-      getrandgroupitem(IG_HometownGift),1;
-      getrandgroupitem(IG_HometownGift),1;
+      getrandgroupitem(IG_HometownGift,1);
+      getrandgroupitem(IG_HometownGift,1);
+      getrandgroupitem(IG_HometownGift,1);
   - Id: 12195
     AegisName: Plain_Rice_Cake
     Name: ´¿Î¶µÄ¸â±ı
@@ -5316,7 +5316,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_YellowBox),1;
+      getrandgroupitem(IG_YellowBox,1);
   - Id: 12241
     AegisName: M_Center_Potion
     Name: Ó¶±øÓÃ¼¯ÖĞÒ©Ë®
@@ -5356,7 +5356,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_OldGiftBox),1;
+      getrandgroupitem(IG_OldGiftBox,1);
   - Id: 12245
     AegisName: Green_Ale_US
     Name: ÂÌÉ«Âó¾Æ
@@ -5375,7 +5375,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_MagicCardAlbum),1;
+      getrandgroupitem(IG_MagicCardAlbum,1);
   - Id: 12247
     AegisName: Halohalo
     Name: ¹ş¿©¹ş¿©
@@ -5394,7 +5394,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_Masquerade),1;
+      getrandgroupitem(IG_Masquerade,1);
   - Id: 12249
     AegisName: Payroll_Of_Kafra_
     Name: Payment Statement for Kafra Employee
@@ -5829,7 +5829,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_Tresure_Box_WoE),1;
+      getrandgroupitem(IG_Tresure_Box_WoE,1);
   - Id: 12282
     AegisName: Internet_Cafe1
     Name: Internet Cafe1
@@ -5879,7 +5879,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_Masquerade_2),1;
+      getrandgroupitem(IG_Masquerade_2,1);
   - Id: 12287
     AegisName: Love_Angel
     Name: Love Angel Magic Powder
@@ -6528,7 +6528,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_Cherish_Box),1;
+      getrandgroupitem(IG_Cherish_Box,1);
   - Id: 12335
     AegisName: Yummy_Skewered_Dish
     Name: ÃÀÎ¶µÄ¿¾Èâ´®
@@ -6571,7 +6571,7 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_Cherish_Box_Ori),1;
+      getrandgroupitem(IG_Cherish_Box_Ori,1);
   - Id: 12340
     AegisName: Mysterious_Rice_Powder
     Name: ÉñÆæµÄÅ´Ã×·ÛÄ©
@@ -6823,7 +6823,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_Xmas_Gift),1;
+      getrandgroupitem(IG_Xmas_Gift,1);
   - Id: 12356
     AegisName: Louise_Costume_Box
     Name: Â¶Ò×Ë¿µÄÒÂ·şÏä
@@ -6834,7 +6834,7 @@ Body:
       BuyingStore: true
       Container: true
     Script: |
-      getrandgroupitem(IG_Louise_Costume_Box),1;
+      getrandgroupitem(IG_Louise_Costume_Box,1);
   - Id: 12357
     AegisName: Shiny_Wing_Gown
     Name: ÉÁÁÁ½ª±ı
@@ -8953,8 +8953,8 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_BleuBox),1;
-      getrandgroupitem(IG_BleuBox),1;
+      getrandgroupitem(IG_BleuBox,1);
+      getrandgroupitem(IG_BleuBox,1);
   - Id: 12703
     AegisName: Holy_Egg_2
     Name: Holy Egg
@@ -9077,7 +9077,7 @@ Body:
       NoMail: true
       NoAuction: true
     Script: |
-      getrandgroupitem(IG_Easter_Scroll),1;
+      getrandgroupitem(IG_Easter_Scroll,1);
   - Id: 12715
     AegisName: Black_Treasure_Box
     Name: Black Treasure Box
@@ -22510,12 +22510,12 @@ Body:
     Flags:
       Container: true
     Script: |
-      getrandgroupitem(IG_Pierre_Treasurebox),1;
-      getrandgroupitem(IG_Pierre_Treasurebox),1;
-      getrandgroupitem(IG_Pierre_Treasurebox),1;
-      getrandgroupitem(IG_Pierre_Treasurebox),1;
-      getrandgroupitem(IG_Pierre_Treasurebox),1;
-      getrandgroupitem(IG_Pierre_Treasurebox),1;
+      getrandgroupitem(IG_Pierre_Treasurebox,1);
+      getrandgroupitem(IG_Pierre_Treasurebox,1);
+      getrandgroupitem(IG_Pierre_Treasurebox,1);
+      getrandgroupitem(IG_Pierre_Treasurebox,1);
+      getrandgroupitem(IG_Pierre_Treasurebox,1);
+      getrandgroupitem(IG_Pierre_Treasurebox,1);
   - Id: 14597
     AegisName: PhreeoniS
     Name: Æ¤Àï¶÷¾íÖá
