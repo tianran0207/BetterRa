@@ -23240,7 +23240,7 @@ Body:
     EquipLevelMin: 70
     Script: |
       bonus bCastrate,-10;
-      bonus bDelayRate,-5;
+      bonus bDelayRate,5;
   - Id: 2745
     AegisName: Pinguicula_Corsage
     Name: ≤∂≥Ê›¿–ÿª®
@@ -39384,6 +39384,7 @@ Body:
       NoDrop: true
       NoTrade: true
       NoCart: true
+      NoStorage: true
       NoGuildStorage: true
       NoMail: true
       NoAuction: true

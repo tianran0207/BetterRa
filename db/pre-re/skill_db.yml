@@ -2538,8 +2538,6 @@ Body:
     TargetType: Support
     DamageFlags:
       NoDamage: true
-    Flags:
-      IgnoreStasis: true
     Range: 9
     Hit: Single
     HitCount: 1
@@ -4748,6 +4746,7 @@ Body:
     HitCount: 1
     Element: Weapon
     SplashArea: 1
+    Duration2: 1000
     Requires:
       SpCost: 3
       Weapon:
@@ -7848,7 +7847,6 @@ Body:
       NoTargetSelf: true
       PartyOnly: true
       GuildOnly: true
-      IgnoreStasis: true
       TargetHidden: true
     Range: 9
     Hit: Single
@@ -9662,7 +9660,6 @@ Body:
     Duration1: 30000
     CastTimeFlags:
       IgnoreDex: true
-      IgnoreStatus: true
       IgnoreItemBonus: true
     Requires:
       SpCost:
@@ -20168,7 +20165,6 @@ Body:
       NoDamage: true
     Flags:
       PartyOnly: true
-      IgnoreStasis: true
       TargetHidden: true
     Range: 11
     Hit: Single
@@ -28313,7 +28309,6 @@ Body:
     Type: Weapon
     TargetType: Attack
     Flags:
-      IgnoreStasis: true
       TargetHidden: true
     Range: -9
     Hit: Single
