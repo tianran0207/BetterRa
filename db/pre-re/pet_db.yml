@@ -56,7 +56,6 @@ Header:
 
 Body:
   - Mob: PORING
-    MobName: ²¨Àû(1002)
     TameItem: Unripe_Apple
     EggItem: Poring_Egg
     EquipItem: Backpack
@@ -72,7 +71,6 @@ Body:
         bonus bCritical,1;
       }
   - Mob: DROPS
-    MobName: ÍÁ²¨Àû(1113)
     TameItem: Orange_Juice
     EggItem: Drops_Egg
     EquipItem: Backpack
@@ -88,7 +86,6 @@ Body:
         bonus bAtk,3;
       }
   - Mob: POPORING
-    MobName: ²¨²¨Àû(1031)
     TameItem: Bitter_Herb
     EggItem: Poporing_Egg
     EquipItem: Backpack
@@ -104,7 +101,6 @@ Body:
         bonus2 bSubEle,Ele_Poison,10;
       }
   - Mob: LUNATIC
-    MobName: ·èÍÃ(1063)
     TameItem: Rainbow_Carrot
     EggItem: Lunatic_Egg
     EquipItem: Silk_Ribbon
@@ -121,7 +117,6 @@ Body:
         bonus bAtk,2;
       }
   - Mob: PICKY
-    MobName: Ð¡¼¦(1049)
     TameItem: Earthworm_The_Dude
     EggItem: Picky_Egg
     EquipItem: Tiny_Egg_Shell
@@ -137,7 +132,6 @@ Body:
         bonus bAtk,5;
       }
   - Mob: CHONCHON
-    MobName: ²ÔÓ¬(1011)
     TameItem: Rotten_Fish
     EggItem: Chonchon_Egg
     EquipItem: Monster_Oxygen_Mask
@@ -153,7 +147,6 @@ Body:
         bonus bFlee,2;
       }
   - Mob: STEEL_CHONCHON
-    MobName: ÂÌ²ÔÓ¬(1042)
     TameItem: Lusty_Iron
     EggItem: Steel_Chonchon_Egg
     EquipItem: Monster_Oxygen_Mask
@@ -169,7 +162,6 @@ Body:
         bonus bAgi,-1;
       }
   - Mob: HUNTER_FLY
-    MobName: ³à²ÔÓ¬(1035)
     TameItem: Monster_Juice
     EggItem: Hunter_Fly_Egg
     EquipItem: Monster_Oxygen_Mask
@@ -185,7 +177,6 @@ Body:
         bonus bFlee2,2;
       }
   - Mob: SAVAGE_BABE
-    MobName: Ð¡Ò°Öí(1167)
     TameItem: Sweet_Milk
     EggItem: Savage_Bebe_Egg
     EquipItem: Green_Lace
@@ -202,7 +193,6 @@ Body:
         bonus bMaxHP,50;
       }
   - Mob: DESERT_WOLF_B
-    MobName: É³Ä®Ó×ÀÇ(1107)
     TameItem: Well_Dried_Bone
     EggItem: Baby_Desert_Wolf_Egg
     EquipItem: Transparent_Headgear
@@ -219,7 +209,6 @@ Body:
         bonus bMaxSP,50;
       }
   - Mob: ROCKER
-    MobName: »È³æ(1052)
     TameItem: Singing_Flower
     EggItem: Rocker_Egg
     EquipItem: Rocker_Glasses
@@ -236,7 +225,6 @@ Body:
         bonus bMaxHP,25;
       }
   - Mob: SPORE
-    MobName: Ä§¹½(1014)
     TameItem: Dew_Laden_Moss
     EggItem: Spore_Egg
     EquipItem: Bark_Shorts
@@ -253,7 +241,6 @@ Body:
         bonus bAtk,-2;
       }
   - Mob: POISON_SPORE
-    MobName: ¶¾Ä§¹½(1077)
     TameItem: Deadly_Noxious_Herb
     EggItem: Poison_Spore_Egg
     EquipItem: Bark_Shorts
@@ -270,7 +257,6 @@ Body:
         bonus bInt,1;
       }
   - Mob: PECOPECO
-    MobName: ´ó×ìÄñ(1019)
     TameItem: Fatty_Chubby_Earthworm
     EggItem: PecoPeco_Egg
     EquipItem: Battered_Pot
@@ -286,7 +272,6 @@ Body:
         bonus bMaxSP,-10;
       }
   - Mob: SMOKIE
-    MobName: ÀêÃ¨(1056)
     TameItem: Baked_Yam
     EggItem: Smokie_Egg
     EquipItem: Red_Muffler
@@ -302,7 +287,6 @@ Body:
         bonus bFlee2,1;
       }
   - Mob: YOYO
-    MobName: ÁïÁïºï(1057)
     TameItem: Tropical_Banana
     EggItem: Yoyo_Egg
     EquipItem: Monkey_Circlet
@@ -318,7 +302,6 @@ Body:
         bonus bLuk,-1;
       }
   - Mob: ORK_WARRIOR
-    MobName: ÊÞÈËÕ½Ê¿(1023)
     TameItem: Horror_Of_Tribe
     EggItem: Orc_Warrior_Egg
     EquipItem: Wild_Flower
@@ -334,7 +317,6 @@ Body:
         bonus bDef,-3;
       }
   - Mob: MUNAK
-    MobName: ½©Ê¬(1026)
     TameItem: No_Recipient
     EggItem: Munak_Egg
     EquipItem: Punisher
@@ -351,7 +333,6 @@ Body:
         bonus bDef,1;
       }
   - Mob: DOKEBI
-    MobName: ÍÁÈË(1110)
     TameItem: Old_Broom
     EggItem: Dokkaebi_Egg
     EquipItem: Wig
@@ -368,7 +349,6 @@ Body:
         bonus bAtkRate,-1;
       }
   - Mob: SOHEE
-    MobName: ¹íÅ®(1170)
     TameItem: Silver_Knife_Of_Chaste
     EggItem: Sohee_Egg
     EquipItem: Golden_Bell
@@ -385,7 +365,6 @@ Body:
         bonus bDex,1;
       }
   - Mob: ISIS
-    MobName: ÉßÅ®ÒÁË¿(1029)
     TameItem: Armlet_Of_Obedience
     EggItem: Isis_Egg
     EquipItem: Queen's_Hair_Ornament
@@ -402,7 +381,6 @@ Body:
         bonus bAtkRate,1;
       }
   - Mob: PETIT
-    MobName: ±ÏµÛÌØµØÁú(1155)
     TameItem: Shining_Stone
     EggItem: Green_Petite_Egg
     EquipItem: Stellar_Hairpin
@@ -420,7 +398,6 @@ Body:
         bonus bAspdRate,1;
       }
   - Mob: DEVIRUCHI
-    MobName: Ð¡¶ñÄ§(1109)
     TameItem: Contracts_In_Shadow
     EggItem: Deviruchi_Egg
     EquipItem: Pacifier
@@ -439,7 +416,6 @@ Body:
         bonus bMaxSPrate,-3;
       }
   - Mob: BAPHOMET_
-    MobName: Ð¡°Í·çÌØ(1101)
     TameItem: Book_Of_Devil
     EggItem: Bapho_Jr._Egg
     EquipItem: Skull_Helm
@@ -457,7 +433,6 @@ Body:
         bonus2 bResEff,Eff_Stun,-100;
       }
   - Mob: BON_GUN
-    MobName: ÑýµÀ(1188)
     TameItem: Heart_Of_Her
     EggItem: Bongun_Egg
     EquipItem: Sword_Of_Grave_Keeper
@@ -473,7 +448,6 @@ Body:
         bonus2 bResEff,Eff_Stun,100;
       }
   - Mob: ZHERLTHSH
-    MobName: °¬Ë¹¶÷Ä§Å®(1200)
     TameItem: Prohibition_Red_Candle
     EggItem: Zherlthsh_Egg
     FoodItem: Immortal_Heart
@@ -491,7 +465,6 @@ Body:
         bonus2 bMagicAddRace,RC_Player_Human,2;
       }
   - Mob: ALICE
-    MobName: °®ÀöË¿Å®ÆÍ(1275)
     TameItem: Sway_Apron
     EggItem: Alice_Egg
     FoodItem: White_Potion
@@ -508,7 +481,6 @@ Body:
         bonus2 bSubRace,RC_Player_Human,1;
       }
   - Mob: EVENT_RICECAKE
-    MobName: ÈÈÌÚÌÚµÄÃ×¸â(1815)
     EggItem: Rice_Cake_Egg
     FoodItem: Green_Herb
     Fullness: 3
@@ -522,7 +494,6 @@ Body:
         bonus bMaxHPrate,-1;
       }
   - Mob: GOBLINE_XMAS
-    MobName: Ê¥µ®¸ç²¼Áé(1245)
     TameItem: Sweet_Candy_Striper
     EggItem: Santa_Goblin_Egg
     FoodItem: Scell
@@ -538,7 +509,6 @@ Body:
         bonus2 bSubEle,Ele_Water,1;
       }
   - Mob: CHUNG_E
-    MobName: Ð¡Çà(1519)
     TameItem: Tantanmen
     EggItem: Chung_E_Egg
     FoodItem: Bun_
@@ -555,7 +525,6 @@ Body:
         bonus2 bSubRace,RC_Player_Human,1;
       }
   - Mob: ECLIPSE_P
-    MobName: ¿É°®Ð¡ÓñÍÃ(1879)
     EggItem: Spring_Rabbit_Egg
     FoodItem: Bok_Choy
     Fullness: 3
@@ -563,7 +532,6 @@ Body:
     CaptureRate: 2000
     SpecialPerformance: false
   - Mob: GOBLIN_1
-    MobName: ´Ìµ¶¸ç²¼Áé(1122)
     TameItem: Knife_Goblin_Ring
     EggItem: Knife_Goblin_Egg
     FoodItem: Green_Apple
@@ -572,7 +540,6 @@ Body:
     CaptureRate: 800
     SpecialPerformance: false
   - Mob: GOBLIN_2
-    MobName: Á´´¸¸ç²¼Áé(1123)
     TameItem: Flail_Goblin_Ring
     EggItem: Flail_Goblin_Egg
     FoodItem: Green_Apple
@@ -581,7 +548,6 @@ Body:
     CaptureRate: 800
     SpecialPerformance: false
   - Mob: GOBLIN_4
-    MobName: ÀÆÍ·¸ç²¼Áé(1125)
     TameItem: Hammer_Goblin_Ring
     EggItem: Hammer_Goblin_Egg
     FoodItem: Green_Apple
@@ -590,7 +556,6 @@ Body:
     CaptureRate: 800
     SpecialPerformance: false
   - Mob: DELETER_
-    MobName: Æß²ÊµØÁú(1385)
     TameItem: Holy_Marble
     EggItem: Red_Deleter_Egg
     FoodItem: Whole_Barbecue
@@ -599,7 +564,6 @@ Body:
     CaptureRate: 800
     SpecialPerformance: false
   - Mob: DIABOLIC
-    MobName: ³àÑæÐ¡¶ñÄ§(1382)
     TameItem: Red_Burning_Stone
     EggItem: Diabolic_Egg
     FoodItem: Meat_Veg_Skewer
@@ -608,7 +572,6 @@ Body:
     CaptureRate: 800
     SpecialPerformance: false
   - Mob: WANDER_MAN
-    MobName: Ð°º¡ÀËÈË(1208)
     TameItem: Skull_Of_Vagabond
     EggItem: Wanderer_Egg
     FoodItem: Spirit_Liquor
@@ -624,7 +587,6 @@ Body:
         bonus bDex,1;
       }
   - Mob: P_CHUNG_E
-    MobName: ÐÂÄêÍÞÍÞ(1963)
     EggItem: New_Year_Doll_Egg
     FoodItem: Mojji
     Fullness: 3
@@ -632,7 +594,6 @@ Body:
     CaptureRate: 800
     SpecialPerformance: false
   - Mob: GOLEM
-    MobName: ¾ÞÊ¯¹Ö(1040)
     TameItem: Magical_Lithography
     EggItem: Golem_Egg
     EquipItem: Windup_Spring
@@ -649,7 +610,6 @@ Body:
         bonus bFlee,-5;
       }
   - Mob: MARIONETTE
-    MobName: ¿þÀÜÍÞÍÞ(1143)
     TameItem: Delicious_Shaved_Ice
     EggItem: Marionette_Egg
     EquipItem: Star_Hairband
@@ -665,7 +625,6 @@ Body:
         bonus bSPrecovRate,3;
       }
   - Mob: MEDUSA
-    MobName: Ã×¶ÅÉ³(1148)
     TameItem: Splendid_Mirror
     EggItem: Medusa_Egg
     EquipItem: Queen's_Coronet
@@ -682,7 +641,6 @@ Body:
         bonus2 bResEff,Eff_Stone,500;
       }
   - Mob: WHISPER
-    MobName: °×ÓÄÁé(1179)
     TameItem: Fit_Pipe
     EggItem: Whisper_Egg
     EquipItem: Spirit_Chain_
@@ -699,7 +657,6 @@ Body:
         bonus bDef,-3;
       }
   - Mob: GOBLIN_LEADER
-    MobName: ¸ç²¼ÁéÊ×Áì(1299)
     TameItem: Staff_Of_Leader
     EggItem: Goblin_Leader_Egg
     EquipItem: Nice_Badge
@@ -716,7 +673,6 @@ Body:
         bonus2 bAddRace,RC_Player_Human,3;
       }
   - Mob: SUCCUBUS
-    MobName: ¶ñÄ§Å®ÆÍ(1370)
     TameItem: Boy's_Naivety
     EggItem: Succubus_Egg
     EquipItem: Black_Butterfly_Mask
@@ -732,7 +688,6 @@ Body:
         bonus2 bHpDrainRate,50,5;
       }
   - Mob: INCUBUS
-    MobName: ¶ñÄ§ÊÌÕß(1374)
     TameItem: Gril's_Naivety
     EggItem: Incubus_Egg
     EquipItem: Ball_Mask
@@ -748,7 +703,6 @@ Body:
         bonus bMaxSPRate,3;
       }
   - Mob: NIGHTMARE_TERROR
-    MobName: Æß²ÊÃÎ÷Ê(1379)
     TameItem: Hell_Contract
     EggItem: Nightmare_Terror_Egg
     EquipItem: Hell_Horn
@@ -764,7 +718,6 @@ Body:
         bonus2 bResEff,Eff_Sleep,10000;
       }
   - Mob: SHINOBI
-    MobName: »ðÈÌÎ÷Å­±Ï(1401)
     TameItem: Kuloren
     EggItem: Shinobi_Egg
     EquipItem: Wine_On_Sleeve
@@ -780,7 +733,6 @@ Body:
         bonus bAgi,2;
       }
   - Mob: MIYABI_NINGYO
-    MobName: Ã×ÑÅ±Ï(1404)
     TameItem: Gril_Doll
     EggItem: Miyabi_Ningyo_Egg
     EquipItem: Summer_Fan
@@ -797,7 +749,6 @@ Body:
         bonus bCastrate,-3;
       }
   - Mob: WICKED_NYMPH
-    MobName: ÑýÏÉÅ®(1416)
     TameItem: Charming_Lotus
     EggItem: Wicked_Nymph_Egg
     EquipItem: Jade_Trinket
@@ -814,7 +765,6 @@ Body:
         bonus bSPrecovRate,5;
       }
   - Mob: STONE_SHOOTER
-    MobName: Ê¯ÅÚ»ðÊ÷(1495)
     TameItem: Oilpalm_Coconut
     EggItem: Stone_Shooter_Egg
     EquipItem: Apro_Hair
@@ -830,7 +780,6 @@ Body:
         bonus2 bSubEle,Ele_Fire,3;
       }
   - Mob: DULLAHAN
-    MobName: ÎÞÂ­ÎäÊ¿(1504)
     TameItem: Luxury_Whisky_Bottle
     EggItem: Dullahan_Egg
     EquipItem: Death_Coil
@@ -846,7 +795,6 @@ Body:
         bonus bCritAtkRate,5;
       }
   - Mob: LOLI_RURI
-    MobName: ÒøÔÂÄ§Å®(1505)
     TameItem: Very_Red_Juice
     EggItem: Loli_Ruri_Egg
     EquipItem: Fashionable_Glasses
@@ -863,7 +811,6 @@ Body:
         bonus3 bAutoSpellWhenHit,"AL_HEAL",1,10;
       }
   - Mob: CIVIL_SERVANT
-    MobName: ºüÏÉ(1513)
     TameItem: Fan_Of_Wind
     EggItem: Civil_Servant_Egg
     EquipItem: Golden_Earing
@@ -879,7 +826,6 @@ Body:
         bonus bMaxSP,10;
       }
   - Mob: LEAF_CAT
-    MobName: ÈºÒ¶Ã¨(1586)
     TameItem: Very_Soft_Plant
     EggItem: Leaf_Cat_Egg
     EquipItem: Green_Lucky_Bag
@@ -896,7 +842,6 @@ Body:
         bonus2 bSubRace,RC_Player_Doram,3;
       }
   - Mob: BACSOJIN_
-    MobName: °×ËØÕê(1630)
     TameItem: Shiny_Wing_Gown
     EggItem: Bacsojin_Egg
     EquipItem: Round_Hair_Ornament
@@ -906,7 +851,6 @@ Body:
     CaptureRate: 2000
     SpecialPerformance: false
   - Mob: IMP
-    MobName: ÈÛÑÒÄ§(1837)
     TameItem: Flaming_Ice
     EggItem: Imp_Egg
     EquipItem: Horn_Protector

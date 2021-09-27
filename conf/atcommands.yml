@@ -922,6 +922,12 @@ Body:
   - Command: reloadstatusdb
     Help: |
       重新加载状态配置文件.
+  - Command: reloadpathdb
+    Help: |
+      重新加载路点数据库.
+  - Command: reloadeffectdb
+    Help: |
+      重新加载特效数据库.
   - Command: reload
     Help: |
       指令参数: <要重载的数据类型>
@@ -930,6 +936,7 @@ Body:
       atcommand        battleconf         statusdb
       pcdb                   motd           script
       questdb             msgconf         packetdb
+      pathdb             effectdb
   - Command: langtype
     Help: |
       指令参数: <语言编号>

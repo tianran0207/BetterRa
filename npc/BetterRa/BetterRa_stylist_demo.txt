@@ -7,7 +7,9 @@ OnPCStylistChangeEvent:
 	if (@stylist_hair_style > 0)
 		.@zeny += 100000;
 	if (@stylist_cloth_color > 0)
-		.@count += 1;
+		.@count_6046 += 1;
+	if (@stylist_body > 0)
+		.@count_6959 += 1;
 	.@idx = 0;
 	setarray .@hatid[0],2220, 2208, 2211;
 	setarray .@hatcost[0],1000, 800, 400;
@@ -48,19 +50,26 @@ OnPCStylistChangeEvent:
 			equip .@hatid[@stylist_head_bottom];
 		}
 	}
-	if (.@zeny > Zeny || countitem(6046) < .@count){
+	if (.@zeny > Zeny || countitem(6046) < .@count_6046 || countitem(6959) < .@count_6959){
 		dispbottom "您的金币或道具不够";
 		end;
 	}
 	Zeny -= .@zeny;
-	if(.@count)
-		delitem 6046,.@count;
+	if(.@count_6046)
+		delitem 6046,.@count_6046;
+	if(.@count_6959)
+		delitem 6959,.@count_6959;
 	if (@stylist_hair_color > 0)
 		setlook LOOK_HAIR_COLOR,@stylist_hair_color;
 	if (@stylist_hair_style > 0)
 		setlook LOOK_HAIR,@stylist_hair_style;
 	if (@stylist_cloth_color > 0)
 		setlook LOOK_CLOTHES_COLOR,@stylist_cloth_color;
+	if (@stylist_body > 0)
+		setlook LOOK_BODY2,@stylist_body-1;
+	
+	dispbottom ""+@stylist_body;
+		
 	if (.@idx)
 		mail getcharid(0), "系统邮件", "造型设计取件", "您在造型设计定制的头饰到货了", 0, .@mailitem, .@hatcount;
 	end;

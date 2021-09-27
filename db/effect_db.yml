@@ -1,0 +1,295 @@
+###########################################################################
+# 特效组合数据库
+###########################################################################
+#
+# 用于新增或者改写特效效果的
+#
+###########################################################################
+#
+# - Id                特效编号, 如果与已有特效同ID则会改写特效效果
+#   List:             特效列表
+#     - EffectId:       特效编号或特效常量
+#       Start:        特效开始播放时间(毫秒), 用于错开特效效果, 避免特效同时显示 (默认: 0)
+#       Interval:     是否为持续特效, 如果特效不持续, 则 unitaura 中的 <间隔时间> 可对此特效重复播放 (默认: false)
+#
+###########################################################################
+#
+# 此数据库中的ID 可用于脚本指令 specialeffect specialeffect2 unitspecialeffect
+#                               misceffect removespecialeffect unitaura unitdelaura
+#
+###########################################################################
+
+Header:
+  Type: EFFECT_DB
+  Version: 1
+
+Body:
+  - Id: 10000
+    List:
+      - EffectId: 256
+        Start: 0
+        Interval: true
+      - EffectId: 257
+        Start: 1000
+        Interval: true
+      - EffectId: 258
+        Start: 2000
+        Interval: true
+    #例子: unitaura getcharid(3),10000,3000,9000;
+  - Id: 10001
+    List:
+      - EffectId: 586
+      - EffectId: 362
+    #例子: unitaura getcharid(3),10001;
+    #例子: unitaura getcharid(3),10001,0,9000;
+  - Id: 10002
+    List:
+      - EffectId: 12
+        Start: 0
+        Interval: true
+      - EffectId: 33
+        Start: 1000
+        Interval: true
+    #例子: specialeffect 10002;
+  - Id: 10003
+    List:
+      - EffectId: 586
+      - EffectId: 362
+      - EffectId: 240
+  - Id: 10004
+    List:
+      - EffectId: 239
+      - EffectId: 418
+  - Id: 10005
+    List:
+      - EffectId: 239
+      - EffectId: 486
+  - Id: 10006
+    List:
+      - EffectId: 239
+      - EffectId: 485
+  - Id: 10007
+    List:
+      - EffectId: 240
+      - EffectId: 418
+  - Id: 10008
+    List:
+      - EffectId: 240
+      - EffectId: 486
+  - Id: 10009
+    List:
+      - EffectId: 240
+      - EffectId: 485
+  - Id: 10010
+    List:
+      - EffectId: 241
+      - EffectId: 418
+  - Id: 10011
+    List:
+      - EffectId: 241
+      - EffectId: 486
+  - Id: 10012
+    List:
+      - EffectId: 241
+      - EffectId: 485
+  - Id: 10013
+    List:
+      - EffectId: 620
+      - EffectId: 418
+  - Id: 10014
+    List:
+      - EffectId: 620
+      - EffectId: 486
+  - Id: 10015
+    List:
+      - EffectId: 620
+      - EffectId: 485
+  - Id: 10016
+    List:
+      - EffectId: 239
+      - EffectId: 418
+      - EffectId: 202
+  - Id: 10017
+    List:
+      - EffectId: 239
+      - EffectId: 486
+      - EffectId: 202
+  - Id: 10018
+    List:
+      - EffectId: 239
+      - EffectId: 485
+      - EffectId: 202
+  - Id: 10019
+    List:
+      - EffectId: 240
+      - EffectId: 418
+      - EffectId: 202
+  - Id: 10020
+    List:
+      - EffectId: 240
+      - EffectId: 486
+      - EffectId: 202
+  - Id: 10021
+    List:
+      - EffectId: 240
+      - EffectId: 485
+      - EffectId: 202
+  - Id: 10022
+    List:
+      - EffectId: 241
+      - EffectId: 418
+      - EffectId: 202
+  - Id: 10023
+    List:
+      - EffectId: 241
+      - EffectId: 486
+      - EffectId: 202
+  - Id: 10024
+    List:
+      - EffectId: 241
+      - EffectId: 485
+      - EffectId: 202
+  - Id: 10025
+    List:
+      - EffectId: 620
+      - EffectId: 418
+      - EffectId: 202
+  - Id: 10026
+    List:
+      - EffectId: 620
+      - EffectId: 486
+      - EffectId: 202
+  - Id: 10027
+    List:
+      - EffectId: 620
+      - EffectId: 485
+      - EffectId: 202
+  - Id: 10028
+    List:
+      - EffectId: 239
+      - EffectId: 418
+      - EffectId: 362
+  - Id: 10029
+    List:
+      - EffectId: 239
+      - EffectId: 486
+      - EffectId: 362
+  - Id: 10030
+    List:
+      - EffectId: 239
+      - EffectId: 485
+      - EffectId: 362
+  - Id: 10031
+    List:
+      - EffectId: 240
+      - EffectId: 418
+      - EffectId: 362
+  - Id: 10032
+    List:
+      - EffectId: 240
+      - EffectId: 486
+      - EffectId: 362
+  - Id: 10033
+    List:
+      - EffectId: 240
+      - EffectId: 485
+      - EffectId: 362
+  - Id: 10034
+    List:
+      - EffectId: 241
+      - EffectId: 418
+      - EffectId: 362
+  - Id: 10035
+    List:
+      - EffectId: 241
+      - EffectId: 486
+      - EffectId: 362
+  - Id: 10036
+    List:
+      - EffectId: 241
+      - EffectId: 485
+      - EffectId: 362
+  - Id: 10037
+    List:
+      - EffectId: 620
+      - EffectId: 418
+      - EffectId: 362
+  - Id: 10038
+    List:
+      - EffectId: 620
+      - EffectId: 486
+      - EffectId: 362
+  - Id: 10039
+    List:
+      - EffectId: 620
+      - EffectId: 485
+      - EffectId: 362
+  - Id: 10040
+    List:
+      - EffectId: 239
+      - EffectId: 418
+      - EffectId: 678
+  - Id: 10041
+    List:
+      - EffectId: 239
+      - EffectId: 486
+      - EffectId: 678
+  - Id: 10042
+    List:
+      - EffectId: 239
+      - EffectId: 485
+      - EffectId: 678
+  - Id: 10043
+    List:
+      - EffectId: 240
+      - EffectId: 418
+      - EffectId: 678
+  - Id: 10044
+    List:
+      - EffectId: 240
+      - EffectId: 486
+      - EffectId: 678
+  - Id: 10045
+    List:
+      - EffectId: 240
+      - EffectId: 485
+      - EffectId: 678
+  - Id: 10046
+    List:
+      - EffectId: 241
+      - EffectId: 418
+      - EffectId: 678
+  - Id: 10047
+    List:
+      - EffectId: 241
+      - EffectId: 486
+      - EffectId: 678
+  - Id: 10048
+    List:
+      - EffectId: 241
+      - EffectId: 485
+      - EffectId: 678
+  - Id: 10049
+    List:
+      - EffectId: 620
+      - EffectId: 418
+      - EffectId: 678
+  - Id: 10050
+    List:
+      - EffectId: 620
+      - EffectId: 486
+      - EffectId: 678
+  - Id: 10051
+    List:
+      - EffectId: 620
+      - EffectId: 485
+      - EffectId: 678
+  - Id: 10052
+    List:
+      - EffectId: 680
+      - EffectId: 679
+      - EffectId: 678
+
+Footer:
+  Imports:
+  - Path: db/import/effect_db.yml
