@@ -700,7 +700,7 @@ BetterRa 在官方的基础上做了以下改进:
 	@refine_blessing	精炼是否使用祝福矿石
 	
 注意:
-	可以通过脚本指令 refine_result 来自定义精炼UI
+	可以通过脚本指令 refineui_result 来自定义精炼UI
 	
 中断说明: 
 	中断后服务端会忽略本次精炼请求

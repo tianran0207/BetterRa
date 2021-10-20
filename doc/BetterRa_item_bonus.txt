@@ -16,13 +16,19 @@ bonus4 bSkillForAOE,sk,range,n,r;		Ê¹ÓÃsk¼¼ÄÜÊ±, ÓĞr(Ç§·ÖÂÊ)µÄ¼¸ÂÊ¶Ôrange·¶Î§ÄÚµ
 bonus bWeaponAddDamage,n;				ÆÕÍ¨¹¥»÷»òÎäÆ÷¼¼ÄÜ¹¥»÷Ê±Ôö¼Ó n µÄ¹Ì¶¨ÉËº¦
 bonus bMagicAddDamage,n;				Ä§·¨¼¼ÄÜ¹¥»÷Ê±Ôö¼Ó n µÄ¹Ì¶¨ÉËº¦
 bonus bMiscAddDamage,n;					»ìºÏ¼¼ÄÜ¹¥»÷Ê±Ôö¼Ó n µÄ¹Ì¶¨ÉËº¦
+bonus2 bAddDamage,bf,n;					µ±Íæ¼ÒÊ¹ÓÃ bf ¹¥»÷Ê±, Ôö¼Ó n µÄ¹Ì¶¨ÉËº¦
+bonus2 bAddDamagerate,bf,n;				µ±Íæ¼ÒÊ¹ÓÃ bf ¹¥»÷Ê±, Ôö¼Ó n% µÄ¹Ì¶¨ÉËº¦
 bonus bAddMastery,n;					Ôö¼ÓÕÆ¿ØÉËº¦ n, Àı¸«ĞŞÁ¶¶îÍâÔö¼ÓµÈ¼¶ * 5ÉËº¦ bonus bAddMastery,5*getskilllv(NC_TRAININGAXE);
 bonus bAddCartMaxWeight,n;				Íæ¼ÒÊÖÍÆ³µ¸ºÖØÉÏÏŞÔö¼Ó n (Ã¿10µãÔö¼Ó1¸ºÖØ)
 bonus bAddWeight,n;						Íæ¼Ò¸ºÖØÔö¼Ó n, ·Ç¸ºÖØÉÏÏŞ (Ã¿10µãÔö¼Ó1ÖØÁ¿)
-bonus3 bSkillDamage,sk,lv,n;			ÎªlvµÈ¼¶µÄsk¼¼ÄÜÔö¼ÓnµÄ¹Ì¶¨ÉËº¦.
+bonus3 bSkillDamage,sk,lv,n;			ÎªlvµÈ¼¶µÄsk¼¼ÄÜÔö¼ÓnµÄ¹Ì¶¨ÉËº¦
 											µÈ¼¶Îª-1Ê± Ã¿ÎŞÂÛ¶àÉÙ¼¶¶¼»áÔö¼Ó¹Ì¶¨ÉËº¦Öµ
 											µÈ¼¶Îª 0Ê± °´ÕÕ¼¼ÄÜµÈ¼¶±¶ÊıÔö¼Ó¹Ì¶¨ÉËº¦
 											µÈ¼¶Îª>0Ê± Ö»¶Ô¸Ã¼¼ÄÜµÈ¼¶Ôö¼ÓÉËº¦
+											
+bonus3 bDamageReturn,bf,r,n;			µ±Íæ¼ÒÊ¹ÓÃ bf ¹¥»÷Ê±ÓĞ r% µÄ¸ÅÂÊ·´Éä n% µÄÉËº¦ (²»·´ÉäµØÃæÄ§·¨¼¼ÄÜ)
+bonus3 bDamageReturnWithGroup,bf,r,n;	µ±Íæ¼ÒÊ¹ÓÃ bf ¹¥»÷Ê±ÓĞ r% µÄ¸ÅÂÊ·´Éä n% µÄÉËº¦ (·´ÉäµØÃæÄ§·¨¼¼ÄÜ)
+										
 	
 bonus2 bSkillTreeCooldownRate,jobid,n;	Ö°Òµ¼¼ÄÜ¹«¹²¼¼ÄÜÑÓ³Ù°´°Ù·Ö±Èµ÷Õû
 bonus2 bSkillTreeCooldown,jobid,n;		Ö°Òµ¼¼ÄÜ¹«¹²¼¼ÄÜÑÓ³Ùµ÷Õû
@@ -80,19 +86,20 @@ bonus2 bSkillNoSpecial,sk,bitmask;		ÒÆ³ı¼¼ÄÜ sk µÄÌØÊâÌõ¼ş, bitmask Îª ÑÚÂëÀàĞÍ(
 										
 bonus2 bSkillNoRequire,sk,bitmask;		ÒÆ³ı¼¼ÄÜ sk µÄĞèÇóÌõ¼ş, bitmask Îª ÑÚÂëÀàĞÍ(¿Éµş¼Ó),  
 										ÒÆ³ı 'skill_require_db.txt' ÖĞ¼¼ÄÜµÄÖ¸¶¨ĞèÇó.
-										   1 = hp
-										   2 = maxhptrigger
-										   4 = sp
-										   8 = hprate
-										  16 = sprate
-										  32 = zeny
-										  64 = weapon type
-										 128 = ammo (with the amount)
-										 256 = state
-										 512 = statuses
-										1024 = spirit sphere
-										2048 = items (with the amount)
-										4096 = equipments
+										ÑÚÂëÀàĞÍ:
+											REQ_HPCOST             (0x1)  - HPÏûºÄ
+											REQ_SPCOST             (0x2)  - SPÏûºÄ
+											REQ_HPRATECOST         (0x4)  - HP°´±ÈÀıÏûºÄ
+											REQ_SPRATECOST         (0x8)  - SP°´±ÈÀıÏûºÄ
+											REQ_MAXHPTRIGGER      (0x10)  - HPÒªÇó
+											REQ_ZENYCOST          (0x20)  - ZenyÏûºÄ
+											REQ_WEAPON            (0x40)  - ÎäÆ÷ÒªÇó
+											REQ_AMMO              (0x80)  - ×Óµ¯/ÈÓµÄÎïÆ·ÒªÇó
+											REQ_STATE            (0x100)  - ÌØÊâÒªÇó  
+											REQ_STATUS           (0x200)  - ×´Ì¬ÒªÇó
+											REQ_SPIRITSPHERECOST (0x400)  - ÆøÇòÌåÏûºÄ
+											REQ_ITEMCOST         (0x800)  - ÎïÆ·ÏûºÄ
+											REQ_EQUIPMEN        (0x1000)  - ×°±¸ÒªÇó
 										
 bonus3 bSkillAttribute,sk,ele,n;		¼¼ÄÜ sk ±äÎª ele ÊôĞÔ(Îª±ÜÃâ´ø¿íÏûºÄ¹ı´ó»òÌØĞ§¿¨¿Í»§¶Ë, Ã¿¸ö¼¼ÄÜ×î¶àÏÔÊ¾Ò»´ÎÎÂÅ¯·çÌØĞ§)
 										 sk Îª  0 Ê±ÎªÆÕÍ¨¹¥»÷(n ÎªÊÇ·ñÏÔÊ¾ÎÂÅ¯µÄ·çÌØĞ§)

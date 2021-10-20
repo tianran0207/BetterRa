@@ -1678,10 +1678,10 @@ tha_t08,90,153,0	script	光彩夺目的水晶#tt_r1	844,{
 
 OnInit:
 OnDisable:
-	disablenpc strnpcinfo(0);
+	disablenpc();
 	end;
 OnEnable:
-	enablenpc strnpcinfo(0);
+	enablenpc();
 	end;
 }
 tha_t08,90,62,0	duplicate(光彩夺目的水晶#tt_r1)	光彩夺目的水晶#tt_r2	844
@@ -1712,10 +1712,10 @@ tha_t08,49,153,0	script	光彩夺目的水晶#tt_y1	844,{
 
 OnInit:
 OnDisable:
-	disablenpc strnpcinfo(0);
+	disablenpc();
 	end;
 OnEnable:
-	enablenpc strnpcinfo(0);
+	enablenpc();
 	end;
 }
 tha_t08,90,150,0	duplicate(光彩夺目的水晶#tt_y1)	光彩夺目的水晶#tt_y2	844
@@ -1746,10 +1746,10 @@ tha_t08,49,65,0	script	光彩夺目的水晶#tt_b1	844,{
 
 OnInit:
 OnDisable:
-	disablenpc strnpcinfo(0);
+	disablenpc();
 	end;
 OnEnable:
-	enablenpc strnpcinfo(0);
+	enablenpc();
 	end;
 }
 tha_t08,49,150,0	duplicate(光彩夺目的水晶#tt_b1)	光彩夺目的水晶#tt_b2	844
@@ -1780,10 +1780,10 @@ tha_t08,90,65,0	script	光彩夺目的水晶#tt_g1	844,{
 
 OnInit:
 OnDisable:
-	disablenpc strnpcinfo(0);
+	disablenpc();
 	end;
 OnEnable:
-	enablenpc strnpcinfo(0);
+	enablenpc();
 	end;
 }
 tha_t08,49,62,0	duplicate(光彩夺目的水晶#tt_g1)	光彩夺目的水晶#tt_g2	844

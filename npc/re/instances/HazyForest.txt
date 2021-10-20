@@ -207,7 +207,7 @@ function	script	F_Mora_Mist	{
 		mes "你砍掉了树, 那些阻挡这迷宫路线的, "+((getarg(3,0))?"扫清走出森林的障碍.":"你现在可以继续了.");
 		mapannounce .@map$,getarg(1),bc_map,"0xccffcc"; //FW_NORMAL 12 0 0
 		enablenpc instance_npcname(getarg(0));
-		disablenpc instance_npcname(strnpcinfo(0));
+		disablenpc();
 		close;
 	} else
 		mapannounce .@map$,((getarg(3,0))?getarg(2):getarg(2)+"的哭声: 嗯? 是谁对我的树木做了这些?!"),bc_map,"0xccffcc"; //FW_NORMAL 12 0 0
@@ -447,7 +447,7 @@ OnMyMobDead:
 
 1@mist,73,290,0	script	神秘的花#1	844,{
 	specialeffect EF_LEVEL99_4;
-	disablenpc instance_npcname(strnpcinfo(0));
+	disablenpc();
 	getitem 12561,1; //Mysterious_Seed
 	end;
 }

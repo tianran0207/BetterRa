@@ -150,10 +150,10 @@ OnInit:
 		donpcevent "不明生物#"+.@npc$[.@i]+"::"+((.@i == .@rand)?"OnEnable":"OnDisable");
 	end;
 OnEnable:
-	enablenpc strnpcinfo(0);
+	enablenpc();
 	end;
 OnDisable:
-	disablenpc strnpcinfo(0);
+	disablenpc();
 	end;
 OnBingx2:
 	switch(atoi(strnpcinfo(2))) {
@@ -196,10 +196,10 @@ ma_scene01,195,92,4	duplicate(不明生物#i)	不明生物#09	572,2,2
 -	script	不明生物#j	-1,{
 	end;
 OnEnable:
-	enablenpc strnpcinfo(0);
+	enablenpc();
 	end;
 OnDisable:
-	disablenpc strnpcinfo(0);
+	disablenpc();
 	end;
 OnBingx2:
 	switch(atoi(strnpcinfo(2))) {

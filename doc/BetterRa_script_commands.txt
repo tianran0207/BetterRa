@@ -2858,7 +2858,7 @@ Example:
 	20	- 返回技能延迟计算 skill_castnodex_db 中的 Delay
 	21	- 返回技能施法期间防御降低倍率 skill_db 中的 cast_def_rate
 	22	- 返回技能使用限制 skill_nocast_db 中的 Flag
-	23	- 返回地面技能单位ID skill_unit_db 中的 Unit id  <其他参数> 传入 Flag
+	23	- 返回地面技能单位ID skill_unit_db 中的 Unit id
 	24	- 返回技能类型2 skill_db 中的 inf2
 	25	- 返回技能是否可被打断 skill_db 中的 castcancel
 	26	- 返回技能最大数量 skill_db 中的 maxcount <其他参数> 传入技能等级
@@ -2879,9 +2879,11 @@ Example:
 	41	- 返回技能所需的特殊状态 skill_require_db 中的 RequiredState
 	42	- 预留
 	43	- 返回技能所需的一般状态个数 skill_require_db 中的 RequiredStatuses 个数
-	44	- 返回技能所需气球个数 skill_require_db 中的 SpiritSphereCost
+	44	- 返回技能所需气球个数 skill_require_db 中的 SpiritSphereCost <其他参数> 传入技能等级
 	45	- 返回技能所需物品ID skill_require_db 中的 RequiredItemID <其他参数> 传入第几项消耗品
 	46	- 返回技能所需物品数量 skill_require_db 中的 RequiredItemAmount <其他参数> 传入第几项消耗品
+
+注意: 如果不传入技能等级, 则按照技能最大等级输出结果
 
 ---------------------------------------
 
@@ -3594,6 +3596,53 @@ refineui_result <背包位置序号>,<动画类型>,<精炼后等级>;
 
 ----------------------------------------
 
+*addstoragesize <增加值>{,<仓库ID>{,<账号ID>}};
+
+增加仓库容量, 当增加值为负数时, 则减少仓库容量, 当仓库ID不使用时则更改玩家默认仓库
+仓库默认容量在 conf/inter_server.yml 中 Max 定义, 最大容量不能超过网页定制中配置'最大仓库容量' (MAX_STORAGE)
+默认仓库如果未在 conf/inter_server.yml 中未配置默认容量, 默认容量则按照网页定制中的 '玩家默认仓库容量' (MIN_STORAGE)
+默认仓库容量最小值不能小于 '玩家默认仓库容量' (MIN_STORAGE) 
+	
+----------------------------------------
+
+*unitskilltowide <GID>,<技能ID>,<技能等级>,<扩散方向>,<步进长度>,<步进范围>,<步进延时>;
+*unitskilltowide <GID>,"<技能名称>",<技能等级>,<扩散方向>,<步进长度>,<步进范围>,<步进延时>;
+*unitskilltowide2 <GID>,<技能ID>,<技能等级>,<扩散方向>,<步进长度>,<步进范围>,<步进延时>;
+*unitskilltowide2 <GID>,"<技能名称>",<技能等级>,<扩散方向>,<步进长度>,<步进范围>,<步进延时>;
+
+使魔物释放大规模的魔法攻击, 这个指令只能释放地面技能, 下面有个例子可以直观感受一下
+
+扩散方式(掩码选项)
+	&1 东-西方向
+	&2 南-北方向
+	&4 西南-东北方向
+	&8 东南-西北方向
+	
+实现方式
+	unitskilltowide 是通过召唤魔物释放技能后瞬间删除实现的
+	unitskilltowide2 是通过无视技能释放距离咏唱等, 连续释放实现的
+	
+例:
+	unitskilltowide getcharid(3),21,5,15,2,15,1000;
+	sleep2 2000;
+	unitskilltowide getcharid(3),21,5,15,2,15,0;
+	
+---------------------------------------
+
+*unitskilltoAOE <GID>,<技能ID>,<技能等级>,<范围>{,<最大数量>};
+
+指令对周围的敌人使用相同的技能, 这个指令只能释放目标锁定技能
+	
+---------------------------------------
+
+*instance_srcmapname("<地图名称>");
+
+获取副本地图的源地图名
+
+例: instance_srcmapname(strcharinfo(3));
+
+----------------------------------------
+
 *rfifo_int <读取位置>,<字节数>;
 
 当 OnPCSocketRecvFilter 事件接收到封包时, 可以用本指令获取‘接收封包’中对应位置的数字数据.
@@ -3645,42 +3694,6 @@ refineui_result <背包位置序号>,<动画类型>,<精炼后等级>;
 	&1 - 打印接收封包
 	&2 - 打印发送封包
 	&4 - 取消将 wfifo_int wfifo_str 两个指令整理的封包发送给客户端
-
-*unitskilltowide <GID>,<技能ID>,<技能等级>,<扩散方向>,<步进长度>,<步进范围>,<步进延时>;
-*unitskilltowide <GID>,"<技能名称>",<技能等级>,<扩散方向>,<步进长度>,<步进范围>,<步进延时>;
-*unitskilltowide2 <GID>,<技能ID>,<技能等级>,<扩散方向>,<步进长度>,<步进范围>,<步进延时>;
-*unitskilltowide2 <GID>,"<技能名称>",<技能等级>,<扩散方向>,<步进长度>,<步进范围>,<步进延时>;
-
-使魔物释放大规模的魔法攻击, 这个指令只能释放地面技能, 下面有个例子可以直观感受一下
-
-扩散方式(掩码选项)
-	&1 东-西方向
-	&2 南-北方向
-	&4 西南-东北方向
-	&8 东南-西北方向
-	
-实现方式
-	unitskilltowide 是通过召唤魔物释放技能后瞬间删除实现的
-	unitskilltowide2 是通过无视技能释放距离咏唱等, 连续释放实现的
-	
-例:
-	unitskilltowide getcharid(3),21,5,15,2,15,1000;
-	sleep2 2000;
-	unitskilltowide getcharid(3),21,5,15,2,15,0;
-	
----------------------------------------
-
-*unitskilltoAOE <GID>,<技能ID>,<技能等级>,<范围>{,<最大数量>};
-
-指令对周围的敌人使用相同的技能, 这个指令只能释放目标锁定技能
-	
----------------------------------------
-
-*instance_srcmapname("<地图名称>");
-
-获取副本地图的源地图名
-
-例: instance_srcmapname(strcharinfo(3));
 
 ----------------------------------------
 --         以下功能为付费功能         --

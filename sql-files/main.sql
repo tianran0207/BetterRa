@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `bonus_script` (
   `flag` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   `type` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0',
   `icon` SMALLINT(3) NOT NULL DEFAULT '-1',
-  PRIMARY KEY (`char_id`, `type`)
+  KEY `char_id` (`char_id`)
 ) ENGINE=InnoDB;
 
 --
@@ -206,12 +206,12 @@ CREATE TABLE IF NOT EXISTS `char` (
   `base_exp` bigint(20) unsigned NOT NULL default '0',
   `job_exp` bigint(20) unsigned NOT NULL default '0',
   `zeny` int(11) unsigned NOT NULL default '0',
-  `str` smallint(4) unsigned NOT NULL default '0',
-  `agi` smallint(4) unsigned NOT NULL default '0',
-  `vit` smallint(4) unsigned NOT NULL default '0',
-  `int` smallint(4) unsigned NOT NULL default '0',
-  `dex` smallint(4) unsigned NOT NULL default '0',
-  `luk` smallint(4) unsigned NOT NULL default '0',
+  `str` int(11) unsigned NOT NULL default '0',
+  `agi` int(11) unsigned NOT NULL default '0',
+  `vit` int(11) unsigned NOT NULL default '0',
+  `int` int(11) unsigned NOT NULL default '0',
+  `dex` int(11) unsigned NOT NULL default '0',
+  `luk` int(11) unsigned NOT NULL default '0',
   `max_hp` int(11) unsigned NOT NULL default '0',
   `hp` int(11) unsigned NOT NULL default '0',
   `max_sp` int(11) unsigned NOT NULL default '0',
