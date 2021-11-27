@@ -26,8 +26,8 @@ bonus3 bSkillDamage,sk,lv,n;			为lv等级的sk技能增加n的固定伤害
 											等级为 0时 按照技能等级倍数增加固定伤害
 											等级为>0时 只对该技能等级增加伤害
 											
-bonus3 bDamageReturn,bf,r,n;			当玩家使用 bf 攻击时有 r% 的概率反射 n% 的伤害 (不反射地面魔法技能)
-bonus3 bDamageReturnWithGroup,bf,r,n;	当玩家使用 bf 攻击时有 r% 的概率反射 n% 的伤害 (反射地面魔法技能)
+bonus3 bDamageReturn,bf,r,n;			当玩家受到 bf 攻击时有 r/10% 的概率反射 n% 的伤害 (不反射地面魔法技能, 反射不触发攻击事件, 类似于bAutoSpell不会被触发)
+bonus3 bDamageReturnWithGroup,bf,r,n;	当玩家受到 bf 攻击时有 r/10% 的概率反射 n% 的伤害 (反射地面魔法技能  , 反射不触发攻击事件, 类似于bAutoSpell不会被触发)
 										
 	
 bonus2 bSkillTreeCooldownRate,jobid,n;	职业技能公共技能延迟按百分比调整
@@ -69,7 +69,9 @@ bonus2 bIgnoreDefClassVal,c,n;			无视 c 类别魔物 n 点魔法防御力
 bonus bIgnoreWhiteImprison,n;			无视白色监狱, n无意义
 
 bonus3 bFinalAddRace,r,x,bf;			使用 bf 攻击时, 增加 r 种族 x% 的伤害(在最终伤害上全段修正)
-bonus3 bFinalAddClass,c,n,bf;			使用 bf 攻击时, 增加 c 类别魔物 x% 的伤害(在最终伤害上全段修正)
+bonus3 bFinalAddClass,c,x,bf;			使用 bf 攻击时, 增加 c 类别魔物 x% 的伤害(在最终伤害上全段修正)
+bonus3 bFinalAddRaceDamage,r,n,bf;		使用 bf 攻击时, 增加 r 种族 n 点伤害(在最终伤害上全段修正)
+bonus3 bFinalAddClassDamage,c,n,bf;		使用 bf 攻击时, 增加 c 类别魔物 n 点伤害(在最终伤害上全段修正)
 
 bonus2 bAddSkillArea,sk,n;				增加 sk 技能 n 格范围, 可用于溅射或范围技能
 bonus2 bAddSkillRange,sk,n;				增加 sk 技能 n 格攻击距离
@@ -82,6 +84,7 @@ bonus2 bSkillNoSpecial,sk,bitmask;		移除技能 sk 的特殊条件, bitmask 为 掩码类型(
 										水球术/天使之泪 (bitmask=1 移除地面为水面限制)
 										背刺(bitmask=1 移除背对限制)
 										阿修罗霸皇拳(bitmask=4 移除SP消耗)
+										狂怒之枪(bitmask=1 移除使用物品限制, 2移除穿上卸下装备限制, 4移除使用技能限制, 8移除说话限制)
 										(其他技能, 可联系作者添加)
 										
 bonus2 bSkillNoRequire,sk,bitmask;		移除技能 sk 的需求条件, bitmask 为 掩码类型(可叠加),  

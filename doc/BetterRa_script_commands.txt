@@ -1388,8 +1388,9 @@ OnHTTPReceivedEvent 事件返回变量:
 *callshop "<商店名字>",<配置>,"<过滤文本>";
 
 配置为10时, 为打开向NPC出售的贩卖菜单, 菜单可以使用过滤文本.
-过滤为本: "type:物品类型{,物品类型}..;item:物品ID{,物品ID}..;"
-例: callshop "shoptest",10, "type:6;item:501,502;" 弹出贩卖菜单, 菜单只显示卡片\红色药水\赤色药水, 如果玩家身上有相应物品时才会被显示...
+过滤为本: "identify:是否鉴定;type:物品类型{,物品类型}..;item:物品ID{,物品ID}..;"
+例: callshop "shoptest",10,"type:6;item:501,502;" 弹出贩卖菜单, 菜单只显示卡片\红色药水\赤色药水, 如果玩家身上有相应物品时才会被显示...
+例: callshop "shoptest",10,"identify:0;item:1201;" 弹出贩卖菜单, 菜单只显示未鉴定短剑, 如果玩家身上有相应物品时才会被显示...
 
 ---------------------------------------
 
@@ -1540,6 +1541,14 @@ OnHTTPReceivedEvent 事件返回变量:
 	
 	bonus bLongAtkRate,n;
 	bonus bCritAtkRate,n;
+	
+	bonus3 bFinalAddRace,r,x,bf;
+	bonus3 bFinalAddClass,c,x,bf;
+	bonus3 bFinalAddRaceDamage,r,n,bf;
+	bonus3 bFinalAddClassDamage,c,n,bf;
+	
+	bonus2 bAddDamage,bf,n;
+	bonus2 bAddDamagerate,bf,n;
 	
 ---------------------------------------
 
@@ -3325,11 +3334,13 @@ Example:
 *inventory_mark <类型>{,<参数>};
 
 对一个物品增加标记, 此指令用于物品脚本、卡片脚本或随机属性脚本中, 指令只用于标记物品, 对逻辑判断无效。
+当指令用于卡片时, 插入该卡片的装备会有带有标记中的效果
 
 类型: 
 	EquipLoc           更改装备穿戴位置, <参数> 为穿戴位置
 	EquipBound         更改装备绑定类型, <参数> 为绑定类型 (BOUND_NONE BOUND_ACCOUNT BOUND_GUILD BOUND_PARTY BOUND_CHAR)
-	EquipIgnoreFunc    无效装备指定属性, <参数> 无效
+	EquipInvalid       无效装备指定属性, <参数> 无效
+	EquipIgnoreScript  移除装备脚本属性, <参数> 无效
 	EquipIgnoreClass   移除装备职业限制, <参数> 无效
 
 ----------------------------------------

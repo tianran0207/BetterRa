@@ -16487,6 +16487,18 @@ Body:
     MaxLevel: 1
     Flags:
       ShowScale: true
+  - Id: 712
+    Name: NPC_PULSESTRIKE2
+    Description: ÂöÕð³å×²
+    MaxLevel: 1
+  - Id: 713
+    Name: NPC_DANCINGBLADE
+    Description: Dancing Blade
+    MaxLevel: 1
+  - Id: 714
+    Name: NPC_DANCINGBLADE_ATK
+    Description: Dancing Blade Attack
+    MaxLevel: 1
   - Id: 716
     Name: NPC_MAXPAIN
     Description: ÌÛÍ´×î´óÖµ
@@ -16578,6 +16590,10 @@ Body:
         NoOverlap: true
         PathCheck: true
         Aura: true
+  - Id: 723
+    Name: NPC_STORMGUST2
+    Description: ±©·çÑ©
+    MaxLevel: 1
   - Id: 724
     Name: NPC_FIRESTORM
     Description: »ðÑæ±©·ç
