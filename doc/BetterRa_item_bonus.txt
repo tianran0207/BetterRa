@@ -28,7 +28,9 @@ bonus3 bSkillDamage,sk,lv,n;			为lv等级的sk技能增加n的固定伤害
 											
 bonus3 bDamageReturn,bf,r,n;			当玩家受到 bf 攻击时有 r/10% 的概率反射 n% 的伤害 (不反射地面魔法技能, 反射不触发攻击事件, 类似于bAutoSpell不会被触发)
 bonus3 bDamageReturnWithGroup,bf,r,n;	当玩家受到 bf 攻击时有 r/10% 的概率反射 n% 的伤害 (反射地面魔法技能  , 反射不触发攻击事件, 类似于bAutoSpell不会被触发)
-										
+
+bonus3 bDamageDrain,bf,r,n;				当玩家受到 bf 攻击时有 r/10% 的概率吸收 n 的伤害
+bonus3 bDamageDrainRate,bf,r,n;			当玩家受到 bf 攻击时有 r/10% 的概率吸收 n/1000% 的伤害
 	
 bonus2 bSkillTreeCooldownRate,jobid,n;	职业技能公共技能延迟按百分比调整
 bonus2 bSkillTreeCooldown,jobid,n;		职业技能公共技能延迟调整

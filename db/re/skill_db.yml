@@ -19554,7 +19554,6 @@ Body:
       Interval: 1000
       Target: Enemy
       Flag:
-        NoOverlap: true
         PathCheck: true
   - Id: 2214
     Name: WL_CHAINLIGHTNING
