@@ -60,7 +60,7 @@ bonus3 bMultiDamageRate,bf,r,n;			µ±Íæ¼ÒÊ¹ÓÃ bf ¹¥»÷Ê±, ÓĞ r/10% µÄ¸ÅÂÊÊ¹ÉËº¦Ôö¼
 bonus3 bSkillCritical,sk,r,n;			µ±Íæ¼ÒÊ¹ÓÃ sk ¹¥»÷Ê±, ÓĞ r/10% µÄ¸ÅÂÊÊ¹ÉËº¦Ôö¼Ó n% ±¶
 										sk Îª -1 Ê±ËùÓĞ¼¼ÄÜ±©»÷
 bonus bSkillCritAtkRate,n;				¼¼ÄÜ±©»÷ÉËº¦ + n%
-bonus3 bSkillAddDiv,sk,div,n;			¼¼ÄÜ sk ´ò»÷¶ÎÊıÔö¼Ó div, ÉËº¦ + n%
+bonus3 bSkillAddDiv,sk,div,n;			¼¼ÄÜ sk ´ò»÷¶ÎÊıÔö¼Ó div, ÉËº¦ + n%, µ± n Îª 0 Ê±ÉËº¦¸ù¾İ¶ÎÊıĞŞÕı
 bonus2 bSkillChangeType,sk,bf;          ĞŞ¸Ä¼¼ÄÜ sk ¹¥»÷ÀàĞÍÎª bf
 
 bonus2 bIgnoreMdefRaceVal,r,n;			ÎŞÊÓ r ÖÖ×å n µãÄ§·¨·ÀÓùÁ¦

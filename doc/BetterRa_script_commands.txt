@@ -1054,7 +1054,6 @@ unitsteppath <GID>,<路点编号>{,<寻路AI>,{<参数>,{<"事件名称">}}};
 
 *bot_login <char_id>;
 *bot_login "<玩家名>";
-*bot_login <account_id>,<char_id>,<性别>;
 
 	登陆一个数据库中已有的账号. 
 	登陆过程中, 脚本暂停等待登陆完成后, 脚本关联会转移至登陆的BOT账号
@@ -1562,6 +1561,12 @@ OnHTTPReceivedEvent 事件返回变量:
 	bonus_minfix bAddEle,Ele_Dark,.@val,10; // 暗属性修正不能小于10%, .@val 获取最终的值
 	
 支持的 Bonus 列表同getbonus.
+
+额外支持:
+	bonus bNearAtkDef,n;
+	bonus bLongAtkDef,n;
+	bonus bMagicAtkDef,n;
+	bonus bMiscAtkDef,n;
 
 ---------------------------------------
 
