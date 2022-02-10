@@ -32,6 +32,8 @@ bonus3 bDamageReturnWithGroup,bf,r,n;	当玩家受到 bf 攻击时有 r/10% 的概率反射 n%
 bonus3 bDamageDrain,bf,r,n;				当玩家受到 bf 攻击时有 r/10% 的概率吸收 n 的伤害
 bonus3 bDamageDrainRate,bf,r,n;			当玩家受到 bf 攻击时有 r/10% 的概率吸收 n/1000% 的伤害
 	
+bonus2 bDamageFix,r,n;					玩家伤害限制在最小为 r, 最大为 n, 如果 r 或 n 为 0 则忽略限制
+	
 bonus2 bSkillTreeCooldownRate,jobid,n;	职业技能公共技能延迟按百分比调整
 bonus2 bSkillTreeCooldown,jobid,n;		职业技能公共技能延迟调整
 bonus2 bSkillTreeDelayRate,jobid,n;		职业技能独立技能延迟按百分比调整

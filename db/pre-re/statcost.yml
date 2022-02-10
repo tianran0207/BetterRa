@@ -1,0 +1,73 @@
+# This file is a part of rAthena.
+#   Copyright(C) 2021 rAthena Development Team
+#   https://rathena.org - https://github.com/rathena
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+###########################################################################
+# Statcost Database
+###########################################################################
+#
+# Statcost Settings
+#
+###########################################################################
+#
+# 用于自定义角色每次升级基础素质点所需要的素质点数量
+# 按需求设置, 设置后按自定义消耗点数, 没设置按默认消耗点数
+#
+# - Upgrade           Upgrade required(玩家当前属性点数).
+#   Points            Points required
+#     Str             Str cost Points
+#     Agi             Agi cost Points
+#     Vit             Vit cost Points
+#     Int             Int cost Points
+#     Dex             Dex cost Points
+#     Luk             Luk cost Points
+#   TraitPoints       TraitPoints required
+#     Pow             Pow cost TraitPoints
+#     Sta             Sta cost TraitPoints
+#     Wis             Wis cost TraitPoints
+#     Spl             Spl cost TraitPoints
+#     Con             Con cost TraitPoints
+#     Crt             Crt cost TraitPoints
+###########################################################################
+#
+# 例子: 
+# Str 从1升到2需要消耗 1点素质点数, Agi 从1升到2需要消耗 2点素质点数, Vit 从1升到2需要消耗 3点素质点数
+# Int 从1升到2需要消耗 4点素质点数, Dex 从1升到2需要消耗 5点素质点数, Luk 从1升到2需要消耗 6点素质点数
+# Pow 从0升到1需要消耗 1点素质点数, Sta 从0升到1需要消耗 2点素质点数, Wis 从0升到1需要消耗 3点素质点数
+# Spl 从0升到1需要消耗 4点素质点数, Con 从0升到1需要消耗 5点素质点数, Crt 从0升到1需要消耗 6点素质点数
+#Body:
+#  - Upgrade: 0
+#    TraitPoints:
+#      Pow: 1
+#      Sta: 2
+#      Wis: 3
+#      Spl: 4
+#      Con: 5
+#      Crt: 6
+#  - Upgrade: 1
+#    Points:
+#      Str: 1
+#      Agi: 2
+#      Vit: 3
+#      Int: 4
+#      Dex: 5
+#      Luk: 6
+#
+###########################################################################
+
+Header:
+  Type: STATCOST_DB
+  Version: 1
