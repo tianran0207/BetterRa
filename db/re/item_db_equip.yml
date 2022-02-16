@@ -55431,6 +55431,11 @@ Body:
     Name: Child Admin Alpha Egg
     Type: Petegg
     Buy: 20
+  - Id: 9128
+    AegisName: Dark_Priest_Egg
+    Name: Dark Priest Egg
+    Type: Petegg
+    Buy: 20
   - Id: 10001
     AegisName: Skull_Helm
     Name: Å£½Ç¹Ç¿ø
