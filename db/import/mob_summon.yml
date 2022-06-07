@@ -23,10 +23,10 @@
 #
 ###########################################################################
 # - Group                   Monster random group name. "MOBG_" is appended to the name during the parsing.
-#   Default                 Monster AegisName summoned by default when the summon fails.
+#   Default                 Monster AegisName summoned by default when the summon fails (召唤失败因rA算法引起, 此选项在BetterRA无效).
 #   Summon:                 List of Summonable Monsters.
 #     - Mob                 Monster AegisName.
-#       Rate                Summon rate of Mob (from [0-1000000]).
+#       Rate                Summon rate of Mob (实际概率 = 概率 / 概率总和).
 ###########################################################################
 
 Header:

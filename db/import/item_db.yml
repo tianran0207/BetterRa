@@ -56,7 +56,7 @@
 #     NoConsume             If the item is consumed on use. (Default: false)
 #     DropEffect            If the item has a special effect on the ground when dropped by a monster. (Default: None)
 #     ForceUseItem          当玩家处于不能使用物品的状态时依然可以使用带有此标签的物品
-#     IgnoreNoFunc          物品无视 mapflag 中 noitemfunc 对应的项目
+#     IgnoreNoFunc          物品当在地图 mapflag 标签没有 noitemfunc 时被禁用, 有 noitemfunc 则生效
 #     NoConsume2            物品不会由于被玩家主动使用而消耗（无 NoConsume 在使用技能和坐骑下不能使用的限制的限制）
 #     NoSkillConsume        物品不会由于被发动技能所需要而消耗
 #     NoDropWithoutPlayer   魔物在没有玩家参与被杀死时不会掉落该物品

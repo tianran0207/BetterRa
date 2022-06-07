@@ -10,6 +10,12 @@
 //= 下面的说明, 它会重点介绍脚本指令的参数和用法.
 //============================================================
 
+脚本变量
+--------------
+
+- inventory_slots 可通过此变量读取/修改玩家的背包格子数量
+
+
 脚本指令别名表
 --------------
 
@@ -234,7 +240,7 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 	- INV_ATTRIBUTE    属性 - @inventorylist_attribute[]
 	- INV_EXPIRE       租赁时间 - @inventorylist_expire[]
 	- INV_BOUND        绑定 - @inventorylist_bound[]
-	- INV_CARD         卡片 - @inventorylist_card[]
+	- INV_CARD         卡片 - @inventorylist_card1[] @inventorylist_card2[] @inventorylist_card3[] @inventorylist_card4[]
 	- INV_OPTION       随机属性 - @inventorylist_option_id[] @inventorylist_option_value[] inventorylist_option_parameter[]
 	- INV_IDX          位置序列 - @inventorylist_idx[]
 	- INV_FAVORITE     是否收藏 - @inventorylist_favorite[]
@@ -255,19 +261,37 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 	
 ---------------------------------------
 
-*searchinventory <物品ID>{,<条件>{,<角色ID>}};
-*searchcart <物品ID>{,<条件>{,<角色ID>}};
-*searchstorage <物品ID>{,<条件>{,<仓库ID>{,<角色ID>}}};
-*searchguildstorage <物品ID>{,<条件>{,<角色ID>}};
+*searchinventory "<条件>"{,<角色ID>};
+*searchcart "<条件>"{,<角色ID>}};
+*searchstorage "<条件>"{,<仓库ID>{,<角色ID>}};
+*searchguildstorage "<条件>"{,<角色ID>};
 
 过滤并查找背包、手推车、仓库中的物品.
 
-条件: (多个条件相加或使用与运算)
-	- 1  未精炼过的道具
-	- 2  非租赁道具
-	- 4  非绑定道具
-	- 8  没有卡片和附魔的道具
-	- 16 没有随机属性标签的道具
+搜索条件:
+    -        item: 包含物品ID
+	-         idx: 通过序号搜索
+	-        type: 物品类型
+	-    identify: 是否已鉴定物品
+	-      refine: 通过精炼值搜索
+	-    has_card: 物品是否有对应卡片
+	-  has_option: 物品是否有对应词条
+	-     no_card: 物品不能存在对应卡片
+	-   no_option: 物品是不能存在对应词条
+	-       grade: 物品的评级值是多少
+	-  item_equip: 物品装备位置
+	-       equip: 物品装备在身上的位置
+	- expire_time: 物品的租赁市场
+	-       bound: 物品的绑定类型
+	-    favorite: 物品是否被收藏
+	-     subtype: 物品的子类型
+
+逻辑条件:
+	 > 大于
+	 < 小于
+	>= 大于等于
+	<= 小于等于
+	!= 不等于
 
 返回数组:
 	- @inventorylist_idx[] 背包位置序号
@@ -275,7 +299,15 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 	- @inventorylist_count 上面数组的成员数
 	
 例: 
-	searchinventory 501,1|2|4|8|16;
+	searchinventory "item:501,502,503";            // 在背包中搜索 红色药水、黄色药水、赤色药水
+	searchinventory "type:5;has_card:4001";        // 在背包中搜索 插有波利卡片的防具
+	searchinventory "type:4,5;no_card:>0";         // 在背包中搜索 没有插任何卡片的武器和防具
+	searchinventory "type:4,5;has_option:1,2,3";   // 在背包中搜索 带有ID为1,2,3词条的武器和防具
+	searchinventory "bound:!=4";                   // 在背包中搜索 不是角色绑定的物品
+	searchinventory "bound:0";                     // 在背包中搜索 搜索不绑定的物品
+	searchinventory "expire_time:>86400,<172800";  // 在背包中搜索 搜索租赁时间1天~2天之间的物品
+	
+注意: 条件文本中不应该存在空格等其他无效符号
 	
 返回值:
 	操作成功返回物品在背包中的总数量 (@inventorylist_amount[]的和)
@@ -450,7 +482,9 @@ $@sameip_amount 目前使用指定IP登录的玩家个数.
 
 *battleignore <开关标记>{,<角色编号>};
 
-将指定的角色设置为魔物无视状态(魔物会无视此玩家的存在, 因此不会攻击该玩家, 或许可以叫无敌状态), 避免被魔物攻击.
+将指定的角色设置为无视攻击状态, 避免被攻击.
+
+可通过 getpcblock 获取是否在这个状态中, 例子: if (getpcblock() & PCBLOCK_IMMUNE) { mes "当前为无视攻击状态"; }
 
 开关标记:
 	0 关闭无视(角色会被魔物看见), 1 打开无视(角色不会被魔物看见, 也不会被攻击)
@@ -788,11 +822,24 @@ OnTalk:
 
 在原来类型的基础上, BetterRa 新增了以下类型:
 
-ITEMINFO_CANREFINE   - 是否可精炼, 1表示可以精炼, 0表示不能精炼
-ITEMINFO_CANTRADE    - 交易限制掩码, 将返回该物品在 item_trade 数据库中第二列定义的值
-ITEMINFO_CALLPET     - 是否为宠物捕捉道具, 0表示否, 若是则返回能捕获的魔物编号
-ITEMINFO_CALLFUNC    - 是否在其使用脚本中调用了 callfunc 指令, 1表示是, 0表示否 (复兴前版本返回 -1)
-ITEMINFO_ARMORLEVEL  - 获取防具等级
+ITEMINFO_CANREFINE     - 是否可精炼, 1表示可以精炼, 0表示不能精炼
+ITEMINFO_CANTRADE      - 交易限制掩码, 将返回该物品在 item_trade 数据库中第二列定义的值
+ITEMINFO_CALLPET       - 是否为宠物捕捉道具, 0表示否, 若是则返回能捕获的魔物编号
+ITEMINFO_CALLFUNC      - 是否在其使用脚本中调用了 callfunc 指令, 1表示是, 0表示否 (复兴前版本返回 -1)
+ITEMINFO_ARMORLEVEL    - 获取防具等级
+ITEMINFO_SCRIPT        - 获取物品脚本
+ITEMINFO_EQUIPSCRIPT   - 获取物品穿戴脚本
+ITEMINFO_UNEQUIPSCRIPT - 获取物品脱下脚本
+
+---------------------------------------
+
+*setiteminfo(<物品编号>,<类型>,<值>)
+
+在原来类型的基础上, BetterRa 新增了以下类型:
+
+ITEMINFO_SCRIPT        - 获取物品脚本
+ITEMINFO_EQUIPSCRIPT   - 获取物品穿戴脚本
+ITEMINFO_UNEQUIPSCRIPT - 获取物品脱下脚本
 
 ---------------------------------------
 
@@ -1273,7 +1320,7 @@ AI模式:
 
 ---------------------------------------
 
-*bot_stop {<是否登出>{,<角色ID>}};
+*bot_remove {<是否登出>{,<角色ID>}};
 
 	释放一个机器人
 	
@@ -1283,6 +1330,12 @@ AI模式:
 	
 ---------------------------------------
 
+*is_offline {<角色ID>};
+
+	用于判断玩家是否是通过offline指令离线的玩家
+
+---------------------------------------
+
 *openchat "<标题>"{,<人数上限>{,"<密码>"{,<角色ID>}}};
 
 开启一个聊天窗口
@@ -1290,8 +1343,10 @@ AI模式:
 ---------------------------------------
 
 *openvending "<商店名称>"{,<物品ID>,<物品数量>,<物品售价>{,<物品ID>,<物品数量>,<物品售价>...{,<角色ID>}}};
+*openvendingbyidx "<商店名称>"{,<物品在手推车中的序号>,<物品数量>,<物品售价>{,<物品在手推车中的序号>,<物品数量>,<物品售价>...{,<角色ID>}}};
 
 开启一个贩卖商店, 手推车中必须有这些物品.
+物品在手推车中的序号可通过 getcartlist 获取.
 
 ---------------------------------------
 
@@ -1382,11 +1437,27 @@ OnHTTPReceivedEvent 事件返回变量:
 ---------------------------------------
 
 *callshop "<商店名字>",<配置>,"<过滤文本>";
+*callshop "<商店名字>",<配置>,<背包序号数组>;
 
 配置为10时, 为打开向NPC出售的贩卖菜单, 菜单可以使用过滤文本.
-过滤为本: "identify:是否鉴定;type:物品类型{,物品类型}..;item:物品ID{,物品ID}..;"
-例: callshop "shoptest",10,"type:6;item:501,502;" 弹出贩卖菜单, 菜单只显示卡片\红色药水\赤色药水, 如果玩家身上有相应物品时才会被显示...
-例: callshop "shoptest",10,"identify:0;item:1201;" 弹出贩卖菜单, 菜单只显示未鉴定短剑, 如果玩家身上有相应物品时才会被显示...
+
+过滤文本用法请查看 searchinventory 脚本指令.
+
+例子:
+	callshop "shoptest",10,"item:501,502,503";            // 弹出贩卖菜单, 红色药水、黄色药水、赤色药水
+	callshop "shoptest",10,"type:5;has_card:4001";        // 弹出贩卖菜单, 插有波利卡片的防具
+	callshop "shoptest",10,"type:4,5;no_card:>0";         // 弹出贩卖菜单, 没有插任何卡片的武器和防具
+	callshop "shoptest",10,"type:4,5;has_option:1,2,3";   // 弹出贩卖菜单, 带有ID为1,2,3词条的武器和防具
+	callshop "shoptest",10,"bound:!=4";                   // 弹出贩卖菜单, 不是角色绑定的物品
+	callshop "shoptest",10,"bound:0";                     // 弹出贩卖菜单, 搜索不绑定的物品
+	callshop "shoptest",10,"expire_time:>86400,<172800";  // 弹出贩卖菜单, 搜索租赁时间1天~2天之间的物品
+
+例子:
+	delarray @inventorylist_idx;
+	searchinventory "item:501,502,503";
+	callshop "shoptest",10,@inventorylist_idx;
+	等同于:
+	callshop "shoptest",10,"item:501,502,503";
 
 ---------------------------------------
 
@@ -1511,6 +1582,7 @@ OnHTTPReceivedEvent 事件返回变量:
 	bonus2 bAddRace,r,x;
 	bonus2 bMagicAddRace,r,x;
 	bonus2 bSubRace,r,x;
+	bonus3 bSubRace,r,x,bf;
 	
 	bonus2 bAddClass,c,x;
 	bonus2 bMagicAddClass,c,x;
@@ -1519,6 +1591,8 @@ OnHTTPReceivedEvent 事件返回变量:
 	bonus2 bAddSize,s,x;
 	bonus2 bMagicAddSize,s,x;
 	bonus2 bSubSize,s,x;
+	bonus2 bWeaponSubSize,s,x;
+	bonus2 bMagicSubSize,s,x;
 	
 	bonus2 bAddDamageClass,mid,x;
 	bonus2 bAddMagicDamageClass,mid,x;
@@ -1537,16 +1611,10 @@ OnHTTPReceivedEvent 事件返回变量:
 	bonus2 bCastrate,sk,n;
 	bonus bFixedCastrate,n;
 	bonus2 bFixedCastrate,sk,n;
-	bonus bDelayrate,n;
 	bonus2 bSkillCooldown,sk,t;
 	
-	bonus bAtkRate,n;
 	bonus bWeaponAtkRate,n;
-	bonus bMatkRate,n;
 	bonus bWeaponMatkRate,n;
-	
-	bonus bLongAtkRate,n;
-	bonus bCritAtkRate,n;
 	
 	bonus3 bFinalAddRace,r,x,bf;
 	bonus3 bFinalAddClass,c,x,bf;
@@ -1556,6 +1624,107 @@ OnHTTPReceivedEvent 事件返回变量:
 	bonus2 bAddDamage,bf,n;
 	bonus2 bAddDamagerate,bf,n;
 	
+	bonus bMaxHPrate,n;
+	bonus bMaxSPrate,n;
+	bonus bMaxAPrate,n;
+	bonus bUseSPrate,n;
+	bonus bSpeedRate,n;
+	bonus bSpeedAddRate,n;
+	bonus bAspdRate,n;
+	bonus bHPrecovRate,n;
+	bonus bSPrecovRate,n;
+	bonus bNearAtkDef,n;
+	bonus bLongAtkDef,n;
+	bonus bDoubleRate,n;
+	bonus bDoubleAddRate,n;
+	bonus bMatkRate,n;
+	bonus bAtkRate,n;
+	bonus bMagicAtkDef,n;
+	bonus bMiscAtkDef,n;
+	bonus bPerfectHitRate,n;
+	bonus bPerfectHitAddRate,n;
+	bonus bCriticalRate,n;
+	bonus bHitRate,n;
+	bonus bFleeRate,n;
+	bonus bFlee2Rate,n;
+	bonus bDefRate,n;
+	bonus bDef2Rate,n;
+	bonus bMdefRate,n;
+	bonus bMdef2Rate,n;
+	bonus bPAtkRate,n;
+	bonus bSMatkRate,n;
+	bonus bResRate,n;
+	bonus bMResRate,n;
+	bonus bHPlusRate,n;
+	bonus bCRateRate,n;
+	bonus bRestartFullRecover,n;
+	bonus bNoCastCancel,n;
+	bonus bNoCastCancel2,n;
+	bonus bNoSizeFix,n;
+	bonus bNoMagicDamage,n;
+	bonus bNoWeaponDamage,n;
+	bonus bNoMiscDamage,n;
+	bonus bNoGemStone,n;
+	bonus bIntravision,n;
+	bonus bNoKnockback,n;
+	bonus bNoMadoFuel,n;
+	bonus bNoWalkDelay,n;
+	bonus bSplashRange,n;
+	bonus bSplashAddRange,n;
+	bonus bShortWeaponDamageReturn,n;
+	bonus bLongWeaponDamageReturn,n;
+	bonus bMagicDamageReturn,n;
+	bonus bReduceDamageReturn,n;
+	bonus bPerfectHide,n;
+	bonus bUnbreakable,n;
+	bonus bUnbreakableGarment,n;
+	bonus bUnbreakableWeapon,n;
+	bonus bUnbreakableArmor,n;
+	bonus bUnbreakableHelm,n;
+	bonus bUnbreakableShield,n;
+	bonus bUnbreakableShoes,n;
+	bonus bClassChange,n;
+	bonus bShortAtkRate,n;
+	bonus bLongAtkRate,n;
+	bonus bBreakWeaponRate,n;
+	bonus bBreakArmorRate,n;
+	bonus bAddStealRate,n;
+	bonus bDelayrate,n;
+	bonus bCritAtkRate,n;
+	bonus bUnstripable,n;
+	bonus bUnstripableWeapon,n;
+	bonus bUnstripableArmor,n;
+	bonus bUnstripableHelm,n;
+	bonus bUnstripableShield,n;
+	bonus bSPGainValue,n;
+	bonus bHPGainValue,n;
+	bonus bLongSPGainValue,n;
+	bonus bLongHPGainValue,n;
+	bonus bMagicSPGainValue,n;
+	bonus bMagicHPGainValue,n;
+	bonus bHealPower,n;
+	bonus bHealPower2,n;
+	bonus bAddItemHealRate,n;
+	bonus bMatk,n;
+	bonus bFixedCastAddRate,n;
+	bonus bFixedCast,n;
+	bonus bVariableCast,n;
+	bonus bVariableCastrate,n;
+	bonus bCritDefRate,n;
+	bonus bAddItemSPHealRate,n;
+	bonus bIgnoreWhiteImprison,n;
+	bonus bCooldownrate,n;
+	bonus bMaxASPD,n;
+	bonus bWeaponAddDamage,n;
+	bonus bMagicAddDamage,n;
+	bonus bMiscAddDamage,n;
+	bonus bAddMastery,n;
+	bonus bAddCartMaxWeight,n;
+	bonus bAddWeight,n;
+	bonus bDefSize,n;
+	bonus bDefRace,n;
+	bonus bDefEleLevel,n;
+
 ---------------------------------------
 
 *bonus_minfix <类型>,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>{,<参数或变量>}}}},<最小值>;
@@ -1567,24 +1736,72 @@ OnHTTPReceivedEvent 事件返回变量:
 	bonus_maxfix bAddEle,Ele_Dark,.@val,BF_SHORT,80; // 近距离攻击时的暗属性修正不能大于80%, .@val 获取最终的值
 	bonus_minfix bAddEle,Ele_Dark,.@val,10; // 暗属性修正不能小于10%, .@val 获取最终的值
 	
-支持的 Bonus 列表同getbonus.
-
-额外支持:
-	bonus bNearAtkDef,n;
-	bonus bLongAtkDef,n;
-	bonus bMagicAtkDef,n;
-	bonus bMiscAtkDef,n;
+支持的 Bonus 列表同 getbonus.
 
 ---------------------------------------
 
 *bonus_ratefix <类型>,<最大值>{,<角色ID>};
 
-此指令可用在 OnPCStatCalcEvent 事件下面用来修正相应的bonus数值。
+此指令可用在 OnPCStatCalcEvent 事件下面用来修正相应的bonus数值
+与 bonus_maxfix 和 bonus_minfix 不同的是他不用提供其他参数, 将对提供类型下的所有数据进行修正。
 
 例：
-	bonus_ratefix bAddEle,50; // bAddEle属性修正不能大于50%
+	bonus_ratefix bAddEle,50; // bAddEle 属性修正不能大于50%
 	
-支持的 Bonus 列表同getbonus.
+等同于:
+	bonus_maxfix bAddEle,Ele_Dark,50;
+	bonus_maxfix bAddEle,Ele_Earth,50;
+	bonus_maxfix bAddEle,Ele_Fire,50;
+	bonus_maxfix bAddEle,Ele_Ghost,50;
+	bonus_maxfix bAddEle,Ele_Holy,50;
+	bonus_maxfix bAddEle,Ele_Neutral,50;
+	bonus_maxfix bAddEle,Ele_Poison,50;
+	bonus_maxfix bAddEle,Ele_Undead,50;
+	bonus_maxfix bAddEle,Ele_Water,50;
+	bonus_maxfix bAddEle,Ele_Wind,50;
+	bonus_maxfix bAddEle,Ele_All,50;
+	
+支持的 Bonus 列表:
+
+	bonus2 bAddEle,e,x;
+	bonus3 bAddEle,e,x,bf;
+	bonus2 bMagicAddEle,e,x;
+	bonus2 bSubEle,e,x;
+	bonus3 bSubEle,e,x,bf;
+	bonus2 bSubDefEle,e,x;
+	
+	bonus2 bAddRace,r,x;
+	bonus2 bMagicAddRace,r,x;
+	bonus2 bSubRace,r,x;
+	bonus3 bSubRace,r,x,bf;
+
+	bonus2 bAddClass,c,x;
+	bonus2 bMagicAddClass,c,x;
+	bonus2 bSubClass,c,x;
+	
+	bonus2 bAddSize,s,x;
+	bonus2 bMagicAddSize,s,x;
+	bonus2 bSubSize,s,x;
+	bonus2 bWeaponSubSize,s,x;
+	bonus2 bMagicSubSize,s,x;
+	
+	bonus2 bAddRace2,mr,x;
+	bonus2 bSubRace2,mr,x;
+	bonus2 bMagicAddRace2,mr,x;
+	
+	bonus2 bAddDamageClass,mid,x;
+	bonus2 bAddMagicDamageClass,mid,x;
+	
+	bonus2 bAddDefMonster,mid,x;
+	bonus2 bAddMDefMonster,mid,x;
+	
+	bonus2 bResEff,eff,n;
+	
+	bonus2 bSubSkill,sk,n;
+	bonus2 bCastrate,sk,n;
+	bonus2 bVariableCastrate,sk,n;
+	bonus2 bFixedCastrate,sk,n;
+	bonus2 bSkillCooldown,sk,t;
 	
 ---------------------------------------
 
@@ -2134,6 +2351,12 @@ prontera,150,150,4	shop	Buy_Title_Test	48,501:-1
 
 ---------------------------------------
 
+*getquesttime <任务ID>{,<角色ID>};
+
+获取任务到期时间
+
+---------------------------------------
+
 *runitemscript <物品ID>,{<类型>{,<角色ID>}};
 
 运行物品的脚本..
@@ -2347,8 +2570,26 @@ $@sameuid_amount 使用指定机器码登录的玩家个数.
 *getitem2("<物品名称>",<数量>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>{,<账号ID>})
 *getitem3(<物品ID>,<数量>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<RandomIDArray>,<RandomValueArray>,<RandomParamArray>{,<accountID>})
 *getitem3("<物品名称>",<数量>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<RandomIDArray>,<RandomValueArray>,<RandomParamArray>{,<accountID>})
+*getitem4 <物品ID>,<数量>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<随机属性ID数组>,<随机属性数值数组>,<随机属性参数数组>,<评价等级>{,<账号ID>};
+*getitem4 "<物品名称>",<数量>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<随机属性ID数组>,<随机属性数值数组>,<随机属性参数数组>,<评价等级>{,<账号ID>};
+*getitembound4 <物品ID>,<数量>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<绑定类型>,<随机属性ID数组>,<随机属性数值数组>,<随机属性参数数组>,<评价等级>{,<账号ID>};
+*getitembound4 "<物品名称>",<数量>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<绑定类型>,<随机属性ID数组>,<随机属性数值数组>,<随机属性参数数组>,<评价等级>{,<账号ID>};
 
 指令返回最后一个获取物品的背包序列, 此指令只在原指令上做了返回序列的优化, 便于写脚本
+
+---------------------------------------
+
+*delitem4 <物品ID>,<数量>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<随机属性ID数组>,<随机属性数值数组>,<随机属性参数数组>,<评价等级>{,<账号ID>};
+*delitem4 "<物品名称>",<数量>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<随机属性ID数组>,<随机属性数值数组>,<随机属性参数数组>,<评价等级>{,<账号ID>};
+
+删除一个带评级的物品
+
+---------------------------------------
+
+*countitem4 <物品ID>,<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<随机属性ID数组>,<随机属性数值数组>,<随机属性参数数组>,<评价等级>{,<账号ID>};
+*countitem4 "<物品名称>",<鉴定>,<精炼>,<属性>,<卡片1>,<卡片2>,<卡片3>,<卡片4>,<随机属性ID数组>,<随机属性数值数组>,<随机属性参数数组>,<评价等级>{,<账号ID>};
+
+获取带评级的物品数量
 
 ---------------------------------------
 
@@ -2857,52 +3098,200 @@ Example:
 获取技能信息
 
 类型:
-	1 	- 返回技能施放类型 0 为地面技能, 1 为伤害技能, 2 为无伤害技能
-	2	- 返回技能名称 skill_db 中的 name
-	3	- 返回技能说明 skill_db 中的 desc
-	4	- 返回技能树种的最大等级 <其他参数> 传入职业代码
-	5	- 返回技能攻击类型 返回 BF_WEAPON BF_MAGIC BF_MISC skill_db 中的 attack type
-	6	- 返回打击类型 skill_db 中的 hit
-	7	- 返回技能类型1 skill_db 中的 inf
-	8	- 返回技能属性 skill_db 中的 element <其他参数> 传入技能等级
-	9	- 返回技能伤害类型 skill_db 中的 nk
-	10	- 返回技能最大等级 skill_db 中的 max
-	11	- 返回技能攻击距离 skill_db 中的 range <其他参数> 传入技能等级
-	12	- 返回技能溅射范围 skill_db 中的 splash <其他参数> 传入技能等级
-	13	- 返回技能打击次数 skill_db 中的 list_num <其他参数> 传入技能等级
-	14	- 返回技能吟唱时间 skill_cast_db 中的 CastingTime <其他参数> 传入技能等级
-	15	- 返回技能公共延迟 skill_cast_db 中的 AfterCastActDelay <其他参数> 传入技能等级
-	16	- 返回技能攻击僵直 skill_cast_db 中的 AfterCastWalkDelay <其他参数> 传入技能等级
-	17	- 返回技能时刻参数 skill_cast_db 中的 Duration1 <其他参数> 传入技能等级
-	18	- 返回技能时刻参数 skill_cast_db 中的 Duration2 <其他参数> 传入技能等级
-	19	- 返回技能吟唱计算 skill_castnodex_db 中的 Cast
-	20	- 返回技能延迟计算 skill_castnodex_db 中的 Delay
-	21	- 返回技能施法期间防御降低倍率 skill_db 中的 cast_def_rate
-	22	- 返回技能使用限制 skill_nocast_db 中的 Flag
-	23	- 返回地面技能单位ID skill_unit_db 中的 Unit id
-	24	- 返回技能类型2 skill_db 中的 inf2
-	25	- 返回技能是否可被打断 skill_db 中的 castcancel
-	26	- 返回技能最大数量 skill_db 中的 maxcount <其他参数> 传入技能等级
-	27	- 返回技能击退距离 skill_db 中的 Blowcount <其他参数> 传入技能等级
-	28	- 返回地面技能标记 skill_unit_db 中的 Flag
-	29	- 返回技能冷却 skill_cast_db 中的 Cool Down <其他参数> 传入技能等级
-	30	- 返回地面技能目标 skill_unit_db 中的 Target
-	31	- 返回技能类型3 skill_db 中的 inf3
-	32	- 返回技能消耗的HP skill_require_db 中的 HPCost <其他参数> 传入技能等级
-	33	- 返回技能有多少HP才可能使用 skill_require_db 中的 MaxHPTrigger <其他参数> 传入技能等级
-	34	- 返回技能消耗的SP skill_require_db 中的 SPCost <其他参数> 传入技能等级
-	35	- 返回技能消耗的百分比HP skill_require_db 中的 HPRateCost <其他参数> 传入技能等级
-	36	- 返回技能消耗的百分比SP skill_require_db 中的 SPRateCost <其他参数> 传入技能等级
-	37	- 返回技能消耗的Zeny skill_require_db 中的 ZenyCost <其他参数> 传入技能等级
-	38	- 返回技能所需的武器类型 skill_require_db 中的 RequiredWeapons
-	39	- 返回技能所需的弹药类型 skill_require_db 中的 RequiredAmmoTypes
-	40	- 返回技能所需的弹药数量 skill_require_db 中的 RequiredAmmoAmount <其他参数> 传入技能等级
-	41	- 返回技能所需的特殊状态 skill_require_db 中的 RequiredState
-	42	- 预留
-	43	- 返回技能所需的一般状态个数 skill_require_db 中的 RequiredStatuses 个数
-	44	- 返回技能所需气球个数 skill_require_db 中的 SpiritSphereCost <其他参数> 传入技能等级
-	45	- 返回技能所需物品ID skill_require_db 中的 RequiredItemID <其他参数> 传入第几项消耗品
-	46	- 返回技能所需物品数量 skill_require_db 中的 RequiredItemAmount <其他参数> 传入第几项消耗品
+获取指定技能在技能数据库中所配置的各项信息
+
+查询的信息类型:
+	SKI_NAME
+		Aegis 名称, 对应 skill_db.yml 中的 Name 字段
+		
+	SKI_DESCRIPTION
+		技能描述, 对应 skill_db.yml 中的 Description 字段
+		
+	SKI_SKILLTREE_MAXLEVEL
+		指定职业的技能树中该技能的最大等级 <其他参数> 中传入要查询的职业代码
+		
+	SKI_TYPE
+		伤害类型, 对应 skill_db.yml 中的 Type 字段
+		变量前缀: BF_
+		
+	SKI_HIT
+		命中类型, 对应 skill_db.yml 中的 Hit 字段
+		变量前缀: DMG_
+		
+	SKI_TARGETTYPE
+		目标类型, 对应 skill_db.yml 中的 TargetType 字段
+		变量前缀: INF_(?)_SKILL
+		
+	SKI_ELEMENT
+		属性, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Element 字段
+		变量前缀: ELE_
+		
+	SKI_DAMAGEFLAGS
+		是否存在对应的伤害标记,  <其他参数> 传入需要检查的伤害标记, 对应 skill_db.yml 中的 DamageFlags 字段
+		变量前缀: NK_
+		
+	SKI_MAXLEVEL
+		最大等级, 对应 skill_db.yml 中的 MaxLevel 字段
+		
+	SKI_RANGE
+		释放距离, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Range 字段
+		
+	SKI_SPLASHAREA
+		溅射范围, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 SplashArea 字段
+		
+	SKI_HITCOUNT
+		打击段数, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 HitCount 字段
+		
+	SKI_CASTTIME
+		可变咏唱时间, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 CastTime 字段
+		
+	SKI_FIXEDCASTTIME
+		固定咏唱时间, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 FixedCastTime 字段
+
+	SKI_AFTERCASTACTDELAY
+		公共延迟, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 AfterCastActDelay 字段
+		
+	SKI_AFTERCASTWALKDELAY
+		僵直时间, <其他参数> 传入技能等级, 对应  skill_db.yml 中的 AfterCastWalkDelay 字段
+		
+	SKI_DURATION1
+		持续时间1, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Duration1 字段
+		
+	SKI_DURATION2
+		持续时间2, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Duration2 字段
+		
+	SKI_CASTTIMEFLAGS
+		咏唱时间标记, 对应 skill_db.yml 中的 CastTimeFlags 字段
+		常量前缀: SKILL_CAST_
+
+	SKI_CASTDELAYFLAGS
+		延迟时间标记, 对应 skill_db.yml 中的 CastDelayFlags 字段
+		常量前缀: SKILL_CAST_
+		
+	SKI_CASTDEFENSEREDUCTION
+		咏唱时防御降低倍率, 对应 skill_db.yml 中的 CastDefenseReduction 字段
+		
+	SKI_FLAGS
+		信息标记, <其他参数> 传入要检查的标记类型, 如果技能带有该标志则返回1 否则返回0
+		常量前缀: INF2_
+		
+	SKI_CASTCANCEL
+		是否会被打断, 对应 skill_db.yml 中的 CastCancel 字段
+		
+	SKI_ACTIVEINSTANCE
+		同时存在数量上限, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 ActiveInstance 字段
+		
+	SKI_KNOCKBACK
+		击退距离, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Knockback 字段
+		
+	SKI_COOLDOWN
+		冷却时间, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Cooldown 字段
+		
+	SKI_NONEARNPC_TYPE
+		不能在哪些 NPC 附近使用, 对应 skill_db.yml 中的 NoNearNPC 节点的 Type 字段
+		常量前缀: SKILL_NONEAR_
+		
+	SKI_NONEARNPC_ADDITIONALRANGE
+		不能靠近的 NPC 距离要求, 对应 skill_db.yml 中的 NoNearNPC 节点的 AdditionalRange 字段
+		
+	SKI_COPYFLAGS_SKILL
+		能否被复制, 对应 skill_db.yml 中的 CopyFlags 节点的 Skill 字段
+		常量前缀: SKILL_COPY_
+		
+	SKI_COPYFLAGS_REMOVEREQUIREMENT
+		复制后忽略释放条件, 对应 skill_db.yml 中的 CopyFlags 节点的 RemoveRequirement 字段
+		常量前缀: SKILL_REQ_
+		
+	SKI_UNIT_ID
+		地面单位ID, 对应 skill_db.yml 中的 Unit 节点的 Id 字段
+		
+	SKI_UNIT_ALTERNATEID
+		地面单位子ID, 对应 skill_db.yml 中的 Unit 节点的 AlternateId 字段
+		
+	SKI_UNIT_LAYOUT
+		地面单位布局, 对应 skill_db.yml 中的 Unit 节点的 Layout 字段
+		
+	SKI_UNIT_RANGE
+		地面单位作用距离, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Unit 节点的 Range 字段
+		
+	SKI_UNIT_INTERVAL
+		地面单位作用间隔, 对应 skill_db.yml 中的 Unit 节点的 Interval 字段
+		
+	SKI_UNIT_TARGET
+		地面单位作用目标, 对应 skill_db.yml 中的 Unit 节点的 Target 字段
+		常量前缀: BCT_
+		
+	SKI_UNIT_FLAG
+		地面单位作用标记, <其他参数> 传入要检查的标志类型, 如果技能带有该标志则返回1 否则返回0
+		常量前缀: UF_
+		
+	SKI_REQUIRES_HPCOST
+		HP 消耗, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Requires 节点的 HpCost 字段
+		
+	SKI_REQUIRES_SPCOST
+		SP 消耗, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Requires 节点的 SpCost 字段
+		
+	SKI_REQUIRES_MAXHPTRIGGER
+		HP 百分比需求, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Requires 节点的 MaxHpTrigger 字段
+		
+	SKI_REQUIRES_HPRATECOST
+		HP 百分比消耗, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Requires 节点的 HpRateCost 字段
+		
+	SKI_REQUIRES_SPRATECOST
+		SP 百分比消耗, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Requires 节点的 SpRateCost 字段
+		
+	SKI_REQUIRES_ZENYCOST
+		Zeny 消耗, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Requires 节点的 ZenyCost 字段
+		
+	SKI_REQUIRES_WEAPON
+		武器条件, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Requires 节点的 Weapon 字段
+		变量前缀: W_
+		
+	SKI_REQUIRES_AMMO
+		弹药条件, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Requires 节点的 Ammo 字段
+		变量前缀: AMMO_
+		
+	SKI_REQUIRES_AMMOAMOUNT
+		弹药消耗数量, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Requires 节点的 AmmoAmount 字段
+		
+	SKI_REQUIRES_STATE
+		施放环境条件, 对应 skill_db.yml 中的 Requires 节点的 State 字段
+		变量前缀: ST_
+		
+	SKI_REQUIRES_STATUS
+		状态条件中是否存在传入状态, <其他参数> 传入状态ID, 对应 skill_db.yml 中的 Requires 节点的 Status 字段
+		
+	SKI_REQUIRES_SPIRIT
+		气弹消耗数量, <其他参数> 传入技能等级, 对应 skill_db.yml 中的 Requires 节点的 SpiritSphereCost 字段
+		
+	SKI_REQUIRES_ITEMCOST
+		物品消耗, 对应 skill_db.yml 中的 Requires 节点的 ItemCost 字段
+		返回变量:
+			$@skill_requires_itemid[]	保存道具编号
+			$@skill_requires_amount[]	保存所需的道具数量
+		返回数值: 数组维数
+			
+	SKI_REQUIRES_EQUIPMENT
+		装备条件中是否存在传入装备, <其他参数> 传入装备物品ID, 对应 skill_db.yml 中的 Requires 节点的 Equipment 字段
+		
+技能编号:
+	传入需要查询的技能编号 (定义在 skill_db 中每个技能的 Id 字段)
+	例如: 剑士狂击技能的技能编号是 5
+
+技能名称:
+	传入需要查询的技能名称 (定义在 skill_db 中每个技能的 Name 字段)
+	例如: 剑士狂击技能的名称是 SM_BASH (字符串类型)
+
+技能等级:
+	在绝大多数情况下这个参数用来填写要查询的技能等级
+	部分查询类型中 <技能等级> 可能会被用作传递其他信息, 例如: SKI_MAXLEVEL_IN_SKILLTREE
+
+返回值:
+	根据 <查询的信息类型> 的不同, 返回值的含义会有差异
+	具体返回值细节已经在上文中每个不同的 <查询的信息类型> 说明中定义
+	
+	若传递的 <查询的信息类型>,<技能编号>,<"技能名称"> 无效, 则将报错并返回 -1
+
 
 注意: 如果不传入技能等级, 则按照技能最大等级输出结果
 
@@ -2998,9 +3387,72 @@ Example:
 	$@boss_gid[]		魔物的gid(可通过 getunitdata 获取其他信息)
 	$@boss_spawn[]		魔物重生倒数(毫秒, 0 表示已重生)
 	
+可通过 setunitdata 中 UMOB_RESPAWN_TICK 参数设置魔物重生时间.
+	
 指令返回获取到的个数, 即变量的成员数量
 
 ----------------------------------------
+
+*getmapspawns "<地图名称>"{,<类型>{,<角色编号>}};
+
+获取指定地图的魔物刷新点信息 当地图名称为 "this" 时表示获取关联(指定)玩家所在地图的地图信息
+
+信息通过变量返回。
+
+类型: 因每次获取清单都会有大量的变量被赋值, 经常调用会导致服务器卡顿问题, 
+      特添加返回类型, 可通过 | 运算 或者 加法运算 返回多组数据
+	  
+	- SPA_NONE       不获取信息, 只返回 $@spawn_count 刷新点数量
+	- SPA_ID         魔物编号 - $@spawn_mobid[]
+	- SPA_NAME       魔物名称 - $@spawn_name$[]
+	- SPA_NUM        刷新数量 - $@spawn_num[]
+	- SPA_ACTIVE     激活数量 - $@spawn_active[]
+	- SPA_SIZE       魔物体型 - $@spawn_size[]
+	- SPA_ISBOSS     是否通过 boss_monster 召唤 $@spawn_isboss[]
+	- SPA_DELAY1     固定刷新间隔 - $@spawn_delay1[]
+	- SPA_DELAY2     浮动刷新间隔 - $@spawn_delay2[]
+	- SPA_AI         AI模式 - $@spawn_ai[]
+	- SPA_LEVEL      魔物等级 - $@spawn_level[]
+	- SPA_EVENT      死亡事件 - $@spawn_eventname$[]
+	- SPA_MAPID      所在地图编号 - $@spawn_mapid[]
+	- SPA_MAPNAME    所在地图名称 - $@spawn_mapname$[]
+	- SPA_MAPX       刷新坐标 x - $@spawn_map_x[]
+	- SPA_MAPY       刷新坐标 y - $@spawn_map_y[]
+	- SPA_MAPXS      刷新范围坐标 xs - $@spawn_map_xs[]
+	- SPA_MAPYS      刷新范围坐标 ys - $@spawn_map_ys[]
+	- SPA_ALL        获取所有(默认)
+	
+参数 SPA_AI 中的 AI模式:
+若为 -1 表示默认 AI 模式, 通常可能的返回值有:
+	AI_NONE
+	AI_ATTACK
+	AI_SPHERE
+	AI_FLORA
+	AI_ZANZOU
+	AI_LEGION
+	AI_FAW
+	AI_GUILD
+	
+例: 获取魔物编号、数量固定刷新间隔
+	getmapspawns strcharinfo(3),SPA_ID|SPA_NUM|SPA_DELAY1;
+	
+	返回值及 $@spawn_count 返回魔物刷怪点数量.
+
+返回值:
+	成功则返回找到的刷新点数量, 失败则返回 -1
+
+--------------------------------------------------------------
+
+*getmobspawns <魔物编号>{,<类型>{,"<地图名称>"{,<角色编号>}}};
+
+获取指定指定魔物在不同地图的刷新点信息 当地图名称为 "this" 时表示获取关联(指定)玩家所在地图的地图信息
+
+信息通过变量返回。返回变量请查看脚本指令 getmapspawns 
+
+返回值:
+	成功则返回找到的刷新点数量, 失败则返回 -1
+
+--------------------------------------------------------------
 
 *checktrade({<角色ID>});
 
@@ -3594,7 +4046,7 @@ refineui_result <背包位置序号>,<动画类型>,<精炼后等级>;
 可通过接收群组可指定发送给玩家对应的队伍、工会、BG等.
 
 颜色代码:
-	为RGB颜色代码 默认为 FFFF00 黄色
+	为RGB颜色代码 默认为 FFFF00 黄色, 注意颜色代码为字符串 "FFFF00", "101010" 这种格式.
 	
 接收群组:
 	ALL_CLIENT     - 全服所有玩家(默认)
@@ -3620,10 +4072,22 @@ refineui_result <背包位置序号>,<动画类型>,<精炼后等级>;
 ----------------------------------------
 
 *getunitdata <GID>,<数组变量>;
-*setunitdata <GID>,<参数>,<新值>;
+*getunitdata <GID>,<类型>;
+*setunitdata <GID>,<类型>,<参数>;
 
-增加新的参数:
+获得/设置相应类型的参数. 官方类型请查看 script_commands.txt 中的相应指令.
+
+BetterRA 新增类型:
+	UMOB_ID           获取/设置魔物ID
 	UMOB_DAMAGE_TAKEN 获取/设置魔物受到伤害百分比
+	UMOB_BASEEXP      获取/设置魔物基础经验值
+	UMOB_JOBEXP       获取/设置魔物职业经验值
+	UMOB_MVPEXP       获取/设置魔物MVP经验值
+	UMOB_RESPAWN_TICK 获取/设置魔物重生时间(毫秒), 当设置该参数为 0 时立刻刷新
+	
+BetterRA 优化:
+	当想获得实体的其中一个参数时, 可以用第二个参数直接传入类型, 指令将直接返回参数对应的值
+	例子: .@maxhp = getunitdata(.GID,UMOB_MAXHP);
 	
 注意:
 	通过 getunitdata 获取数值时, 请使用常量获取最终数值
@@ -3676,6 +4140,35 @@ refineui_result <背包位置序号>,<动画类型>,<精炼后等级>;
 获取副本地图的源地图名
 
 例: instance_srcmapname(strcharinfo(3));
+
+----------------------------------------
+
+*getmapxy("<地图变量>",<X坐标变量>,<Y坐标变量>{,<类型>,<GID>});
+
+添加类型支持 BL_ALL 可通过GID获取对象坐标, BL_ALL 支持所有物品类型返回坐标
+
+----------------------------------------
+
+*getunitdata <GID>,<参数>;
+
+可以直接通过参数返回相应数值, 不需要取回整个数组了, 提高执行效率
+
+例子:
+	.@GID = monster("this",0,0,"波利",1002,1);
+	.@mob_id = getunitdata(.@GID,UMOB_ID);
+	dispbottom "GID:"+.@GID+" mob_id:"+.@mob_id;
+	
+---------------------------------------
+
+*hideview <类型>{,<角色ID>};
+
+隐藏其他玩家的显示图档
+
+类型:
+	1 - 头下
+	2 - 头上
+	4 - 头中
+	8 - 披肩
 
 ----------------------------------------
 

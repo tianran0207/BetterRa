@@ -31,7 +31,7 @@
 #           MinValue    Minimum value. (Default: 0)
 #           MaxValue    Maximum value. (Default: 0)
 #           Param       Parameter value. (Default: 0)
-#           Chance      Chance applied specifically to this Item Random Option (1 = 0.01%, 10000 = 100%). (Default: 0)
+#           Chance      Chance applied specifically to this Item Random Option (概率/概率总和, 既然是必中, rA使用万分率让人迷惑). (Default: 0)
 #   MaxRandom           Maximum amount of random options applied. These options are not guaranteed to be applied. Max of (MAX_ITEM_RDM_OPT - Total 'Slots'). (Default: 0)
 #   Random:             List of possible Item Random Options for remaining slots. (Optional)
 #     - Option          Item Random Option constant.
@@ -39,6 +39,7 @@
 #       MaxValue        Maximum value. (Default: 0)
 #       Param           Parameter value. (Default: 0)
 #       Chance          Chance applied specifically to this Item Random Option (1 = 0.01%, 10000 = 100%). (Default: 0)
+#                       此处随机是伪随机, 因修改改动过大, 暂时不做修改, 如果想提高命中率可以将 Random 下的 chance 全都调大, 并不是单个物品概率
 ###########################################################################
 
 Header:

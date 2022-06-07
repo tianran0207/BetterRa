@@ -287,19 +287,19 @@ Body:
       4064 机匠           4065 十字斩首者     4073 皇家卫士         4074 元素使
       4075 宫廷乐师       4076 浪姬舞者       4077 修罗             4078 基因学者
       4079 魅影追踪者
-      ----- 4th Class -----
-      4252 Dragon Knight    4253 Meister                    4254 Shadow Cross     4255 Arch Mage
-      4256 Cardinal               4257 Windhawk              4258 Imperial Guard     4259 Biolo
-      4260 Abyss Chaser     4261 Elemental Master 4262 Inquisitor               4263 Troubadour
-      4264 Trouvere
+      ----- 四转职业 -----
+      4252 龙骑士         4253 巨匠         4254 十字暗影     4255 首席法师
+      4256 枢机主教       4257 风鹰         4258 帝国守卫     4259 生物学家
+      4260 深渊追踪者     4261 元素大师     4262 审判官       4263 游唱诗人
+      4264 游唱乐姬
       ----- 拓展职业 -----
         23 超级初学者       24 枪手             25 忍者             4045 超初宝宝
       4046 跆拳少年       4047 拳圣           4049 灵媒             4050 Gangsi
       4051 死亡骑士       4052 黑暗收集者     4190 进阶超级初学者   4191 进阶超初宝宝
       4211 日影忍者       4212 月影忍者       4215 反叛者           4218 召唤师
       4239 星帝           4240 灵魂收割者
-      4302 Sky Emperor    4303 Soul Ascetic         4304 Shinkiro                 4305 Shiranui
-      4306 Night Watch     4307 Hyper Novice        4308 Spirit Handler
+      4302 天帝           4303 灵导士         4304 蜃气楼           4305 不知火
+      4306 夜卫队         4307 顶级初学者     4308 魂灵师
       ----- 宝宝 初学者 / 宝宝 一转职业 -----
       4023 初学者宝宝     4024 剑士宝宝       4025 魔法师宝宝       4026 弓箭手宝宝
       4027 服事宝宝       4028 商人宝宝       4029 盗贼宝宝
@@ -317,24 +317,20 @@ Body:
       4220 召唤师宝宝     4222 忍者宝宝       4223 日影忍者宝宝     4224 月影忍者宝宝
       4225 跆拳少年宝宝   4226 拳圣宝宝       4227 灵媒宝宝         4228 枪手宝宝
       4229 反叛者宝宝     4241 星帝宝宝       4242 灵魂收割者宝宝
-      ----- 模型以及其他 -----
-        22 结婚礼服         26 圣诞节服装       27 夏日服装           28 韩国服装
-       29 Oktoberfest       30 夏日服装2 
-      4048 Star Gladiator (Union)             4238 Baby Star Glad (Union)
   - Command: option
     Help: |
       指令参数: <参数1> <参数2>(可堆叠) <参数3>(可堆叠)
       为你的角色添加指定的视觉效果(负面效果往往也伴随着禁止移动).
        <参数1>       <参数2>        <参数3>
-      01: 石化       01: 中毒       01: 火狩          512: Cart Lv. 4
-      02: 冰冻       02: 诅咒       02: 隐匿         1024: Cart Lv. 5
+      01: 石化       01: 中毒       01: 火狩          512: 手推车 Lv 4
+      02: 冰冻       02: 诅咒       02: 隐匿         1024: 手推车 Lv 5
       03: 晕眩       04: 沉默       04: 伪装         2048: 兽人脸
-      04: 睡眠       08: Signum     08: Cart Lv. 1   4096: Wedding
+      04: 睡眠       08: Signum     08: 手推车 Lv 1  4096: Wedding
       06: Petrify    16: 盲目       16: 猎鹰         8192: 光猎
       07: 烧伤       32: Angelus    32: 乘坐大嘴鸟  16384: Chasewalk
       08: 禁足       64: Bleeding   64: 不可见
-      16: 无效果    128: 致命荼毒  128: Cart Lv. 2
-      32: 被挑衅    256: 害怕      256: Cart Lv. 3
+      16: 无效果    128: 致命荼毒  128: 手推车 Lv 2
+      32: 被挑衅    256: 害怕      256: 手推车 Lv 3
       可堆叠的意思是, 使用 @option 指令时, 把参数的2个值相加可以同时得到两种效果.
       例如: “参数3” 中的 1 表示火狩, 2 表示隐匿. 那么当你用 @option 0 0 3 的时候,
             你将同时获得这两种效果, 因为 1(火狩) + 2(隐匿) 等于 3.
@@ -346,7 +342,7 @@ Body:
   - Command: healap
     Help: |
       Params: [<AP>]
-      Heals the desired amount of AP. No value specified will do a full AP heal.
+      恢复定量的AP. 如果没有指定参数, 则恢复全量的AP.
   - Command: dye
     Aliases:
       - ccolor
@@ -540,28 +536,28 @@ Body:
       增加/减少角色指定数量的 LUK(幸运).
   - Command: pow
     Help: |
-      Params: <amount>
-      Raises POW by given amount.
+      指令参数: <+/- 数量>
+      增加/减少角色指定数量的 POW(特攻).
   - Command: sta
     Help: |
-      Params: <amount>
-      Raises STA by given amount.
+      指令参数: <+/- 数量>
+      增加/减少角色指定数量的 STA(耐力).
   - Command: wis
     Help: |
-      Params: <amount>
-      Raises WIS by given amount.
+      指令参数: <+/- 数量>
+      增加/减少角色指定数量的 WIS(魔抗).
   - Command: spl
     Help: |
-      Params: <amount>
-      Raises SPL by given amount.
+      指令参数: <+/- 数量>
+      增加/减少角色指定数量的 SPL(魔攻).
   - Command: con
     Help: |
-      Params: <amount>
-      Raises CON by given amount.
+      指令参数: <+/- 数量>
+      增加/减少角色指定数量的 CON(集中).
   - Command: crt
     Help: |
-      Params: <amount>
-      Raises CRT by given amount.
+      指令参数: <+/- 数量>
+      增加/减少角色指定数量的 CRT(再生).
   - Command: allstats
     Aliases:
       - allstat
@@ -576,8 +572,8 @@ Body:
       - traitall
       - traitsall
     Help: |
-      Params: <value>
-      Adds value in all traits (maximum if no value).
+      指令参数: <要提升的值>
+      将角色的特质能力增加你指定的数值 (若不携带参数, 则提升到最大值).
   - Command: addwarp
     Help: |
       指令参数: <目的地地图名称> <目的地X坐标> <目的地Y坐标> <传送点的NPC名称>
@@ -940,13 +936,13 @@ Body:
       重新加载战斗配置文件.
   - Command: reloadinstancedb
     Help: |
-      Reload instance database.
+      重新加载副本数据文件.
   - Command: reloaditemdb
     Help: |
-      重新加载物品数据库.
+      重新加载物品数据文件.
   - Command: reloadmobdb
     Help: |
-      重新加载魔物数据库.
+      重新加载魔物数据文件.
   - Command: reloadmotd
     Help: |
       重新加载聊天栏公告信息.
@@ -958,22 +954,22 @@ Body:
       重新加载玩家配置文件.
   - Command: reloadquestdb
     Help: |
-      重新加载任务数据库.
+      重新加载任务数据文件.
   - Command: reloadscript
     Help: |
       重新加载全服NPC脚本.
   - Command: reloadskilldb
     Help: |
-      重新加载技能数据库.
+      重新加载技能数据文件.
   - Command: reloadstatusdb
     Help: |
       重新加载状态配置文件.
   - Command: reloadpathdb
     Help: |
-      重新加载路点数据库.
+      重新加载路点数据文件.
   - Command: reloadeffectdb
     Help: |
-      重新加载特效数据库.
+      重新加载特效数据文件.
   - Command: reload
     Help: |
       指令参数: <要重载的数据类型>
@@ -994,7 +990,7 @@ Body:
     Aliases:
       - nocosplay
     Help: |
-      Removes all character costumes.
+      移除所有角色服装.
   - Command: camerainfo
     Aliases:
       - viewpointvalue
